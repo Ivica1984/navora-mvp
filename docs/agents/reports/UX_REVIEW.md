@@ -6,6 +6,944 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-07 07:50 CET · `uxa`: QUAL1 part 2 (#945 with #943) merged: UXR-132 closed in code for the command mappings; one "lapsed" text is shown on Losfahren, Einsatz starten and Fortsetzen and states a wrong visit state mid-visit (UXR-134, high, issue); subject on her own take and cover (UXR-135); PLAN2 series leaves a visit open without a reason (UXR-136)
+
+**What changed since 03:50.** `recovery/main` moved from `c7293f8` to `f1bfe55`. Code merged by the PO: **#939** QUAL1 part 1 (`4878ace`; database and `src/features/qualification/labels.ts`, no screen), **#945** QUAL1 part 2 slices 1 and 2, containing #943 (`f1bfe55`; migrations 0121, 0122; `src/lib/commands/result.ts`; five command files). Docs merged: #936 (my 23:50 and 03:50 sections), #946, #947, #948, #949. `git diff --stat c7293f8 f1bfe55 -- src tests`: 9 files, no file under `src/app` or `src/components`. Open PRs touching `src`: none new (#815 unchanged at `81d131b`). `cra` #937 (open, head `a65f409`) answers the PO on the UXR-132 texts and adds CGR-153, CGR-154; read, not merged.
+
+**Sources.** `ui-screenshots` artifacts exist for `f1bfe55` (13564467340, 13564213077); the archive redirect again goes to a blob host the proxy refuses to this role, so **no screenshots were available**. No changed screen file anyway. Reviewed from the code: `src/lib/commands/result.ts:29-80`, `src/features/{absence,ai,cover,team}/commands.ts` (the #945 hunks), `src/features/visits/commands.ts:52-62`, `src/features/field/rules.ts:282-288`, `src/app/(protected)/field/field-client.tsx:133-138, 611-613`, `absence-section.tsx:252`, `cover-section.tsx:24`, migrations `20261021000121_qual1_2_every_path_and_start.sql:126-222` and `…0122…:1-35`, `tests/unit/qual1-command-refusals.test.ts`. CI on `f1bfe55`: `app`, `db`, `ui-screenshots`, `sync` success, one `e2e` run success and one still running at 07:50 (read from the check runs; I ran no test).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-134 | `/field` visit card, buttons «Losfahren», «Einsatz starten», «Fortsetzen» (the nurse, on the way or at the client's home, phone; simulation organisations) | high | The start re-check (`qual_guard_start`) fires on every transition into `on_the_way` or `started`, i.e. depart, first start **and resume after a pause**. All three show the one text `QUALIFICATION_LAPSED_MESSAGE`: "Nicht begonnen: Bei der Prüfung zum Start … Der Einsatz bleibt geplant; …". After «Fortsetzen» the visit has begun and stays **pausiert**, not "geplant", and "Nicht begonnen" is false; after «Losfahren» it says "Prüfung zum Start" for a different button. A wrong state at the client's home makes the nurse doubt what was recorded (was the visit undone?) at the moment she must decide what to do with a client whose care is under way. Whether a lapse found mid-visit should refuse the resume at all is a clinical question (CR-194), not mine | `f1bfe55`: `result.ts:41-42` (one text), `:50-55` (no transition passed); migration 0121 `:201` (`new.status not in ('on_the_way','started')` covers resume), `:221-222`; `visits/commands.ts:52-62` (depart and resume go through `toCommandResult`); `field/rules.ts:282-288` (labels); `field-client.tsx:611-613` (shown on the card) | §4 a refusal says what to change; §4 a known refusal is never a technical fault, with its true next step; §1 (what is the state now) | The refusal text is chosen by the transition (depart, start, resume) and states the visit's state after the refusal truthfully. PROPOSED wording, **`cra` to confirm** (and to decide CR-194 for resume): depart "Nicht gespeichert: Für mindestens eine Tätigkeit dieses Einsatzes ist für dich nicht mehr alles erfasst, was die vorläufige Regel verlangt (Nachweis oder Delegation). Der Einsatz bleibt geplant." · start: today's text unchanged (the `cra` interim) · resume "Nicht fortgesetzt: … Der Einsatz bleibt pausiert." The next step after a refused resume is **UNKNOWN** (`cra`/`clinical`, D-43) and is not invented; once CGR-154 releases the visit, every variant says so. Vitest: for each of `departVisit`, `startVisit`, `resumeVisit` the input `{code:"42501", message:"qualification_lapsed"}` returns its own text; the resume text contains neither "Nicht begonnen" nor "geplant" | #950 |
+| UXR-135 | `/field` «Übernehmen» (open visit, `absence-section.tsx:252`) and network cover «Einsatz übernehmen» (`cover-section.tsx:24`) (team member, phone) | medium | On her own take and cover the refusal says "… für die gewählte Person nicht alles erfasst …": she chose herself, nobody "gewählt" anyone, and the next step "Bitte eine andere Person wählen" asks her to do something she cannot do on that card. QUAL1-21 (1) asks that only the subject changes ("<Name>" / "dir"). At about 215 characters it also wraps to five lines at 390 px | `f1bfe55`: `result.ts:35-36`; `absence/commands.ts` and `cover/commands.ts` (#945 hunks) return the same constant as `team/commands.ts` | §4 one rule, one reason, only the subject changes; §5 density | A subject parameter: on her own take and cover "Nicht übernommen: Für mindestens eine Tätigkeit dieses Einsatzes ist für dich nicht alles erfasst, was die vorläufige Regel verlangt. Der Einsatz bleibt offen im Team." Same rule words as the text `cra` confirmed (#937); only subject and next step change, **`cra` to confirm**. Vitest: `takeOpenVisit` and `acceptCover` with `qualification_not_allowed` return a text containing "für dich" and not "gewählte Person" | — |
+| UXR-136 | `/team` and `/team/tagesplan` (coordinating member, phone and desktop): visits of the PLAN2 series in a simulation organisation | medium | 0122 leaves a generated visit without a member when the check confirms neither the primary nurse nor the deputy; it then shows as uncovered "noch niemand" like any other, and the generation summary "gains no new reason" (PLANNED in the migration). The team cannot tell "nobody planned yet" from "the two named nurses are not confirmed by the check", so the next step (find someone who has the evidence, or record a delegation) is not visible | `f1bfe55`: migration 0122 header `:24-30` | §1 what needs attention and why; §4 one rule, one reason on every path (QUAL1-21 (1) lists the PLAN2 series) | The open visit carries the shared QUAL1 reason line from the one label function (no matrix code, no verdict on a person, QUAL1-21 (3), (4)): "Offen: Für die vorgesehenen Pflegefachpersonen ist nicht alles erfasst, was die vorläufige Regel verlangt." PROPOSED, **`cra` to confirm**; no person's evidence reason shown to colleagues (CGR-152). Vitest on the summary/label mapping | — |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-132 | **Closed in code for the mappings** (#945 merged): `qualificationRefusal` is asked before the generic branch in `toCommandResult` (start, depart, pause, resume, complete), `planResult` (hand assignment, move), take, cover accept, AIG1 `confirmSuggestion` and `confirmSuggestions` (before the 42501 "einzeln" text); vitest `qual1-command-refusals.test.ts`; `cra` confirmed the not-allowed text (#937, open). Not met: the #944 e2e criterion (a refused start on the card at 390 × 844) and the "lapsed" remainder (UXR-134, CGR-154). #944 stays open for the PO. | `f1bfe55`: `result.ts:50-55, 73-75` |
+| UXR-133 | OPEN (medium), **now on `recovery/main`** (#939): `labels.ts` unchanged ("Regeln PROPOSED", "geeignet"/"nicht geeignet", "Regel ungeklärt (B4, PROPOSED ?)"); not on any screen (no import outside the module). The PO accepted it for part 1 only; QUAL1-21 replaces it before a QUAL1 screen exists. | `f1bfe55`: `qualification/labels.ts` |
+| UXR-129 | OPEN (high, #935): the RN-rule texts are still four; the QUAL1 texts live in `src/lib/commands/result.ts`, not in one function under `src/features/qualification/` (QUAL1-21 (1)). | — |
+| UXR-130, -131 | OPEN (medium), unchanged. | — |
+| UXR-104 to -112, -115 to -128 (open ones) | OPEN, unchanged. | `f1bfe55` |
+| UXR-80 to -83, -87 to -90 | OPEN (low/medium), unchanged. | `f1bfe55` |
+| UXR-84 to -86 | OPEN on #815, unchanged. | `81d131b` |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+
+**Correction to my 03:50 section.** It said `FOUNDER_DECISIONS.md` "(v8)"; the file reads **version 7, 2026-11-06 22:30** (unchanged since). No effect on any finding.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v7 and the Blueprint (PO v2.18) read through the PO journal 06:45; no contradiction with my task prompt. Task adjusted within the goal (README rule 11): I followed the merged refusal texts onto every button that can raise them (depart, resume), because one text on three transitions is only visible from the trigger, not from the command diff. No benchmark this run (done today at 03:50).
+
+### For the PO
+
+(1) UXR-134 is best fixed together with CGR-154 (the release on a refused start), in the next QUAL1 part 2 slice: both change the same text, and `cra` already confirmed the lapsed text only as an interim. Whether a resume is refused at all is `cra`'s (CR-194). (2) UXR-135 and UXR-136 are small text changes that QUAL1-21 (1) already covers; I propose only.
+
+---
+
+## 2026-11-07 03:50 CET · `uxa`: #934 (PLAN3, FE-041) merged with the screen code I read: UXR-98 (1), (2), -99 to -103, -113, -114 closed in code; QUAL1 slice 1 (#943) refuses on every assignment path and at visit start, but the screens show a generic "konnte nicht …" or a wrong cause (UXR-132, high, issue); #939/#943 build UXR-130/-131's strings into `qualification/labels.ts` (UXR-133, medium); benchmark: skill violation and next step in a dispatch console
+
+**What changed since 23:50.** `recovery/main` moved from `120a881` to `c7293f8`. Code merged by the PO: **#934** PLAN3 consolidation (`48cdb0c`, FE-041). `git diff 66885bf c7293f8 -- src tests` is empty: the merged screen code is the head I compared at 23:50 with the 15 reviewed PR heads. Docs only after that: #938, #941 (`aia` 36, AUT-61 #940 to AUT-66), #942 (Blueprint v2.13 to v2.15, QUAL1-20). Open PRs that change `src`: **#939** QUAL1 part 1 (`50e372a`) and **#943** QUAL1 part 2 slice 1 (`b457329`, stacked on #939); both add `src/features/qualification/labels.ts` (identical on both heads) and `database.types.ts`; no screen file and no e2e file changes, so no screen imports the new labels yet. #943 adds a `care_visits` backstop and a check at visit start that raise `qualification_not_allowed` / `qualification_lapsed` (errcode 42501) on paths whose screens exist today. No new UX brief; #935 unchanged (no comment). My #936 was brought up to `recovery/main` (JOURNAL only, every entry kept).
+
+**Sources.** No `ui-screenshots` archive was readable (the archive redirect goes to a blob host the proxy refuses to this role), so **no screenshots were available**. Reviewed from the code: `src/lib/commands/result.ts:41-56`, `features/visits/commands.ts:16-44`, `features/team/commands.ts:133-148`, `features/cover/commands.ts:16-20`, `features/cover/rules.ts:5`, `features/ai/commands.ts:83`, `features/planning/day-plan-commands.ts:60` on `c7293f8`; on #943 `b457329`: `supabase/migrations/20261021000121_qual1_2_every_path_and_start.sql` header (lines 1-40) and the `raise` sites (`:140`, `:148`, `:175`, `:181`, `:212`), `src/features/qualification/labels.ts`, `tests/unit/qual1-labels.test.ts:44-59`. CI: not read for #939/#943 in this run; I claim no result. I ran no test. Live project not touched. All wording below is PROPOSED.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-132 | `/field` visit start and resume (the nurse, at the client's door, phone); `/team` hand assignment and move; `/field` cover "Übernehmen"; `/team/vorschlaege` bulk confirm; simulation organisations once #943 merges | high | #943 makes the database refuse, with 42501 and the message `qualification_not_allowed` or `qualification_lapsed`, every write that leaves a member responsible for a visit she may not perform, and a start after a lapsed evidence or delegation. No command maps these codes: visit start shows "Einsatz konnte nicht gestartet werden." (`toCommandResult` falls to `failed`), hand assignment "Planung konnte nicht gespeichert werden.", cover "Die Übernahme konnte nicht gespeichert werden."; bulk confirm maps every 42501 to "Nicht gespeichert: Diese Werte werden einzeln bestätigt." and the day plan every 42501 to "… nur in deinem eigenen Team.", which would name a wrong cause if a qualification refusal reaches them. A "konnte nicht …" text reads as a technical fault: at the door she retries, then starts work NAVORA has refused, with no record why. The migration itself names the structured refusal as PLANNED for the next slice; until then the screen hides the safety reason. | `c7293f8`: `lib/commands/result.ts:46-56`; `visits/commands.ts:44`; `team/commands.ts:138`; `cover/commands.ts:19`, `cover/rules.ts:5`; `ai/commands.ts:83`; `planning/day-plan-commands.ts:60`. #943 `b457329`: migration 0121 lines 20, 31-35, `:140`-`:212` | §4 a refusal says what to change; §4 one rule, one reason on every path (UXR-129); §1 what action to take next | Before or with #943's merge: (1) every command that can hit these paths checks `error.message` for `qualification_not_allowed` / `qualification_lapsed` before any generic 42501 branch, and returns one text from the UXR-129 label function. (2) Proposed texts: assignment "Nicht gespeichert: Dieser Einsatz enthält eine Tätigkeit, für die bei <Name> keine passende Voraussetzung erfasst ist." (own take: "… bei dir …"); start "Einsatz nicht gestartet: Eine Voraussetzung ist seit der Planung abgelaufen (<was>, wenn sie dir gezeigt werden darf, CGR-152)." What she does next is UNKNOWN until D-43 names the role and the release slice exists (`cra`, PO). (3) The text never starts with "konnte nicht" and the button does not invite a retry. Vitest: each mapping with `{code:"42501", message:"qualification_not_allowed"}` and `…lapsed` returns the qualification text, never `failed`, `bulk` or `rejected`; pgTAP 121 already proves the refusal. **`cra` must confirm** the wording and the next step (how a safety refusal is shown is theirs). | #944 |
+| UXR-133 | QUAL1 labels (team member, phone; no screen yet) | medium | `qualification/labels.ts` on #939/#943 builds the strings UXR-130 and UXR-131 asked to avoid: banner "Simulation · synthetische Daten · Regeln PROPOSED"; person labels "geeignet" / "nicht geeignet" (CR-183 states as a verdict on the person while every cell is PROPOSED, PLAN3-18 (2)); reasons with raw codes "Regel ungeklärt (B4, PROPOSED ?, …)", "Delegation fehlt (B3)", "B3 nicht im Kompetenzbereich", and "–" for a missing activity. `qual1-labels.test.ts` pins these strings, so changing them later means changing a test too. Not yet on any screen. | #939 `50e372a` = #943 `b457329`: `features/qualification/labels.ts` (`SIMULATION_BANNER`, `qualLabel`, `qualReason`); `tests/unit/qual1-labels.test.ts:44-59` | §4 no internal codes; §4 a recorded value is not a verified fact | Before a screen imports the module: as UXR-130 and UXR-131 (2) (activity by its matrix label, code in `data-ref`; banner "Simulation · synthetische Daten · Regeln vorläufig"; requirement-state labels instead of person labels; CR-183 codes stay in data and audit). Vitest over every `qualReason` and `qualLabel` output: none matches `/\b[ABCN]\d{1,2}\b|PROPOSED|\?\)|geeignet/`. The decision on the brief strings is the PO's; `cra` confirms substance. | — (medium; PR comment on #939) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-98 (1), (2), -99, -100, -101, -102, -103, -113, -114 | **Closed in code** (#934 merged; `src` identical to `66885bf`, whose blobs I matched to the reviewed heads at 23:50). | `48cdb0c`, `c7293f8` |
+| UXR-126 | OPEN (medium), **now on `recovery/main`**. | `c7293f8`: `field/absence-section.tsx` |
+| UXR-129 | OPEN (high, #935); UXR-132 adds the new QUAL1 refusal codes to the same label function. | — |
+| UXR-130, -131 | OPEN (medium); built into code on #939/#943 as UXR-133. | — |
+| UXR-104 to -112, -115 to -124, -127 (open ones) | OPEN, **now on `recovery/main`** with #934. | earlier sections |
+| UXR-128 | OPEN (medium), waits for the CGR-144 brief line. | — |
+| UXR-80 to -83, -87 to -90, -125 | OPEN (low/medium), unchanged. | `c7293f8` |
+| UXR-84 to -86 | OPEN on #815, unchanged. | `81d131b` |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+
+### Benchmark (2026-11-07): a skill violation and the next step, dispatch console
+
+Read: Salesforce Trailhead, *Field Service Dispatcher Console for Dispatchers — Manage Service Appointments*, https://trailhead.salesforce.com/content/learn/modules/field-service-dispatcher-console-for-dispatchers/manage-service-appointments (read 2026-11-07). In my words: an appointment that breaks a scheduling rule (for example the worker lacks a required skill) carries a warning mark on the planning board; its details name the broken rule and the reason; the fix sits next to it as one action that lists only the workers who meet the rule, and choosing one clears the warning. **Adopt:** (1) a qualification refusal names what is missing, never a generic failure (UXR-132); (2) the refusal carries its next step on the same card, e.g. "Andere Person wählen" that opens the member picker already limited to members for whom the requirement is recorded (PLANNED only if the PO takes it; the list comes from the same decision function, `eng`'s). **Do not adopt:** the tool lets a manual placement through and flags it afterwards, and shows the reason only on hover. NAVORA refuses before saving (QUAL1-10, no override, `cra`) and has no hover on a phone: the reason is text on the card.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` (v8) and Blueprint v2.15 read through the PO journal 02:45; no contradiction with my task prompt. Task adjusted within the goal (README rule 11): this run checks the screen effect of database-only PRs (#943), because a refusal without a screen text is a UX defect even when no screen file changes.
+
+### For the PO
+
+(1) UXR-132 is best fixed in #943 or the slice right after it, before QUAL1 is demonstrated: today a refused start reads as a technical fault. (2) UXR-133: the label module is not on a screen yet, so changing the strings now costs one test file; it needs your call on UXR-130/-131. I propose only.
+
+---
+
+## 2026-11-06 23:50 CET · `uxa`: AN3 (#841), PLAN3 part (a) (#872) and PLAN3-14 (#876) merged as read; consolidation PR #934 carries the reviewed screen code unchanged; one qualification rule shows four different refusal texts (UXR-129, high, issue); wording for PLAN3-18 and the QUAL1 screen labels as the PO asked (UXR-130, UXR-131, medium)
+
+**What changed since 19:50.** `recovery/main` moved from `9a15f98` to `120a881`. Code merged by the PO: **#841** AN3 (`49ab0e0`; own code under `src` unchanged since `8907913` except the UX2-1 shell lines from `recovery/main`), **#872** PLAN3 part (a) (`a081c58`; database and `day-plan-labels.ts`, no screen imports it yet), **#876** PLAN3-14 (`8956041`; `otherTeamVisitsLine`, no screen yet), **#922** (tests only). Docs: FE-038 to FE-041 (`FOUNDER_DECISIONS.md` v8), Blueprint v2.9 to v2.12, `cra` QAM v0.1/v0.2 (#923, #929), QUAL1 approved for synthetic data (#930, issue #931), my #850 (merged 21:25). New open PR: **#934** (`feature/plan3-consolidated`, head `66885bf`, FE-041), which folds the 15 PLAN3 PRs I reviewed one by one. Asks to `uxa`: PLAN3-18 wording (PO 21:55) and German labels for the QUAL1 refusal codes (PO 22:30 brief). No new UX brief; no `ux` issue changed.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `120a881` (13546052888) and #934 `66885bf` (13546041297); the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code: for every file under `src` that #934 changes against `recovery/main` I compared its blob with the included PR heads: 27 of 30 are byte-identical to a head I read (#910, #906, #903, #894, #885 …); the other three (`team/team-client.tsx`, `features/ai/labels.ts`, `features/team/rules.ts`) differ from #910 only by code already on `recovery/main` (UX2-15/-16 from #803, AIG1-C4/-C5 from #814) and #885's UXR-117 commit. Also read: `features/ai/labels.ts:77`, `features/absence/rules.ts:16`, `features/team/commands.ts:102`, `features/planning/day-plan-labels.ts:18`, `field/absence-section.tsx:294` on `120a881`; `briefs/PLAN3.md` PO note 21:55 (PLAN3-18); `briefs/QUAL1.md` S1-S8, QUAL1-14, -17; `CLINICAL_RULE_REGISTER.md` CR-183. CI on #934 `66885bf`: app, db, e2e, ui-screenshots green (as reported by GitHub). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. All wording below is PROPOSED.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-129 | Every path that refuses a member for the registered-nurse rule (CR-007/CR-009): `/team` hand assignment, `/field` "Übernehmen", `/team/vorschlaege` and `/team/tagesplan` confirm (J3), day-plan "kein Vorschlag" (team member, phone) | high | One rule, four texts: "Kategorie B und Bedarfsabklärung nur durch eine Pflegefachperson (HF/FH)." (hand assignment), "Diesen Einsatz übernimmt eine Pflegefachperson (Kategorie B oder Bedarfsabklärung)." (take), "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation)." (confirm) and "kein Vorschlag: keine Pflegefachperson verfügbar" (proposal). The confirm text (a) states "darf … nicht" as a fact about the person although the check reads a recorded, unverified value (FE-039, PLAN3-18 (2)), (b) gives two causes without saying which applies, so the team cannot tell whether to fix a membership or find another nurse, (c) says "Diese Person" (UXR-99 rule). QUAL1-10 and S7 require the same reason on every path; today the screen already fails that for the one rule that exists, and QUAL1 will add more reasons on the same paths. | `120a881`: `features/team/commands.ts:102`; `features/absence/rules.ts:16`; `features/ai/labels.ts:77` (since `d7501c3`, 2026-10-30); `features/planning/day-plan-labels.ts:18`; the same on #934 `66885bf` | §4 one rule, one reason on every path (new); §4 a recorded value is not a verified fact (new); §4 name the person | One label function per reason code used by all four paths (Vitest: the four call sites return the same sentence body for the RN rule; no text contains "darf", "Diese Person" or "Mitgliedschaft oder Qualifikation"). Proposed sentence: "Dieser Einsatz braucht eine Pflegefachperson (Bedarfsabklärung oder Kategorie B). Für <Name> ist das nicht erfasst." (on her own take: "Für dich ist das nicht erfasst."); proposal line: "kein Vorschlag: Dieser Einsatz braucht eine Pflegefachperson; keine ist frei. Der Einsatz bleibt offen." The J3 membership cause gets its own code and text ("<Name> ist nicht Mitglied dieses Teams.") — how is `eng`'s. **`cra` must confirm** the words (the term "Kategorie B" is theirs to keep or replace). | #935 |
+| UXR-130 | QUAL1 screens (team member, phone; built later, brief approved) | medium | The expected results in the approved brief put register and matrix codes into user text: "Regel ungeklärt (B4, PROPOSED ?)", "Delegation fehlt (B3)", "Versorgungslücke: Station A, <Zeit>, B3 fehlt", and the screen line "Simulation · synthetische Daten · Regeln PROPOSED" (QUAL1-14). A nurse reads "B4" and "PROPOSED ?" and learns neither the activity nor what is open. | `120a881`: `briefs/QUAL1.md` S3a, S4, S6, QUAL1-14 | §4 no internal codes; one language (German) | Activity named by its matrix label, code in `data-ref`: "Regel noch ungeklärt: <Tätigkeit>. Wird nicht vorgeschlagen.", "Delegation fehlt: <Tätigkeit>", "Delegation abgelaufen am <Datum>: <Tätigkeit>", "Nachweis fehlt: Ausbildung", "Voraussetzung abgelaufen: <was>", "Versorgungslücke: <Station>, <Zeit>, <Tätigkeit> ohne passende Person"; screen line "Simulation · synthetische Daten · Regeln vorläufig". Vitest over every QUAL1 reason label: none matches `/\b[ABCN]\d{1,2}\b|PROPOSED|UNVALIDATED|PROVISIONAL|\?\)/`. The S-table's expected strings are the PO's; **`cra`** confirms substance. | — (medium; PLANNED) |
+| UXR-131 | PLAN3-18 lines and QUAL1-17 result labels (team member, phone) | medium | Two provisional wordings for one fact ("Regel vorläufig, nicht fachlich freigegeben" in PLAN3-18 (1); "Regeln PROPOSED" in QUAL1-14), and CR-183's four results `geeignet` / `geeignet mit Delegation` / `nicht geeignet` / `ungeklärt` shown as screen labels would state the suitability claim PLAN3-18 (2) forbids, while every matrix cell is PROPOSED in Phase A. | `briefs/PLAN3.md` PO note 21:55; `briefs/QUAL1.md` QUAL1-14, -17; `CLINICAL_RULE_REGISTER.md` CR-183 | §4 a recorded value is not a verified fact (new); one fact, one wording | (1) One fixed line on every screen that shows a proposal or check result relying on a non-released rule: "Regel vorläufig, nicht fachlich freigegeben." — shown once in the list header, and per line as the short tag "vorläufige Regel" linked to it by `aria-describedby` (text, never colour alone). (2) CR-183 results on screen as requirement states, not person labels: "Voraussetzungen erfasst" / "Voraussetzungen erfasst, mit Delegation bis <Datum>" / "Voraussetzung fehlt: <was>" / "Regel noch ungeklärt: <Tätigkeit>"; the codes stay in the database and the audit. Vitest: no visible QUAL1/PLAN3 string contains "geeignet", "qualifiziert" or "darf"; e2e at 390 px on `/team/tagesplan` with the synthetic seed: header line once, tag on each relying line. **`cra` must confirm** (how a safety-related state is shown is theirs; CR-183 labels are theirs); the PO decides whether the brief strings change. | — (medium; PLANNED) |
+
+### Wording for PLAN3-18 (PO 21:55 ask; PROPOSED, `cra` confirms substance)
+
+1. **Provisional rule:** as UXR-131 (1). Header line "Regel vorläufig, nicht fachlich freigegeben."; per-line tag "vorläufige Regel". In Phase A every line relies on CR-164 (PROVISIONAL), so every line carries the tag: that is intended, not noise.
+2. **Reasons name recorded facts only:** "Bezugspflegende", "Stellvertretung", "kennt Klient:in (<n> Besuche)" stay; a qualification shown as a reason reads "Pflegefachperson (erfasst, nicht geprüft)"; "freie Kapazität" stays the PO's (UXR-98 (3) proposes "am wenigsten verplant in eurem Team").
+3. **"kein Vorschlag" for a qualification limit:** "kein Vorschlag: Dieser Einsatz braucht eine Pflegefachperson; keine ist frei. Der Einsatz bleibt offen." No escalation sentence until D-43 names the role (OPEN).
+
+### German labels for the QUAL1 refusal codes (PO 22:30 brief; PROPOSED)
+
+As UXR-130 and UXR-131 (2). Each refusal is one sentence that names the activity and what is missing, the subject by display name ("Für <Name> …", "Für dich …"), the same on every QUAL1-10 path (UXR-129 rule). Code names are `eng`'s; I map texts to whatever codes the build returns, in the review of that PR.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-88, -89, -90 | OPEN, **now on `recovery/main`** (#841 merged as `49ab0e0` without them): codes in the AN3 sources ("(North Star)", "WORK1-6", "ORD0"), every definition open at 390 px, teams sorted by id. | `120a881`: `features/analytics/step-spans.ts:37-39`, `:81`, `:87`; `analytics/step-spans.tsx:44-55` |
+| UXR-98 (1), (2), -99 to -103, -113, -114 | Met on PR heads; **the same code is on #934** (blobs identical); close when #934 merges. | `66885bf` |
+| UXR-126 | OPEN (medium) on #934 (`absence-section.tsx` identical to #910). | `66885bf` |
+| UXR-104 to -112, -115 to -124, -127 (open ones) | OPEN, carried unchanged into #934. | earlier sections |
+| UXR-128 | OPEN (medium), waits for the CGR-144 brief line. | — |
+| UXR-80 to -83, -87, -125 | OPEN (low), unchanged. | `120a881` |
+| UXR-84 to -86 | OPEN on #815, unchanged. | `81d131b` |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v8 (FE-038 to FE-041) read. **No contradiction** with my task prompt. FE-041 changes how I check the PLAN3 stack: one comparison of #934 against the reviewed heads instead of 15 reviews. Task adjusted within the goal (README rule 11): this run answers the PO's two wording asks and turns them into design-system rules, because QUAL1 will put new reasons on every assignment path.
+
+### For the PO
+
+(1) #934 carries the reviewed PLAN3 screen code unchanged; nothing from `uxa` blocks it; its open UX findings are listed above (UXR-126 medium the largest). (2) UXR-129 (#935) is presentation-only and best taken before or with QUAL1, so QUAL1 starts from one label function. (3) UXR-130/-131: if you adopt them, the strings in `briefs/QUAL1.md` S1-S8 and QUAL1-14 change, with `cra`'s confirmation. I propose only.
+
+---
+
+## 2026-11-06 19:50 CET · `uxa`: PO cleanup (FE-037) merged six reviewed screen PRs exactly as read: UXR-27, -28, -36, -37, -40, -41, -46, -56, -58, -61, -62, -63, -73 closed in code; UXR-80 to -82 and -87 now visible on `recovery/main`; no PR head changed its screen code; UXR-128 (medium) for the CGR-144 fact on "Automatische Planung"
+
+**What changed since 16:00.** `recovery/main` moved from `1445582` to `9a15f98` (PO cleanup FE-037, `FOUNDER_DECISIONS.md` v4; Engineering paused by the owner). Screen PRs merged by the PO: **#803** UX2-15, -16, -25 (`0747d24`), **#804** UX2-18 to -21 (`5547eb3`), **#806** UX2-30 (`9d205b9`), **#809** UX2-26 (`0e22370`), **#813** RLS4-C3 (`3b44b14`), **#814** AIG1-C4/-C5 (`e4f52e8`); also #810 (pgTAP), #828 AIR1 (register guards, no new screen), `cra` #911, #915, `po` #914, #916. The PO's merge-in commits (`e5674a1`, `c288a1f`, `86de1d6`, `8f7ee26`, `cfdcd21`, `2cc0db3`, `c31c5f9`, `9ef6327`) resolve no hunk under `src` or `tests` (`git show --cc` empty there), so each PR merged with the code I read on its head. Open screen PRs: #910 and #906 unchanged (`806b8cf`, `d2a6bff`); #815 and #841 moved by base merges only (own `src` patch-id identical for #815; #841 no own commit under `src` since `8907913`); #894 changed two e2e files only (`da1dc1c`, `068a937`: expectation "noch niemand" after #800, test order), no screen change. `cra` 17:30 (#915) has no ask for `uxa`; it narrows CGR-137 to COVER1 `accept_cover` and adds CGR-144. No new UX brief; no `ux` issue changed. #850 was merged up to `recovery/main` by the PO (`1781b20`), conflict-free.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `9a15f98` (13529845454) and for #841, #894 heads; the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code on `9a15f98`: `admin/member-open-reports.tsx:21-35`, `admin/admission-section.tsx:202`, `operations/assistenten/page.tsx:96-110`, `features/field/authorship.ts:18-27`, `team/auto-plan.tsx:28-36`, `:73-77`; symbols of the closed findings (`MoveToToday`, `MovedNoticeBlock`, `movedCardDescribedBy`, `DAY_CHANGED_RELOAD`, `OutsideDeliveryStatus`, `visitAlertFrame`, `RecordedCard`, `OPEN_REPORTS_RETRY_LABEL`) present; `CLINICAL_GOVERNANCE.md` 17:30 (CGR-137, CGR-144); PO journal 19:15. CI on `9a15f98`: app, db, e2e, ui-screenshots green (as reported by GitHub). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. All wording below is PROPOSED.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-128 | `/team` case card, "Automatische Planung" (team member, phone), and `/field` day list (the primary nurse); CGR-144, not built | medium | `cra` CGR-144: the PLAN2 series sets the case's primary nurse as responsible for every generated visit without the member-overlap fact that #910 now shows on every hand path. The block that starts a series ("Jetzt planen") shows only "Hinweise zur Planung" in 12 px under the buttons, and the series also runs without anyone pressing (`refresh_team_plans` on page load), so there is no screen moment at which a double booking by the system would be seen; it first appears as an overdue signal. When the fact is computed, it needs a place that does not depend on her pressing a button. | `9a15f98`: `team/auto-plan.tsx:28-36` (`notes` only after a press), `:73-77` (`text-xs`, list under the error line); `features/planning/queries.ts:15` (`refresh_team_plans`); `CLINICAL_GOVERNANCE.md` 17:30 CGR-144 | §1 what needs attention now; §2 a fact shown before a save, never a refusal; DESIGN_SYSTEM §2 two overlap facts, two subjects | When `eng` returns the series overlap (PLANNED only once the PO writes the CGR-144 brief line): (1) the "Automatische Planung" header line counts it: "<n> geplante Einsätze überschneiden sich mit anderen Einsätzen der verantwortlichen Person." (`attention` tone, beside the existing order lines, not in the notes list); (2) each such generated visit carries the #910 member line ("… hat zu dieser Zeit schon einen Einsatz, in diesem oder einem anderen Team.") on the `/team` plan card and on her `/field` card, so the primary nurse sees it without opening the case; (3) information only, never a refusal (as CGR-137). Vitest on n = 0 (no line), 1, 2; e2e at 390 px with one generated overlap. **`cra` must confirm** the wording and that position (CGR-144); `lca` already named for the other-team clause (CGR-137). | — (medium; not built) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-27, -28, -46 | **Closed in code** (#803 merged as read): reach gap line outside the fold, alert frame follows what the list shows, readable case reference. | `0747d24`; `team-client.tsx` `OutsideDeliveryStatus`, `team/rules.ts` `visitAlertFrame`; `contract-end-section.tsx` |
+| UXR-36, -37, -40, -41 | **Closed in code** (#804): move-to-today fact keeps its place, moved card names its flags, fallback points at its link, focused sentence read once. | `5547eb3`; `field-client.tsx` `MoveToToday`, `MovedNoticeBlock`; `field/rules.ts` `movedCardDescribedBy`, `DAY_CHANGED_RELOAD`; `ux2-move-flow.spec.ts` |
+| UXR-56, -58, -61, -62, -63 | **Closed in code** (#806, UX2-30); -62 with my 07:52 (2026-11-03) wording note. | `9d205b9`; `assessment-section.tsx`, `error-text.tsx`, `assessment/rules.ts`; `ux2-assessment-form.test.ts` |
+| UXR-73 | **Closed in code** (#813, RLS4-C3; PO accepted 19:15 with my wording as the target before G-19 (l)). Residual UXR-82. | `3b44b14`; `member-open-reports.tsx:21-35`; `rls4-c3-admin-open-reports-retry.test.ts` |
+| AUT-21 layout (`uxa` 2026-10-29 16:10) | Met in code (#809, UX2-26); residuals UXR-80, -81. | `0e22370`; `admission-section.tsx` `RecordedCard` |
+| UXR-80, -81 | OPEN (low), **now on `recovery/main`** (#809): the "Vertrag erfasst, Qualifikation fehlt" rows carry no action; "Sie steht noch nicht in der Mitgliederliste …" unchanged. | `0e22370`; `admission-section.tsx:202` |
+| UXR-82 | OPEN (low), **now on `recovery/main`** (#813): "Erneut laden" unmounts on press, the success line is no live region. | `3b44b14`; `member-open-reports.tsx:24-35` |
+| UXR-87 | OPEN (low), **now on `recovery/main`** (#814): two links "Betroffene Werte ansehen" in one cell; "gestoppt am" lower case. | `e4f52e8`; `operations/assistenten/page.tsx:99-110` |
+| UXR-83 | OPEN (low), on `recovery/main` since #800: card "Teammitglied ohne Namen" vs. handover "Teammitglied <n> (ohne Namen)". | `9a15f98`; `field/authorship.ts:18`, `:27` |
+| UXR-126 | OPEN (medium) on #910. `cra` 17:30 clears the PLAN3-16 gate and finds CGR-137 met for `take_open_visit`; that is the computed fact, not its display: after taking the last open visit the line still disappears with the section. Head unchanged. | `806b8cf`; `absence-section.tsx:242` |
+| UXR-125 | OPEN (low), waiting for `cra` (no answer in 17:30). | `9a15f98`; `operations/exceptions.ts:77`, `lifecycle/rules.ts:49` |
+| UXR-127; UXR-103 | OPEN (low) / met on #906, head unchanged; close on merge. | `d2a6bff` |
+| UXR-84 to -86 | OPEN on #815; own code unchanged (patch-id equal); #815 now has a code conflict with UX2-30 in `team/assessment-section.tsx` (PO 19:15). | `81d131b` |
+| UXR-88 to -90 | OPEN on #841; head moved by base merges only. | `802987f` |
+| UXR-98 (1), (2), -99 to -102, -113, -114 | Met on PR heads of the PLAN3 stack; close on merge. | earlier sections |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+| UXR-104 to -112, -115 to -124 (open ones) | OPEN, unchanged. | earlier sections |
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v4 (FE-037, cleanup before new features, Engineering paused) read; it changes nothing in my brief, and my docs PR merges last in the PO's order. **No contradiction found** between my task prompt and `FOUNDER_DECISIONS.md`. Task adjusted within the goal (README rule 11): no new screen code to review, so this run checks that the cleanup merges carried the reviewed code unchanged and moves the design-system status of what they built.
+
+### For the PO
+
+(1) Six reviewed screen PRs are on `recovery/main` as read; 13 findings close in code. With Engineering paused, the open lows now visible on `recovery/main` (UXR-80 to -83, -87) wait; none blocks a pilot step. (2) UXR-126 is presentation-only inside PLAN3-16; `cra`'s clear gate on #910 does not cover it; whether #910 merges first and UXR-126 follows as a UX2 line is yours. (3) UXR-128: please take the display with the CGR-144 brief line `cra` asked for, so the fact and its place are built together. (4) #850 carries this section; yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-06 16:00 CET · `uxa`: #800 (UX2-27, UX2-29) merged as reviewed: UXR-48, -53, -79 closed; #906 meets UXR-103 on its head; #910 (PLAN3-16, the member-overlap line) read: UXR-126 (medium), UXR-125, -127 (low); founder direction read: ward and shift screens added to the design system as OPEN
+
+**What changed since 11:50.** `recovery/main` moved from `e97e786` to `1445582`. One screen change: **#800** (UX2-27, UX2-29, ADR-132) merged at 13:59 as `30de12f`; `git diff 797029c 30de12f -- src tests` is empty, so it merged exactly as I read it on its head. The rest is docs: founder direction and `FOUNDER_DECISIONS.md` v1 to v3 (FE-019 to FE-036; #904, #908, #913), Blueprint V2.1 to V2.4, `aia` #896. New screen PRs, each read as its own commits: **#906** (PLAN3-9 (2), ADR-160, migration 0117, head `d2a6bff`: `/team/vorschlaege` shows one row per open day plan) and **#910** (PLAN3-16, ADR-161, migration 0118, commit `39d6382`, head `806b8cf`: the member-overlap line under "Verantwortlich" on the `/team` plan and move forms, and after a take on `/field`). #894, #803 moved by base merges only (`git diff da1dc1c b713d93 -- src` empty). `cra` 13:30 (#911) has no new ask for `uxa` and records my CGR-141 (1) wording as confirmed. No new UX brief; no `ux` issue changed. #850 was in conflict on `JOURNAL.md`; I merged `recovery/main` in and kept every entry.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `1445582` (13508912564) and for the PR heads; the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code: `git show 39d6382` (`member-overlap-rules.ts`, `MemberOverlapNote.tsx`, `team-client.tsx:1043`, `:1166`, `field/absence-section.tsx:225-275`), `plan3-16-member-overlap.test.ts`; `git diff` #903 → #906 (`day-plan-rows.ts`, `suggestions-client.tsx:85-128`, `plan3.spec.ts` PLAN3-9 (2) case); `lifecycle/rules.ts:49`, `operations/exceptions.ts:77` on `1445582`; `FOUNDER_DECISIONS.md` v3; Blueprint §4 M9 and §8; `CLINICAL_GOVERNANCE.md` 13:30 on #911. CI on #906 and #910 heads: all four checks green (as reported by GitHub). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. All wording below is PROPOSED.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-126 | `/field` "Offen im Team", after "Übernehmen" (nurse; phone), #910 | medium | The server's member-overlap fact after a take is shown inside the "Offen im Team" section. When she takes the **last** open visit, the refresh empties the list and the section returns nothing (`if (open.length === 0) return null`), so the one sentence that tells her she now has two visits at the same time (in this or another team) disappears in exactly the common case of one open visit. When it does show, it sits at the top of a list the taken visit has just left and does not say which visit it speaks of. The quick-take row of the collapsed section ("Heute · <Zeit> · <Klient:in>", UX1-6a) also never shows the "überschneidet sich …" line before the take, so that path always relies on the after-take line. Information only by design (`cra` CGR-137); the gap is that the information can vanish. | `39d6382`: `absence-section.tsx:230`, `:242` (`return null`), `:269-273`, `:279` (`take(first.visit_id, false)`); no e2e for the line (only vitest `plan3-16-member-overlap.test.ts`) | §1 what needs attention now; §4 say what happens after; DESIGN_SYSTEM §2 a fact shown before a save, never a refusal (after-save notice) | (1) The after-take line is rendered outside the list's early returns (the section keeps a frame with the line, or `/field` holds it), until she leaves the page or takes again. (2) It names the taken visit: "Übernommen: <hh:mm> · <Klient:in>. Du hast zu dieser Zeit schon einen Einsatz, in diesem oder einem anderen Team." (3) The collapsed quick-take row shows the same "überschneidet sich mit deinem Einsatz <hh:mm>" line as the expanded card when `overlaps_my_visit` is set, and passes `shown` accordingly. e2e at 390 px: with one open visit overlapping her visit in another team, "Übernehmen" leaves a `role="status"` line with the time after the refresh. `cra` confirms (CGR-137); `lca` already named for the clause. | — (medium) |
+| UXR-125 | `/field`, `/team`, `/operations` overdue and late-cancellation flags (nurse; coach), on `recovery/main` | low | After UX2-29 merged, every screen says "Verantwortlich" for the member responsible for a visit, except the two absence flags "Zuständige Person abwesend gemeldet" and "nicht durchgeführt: zuständige Person abwesend gemeldet". One person, two words, now visible side by side on the visit card. These are `cra`-fixed safety texts (CGR-32, CGR-34). | `1445582`: `operations/exceptions.ts:77`; `lifecycle/rules.ts:49`; DESIGN_SYSTEM §4 note | §4 one word for one thing | "Verantwortliche Person abwesend gemeldet" and "nicht durchgeführt: verantwortliche Person abwesend gemeldet"; position, tone and the rest unchanged. Vitest on both constants. **`cra` must confirm** (safety signal wording); if `cra` keeps "zuständig", the DESIGN_SYSTEM §4 rule records the exception. | — |
+| UXR-127 | `/team/vorschlaege`, day-plan lines that could not be placed (team member; phone), #906 | low | The fail-closed line reads "… konnte nicht zugeordnet werden. Öffne den Tagesvorschlag." followed by a link "Tagesvorschlag": the instruction and the link say the same thing twice, and the link label is a noun, not the action. Amber frame without a `data-tone`. | `d2a6bff`: `day-plan-rows.ts` `dayPlanUnreadText`; `suggestions-client.tsx:104-110` | §4 plain German, one way to say it; §2 the action is the link | "1 Zeile eines Tagesvorschlags konnte keinem Tag zugeordnet werden." (n ≥ 2: "<n> Zeilen … konnten keinem Tag zugeordnet werden.") followed by the link "Tagesvorschlag öffnen"; `data-tone="attention"`. Vitest on n = 1, 2. | — |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-79 | **Closed in code**: #800 merged as reviewed; AI field labels and both pickers read "Verantwortlich" / "Verantwortliche Person wählen". | `30de12f`; `ai/labels.ts` `FIELD_LABEL`, `visits/types.ts` `RESPONSIBLE_PICK_TEXT` |
+| UXR-53 | **Closed in code** (#800, UX2-29): `/visits` and the record page say "Verantwortlich:" and "noch niemand" / "nicht erfasst". Residual wording in two safety flags: UXR-125. | `30de12f` |
+| UXR-48 | **Closed in code** (#800, UX2-27): one author line, "Teammitglied <n> (ohne Namen)". | `30de12f`; `handover/rules.ts:85` `entryAuthorLabel` |
+| UXR-103 | **Met on PR head** #906: one row "Tagesvorschlag <Wochentag>, <TT.MM.JJJJ>: <n> offen" per open day plan, links to that day, no per-line "Bestätigen" or tick; e2e asserts it at 390 px. A line of a past day stays per line (ADR-160 deviation 1, the day page opens today to 14 days ahead): accepted from the UX side. Close on merge. | `d2a6bff`: `day-plan-rows.ts`; `plan3.spec.ts` PLAN3-9 (2) case |
+| UXR-99 | **Met on PR head** #910 for the two subjects (client line and member line apart, member named by `pickerMemberLabel`, my 07:50 wording word for word, `role="status"`, the save never refused); residual UXR-126. Close on merge with UXR-126 placed. | `39d6382`: `member-overlap-rules.ts`; `team-client.tsx:1043`, `:1166` |
+| UXR-114, -101, -113, -102 | Met on PR heads (#903; #891; #888); close on merge. | 11:50 section |
+| UXR-122, -123, -124 | OPEN on #897, unchanged. | 11:50 section |
+| UXR-106, -108, -121, -109 | OPEN (strings pinned in #902 and `plan3.spec.ts`). | 11:50 section |
+| UXR-98 (1), (2), UXR-100 | Met on PR heads; close on merge. | 2026-11-05 23:50 section |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+| UXR-104, -105, -107, -110 to -112, -115 to -120 | OPEN, unchanged. | earlier sections |
+| UXR-80 to -97 (open ones) | OPEN, unchanged (heads moved by base merges only). | earlier sections |
+
+### Founder direction, from the UX side
+
+`FOUNDER_DECISIONS.md` v3 and the Blueprint V2.4 add one design need I had not covered: **FE-031** puts a simulated nursing-home ward into Phase A, and M9.0a asks for briefs NH-A1 to NH-A5 by 2026-11-27 with `uxa` as a gate. My screen catalog (57 screens, #834) has no ward or shift screen; the only nursing-home entry is the marketing page W-04. I added an OPEN pattern to `DESIGN_SYSTEM.md` §5 (v49): the ward reuses the one shell and tokens, the three questions are asked per shift, the current shift is the default view, a control without a trigger on the ward reads "nicht überwacht" where the brief says so (`cra` CGR-142 (1)), and staffing per shift, skill mix, resident-day billing and ward rules stay UNKNOWN until the briefs and `cra` / `lca` name them. Screen designs follow the NH-A briefs. **No contradiction found** between my task prompt and `FOUNDER_DECISIONS.md`.
+
+### For the PO
+
+(1) UXR-126 sits inside PLAN3-16 (presentation only; the fact is computed and returned correctly, it can only disappear on screen); whether it gates PLAN3-16 acceptance is yours. (2) UXR-125 needs `cra`; nothing to build before that. (3) Ward and shift screens: I can draft catalog lines N-01 … for the ward as soon as NH-A1 exists in draft; if you want them before 2026-11-27 to shape the briefs, say so in your next run. (4) #850 carries this section; yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-06 11:50 CET · `uxa`: no screen changed on `recovery/main`; #903 meets UXR-114 and UXR-101 on its head; #897 (PLAN3-15, a fresh request replaces the undecided lines) read: UXR-122 (medium), UXR-123, -124 (low); answers to `cra` 09:30 (#901): CGR-141 (1) continuity line, `replaced` and "Neu angefragt" wording
+
+**What changed since 07:50.** `recovery/main` moved from `404346c` to `e97e786` (`po` #893, #898, #900, docs); `git diff 404346c e97e786 -- src tests e2e` is **empty**, so no screen changed on `recovery/main`. New screen commits, each read as its own change on its head: **#897** (PLAN3-15, ADR-157, migration 0116; `git diff` #895 → #897: the `open_proposal` refusal is gone, a fresh request closes the earlier undecided lines, new refusal `replaced`, new measure cell "Neu angefragt (frühere offene Zeilen ersetzt)", both texts marked open for `uxa`); **#902** (CGR-75 (5), ADR-158: seed and tests only, no file under `src`); **#903** (PLAN3-17 (2) + PLAN3-3 wording, ADR-159, `fc9effd`: `memberLabel` delegates to `pickerMemberLabel`, `/visits/<id>` "Verantwortlich" uses the same label, "kennt Klient:in (<n> Besuche)"). **#888** carried a second UXR-113 build (`4ef4f51`) and reverted it (`31e9d6c`); net no change, #891 keeps the one build. #890, #891, #894, #895 moved by base merges only. `cra` 09:30 (#901, open) asks `uxa` for the CGR-141 (1) continuity line and the `not_found`, `replaced` and "Neu angefragt" wording.
+
+**Sources.** `ui-screenshots` artifacts exist for #903 (`c2cc5c3`, 13493559844), #902 (`278d3c4`, 13492093468) and #888 (`31e9d6c`, 13490693108); the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code: `day-plan-client.tsx:96-102`, `:189-239` (AskForm) on `c2cc5c3`; `labels.ts:78-82`, `:366-392` on `6dace1d`; `day-plan-labels.ts:9-55`; `member-label.ts:57-73`, `rules.ts:75-88`, `visits/[visitId]/page.tsx:46-50`, `queries.ts:240-260` on `c2cc5c3`; `plan3.spec.ts` additions of #897 and #902; `plan3-day-plan-labels.test.ts:33-36`; `briefs/PLAN3.md` PLAN3-15; `CLINICAL_GOVERNANCE.md` 09:30 on #901 (CGR-141, CR-170). CI on #903 and #897 heads: all four checks green (as reported by GitHub). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. All wording below is PROPOSED.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-122 | `/team/tagesplan`, "Tag vorschlagen" with a day open that still has undecided lines (team member who plans; phone), #897 | medium | Under PLAN3-15 the same button that asks for a day now also closes every undecided line of that day, but the form does not say so before the tap and nothing says it afterwards: the list simply changes. A colleague deciding the same day on her own phone loses her open lines with no trace on either screen (she meets `replaced` only when she taps). The design is right (`cra` CR-170: fail-safe, visits stay open); what is missing is the one sentence that tells the person asking what her tap does. | `6dace1d`: `day-plan-client.tsx:189-239` (AskForm: no text about open lines; `router.push` only), `:102`; `plan3.spec.ts` PLAN3-15 case (asserts only the new list) | §4 say what happens before and after; §1 what action next | When the open day has n ≥ 1 undecided lines: one `info` line above the button "Ein neuer Vorschlag ersetzt die <n> noch offenen Zeilen dieses Tages. Entschiedene Zeilen bleiben." (n = 1: "die noch offene Zeile"); after a request that closed lines, one `role="status"` line "<n> frühere offene Zeilen ersetzt." No confirmation dialog (PLAN3-15 wants no extra taps). Vitest on the two strings for n = 1, 2; the PLAN3-15 e2e asserts the info line before the click and the status line after. `cra` confirms (CR-170). | — (medium) |
+| UXR-123 | `/team/tagesplan` and `/team/vorschlaege`, a line refused `replaced` (team member on an older screen), #897 | low | Wording open for `uxa` (ADR-157): "Nicht übernommen: Für diesen Tag wurde neu vorgeschlagen. Diese Zeile gilt nicht mehr." says why, but not where the current line is; she is left on a screen whose list is stale. | `6dace1d`: `labels.ts:81-82` | §4 say what happens and what to do; §1 what action next | "Nicht übernommen: Für diesen Tag gibt es einen neueren Vorschlag." followed by a link "Neuen Vorschlag ansehen" (reloads the same day URL; on `/team/vorschlaege` it opens `/team/tagesplan` for that team and day). No "Der Einsatz bleibt offen." here (UXR-106), because a newer line exists for the visit unless it is covered. Vitest on `refusalText("replaced")`; e2e: the CGR-75 (5) ticked-list refusal display shows the sentence and the link. `cra` confirms. | — |
+| UXR-124 | `/team/tagesplan` disclosure "Alle Zahlen dieses Monats" and `/operations/assistenten/tagesvorschlag` (team member; coach), #897 | low | Wording open for `uxa`: the label "Neu angefragt (frühere offene Zeilen ersetzt)" puts its meaning in brackets, and the value "2 Anfragen · 5 Zeilen ersetzt" repeats "ersetzt" in a second unit. | `6dace1d`: `labels.ts:366-376` | §4 plain German, label and value in one unit; §5 one row function per measure (UXR-116, -118) | Label "Neu vorgeschlagen, offene Zeilen ersetzt"; value "2-mal, 5 Zeilen" (n = 1: "1-mal, 1 Zeile"); "keine" unchanged. Vitest on the cell. Placed apart from the three decision shares as PLAN3-15 asks. | — |
+
+### Answers to `cra` 09:30 (wording PROPOSED)
+
+**CGR-141 (1), continuity line.** I take `cra`'s example: one `info` line directly under the value of the continuity cell, 14 px, wherever `planTeamMeasureCells` is shown (team disclosure, Operations table, later the card row of UXR-116): **"Bezugs- und Stellvertretungsperson wie heute eingetragen, nicht wie am Einsatztag."** A suppressed row shows neither share nor line. On (2) I support the three decided shares together on the team's one line ("<x> % unverändert · <y> % geändert · <z> % abgelehnt"), as in UXR-118; that is the PO's.
+
+**Decided `not_found` line (ADR-156 deviation 2).** My 07:50 proposal stands (UXR-121): button "Kein Vorschlag: zur Kenntnis nehmen", result "Kein Vorschlag, zur Kenntnis genommen" followed by "Noch offen".
+
+**`replaced` refusal and "Neu angefragt" cell.** UXR-123 and UXR-124 above.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-114 | **Met on PR head** #903: `memberLabel` now delegates to `pickerMemberLabel` and keeps "nicht bestimmt", "nicht mehr im Team" and the qualification suffix; `/visits/<id>` uses the same label from the caller's own roster, without a guessed number when she is not in the team. Close on merge. | `fc9effd`: `rules.ts:75-88`; `member-label.ts:57-73`; `visits/[visitId]/page.tsx:46-50`; `plan3-17-2-one-label.test.ts` |
+| UXR-101 | **Met on PR head** #903: "kennt Klient:in (3 Besuche)", "(1 Besuch)"; vitest forbids a gendered client noun. Close on merge. | `fc9effd`: `day-plan-labels.ts:12`, `:43-46`; `plan3-day-plan-labels.test.ts:33-36` |
+| UXR-113 | Met on PR head #891 (the duplicate build on #888 is reverted, `31e9d6c`); close on merge. | `487c84a` |
+| UXR-102 | Met on PR head #888 (`31e9d6c`, unchanged after the revert); close on merge. | `4c0ffbc` |
+| UXR-106 | OPEN: #902 pins the `overlap` refusal without "Der Einsatz bleibt offen." | `278d3c4`: `plan3.spec.ts` CGR-75 (5) case |
+| UXR-108 | OPEN: #902 pins "1 Wert bestätigt, 1 nicht übernommen." on the day plan. | `278d3c4`: `plan3.spec.ts` |
+| UXR-121 | OPEN: #902 pins "„kein Vorschlag“, entschieden" and the button "Als „kein Vorschlag“ bestätigen". | `278d3c4`: `plan3.spec.ts` |
+| UXR-109 | OPEN: "1 offene Vorschläge" still pinned. | `plan3.spec.ts:128` on `6dace1d` |
+| UXR-118, -119, -120 | OPEN, unchanged on the heads; UXR-124 adds one cell to UXR-118. | `6dace1d` |
+| UXR-103 | PLANNED (PLAN3-9 (2)). | #893 |
+| UXR-104, -105, -107, -110 to -112, -115 to -117 | OPEN, unchanged. | earlier sections |
+| UXR-98 (1), (2), UXR-100 | Met on PR heads; close on merge. | 23:50 section of 2026-11-05 |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+| UXR-99, -97, -96, -95, -94, -93, -92, -91, -90, -89, -88, -84 | OPEN, unchanged. | earlier sections |
+
+### For the PO
+
+(1) UXR-122 sits inside PLAN3-15 (presentation only, two strings); whether it gates PLAN3 acceptance is yours. (2) Three strings pinned in #902's e2e (UXR-106, -108, -121) will need the same test lines changed when my wording is adopted; adopting it before #902 merges saves a second change. (3) CGR-141 (2): I support the three shares together. (4) #850 carries this section; yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-06 07:50 CET · `uxa`: no screen changed on `recovery/main`; #891 meets UXR-113 on its head (all four visit-assigning pickers now name members); PO 06:30 (#893) adopts UXR-101, -103, -114; #894 (team sees its own numbers) and #895 ("Noch offen" on a decided line) read on their heads: UXR-118, -120 (medium), UXR-119, -121 (low); wording for PLAN3-16
+
+**What changed since 03:50.** `recovery/main` is still at `404346c`; no screen changed there. New stacked screen PRs, each read as its own commit on its head: **#891** (UXR-113 / CGR-139, ADR-154, `487c84a`: `teamPickerOptions` for the `/team` "Verantwortlich" picker), **#894** (PLAN3-7 (2), ADR-155, `0984d3d`: one line and a disclosure "Alle Zahlen dieses Monats" under the switch on `/team/tagesplan`) and **#895** (PLAN3-9 (1), ADR-156, `a6b8e00`, migration 0115: "Noch offen" on a decided line whose visit has nobody, "Einsatz öffnen" on every line, `not_found` text "„kein Vorschlag“, entschieden", wording OPEN for `uxa`). Docs: `cra` 05:30 (#892, `e4f92ac`) confirms the CGR-139 scope widening to the UXR-113 picker; `po` 06:30 (#893, `5d565e1`, not merged) writes PLAN3-15 to -17 and amends PLAN3-3, -7, -9 (UXR-101 wording, UXR-103 as PLAN3-9 (2), UXR-102/-113/-114 as PLAN3-17). No new UX brief; no `ux` issue changed.
+
+**Sources.** `ui-screenshots` artifacts exist for #895 (`a6b8e00`, 13483335878), #894 (`0984d3d`, 13479394196) and #891 (`487c84a`, 13476404238); the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code: `git diff` #890 → #891, #891 → #894, #894 → #895 (`team-client.tsx:1010-1017`, `member-label.ts:36-55`, `day-plan-client.tsx:106-140`, `:388-480`, `tagesplan/page.tsx:23-30`, `labels.ts:360-425`, `day-plan-view.ts:109-132`), `plan3.spec.ts` on `a6b8e00`, `uxr113-new-visit-picker.test.ts`; `briefs/PLAN3.md` and `NEXT_CAPABILITY.md` on #893; `CLINICAL_GOVERNANCE.md` 05:30 on #892. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything marked "on the PR head" is IMPLEMENTED there, not on `recovery/main`.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-118 | `/team/tagesplan`, line and disclosure "Alle Zahlen dieses Monats" under the switch (team member; phone), #894 | medium | The team now sees the Operations cells unchanged (`planTeamMeasureCells`), so the internal term "Geändert (Gegenmass)", the compound "Kein Vorschlag" cell ("12,5 % · 8 Zeilen (Nicht verfügbar 1 · Pflegefachperson nötig 0 · Abwesend 2 · Überschneidung 0)") and, for a team under the three-person rule, "nicht ausgewiesen (weniger als 3 Personen)" in up to six rows reach every nurse who plans, not only a coach (UXR-116 on a second screen and audience). In the line, "<x> % unverändert bestätigt" (share of decided lines) and "<y> % ohne Vorschlag" (share of lines) stand side by side without their bases, so she cannot tell that the two percentages count different things; the three decision shares that add to 100 % (CGR-140) are split across rows. | `0984d3d`: `day-plan-client.tsx:111-140`; `labels.ts:360-405` (`:372` "Gegenmass"), `:418-425` (`planTeamOwnLine`) | §4 plain German, no internal terms; §5 measure tables at phone width (one card's rows, suppression said once); §1 | One shared card-row function for both audiences (the UXR-116 rows): "Tagesvorschläge: 4 · 23 Zeilen"; "Entschieden: unverändert 70 % · geändert 20 % · abgelehnt 10 %, von 20 Zeilen" (one row); "Kein Vorschlag: 12,5 % · 8 Zeilen" with the four reasons as a sub-list with only non-zero reasons; a suppressed month says the sentence once under the summary, not per row. The line names both bases: "Diesen Monat: 4 Tagesvorschläge · von 20 entschiedenen Zeilen 70 % unverändert bestätigt · 8 von 64 Zeilen ohne Vorschlag" (or the PO's shorter choice with the bases kept). Vitest on the rows and the line; e2e at 390 px: no "Gegenmass" text on `/team/tagesplan`, at most one "nicht ausgewiesen" in `day-plan-measures-cells`. `aia` confirms nothing changes meaning (AUT-25, AUT-52), `cra` the CGR-140 row; no target, ranking or colour added. | — |
+| UXR-119 | `/team/tagesplan` order with a day open (team member; phone), #894 | low | The month's numbers are placed inside the switch card, which still comes before the ask form and the proposal (UXR-105 open), so with a day open she now passes the switch, its explanation and a figures line before the first line that needs a decision. Line and disclosure are 12 px (`text-xs`). | `0984d3d`: `day-plan-client.tsx:90-92`, `:113`, `:121` | §1 attention first, what can wait last; §5 density | Keep the figures with the switch (PO: "under the PLAN3-10 switch") and move both to the end when UXR-105 is built; line and summary at 14 px (`text-sm`). The UXR-105 e2e (first line card in the first viewport at 390 × 844 with a day open) covers it. | — |
+| UXR-120 | `/team/tagesplan`, a decided line whose visit has nobody (team member who plans; phone), #895 | medium | "Noch offen" is the one fact on this screen that needs action now (a visit nobody covers), but it is 12 px semibold text without tone or frame, set like "abgelehnt" beneath it, and the day has no count of such lines: after deciding a long list the team must scan every card to learn whether a visit is left without anyone. CGR-138's purpose (the page never reads as a covered day) is met in words, not at a glance. | `a6b8e00`: `day-plan-client.tsx:426-430`; `day-plan-view.ts:123-132`; `plan3.spec.ts:134-153` | §1 what needs attention now; §3 `attention` tone with text, never colour alone; §2 a decided outcome that leaves work open says so (new) | "Noch offen" as an `attention` badge with its text (same token as the uncovered visit on `/visits`), at the start of the decided line's status, not after it; and under "Vorschlag für den …" one `role="status"` line "<n> Einsätze dieses Tages noch offen" when n ≥ 1 (from the lines already loaded, no new read), absent at 0. e2e at 390 px: after rejecting the 08:15 line the count reads "1 Einsatz dieses Tages noch offen" and the badge is inside that line; the confirmed lines carry none. `cra` confirms position, tone and wording (CGR-138, a coverage signal); it never moves below other content. | — (medium; fits PLAN3-9 (1) before acceptance, PO's placement) |
+| UXR-121 | `/team/tagesplan`, decided "kein Vorschlag" line (team member), #895 | low | Wording OPEN for `uxa` (ADR-156): "„kein Vorschlag“, entschieden" pairs a quoted noun with a comma and a past participle; the button that led there reads "Als „kein Vorschlag“ bestätigen", the verb CGR-138 (3) wants gone from the result. | `a6b8e00`: `day-plan-view.ts:112-114`; `day-plan-client.tsx:458-460` | §4 one word per concept, say what happens | Button "Kein Vorschlag: zur Kenntnis nehmen"; result "Kein Vorschlag, zur Kenntnis genommen" followed by "Noch offen" (UXR-120). Vitest on `lineDecisionText("not_found")`; the e2e that confirms "kein Vorschlag" uses the new button name. `cra` confirms (CGR-138 (3)). | — |
+
+### Answer to `po` (PLAN3-16, wording `uxa`, PROPOSED)
+
+The hand-assignment overlap fact (information, never a refusal, no confirmation tap), one `info` line directly under the "Verantwortlich" field, shown before saving where the form can know it and again after the save (VIS2 pattern):
+- another member: "<Label> hat zu dieser Zeit schon einen Einsatz, in diesem oder einem anderen Team." (`<Label>` from the PLAN3-17 function, without the qualification suffix)
+- herself: "Du hast zu dieser Zeit schon einen Einsatz, in diesem oder einem anderen Team."
+The clause "in diesem oder einem anderen Team" says the scope without naming the other team, client or time (PLAN3-16: yes/no only). `cra` confirms (CGR-137); `lca` confirms that the clause discloses nothing beyond the yes/no.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-113 | **Met on PR head** #891: options read the display name, "<Name> (du)" / "Ich (du)", "Teammitglied <n> (ohne Namen)", qualification as suffix; e2e at 390 px asserts distinct options and "(du)"; `cra` 05:30 confirms the scope. Close on merge; then #884 can close with PLAN3-17 (1). | `487c84a`: `team-client.tsx:1013-1016`; `member-label.ts:36-55`; `plan3.spec.ts` UXR-113 case |
+| UXR-102 | Met on PR head #888 (03:50); close on merge. | `4c0ffbc` |
+| UXR-114 | PLANNED: PLAN3-17 (2), next slice (PO 06:30). | #893 `briefs/PLAN3.md` |
+| UXR-103 | PLANNED: PLAN3-9 (2), my proposal adopted (PO 06:30). | #893 |
+| UXR-101 | PLANNED: PLAN3-3 wording "kennt Klient:in (<n> Besuche)", "1 Besuch" (PO 06:30); close when built. | #893 |
+| UXR-109 | OPEN: `plan3.spec.ts` still pins "1 offene Vorschläge" on `a6b8e00`. | `plan3.spec.ts:128` |
+| UXR-115, -116, -117 | OPEN, unchanged on the heads; UXR-116 now also reaches the team (UXR-118). | `0984d3d` |
+| UXR-104 to -108, -110 to -112 | OPEN, unchanged; UXR-106 partly eased by "Noch offen" on a decided line, the refusal on an open line still lacks "Der Einsatz bleibt offen." | `a6b8e00` |
+| UXR-98 (1), (2), UXR-100 | Met on PR heads; close on merge. | 23:50 section |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+| UXR-99, -97, -96, -95, -94, -93, -92, -91, -90, -89, -88, -84 | OPEN, unchanged. | earlier sections |
+
+### For the PO
+
+(1) UXR-120 sits inside PLAN3-9 (1) (an acceptance condition): the words are built, the at-a-glance part is not; whether it gates acceptance is yours. (2) UXR-118 extends UXR-116 to the team's own screen; one card-row function would serve both. (3) PLAN3-16 wording above. (4) #850 carries this section; yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-06 03:50 CET · `uxa`: no screen changed on `recovery/main`; #888 (CGR-139) meets UXR-102 on its head for three pickers, but the `/team` "Verantwortlich" picker of a new visit hides every name (UXR-113, high, added to #884); two label forms for one person (UXR-114); the new Operations measure pages #885, #886, #890 as tables at 390 px (UXR-115, -116, medium; UXR-117 low); benchmark: measure tables on a phone
+
+**What changed since 2026-11-05 23:50.** `recovery/main` moved from `c315efc` to `404346c` (`aia` #889, docs); `git diff c315efc 404346c -- src tests` is **empty**, so no screen changed on `recovery/main`. #882 moved by a base merge only (`c734eaf` → `c576bcf`). New stacked screen PRs, each read as its own commits on its head: **#885** (PLAN3-13, ADR-150, `f37180d`: "Rückblick in Zahlen" table on `/operations/assistenten/rueckblick/[stopId]`), **#886** (PLAN3-7, ADR-151, `d5411ee`: new page `/operations/assistenten/tagesvorschlag` "Tagesvorschlag in Zahlen", link from `/operations/assistenten`), **#888** (CGR-139, ADR-152, `4c0ffbc`: one picker label `pickerMemberLabel`, answer to my UXR-102 / #884) and **#890** (CGR-140, ADR-153, `a4b1ce0`: an "Abgelehnt" column). `cra` 01:30 (#887, `651dfa3`) confirms UXR-102 as CGR-139 (S2, PS-124) with the CGR-108 label form. No new UX brief; no `ux` issue changed.
+
+**Sources.** `ui-screenshots` artifacts exist for #890 (`a4b1ce0`, 13472525381), #888 (`4c0ffbc`, 13469377489), #886 (`d5411ee`, 13467500317), #885 (`f37180d`, 13462578949) and `recovery/main` `404346c` (13469008346); the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code: `features/team/member-label.ts` (new on #888), `day-plan-client.tsx`, `suggestions-client.tsx`, `lookback-actions.tsx` diffs, `plan3.spec.ts:117-120`; `team-client.tsx` and `features/team/rules.ts` on `recovery/main` `404346c`; the two Operations pages and `features/ai/labels.ts:248-415` on `a4b1ce0`; `aig1.spec.ts` additions; `SAFETY_RISK_REGISTER.md` PS-124 on #887. Benchmark below. I ran no test; CI is the test runner (all four checks green on my #850 head `065077b`). Live project not touched. Everything marked "on the PR head" is IMPLEMENTED there, not on `recovery/main`.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-113 | `/team` case card, "Neuer Einsatz" form, "Verantwortlich" picker (team member who plans; phone), IMPLEMENTED on `recovery/main` | high | The picker that sets the responsible member of a new visit never shows a name: options read "Ich" and "Teammitglied <n>" (plus qualification), even for members with a display name, while the visit line a few cards below on the same screen says "verantwortlich: <Name>" and the continuity pickers on the same card show names (`memberLabel`). She must guess which number is which colleague; a visit can go to a colleague who does not expect it while the team reads it as covered, the same hazard as UXR-102 / CGR-139 (H-01, PS-124). #888 fixes three pickers but not this one, and `cra`'s PS-124 list does not name it. | `404346c` and unchanged on `4c0ffbc`: `team-client.tsx:1001` (`m.me ? "Ich" : \`Teammitglied ${i + 1}\``), compare `:1098` (name in the visit line) and `:736`, `:745` (`memberLabel`) | DESIGN_SYSTEM §2 every person in a choice is told apart; §2 one label function (new); §1 what action next | Use `pickerMemberLabel` (name; "<Name> (du)" / "Ich (du)"; "Teammitglied <n> (ohne Namen)") with the qualification as suffix " – <Qualifikation>"; the `<n>` from the same roster order. e2e at 390 px on the seed team with a named member: the picker options contain her display name, all options differ, the caller's option ends with "(du)". Fits #888 (ADR-152 "every picker that assigns a visit") before PLAN3 acceptance; `cra` confirms the scope widening of CGR-139. | #884 (comment, scope added; no duplicate issue) |
+| UXR-114 | `/team` continuity pickers and lines vs. day-plan, `/team/vorschlaege`, record pickers (team member), #888 | medium | One person, two labels: `memberLabel` on `/team` reads "Ich (Anna)" for the caller and "Teammitglied 2" for an unnamed member; `pickerMemberLabel` on the other screens reads "Anna (du)" and "Teammitglied 2 (ohne Namen)". She meets both forms within two taps ("Tagesvorschlag" link on the `/team` header). | `404346c`: `features/team/rules.ts:76-88`; `4c0ffbc`: `features/team/member-label.ts:15-21` | §4 one word per concept; §2 one label function (new) | `memberLabel` delegates to `pickerMemberLabel` and keeps its "nicht bestimmt" / "nicht mehr im Team" cases and the qualification suffix; Vitest: for the same member both functions return the same name part. `cra` confirms (CGR-108 form). | — |
+| UXR-115 | `/operations/assistenten/rueckblick/[stopId]` (coach or administrator; phone and desktop), #885 | medium | "Rückblick in Zahlen" puts an eight-column table (team plus seven figures) **above** the list of values that need re-checking. The figures can wait; the lines are the work. At 390 px the table scrolls sideways inside its box (headers in small uppercase, no sticky team column, scroll box not keyboard-focusable), so the first viewport is spent on numbers she cannot read in one view. | `f37180d`: `rueckblick/[stopId]/page.tsx:48-88` (section before the list at `:90`), `:59`, `:61`; `labels.ts` `stopMeasureCells` | §1 attention first, what can wait last; §5 phone first, no horizontal scroll; §5 measure tables (new); §6 keyboard | The line list (with its counts line) first; "Rückblick in Zahlen" after it. Below 640 px one card per team (`dl`, "label: value"); from 640 px the table with sentence-case headers, sticky team column, scroll box `tabindex="0"` with a name. e2e at 390 px: `document.scrollingElement.scrollWidth <= 390`, the first `lookback-line` precedes `stop-measures` in DOM order; the existing count assertions stay. `aia` confirms nothing in the measure changes meaning. | — |
+| UXR-116 | `/operations/assistenten/tagesvorschlag` "Tagesvorschlag in Zahlen" (coach or administrator; phone and desktop), #886 and #890 | medium | Nine figure columns per team; several cells are compound strings ("12,5 % · 8 Zeilen (Nicht verfügbar 1 · Pflegefachperson nötig 0 · Abwesend 2 · Überschneidung 0)"); a team under the three-person rule shows "nicht ausgewiesen (weniger als 3 Personen)" in up to seven cells of one row; the three shares that add up to 100 % (CGR-140) sit in three separate columns; "Geändert (Gegenmass)" uses an internal measurement term; the month reads "2026-11". At 390 px this is a sideways-scrolling table she cannot compare in one view. | `a4b1ce0`: `tagesvorschlag/page.tsx:25`, `:51-80`; `labels.ts:329`, `:334-346`, `:365-405` (`:372` "Gegenmass", `:373` "Abgelehnt") | §5 density, measure tables (new); §4 plain German, no internal terms; §1 | One card per team below 640 px: heading team name and "eingeschaltet am <Datum>"; rows "Tagesvorschläge: 4 · 23 Zeilen", "Entschieden: Bestätigt 70 % · Geändert 20 % · Abgelehnt 10 %, von 20" (one row, CGR-140), "Kein Vorschlag: 12,5 % · 8 Zeilen" with the four reasons as a sub-list, median rows; a suppressed team says the sentence once under its heading instead of in each row; "Geändert" without "(Gegenmass)"; month as "November 2026" in the intro and the field label. Vitest on the card rows; e2e at 390 px no horizontal scroll and one "nicht ausgewiesen" per suppressed card. `aia` and `cra` confirm the labels (AUT-25, CGR-140); no target, ranking or colour added. | — |
+| UXR-117 | same two pages, column "Tage bis 0 offen" (#885) | low | Label counts days, the value while lines are open counts lines ("noch 2 offen"); "0 offen" reads like a code. | `f37180d`: `labels.ts:266-271`, `:287` | §4 plain German, label and value in one unit | Label "Bis nichts mehr offen"; values "noch 2 offen", "am Tag des Stopps", "nach 3 Tagen"; Vitest on `daysToZeroText`. | — |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-102 | **Met on PR head** #888 for the day-plan cards and picker, `/team/vorschlaege` (including the proposed value) and the record look-back picker; the e2e pins distinct options and "(du)". Close on merge; #884 stays open for UXR-113. | `4c0ffbc`: `member-label.ts`; `day-plan-client.tsx:284`, `:427`; `suggestions-client.tsx:151-156`, `:247`; `lookback-actions.tsx:147`; `plan3.spec.ts:117-120` |
+| UXR-98 (1), (2), UXR-100 | Met on PR head #880 (and the stack above it); close on merge. | 23:50 section |
+| UXR-103 to -112 | OPEN, unchanged on the heads (#888 touches only the label). | `4c0ffbc` |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+| UXR-101, -99, -97, -96, -95, -94, -93, -92, -91, -90, -89, -88, -84 | OPEN, unchanged. | earlier sections |
+
+### Benchmark (2026-11-06): figures per team on a phone
+
+Read: Chrome for Developers, *Responsive tables* (modern web guidance, UI atoms), https://developer.chrome.com/docs/modern-web-guidance/guides/ui-atoms/responsive-table, read 2026-11-06. In my words: a data table keeps sideways scrolling as its default, but the scroll box is made reachable by keyboard and named as a region, the header row and the first (row-header) column stay pinned so a value is never read without its label, and below a container width (the example uses about 600 px, measured on the container, not the screen) each row turns into a card that repeats the column label beside each value. **NAVORA should adopt** the card-per-team view below 640 px for the two Operations measure pages (UXR-115, UXR-116) and the pinned, focusable table above it, because a coach comparing two teams' figures on her phone otherwise reads numbers without their labels. **Not adopted:** turning table cells into cards with CSS alone and labels injected by pseudo-elements; NAVORA renders the card as its own markup (`dl`), so a screen reader reads "label: value" without depending on CSS. Rule added as DESIGN_SYSTEM §5 *Measure tables at phone width* (OPEN).
+
+### For the PO
+
+(1) UXR-113 widens #884 / CGR-139 to the `/team` new-visit picker on `recovery/main`; it fits #888 before PLAN3 acceptance, the placement is yours. (2) UXR-115 and UXR-116 are presentation only and fit before PLAN3-7 and PLAN3-13 are accepted, or as one UX2 slice after; your order. (3) #850 carries this section; `recovery/main` merged in again (JOURNAL conflict only, every entry kept); yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-05 23:50 CET · `uxa`: PLAN3 part (b) screen `/team/tagesplan` (#880), the "Vorschläge (<n>)" count (#882) and the team look-back entry (#883) read on PR heads; UXR-102 (high), UXR-103 to -105 (medium), UXR-106 to -112 (low); UXR-98 (1), (2) and UXR-100 met on the heads
+
+**What changed since 19:50.** `recovery/main` moved from `eccf30c` to `c315efc` (`aia` #869, docs); `git diff eccf30c c315efc -- src tests e2e` is **empty**, so no screen changed on `recovery/main`. Three new stacked screen PRs: **#880** (PLAN3 part (b) slice 1, ADR-147, head `12f0b0d`: new route `/team/tagesplan`, a "Tagesvorschlag" link in the `/team` header), **#882** (PLAN3-12, ADR-148, head `c734eaf`, contains #880: "Vorschläge (<n>)") and **#883** (PLAN3-11, ADR-149, head `8767008`, contains #882: "Rückblick nach einem Stopp" on `/team` and `/team/rueckblick/[stopId]`). I read all three on #883's head `8767008`, which carries the other two unchanged. **#800** moved by base merges only (`7d286e8` → `797029c`, no own `src` or `tests` commit in between); my earlier notes on it stand. #876 is unchanged in its user texts since 19:50. No new UX brief; no `ux` issue changed. #850 (this PR) conflicted on `JOURNAL.md` again; I merged `recovery/main` in and kept every entry, newest first.
+
+**Sources.** `ui-screenshots` artifacts exist for #883 (`7c83028`, 13459046806), #882 (`c734eaf`, 13455228400), #880 (`12f0b0d`, 13446159502) and `recovery/main` `c315efc` (13447077028); the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code on `8767008`: `team/tagesplan/page.tsx`, `team/tagesplan/day-plan-client.tsx:1-443`, `features/planning/day-plan-labels.ts`, `features/planning/day-plan-view.ts`, `team/team-client.tsx` (header links :136-146, `TeamLookback` :1202-1226), `features/ai/labels.ts:164-236`, `team/rueckblick/[stopId]/page.tsx`, `tests/e2e/plan3.spec.ts`; `briefs/PLAN3.md` PLAN3-5, -9, -11, -12 and the PO notes 2026-10-31 00:10; ADR-147 notes 1 and 4; migrations 0035 (`private.member_name` returns `display_name`, nullable) and 0097 (`open_suggestions` lists every agent's open lines of a team). CI on the three heads as GitHub reports: `app`, `db`, `e2e` green; `ui-screenshots` green on `c734eaf` and `12f0b0d`, still running on `8767008`. I ran no test. No benchmark (made 07:50 today). Live project not touched.
+
+### What the screen does (IMPLEMENTED on the PR heads, not on `recovery/main`)
+
+At 390 px, top to bottom: team chips when she is in several teams; a card with the team's switch state, one explanation line and "Tagesvorschlag ein-/ausschalten"; the ask form ("Tag", "auch zugewiesene neu vorschlagen" unticked, "Tag vorschlagen"); then "Vorschlag für den <TT.MM.JJJJ>" with one card per member (name, "<a> → <b> Minuten in eurem Team", "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." where it applies) and one line card per visit (time · client, minute categories, reason, flags; a tick box where the line is bulk-eligible; "Bestätigen" filled, "Ändern" and "Ablehnen" outline, "Einsatz öffnen" link); "Ohne Vorschlag" with the not-found lines; at the very end one card with the ticked-list button ("<n> Zuteilungen bestätigen", disabled with "Zeilen ankreuzen, um sie zu bestätigen" at 0). What is right and stays: no line ticked at start, no "alle", the button names its count, a refused line keeps its reason on its line, no name on the switch line, refusals and limits in plain words without codes, every control ≥ 44 px.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-102 | `/team/tagesplan` member cards and the "Ändern" picker (team member who plans; phone), #880; same picker fallback on `/team/vorschlaege` and the record page | high | A member without a display name is shown as plain "Teammitglied" as card heading and as picker option; with two such members the cards and the options read the same, and the person planning is not marked as herself. In the one control that assigns a visit to a nurse, she cannot tell whom she picks; a visit can end up with a colleague who does not expect it while the team reads it as covered. `display_name` is nullable (0035). The handover already keeps unnamed members apart ("Teammitglied <n> (ohne Namen)", `cra` CGR-108 confirmed); the new screen does not. | `8767008`: `day-plan-client.tsx:283`, `:288`, `:424-427`; `suggestions-client.tsx:242`; `lookback-actions.tsx:146`; `handover/rules.ts:89` on `recovery/main` | §4 who wrote a record entry / name the person; §2 proposals and confirmation; §1 what action to take next | One function for a member's label in every picker and member heading: display name; "<Name> (du)" for the caller; otherwise "Teammitglied <n> (ohne Namen)" with the same numbering as the handover (if the day-plan read cannot carry the number, `eng` says how). Vitest: two unnamed members give two different labels; the caller's label ends with "(du)". e2e at 390 px (synthetic seed with two unnamed members of one team): the "Ändern" picker has no two options with the same text. `cra` confirms (same form as CGR-108). | #884 |
+| UXR-103 | `/team` header and `/team/vorschlaege` vs. `/team/tagesplan` (team member; phone), #880, #882 | medium | Day-plan lines are AIG1 proposals (`open_suggestions` lists every agent), so the same open line can be decided in two places with two layouts, and the count sits only on "Vorschläge": after asking a day of five lines the header reads "Vorschläge (5)" next to "Tagesvorschlag" without a count (`plan3.spec.ts:66`). Two links with near-identical words for one job; she does not know which to open. The PO note of 2026-10-31 00:10 has the day plan "behind the same link". | `8767008`: `team-client.tsx:140-146`; `features/ai/queries.ts:56-68`; `plan3.spec.ts:66`; ADR-147 note 1 | §1 the three questions; §4 one label per page; §5 shell item not repeated (UXR-77) | PO decides one entry. Proposal: the day-plan lines are decided only on `/team/tagesplan`; `/team/vorschlaege` shows them as one row per day ("Tagesvorschlag <Wochentag, Datum>: <n> offen", link to that day) instead of single lines; the header keeps one link "Vorschläge (<n>)". e2e: with a five-line day plan open, `/team/vorschlaege` shows one day row and no day-plan line with its own "Bestätigen". | — (medium; PO trade-off) |
+| UXR-104 | `/team/tagesplan`, ticked-list confirm (team member; phone) | medium | The ticked-list button and its count sit in one card after every member card and "Ohne Vorschlag"; at 390 px with more than two or three lines she ticks lines without seeing the count grow and must scroll to the end to confirm. Each line also has its own filled "Bestätigen", so the screen offers two confirm paths and only the per-line one is in view. | `8767008`: `day-plan-client.tsx:261-276`, `:393-395` | §2 one primary action per section; §5 density; §1 what action next | When at least one line is ticked, the count and button show in a bar fixed above the tab bar ("<n> Zuteilungen bestätigen", same constant), focus never under it (UX2-31 (2) scroll padding); at 0 ticked the bar is absent and the end card stays. e2e at 390 × 844: tick the first line, the button with "1 Zuteilung bestätigen" is in the viewport without scrolling; a focused tick box is never covered by the bar. How bulk confirm is placed is `cra`'s to confirm (CGR-78 (b)). | — |
+| UXR-105 | `/team/tagesplan` with a day open (team member; phone) | medium | With a day open, the switch card (state, explanation, button) and the full ask form come before the proposal; what needs attention now (open lines) starts below two settings-type cards, and the switch is the first control on the screen. | `8767008`: `day-plan-client.tsx:79-88`, `:106-121`, `:152-169` | §1 attention first, what can wait last; §5 density | With `datum` set and at least one line: the proposal comes first under the page header; the ask form shrinks to the existing "Anderen Tag wählen" link; the switch moves to the end of the page with its state line. With no day open, today's order stays. e2e at 390 × 844 with a five-line day open: the heading "Vorschlag für den …" and the first line card are in the first viewport. | — |
+| UXR-106 | `/team/tagesplan`, a line refused at confirm (`overlap`, J3 refusals) | low | The refusal line says why but not what happens to the visit; my 19:50 answer to `cra` proposed one added sentence "Der Einsatz bleibt offen." (it stays in the uncovered path, CGR-75 (5)), which is not built. | `8767008`: `day-plan-client.tsx:380-384`; `plan3.spec.ts:107` | §4 say what happens | One constant appended once to every refusal on a day-plan line: "Der Einsatz bleibt offen."; e2e `plan3.spec.ts:107` asserts both sentences. `cra` confirms. | — |
+| UXR-107 | `/team/tagesplan`, "Ändern" when no other member is in the list | low | "Ändern" is disabled with no reason; the design system already has the line "Kein anderes Teammitglied wählbar." for this case. | `8767008`: `day-plan-client.tsx:396`; `labels.ts:161`; DESIGN_SYSTEM §2 proposals | §2 an action not available says why; UXR-92 | Show `NO_OTHER_MEMBER_TEXT` ("Kein anderes Teammitglied wählbar.", `labels.ts:161`, already used for AIG1) as one `info` line instead of a disabled button. Vitest/e2e with a one-member team. | — |
+| UXR-108 | `/team/tagesplan`, result after the ticked confirm | low | The button reads "3 Zuteilungen bestätigen" and the result "3 Werte bestätigt." (AIG1 wording); one act, two nouns. | `8767008`: `day-plan-client.tsx:222`, `labels.ts:164-167`; `plan3.spec.ts:90` | §4 one word per concept | On the day plan the result uses the button's noun: "3 Zuteilungen bestätigt." / "1 Zuteilung bestätigt, 1 nicht übernommen." (a `noun` argument or a day-plan wrapper); Vitest. | — |
+| UXR-109 | `/team` "Vorschläge (<n>)" link, screen reader (#882) | low | The `aria-label` at n = 1 reads "1 offene Vorschläge"; the e2e pins the error (`plan3.spec.ts:125`). | `8767008`: `labels.ts:201`; `plan3.spec.ts:125` | §4 plain German; §6 accessible name | "1 offener Vorschlag", "<n> offene Vorschläge" from n = 2; Vitest on `suggestionsLink(1)`, e2e line 125 updated. The cap "99+" stays OPEN (§2). | — |
+| UXR-110 | `/team/tagesplan` heading and empty state | low | The day reads "06.11.2026" without its weekday; when planning up to 14 days ahead the weekday is what a team checks first (weekend, own days). | `8767008`: `day-plan-client.tsx:179-182`, `:199`, `:239` | §4 dates as the team reads them (VIS2 "am <Wochentag>, <Datum>") | "Vorschlag für Freitag, 6.11." (year only when not this year), the same date helper as VIS2; Vitest on the formatter. | — |
+| UXR-111 | `/team/tagesplan` → "Einsatz öffnen" → record page (ADR-147 note 4) | low | The record page's back link leads to the role's home, not back to the day she was deciding; she loses the day and team. ADR-147 marks this PLANNED "if `uxa` asks": I ask. | `8767008`: `day-plan-client.tsx:404`; `labels.ts:175-189` (`recordBackLink`) | §1 workflow continuity; DESIGN_SYSTEM §2 "back link returns to the list that opened it" | `von=tagesplan&team=<id>&datum=<date>`; back link "Zurück zum Tagesvorschlag" to the same URL; Vitest on `recordBackLink`, e2e opens a line and returns to the same day. | — |
+| UXR-112 | `/team` "Rückblick nach einem Stopp" entry (team member; phone), #883 | low | The link "Werte ansehen" names looking, while the entry exists so the team checks values it confirmed unchanged (AIG1-C2 offers "Erneut bestätigen" / "Ändern" on the record). The link text is Engineering's, open for `uxa`. | `8767008`: `labels.ts:235`; `team-client.tsx:1219` | §1 what action next; §4 say what happens | "Werte prüfen"; Vitest on `teamLookbackEntry`. `cra` and `aia` confirm (AIG1 wording). | — |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-98 | (1) and (2) **met on PR head** #880: "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." and "<a> → <b> Minuten in eurem Team"; close on merge. (3) the reason label "freie Kapazität" stays the PO's. | `8767008`: `day-plan-labels.ts:75-77`; `day-plan-view.ts:95-98`; `plan3.spec.ts:80` |
+| UXR-100 | **Met on PR head** ("Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich."); close on merge. | `day-plan-labels.ts:29` |
+| UXR-101 | OPEN, PO's ("kennt die Klientin" unchanged). | `day-plan-labels.ts:12` |
+| UXR-99 | OPEN (CGR-137 brief row not written). | — |
+| UXR-76, -77 | PLANNED (UX2-32); #880 adds a third link to the `/team` header (see UXR-103). | `team-client.tsx:136-146` |
+| UXR-97, -95, -96, -94, -93, -92, -91, -88, -89, -90, -84 | OPEN, unchanged. | earlier sections |
+
+### For the PO
+
+(1) UXR-103 is a product choice: one entry for the day-plan lines (proposal above) or two places to decide them. (2) UXR-102 is opened as #884 because it touches who gets a visit; the fix is presentation only and also covers the two existing pickers. (3) UXR-104 and UXR-105 are layout-only and fit the next PLAN3 part (b) slice; the order is yours. (4) #850 is conflict-free again after this run and yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-05 19:50 CET · `uxa`: no screen changed on `recovery/main`; #876 (PLAN3 part (a) + PLAN3-14) texts read, answers to `cra` 17:00 (CGR-136, CGR-137): "weitere Einsätze in anderen Teams", the `overlap` refusal, the hand-path member notice; UXR-98, -99 (medium), UXR-100, -101 (low)
+
+**What changed since 15:10.** `recovery/main` moved from `8e7d392` to `eccf30c`: `po` #874, #877 and `cra` #879, all docs; `git diff 8e7d392 eccf30c -- src tests e2e` is **empty**, so no screen changed. Open PR **#876** (PLAN3 part (a) + PLAN3-14, head `566a7dd`, contains #872) adds no file under `src/app` or `src/components`, but adds the user texts of the day-plan proposal (`src/features/planning/day-plan-labels.ts`, new) and one refusal (`src/features/ai/labels.ts`, `overlap`); its own header marks the "kein Vorschlag" limits, the refusals and "weitere Einsätze in anderen Teams" as open for `uxa`. `cra` 17:00 (#879, merged) asks `uxa` for: "weitere Einsätze in anderen Teams", the `overlap` refusal, and later the CGR-137 notice. No new UX brief; no `ux` issue changed. #850 (this PR) conflicted on `JOURNAL.md`; I merged `recovery/main` in and kept every entry, newest first.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read on `566a7dd`: `day-plan-labels.ts:1-76`; `labels.ts` diff; migration 0109:162 (`free_capacity`), :338, :401-402 (date range); 0110:22, :198-199 (`day_plan_load` returns `minutes_now`, `minutes_with_proposal`, `other_team_visits`); `briefs/PLAN3.md` PLAN3-3, PLAN3-14 and PO note 14:50; `CLINICAL_GOVERNANCE.md` 17:00 (CGR-136, CGR-137); VIS2 `src/features/visits/overlap-rules.ts:35-45` on `recovery/main`. No benchmark (made 07:50 today). I ran no test; CI is the test runner. Live project not touched. All wording below is PROPOSED; part (b), the screen, is PLANNED.
+
+### Answers to `cra` 17:00 (wording PROPOSED)
+
+**`overlap` refusal at confirm (CGR-136 (2), `REFUSAL_TEXT.overlap`).** I confirm "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." as built: same form as the `absent` line beside it, true whichever team the other visit is in, and it names no other team, client or time. On the part (b) screen the refused line keeps its member name in the line, so "Diese Person" has a referent; the line then adds what happens, once, from one constant: "Der Einsatz bleibt offen." (it stays in the uncovered list, CGR-75 (5)). Same for `DAY_PLAN_NOT_FOUND.overlap` ("kein Vorschlag: die passenden Mitglieder haben zu dieser Zeit schon einen Einsatz"): confirmed.
+
+**"weitere Einsätze in anderen Teams" (PLAN3-14 (1), `otherTeamVisitsLine`).** The fact is right; the place makes it misleading: it stands on the day-load line whose minutes count this team only (0110:198). A planner reads "2 h 10 → 2 h 55" as her whole day. Proposed line instead: **"Dazu Einsätze in anderen Teams, hier nicht mitgezählt."** (no count, no client, no time, as PLAN3-14). `info` tone, text, not an icon or colour alone. See UXR-98. `cra` confirms the fact, `lca` confirms the line because it tells one team something about another team's planning (the yes/no `lca` was already asked for, PO 14:50).
+
+**CGR-137 notice on hand assignment (PLANNED only if the PO writes the brief row).** On the same forms VIS2 already says, about the **client**, "Bei dieser Person ist heute … bereits ein Einsatz geplant." (`overlap-rules.ts:41-44`). A second sentence about the **member** that also says "Diese Person" makes two different facts read the same (UXR-99). Proposed: the member notice names the member, from her display name (DESIGN_SYSTEM §4, name the person): **"<Anzeigename> hat zu dieser Zeit schon einen Einsatz."**, `info` tone, before saving, never a refusal, never with team, client or time of the other visit; the save button keeps its label. If both facts are true, the client sentence comes first (it is about who is cared for), the member sentence second, each its own line.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-98 | PLAN3-9 day-plan screen, day-load line per member (team member who plans; phone and desktop), part (b) PLANNED | medium | "weitere Einsätze in anderen Teams" sits next to minutes that count this team only, so the line reads as if those visits were in the minutes; with the reason "freie Kapazität" (fewest planned minutes **in this team**, 0109:162) the proposal can call a member free who has a full day in another team (COVER1, two memberships). Overlap itself is prevented (PLAN3-14), so this is a load and fairness reading, not a double booking. | `566a7dd`: `day-plan-labels.ts:73-76`, `:9-14`; 0110:198-199; 0109:162 | §1 what needs attention now; §4 say what happens; DESIGN_SYSTEM §4 new rule "a partial count says its scope" (OPEN) | (1) `otherTeamVisitsLine(true)` returns "Dazu Einsätze in anderen Teams, hier nicht mitgezählt.", `null` otherwise (Vitest). (2) Part (b): the minutes carry their scope once per list, "Minuten in eurem Team" in the load header (e2e: visible at 390 px without scrolling the header). (3) PO decides whether the reason label stays "freie Kapazität" or becomes "am wenigsten verplant in eurem Team" (PLAN3-3 is the PO's wording). `cra`, `lca` confirm (1). | — (medium; part (b) PLANNED) |
+| UXR-99 | Hand assignment forms (`/team` plan and reschedule with a member, `/field` "Übernehmen"), CGR-137, OPEN | medium | VIS2's client sentence and a CGR-137 member sentence would both open with "dieser Person"; on one form two different overlaps (client already visited at that time vs. nurse already busy) read as one. | `recovery/main` `eccf30c`: `src/features/visits/overlap-rules.ts:41-44`; `CLINICAL_GOVERNANCE.md` 17:00 CGR-137 remedy ("Diese Person hat zu dieser Zeit schon einen Einsatz") | §4 name the person, never assume a gender (UXR-81); §2 one message per fact | Member notice "<Anzeigename> hat zu dieser Zeit schon einen Einsatz.", client sentence unchanged and first; Vitest: with both facts true, two separate `role="status"` lines, the member line contains the display name and not "dieser Person". Only if the PO writes the CGR-137 brief row. | — (medium; OPEN) |
+| UXR-100 | PLAN3 refusal `date_out_of_range` (team member who plans) | low | "Ein Vorschlag ist für heute bis in 14 Tage möglich." is ungrammatical ("in 14 Tagen") and hides that today and the next 14 days are the whole range. | `566a7dd`: `day-plan-labels.ts:29`; 0109:401 (`p_date < today or p_date > today + 14`) | §4 plain German | "Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich." Vitest on `dayPlanRefusalText("date_out_of_range")`. | — |
+| UXR-101 | PLAN3 line reason `knows_client` (team member who plans) | low | "kennt die Klientin (n Besuche)" assumes a female client; elsewhere the app uses "Klient:in" (`field-client.tsx:302`, `absence-section.tsx:266`). The label is fixed in the PO's brief PLAN3-3, so the PO decides. | `566a7dd`: `day-plan-labels.ts:12`; `briefs/PLAN3.md:23` | §4 never assume a gender | PO wording choice; proposed "kennt Klient:in (n Besuche)" with the existing singular "1 Besuch". Vitest on `lineReasonText("knows_client", 1)` and `(…, 3)`. | — |
+
+The other open-for-`uxa` texts in `day-plan-labels.ts` (`not_active`, `needs_rn`, `absent`, `team_off`, `open_proposal`, `nothing_open`, `UNAVAILABLE`, the confirm button with its count, the switch line without a name) I confirm as written: plain, no internal code, one fact each.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-76, -77 | PLANNED (UX2-32), visible on `recovery/main`, unchanged. | `eccf30c` |
+| UXR-97, -95, -96, -94, -93, -92, -91, -88, -89, -90, -84 | OPEN, unchanged since 15:10. | earlier sections |
+
+### For the PO
+
+(1) PLAN3-3's reason label "freie Kapazität" and "kennt die Klientin" are your brief wording; UXR-98 (3) and UXR-101 propose changes, yours to take or reject. (2) CGR-137: if you write the brief row, please take the member notice wording from UXR-99 so it does not collide with VIS2. (3) #850 is conflict-free again after this run and yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-05 15:10 CET · `uxa`: #799 (UX2-1 one shell, UX2-31) merged as reviewed: UXR-75, -78, -72 closed; UXR-76 now visible on `recovery/main` (stays PLANNED as UX2-32); #800 and #803 moved by base merges only; no new finding
+
+**What changed since 11:50.** `recovery/main` moved from `aeb566b` to `8e7d392`: `po` 12:00 merged **#799** (UX2-1 + UX2-31, head `642edf0`) as `c8d2db7`, plus #833 and #838 (docs). `git diff 642edf0 c8d2db7 -- src tests e2e` is **empty**, so the shell on `recovery/main` is exactly the head I reviewed at 03:52 and 19:55 on 2026-11-03; after it only docs merged (`git diff c8d2db7 8e7d392 -- src tests e2e` empty). CI on `8e7d392` as GitHub reports: `app`, `db`, `e2e`, `ui-screenshots`, `sync` green; I ran no test. Open screen PRs **#800** (`7d286e8`) and **#803** (`cf51b75`) merged `recovery/main` in after #799; their own `src` and `tests` changes against the new base are line for line the ones I reviewed (diff of the two PR diffs empty), so my earlier notes on them stand. #872 (PLAN3 part (a)) changes no file under `src/app` or `src/components`. `po` 14:50 (#874): the scheduled merge of #800 was refused by the session's permission check; my #850 also waits for the PO. No new UX brief; no `ux` issue changed.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `8e7d392` (13410007681), #803 `cf51b75` (13418815808) and #800 `7d286e8` (13414595557); the archive still redirects to a blob host the proxy refuses to this role (403 again), so **no screenshots were available**. Reviewed from the code on `recovery/main` (`AppShell.tsx`, `shell.ts`, `PageFrame.tsx`, `tests/e2e/ux2-shell.spec.ts`). No benchmark (made 07:50 today). Live project not touched.
+
+### The shell as merged (IMPLEMENTED on `recovery/main` `c8d2db7`)
+
+- Every protected route, the record page `/visits/[visitId]` included, renders inside `AppShell` from `(protected)/layout.tsx`; the first-MVP `Sidebar.tsx` and the interim header "Menü" are gone.
+- Phone: tab bar Heute, Team, Arbeitstag, Mehr (`min-h-14`, inside the viewport, current tab marked by a 4 px bar, bold text and `aria-current`, not colour alone); a person in no team whose home is `/operations` gets "Ausnahmen" first (UX2-31 (1)). Desktop: sidebar with the same items. One `nav` "Hauptmenü" exposed at a time. "Meine Einstellungen" is always reachable; "Abmelden" is last under "Mehr".
+- Focus never lands under the tab bar or a sticky header (scroll padding from measured heights, UX2-31 (2), WCAG 2.2 2.4.11); e2e in `ux2-shell.spec.ts:144-181`. The SIG1 signal area stays above page content inside the shell (`:183`).
+- Still open on the screen (PLANNED, already placed): two label sets per destination (UXR-76 → UX2-32), header links repeating shell items (UXR-77 → UX2-32), page backgrounds and the dark sidebar against light page frames until the UX2-3 tokens.
+
+### Findings
+
+No new finding.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-75 | **Closed in code** (home tab "Ausnahmen" for coordination roles without a team). Acceptance with UX2 is the PO's. | `c8d2db7`; `shell.ts:36-39`; `ux2-shell.spec.ts:99-114`, `e2e` green on `8e7d392` |
+| UXR-78 | **Closed in code** (focused control never under the bar or sticky header). | `c8d2db7`; `AppShell.tsx:179-205`, `globals.css:30`; `ux2-shell.spec.ts:144-181` |
+| UXR-72 | **Closed in code** (record page now inside the role's shell). | `c8d2db7`; `(protected)/layout.tsx`, `src/app/(protected)/visits/[visitId]/page.tsx` |
+| UXR-76, -77 | PLANNED (UX2-32); now **visible on `recovery/main`**: the nurse reads "Team" on the phone and "Dein Team" on the desktop, "Heute" vs "Mein Tag". Not a regression (before #799 there was no tab bar), but UX2-32 is the next fix that touches every screen. | `shell.ts:20` `TAB_LABEL`; `nav.ts` `PAGE_LABEL` |
+| UXR-97, -95, -96, -94, -93, -92, -91, -88, -89, -90, -84 | OPEN, unchanged since 11:50. | earlier sections |
+| #510 (two shells), #548 (settings from every screen) | Navigation remedy met on `recovery/main`; #510 stays open until UX2 is accepted (`po` 2026-10-27), #548 is the PO's to close. I add no comment (nothing new for the PO beyond this section). | `c8d2db7` |
+
+### For the PO
+
+(1) UX2-1 and UX2-31 are on `recovery/main` as I reviewed them; from the UX side nothing blocks their acceptance with the rest of UX2. (2) UX2-32 (one label per destination) is the cheapest remaining UX2 change with the widest effect now that the tab bar is live; I propose it rides the next UX2 PR, but the order is yours. (3) #850 (this PR) is green-able and conflict-free after this run; it is yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
+## 2026-11-05 11:50 CET · `uxa`: no screen code changed; `cra` 09:30 (#870) confirms CGR-134 sentence 5 and the reverse-pair line (no example after "unterbrochen"); #868 rebuilt docs-only (my 07:50 note closed); merge path now with the PO (#861, `PO_MERGE_PROCESS.md`); no new finding
+
+**What changed since 07:50.** `recovery/main` moved from `9e3b998` to `aeb566b` with `po` #868 only (`COORDINATION.md` rule 4, `PO_MERGE_PROCESS.md`, `OWNER_AGENDA.md`, `JOURNAL.md`); **no change under `src`, `tests` or `e2e`** (`git diff --stat 9e3b998 aeb566b -- src tests e2e` is empty). No open screen PR head moved since 07:50 (the newest updates are `gov/` #870 and `aia/` #869, docs only). No new UX brief; no `ux` issue changed. New input for me: `cra` 09:30 on #850 and in #870 (`9fc0636`); `po` 10:56 and 11:30 (merged with #868).
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `cra` 09:30 comment on #850; `JOURNAL.md` `po` 10:56 and 11:30; `PO_MERGE_PROCESS.md` (§4 conditions, role docs PRs). No benchmark (made 07:50 today). I ran no test; CI is the test runner. Live project not touched.
+
+### `cra` 09:30 taken (all wording still PROPOSED for the draft FAM1)
+
+- **CGR-134:** sentence 5 of the client information is confirmed on facts as written at 07:50: "Die Ansicht endet spätestens, wenn Sie Ihre Einwilligung zurückziehen; sie endet auch, wenn Ihre Pflege unterbrochen wird oder endet, und beginnt danach nicht von selbst wieder." "unterbrochen" covers all four pause reasons (`hospital_stay`, `rehabilitation`, `client_absence`, `other`; `cra` cites 0024:212). **No example is added** ("zum Beispiel bei einem Spitalaufenthalt" is withdrawn as an option): one example reads as the only case, which is the same narrowing CGR-134 names. Recorded as a general rule in `DESIGN_SYSTEM.md` §4 (v42). Team revocation (FAM1-3) stays with `lca`; how a client learns of a protective revocation is a Clinical Owner procedure, not page text, so the page carries no sentence for it.
+- **CGR-132:** the reverse-pair refusal line is confirmed. `cra` does not ask for a hint such as "frage sie selbst" (it would steer a capacity judgement); I add none.
+
+### Closed notes
+
+- **#868 carried the #799 shell code (my 07:50 note to the PO):** closed. `po` 10:56 rebuilt the branch docs-only (CGR-135); #868 merged as `aeb566b` with no file under `src`. #799 (`642edf0`) is unchanged.
+
+### Merge of this PR
+
+`po` 11:30 records the owner's answer on #861: the PO is the only role responsible for merge decisions, and `PO_MERGE_PROCESS.md` lists role docs PRs (`ux/` included) among the PRs the PO merges (CI green, no open comment, own files only, no `src/`, `supabase/`, `tests/`, `e2e/` file). The PO notes the owner can say otherwise. I therefore do **not** self-merge #850; it stays open for the PO, and I keep it green and conflict-free. This PR touches only `UX_REVIEW.md`, `DESIGN_SYSTEM.md` and `JOURNAL.md`. UNKNOWN until the owner changes the PO task: when the PO's first merge run happens.
+
+### Findings
+
+No new finding.
+
+### Status of findings
+
+Unchanged from 07:50 (UXR-97, -95, -96, -94, -93, -92, -91, -88, -89, -90, -84 OPEN; UXR-75, -78 met on #799, close on merge). Closed in this section: none (no screen code merged).
+
+### Requests (OPEN)
+
+- `lca`: whether team revocation must be named in sentence 5 (*informed*); the AUT-46 statement as extended.
+- `eng`: once FAM1 is approved, one end-cause constant (no example), and the command refusal for both pairs (pgTAP).
+- `po` (FAM1): CGR-131 to CGR-134 into FAM1-2/-3/-4/-6 with `cra` 09:30; CGR-132 both pairs; UXR-97 (a) per `lca`; merge #850 under `PO_MERGE_PROCESS.md` when it runs.
+
+---
+
+## 2026-11-05 07:50 CET · `uxa`: no screen code changed; answers to `cra` 05:30 (#867) CGR-134 (consent as the upper bound, one end-cause sentence) and the widened CGR-132 (refusal line for the reverse pair); `lca` 04:45 AUT-46 addition taken; benchmark: how a proxy-access page says when access stops; #868 carries the #799 shell code (noted for the PO); no new finding
+
+**What changed since 03:50.** `recovery/main` is unchanged at `9e3b998`; **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. My PR #850 (`d86d585`) is green on all four checks after one re-run of the `db` job (pgTAP 064 failed once at 02:49 UTC, not this PR's; `cra` 05:30 traces it to CGR-110); this run continues it. New input for me, all on open PRs read on their branches: `lca` 04:45 (#860 `024b395`, `decisions/D-40.md`: client information confirmed in substance; duration clause proposed; reverse capacity pair refused in every variant; AUT-46 statement extended), `cra` 05:30 (#867 `0c3b3a2`: CGR-133 met at document level; CGR-132 widened to both pairs; new CGR-134), `po` 06:05 (#868 `52d1803`: #861 merge path escalated to the owner, option C).
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 05:30 on `gov/review-2026-11-05-0530`; `D-40.md` 04:45 on `lca/review-2026-11-04-1655`; `briefs/FAM1.md` FAM1-3, FAM1-4 (lines 33-34); PR #868 commit list. I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen (FAM1 draft); nothing may be built before the PO approves FAM1. Whether the client must be told that the team can end the view is `lca`'s (UNKNOWN); I word only what is set.
+
+### Answers (wording PROPOSED; `cra` confirms facts, `lca` *informed*, the PO places them in FAM1-2/-3/-4)
+
+**CGR-134: duration with consent as the upper bound, and the end causes in one sentence.** `cra` is right that "solange Sie einverstanden sind" names withdrawal as the only end, while FAM1-3 and FAM1-4 end the view while consent stands. I do not use that clause. The client information then reads, top to bottom (changes in bold):
+1. "Wenn Sie einverstanden sind, kann <Anzeigename der angehörigen Person> in NAVORA **jeweils** Ihre Einsätze der nächsten 7 Tage sehen: das Zeitfenster, «Ihr Pflegeteam» als Zugeteilt und den Stand: <Liste der Statustexte>." ("jeweils" says the seven days move on; `lca` (a))
+2. the neutral-state explanation constant (CGR-133, "die Ansicht").
+3. the timetable sentence (19:50, unchanged).
+4. "Sie können diese Einwilligung jederzeit und ohne Begründung zurückziehen. Sagen Sie es dafür einfach jemandem aus dem Pflegeteam." (unchanged)
+5. **new:** "Die Ansicht endet spätestens, wenn Sie Ihre Einwilligung zurückziehen. Sie endet auch, wenn Ihre Pflege unterbrochen wird oder endet, und beginnt danach nicht von selbst wieder."
+6. "Wenn Sie nein sagen oder später zurückziehen, ändert das nichts an Ihrer Pflege." (unchanged)
+
+Sentence 5 sits directly after the withdrawal sentence so every end the client is told about is in one place. "spätestens" makes consent the upper bound; "nicht von selbst wieder" carries FAM1-4 (resume does not restore). "unterbrochen" is the plain word for a paused case (C1); `cra` confirms it covers every pause reason and whether an example ("zum Beispiel bei einem Spitalaufenthalt") helps or narrows. **Team revocation (FAM1-3)** is not in sentence 5 until `lca` decides (*informed*, UNKNOWN); if `lca` says it must be named, sentence 5 gains one clause without a reason: "… Sie endet auch, wenn das Pflegeteam sie beendet oder wenn Ihre Pflege …". No sentence says why the team would end it (CGR-126, protective revocation). Vitest on the build: the information contains sentence 5 from one constant; it contains no "solange"; FAM1-3/-4 end causes each map to a phrase in that constant (`cra` remedy).
+
+**CGR-132 widened: the reverse pair.** With `lca` (b) and `cra` 05:30, both contradictory pairs are refused on "Einwilligung speichern", one `info` line under question 2, focus moved there, nothing saved; one constant with two entries of the same form:
+- question 1 "Ja", question 2 "Nein" (unchanged, 23:50): "So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie selbst, kann aber nach deiner Antwort nicht selbst darüber entscheiden. Bitte prüfe beide Antworten."
+- question 1 "Nein", question 2 "Ja" (new): "So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie nicht selbst, kann aber nach deiner Antwort selbst darüber entscheiden. Bitte prüfe beide Antworten."
+Both lines name the two answers, judge nobody and suggest neither answer (no "frage sie selbst"; if `cra` wants the RN pointed to the client, that is a clinical instruction and `cra`'s to add). Under the pilot variant the reverse pair cannot occur (question 1 is not asked, AUT-46). The command refuses both pairs (pgTAP per pair: nothing stored, no view; `eng`); the screen is not the guard. E2e outside the variant: each pair shows its line and no consent record exists afterwards.
+
+**AUT-46 with the `lca` (c) addition (`cra` 05:30 confirmed on facts).** The fixed text directly above the save button becomes: "Mit dem Speichern bestätigst du: <Name> hat die Information oben erhalten und gibt diese Einwilligung selbst." "oben" is true because the information block is on the same screen above the questions, fixed and not collapsed (19:50); at 390 px the block stays above the questions in the one column. No checkbox, button name unchanged. Applies only under the owner's variant.
+
+### #868 carries the shell code (for the PO; not a UX finding)
+
+PO PR #868 (`52d1803`, base `recovery/main`) contains `819c5c6` "Merge branch 'pr-799' into sim" and so the whole of #799 (UX2-1 shell, UX2-31): 32 files, among them `AppShell.tsx`, `shell.ts`, the deletion of `Sidebar.tsx` and `ux2-shell.spec.ts`. Merging #868 as a cycle PR would land the shell on `recovery/main` outside the merge path the PO has just escalated (#861). From the UX side #799 is the right first merge (03:50 note, *Active now* (0)) and its remedies are met on its head, but the route is the owner's and the PO's; I comment once on #868 and propose nothing on the merge rule.
+
+### Benchmark (2026-11-05): telling a person when someone else's access stops
+
+Read the NHS website page on parent and guardian proxy access for GP online services (<https://www.nhs.uk/nhs-services/gps/gp-services-for-someone-else-proxy-access/parent-and-guardian-proxy-access-for-children>, read 2026-11-05). Pattern, in my words: one section titled by the question the reader has ("when your online access will stop") lists each cause that ends access, including the automatic ones, says what restores it, and says what still works afterwards (care at the practice continues as before). What the page does **not** do is mention withdrawal on request, which shows the gap CGR-134 names from the other side: a person told only one end cause assumes the others do not exist.
+**Adopt for NAVORA:** (1) every end cause in one place, directly after the withdrawal sentence (sentence 5 above), including the ones that happen without anyone acting; (2) say that it does not restart by itself, so nobody relies on it after a hospital stay (H-28); (3) the "what still works" fact is already in sentence 6 and the relative's access-end sentence (team by phone), so nothing is added. Not adopted: a separate heading on the RN's consent step (it would add a section to a fixed six-sentence block). No design, logo or text copied.
+
+### Findings
+
+No new finding. CGR-134 and the reverse-pair line are answers to `cra`, not defects of a built screen.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-97 | OPEN; `lca` 04:45 recommends (a) one client per sign-in for the pilot; the PO to choose. | `D-40.md` 04:45 (#860 `024b395`) |
+| UXR-95 | OPEN; (c) `lca` with `eng` (UNKNOWN). | 23:50 section of 2026-11-04 |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 `9c2ecc4` unchanged). | 15:50 section of 2026-11-04 |
+| UXR-93, -92, -91 | OPEN; unchanged. | as above |
+| UXR-88, -89, -90 | OPEN on #841 (`8907913`). | 23:50 section of 2026-11-03 |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section of 2026-11-04 |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section of 2026-11-03 |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 05:30:** the CGR-133 explanation constant; `lca` 04:45 confirmed the client information in substance. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm sentence 5 (CGR-134) and "unterbrochen" for every pause reason; the reverse-pair line.
+- `lca`: whether team revocation must be named in sentence 5 (*informed*); the reverse-pair line; the AUT-46 statement as extended.
+- `eng`: once FAM1 is approved, one end-cause constant, and the command refusal for both pairs (pgTAP).
+- `po` (FAM1): CGR-131 to CGR-134 into FAM1-2/-3/-4/-6; CGR-132 both pairs; UXR-97 (a) per `lca`; #868 contains #799 (see above).
+
+---
+
+## 2026-11-05 03:50 CET · `uxa`: no screen code changed; answer to `cra` 01:30 (#865) CGR-133: the client information takes the page's explanation of the neutral state from one constant, without "noch"; AUT-48 noted from the UX side; no new finding
+
+**What changed since 23:50.** `recovery/main` is at `9e3b998`: only `aia` #866 (02:25, docs: review 26, AUT-48); **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. My PR #850 (`2cf39ee`) is green on all four checks; this run continues it, no second `ux/…` PR. New input for me: `cra` 01:30 (#865, open) confirms CGR-131, CGR-132 and the AUT-46 placement and raises **CGR-133**.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `cra` 01:30 comment on #850 and its PR #865 (file list); `AUTOMATION_REVIEW.md` 02:25 (AUT-48); issue #861. No benchmark (last made 2026-11-04 03:50; this run is spent on the `cra` answer). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen (FAM1 draft); nothing may be built before the PO approves FAM1.
+
+### Answer to `cra` CGR-133 (wording PROPOSED; `cra` confirms, `lca` for *informed*, the PO places it in FAM1)
+
+`cra` is right. My 23:50 second sentence ("Das Team hat für diesen Einsatz **noch** keinen Abschluss eingetragen.") differs from the page explanation I wrote at 15:50 and `cra` confirmed at 16:45: "noch" suggests the visit happened and only the entry is missing (H-30), and I had written the explanation twice by hand, which is the drift CGR-131 was meant to stop. My error. Replaced by **one explanation constant** (FAM1-6), rendered in both places:
+
+- F-02 statement block: "«Nicht als durchgeführt erfasst» heisst: Das Team hat für diesen Einsatz keinen Abschluss eingetragen. Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht."
+- client information before consent: the same constant with one substitution only, "diese Seite" → "die Ansicht": "… zeigt die Ansicht nicht."
+
+The constant holds the text with one placeholder for the subject ("diese Seite" / "die Ansicht"); nothing else differs. The polite form of the client information is unaffected, because the sentence addresses nobody. Vitest: both renderings contain the imported constant's text with the expected subject; neither contains the word "noch"; the status label in the explanation is the F-02 status constant's neutral entry (CGR-131), not a typed copy.
+
+### AUT-48 from the UX side (no new finding, no issue)
+
+`aia` 02:25 and `eng` (#861) report 17 green Engineering PRs waiting for a merge hand-off. Eleven of them change screens and carry remedies I or `cra` found met on their heads (#799 UX2-1 one shell: UXR-75, -78; #800: UXR-79; #813: UXR-73; #803, #804, #806, #809, #814, #815, #841). For nurses these are not yet real: a pilot team still sees the screens on `recovery/main`. Which option to take is the PO's (#861); I add only that, from the UX side, #799 (one shell) first matches *Active now* (0), because the later UX2 parts are reviewed against it. No proposal on the merge rule.
+
+### Findings
+
+No new finding. CGR-133 is a defect in my own 23:50 wording, corrected above rather than numbered again.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-97 | OPEN; `lca` and the PO to choose. | 19:50 and 23:50 sections of 2026-11-04 |
+| UXR-95 | OPEN; (c) `lca` with `eng` (UNKNOWN). | as above |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 head unchanged). | 15:50 section of 2026-11-04 |
+| UXR-93, -92, -91 | OPEN; unchanged. | as above |
+| UXR-88, -89, -90 | OPEN on #841 (`8907913`). | 23:50 section of 2026-11-03 |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section of 2026-11-04 |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section of 2026-11-03 |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 01:30:** the CGR-131 status list from the F-02 constant, the CGR-132 refusal line, the AUT-46 statement directly above the save button. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm the CGR-133 constant and its one substitution.
+- `lca`: the client information as a whole (*informed*), now with the shared explanation; the 23:50 items.
+- `eng`: once FAM1 is approved, one explanation constant beside the status constant, used by F-02 and the consent step.
+- `po` (FAM1): CGR-131 to CGR-133 into FAM1-2/-6; AUT-46 only under the owner's variant; #861 (AUT-48).
+
+---
+
+## 2026-11-04 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#864): CGR-131 (the client information names all five states, from the page's own list), CGR-132 (one refusal for "gives it herself" with "cannot decide"), AUT-46 form under the pilot variant with `cra`'s two conditions; no new finding
+
+**What changed since 19:50.** My PR #850 (`dc48444`, CI green on all four checks) had a JOURNAL conflict with `recovery/main`; I merged `recovery/main` in (`ca8b67e`, every entry kept, newest first) and continue it, no second `ux/…` PR. `recovery/main` is at `a236c10`: only `aia` #863 (20:20, docs: AUT-44 conditions accepted, AUT-45 inputs, new AUT-46, AUT-47); **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. New input for me: `cra` 21:30 (#864, open, read on `gov/review-2026-11-04-2130`): my 19:50 wordings confirmed, CGR-131 and CGR-132 new, AUT-46 supported with two conditions. FAM1 is still a draft brief. No `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `AUTOMATION_REVIEW.md` 20:20 (AUT-46, AUT-47) on `recovery/main`; `CLINICAL_GOVERNANCE.md` 21:30 on #864. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for PLANNED screens (FAM1 draft); nothing may be built before the PO approves FAM1. What the client must be told is `lca`'s; how capacity is judged is the Clinical Owner's (UNKNOWN); I only word what they set.
+
+### Answers (all wording PROPOSED; `cra` confirms facts and placement, `lca` where noted, the PO places them in FAM1)
+
+**CGR-131: the client information names every state the relative will see.** `cra` is right: my 19:50 sentence 1 listed four states and left out "Nicht als durchgeführt erfasst", the one most likely to worry a relative. My error. Sentence 1 is replaced by two sentences, and the states are no longer written into the sentence by hand:
+- "Wenn Sie einverstanden sind, kann <Anzeigename der angehörigen Person> in NAVORA Ihre Einsätze der nächsten 7 Tage sehen: das Zeitfenster, «Ihr Pflegeteam» als Zugeteilt und den Stand: <Liste der Statustexte>."
+- "«Nicht als durchgeführt erfasst» heisst: Das Team hat für diesen Einsatz noch keinen Abschluss eingetragen."
+`<Liste der Statustexte>` is rendered from the **same constant** that F-02 uses for its five status strings (today: «Geplant», «Verschoben», «Abgesagt», «Durchgeführt», «Nicht als durchgeführt erfasst»), joined "a, b, c, d oder e". So a change to FAM1-6 changes both places at once and the two lists cannot drift. The second sentence repeats the meaning of the neutral state in the client's own words (polite form) and adds nothing the page does not say; with sentence 2 of 19:50 ("…wann jemand vom Pflegeteam zu Ihnen kommt und wann nicht") it also tells the client that the relative will see when nothing has been recorded yet. Vitest: the information block contains every string of the F-02 status constant and no other status word; the test imports the constant, never a copied list. The other three 19:50 sentences are unchanged. `lca` confirms the substance (*informed*), `cra` that the list is complete. If the PO takes the display-name variant, only "«Ihr Pflegeteam» als Zugeteilt" changes ("wer zugeteilt ist").
+
+**CGR-132: "gives it herself" together with "cannot decide it" is refused in every variant.** The form already refuses a missing answer under its question (§4). One more refusal, checked on "Einwilligung speichern" and shown as one `info` line under question 2, with focus moved there; nothing is saved:
+- "So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie selbst, kann aber nach deiner Antwort nicht selbst darüber entscheiden. Bitte prüfe beide Antworten."
+The line names the two answers, not the client: it makes no judgement about her, suggests neither answer and has no button that changes an answer. Under the pilot variant this pair already ends in the confirmed pilot line; to keep one wording per situation (§4), the variant shows **only** the pilot line ("Im Pilot ist die Angehörigen-Ansicht nur möglich, …"), and the line above is used outside the variant. The reverse pair ("Nein", "Ja": a representative consents for a client the RN considers able to decide) is a legal question (`lca`, UNKNOWN); I word nothing for it until `lca` and the PO set a rule. The form refusal is presentation; the rule itself must also be refused by the command (pgTAP: `consent_given_by = client` with capacity `false` raises, `eng`), so the screen is never the only guard. `cra` confirms the facts, `lca` the sentence.
+
+**AUT-46: under the pilot variant the first question becomes a stated fact.** With `cra`'s conditions (i) and (ii), the consent step reads, top to bottom:
+1. the client information (four fixed sentences, CGR-131 above);
+2. question 2 only: "Hältst du <Name> für fähig, über diese Einwilligung selbst zu entscheiden?" ("Ja" / "Nein", required, no preselection; "Nein" shows the confirmed pilot line and no save);
+3. directly above the save button, fixed text, not collapsed: "Mit dem Speichern bestätigst du: <Name> gibt diese Einwilligung selbst."
+4. "Einwilligung speichern".
+I place the statement above the button, not above the information block as `aia` 20:20 wrote, because `cra` (i) makes the save the RN's attestation and the sentence must be read at the moment of the act. The stored record is unchanged (`consent_given_by = client`, recording RN, time; FAM1-2). The button keeps its name; no checkbox is added (that would be the one-answer question again). Vitest: under the variant question 1 is not rendered and the statement is the last text before the button; e2e: "Nein" on question 2 refuses the save. Applies only if the owner takes the variant; otherwise the 19:50 two-question form with CGR-132 stands. `cra` and `lca` confirm the sentence.
+
+**AUT-47.** No screen wording now: NAVORA sets no re-check until the Clinical Owner decides (`cra` 21:30 condition; UNKNOWN). The primary control on screen stays the revocation reason "Kann diese Einwilligung nicht mehr selbst geben", recordable by any RN at any time. If a rule is set later, its line belongs on the team's existing exception list (§2, one action per line), never as a new screen or a periodic prompt.
+
+### Findings
+
+No new finding. CGR-131 is a defect in my own 19:50 wording, corrected above rather than numbered again.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-97 | OPEN; (a) one client per sign-in **supported by `cra`** 21:30; `lca` and the PO to choose. | `CLINICAL_GOVERNANCE.md` 21:30 (#864) |
+| UXR-95 | OPEN; (b) as amended 19:50 (CGR-129) **confirmed by `cra`** 21:30; (c) `lca` with `eng` (UNKNOWN). | as above |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 head `9c2ecc4` unchanged). | 15:50 section |
+| UXR-93, -92, -91 | OPEN; unchanged. | 15:50 section |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section of 2026-11-03 |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section of 2026-11-03 |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 21:30:** the CGR-128 "Verschoben" line, the CGR-129 resend sentence, the two CGR-130 (1) questions with no preselection, the pilot "Nein" line, the timetable sentence. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm the amended client information (CGR-131), the CGR-132 refusal line and the AUT-46 statement and its position above the save button.
+- `lca`: the two CGR-131 sentences (*informed*); the CGR-132 sentence and a rule for the reverse pair; the AUT-46 statement; the 19:50 items (resend sentence, controller and contact in the information, UXR-97).
+- `eng`: once FAM1 is approved, the CGR-132 refusal also in the command (pgTAP), and one status constant shared by F-02 and the consent step.
+- `po` (FAM1): CGR-131 (one status constant), CGR-132 in every variant, AUT-46 form if the owner takes the variant; the 19:50 items.
+
+---
+
+## 2026-11-04 19:50 CET · `uxa`: no screen code changed; `cra` 16:45 (#859) confirms my FAM1 wordings; answers to CGR-128 (current-slot "Verschoben" line), CGR-129 (one resend answer, no address field), CGR-130 (capacity fact with no preselection) and the client information before consent (`lca` 16:55 (1), `cra` 17:30); UXR-97 (low) on F-02 without a client name
+
+**What changed since 15:50.** My PR #850 is still open (`2853655`, CI green on all four checks, mergeable); I continue it, no second `ux/…` PR. `recovery/main` is unchanged at `39a4883`; **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`, #828 `6e3fc0f`); my earlier notes on them stand. New input for me, all on open, unmerged PRs read on their branches: `cra` 16:45 (#859 `230d6a3`: my 15:50 wordings confirmed; CGR-128, CGR-129), `lca` 16:55 (#860 `68a0a09`, `decisions/D-40.md` re-check: consent requirements, information to the client, pilot variants), `cra` 17:30 (#862 `e041079`: CGR-130; client information wording named as `uxa`'s). FAM1 is still a draft brief. No `ux` issue changed since 14:00.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 16:45 and 17:30 on `gov/review-2026-11-04-1730`; `D-40.md` 16:55 on `lca/review-2026-11-04-1655`. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for PLANNED screens (FAM1 draft); nothing may be built before the PO approves FAM1. Legal substance (what the information must contain, whether a consent suffices) is `lca`'s and the legal adviser's; capacity is the Clinical Owner's (UNKNOWN). I only word what they set.
+
+### Answers (all wording PROPOSED; `cra` confirms facts and placement, `lca` where noted, the PO places them in FAM1)
+
+**CGR-128: the "Verschoben" card follows the visit's current slot.** I take `cra`'s (1)-(4) as given and amend my 15:50 card: the line always names the visit's current date and window from the visit itself, e.g. "Neuer Termin: Sa 8.11., 09:00–10:00"; when that date lies after the last day shown the line is the same, with the date written out ("Neuer Termin: Mo 17.11., 08:00–09:00"), so the visit never vanishes without a word. No "Verschoben" card when the visit is back on its original slot; a moved-then-cancelled visit shows "Abgesagt" at its current slot and the "Verschoben" line still names that slot (both true). Never "verschoben auf … und erneut …", never how often it moved (not needed; `cra`'s (3) one card per visit). Vitest: the line is built only from the current-slot fields of the read result (no `after` field reaches the client).
+
+**CGR-129: requesting a new sign-in link.** UXR-95 (b) amended to `cra`'s conditions: the page has **no address field**. The request is offered only on the page an expired or used link opens, as one button "Neuen Anmeldelink anfordern"; it goes to the contact stored in the consent record behind that link. After the tap the page shows one sentence, the same for every case (active, ended for any cause, unknown link), and nothing else changes:
+- "Danke. Wenn Ihr Zugang besteht, erhalten Sie in den nächsten Minuten einen neuen Anmeldelink an die beim Pflegeteam hinterlegte Adresse."
+The sentence states only what NAVORA does in the active case and is true in every case; it never says "gesendet", "beendet" or "kein Konto". A second tap shows the same sentence (no "bereits angefordert"). E2e: the rendered text after the tap is identical across the CGR-129 (2) cases; `lca` confirms the sentence and whether self-service stays at all (identity verification, UNKNOWN). A relative without any link has no request path on the page and keeps the phone route.
+
+**CGR-130 (1): the capacity fact in the consent step (staff screen, "du").** Two required questions on the RN's consent form, each a radio pair "Ja" / "Nein" with **no option preselected**, labelled with the client's display name (§4, no assumed gender):
+1. "Gibt <Name> diese Einwilligung selbst?"
+2. "Hältst du <Name> für fähig, über diese Einwilligung selbst zu entscheiden?"
+The confirming button "Einwilligung speichern" stays enabled; saving without an answer shows the §4 refusal form under the unanswered question ("Bitte beantworte diese Frage."), focus moves there. Nothing on the form is filled from the assessment, a score, a diagnosis or an AI proposal (`cra` (2)); no hint text suggests an answer. If the PO and owner take `lca`'s pilot variant (client consents herself only), a "Nein" on either question shows one `info` line and no save: "Im Pilot ist die Angehörigen-Ansicht nur möglich, wenn <Name> selbst einwilligt und darüber entscheiden kann." The question wording is clinical and legal substance: `cra` and `lca` confirm it; how capacity is judged stays UNKNOWN (Clinical Owner after G-1). **CGR-130 (3):** I have no change to the revocation label "Kann diese Einwilligung nicht mehr selbst geben"; it sits in the team's revocation list with the other reasons, same size and order rule, never shown to the relative.
+
+**Information to the client before consent (`lca` 16:55 (1) *informed*; `cra` 17:30: wording `uxa`'s, never implying safer care).** Shown on the RN's screen in the consent step, above the two questions, in the polite form because the RN reads or shows it to the client (§4 polite form); fixed text, always visible, not collapsed:
+- "Wenn Sie einverstanden sind, kann <Anzeigename der angehörigen Person> in NAVORA Ihre Einsätze der nächsten 7 Tage sehen: das Zeitfenster, den Stand (geplant, verschoben, abgesagt, durchgeführt) und «Ihr Pflegeteam» als Zugeteilt."
+- "Damit sieht <Anzeigename der angehörigen Person> auch, wann jemand vom Pflegeteam zu Ihnen kommt und wann nicht."
+- "Sie können diese Einwilligung jederzeit und ohne Begründung zurückziehen. Sagen Sie es dafür einfach jemandem aus dem Pflegeteam."
+- "Wenn Sie nein sagen oder später zurückziehen, ändert das nichts an Ihrer Pflege."
+The first line follows the pilot default "Ihr Pflegeteam" (`lca` (3)); if the PO takes the display-name variant, it reads "… und wer zugeteilt ist". No sentence says the view makes care safer, that the relative can reach the team, or that the team watches less without it. Whether the information must also name the controller and contact (DSG Art. 19 as read by `lca`) or what the relative does not see is `lca`'s (UNKNOWN); I add no claim. `lca` confirms the substance, `cra` the timetable sentence (CGR-126).
+
+**Pilot variants (`lca` (2), (3); `cra` 17:30 supported).** From the screen side both simplify: "Ihr Pflegeteam" for every visit makes F-02 cards identical in form and removes the per-person staff switch from the nurse's settings; "client consents herself only" removes a representation form from the admission step. The choice is the owner's through the PO.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-97 | F-02 (relative; phone), FAM1 draft, PLANNED | low | My 15:50 title "Nächste Einsätze" without a client name works only if one sign-in shows one client. FAM1-2 records one consent per relative and client, so one relative (e.g. a daughter of two parents in care) may hold two. If both lists share one page or one sign-in, she cannot tell whose visit a card is and may read one parent's visit as the other's (`cra` 16:45 note to `lca`). The name question is `lca`'s (UNKNOWN), but the page needs a rule either way. | `briefs/FAM1.md` FAM1-2 (`39a4883`); `UX_REVIEW.md` 15:50 *F-02 layout*; `CLINICAL_GOVERNANCE.md` 16:45 *Client's name on F-02* (#859) | §1 the three questions (whose visit is it); §4 one wording per thing | PO states in FAM1 one of: (a) one sign-in per consent record (two clients → two links, each page shows one list; e2e: a relative principal reads exactly one client's visits per session); or (b) if `lca` allows a label, a page per client with a label `lca` sets, chosen before any list is shown. Until then no page shows visits of two clients together (pgTAP on the read function: one client per call). | none (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-95 | OPEN; (a), (d) no `cra` objection; (b) amended above to CGR-129 (no address field, one answer sentence); (c) `lca` with `eng` (UNKNOWN). | `cra` 16:45 (#859) |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 head `9c2ecc4` unchanged). | 15:50 section |
+| UXR-93, -92, -91 | OPEN; unchanged. | 15:50 section |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 16:45:** my 15:50 neutral status text and its explanation, one neutral tone, the access-end sentence, the FAM1-10 block, "Zugeteilt", "Keine Einsätze eingetragen."; the neutral-text share in the measure supported. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm the amended "Verschoben" line (CGR-128), the two capacity questions and the "Nein" line (CGR-130), the timetable sentence in the client information.
+- `lca`: the resend sentence and whether self-service stays (CGR-129); the four client-information sentences and whether controller, contact or a "what is not shown" line must be added; UXR-97 (one client per sign-in or a label); the earlier 15:50 items (second access-end sentence, session length).
+- `po` (FAM1): CGR-128 into FAM1-6 with the line above; UXR-95 (b) as amended; CGR-130 form with no preselection; the client information shown before the record is saved; UXR-97 (a) or (b); the two pilot variants to the owner; the earlier 15:50 items.
+
+---
+
+## 2026-11-04 15:50 CET · `uxa`: no screen code changed; new brief FAM1 (draft, owner D-40 minimal option B) read for the relative page F-02; answers to `cra` 13:30 (#857): the neutral status wording (CGR-125), one access-end sentence for every cause (CGR-127 (1)), the FAM1-10 statement on `cra`'s four facts; UXR-95 (medium) on relatives' sign-in effort; UXR-96 (low) on my own F-01 to F-06 catalog lines
+
+**What changed since 11:50.** My PR #850 was still open (CI green on `2f46d28`) and conflicted in `JOURNAL.md` after `po` #856 and `aia` #858 merged; I merged `recovery/main` (`39a4883`) into it, every entry kept, newest first, and continue it here instead of opening a second `ux/…` PR. `recovery/main` moved by `po` #856 (owner decisions D-39 = A and D-40 = minimal option B; new brief **FAM1**, status draft; M7 objective changed to FAM1) and `aia` #858 (AUT-44, AUT-45; FAM1 supported in substance); **no change under `src`, `tests` or `e2e`** (`git diff d1f2771 39a4883`). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 13:30 on open PR #857 (`0fe2a3b`) confirms my 11:50 lines (shared call sentence, "Entscheid erfassen" line with its last sentence, the AUT-42 hint) and UXR-94, and asks `uxa` for three FAM1 wordings (CGR-125 neutral status, the single access-end sentence, FAM1-10). AUT-44 names `uxa` for the admission step. No `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `briefs/FAM1.md` in full; `CLINICAL_GOVERNANCE.md` 13:30 on #857 (CGR-125, -126, -127; FAM1-10 facts); `AUTOMATION_REVIEW.md` 14:20 (AUT-44, AUT-45); my `NAVORA_SCREEN_CATALOG.md:69`, `:435-440` and `NAVORA_INFORMATION_ARCHITECTURE.md:220-225`, `:260`. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. FAM1 is a **draft** brief: everything below is PROPOSED wording and layout for a PLANNED screen; nothing is built and nothing may be built before the PO approves FAM1. The status mapping itself is the PO's (CGR-125) and becomes a Clinical Rule Register row; I only word it. Which numbers the page names beyond 144, whether the organisation's general number may appear (owner), and every consent, identity and staff-name question (`lca`, legal adviser) stay UNKNOWN; no line below answers them.
+
+### Answers to `cra` 13:30 (all wording PROPOSED; `cra` confirms the facts and placement, `lca` where noted, the PO places them in FAM1)
+
+**Register.** The relative page is the first NAVORA surface for people outside the team. It uses the polite form ("Sie", "Ihr"), as FAM1-8 already does with "Ihr Pflegeteam"; staff screens keep "du" (§4, new rule below). Swiss spelling ("ss").
+
+**CGR-125: the neutral status wording (F-02).** Five status texts, each as text with an icon of its own shape, never colour alone, all in the same neutral tone (no green for done, no red for cancelled: on this page colour must not read as an alarm or an all-clear; `cra` confirms):
+- "Geplant" (only as `cra` defines it: `planned`, not suspended, window end not passed)
+- "Verschoben", with the line "Neuer Termin: Do 6.11., 14:00–15:00" (the moved-to date and window only, CGR-127 (2))
+- "Abgesagt" (no reason, no second line, CGR-127 (2))
+- "Durchgeführt"
+- **neutral:** "Nicht als durchgeführt erfasst"
+
+The neutral text states the one fact `cra` allows (no completion is shown) and nothing else: it does not say the visit took place, is under way, failed or is still to come. I rejected "offen" (reads as "still to come"), "unbekannt" (reads as "something is wrong") and "läuft" (a live state the brief excludes). The page explains it once, in the statement block below, never per card: "«Nicht als durchgeführt erfasst» heisst: Das Team hat für diesen Einsatz keinen Abschluss eingetragen. Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht." The planned window stays on the card under its label "Zeitfenster" (not "geplant", so the word "geplant" never appears beside the neutral text). Vitest: the client renders only these five status strings (as `cra` asks); a test per status that the card has no second line except for "Verschoben".
+
+UX risk for the PO (no rule, a measure): how often a relative sees the neutral text depends on how soon after a visit the team records its completion. If completion is usually recorded hours later, a correct page will show "Nicht als durchgeführt erfasst" for most of today's past visits and may cause the calls FAM1 wants to remove. How soon completion is recorded in practice is UNKNOWN (no pilot data yet; never measured per person). I propose the FAM1 measure also counts, per team and month, the share of past-window visits shown with the neutral text.
+
+**CGR-127 (1): one access-end sentence.** Byte-identical for revocation, withdrawal, pause, close and the FAM1-15 refusal, on the page and after sign-in, with nothing else on the page except the sign-out button:
+- "Diese Seite steht Ihnen nicht mehr zur Verfügung. Bei Fragen wenden Sie sich an Ihren bisherigen Kontakt bei der Organisation."
+
+No date, no time, no team or staff name, no "beendet am", no reason, no change in title or layout by cause; the second sentence is the same for every cause, including a protective revocation (CGR-126). `lca` confirms the second sentence, because for a protective revocation it directs the relative to the organisation (whether the organisation answers her is a safeguarding question, Clinical Owner and `lca`, UNKNOWN). Testable as `cra` wrote: pgTAP over the causes returns the same response; e2e compares the rendered page text and the document title across causes.
+
+**FAM1-10: the statement on `cra`'s four facts.** One block directly under the page title, above the list, always visible (not collapsed, not a dismissible banner), `info` tone, 4 short lines at 390 px:
+1. "Diese Seite zeigt nur die Einsätze, wie das Pflegeteam sie eingetragen hat. Sie können sich ändern." (fact (i))
+2. "Niemand überwacht diese Seite. Über sie erreichen Sie das Team nicht." (fact (ii); it does not say "the team does not see that you opened it", which would be false, reads are audited, FAM1-14)
+3. "Im Notfall: 144" with 144 as a `tel:` link of at least 44 px (fact (iii); further numbers UNKNOWN, PO with the Clinical Owner)
+4. "Fragen zur Pflege oder zu einem Einsatz: über Ihren bisherigen Kontakt bei der Organisation." (fact (iv); no number until the owner answers)
+
+The explanation of the neutral text sits behind one "Was die Angaben bedeuten" disclosure under line 4 (it is not a safety fact, so it may fold; `cra` confirms). Under the block, before the list, the load time: "Stand: heute, 15:42" (CGR-127 (4)); another day "Stand: Mo 3.11., 22:40"; never a relative age. Without a successful load the page shows the statement block and "Die Einsätze können gerade nicht angezeigt werden." with one button "Erneut laden" and no visit list (no cached list, CGR-127 (4)). Nothing on the page says or suggests that the team will notice a problem because of the page.
+
+**F-02 layout (for the PO's FAM1-16 and the catalog).** The three questions for a relative: now = today's visits first, under "Heute"; next = nothing to do here, except calling 144 in an emergency, so the page has **no primary action** (read-only; "Erneut laden" only when loading failed); can wait = "Morgen" and the following days by date ("Fr 6.11."). Each visit is one card with at most three lines: "Zeitfenster 08:00–09:00", the status, and "Zugeteilt: <Anzeigename>" or "Zugeteilt: Ihr Pflegeteam". The label is "Zugeteilt", never "Es kommt" or "Ihre Pflegefachperson": FAM1-8 shows who is assigned, and `cra` CGR-127 (3) shows that the assigned person is not always the one who comes. A day without visits says "Keine Einsätze eingetragen." (never "kein Besuch", which reads as a fact about the client). Sign-out sits in the page header, 44 px. Whether the client's name appears (a relative with two consented clients needs to tell them apart; a shared phone shows it) is `lca`'s (UNKNOWN); until then the page title is "Nächste Einsätze" with no name.
+
+**AUT-44 (admission step, `aia` names `uxa`).** From the screen side I support one act: the consent form on the admission screen stores the record and issues the sign-in in one confirming step, and its confirmation shows the scope sentence "Einsätze: Zeit, Stand, zugeteilte Person" and who consented, so the RN sees what the relative will see before she confirms. No design before FAM1 is approved and `lca` has answered identity verification. **AUT-45:** option (b) (retrospective answer plus page views) adds no control to any nurse screen; a tap tally (a) would add a counter to `/field` for two weeks. If the PO picks (a), I propose paper, not a screen control.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-95 | F-01 sign-in and F-02 (relative; phone), FAM1 draft, PLANNED | medium | FAM1 sets no criterion on how much effort it takes a relative to get back to the page. A relative opens it occasionally (to check one visit), often on a phone she does not use for work. If every visit needs a new e-mail code or a new link from the team, the call stays cheaper than the page and the FAM1 outcome (fewer schedule calls) is not reached; the team also gets "my link does not work" calls instead. Engineering question 2 (invitation and sign-in) is open, and its answer decides adoption as much as safety. Session length on a possibly shared phone is a privacy trade-off, not mine to set. | `briefs/FAM1.md` FAM1-16, *Open questions for engineering* 2, *AI leverage* measure (`39a4883`) | §1 the three questions (reach the answer at once); §5 phone first; DESIGN_SYSTEM §4 say what happens | PO adds to FAM1-16: (a) a returning relative reaches F-02 from her saved link in at most two steps, measured in e2e at 390 px; (b) when a sign-in link or code has expired, the page says so in one sentence and offers one action to get a new one herself, without calling the team ("Neuen Anmeldecode senden"), unless `lca` rules self-service out; (c) the session length and "remember this device" are decided by `lca` with `eng` (UNKNOWN); (d) the FAM1 measure counts failed or expired sign-ins per team and month (never per person). | none (medium; draft brief) |
+| UXR-96 | Design set, F-01 to F-06 (relative, client), my own catalog and IA lines | low | My catalog and information architecture still mark F-01 to F-06 FROZEN and describe F-06 "Team erreichen" (team phone, always visible) and F-03 "Mitteilungen" (push) as part of the family frame. Owner D-40 now puts F-01 and F-02 into the pilot (FAM1, PLANNED once approved) and excludes notifications, messages, check-ins and team contact. F-02 also says "who comes", which CGR-127 (3) shows is not what FAM1-8 shows. A reader of the design set would plan screens the owner excluded. | `NAVORA_SCREEN_CATALOG.md:69`, `:435-440`; `NAVORA_INFORMATION_ARCHITECTURE.md:220-225`, `:260` (on `39a4883`); D-40 | §4 one wording per thing; design set must match the decided scope | In my next catalog change (outside this PR's three files): F-01, F-02 PLANNED (FAM1, draft until approved); F-03 to F-06 "excluded in the pilot (owner D-40)"; F-02 "who is assigned (display name or «Ihr Pflegeteam»)"; layout as in *F-02 layout* above. | none (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-94 | OPEN; **`cra` supported** (13:30: tests take names from the button constants); `eng` to change ADR-143 1c and 6. | #837 head `9c2ecc4` |
+| UXR-93 | OPEN; `cra` confirmed, in ADR-143; closes on the built queue. | 11:50 section |
+| UXR-92 | OPEN; unchanged. | 07:50 section |
+| UXR-91 | OPEN; catalog A-07 line still to be corrected with UXR-96 in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged). `cra` 13:30 confirmed my 11:50 wordings (CGR-124 call sentence, "Entscheid erfassen" line, AUT-42 hint); they stay PROPOSED until MOB1 places them.
+
+### Requests (OPEN)
+
+- `cra`: confirm the neutral status text "Nicht als durchgeführt erfasst" and its explanation, the neutral tone for all five statuses, the access-end sentence, the FAM1-10 block (four lines above the list, the explanation behind a disclosure), and the label "Zugeteilt".
+- `lca`: the second sentence of the access-end text (protective revocation); whether the client's name may appear on F-02; session length and self-service for an expired sign-in (UXR-95).
+- `po` (FAM1): the five status texts and the exhaustive mapping (CGR-125); UXR-95 (a)-(d) into FAM1-16 and the measure; the neutral-text share in the measure; the AUT-45 choice; point 9 explicit act or AUT-42 (unchanged).
+- owner (through the PO): whether the organisation's general number may appear on the page (`cra` FAM1-10 (iv)).
+
+---
+
+## 2026-11-04 11:50 CET · `uxa`: no screen code changed; answers to `cra` 09:30 (#855): the no-reception sentence (CGR-124), the offline line for "Entscheid erfassen" (`record_interruption_followup`), the AUT-42 information line; UXR-93 written into ADR-143 by `eng`; UXR-94 (low) on button names in ADR-143 1c and 6
+
+**What changed since 07:50.** My PR #850 was still open (CI green on `c8e416c`) and conflicted in `JOURNAL.md` after `aia` #854 merged; I merged `recovery/main` (`d1f2771`) into it, every entry kept, newest first, and continue it here instead of opening a second `ux/…` PR. `recovery/main` moved by `aia` #854 only (AUT-41, AUT-42, AUT-43; docs); **no change under `src`, `tests` or `e2e`** (`git diff d85f715 d1f2771`). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 09:30 on open PR #855 (`3df6711`) confirms my 07:50 lines, the read-only absence dialog, the clock-refusal card, the "Stand" lines and the UXR-93 order, with conditions, and asks `uxa` for three things (CGR-124 sentence, the `record_interruption_followup` line, the AUT-42 information line). `eng` #837 (`92d0aba`, docs) wrote `cra` 09:30, AUT-42 (Engineering's choice: one automatic claim-less resend) and UXR-93 into ADR-143 facts, 1c, 1d, 2, 6, 9.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 09:30 on #855; `git show 92d0aba` (ADR-143, APP1 plan); built labels in `src/app/(protected)/field/visit-lifecycle.tsx:73`, `:108-112`, `:121-133` and `src/components/lifecycle/InterruptionFollowupForm.tsx:12`, `:34-35`. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen state (A-07, M6-2, MOB1); nothing is built. Which number "telefonisch" means stays UNKNOWN (Clinical Owner, G-1); no line names one.
+
+### Answers to `cra` 09:30 (all wording PROPOSED; `cra` confirms the safety facts and placement, `lca` where noted, the PO places them in MOB1)
+
+**CGR-124: the no-reception sentence.** One shared call sentence, one constant, used by every 1c line and the absence dialog, so the no-reception case is said the same way everywhere:
+- "Melde es jetzt telefonisch. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."
+
+It names an action she can check herself (the call does not connect) instead of a state she cannot tell apart ("Verbindung" for data versus "Empfang" for calls). It says nothing about what the team sees in the meantime: the server's `visit_stuck` / `visit_overdue` is a backstop for the team, not a fact she may rely on, and naming it would read as "the team will notice anyway" (`cra` condition: never imply the team already knows). So the 07:50 lines read:
+- "Nicht angetroffen" and "Nicht abgeschlossen beenden": "Ohne Verbindung wird «Nicht angetroffen» oder «Nicht abgeschlossen» nicht erfasst, und das Team erfährt nichts davon. Melde es jetzt telefonisch. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."
+- "Ergebnis erfassen": "Ohne Verbindung wird das Ergebnis nicht erfasst. Melde es jetzt telefonisch. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast. Erfassen kannst du es, sobald die Verbindung zurück ist."
+- absence dialog: "Ohne Verbindung wird deine Abwesenheit nicht erfasst. Deine Einsätze bleiben bei dir, und im Team sieht niemand, dass sie frei werden. Melde dich jetzt telefonisch ab. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."
+- banner line 3 stays "Neue Sicherheitssignale kommen erst danach an. Dringendes jetzt telefonisch melden." (three lines at 390 px; the card line is where she acts).
+
+When MOB1 names the number, "telefonisch" becomes a `tel:` link of at least 44 px in the same sentence. Vitest: the 1c lines and the dialog text each contain the shared constant exactly once.
+
+**`record_interruption_followup` offline (ADR-143 1d by rule; button "Entscheid erfassen", `InterruptionFollowupForm.tsx:34-35`).** The button follows 1a (`aria-disabled`, in the tab order). Its line, in the line block of the interrupted card under the existing "Entscheid offen: … Bis dahin bleibt der Einsatz im Team und bei Operations sichtbar." (`visit-lifecycle.tsx:110`, IMPLEMENTED, unchanged):
+- "Ohne Verbindung wird der Entscheid nicht erfasst. Erfasse ihn, sobald die Verbindung zurück ist. Muss die Pflege früher geklärt werden, melde es jetzt telefonisch."
+
+The fact the team needs (broken off, decision open) was recorded online, so this line does not say "das Team erfährt nichts davon"; it is true because the `visit_interrupted` signal stays open until the decision (0045:61-72, `cra` 09:30). Whether a decision can be urgent enough to require a call is a clinical question; the last sentence leaves it to her judgement and sets no rule (`cra` confirms or removes it). If the form is already open when the connection drops, "Entscheid speichern" follows 1a with the same line; the text she typed stays in the form and is not queued. Playwright offline on an interrupted visit: "Entscheid erfassen" is reached by Tab, is `aria-disabled`, is described by this line only, and a tap creates no pending entry and no request.
+
+**AUT-42 information line (ADR-143 9 as written by `eng`; PO choice still open).** On her card after the automatic resend, never green, `info` tone:
+- once, `role="status"`: "Gesendet."
+- then the card's information line: "Gerätezeit verworfen: es gilt die Zeit, zu der es beim Team einging (15:20). Ist die Uhrzeit für das Beobachtete wichtig, ergänze eine Beobachtung."
+- under it, while the device clock is still wrong (the next refusal would show it again): "Bitte Geräteuhr prüfen."
+
+No button (ADR-143 9 (c)). The first sentence is `cra`'s, with the server time added so she sees which time counts. The second sentence is the reason `cra` gave for condition (c); `cra` confirms it as a hint and not a rule. On the record the two-line display stays "Beim Team eingegangen 15:20" / "Gerätezeit verworfen". If the automatic resend is refused, the card shows that refusal under ADR-143 2 with the existing lines ("Nicht gesendet: …"), plus "Dringendes telefonisch melden."; it never shows "Gesendet.". If the PO keeps the explicit act instead, my 07:50 four-line card stands. `lca` confirms "verworfen" on a care record (open since 07:50).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-94 | A-07 offline, `/field` visit card (nurse; phone), M6-2, PLANNED | low | ADR-143 1c and its tests in point 6 name the no-show button "Klient nicht angetroffen". The built button is "Nicht angetroffen" (`visit-lifecycle.tsx:123`) and the recorded state reads "Klient:in nicht angetroffen" (`:73`). A Playwright test written to the ADR will look for a name that does not exist, and a fix "to the ADR" would bring a non-inclusive label into the product (§4 wording, UXR-81 pattern). | `92d0aba` `DECISIONS.md` ADR-143 1c line block and 6; `visit-lifecycle.tsx:73`, `:123` on `d1f2771` | §4 one wording per thing; §6 accessible name stable | ADR-143 1c and 6 use the built labels ("Nicht angetroffen", "Nicht abgeschlossen beenden", "Ergebnis erfassen", "Entscheid erfassen"); the M6-2 tests take the names from the same constants as the buttons; any rename goes through `uxa` and keeps "Klient:in". | none (low); one comment on #837 |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-93 | OPEN; **`cra` confirmed** (09:30); **written into ADR-143 1c and 6 by `eng`** (`92d0aba`); closes on the built queue. | `DECISIONS.md` ADR-143 1c "Line block per card" |
+| UXR-92 | OPEN; unchanged (confirmed, placed in MOB1, in ADR-143 1a, 6). | 07:50 section |
+| UXR-91 | OPEN; catalog A-07 line still to be corrected in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged).
+
+### Requests (OPEN)
+
+- `cra`: confirm the shared call sentence (CGR-124), the "Entscheid erfassen" line including whether its last sentence stays, and the AUT-42 information line with its hint sentence.
+- `eng` (#837): the built button names in ADR-143 1c and 6 (UXR-94); the shared call constant; "Entscheid speichern" in an open form follows 1a.
+- `lca`: "Gerätezeit verworfen" on a care record (unchanged).
+- `po`: the explicit act or AUT-42 for point 9; which of my two clock-refusal texts MOB1 carries follows from that.
+
+---
+
+## 2026-11-04 07:50 CET · `uxa`: no screen code changed; answers to `cra` 05:30 (#852, CGR-123) and `eng` ADR-143 1c / 9 (#837 `8142bba`): the offline call lines for no-show, broken-off visit, outcome and absence, the device-clock refusal card with "Ohne Gerätezeit senden", the offline "Stand" line for safety signals; UXR-93 (medium); one correction to my 23:50 example
+
+**What changed since 03:50.** My PR #850 is still open (CI green on `ea9bd1d`; it went out of date with `recovery/main`, so I merged `recovery/main` into it, `JOURNAL.md` only, every entry kept, and continue it here instead of opening a second `ux/…` PR). `recovery/main` is at `d85f715`: `lca` #851 (D-34, D-39, D-40) and `po` #853 (`DELIVERY_PROGRAM.md` §0c: CGR-122 (1) and CGR-123 in force for ADR-143 and M6-2, AUT-41 the target behind a Clinical Owner gate, the offline phone number and UXR-92 placed in MOB1); **no change under `src`, `tests` or `e2e`** (`git diff 50db89d d85f715` touches none). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 05:30 on open PR #852 (`e787be2`) confirms my 03:50 wording with conditions and asks `uxa` for the no-show and interruption line, the clock-refusal line with an in-app step, and the "Stand" wording; `eng` #837 (`8142bba`) writes CGR-123 into ADR-143 (1c never queued: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence`; 9: "Ohne Gerätezeit senden", "Gerätezeit verworfen") and asks `uxa` for the 1c and 9 wording. No new UX brief; no `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 05:30 on #852; `git show 8142bba` (ADR-143 1c, 1d, 5, 6, 9; APP1 plan); `DELIVERY_PROGRAM.md` §0c; today's button labels in `src/app/(protected)/field/visit-lifecycle.tsx:121-133` ("Nicht angetroffen", "Nicht abgeschlossen beenden", "Ergebnis erfassen") and `absence-section.tsx:106-108`, `:205-208` ("Ich kann nicht arbeiten", "Verkürzen", "Zurückziehen"). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen state (A-07, M6-2, MOB1); nothing is built. Which number "telefonisch" means is UNKNOWN (Clinical Owner, G-1; `DELIVERY_PROGRAM.md` §0c (4)); no line below names one.
+
+### Answers (all wording PROPOSED; `cra` confirms safety facts and how a safety line is placed, `lca` where noted, the PO places them in MOB1)
+
+**ADR-143 1c, visit card offline (`record_no_show`, `end_visit_not_completed`, `record_no_show_outcome`).** The buttons keep place and label as `aria-disabled="true"` (UXR-92). Under the action row, first in the card's line block (UXR-93):
+- "Nicht angetroffen" and "Nicht abgeschlossen beenden": "Ohne Verbindung wird «Nicht angetroffen» oder «Nicht abgeschlossen» nicht erfasst, und das Team erfährt nichts davon. Melde es jetzt telefonisch."
+- "Ergebnis erfassen" (no-show already recorded online, outcome open): "Ohne Verbindung wird das Ergebnis nicht erfasst. Melde es jetzt telefonisch; erfassen kannst du es, sobald die Verbindung zurück ist."
+"Melde es jetzt telefonisch" matches the banner ("Dringendes jetzt telefonisch melden") and names no person or number. When MOB1 names the number, the same sentence ends with it as a `tel:` link of at least 44 px, held on the device (`cra` CGR-118 condition). The tone follows the card's own action (`rose` for "Nicht angetroffen" today); a colour never carries the meaning alone. e2e (ADR-143 6): on an `on_the_way` visit with `context.setOffline`, "Nicht angetroffen" is reached by Tab, its accessible description is exactly the first sentence above, a tap creates no pending entry and no request.
+
+**ADR-143 1c, absence offline (`record_absence`, `change_absence`).**
+- Header "Ich kann nicht arbeiten" has no card for a line at 390 px. Proposal: the button stays active and opens its dialog in a read-only offline variant: title "Ich kann nicht arbeiten", text "Ohne Verbindung wird deine Abwesenheit nicht erfasst. Deine Einsätze bleiben bei dir, und im Team sieht niemand, dass sie frei werden. Melde dich jetzt telefonisch ab.", one button "Schliessen" (focused); no form, so no pending entry and no request. This deviates from the 1c wording "aria-disabled" for this one control; `eng` and `cra` to confirm (the 1c test then asserts the dialog text and no request instead of `aria-disabled`).
+- "Verkürzen" and "Zurückziehen" on her absence card: `aria-disabled`, line "Ohne Verbindung wird die Änderung nicht erfasst; deine Einsätze bleiben, wie sie sind. Ändere es, sobald die Verbindung zurück ist, oder melde es telefonisch."
+
+**ADR-143 9, device-clock refusal (CGR-122 (2), `cra` 05:30 condition met).** On her pending card, replacing my 03:50 line:
+1. "Nicht gesendet: die Uhrzeit dieses Geräts stimmt nicht."
+2. "Du kannst es ohne Gerätezeit senden. Dann gilt nur die Zeit, zu der es beim Team eingeht."
+3. button (the card's one primary action, ≥ 44 px): "Ohne Gerätezeit senden"
+4. "Bitte Geräteuhr prüfen. Dringendes zusätzlich telefonisch melden."
+While sent: "Wird gesendet …"; then one `role="status"` "Gesendet." On the record, the two-line display of point 8 reads "Beim Team eingegangen 15:20" / "Gerätezeit verworfen" (`eng`'s words, kept), same size, not muted below 4.5:1. Never sent automatically (ADR-143 2). `lca` confirms "verworfen" as text on a care record (D-10, D-11).
+
+**Offline "Stand" line for safety signals (`cra` 05:30, benchmark (3)).** In the signal area at the top of `/field`, offline only, one text line under its heading:
+- signals listed: "Stand 14:32 · Neue Sicherheitssignale kommen erst mit Verbindung."
+- none listed: "Keine offenen Sicherheitssignale, Stand 14:32. Neue kommen erst mit Verbindung."
+- another day: "Stand Mo 3.11., 22:40".
+The time is the last successful load of the signal list, not the time the app was opened; whether the client keeps that time today is UNKNOWN (`eng`). Absolute time only, no "vor 5 Min." (a relative age changes while she reads and is not announced). Not a live region. Playwright with `context.setOffline` and an empty seeded list: the text "Keine offenen Sicherheitssignale" never appears without "Stand". Placement `po` (MOB1).
+
+**Correction to my 23:50 section.** The sign-out `alertdialog` example "2 Beobachtungen, 1 Abwesenheit" is no longer possible: an absence is never queued (CGR-123, ADR-143 1c). The example reads "2 Beobachtungen"; the kinds line uses only labels of `QUEUEABLE_FIELD_COMMANDS`. Everything else in that dialog stands.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-93 | A-07 offline, `/field` visit card `on_the_way` or started (nurse; phone), M6-2, PLANNED | medium | ADR-143 1a and 1c each say "one card line" as `aria-describedby`. An offline visit card carries both kinds at once (timeline buttons and "Nicht angetroffen" / "Nicht abgeschlossen beenden"), so either two lines compete or one line serves two reasons; with no order set, the billing sentence ("Ohne Verbindung wird keine Zeit erfasst …") can stand before the safety one, and a screen reader on "Nicht angetroffen" hears the time sentence. | ADR-143 1a, 1c (#837 `8142bba`); `visit-lifecycle.tsx:121-133` (no-show and interrupt buttons on the same card as the timeline) | §1 what needs attention now first; §5 actions unavailable offline; §6 accessible description | One line block per card; the 1c sentence first, the timeline sentence second; each button's `aria-describedby` points only to its own sentence's id. Playwright offline on an `on_the_way` visit: the first sentence of the block is the 1c sentence; "Nicht angetroffen" is described by it, "Einsatz starten" by the timeline sentence. `cra` confirms the order (position of a safety line). | — (medium; PLANNED; comment on #837) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-92 | OPEN; **`cra` confirmed** (05:30, no safety content changed; e2e also shows no request on activation); **placed by `po`** in MOB1 (§0c (5)); in ADR-143 1a, 6 (#837). Closes on the built queue. | `8142bba` |
+| UXR-91 | OPEN; catalog A-07 line still to be corrected in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged).
+
+### Requests (OPEN)
+
+- `cra`: confirm the 1c lines (visit card and absence), the offline read-only absence dialog (deviation from `aria-disabled`), the clock-refusal card, the "Stand" lines, and the UXR-93 order.
+- `eng` (#837): the absence-dialog deviation in 1c and its test; the "last successful load" time for the "Stand" line; one line block per card with per-button sentence ids (UXR-93).
+- `lca`: "Gerätezeit verworfen" and the clock-refusal lines as text on a care record; unchanged earlier requests.
+- `po`: place the "Stand" line and UXR-93 in MOB1.
+
+---
+
+## 2026-11-04 03:50 CET · `uxa`: no screen code changed; answers to `cra` 01:30 (#848, CGR-122): one pending-card line, the offline line for timeline and claim buttons, the device-time label, the preset reason for the PO option (AUT-41); UXR-92 (medium) on "disabled" buttons; benchmark offline and sync status
+
+**What changed since 23:50.** My PR #847 is merged (`7cbbf7b`). `recovery/main` is at `5fc0d61`: only `aia` #849 (AUT-41, docs) since; **no change under `src`, `tests` or `e2e`** (`git diff 7cbbf7b 5fc0d61` touches none). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815 as at 23:50); my earlier notes on them stand. New input for me: `cra` 01:30 on open PR #848 (`0efc5c2`) gives **CGR-122** (blocking for ADR-143 and M6-2: an entry sent late from the offline queue takes the server time) and asks `uxa` for three things (single card line; the line under disabled timeline buttons; the device-time label); `aia` 02:20 (AUT-41) asks `uxa` for preset-reason words under the PO option. No new UX brief; no `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 01:30 on #848; `AUTOMATION_REVIEW.md` 02:20 (AUT-41); ADR-143 on #837 (`c84296a`) as summarised there; my 23:50 section. I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen (A-07, M6, MOB1); nothing is built. Whether the device time is the documented time is UNKNOWN (Clinical Owner with `lca`, D-10, D-11); no label below calls either time "dokumentiert".
+
+### Answers to `cra` 01:30 and `aia` 02:20 (all wording PROPOSED; `cra` confirms safety facts, `lca` the access and deletion texts, the PO chooses between CGR-122 (1) and the option)
+
+**One pending-card line (CGR-118 (2), `cra` "no list").** I withdraw my two-variant proposal of 23:50. Every pending care entry carries the same `info` line: "Noch nicht beim Team. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht." No kinds constant is needed for the wording; if `eng` keeps one for other reasons, the wording does not read it. "Wird gesendet …", "Gesendet." and the refusal lines stay as at 23:50.
+
+**Offline line under the visit-timeline buttons, CGR-122 (1)** (if the PO chooses (1)). One line per visit card, under the action row, never per button, `info` tone: "Ohne Verbindung wird keine Zeit erfasst. Tippe, sobald die Verbindung zurück ist. Eine falsche Zeit korrigierst du danach mit Begründung." The buttons stay in place and keep their labels ("Losfahren", "Einsatz starten", "Pause", "Weiter", "Einsatz beenden", "Zeit korrigieren") as `aria-disabled="true"` with this line as `aria-describedby` (UXR-92). Vitest: the line is a constant; e2e offline: "Einsatz starten" is focusable, announces the line, and creates no pending entry.
+
+**Offline line under the claim buttons** (`take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover`; `cra`: online only). Same pattern, one line per card: "Übernehmen geht nur mit Verbindung, damit nicht zwei dasselbe übernehmen. Dringendes jetzt telefonisch melden." For a cover: "Zusagen und Absagen gehen nur mit Verbindung." Per `cra`'s condition the line names no number until MOB1 names one the app holds offline.
+
+**Under the PO option (AUT-41: an offline timeline tap is sent as a reasoned F3 correction).** Buttons stay active; each tap becomes a pending card line "Einsatz gestartet 14:05 (Gerätezeit). Noch nicht beim Team. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht." **Preset reason** stored with the correction: "Ohne Verbindung erfasst (Gerätezeit)". It names a fact, not a judgement, and keeps the word "Gerätezeit" so a countersigner reading the correction list sees where the time came from (`cra` and `lca` confirm; the PO places it). From the UX side the option is the better form: no act after reconnecting and no time typed from memory (AUT-41); the control is `cra`'s to confirm.
+
+**Device-time label, CGR-122 (2).** On the pending card, on the sent entry and in the record, whenever the two times shown differ at the minute shown (whether any tolerance applies is a rule, `cra`, UNKNOWN; none is set here):
+- line 1, the record's time as today: "Beim Team eingegangen 15:20"
+- line 2, the claim, directly under it, same size, not muted below 4.5:1: "Auf dem Gerät eingegeben 14:05"
+- different day: both lines carry the date ("Mo 3.11., 22:40").
+Text only, never a colour or an icon alone; neither line says "dokumentiert" or "erfasst um". Session-expiry entries (CGR-121) show the same two lines. **Refused because the device time is later than the receipt** (CGR-122 (2) pgTAP): the entry stays on her card with "Nicht gesendet: die Uhrzeit dieses Geräts stimmt nicht. Bitte Geräteuhr prüfen und das Wichtige telefonisch ans Team weitergeben." (`cra` confirms; never dropped, ADR-143 2).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-92 | A-07 offline state on `/field` visit and signal cards (nurse; phone), M6, PLANNED; CGR-122 (1) and `cra`'s claim-button condition | medium | CGR-122 (1) and the 01:30 claim condition say the buttons stay "visible but disabled". A native `disabled` button is skipped by Tab and screen readers and often greyed below 3:1, so a nurse using a screen reader or in sunlight cannot learn why "Einsatz starten" does nothing, and may read the missing button as a missing visit. | `CLINICAL_GOVERNANCE.md` 01:30, CGR-122 remedy (1) and inputs (#848 `0efc5c2`); ADR-143 (#837) | DESIGN_SYSTEM §5 offline rule; §6 accessibility (keyboard, focus, 3:1 non-text contrast, no meaning only in colour) | Use `aria-disabled="true"` (not the `disabled` attribute), keep the button in the tab order, link the one card line with `aria-describedby`, keep label contrast ≥ 4.5:1 and border ≥ 3:1 (V1 `border-control`); a tap shows the card line focused, never a toast. e2e offline (`context.setOffline`): Tab reaches "Einsatz starten" and "Übernehmen"; their accessible description is the card line; tapping creates no pending entry and no request. | — (medium; PLANNED screen; comment on #837) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-91 | OPEN; remedy **confirmed by `cra`** (01:30: "Wird gesendet …" only in flight); now one card line for every pending entry (above). Catalog line A-07 still to be corrected in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`); UXR-89 amended rule met at document level (`cra` 01:30). | 23:50 section |
+| UXR-84 | OPEN on #815; CGR-113 sentence meets `cra`'s condition (01:30). | `4474184` |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged).
+
+### Benchmark (once today): offline and sync status in a health-worker app
+
+Read 2026-11-04: Google Open Health Stack, *Design Guidelines for Offline & Sync* (https://developers.google.com/open-health-stack/design/offline-sync-guideline). In my words: the offline state is shown where the worker decides (task list, patient card), in a neutral tone rather than as an error, with the reassurance that work continues and is uploaded on reconnect; sync progress is a determinate bar, not a spinner; a "last updated" time sits in context on the list and the record, used sparingly; an error says what failed, what to do, a second step if that fails, and how to get help (including a phone number); offline is never reported as a generic sync failure; a manual "sync now" exists on the record for hand-overs.
+**What NAVORA should adopt:** (1) the banner already says work continues (line 2); keep it — its `attention` tone stays because line 3 is a safety fact (`cra`'s to confirm; the guide's neutral tone fits a setting without safety signals). (2) While pending entries are sent, one determinate count line "2 von 5 gesendet", never a spinner. (3) A "Stand" time for safety signals on `/field` while offline ("Sicherheitssignale: Stand 14:32") so the nurse sees how old her picture is — a safety-signal presentation, so `cra` must confirm position and wording before any brief takes it. (4) Refusal lines name the next step and the help route, as the access-end and device-clock lines above do; the phone route waits on MOB1's number (`cra` condition). (5) No "sync now" button: ADR-142 sends in the foreground on reconnect; a manual button would add an act without a gain (`aia` AUT-41 principle). Nothing copied.
+
+### Requests (OPEN)
+
+- `cra`: confirm the claim-button lines, the device-time two-line label, the device-clock refusal line, and the preset reason "Ohne Verbindung erfasst (Gerätezeit)"; confirm UXR-92 does not change the safety content; decide on benchmark point (3).
+- `lca`: preset reason and device-time label as text on a care record (D-10, D-11); unchanged 23:50 requests (deletion and access-end sentences).
+- `po`: choose CGR-122 (1) or the option (AUT-41); place UXR-92 with CGR-122 in MOB1 / M6-2.
+
+---
+
 ## 2026-11-03 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#845): CGR-113 sentence with "gelten nicht mehr", UXR-89 amended with `cra`'s card conditions, offline wording for CGR-118 and CGR-121 (a), (b); UXR-91 (medium) on my own catalog line A-07
 
 **What changed since 19:55.** My PR #839 is merged (`c46010a`). `recovery/main` is at `50db89d`: `aia` #844 and `po` #846 (AUT-40 decided: no C-15 screen at stage 0; AN3-5 wording aligned to the built time-correction share), **no change under `src` or `tests`**. Open screen PRs #841 (`8907913`) and #799 (`642edf0`) moved by base merges only (diff of `src`, `tests`, `e2e` against `aeec158` and `12a44f9` is empty); my 19:55 notes on them stand. New input for me: `cra` 21:30 on open PR #845 (`0dd05c5`) asks `uxa` for four things (CGR-113 sentence, UXR-89 cards, CGR-121 (b) wording, CGR-118 banner facts); `eng` #837 (`7458904`, docs) puts the offline queue on ADR-143 with `cra`'s CGR-121 points and leaves the banner wording open for `cra` (`APP1_IMPLEMENTATION_PLAN.md`, *Offline queue (A-07)*). No new UX brief; no `ux` issue changed.

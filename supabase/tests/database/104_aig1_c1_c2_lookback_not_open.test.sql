@@ -171,12 +171,13 @@ select ok(pg_temp.confs() = (select n from c0) + 1 and pg_temp.line(4) is null
           and jsonb_array_length(pg_temp.record_lines('p', 4)) = 0,
   'AIG1-15 (iv): one ai_confirmations row; the line leaves the list and the record page');
 
--- AIG1-C1 (4): every open-visit line handled, the agent still stopped: "0 offen · 3 nicht mehr offen" ---------------------
-select is(pg_temp.detail(), '[{"detail": "Testassistent Bezugspflege · Werte: 0 offen · 3 nicht mehr offen"}]'::jsonb,
-  'AIG1-C1 (4): the exception stays open while the agent is stopped and reads "Werte: 0 offen · 3 nicht mehr offen"');
+-- AIG1-C1 (4) as replaced by AIG1-C5 (a) (0105, ADR-139): every open-visit line handled, the agent still stopped: the
+-- exception closes by itself at "0 offen"; the stop stays readable as history on the health list (pgTAP 106).
+select is(pg_temp.detail(), '[]'::jsonb,
+  'AIG1-C5 (a): with every open-visit line handled the exception closes by itself ("0 offen" is never an exception)');
 select is((select state from public.ai_agent_settings where organization_id = '00000000-0000-4000-b000-000000000011'
              and agent_key = 'aig1_test_primary_nurse'), 'stopped',
-  'AIG1-C1 (4): the agent stays stopped (closes only on a new audited switch-on)');
+  'AIG1-C1 (4): the agent stays stopped (a restart is a new audited switch-on)');
 select is(jsonb_array_length(pg_temp.lookback()), 3,
   'AIG1-C1 (3): the three past-visit lines are never removed');
 

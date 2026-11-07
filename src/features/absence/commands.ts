@@ -6,8 +6,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
-import type { CommandResult } from "@/lib/commands/result";
+import { qualificationRefusal, type CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
+import { parseMemberOverlap, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
 import { ABSENCE_MESSAGES, TAKE_MESSAGES, pastPlannedOf, resultOf } from "./rules";
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -86,16 +87,30 @@ export async function changeAbsence(input: unknown): Promise<CommandResult> {
   return { ok: false, error: ABSENCE_MESSAGES[r] ?? ABSENCE_MESSAGES.failed };
 }
 
-export async function takeOpenVisit(input: unknown): Promise<CommandResult> {
-  const p = z.object({ visitId: z.uuid(), idempotencyKey: z.uuid() }).safeParse(input);
+/** PLAN3-16: `memberOverlap` is the server's fact after the take (she already has a visit at that time, any team). */
+export type TakeResult = { ok: true; memberOverlap: MemberOverlapFact } | { ok: false; error: string };
+
+export async function takeOpenVisit(input: unknown): Promise<TakeResult> {
+  const p = z
+    .object({ visitId: z.uuid(), idempotencyKey: z.uuid(), memberOverlapShown: z.boolean().optional() })
+    .safeParse(input);
   if (!p.success) return { ok: false, error: TAKE_MESSAGES.failed };
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("take_open_visit", { p_visit_id: p.data.visitId, p_idempotency_key: p.data.idempotencyKey });
+  const { data, error } = await supabase.rpc("take_open_visit", {
+    p_visit_id: p.data.visitId,
+    p_idempotency_key: p.data.idempotencyKey,
+    // PLAN3-16: whether the list showed her overlap line at the take (recorded on the audit row).
+    p_member_overlap_shown: p.data.memberOverlapShown,
+  });
   if (error) {
     logEvent("warn", "command.failed", { op: "take_open_visit", ...errorFields(error) });
-    return { ok: false, error: TAKE_MESSAGES.failed };
+    // QUAL1-10 (0121): the take itself asks the check; the backstop answers a race (evidence changed meanwhile).
+    return { ok: false, error: qualificationRefusal(error, { subject: { kind: "self" }, context: "take" }) ?? TAKE_MESSAGES.failed };
   }
   const r = resultOf(data);
-  if (r === "ok" || r === "duplicate") return done();
+  if (r === "ok" || r === "duplicate") {
+    done();
+    return { ok: true, memberOverlap: parseMemberOverlap((data as { member_overlap?: unknown } | null)?.member_overlap) };
+  }
   return { ok: false, error: TAKE_MESSAGES[r] ?? TAKE_MESSAGES.failed };
 }

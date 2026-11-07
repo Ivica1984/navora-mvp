@@ -174,3 +174,28 @@ Owner instruction 2026-10-28 (§1). This is the reference `csa` judges packages,
 - **The partner route should be needed once, not per team.** From scratch, nobody would incubate each new team inside an incumbent. D-12 B is a bridge for the first team because no provider kit and no shared regulated service exist yet. Every term in D-38 that the first team works out (licence file, Leistungsauftrag, tariff route, training places, financing) should be written so that the **second team can found its provider directly**. This is STR-19.
 - **Judge each package by the end state it leaves behind.** A term that is safe but only works inside the partner (for example a per-person authorisation kept by the partner, STR-3) is a cost the second team pays again.
 - **Shared services are the scale path, not a central management.** P-24 needs the adviser's answer (one Leitung Pflege for several providers: UNKNOWN; `lca`). Until then each provider carries its own licence-bound roles.
+
+## 9 Execution tracking (owner, 2026-11-06)
+
+**Owner instruction, 2026-11-06 (in a `csa` session):** a strategic recommendation is complete only when it has an owner, acceptance criteria, an entry in the roadmap or architecture, and measurable progress. `csa` tracks every recommendation until then and re-escalates what has not moved.
+
+**How `csa` applies it (owner choice, same session: "track and escalate", not "write to the roadmap"):** `csa` stays advisory. The PO keeps the only queue and roadmap authority, so priorities are still set in one place. `csa`:
+1. ends every review cycle with six parts: strategic findings, strategic risks, required actions, assigned owners, success criteria, review date;
+2. for every strategic risk, market shift, business-model threat, competitor threat or transformational opportunity, asks whether `po`, `eng`, `cra`, `lca` or the founder must act, and gives each action an owner, priority, rationale, expected outcome and target date;
+3. lists only actions that create measurable progress, grouped as actions for the Product Owner, Engineering, Clinical, Legal and Founder;
+4. keeps one execution tracker in `STRATEGIC_ALIGNMENT_REVIEW.md` (newest section) and checks, every cycle, from the repository: was action taken, was the recommendation adopted, did the roadmap change, was the architecture updated, was the risk mitigated;
+5. re-escalates an item that has not moved by its target date: once to `po` on the item's issue; a second time as a proposed owner-agenda line through `po` (never to the owner directly);
+6. never assigns work to `eng`, `cra` or `lca` directly: actions for them are proposals that `po` accepts into a brief, a package input request or the queue.
+
+Healthcare hierarchy, administration, coordination, planning, documentation, quality management and assessment workflows stay under the challenge duty; each challenge ends in an execution path, not only a finding.
+
+## 10 Brand (owner, 2026-11-03 to 2026-11-06)
+
+**Decision in force: KEEP NAVORA FOR NOW.** NAVORA remains the project name, the repository name and the working product name. No rebranding activity is approved. No Engineering, Product, UX/UI, Clinical or Legal work may be delayed by branding discussions. (Owner, 2026-11-06.)
+
+**Phase 2 brand validation (approved by the owner 2026-11-06):** decides whether a customer-facing rebrand is needed before the pilot launch. Four checks, all of which must pass for NAVORA to stay customer-facing: (1) trademark clearance in CH, the EU and HR, classes 9, 42, 44; (2) no conflicting filing by Navora AI LLC, or a coexistence agreement; (3) navora.ch and one usable .com variant obtainable; (4) a 13-person confusion test with at most 2 confusions. The working document is the owner's Claude Doc *NAVORA Brand Assessment* (tabs: assessment, shortlist, Phase 2 validation); it holds the sources.
+
+**Facts found 2026-11-03 (desk research, not clearance):** navora.com, navora.ai, navora-ai.com in use by others; navora.hr (a Croatian consultancy named Navora) and navora.at (a clothing shop branded NAVORA) in use; navora.de, navora.care, navora.health registered (content unknown); navora.eu and navora.app offered for sale; navora.ch UNKNOWN. Eleven uses of "Navora" on record; the strongest confusion risk is Navora AI LLC (US; AI for regulated sectors including healthcare; Swiss partner in Geneva). Trademark registers were not reachable; trademark status UNKNOWN.
+
+**Timing (`csa` STR-26):** the public website (M5, 2027-01-15) is the first public use of the name and needs a domain decision by the owner in M3 (2026-12-11). Phase 2 should therefore conclude by M3, not only by the pilot launch.
+

@@ -7,6 +7,8 @@
 - Engineering's sequence and effort estimate (M1, due 2026-11-13) re-baselines them in version 2 of this plan.
 - Dates after M3 hold only if the owner's decisions in M3 arrive by 2026-12-11. Every week of delay there moves M9 and M10 by the same week.
 
+**Version 2 (2026-11-06):** the measurable execution system is [`ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md) (completion %, sub-milestones, critical path, quality gates, weekly dashboard). This file keeps the detailed objectives and v1 criteria; where the two differ, the blueprint holds (its §3.4).
+
 **Status labels:** IMPLEMENTED (on `recovery/main`, synthetic data) · PLANNED · OPEN (needs a decision) · FROZEN (owner freeze, specification only).
 
 **Binding rules for every milestone:**

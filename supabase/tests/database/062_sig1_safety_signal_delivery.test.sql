@@ -4,12 +4,28 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(54);
+select plan(55);
 
 -- VIS1-5: pinned clock (DST1 pattern), 12:00 Zurich today, so the no-show fixture below can be dated today and still
 -- lie ahead (no overdue signal of its own) whatever the hour CI runs. A visit dated after today cannot be departed (CGR-87).
 select set_config('navora.test_now',
   (((private.now() at time zone 'Europe/Zurich')::date + time '12:00') at time zone 'Europe/Zurich')::text, true);
+
+-- CGR-110 (#399, ADR-137): this file owns the SIG1 evaluation of both organisations it asserts on. evaluate_signals
+-- takes pg_try_advisory_xact_lock('navora.sig1', org) and returns 0 when another session holds it (0060: "skip
+-- instead of waiting"). The local stack's pg_cron job `navora-sig1-signals` (every minute, evaluate_all_signals) holds
+-- each organisation's lock until its run ends, and it cannot see this file's uncommitted fixtures. When org B's only
+-- evaluation below met such a run, it wrote nothing: tests 47 and 50 read empty and 0. Taking both locks here (waiting,
+-- never skipping) makes every evaluation in this file run, and the scheduler skips these two organisations until the
+-- rollback. No assertion is changed, skipped or loosened.
+select pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext('00000000-0000-4000-b000-000000000011'));
+select pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext('00000000-0000-4000-b000-000000000012'));
+select is((select count(*)::int from pg_locks
+           where locktype = 'advisory' and pid = pg_backend_pid() and granted and objsubid = 2
+             and classid::text::bigint = (hashtext('navora.sig1')::bigint & 4294967295)
+             and objid::text::bigint in (hashtext('00000000-0000-4000-b000-000000000011')::bigint & 4294967295,
+                                         hashtext('00000000-0000-4000-b000-000000000012')::bigint & 4294967295)),
+  2, 'CGR-110: this file holds the SIG1 evaluation lock of org A and org B, so no concurrent evaluator takes them');
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
