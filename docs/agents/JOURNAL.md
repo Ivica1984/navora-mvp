@@ -4,6 +4,101 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 12:39 CET · po (Product Owner)
+
+Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-1239`. The 11:39 run left no journal entry and no PO PR. Its only trace is the merge-check comment on #835: the merge call was refused by the permission check. This entry covers it.
+
+- **Merges (A):**
+  - **#835 (M1.3 `DELIVERY_ESTIMATE.md` v1, #830) merged** as `58da1ba` on head `f33a3f2` (unchanged since the 11:39 check). Title: `PO merge #835: M1.3 delivery estimate (head f33a3f2)`. The record comment on #835 shows all seven conditions met: CI `app`, `db`, `e2e`, `ui-screenshots` green and `clean`; docs only; no `cra` or `lca` finding; M1.3 is in Blueprint §2; 0 reviews and 0 threads; ADR-142 stays PROPOSED.
+  - **Not merged (one Engineering PR per run):** #837 (M1.4, CI green, `clean`; next), #961, #815, #907.
+  - **`uxa` #959 merged** as `3521060` on head `09b7f73`. The role-PR conditions held: CI `app`, `db`, `e2e`, `ui-screenshots` green; `clean`; 0 reviews and 0 threads; own `uxa` files plus `docs/design/proposals/` (FE-043). The record comment is on #959. Following the 09:39 lesson, it was merged only after CI on the merge commit `58da1ba` was green (`app`, `db`, `e2e`, `ui-screenshots`). This PO PR then took `recovery/main` in (`JOURNAL.md` only; all entries kept, newest first).
+- **Review (C), section 5:** M1.3 was reviewed against Blueprint M1 acceptance criteria (1) and (2):
+  - (1) M9 and M10 items have person-days, confidence, predecessor and main risk (§2-§4). M2-M8 are in `IMPLEMENTATION_SEQUENCE.md` §8.
+  - (2) Technical M9 has its earliest date and planning value with assumptions (2027-01-15 / 2027-01-29), and M10 too (about 2027-03-31).
+  - Gap: the NH-A effort is missing (FE-031), as the estimate's own founder-decision check says.
+  - **M1.3 is IMPLEMENTED, with a condition:** estimate v2 against FE-021, FE-031 and FE-036, including the NH-A effort, before M1.5 (2026-11-17). M1 is now **50 % → 63 %**.
+  - **PO answers to the estimate:**
+    - §8 question 1: **P-5 (outside alert for the P1 path) stays before M9.** Phase A must show that the alert fires before any Phase B client depends on it.
+    - **R-2 (on-call) and R-4 (security test) move to the Phase B readiness file.** The R-4 scope document stays before M9.
+    - §8 question 5 (website repository) waits for the WEB1 brief.
+  - The PO ran no test; CI was read through the GitHub API.
+- **Issues (B):** claimed #960 and #962.
+  - **#960 COORD-7:** points 1-3 decided by po (package `decisions/COORD-7.md`; its INDEX row, tier 4, is added once #961 has put COORD-7 into `OPEN_DECISIONS.md`, as `agents-check` requires both together):
+    - MERGE1 brief approved, *Next up* order 0.
+    - At most one open Engineering code PR.
+    - Order: #837 → #961 → #815 → #907 → MERGE1 → QUAL1 part 2 → UX2 remainder (M2 keeps 2026-11-27, owner priority 1, the one deviation from `eng`'s point 3) → NH-A1/A2 → NH-A3/A4 → BILL1 with NH-A5.
+    - Points 4 and 5 (review cadence, weekly owner slot): `cra` input requested on 4a and `lca` on 4 and 5, then they go to the owner. The PO recommends "no" on 4c (FE-035 stays).
+    - The COORD-7 row moves to *Decided* once #961 has put it on `recovery/main`. It is not edited now, to avoid a conflict.
+  - **#962 (`uxa`):** owner instruction recorded as FE-043. The NH-A ward/shift proposal is accepted as input for the NH-A briefs. Four answers: N-01 inside `/field`; resident as planning unit (PROPOSED for NH-A1); the PO takes the assertions into the briefs; shared devices go to `eng` + `lca` before M9.0b.
+- **Founder decisions:** `FOUNDER_DECISIONS.md` **v10**.
+  - **FE-043:** proactive `uxa` proposals to the PO.
+  - **FE-044:** Engineering local-test and CI rules; "coordination lies with the PO", confirming FE-018.
+  - Both were reported by the role from attended sessions; the source is stated.
+  - No contradiction with this prompt found. The prompt's "PLAN3 stack #891 to #910" line is spent (FE-041), as already noted.
+- **Decisions (F):** no `cra`/`lca` answer since 10:40. D-43, D-42, D-44, D-22 and D-18 wait for the FE-042 research; D-25 and D-37 wait for `lca`. New package: COORD-7 (tier 4, INDEX row after #961).
+- **Prioritisation (D):** M9 needs the nursing-home layer and BILL1. **The NH-A1 and NH-A2 briefs are the PO's next brief work** (due before 2026-11-27; `uxa` proposal #962 as screen input). Billing stays the largest Phase A gap after them.
+- **Challenge (E):** *Why does every role write into one file?* Coordination by a shared ledger is the repository's own version of a central dispatcher, and every writer waits on it. Built from scratch, each writer owns its own entry and a reader assembles the view (MERGE1). The same pattern applies to the ward: N-02 Schichtplan should be assembled from each nurse's own entries, not maintained by a shift planner (to be taken into NH-A2).
+- **Blueprint v2.23** (version row; header; §4 M1 at 63 %, M1.3 IMPLEMENTED, blockers and PO answers; §4 M2.0 brief MERGE1). `ROADMAP.md` line 07.11. 12:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* order 0. `DELIVERY_PROGRAM.md` (v1) is unchanged: the Blueprint carries the milestone status. Synchronised: #835 (merge record), #960, #962.
+- **For the owner (the PO edits no scheduled task):**
+  - (1) the `uxa` prompt's three-file list should include `docs/design/proposals/` (FE-043);
+  - (2) after MERGE1 merges, every role prompt that says "add a `JOURNAL.md` entry" needs the new location (MERGE1-8);
+  - (3) the Engineering session reports that `registry.npmjs.org` is blocked by the network settings, so FE-044's local tests cannot run there.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` was run before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: nothing new to bring up to date. #837 is merged next run on head `7e5983b` if unchanged. Then #961, then #815 once `cra` gates its head. Start MERGE1 only after #907.
+  - `cra`: #815 gate line (ASM1-C6, migration 0106); COORD-7 point 4a; FE-042 packages first.
+  - `lca`: COORD-7 points 4 and 5 after the FE-042 parts.
+  - `uxa`: #959 is merged.
+
+ENGINEERING BRIEF
+- **Capability:** MERGE1, merge mechanics without shared-file conflicts (Blueprint M2.0).
+- **Why:** every merge turns the other open PRs `dirty` (M-04). On 2026-11-07 one Engineering run went only to conflict resolution, and M1 slipped for this alone.
+- **Business outcome:** BUILT work reaches `recovery/main` the same day, so milestone dates track build rather than conflict loops.
+- **Care outcome:** none directly. Every care capability (QUAL1, NH-A, BILL1) reaches the simulation sooner.
+- **Expected nurse outcome:** none directly (no product change).
+- **Expected team outcome:** none directly. For the agent team: zero runs spent only on conflicts.
+- **Expected patient outcome:** none directly.
+- **Acceptance criteria:** MERGE1-1 to MERGE1-10 in `briefs/MERGE1.md`. Journal entry per file; history unchanged and tested; no committed generated file and no push to `recovery/main`; ADR per file with a unique-number check; status rows without shared-line conflicts (choice in an ADR); `agents-check` rules with unit tests; no check weakened; README rule plus the prompt list for the owner; two-week transition; M-04 measured on five merges.
+- **Dependencies:** #837, #961, #815 and #907 merged first; no decision package.
+- **Priority:** *Next up* order 0, before the next QUAL1 part 2 slice.
+- **Implementation recommendation:** freeze `JOURNAL.md` as an archive with a header, rather than splitting it. New entries go in `docs/agents/journal/<YYYY-MM-DD-HHMM>-<role>.md`. ADRs go in `docs/engineering/decisions/`. Status rows change only on `recovery/main` after a merge, unless per-item files keep condition 4 simpler. One PR, at most a day.
+
+---
+
+## 2026-11-07 12:10 CET · UX/UI Design Architect (uxa)
+
+Owner instruction in this session (2026-11-07, verbatim): "Dort wo nichts im blueprint steht oder vom founder, sollst du prosktiv lösungen ausarbeiten und diese dem product owner zurprüfung überreichen." For the PO to record in `FOUNDER_DECISIONS.md` (the PO's file; `uxa` does not edit it). Issue opened to the PO.
+
+- **Applied now:** first proactive proposal, `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (PROPOSED). It covers the ward and shift screens for the simulated nursing-home ward (N-01 Meine Schicht in `/field`, N-02 Schichtplan, N-03 Schichtübergabe, N-04 Ausfall in der Schicht, N-05 Bewohnerin/Bewohner), six shared ward rules, the CGR-142 not-invented list with owners, and four questions for the PO. It is presentation only and invents no clinical, staffing, tariff or legal content. Gap: the Blueprint M9.0a names the NH-A briefs (due 2026-11-27, `uxa` gate), but no screen exists in the catalog.
+- **Design system v55:** the §5 ward rule links the proposal.
+- **How I will work from now on (README rule 11, own task adjusted):** each run, after the review, I look for one gap that neither the Blueprint nor a founder decision covers in my area (screens, flows, wording, design system). I write the solution as a PROPOSED file under `docs/design/proposals/` and hand it to the PO as an issue (`agents`, `agent:po`, `ux`). The UX PR therefore also touches `docs/design/proposals/`; this deviates from my task prompt's three-file list and rests on the owner's instruction. The PO may object. Founder decisions, briefs, priorities and other roles' items stay untouched: I propose only.
+
+---
+
+## 2026-11-07 11:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled UX review on `recovery/main` `c9644f9` (since `f1bfe55`: #953 QUAL1 part 2 slice 3 merged, ADR-166; docs #937, #951, #954 to #958). No screenshots readable (archive host refused by the proxy); reviewed from code. Section 11:50 in `reports/UX_REVIEW.md`.
+
+- **Closed in code:** UXR-135 (take and cover say «für dich», `refusals.ts`); UXR-133 for every string that can reach a screen (`qualLabel` verdict strings stay internal, no screen imports them).
+- **New:** UXR-138 (medium): a refused move (`/team` move form, `/field` «Einsatz auf heute verschieben») shows the assignment text "Für die gewählte Person … Bitte eine andere Person wählen" because `planResult` passes no context, while the 0121 backstop also fires on date and time changes. UXR-137 (low): double "für" in two QUAL1 sentences. No high finding, no new issue.
+- **For the PO:** depart, start and resume texts for UXR-134 / CGR-155 (2) proposed in the section, as `briefs/QUAL1.md:174` asks ("in `uxa`'s words"); `cra` to confirm. UXR-129 leftovers outside QUAL1 (non-simulation RN texts) noted as an observation after #935 was closed.
+- **Design system v54:** §4 per-transition refusal rule extended to moves, marked PARTLY IMPLEMENTED.
+- **Founder direction:** `FOUNDER_DECISIONS.md` v9 (FE-042) and Blueprint v2.22 read; no contradiction with my prompt. Task adjusted (rule 11): wrote the resume wording now so the CGR-154/CGR-155 slice does not wait on it. No benchmark (done 03:50).
+
+---
+
+## 2026-11-07 11:25 CET · eng (Engineering)
+
+Scheduled Engineering run (11:10). Step A only (own open PRs); no `agent:eng` issue carries `active`, so nothing is claimed (step B).
+
+- **#835 (M1.3, `DELIVERY_ESTIMATE.md` v1, ADR-142):** `recovery/main` `c9644f9` merged in (merge, no rebase, no force-push). Only conflict `DECISIONS.md`: ADR-142 and every `recovery/main` ADR kept. New section *Founder-decision check 2026-11-07*: v1 predates FE-019 to FE-036; the table names where it differs (M9 now = Phase A passed plus Phase B readiness file, FE-036; simulated partner and synthetic data, FE-021; nursing-home ward in Phase A, FE-031, not in the §4 effort). **Figures not re-estimated** (OPEN, v2). P-5, R-2, R-4 read as Phase B items unless the PO decides otherwise (OPEN, `po`).
+- **#837 (M1.4, WEB1 and APP1 plans, ADR-143):** `recovery/main` `c9644f9` merged in. `JOURNAL.md`: `recovery/main` taken whole (the branch had lost a few separator lines in an older merge) and this PR's five `eng` entries re-inserted at their place; `DECISIONS.md`: ADR-143 and every `recovery/main` ADR kept. ADR-143 builds on ADR-142, so #835 should merge first.
+- **Contradiction with `FOUNDER_DECISIONS.md` (rule 10), not changed by me:** `WEB1_IMPLEMENTATION_PLAN.md` W-04 shows the website tag "In Vorbereitung; Designpartner gesucht" for nursing homes. FE-021 says no real partner is needed now; a public "partner wanted" line may read as a search. For `po` (and `uxa` for the wording).
+- **Still open:** #815 (ASM1-C6, also conflicts in `team/assessment-section.tsx`) and #907 (weekly status) were not brought up to date this run (one step per run); next run.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` run on both branches (ok). CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-07 10:50 CET · po (Product Owner)
 
 Scheduled PO run (10:39). Ran alongside the attended owner session (10:40 entry, FE-042, #957); this is `po/cycle-2026-11-07-1039`, `recovery/main` `966d7b8` merged in (JOURNAL only, both entries kept, newest first).
@@ -1820,6 +1915,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
   - SC-8 (maps link; checked, not built) not built before `lca`.
 - **For `cra`:** DS1-2, SC-2, SC-5. **For `lca`:** SC-2, SC-6, SC-8, DS1-6. **For `eng`:** DS1-1, DS1-3 with UX2-3; D-IA-4 in the M1 estimate; UX2-33.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-11-03 15:14 CET · Engineering (eng)
+
+- **#830 (M1 delivery baseline), claimed 15:14.** Why not #745: every *Active now* (06:30) item that does not wait on a PO merge is in an open, green PR (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815); (2) is held by (0); PLAN3 needs #814 merged. #824 is in #828 (green). Step A: all open Engineering PRs green on their heads; the one waiting `ci` run (41635678419) is for a superseded types-bot commit on #815's branch, not approved (head `f0a2752` is green).
+- **New:** `docs/engineering/DELIVERY_ESTIMATE.md` v1 (items 3-6 of #830; items 1-2 by reference to `IMPLEMENTATION_SEQUENCE.md`, PR #833) and **ADR-142** (PROPOSED: installable web app on the one NAVORA app with a same-key command queue; native only on a named requirement; family app not built; website a separate static site and origin, demo requests never in the care database).
+- **Estimates (Low confidence):** technical M9 earliest 2027-01-15, planning value 2027-01-29, assuming D-2 (staging and production) by 2026-12-11; M10 technical criteria about 2027-03-31 (security tester lead time UNKNOWN); program M10 2027-06-30 feasible for Engineering. M9-M10 Engineering effort 37-58 pd.
+- **Deviation found, not changed (PO-owned):** the go-live gate index in `CARE_OPERATING_MODEL.md` shows G-11, G-13 and the FUP1 part of G-15 as PLANNED while COND1 is delivered (`IMPLEMENTATION_STATUS.md`).
+- **OPEN for `po`:** move the outside alert for the P1 signal path into M9; website directory or repository. **OPEN for owner:** production hosting with D-2; RTO/RPO/SLA values; security tester; on-call staffing.
+- Tests: none applicable (docs only; no core logic changed, so no unit test first). No local run beyond `node scripts/agents-check.mjs`. CI decides. Live project not touched.
 
 ---
 
