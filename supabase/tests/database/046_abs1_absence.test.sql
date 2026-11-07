@@ -21,7 +21,7 @@ create function pg_temp.today() returns date language sql as $$ select (private.
 select ok(has_function_privilege('authenticated', 'public.record_absence(uuid, uuid, date, date, time, time, uuid)', 'execute')
           and not has_function_privilege('anon', 'public.record_absence(uuid, uuid, date, date, time, time, uuid)', 'execute'),
   'record_absence: members yes, anon no');
-select ok(has_function_privilege('authenticated', 'public.take_open_visit(uuid, uuid)', 'execute')
+select ok(has_function_privilege('authenticated', 'public.take_open_visit(uuid, uuid, boolean)', 'execute')
           and has_function_privilege('authenticated', 'public.change_absence(uuid, boolean, date, time, uuid)', 'execute')
           and has_function_privilege('authenticated', 'public.team_open_visits(date)', 'execute')
           and has_function_privilege('authenticated', 'public.team_absences()', 'execute'),

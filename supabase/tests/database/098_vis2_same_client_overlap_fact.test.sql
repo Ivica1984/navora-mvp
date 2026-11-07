@@ -70,10 +70,10 @@ select is((select provolatile::text from pg_proc where oid = 'public.client_visi
 select is((select string_agg(p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')', ' | ' order by p.proname)
            from pg_proc p where p.proname in ('plan_visit', 'reschedule_visit', 'move_visit_to_today')
              and p.pronamespace = 'public'::regnamespace),
-  'move_visit_to_today(p_visit_id uuid, p_shown_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean)'
-  || ' | plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean)'
-  || ' | reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean)',
-  'VIS2-4: one signature each, with p_overlap_shown last (no ambiguous overload)');
+  'move_visit_to_today(p_visit_id uuid, p_shown_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean)'
+  || ' | plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean)'
+  || ' | reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean)',
+  'VIS2-4: one signature each, with p_overlap_shown last (no ambiguous overload; PLAN3-16 (0118) appends p_member_overlap_shown after it)');
 select is((select class from private.audit_value_classes where table_name = 'visit_plan_changes' and key = 'overlap_shown'),
   'code', 'VIS2-4 / AUD1-1: overlap_shown is catalogued as a code');
 
@@ -145,7 +145,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 -- The form showed nothing (the answer had not loaded): saved anyway; the result carries the server's check.
 select is(public.plan_visit('00000000-0000-4000-a000-000000000208', pg_temp.today() + 20, time '09:15', time '09:45',
-                            30, 0, 0, false, '00000000-0000-4000-a000-000000000902', pg_temp.k(1), false) - 'visit_id',
+                            30, 0, 0, false, '00000000-0000-4000-a000-000000000902', pg_temp.k(1), false) - 'visit_id' - 'member_overlap' /* PLAN3-16 (0118), pgTAP 119 */,
   jsonb_build_object('result', 'ok',
                      'overlap', '{"overlap": true, "time_start": "09:00", "time_end": "09:30"}'::jsonb, 'flags', '[]'::jsonb),
   'VIS2 negative / VIS2-5: plan_visit saves an overlapping visit; its result states the overlap the form did not show');

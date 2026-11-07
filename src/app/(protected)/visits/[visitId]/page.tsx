@@ -45,7 +45,8 @@ export default async function VisitRecordPage({
           <dd>{getVisitStatusLabel(record.status)}</dd>
           <dt className="text-secondary">{RESPONSIBLE_LABEL}</dt>
           <dd data-testid="visit-responsible">
-            {record.responsible_set ? (record.responsible_name ?? "Teammitglied") : responsibleEmptyText(record)}
+            {/* PLAN3-17 (2) (ADR-159): the same label as every visit-assigning picker; empty: UX2-29 (ADR-132). */}
+            {record.responsible_set ? (record.responsible_label ?? "Teammitglied (ohne Namen)") : responsibleEmptyText(record)}
           </dd>
         </dl>
         {record.provenance && (

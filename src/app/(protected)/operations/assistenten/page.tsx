@@ -36,6 +36,10 @@ export default async function AgentHealthPage() {
             Was jeder Assistent vorschlägt, bestätigt eine Person. Ein Assistent stoppt von selbst, wenn sein Korrekturanteil
             im abgeschlossenen Fenster über der Schwelle liegt, die beim Einschalten geschrieben wurde.
           </p>
+          {/* PLAN3-7 (ADR-151): the day-plan assistant's team measures. */}
+          <Link href="/operations/assistenten/tagesvorschlag" data-testid="plan-team-measures-link" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">
+            Tagesvorschlag in Zahlen
+          </Link>
         </header>
         {rows.length === 0 ? (
           <p data-testid="agent-health-empty" className="rounded-lg border border-dashed border-stone-300 p-4 text-center text-secondary">
