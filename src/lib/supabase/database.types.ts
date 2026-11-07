@@ -303,6 +303,32 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"assessment_voids": {
+                  Row: {
+                    "id": string,"organization_id": string,"reason": string,"reason_kind": string,"record_id": string,"voided_at": string,"voided_by": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"organization_id": string,"reason": string,"reason_kind": string,"record_id": string,"voided_at"?: string,"voided_by": string
+                  }
+                  Update: {
+                    "id"?: string,"organization_id"?: string,"reason"?: string,"reason_kind"?: string,"record_id"?: string,"voided_at"?: string,"voided_by"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assessment_voids_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessment_voids_record_id_fkey"
+      columns: ["record_id"]
+isOneToOne: true
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"audit_events": {
                   Row: {
                     "actor_id": string | null,"actor_role": string,"changed": NonNullable<Json>,"command": string | null,"entity_id": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"table_name": string
@@ -3001,7 +3027,7 @@ isOneToOne: false
                            },
 "team_case_assessments":
 { Args: Record<PropertyKey, never>; Returns: {
-              "case_id": string,"corrected_basis_date": string,"corrected_on": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_review": Json,"plan_without_basis": boolean,"records": Json
+              "basis_fact": string,"case_id": string,"corrected_basis_date": string,"corrected_on": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_review": Json,"plan_without_basis": boolean,"records": Json,"voided_records": Json
             }[]
                            },
 "team_case_lifecycle":
@@ -3096,6 +3122,9 @@ isOneToOne: false
 { Args: { "p_own_teams"?: boolean }; Returns: {
               "organization_id": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
+                           },
+"void_assessment":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_kind": string,"p_record_id": string }; Returns: Json
                            },
 "withdraw_cover":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string

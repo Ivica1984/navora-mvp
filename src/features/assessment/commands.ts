@@ -7,7 +7,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { ASSESSMENT_REASONS, REVIEW_REASONS, isValidReference } from "./rules";
+import { ASSESSMENT_REASONS, REVIEW_REASONS, VOID_REASONS, isValidReference } from "./rules";
 
 const minutes = z.number().int().min(0).max(99999).nullable();
 const period = z.string().trim().max(60).nullable();
@@ -111,4 +111,36 @@ export async function reviewCarePlan(input: unknown): Promise<CommandResult> {
     p_idempotency_key: parsed.data.idempotencyKey,
   });
   return result("review_care_plan_against_assessment", data, error, REVIEW_REASONS);
+}
+
+const voidSchema = z
+  .object({
+    recordId: z.uuid(),
+    reasonKind: z.enum(["wrong_client", "other"]),
+    reason: z.string().trim().max(500).nullable(),
+    idempotencyKey: z.uuid(),
+  })
+  // The database decides; this only gives the same answer before the round trip (P-37).
+  .refine((d) => d.reasonKind === "wrong_client" || (d.reason !== null && d.reason.length >= 10), { message: "reason_required" });
+
+/**
+ * ASM1-C6 (migration 0106, ADR-140): "Irrtümlich erfasst". The database decides who may (a registered nurse of the case's
+ * team, provisional) and stores the preset text as shown; the record stays and its fields are withheld from the team.
+ */
+export async function voidAssessment(input: unknown): Promise<CommandResult> {
+  const parsed = voidSchema.safeParse(input);
+  if (!parsed.success) {
+    const code = parsed.error.issues.find((i) => i.message in VOID_REASONS)?.message;
+    return { ok: false, error: code ? VOID_REASONS[code] : VOID_REASONS.reason_kind_invalid };
+  }
+  const d = parsed.data;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("void_assessment", {
+    p_record_id: d.recordId,
+    p_reason_kind: d.reasonKind,
+    // Generated RPC types mark every argument as required; null = the preset (no free text).
+    p_reason: (d.reasonKind === "other" ? d.reason : null) as string,
+    p_idempotency_key: d.idempotencyKey,
+  });
+  return result("void_assessment", data, error, VOID_REASONS);
 }

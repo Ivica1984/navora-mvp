@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 16:10 CET · eng (Engineering)
+
+Scheduled Engineering run (16:10). Step A only (own open PRs); step B not reached.
+
+- **#815 (ASM1-C6 with C6 (8)) brought up to date again:** `recovery/main` `d9a8150` (PO merge #972) merged in (merge commit, no rebase, no force-push). The previous head `cd0746f` was green (run 42380653107, all jobs). Only conflict: `JOURNAL.md`; every entry kept, newest first (checked by a line count against both parents: 0 lines missing). No code, rule, assertion or test changed; `recovery/main` changed docs only since `b28b5f7`.
+- **Not done this run:** #907 and #971 stay `dirty` against `recovery/main`; #907 is next in the PO order (#815 → #907 → MERGE1). The PO ask of 14:39 to set ADR-143's status line to ACCEPTED is PLANNED for a following run (separate small PR, so #815 stays a pure merge-up).
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs`: result in the #815 comment for the final head. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**: `registry.npmjs.org` does not resolve in this session and the proxy refuses it (CONNECT 403). `npm run test:db`, `npm run e2e`: **could not run** (no Supabase CLI, no npm packages). **For the owner:** allow `registry.npmjs.org` in the session's network settings so that the full local suite can run.
+- **CI (GITHUB CI RULE):** the result of every job for the pushed head goes in a #815 comment once all have finished.
+- Clinical gate: `cra` 13:25 cleared #815 at `b221c83`; this merge changes no product code, so no new finding applies. Not merged by Engineering (FE-018). Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+
+---
+
+## 2026-11-07 15:15 CET · eng (Engineering)
+
+Scheduled Engineering run (15:11). Step A only (own open PRs); step B not reached.
+
+- **#815 (ASM1-C6 with C6 (8)) brought up to date:** `recovery/main` `b28b5f7` merged in (merge commit, no rebase, no force-push), the next in the PO order after #837 (merged by the PO). Conflicts only in `IMPLEMENTATION_STATUS.md` (header line: both kept) and `DECISIONS.md` (ADR-143 from `recovery/main` and ADR-140 from #815 at the same place: both kept, ADR-143 first). Every journal entry kept. No code, rule, assertion or test changed; since the last merge-up (`c9644f9`, 12:30) `recovery/main` changed docs only (`ROADMAP.md` outside `docs/`).
+- **Not done this run:** #907 and #971 are also `dirty` against `recovery/main` (CI green on their last heads: #907 run 42360612762 on `1faafe28`; #971 run 42379658359 on `e6d1b009`). They follow in a later run, #907 next in the PO order; #971 comes from the accompanied owner session and is left to it unless it is still `dirty` then.
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs`: result in the #815 comment for the final head. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**: `registry.npmjs.org` does not resolve in this session and the proxy refuses it (CONNECT 403). `npm run test:db`, `npm run e2e`: **could not run** (no Supabase CLI, no npm packages). **For the owner:** allow `registry.npmjs.org` in the session's network settings so that the full local suite can run.
+- **CI (GITHUB CI RULE):** the result of every job for the pushed head goes in a #815 comment once all have finished.
+- Clinical gate: `cra` 13:25 (branch `gov/review-2026-11-07-1325`, #965 merged) cleared #815 at `b221c83`; this merge changes no product code, so no new finding applies. Not merged by Engineering (FE-018). Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+
+---
+
 ## 2026-11-07 14:39 CET · po (Product Owner)
 
 Scheduled PO run (14:39). There was no open PO PR; this is `po/cycle-2026-11-07-1439`.
@@ -234,6 +258,20 @@ ENGINEERING BRIEF
 - **Dependencies:** #837, #961, #815 and #907 merged first; no decision package.
 - **Priority:** *Next up* order 0, before the next QUAL1 part 2 slice.
 - **Implementation recommendation:** freeze `JOURNAL.md` as an archive with a header, rather than splitting it. New entries go in `docs/agents/journal/<YYYY-MM-DD-HHMM>-<role>.md`. ADRs go in `docs/engineering/decisions/`. Status rows change only on `recovery/main` after a merge, unless per-item files keep condition 4 simpler. One PR, at most a day.
+
+---
+
+## 2026-11-07 12:30 CET · eng (Lead Engineer)
+
+Scheduled Engineering run (12:09). Step A (own open PRs), per FE-042 (1) and the PO's 10:40/10:50 entries.
+
+- **Found:** #835, #837, #907 already `clean` with CI green on their heads (`f33a3f2` run 42363037139, `7e5983b` run 42363014707, `1faafe2` run 42360612762: `app`, `db`, `e2e`, `ui-screenshots` success); #961 (MERGE1 proposal, attended session 12:05) CI green on `b19eeb6` (run 42366248206, 4/4). Only **#815** (ASM1-C6) was `dirty`.
+- **Done:** `recovery/main` `c9644f9` merged into #815 (merge commit, no rebase, no force-push). Conflicts: `IMPLEMENTATION_STATUS.md` (rows from `recovery/main`, the ASM1 row from #815, unchanged on `recovery/main` since the base), `JOURNAL.md` (every entry kept), `DECISIONS.md` (ADR-140 and every newer ADR kept; no number clash), and code in `src/app/(protected)/team/assessment-section.tsx`: both sides kept: UX2-30 (3) shared `ErrorText` and UX2-30 (6) "Keine aktuelle Bedarfsabklärung." before the history, now also when the history holds only voided records (ASM1-C6 (3)); the ASM1-C6 void form now uses `ErrorText` too (UX2-30 (3)); the UX2-30 vitest mock of `@/features/assessment/commands` gains `voidAssessment`. No rule, text, migration or read scope changed.
+- **Checked:** no migration after 0106 (0107 to 0122) touches an object 0106 defines (`assessment_records`, `assessment_voids`, `plan_item_basis`, the assessment functions); 0106 stays numbered below already-merged migrations. **OPEN for `po`:** it applies in order on a fresh database (CI, local), but a database already at 0122 would see it as out of order; renumbering to 0123 is possible before merge if the PO wants it (no live database applies these migrations; live project untouched).
+- **Clinical gate:** ASM1-C6 is in scope; `cra` gated `f0a2752` (2026-11-03 13:30, no blocking finding). The merge changes `src` (conflict resolution, `ErrorText` in the void form): `cra` should re-gate the new head; no CGR finding after 2026-11-03 names ASM1-C6 in what I read (newest report not re-read in full this run: UNKNOWN beyond that).
+- **Local tests (LOCAL TEST RULE):** `node scripts/agents-check.mjs`: ran, passed. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**: `registry.npmjs.org` does not resolve from this session (session network settings; owner: please allow it). `npm run test:db`: could not run (no Supabase CLI; Docker present but no images without registry access). `npm run e2e`: could not run (no dependencies). A bun stand-in also failed (`react` not installed). Nothing is claimed as tested locally.
+- **CI (GITHUB CI RULE):** results for the new #815 head are posted as a comment on #815 when every job has finished; the status stays `in-review`; not merged by me.
+- Step B not reached (step A did the run's work). Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` (v9) found.
 
 ---
 
@@ -2187,6 +2225,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **For `cra`:** review duty in update §6.2 item 8. Record clinical decision-support risk as a CGR finding. Clinical input requested on D-39, D-40 and D-34.
 - **For `lca`:** D-34 has priority. A detailed AI assessment is requested in the package (EU AI Act, Swiss law, device risk, cross-border processing, provider contract). Decision support only; no determination without the owner. Inputs requested on D-39 and D-40.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:45 CET · Engineering (eng)
+
+- Step A: all own open PRs (#814, #813, #810, #809, #806, #804, #803, #800, #799, #796) green on their heads; no bot run waiting; nothing merged by Engineering.
+- Step B/C: #745 claimed 13:14 for *Active now* (4) **ASM1-C6 with C6 (8)** (PLAN3 waits for #814). **PR #815** (`feature/hourly-update-2026-11-03-1315`): migration 0106, ADR-140, pgTAP 107 (50), vitest `asm1-c6-void`, Playwright `asm1.spec` step 7. Tests written first. **No test result is claimed**: nothing ran locally (no `node_modules`, npm registry unreachable, no database); CI decides.
+- For the PO: ADR-140 deviations 1-6 (notably: a void withholds the whole supersede chain and only a chain head can be voided). For `cra`: read C6 / C6 (8) before merge. For `uxa`: the void refusal texts; «Ersetzen» vs "Korrigieren (ersetzen)".
+- Numbering: migration 0106 / pgTAP 107 / ADR-140 follow #814 (0105 / 106 / ADR-139). The types-bot may push a regenerated `database.types.ts` to the branch.
 
 ---
 
