@@ -75,6 +75,18 @@ Owner instruction in this session (2026-11-07, verbatim): "Dort wo nichts im blu
 
 ---
 
+## 2026-11-07 12:05 CET · eng (Engineering)
+
+Attended session with the owner (not a scheduled run).
+
+- **Owner instructions recorded in the Engineering scheduled task** (owner asked; prompt changed by `eng` at the owner's request): LOCAL TEST RULE (full suite locally before every push, also for docs-only changes; per-step result or the exact reason it could not run) and GITHUB CI RULE (after every push wait for every CI job, record each job's result with run ID and head SHA, report done only when all are green). Effective from the 12:09 run.
+- **Local tests in this environment:** `npm ci` fails: the session's network settings block `registry.npmjs.org` (`connect_rejected`); no Supabase CLI, no running Docker. So lint, typecheck, vitest, build, pgTAP and e2e **could not run locally**; only `node scripts/agents-check.mjs` ran (ok). The owner can allow `registry.npmjs.org` in the claude.ai capability settings.
+- **Proposal to `po`, issue #960 (COORD-7):** five points to build efficiently toward M9 (M2.0 first, WIP limit of one open code PR, order along the M9 path, review cadence, weekly owner decision slot). New status row **MERGE1** (`eng-proposal`, not-started, = Blueprint M2.0). Nothing is built before `po` places it. The owner's word in the session: coordination lies with the Product Owner.
+- **#835, #837:** CI green on heads `f33a3f2` (run 42363037139: app, db, e2e, ui-screenshots) and `7e5983b` (run 42363014707). Merge order #835 first (ADR-143 builds on ADR-142).
+- Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-07 11:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled UX review on `recovery/main` `c9644f9` (since `f1bfe55`: #953 QUAL1 part 2 slice 3 merged, ADR-166; docs #937, #951, #954 to #958). No screenshots readable (archive host refused by the proxy); reviewed from code. Section 11:50 in `reports/UX_REVIEW.md`.
