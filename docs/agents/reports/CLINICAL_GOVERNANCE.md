@@ -16,6 +16,276 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-07 09:25 CET: QUAL1 part 2 slices 1+2 **merged on the gated heads** (#945 incl. #943, `f1bfe55`; code equals `49b909a`); QUAL1 part 2 slice 3 **#953** (texts only, ADR-166) read on head `de4fd3f`: **no blocking clinical finding; gate clear**; review position on **CR-194** (`po` asked: may a begun visit be resumed after a lapse) and new **CGR-155** (advisory **S1** before real data: a lapse found at resume stops care half done; nobody alerted; no reason code for the interruption)
+
+**Scope:** `recovery/main` @ `10d796f`. **Trigger:** PO merges #939 (`4878ace`), #945 (`f1bfe55`, contains #943), docs #947, #948, #949, #951, #952, #955; `eng` #953 (`feature/hourly-update-2026-11-07-0810`, head `de4fd3f`; the PO's comment asks for a `cra` gate line); `aia` #954 (AUT-67, AUT-68; AUT-67 hands continue-or-stop after a lapse to `cra`); QUAL1 brief rows UXR-134, CR-194, QUAL1-22 (PO 08:45). **No clinical, legal or owner decision answered** by a person since 05:45 (D-42, D-43, D-44 escalated to the owner by the PO at 05:39, still open). `FOUNDER_DECISIONS.md` unchanged since my last section; no contradiction found.
+
+I read: `git diff 49b909a 3a7a0c5 -- src supabase tests scripts` and `git diff 49b909a 10d796f -- src supabase tests scripts` (both **empty**: the merged code is the code I gated); `git diff recovery/main...de4fd3f` (16 files, no migration, no pgTAP): `src/features/qualification/refusals.ts` in full, `labels.ts`, `result.ts`, the absence, cover, AI, planning and day-plan command and label changes; `git diff 9f6340c de4fd3f -- src supabase tests` (empty); 0121 §5 `qual_guard_start`; the visit state machine (0007:156-165) and CSR1 `interrupted` (0042:46-52, 0042:142); the observation guard (0009:100). CI on `de4fd3f` (check runs read; I did not run them): app, db, e2e, ui-screenshots **green**.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### What #953 does, checked (IMPLEMENTED on the head, not merged)
+
+- One module `qualification/refusals.ts`: one sentence per QUAL1 reason (`qualification_not_allowed`, `qualification_lapsed`, `needs_rn`, `evidence_missing`, `rule_unresolved`, `delegation_missing`, `not_member`, `not_qualified`); only the subject changes (`dich`, a name, "die gewählte Person"); an unknown reason fails closed to a sentence that claims nothing. Prefix by context (save, start, take, confirm) and only the decided next step.
+- Take and cover now say `dich` (UXR-135 met in text); AIG1 `not_qualified` drops "Diese Person darf … nicht"; PLAN2 `fromJson` and `proposeDayPlan` map the QUAL1 refusal before the generic branch.
+- `labels.ts`: no matrix code in user text (the activity in words, `label_de`), "vorläufige Regel noch offen" instead of "PROPOSED ?"; the reason detail is still read only from `row.reason`, which the database gives only to the member and administrators (CGR-152 unchanged).
+- **No rule, matrix cell, check result or migration changed.** No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic added.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-155** | **A lapse found at resume (CR-194): care half done is stopped, nobody alerted** | **advisory, S1** (blocks real data); not blocking #953, which changes no behaviour | `qual_guard_start` runs on every transition into `started`, so a **resume** after a pause is refused when an evidence, delegation or delegator access lapsed **during** the visit (the start check already tests evidence at the visit end, so a resume refusal comes only from an event during the visit: a revocation, a status change, a delegator leaving). The visit stays `paused` with care partly given; `complete_visit` requires `started` (0007:165), so it cannot be completed; the only exit is CSR1 `interrupted`, whose reason list has no code for this (it must be `other` with a note, so it cannot be counted, AUT-68). Nobody else is told; the text says "Nicht begonnen … bleibt geplant", which is false (UXR-134). Whether the nurse should **finish or stop** the care already begun is a clinical question (**UNKNOWN**, D-43); the product must not decide it silently either way | 0121 §5 (`new.status not in ('on_the_way','started')`); 0007:156-165; 0042:46-52, 0042:142; 0009:100 (observations allowed while `paused`); #953 `refusals.ts` `NEXT_STEP.start` | Until D-43 decides, product defaults (PROPOSED, simulation only): (1) **keep** the resume refusal (no silent continuation of an activity no longer covered); (2) the resume text states the visit's real state ("Einsatz pausiert") and names only the two **implemented** steps: document what was done (observations stay open on a paused visit) and record the visit as not completed (CSR1); no clinical instruction; (3) on a refused resume, an alert to the team at once and the remaining care of the visit released as open with a coverage fact (CGR-154 pattern, same slice); (4) a CSR1 reason code for a qualification lapse (product code, not a clinical rule), so the case is countable (AUT-68); (5) revoking a delegation or evidence that an **in-progress** visit relies on tells the revoking person that the visit is running (QUAL1-22 (2) pattern). Tests: pgTAP: a delegation revoked while the visit is `paused` → resume refused, alert row and coverage fact written, `record_visit_not_completed` with the new code succeeds; Vitest: `resumeVisit` returns its own text without "Nicht begonnen" or "geplant" (UXR-134 test) |
+
+### Review position on CR-194 (`po`, QUAL1 brief row; not an approval, D-27)
+
+May a visit already begun be resumed or completed after a lapse? **UNKNOWN** for the Clinical Owner (D-43). Both directions carry harm: stopping can leave care half done (a dressing open, a medication prepared but not given, a client not yet repositioned); continuing lets a person perform an activity whose evidence or delegation no longer covers her. The choice depends on the activity and the client's state, which NAVORA must not judge. Until a named person decides, I recommend the CGR-155 defaults above: refusal stays, documentation and "nicht abgeschlossen" stay reachable, the team is alerted at once and the remainder released. The PO's interim (resume refused, visit stays paused, simulation only, no next step in the text) is **acceptable for Phase A only**, and only if (2) is met: naming the two implemented steps is not an invented clinical instruction.
+
+### Answers on #953 wording (asked on the PR; review positions, `uxa` decides wording)
+
+- "**Pflegefachperson**" in `needs_rn` and `QUAL_NO_PROPOSAL_TEXT`: **confirmed** (as at 05:45). Condition for any screen where FaGe also appears: "Pflegefachperson HF/FH".
+- The QUAL1-21 sentences: **confirmed** for `qualification_not_allowed`, `needs_rn`, `evidence_missing`, `rule_unresolved`, `delegation_missing`, `not_member`, `not_qualified` and the fail-closed fallback: no verdict on a person, no evidence detail, the provisional rule named, only decided next steps. `qualification_lapsed` with `start`: **interim only** (CGR-154, CGR-155; UXR-134).
+- Nit, carried from 05:45 (no finding; condition for the first QUAL1 screen): a delegation recorded after the visit started (pgTAP 120 visit 12) still reads "Delegation abgelaufen am …" via `delegation_expired`; for a delegation that never covered the visit the text must not say "abgelaufen".
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-149, CGR-150, CGR-152** | **closed in fact**: #939 merged as `4878ace` on head `50e372a`, the head I cleared | `git log`: `PO merge #939: QUAL1 part 1 (head 50e372a)`; QUAL1 brief merge record (CI on `4878ace` green, as read by the PO) |
+| **CGR-153** | open, advisory S2; placed by the PO as a part 2 acceptance condition (first in the order) | QUAL1 brief, part 2 conditions |
+| **CGR-154** | open, advisory S1; placed as a part 2 acceptance condition with UXR-134; widened by CGR-155 (resume); QUAL1-22 (PLANNED, part 3) takes in the "re-check future visits on lapse or revocation" half of the remedy | QUAL1 brief rows UXR-134, QUAL1-22 |
+| **CGR-151** | open, advisory S2; part 2 condition | QUAL1 brief |
+| **CGR-148** | open, advisory S1; unchanged (NH-EXT acceptance open) | — |
+| All other CGR findings | unchanged | as at 05:45 |
+
+Closed in this section: none newly (CGR-149, -150, -152 already counted as closed at 05:45; now merged).
+
+### New or changed hard-coded rules
+
+None: #953 changes words only. Register: **CR-194** note updated with the review position above; CR-191 to CR-195 now IMPLEMENTED on `recovery/main` (`f1bfe55`), status stays UNVALIDATED (simulation only). Safety Risk Register: **PS-139** (CGR-155).
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#953** (QUAL1 part 2 slice 3, head `de4fd3f`) | **clear to merge**: texts only, no rule changed, CI 4/4 green; UXR-134 / CGR-154 / CGR-155 stay part 2 conditions |
+| #954 (`aia`, docs) | not code; consistent with CGR-154 and CGR-155; nothing from `cra` blocks it |
+
+cra-gate: #953 de4fd3f clear
+
+### Decisions requested
+
+- **po:** merge #953; place CGR-155 with CGR-154 and UXR-134 in the same part 2 slice (one text change, one release mechanism); record the CR-194 interim as Phase A only.
+- **eng:** CGR-155 (2) to (5) in the CGR-154 slice.
+- **uxa:** the resume text under CGR-155 (2).
+- **clinical (D-43, when named):** CR-194, continue or stop care already begun after a lapse (UNKNOWN).
+- **owner:** D-43 (so that a named person can answer CR-194 and K-1 to K-8); D-42, D-44 as escalated by the PO. **lca:** nothing new.
+
+---
+
+## 2026-11-07 05:45 CET: QUAL1 part 1 **#939** re-read on its head `50e372a`: **CGR-149, CGR-150, CGR-152 met; gate clear**; QUAL1 part 2 slice 1 **#943** (migration 0121, ADR-164) and slice 2 **#945** (0122, ADR-165) read on their heads: **no blocking clinical finding; #945 clear, #943 clear only together with #945** (alone it breaks the daily plan run and leaves a minutes change unchecked); new **CGR-153** (advisory S2: one failing case stops the whole daily plan run) and **CGR-154** (advisory **S1** before real data: a refused start leaves the visit assigned and nobody is alerted); answers to `po` on QUAL1-20 (3), QUAL1-21 terms and the UXR-132 wording
+
+**Scope:** `recovery/main` @ `962a38b`. **Trigger:** #939 new head `50e372a` (CGR-149/-150/-152 remedies, `b6b72bc`; ADR-081 fix `50e372a`); `eng` #943 (`feature/hourly-update-2026-11-07-0317`, head `4890e1f`) and #945 (`feature/hourly-update-2026-11-07-0410`, head `49b909a`, contains #943); PO #942, #946 (QUAL1-20, QUAL1-21 brief amendments, asks to `cra`); `uxa` #936 (UXR-132), `aia` #941 (AUT-61); `lca` #947 (D-42, D-43, D-44 sections, open). **No clinical, legal or owner decision answered** by a person since 22:35.
+
+I read: `git diff 8cee6b2 50e372a` for 0120, pgTAP 120 (51 → 61 assertions), `labels.ts`, ADR-163 addendum, `CGR-145.md`; migration `20261021000121_qual1_2_every_path_and_start.sql` in full (222 lines) and the assertion titles of pgTAP 121; migration `20261021000122_qual1_3_plan2_series_asks_the_check.sql` in full and pgTAP 122 (K1-K4); `src/lib/commands/result.ts` and the four command files of #945; `private.may_perform_visit` (0091:755-763) and `private.generate_all_plans` (0025:305-321). CI (check runs read; I did not run them): **#939 `50e372a`** app, db, e2e, ui-screenshots green; **#943 `4890e1f`** four green; **#945 `49b909a`** four green.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### What the three heads do, checked (IMPLEMENTED on the heads, simulation organisations only, not merged)
+
+- **#939, CGR-149:** `qual_visit_activities` maps KLV-A minutes without an A row to A1, KLV-C minutes without a C row to C1, and a visit with no row and no minutes to C1; `no_activity_listed` returns `unresolved` (unreachable). pgTAP 120: visit 10 (`planned_minutes_a = 20`) HF/FH `allowed_own`, FaGe `not_allowed`; visit 11 (nothing) trained-other `evidence_missing`, AGS `allowed_own`.
+- **#939, CGR-150:** `record_delegation` returns `instruction_after_start`, `instruction_in_future`, `start_in_past` (Zurich day via `private.at_zurich`); `qual_check` counts a delegation only with `instructed_on <= visit_date` and `created_at <= ` the visit start; a visit without end time is tested at 23:59. pgTAP 120: the three refusals; visit 12 (started 08:00, delegation recorded at 10:00 the same day) is not covered.
+- **#939, CGR-152:** `visit_qualification_check` returns `reason` only to the member herself and administrators; pgTAP 120: a colleague sees no reason, the member sees `grade:self_confirmed`. **Stricter than my remedy** (coordinators also see the label only): **accepted** (data minimisation; the coordinator does not need a colleague's evidence detail to re-plan).
+- **#943 (0121):** one function `qual_may_perform_in(visit, team, user)` on take, the "Übernehmen" flag, ABS1, AIG1 confirm/re-check and PLAN3 proposal (patched in place, fail-closed on an unexpected text count); outside a simulation exactly `may_perform_visit` (pgTAP 121 compares on the seed). The simulation branch drops ADM2-6 `has_qualification` but requires verified grade evidence instead (stricter, no loosening). Backstop trigger on `care_visits` (responsible, cover, date, time, team) and on an added activity; start/resume re-check (`qualification_lapsed`). No override parameter.
+- **#945 (0122):** the PLAN2 series names a member only after the check confirms her for the visit as stored (new visit written without a member, then given; regenerated visit: minutes first, member after); alternative only the deputy under the unchanged deputy conditions; else the PLAN2 "nobody" outcome (open in the team, uncovered flag and alert). pgTAP 122 K1-K4, including K4 (a regenerated visit gaining A minutes is open, not left with the FaGe). Two refusal texts mapped before any generic 42501 branch (`qualificationRefusal`).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-153** | **Daily plan run is all or nothing** (PLAN2, made visible by #943) | **advisory, S2** (missed visits; before go-live) | `private.generate_all_plans` calls `generate_case_plan` for every active case of every organisation in one loop without an exception block. One exception in one case rolls back the window for **all** cases and organisations, and under pg_cron nobody sees it. #943 alone creates exactly this: its backstop raises for a simulation organisation's generated visit, so the daily run, `refresh_team_plans` and care-plan changes fail everywhere (`eng`'s own reproduction, 0122 header). #945 removes this cause, but the structure stays | 0025:305-321; 0121 `qual_guard_assignment`; 0122 header (defect found on `b457329`) | **eng:** per-case `begin … exception` in `generate_all_plans` that records the failed case (code only, no client data) and raises an alert to the team or administrator; the other cases are generated. pgTAP: one case whose generation raises; every other case still has its window and one failure row exists |
+| **CGR-154** | **Refused start (QUAL1-17) leaves the visit assigned, nobody alerted** | **advisory, S1** (blocks real data); PLANNED by `eng` (0121 §5) | When the start re-check refuses (evidence, delegation or delegator access lapsed; a delegation revoked on the day), the statement is rolled back: the visit stays `planned` with the refused member, the day plan still shows it covered, no coverage fact, no alert. The text tells the nurse at the door "bitte im Team klären, wer übernimmt". Lapses are found only at the start: an evidence `valid_until`, a revocation or a delegator's access end before the day re-checks no assigned future visit. With time-critical care (insulin, B4I) this is a missed or late visit | 0121 `qual_guard_start` ("Nothing is written … PLANNED (next slice): … the release of the visit to the team as open with a coverage fact"); `result.ts` `QUALIFICATION_LAPSED_MESSAGE`; QUAL1-17 | **eng:** on refusal, a structured command result with its audit row releases the visit to the team as open with a coverage fact and the uncovered alert (CR-051 pattern); `revoke_delegation`, an evidence lapse and an access end re-check every future assigned visit of that member and release the ones no longer confirmed, with the same fact. pgTAP: (1) lapsed delegation at start → visit open, coverage fact, alert, member no longer responsible; (2) revocation two days before → the visit is open the same moment, not at the start |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-149** | **closed** on #939 `50e372a` (closes in fact when #939 is merged at a head with the same code) | 0120 `qual_visit_activities`, `qual_check` (`unresolved` for `no_activity_listed`); pgTAP 120 CGR-149 rows (visits 10, 11); CI db green |
+| **CGR-150** | **closed** on #939 `50e372a` (same condition) | 0120 `record_delegation` (three refusals), `qual_check` (`instructed_on <= visit_date and created_at <= v_start`, `coalesce(time_end, '23:59')`); pgTAP 120 CGR-150 rows (visit 12). Nit, no finding: visit 12 reads `delegation_expired` where "not covered" is meant; fail-safe, but the later screen text must not say "abgelaufen" for a delegation that never covered the visit (QUAL1-21 (1)) |
+| **CGR-152** | **closed** on #939 `50e372a` (same condition) | 0120 `visit_qualification_check` (`case when p_user_id = auth.uid() or is_org_admin …`); 0121 `qual_refusal_detail` keeps the rule; pgTAP 120 CGR-152 rows |
+| **CGR-151** | open, advisory S2; **deferral to part 2 accepted**; must be met before QUAL1 is accepted | ADR-163 addendum, `CGR-145.md` addendum |
+| **CGR-148** | open, advisory S1; **start and swap met in the simulation** on #943 (start re-check; swap is two row writes, each through the backstop); **NH-EXT acceptance open** (QUAL1-18, not built); the release on refusal is CGR-154 | 0121 §3, §5; pgTAP 121 |
+| **CGR-145** | open, advisory S1; wiring (a)-(d) now built on #943/#945 in simulation organisations; real use still needs D-43 approvals and D-29 | 0121, 0122 |
+| All other CGR findings | unchanged | as at 01:35 |
+
+Closed in this section: **CGR-149, CGR-150, CGR-152** (on the head; registers PS-134 to PS-136 set to mitigated).
+
+### Answers to the PO (QUAL1-20 (3), QUAL1-21, UXR-132)
+
+These are review positions, **not approvals** (D-27); the clinical decision stays with the Clinical Owner (D-43).
+
+- **QUAL1-20 (3), removing an inherited activity for one visit:** whether this is clinically acceptable is **UNKNOWN** (`clinical`, D-43). Removing an activity does not remove the client's need (a high-risk drug, B3H, still has to be given), so it must never work as a way to make a less qualified member pass the check. Safer product default (PROPOSED) until decided: (a) only a verified HF/FH with licence who may perform A1 for the case removes an activity for one visit, never the member who is or would be assigned; (b) a reason is required and stored with author and time (append-only, as QUAL1-20 (4)); (c) the removed activity stays visible on the visit and in its documentation as "geplant, für diesen Einsatz entfernt" with the reason, so it is not silently lost; (d) for a Bst. b activity (medical order) whether the GP must be informed is **UNKNOWN** (`clinical`; CGR-36 pattern). pgTAP: the assigned FaGe cannot remove B3H from her own visit; an HF/FH removes it with a reason and the visit record still shows it.
+- **QUAL1-21, terms:** "**Pflegefachperson**": **confirmed** as the Swiss term for the HF/FH grade (it is the term of the BS licence, `lca` D-43 [BS4]); write "Pflegefachperson HF/FH" where FaGe ("Fachperson Gesundheit") appears on the same screen, so the two are not confused. "**Kategorie B**": **not confirmed** for user text; KLV Art. 7 Abs. 2 Bst. b reads "Massnahmen der Untersuchung und der Behandlung"; recommend those words (practitioners also say "Behandlungspflege"), the letter only in help text (`uxa` decides the wording). **Activity names:** no screen exists; I confirm them per screen; they must keep the distinctions of matrix v0.2 §4.2 (insulin and high-risk medication named separately from other medication; B13 not shortened to "Pflege").
+- **UXR-132 (#945 texts):** `QUALIFICATION_NOT_ALLOWED_MESSAGE` **confirmed** (no verdict on a person, provisional rule named, offers another person or leaving the visit open). `QUALIFICATION_LAPSED_MESSAGE` **confirmed only as an interim for the simulation**: "Der Einsatz bleibt geplant; bitte im Team klären" leaves the nurse alone at the door; with CGR-154 it becomes "the visit is released to the team as open" (the only decided next step, QUAL1-21 (5)). Who confirms a lapsed evidence, and what she does when the care is time-critical, is **UNKNOWN** (D-43) and not to be invented in text.
+
+### New or changed hard-coded rules
+
+New register rows **CR-191 to CR-195** (0121, 0122; simulation only, matrix PROPOSED): one function on every path; backstop; added activity; start re-check; PLAN2 who. **CR-187, CR-188, CR-189** updated for the CGR-149/-150 remedies. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic invented by me.
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#939** (QUAL1 part 1, head `50e372a`) | **clear to merge**: CGR-149, -150, -152 met with pgTAP, CI green; CGR-151 open advisory (part 2) |
+| **#943** (QUAL1 part 2 slice 1, head `4890e1f`) | **clear only together with #945**: merged alone it makes the daily PLAN2 run and `refresh_team_plans` fail for every organisation as soon as a simulation organisation has a generated visit the check refuses (CGR-153 cause), and a regenerated visit gaining A or B minutes keeps its member unchecked. Merge #945 (which contains `4890e1f`) after #939, or #943 and #945 in the same PO cycle with no daily run between |
+| **#945** (QUAL1 part 2 slice 2, head `49b909a`) | **clear to merge** after #939; CGR-153 and CGR-154 advisory (CGR-154 S1 before real data) |
+| #947 (`lca`, docs) | not code; consistent with my findings (CGR-145 to CGR-148, D-43 option D needed for Phase B); nothing from `cra` blocks it |
+
+cra-gate: #939 50e372a clear
+cra-gate: #945 49b909a clear
+cra-gate: #943 4890e1f clear only together with #945
+
+### Decisions requested
+
+- **po:** merge #939, then #945 (with #943); place CGR-153 and CGR-154 in QUAL1 / PLAN2 (CGR-154 is the QUAL1-17 remainder, before QUAL1 acceptance); take the QUAL1-20 (3) safeguards above into the brief or reject them with a reason.
+- **eng:** CGR-154 in the next QUAL1 slice; CGR-151 in part 2; CGR-153 as a PLAN2 robustness item.
+- **uxa:** "Kategorie B" wording (above).
+- **clinical (D-43, when named):** QUAL1-20 (3) removal of an activity for one visit; the next step after a lapsed start for time-critical care; KLV-A outside the simulation (D-15) — all UNKNOWN.
+- **lca:** D-44 has no `cra` section yet (#927); I will add clinical input in a later run. **owner:** nothing now.
+
+---
+
+## 2026-11-07 01:35 CET: QUAL1 part 1 **#939** (migration 0120, ADR-163) read on its head `8cee6b2`: **no blocking clinical finding for part 1** (the function is wired into no path); **gate not clear: CI `db` red** (three repository guards: RLS2-1, ADR-081, AUD1-1; pgTAP 120 itself passed); new **CGR-149** (advisory S1, **blocking for QUAL1 part 2**: the activity fallback lets any verified grade carry KLV-A minutes or an unlisted visit), **CGR-150** (advisory S1: a delegation can be recorded after the fact and cover a visit already done), **CGR-151** (advisory S2: two matrix strict defaults, K-7 and K-4, not carried), **CGR-152** (advisory S2: colleagues' evidence reasons readable by the whole team); ADR-163 strict defaults (a), (b), (c), (e) confirmed, (d) not; #934 moved to `f9e189d` (merge-in of docs only): **gate holds**; CR-004 source question (D-22) answered
+
+**Scope:** `recovery/main` @ `120a881` (unchanged since my 00:10 section). **Trigger:** `eng` #939 (`feature/hourly-update-2026-11-07-0115`, head `8cee6b2`, QUAL1 part 1, issue #931); #934 new head `f9e189d`; PO #938 (docs: D-18, D-22, D-41, Blueprint v2.13). **No clinical, legal or owner decision answered** by a person since 22:35.
+
+I read on #939 (`git diff recovery/main...8cee6b2`): migration `20261021000120_qual1_1_matrix_evidence_check.sql` in full (754 lines), pgTAP `supabase/tests/database/120_qual1_1_matrix_evidence_check.test.sql` (51 assertions), `src/features/qualification/labels.ts`, `tests/unit/qual1-labels.test.ts`, ADR-163, `clinical/remediation/CGR-145.md`; against `QUALIFICATION_MATRIX.md` v0.2 §4.2, §5, §9.1, the QUAL1 brief, `private.may_perform_visit` (0091:756-763) and the `organizations` grants (0003:194-196). CI on `8cee6b2` (check runs and the `db` job log read; I did not run them): app **green**, ui-screenshots **green**, **db red**, e2e cancelled. In the `db` log pgTAP 120 is `ok`; the failures are 067 test 127 (RLS2-1: at least `qual_delegations` has a case column and is readable by `authenticated` but is not in `READ_PATHS.md`), 068 test 45 (ADR-081: one column default reads `now()`; `qual_matrix_versions.created_at` at 0120 is `default now()`), 077 test 10 (AUD1-1: the audited columns of the new tables, from `member_qualification_evidence` on, are not in the value catalogue).
+
+On #934 (`f9e189d`): `git diff 66885bf f9e189d -- src supabase tests` is **empty**; `f9e189d` merges `recovery/main` `120a881` (docs only). CI green on `f9e189d` (app, db, e2e, ui-screenshots; read). The condition of my 00:10 gate is met.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### What #939 does, checked (IMPLEMENTED on the head, CI red on unrelated guards)
+
+- **Matrix copy:** the 23 activity rows × 5 grades (115 cells) equal v0.2 §4.2 cell by cell, including A2 FaGe ?, B1 AGS D / PH ?, B8 HF/FH with K-3, B11 AGS D with PH and trained-other ?, B12/B13 FaGe ?, C2 trained-other –. Every cell `PROPOSED`; rows immutable (update, delete, truncate refused; pgTAP 120:152). **B3H / B4I split confirmed** as a faithful model of v0.2's "high-risk drugs ? (K-2)" and "insulin ?" inside B3 and B4; which drug is "high-risk" stays **UNKNOWN** (K-2, no list invented), so the split protects only when the activity is entered as B3H (part 2).
+- **Simulation scope (CGR-145 (e)):** `qual_may_perform` returns `may_perform_visit` unchanged outside an organisation with `simulation = true` (0120 `qual_may_perform`; pgTAP 120:250-258). `simulation` cannot be set by an app user: `authenticated` has no update on `organizations` (0003:195-196). **CGR-145 (e) remedy met on the head.**
+- **Evidence (CR-181):** `self_confirmed` never counts (pgTAP 120:168-170); `verified` refused for a request user, a running command, the API roles and outside a simulation (trigger `qual_guard_evidence`; pgTAP 120:227-243); expired from the instant (120:195-197); two grade values → contradictory, never the higher grade (120:175).
+- **Delegation (CR-176, CR-176a):** only a verified `nurse_hf_fh` with a verified licence, active in the team, for a D cell without open question of the delegate's verified grade (120:201-212); counts only for its case, activity, member and dates, unrevoked, while delegator and supervisor still pass (120:177, 187, 224); never an AIG1 target (120:247).
+- **Labels (CR-183):** only `allowed_own` / `allowed_delegated` allow responsibility; every unknown result reads "ungeklärt" (`labels.ts` `qualLabel`, `allowsResponsibility`; vitest).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-149** | **Activity fallback (ADR-163 (d), QUAL1-6)** | **advisory, S1** (blocks real data); **blocking for QUAL1 part 2** (the wiring must not use it as is) | `private.qual_visit_activities` derives A1 only from `is_needs_assessment` and B13 only from KLV-B minutes. (1) A visit with **KLV-A minutes** (`planned_minutes_a > 0`, advice or coordination) and no activity row derives **no** A row. (2) A visit with no activity row and no B minutes returns one row `no_activity_listed` → `allowed_own` for **any verified grade**, including `trained_other` without the instruction record that C1 requires for that grade. The matrix (PROPOSED) makes A1 to A4 E only for HF/FH (A2 FaGe ?) and C1 for trained-other conditional. So the fallback is looser than the matrix it implements. (Outside the simulation CR-007 has the same gap for KLV-A minutes; whether CR-007 should cover them is **UNKNOWN**, D-15, `clinical`) | 0120 `qual_visit_activities` (the three `union` branches) and `qual_check` (`elsif a is null then r_res := 'allowed_own'`); 0014:39-41 (`planned_minutes_a`, `_c`); matrix v0.2 §4.2 rows A1-A4, C1 | **eng:** KLV-A minutes without an A row derive an A row that is E only for HF/FH with licence (the same strictness as the A1 fallback), and a visit with C minutes or no activity at all derives C1 (so the trained-other condition applies); `no_activity_listed` never returns `allowed_own`. pgTAP: simulation visit with `planned_minutes_a = 20`, no row: verified `fage_efz` and `ags_eba` not allowed, HF/FH with licence allowed; visit with only C minutes: verified `trained_other` without instruction record `evidence_missing`, with it `allowed_own` |
+| **CGR-150** | **Delegation instants (CR-176)** | **advisory, S1** (blocks real data) | (1) `instructed_on` is free: it may lie after `valid_from`, after the visit and in the future; `qual_check` never reads it. A delegation counts on days before the instruction it rests on ("selected, instructed, supervised"). (2) `valid_from` may lie in the past: a delegation recorded after a visit makes that visit read `allowed_delegated` afterwards; documentation and audit then show a retroactive authorisation (the record's `created_at` is the only trace). (3) Evidence is tested at `coalesce(time_end, time_start, 23:59)`: a visit without an end time is tested at its start only, not over the visit | 0120 `record_delegation` (checks only `valid_until >= valid_from`); `qual_check` delegation query (`v.visit_date between d.valid_from and d.valid_until`, no `instructed_on`); `inst := greatest(at_zurich(visit_date + coalesce(time_end, time_start, '23:59')), now())` | **eng:** `record_delegation` refuses `instructed_on > valid_from`, `instructed_on` after today (Zurich) and `valid_from` before today (no retroactive delegation; a correction is a new record); `qual_check` counts a delegation only when `instructed_on <= visit_date` and `created_at` is before the visit's start; a visit without `time_end` is tested at the end of its day. pgTAP: each refusal with its result code; a delegation recorded after a past visit leaves that visit `delegation_missing` |
+| **CGR-151** | **Two matrix strict defaults not carried (K-7, K-4)** | **advisory, S2** | v0.2 §9.1 names a strict default for each open question. K-7 (C1 by FaGe, AGS, PH): "(a), with the care plan required"; 0120 makes C1 E for these grades with no condition. K-4 (delegation period): "none valid beyond the next reassessment (proposal; not a rule)"; 0120 allows any fixed end date. Neither loosens CR-007 today (C was never RN-only), but both are the matrix's own controls | matrix v0.2 §9.1 K-4, K-7; 0120 cells `C1` (`requires` empty for fage/ags/ph) and `record_delegation` | **eng / po:** C1 for `fage_efz`, `ags_eba`, `pflegehelfer_srk` needs a current care plan of the case (a `requires` value checked against the case's care plan items); a delegation's `valid_until` is refused beyond the case's next reassessment date where one is stored, else recorded as K-4 OPEN in the result. pgTAP for both. Until then, record both as deviations in ADR-163 |
+| **CGR-152** | **Evidence reasons visible to the whole team** | **advisory, S2** (privacy, staff data) | `member_qualification_evidence` is readable only by the member and an administrator (policy `qual_evidence_self_or_admin_read`), but `public.visit_qualification_check` returns for any colleague of the team the reason code, e.g. `practice_licence:expired`, `grade:contradictory`. The derived reader thus discloses what the table's own policy keeps private. The team needs the label to self-organise; it does not need the colleague's evidence detail | 0120 policy `qual_evidence_self_or_admin_read`; `visit_qualification_check` (`select … c.reason …` for `is_team_member` or `is_coordinator`) | **eng:** for a caller other than the checked member, a coordinator or an administrator, return `label` and `result` with `reason` null for `evidence_*` results (activity reasons such as `cell:?:K-2` may stay). pgTAP: a team colleague sees `ungeklaert` and no reason; the member herself and a coordinator see the reason |
+
+### ADR-163 strict defaults (`eng` asked)
+
+- **(a)** an open question makes the cell ?, HF/FH B8 included: **confirmed** (matrix §4.2 B8 "specialist training ?", K-3).
+- **(b)** licence always for HF/FH A1-A4, delegator and supervisor while the canton is not modelled: **confirmed** (the stricter reading; L-1/L-9 with `lca`).
+- **(c)** trained-other C1 needs an instruction record: **confirmed** (matrix §4.2 C1 "with selection, instruction and supervision"); but see CGR-149 (2): today it is bypassed by an unlisted visit.
+- **(d)** a visit without any activity needs a verified grade only: **not confirmed** (CGR-149).
+- **(e)** evidence ending exactly at the visit's end does not cover it: **confirmed** (pgTAP 120:195-197); see CGR-150 (3) for visits without an end time.
+- Also noted (OPEN, part 2, no finding): contradictory grade evidence has no resolution record yet; because the table is append-only, a member whose grade changes (an old verified FaGe record, a new verified HF/FH record) stays `contradictory` until QUAL1-5 and D-29 give a resolution by a verifier. Fail-safe, but it must be built before real data.
+
+### Answer to the PO (D-22, issue #104: CR-004 source line)
+
+Yes. CR-004's source line now also cites D-22 [S12] (Gesundheitsdepartement BS leaflet, 16 Dec 2025, as read by `lca`, BS only): order-free A/C flagged per invoice line, reassessment at the latest after 9 months, renewable twice without the doctor's consent, report after 27 months. Status stays **UNVALIDATED**; nothing of the 9/27-month rule is in code (PLANNED candidate for ORD1, `clinical` and `po`), and BL is **UNKNOWN**. CGR-36 (the `inform_gp` task) is unchanged.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-145** | open, advisory S1; **remedy (e) met on #939 `8cee6b2`** (matrix only in a simulation organisation, CR-007 unchanged elsewhere); (a)-(d) partly built (data, evidence, delegation, one function), wiring PLANNED (part 2) | pgTAP 120:250-258; 0003:195-196 |
+| **CGR-148** | open, advisory S1; one function exists (`private.qual_may_perform`, no override parameter); no path calls it yet | 0120 `qual_may_perform` |
+| **CGR-75** (5), **CGR-138**, **CGR-139**, **CGR-140** | open, advisory; carried unchanged into #934 `f9e189d`; close when #934 is merged at a head whose code equals `66885bf` | `git diff 66885bf f9e189d -- src supabase tests` empty |
+| All other CGR findings | unchanged | as at 00:10 |
+
+Closed in this section: none.
+
+### New or changed hard-coded rules
+
+New register rows **CR-185 to CR-190** (0120, simulation only, matrix PROPOSED, not wired): simulation scope; matrix as versioned data with ? never allowed; evidence states and instant; delegation record conditions; activity fallback (CGR-149); ADR-163 strict defaults. CR-004 source line extended. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic invented by me; the cells are copied from matrix v0.2 (PROPOSED, not approved, D-27).
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#934** (FE-041 PLAN3 consolidation, head `f9e189d`) | **clear to merge**; code identical to `66885bf`, CI green on the head (my 00:10 condition met) |
+| **#939** (QUAL1 part 1, head `8cee6b2`) | **not clear: CI `db` red** (RLS2-1, ADR-081, AUD1-1). **No blocking clinical finding for part 1.** Re-gate on a green head; for that head CGR-149 to CGR-152 may stay open as advisory **only because no path calls the function**. **QUAL1 part 2 is not clear unless CGR-149 and CGR-150 are met** (the wiring would otherwise make the fallback and retroactive delegation live in the simulation) |
+| #938 (`po`, docs) | not code; the D-18 and D-22 addenda keep every billing figure as `lca`-read reference data with `validated = false` and the nursing-home level as a person-entered value with an order reference, never computed (consistent with CGR-08, CGR-31, CGR-142); nothing from `cra` blocks it |
+
+cra-gate: #934 f9e189d clear
+
+### Decisions requested
+
+- **eng:** make #939 green (READ_PATHS.md entry and a case-scoped read for `qual_delegations` as RLS2 requires; `private.now()` for `qual_matrix_versions.created_at`; AUD1 catalogue rows); meet CGR-149 and CGR-150 in part 1 or as the first step of part 2; CGR-151, CGR-152 with part 2.
+- **po:** merge #934 at `f9e189d`; place CGR-149 to CGR-152 in QUAL1 (brief amendment) and record CGR-149/-150 as the condition for part 2.
+- **clinical (D-15, D-43, when named):** whether KLV-A minutes require a registered nurse outside the simulation as well (CR-007 gap, CGR-149) — UNKNOWN; K-4 and K-7 (CGR-151).
+- **lca (#924):** L-7 and L-2 first; L-1/L-9 (canton dependence of the licence; ADR-163 (b)).
+- **owner:** nothing now.
+
+---
+
+## 2026-11-07 00:10 CET: FE-041 PLAN3 consolidation PR **#934** read on its head `66885bf`: **no blocking finding; clinical gate clear** (one gate line for the stack, FE-041 (2)); the consolidation adds **no rule, assertion or product code** beyond the fifteen reviewed PRs except the 0116 re-anchor after 0105 (**no rule changed, 0105's expiry check kept**); `uxa` UXR-129 (#935) answered on substance; no new finding
+
+**Scope:** `recovery/main` @ `120a881` (PO #929, #930, #933 merged: my QAM v0.2, FE-040, QUAL1 brief, FE-041; docs only). **Trigger:** `eng` #934 (`feature/plan3-consolidated`, head `66885bf`, FE-041); `uxa` #936 (docs) and issue #935 (UXR-129). **No clinical, legal or owner decision answered** by a person since 22:35.
+
+I read, on #934 (`66885bf`, merge base `2057591`):
+- every one of the eight consolidation merges with `git show --remerge-diff` (the part of a merge that differs from git's own merge), restricted to code, migrations, seed and tests: **#880, #882, #883, #885, #886, #888 merges carry no hand change**; **#894's merge** resolves one `plan3.spec.ts` conflict by keeping #894's stricter CGR-139 assertions (distinct options, "(du)") over #880's plain label, and the "noch niemand" assertion stays (on both sides); **#910's merge** maps the CGR-75 (5) seed rows and pgTAP 115 to 118 / `plan3.spec` from Testorganisation G to H (ids, names, e-mails; `vis()` with `replace(s, 'c', 'd')` as pgTAP 114). Nothing else;
+- the counts against the reviewed heads: pgTAP 115 `plan(12)`, 116 `plan(32)`, 117 `plan(14)`, 118 `plan(11)` and the number of assertions in each file are identical to #910 `806b8cf`; `plan3.spec.ts` has 12 tests and 99 `expect(` on both `806b8cf` and `66885bf`; `git diff 806b8cf 66885bf -- tests/e2e/plan3.spec.ts` is the G → H mapping only;
+- #880's commits after my gate `12f0b0d`: `cd4c832` (base merge; the G block leaves the seed for H, the same move as `d1ff219` on #910 that I read), `f6450bf` (e2e wording "noch niemand", UX2-29), `75d0a19` and `59e1bc2` (docs and `ROADMAP.md` only). The H fixture keeps two `registered_nurse` and one `care_assistant` (synthetic);
+- `66885bf` (0116, the only new migration text): `confirm_suggestion` is patched at the anchor that 0105 (AIG1-C4) now leaves after the membership check. The replacement **ends with 0105's own comment line**, so 0105's `not_open` expiry check stays in the function; the PLAN3-15 `replaced` refusal stays directly after the membership check, as written for #897. `plan3o_patch` still raises when an anchor does not match exactly once (0116:57-59). A closed line whose record is no longer open is refused `replaced` before `not_open`: both are refusals without a confirmation row, so no decision is recorded either way;
+- CI on `66885bf`: app, db (migrations, seed, pgTAP), e2e, ui-screenshots and sync **green** (check runs read; I did not run them). The PR is `dirty` against `recovery/main` after #933 (docs only, PO comment 23:39).
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### Findings
+
+None new. No blocking finding on #934.
+
+### Answer to `uxa` (UXR-129, #935, substance)
+
+- **The refusal itself is right and must stay** (fail-safe, CR-007 / CR-009). The texts must not claim more than the data hold: the qualification is a **recorded** value, not a verified one (CGR-16, FE-039, CR-181 PROPOSED). "darf … nicht" states a verified authority judgement about a colleague; a wording on "erfasste Qualifikation" and the name of the reason (membership **or** qualification, not both at once) is the correct clinical content. Wording itself is `uxa`'s.
+- **Whether the four paths apply one predicate is UNKNOWN** from the texts. The planning and day-plan paths call `private.may_perform_visit` (0109:292, 0110:95); hand planning returns `rn_required` (0075:237) and take/confirm return `not_qualified` (0092, 0097:647, 0103, 0104). `eng` to show, when QUAL1 is built, that every path calls one shared check (CGR-148 asks the same for QUAL1). No new finding: CGR-148 covers it.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-75** (5), **CGR-138**, **CGR-139**, **CGR-140** | open, advisory; remedies met on the reviewed heads and **carried unchanged into #934 `66885bf`**; **close when #934 is merged at a head whose code equals `66885bf`** | remerge-diff above; pgTAP 114 to 118 and `plan3.spec` counts as on the heads |
+| **CGR-136**, **CGR-78** | as at 21:30 (carried unchanged into #934) | as above |
+| **CGR-137**, **CGR-144** | open, advisory (S3); unchanged (#910's PLAN3-16 part is in #934 unchanged; CGR-144 not placed) | as at 17:30 |
+| All other CGR findings | unchanged | as at 22:35 |
+
+Closed in this section: none (closures follow the merge).
+
+### New or changed hard-coded rules
+
+None. The 0116 re-anchor changes the place of a text patch, not a rule (CR register unchanged). The G → H change is synthetic fixture data. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic invented.
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#934** (FE-041 PLAN3 consolidation, head `66885bf`) | **clear to merge**; CI green on the head. The PO must bring it up to date with `recovery/main` first (`dirty`). **Condition for a later head:** `git diff 66885bf <new head> -- src supabase tests` shows only what `recovery/main` brought in since `2057591` (today: nothing outside `docs/` and `ROADMAP.md`), and CI is green on the new head. Then this gate holds without a new review. |
+| #880, #882, #883, #885, #886, #888, #890, #891, #894, #895, #897, #902, #903, #906, #910 | superseded by #934 (FE-041 (4)); their earlier gate lines no longer apply on their own |
+| #936 (`uxa`, docs) | not in clinical scope (UX report, design system); nothing from `cra` blocks it |
+
+cra-gate: #934 66885bf clear
+
+### Decisions requested
+
+- **po:** update #934 with `recovery/main`, check the condition above, merge it, close the fifteen PRs (FE-041 (4)); then the four findings above close.
+- **eng:** with QUAL1 (#931), show one shared qualification check on every path (UXR-129, CGR-148).
+- **lca (#924):** L-7 and L-2 first (as at 22:35).
+- **owner:** nothing now.
+
+---
+
 ## 2026-11-06 22:35 CET: founder letter (attended session): **Qualification and Activity Matrix v0.2** (four contexts, six functions, per-row fields, planning use, cover-simulation acceptance criteria and negative tests, pre-pilot list, K and L questions as options); **CR-179 to CR-184 PROPOSED**; new **CGR-147** (advisory S1 before Phase B: external team in a nursing home, legal form and delegation source unresolved) and **CGR-148** (advisory S1 before real data: the check must also run on swap, NH-EXT acceptance and at visit start); D-43 clinical input
 
 **Scope:** `recovery/main` @ `8bd8315` (PO #920 merged FE-038, FE-039; my #923 merged with QAM v0.1). **Trigger:** the founder's letter of 2026-11-06 (evening, attended session) asking to develop the matrix with `lca` for four contexts, keep six functions apart, complete the per-row fields, make it usable for AI planning on every path, give acceptance criteria and negative tests for a cover simulation, and prepare K-1 to K-6 and L-1 to L-6 as options. **Code changed:** none. **No clinical, legal or owner decision answered** by a person since 21:50.

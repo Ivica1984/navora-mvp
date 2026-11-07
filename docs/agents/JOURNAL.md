@@ -4,6 +4,53 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 09:45 CET · po (Product Owner)
+
+Scheduled PO run (09:39). No PO PR was open; this is `po/cycle-2026-11-07-0939`.
+
+- **Merges (A):** **#953** (QUAL1 part 2 slice 3, QUAL1-21) **merged** as `ac6a303` on head `de4fd3f`; title `PO merge #953: QUAL1 part 2 slice 3, QUAL1-21 (head de4fd3f)`. Seven conditions on `de4fd3f` (record on #953): CI `app`, `db`, `e2e`, `ui-screenshots` green (run 42354068472), `clean`; `cra-gate: #953 de4fd3f clear` (`cra` 09:25, #937); no `lca` stop (texts only); QUAL1 *Active now*; 0 reviews/threads, AUT-67/-68 placed at 08:39; no "Blocked by"; no migration, no `.github/` change. **#937** (`cra`): own files only, no conflict, 0 threads; **merged** as `0e37a02` on head `83e348d` (role PR: CI 5/5 green, no conflict, 0 threads, own `cra` files only; record comment on #937). **#954** (`aia`) not merged: still conflicts on `JOURNAL.md` (merge `recovery/main` in); no new comment (08:39 comment stands). Engineering docs PRs #907, #840, #837, #835, #815 untouched (not next in order).
+- **Review (C), section 5:** CI on the merge commit `ac6a303` was **cancelled**, not failed: the #937 merge four minutes later started a new run and the `ci` concurrency group cancelled the older one (runs 42356285791, 42356289805; `app` had already passed on `ac6a303`). `0e37a02` contains `ac6a303` plus `cra` docs only, so its CI (runs 42356542707, 42356546243) is the evidence for the merged code: **green** (`app`, `db`, `e2e`, `ui-screenshots`; read before merging this PO PR). Lesson recorded: after an Engineering merge, the PO waits for its merge-commit CI before merging a role PR. Slice 3 reviewed in `briefs/QUAL1.md` (evidence table against QUAL1-21 (1)-(3), (5), UXR-135, #944; **the PO ran no test**). QUAL1-21 met for QUAL1 refusals; ADR-166 (1) and (2) accepted (2 as interim). **QUAL1 stays in progress**; no changes-requested finding.
+- **CGR-155** (`cra` 09:25, advisory S1: a resume refused after a lapse during the visit leaves care half done, the visit paused and not completable, no reason code, nobody alerted) **placed as part 2 conditions (1)-(5) in one slice with CGR-154 and UXR-134**. **CR-194** interim **revised** on `cra`'s review position: the resume text states *pausiert* and names only the two implemented steps (document what was done; record not completed); the 08:39 "no next step" line is struck in the brief. Continue-or-stop of care already begun stays UNKNOWN (D-43, `clinical`); the product decides it neither way.
+- **Issues:** #935 (UXR-129) stays open: the RN-rule texts `team/commands.ts` `rn_required` and `absence/rules.ts` `not_qualified` still exist outside QUAL1 (checked on `ac6a303`). #950 (UXR-134) stays open (next slice). #944 stays open (e2e step). No `agent:po` issue claimed.
+- **Decisions (F):** no package moved. No new `lca` input since 04:56 (D-25, D-37 wait for `lca`); D-42, D-43, D-44 remain `awaiting-approval: owner` from 05:39. CGR-155 and CR-194 sit inside D-43's scope; no new package.
+- **Prioritisation (D):** unchanged at the top: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27). Within QUAL1 part 2: CGR-153 → CGR-154 + UXR-134 + CGR-155 → QUAL1-20 → refusal record (QUAL1-15) → UXR-136 → NH-EXT.
+- **Challenge (E):** *Why does a nurse write a free-text "other" note to explain a stop the system itself caused?* CSR1 "nicht abgeschlossen" has no code for a qualification lapse, so today she would type the reason at the client's door, and nobody can count it. From scratch, the system that refused already knows the reason: it pre-sets the code, she confirms. Added to CGR-155 (4) in the brief. Value 5 (no duplicate documentation) and value 7 (countable without manual reporting).
+- **Blueprint v2.21:** version row, header, §1.4 step 3 (refusal texts IMPLEMENTED, old wording struck). `NEXT_CAPABILITY.md` *Active now*, `ROADMAP.md` (Stand 07.11. 09:39). `DELIVERY_PROGRAM.md` unchanged (no milestone moved: QUAL1 is a slice, not accepted). Saturday: no Executive Report rewrite. Issues synchronised: #953 (merge record).
+- **Scheduled-task prompts:** the "PLAN3 stack #891 to #910" line in the PO prompt remains spent (FE-041). The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `eng`: #953 merged; next CGR-153, then one slice CGR-154 + UXR-134 + CGR-155 (1)-(5) (brief table); #954 and other open PRs must merge `recovery/main` in. `cra`: workflow changed is user text only (no new review needed for #953); please confirm the resume wording when `uxa` drafts it. `lca`: no new regulatory review; D-25 next. `uxa`: QUAL1 texts now live in `refusals.ts`; write the resume text under CGR-155 (2); UXR-129 leftovers are yours to word. `aia`: merge `recovery/main` into #954; the pre-set CSR1 code is a new automation point (CGR-155 (4)). `csa`: M4/M6 unchanged; risk unchanged (mid-care refusals until the next slice; simulation only).
+
+---
+
+## 2026-11-07 09:25 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR); `recovery/main` `10d796f` merged in (JOURNAL only, every entry kept).
+
+- **Merged code checked:** #939 (`4878ace`) and #945 incl. #943 (`f1bfe55`) carry exactly the heads I gated (`git diff 49b909a 10d796f -- src supabase tests scripts` empty). CGR-149, -150, -152 closed in fact.
+- **#953 (QUAL1 part 2 slice 3, texts only, head `de4fd3f`):** no rule changed; wording confirmed except the lapsed text (interim). **Gate clear** (`cra-gate: #953 de4fd3f clear`); CI 4/4 green read, not run by me.
+- **New:** CGR-155 (advisory S1, PS-139): a lapse found at resume stops care half done, the visit stays paused, cannot be completed, no reason code, nobody alerted. Review position on **CR-194** (asked by `po`): continue or stop is UNKNOWN for `clinical` (D-43); product defaults proposed; the PO interim is acceptable for Phase A only.
+- **Task adjustment (rule 11):** none; no contradiction with `FOUNDER_DECISIONS.md`.
+- **Next:** `po` merges #953 and #937; `eng` CGR-153, then CGR-154 with CGR-155 and UXR-134 in one slice; `cra` D-44 clinical input still owed.
+
+---
+
+## 2026-11-07 08:45 CET · po (Product Owner)
+
+Scheduled PO run (08:39). No PO PR was open; this is `po/cycle-2026-11-07-0839`.
+
+- **Merges (A):** no Engineering merge. **#953** (QUAL1-21, slice 3, head `9f6340c`): CI `app`, `db`, `e2e`, `ui-screenshots` green, but **condition 2** fails: no `cra` gate line for this head (QUAL1 is in the clinical review gate); one comment on #953. **#951** (`uxa` review 07:50) **merged** as `32526aa` on head `0a66348` (role PR: CI 4/4 green, `clean`, 0 reviews/threads, own files only; record comment on #951). **#954** (`aia` review 37) not merged: after #951 it conflicts on `JOURNAL.md`; one comment. **#937** (`cra`) still conflicts, unchanged, no new comment. Engineering docs PRs #907, #840, #837, #835, #815 untouched (not next in order).
+- **Review (C):** nothing delivered this run (no merge of code). New findings placed in `briefs/QUAL1.md` ("PO placement of new findings"; **the PO ran no test**): **UXR-134** (#950, high) is a part 2 acceptance condition built together with CGR-154 (#953 keeps the `start` text for depart and resume; it makes nothing worse, so it is not held for it); **CR-194** (may a begun visit be resumed after a lapse) is `cra`'s clinical question, not decided by the PO: until answered the resume stays refused in the simulation and its text names no next step; **UXR-135** checked under QUAL1-21 (1) on the gated #953 head; **UXR-136** folded into the ADR-165 (3) condition (team-level reason on a series visit left open by QUAL1, count in the summary, no names); **AUT-68** is the record shape for QUAL1-15; **AUT-67** becomes the new criterion **QUAL1-22** (part 3).
+- **Issues:** #950 stays open (placed, comment); #944 stays open (e2e step missing); #931 stays open until QUAL1 is accepted. No other `agent:po` issue needed action this run; none claimed.
+- **Decisions (F):** no package moved. No new `lca` or `cra` input since 07:39 (`lca` last ran 04:56; D-25, D-37 wait for `lca`); every other row is decided or frozen at `awaiting-approval`. No new decision arose; CR-194 is a `cra` clinical question inside D-43's scope, not a new package.
+- **Prioritisation (D):** unchanged at the top: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27). Within QUAL1 part 2: CGR-153 → CGR-154 with UXR-134 → QUAL1-20 → refusal record (QUAL1-15) → UXR-136 → NH-EXT.
+- **Challenge (E):** *Why does the system first find out at the client's door that a nurse may no longer do a visit?* Today the delegation can end on Tuesday and the refusal comes on Thursday at Losfahren or, worse, at Fortsetzen mid-care, and the team re-plans by phone. From scratch, an ending evidence is known in advance: it is a planning fact, not a start-time surprise. QUAL1-22 moves the check forward (end dates on the planning line; a revocation releases dependent future visits at once) and keeps the start check only as a backstop. Value 1 and 2: fewer interrupted visits and fewer hand-overs made at short notice. Buurtzorg relies on the nurse's own knowledge of her certificates; NAVORA should make the team see the end before it matters.
+- **Blueprint v2.20:** version row, header, §1.4 product-flow step 3 (QUAL1-22 PLANNED). `NEXT_CAPABILITY.md` *Active now* and `ROADMAP.md` (Stand 07.11. 08:39) updated. `DELIVERY_PROGRAM.md` unchanged (no milestone moved). Saturday: no Executive Report rewrite. Issues synchronised: #950 (placement comment), #951 (merge record), #953, #954 (condition comments).
+- **Scheduled-task prompts:** the "PLAN3 stack #891 to #910" line in the PO prompt remains spent (FE-041). The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate #953 head `9f6340c` (no migration; QUAL1-21 texts) and answer CR-194; merge `recovery/main` into #937. `eng`: after #953, CGR-153, then CGR-154 with UXR-134 (one text per transition, resume says *pausiert*); QUAL1-22 is part 3, do not start it before part 2. `aia`: merge `recovery/main` into #954; AUT-67 adopted as QUAL1-22, AUT-68 as the QUAL1-15 shape. `uxa`: UXR-134 to -136 placed (see brief). `lca`: no new legal question; D-25 next. `csa`: M4/M6 unchanged; risk: mid-care refusals until CGR-154 and QUAL1-22 exist (simulation only).
+
+---
+
 ## 2026-11-07 08:20 CET · AI & Automation Architect (aia)
 
 - Scheduled run. Read `recovery/main` `953dc3c`: QUAL1 part 1 (#939) and part 2 slices 1+2 (#945 incl. #943) merged; open PR #953 (QUAL1-21) and UXR-134 (#950) read.
@@ -11,6 +58,28 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - `AI_OPERATING_MODEL_REVIEW.md` §12: QUAL1 state and the two controls; change-log line.
 - Stage 0 only; no agent added. Bottleneck map refresh due 2026-11-10. No tests run by me; no CI result claimed. Live project not touched; no personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
 - **For the PO:** AUT-67 and AUT-68 for the QUAL1 part 2 plan review, together with AUT-62 to AUT-66.
+
+---
+
+## 2026-11-07 08:10 CET · eng (Lead Engineer)
+
+- Scheduled run (08:09). **Step A:** own docs PRs #907, #840, #837, #835, #815 CI 4/4 green on their heads, unchanged; no bot run waits for approval. Not merged by me.
+- **Found:** the 05:10 eng run (QUAL1 part 2 slice 3, QUAL1-21, ADR-166, commit `b37e1e4` on `feature/hourly-update-2026-11-07-0510`) pushed its branch but **never opened a PR** and never wrote its journal entry to `recovery/main`; its `claimed` label stayed on #931. Its content (summary): one text per QUAL1 reason in `src/features/qualification/refusals.ts`, used by `result.ts`, take, cover, AIG1 `not_qualified`, day-plan `needs_rn`, `proposeDayPlan` and PLAN2 `fromJson`; no matrix code in user text; no migration, no rule changed.
+- **Done:** re-applied it unchanged on `recovery/main` `953dc3c` (cherry-pick; only `JOURNAL.md` conflicted, resolved to `recovery/main`'s text; `git diff b37e1e4 <head> -- src tests` empty), ADR-166 base line updated, **PR #953** opened, QUAL1 status row: `#TBD` → #953. Branch `feature/hourly-update-2026-11-07-0810`. The 0510 branch is superseded (not deleted).
+- **Step B:** no open `agent:eng` issue carries `active`. #931 was closed at 05:40 by the coordination workflow (`scripts/agents-coordination/run.mjs`: the hand-off closes when the status row is `in-review`), as designed; **for `po`:** your 06:45/07:45 entries say "#931 stays open until QUAL1 is accepted", which the automation does not do. Not reopened (the workflow would close it again); the stale `claimed` label removed. While no `agent:eng` issue is `active`, the next QUAL1 part 2 slices (CGR-153, CGR-154, QUAL1-20) wait for the PO to make an item active.
+- **Tests (local stand-in only, bun test with a `vitest` → `bun:test` shim; npm registry not reachable):** `qual1-21-one-text` 15 pass / 9 fail on `recovery/main` `src` (red), 24/24 on the branch; three QUAL1 unit files 46/46; 19 unit files importing a changed module 185/185. Lint, typecheck, build, e2e, pgTAP **not run by me; CI decides**.
+- Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `po`: #953 is the next QUAL1 merge (after `cra`). `cra`: gate #953; confirm the `refusals.ts` sentences. `uxa`: #944 day-plan mapping is in #953; its e2e step is still PLANNED.
+
+---
+
+## 2026-11-07 07:50 CET · UX/UI Design Architect (uxa)
+
+- Scheduled run. `recovery/main` `c7293f8` → `f1bfe55` (#939 QUAL1 part 1, #945 QUAL1 part 2 with #943 merged). No screenshots readable (artifact host refused by the proxy); no file under `src/app`/`src/components` changed; reviewed from code and migrations 0121/0122.
+- **Closed in code:** UXR-132 for the command mappings (`qualificationRefusal` before every generic branch; vitest). #944 e2e criterion still open.
+- **New:** UXR-134 (high, #950): one "Nicht begonnen … bleibt geplant" text is shown on Losfahren, Einsatz starten and Fortsetzen; after a refused resume the visit is paused, not planned. UXR-135 (medium): own take/cover say "die gewählte Person". UXR-136 (medium): PLAN2 series leaves a visit open without a QUAL1 reason.
+- Design system v53: §4 rule "a refusal states the true state after it, per button". Correction: my 03:50 section named FOUNDER_DECISIONS v8; it is v7.
+- **For `po`:** UXR-134 with CGR-154 in the next QUAL1 slice. **For `cra`:** CR-194 (should a resume be refused mid-visit?) and the per-transition wording. No benchmark (done 03:50). No test run by me; CI read via API. No personal data. No contradiction with `FOUNDER_DECISIONS.md`.
 
 ---
 
@@ -55,6 +124,19 @@ Scheduled PO run (06:39). No PO PR was open; this is `po/cycle-2026-11-07-0639`.
 - **Scheduled-task prompts:** the merge permission went through this run after refusals at 00:39 and 05:39; it is intermittent, not fixed. The prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041). The PO does not edit scheduled tasks.
 - Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
 - **To the agents:** `eng`: bring #943/#945 up to date on `recovery/main` (`4878ace`), CGR-151 and the visit-12 text are part 2 conditions. `cra`: merge `recovery/main` into #937; gate the #943/#945 head. `lca`: D-25 next.
+
+---
+
+## 2026-11-07 05:45 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR); `recovery/main` `962a38b` merged in (JOURNAL only, every entry kept).
+
+- **#939 (QUAL1 part 1) on `50e372a`:** CGR-149, CGR-150, CGR-152 met with pgTAP 120 (61), CI green. **Gate clear.** CGR-152 built stricter than asked (coordinators see the label only): accepted. CGR-151 deferral to part 2 accepted.
+- **#943 (0121) and #945 (0122) read:** one decision function on every path, backstop, start re-check, PLAN2 series asks the check. No blocking clinical finding. **#945 clear; #943 clear only together with #945** (alone it breaks the daily plan run and leaves a minutes change unchecked).
+- **New:** CGR-153 (advisory S2, PS-138: `generate_all_plans` is all or nothing), CGR-154 (advisory S1 before real data, PS-137: a refused start leaves the visit assigned, nobody alerted; lapses found only at the door). CR-191 to CR-195 added; CR-187 to CR-189 updated; H-01, H-04 updated.
+- **Answered for `po`:** QUAL1-20 (3) (UNKNOWN for `clinical`; safeguards proposed: not by the assigned member, reason, stays visible), QUAL1-21 ("Pflegefachperson" confirmed, "Kategorie B" not), UXR-132 texts (not-allowed confirmed; lapsed only as an interim).
+- **Task adjustment (rule 11):** none; no contradiction with `FOUNDER_DECISIONS.md` found.
+- **Next:** `po` merges #939 then #945; `eng` CGR-154 next; `cra` D-44 clinical input (#927).
 
 ---
 
@@ -196,6 +278,17 @@ Scheduled PO run (01:39). PO PR #938 (00:39) was open, so this run continues it;
 
 ---
 
+## 2026-11-07 01:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR).
+
+- **#939 (QUAL1 part 1, migration 0120, ADR-163, head `8cee6b2`) read in full:** matrix copy equals v0.2 §4.2 cell by cell; simulation scope holds (CGR-145 (e) met on the head, pgTAP 120:250-258); evidence, delegation and labels as briefed. **No blocking clinical finding for part 1.** **Gate not clear: CI `db` red** (RLS2-1, ADR-081, AUD1-1 guards; pgTAP 120 itself `ok`).
+- **New:** CGR-149 (advisory S1, blocking for QUAL1 part 2: the activity fallback maps no KLV-A minutes and lets an unlisted visit pass any verified grade), CGR-150 (advisory S1: retroactive delegation, instruction date unchecked), CGR-151 (advisory S2: K-7 and K-4 strict defaults not carried), CGR-152 (advisory S2: colleagues' evidence reasons). ADR-163 strict defaults (a), (b), (c), (e) confirmed; (d) not.
+- **#934** moved to `f9e189d` (docs-only merge-in, code identical to `66885bf`, CI green): `cra-gate: #934 f9e189d clear`.
+- **#938 / D-22:** CR-004 source line extended with [S12] (BS only), status unchanged. D-18/D-22 addenda consistent with CGR-08, CGR-31, CGR-142.
+- **Registers:** CR-185 to CR-190; PS-134 to PS-136; H-04 updated.
+- **Task adjusted (rule 11):** none. **Contradictions with `FOUNDER_DECISIONS.md`:** none found.
+- I did not run the test suite (CI results read only); live project not touched; no personal or health data.
 ## 2026-11-07 01:15 CET · eng (Engineering)
 
 Scheduled Engineering run (01:14). Active issue **#931 (QUAL1)**, not claimed before; claimed this run.
@@ -244,6 +337,15 @@ Scheduled Engineering run (00:10). Step A only (own open PRs).
 
 ---
 
+## 2026-11-07 00:10 CET · Clinical & Regulatory Architect (review)
+
+- **Reviewed:** `eng` #934 (FE-041 PLAN3 consolidation, head `66885bf`). All eight consolidation merges read with `git show --remerge-diff`: hand changes only in `plan3.spec.ts` (kept #894's stricter CGR-139 assertions) and the G → H fixture mapping for #902's rows and pgTAP 115 to 118. Assertion and plan counts identical to the reviewed heads. `66885bf` re-anchors the 0116 `confirm_suggestion` patch after 0105; 0105's expiry check is kept; no rule changed.
+- **Gate:** `cra-gate: #934 66885bf clear` (CI green on the head; PR `dirty` against `recovery/main` after #933, docs only). A later head keeps the gate if its code diff to `66885bf` is only what `recovery/main` brought in.
+- **Findings:** none new, none closed. CGR-75 (5), CGR-138, CGR-139, CGR-140 close when #934 is merged.
+- **UXR-129 (#935):** answered on substance (the refusal stays; the text must say "erfasste Qualifikation" and name the one reason; whether every path uses one shared check is UNKNOWN, covered by CGR-148).
+- **Own task adjusted (README rule 11):** FE-041 (2) replaces per-PR gates for the PLAN3 stack with one gate; I reviewed the consolidation delta instead of re-reading the fifteen PRs. No contradiction with `FOUNDER_DECISIONS.md`.
+- Tests: none run by me; CI read. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po`: update and merge #934 under the gate condition, close the fifteen PRs. `eng`: one shared qualification check for QUAL1.
 ## 2026-11-06 23:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled `uxa` run.
