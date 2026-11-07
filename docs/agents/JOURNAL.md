@@ -22,6 +22,19 @@ Scheduled `aia` run, review 38 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on 
 
 ---
 
+## 2026-11-07 14:10 CET · eng (Engineering)
+
+Scheduled Engineering run (14:10). Step A only (own open PRs); step B not reached.
+
+- **#837 (M1.4 WEB1/APP1 plans), PO ask of 13:39 (UXR-94) done.** ADR-143 1c and point 6 now use the built labels: "Nicht angetroffen", "Ergebnis erfassen" (no-show outcome), "Nicht abgeschlossen beenden" (`visit-lifecycle.tsx:123-133`) and "Entscheid erfassen" (`InterruptionFollowupForm.tsx:12`). The recorded state keeps "Klient:in nicht angetroffen". Point 6 adds one sentence: the tests take button names from the same exported constants as the buttons; that constants module is PLANNED with M6-2 (IMPLEMENTED today: inline labels only). `grep "Klient nicht angetroffen" DECISIONS.md` now finds 0 hits. Docs only; no code change. UXR-94 status in `UX_REVIEW.md` is `uxa`'s to close.
+- **Branch brought up to date:** `recovery/main` `be2af00` merged into #837 (no rebase, no force-push). Only conflict: `JOURNAL.md`; every entry kept, newest first.
+- **Not done this run:** #815 and #907 are also `dirty` against `recovery/main` after the PO 13:39 merge (CI was green on their last heads: #815 run 42371649187 on `b221c83`, #907 run 42360612762 on `1faafe28`). They are merged up in a following run, in the PO order (#837 → #815 → #907 → MERGE1).
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs`: see the PR comment for the result on the final head. `npm ci`, lint, typecheck, `npm test`, build: **could not run**: `registry.npmjs.org` does not resolve in this session and the proxy refuses it (CONNECT 403). `npm run test:db`, `npm run e2e`: **could not run** (no Supabase CLI, no npm). **For the owner:** allow `registry.npmjs.org` in the session's network settings so that the full local suite can run.
+- **CI (GITHUB CI RULE):** results for the pushed head go in a #837 comment once every job has finished.
+- Not merged by Engineering. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+
+---
+
 ## 2026-11-07 13:39 CET · po (Product Owner)
 
 Scheduled PO run (13:39). There was no open PO PR; this is `po/cycle-2026-11-07-1339`.
@@ -82,6 +95,26 @@ ENGINEERING BRIEF
 - **Dependencies:** UX2 remainder first (COORD-7 order); `cra`, `uxa` and `lca` lines on the brief; NH-A2 for the resident record (NH-A1 can be built on a minimal resident case and wired once NH-A2 lands); no decision package blocks it.
 - **Priority:** *Next up* 4, M9.0b due 2027-01-29.
 - **Implementation recommendation:** reuse `teams`, `team_memberships`, `cases` and the OPS1 derived-exception pattern. Add a shift-definition table and a planned-shift table per member, plus one responsibility row per (resident, shift date, definition), with an ADR on ward-as-setting and the night-shift date. Slice 1: data, commands, pgTAP. Slice 2: N-02. Slice 3: N-01 in `/field`. Each slice is one PR, at most a day.
+
+---
+
+## 2026-11-07 13:10 CET · eng (Engineering)
+
+Scheduled Engineering run (13:09). Step A only (own open PRs); step B not reached.
+
+- **Found:** after the PO merged #835 (`58da1ba`) and `uxa` #959, three own PRs were `dirty` against `recovery/main` `1a78662`: #837 (`DECISIONS.md`), #961 (`JOURNAL.md`), #815 (`DECISIONS.md`, `JOURNAL.md`). #907 stays `clean`.
+- **Done (merge commits, no rebase, no force-push; every journal entry and ADR kept):**
+  - #837 (M1.4, PO's next merge): ADR-143 and ADR-142 (from #835) both kept. No content change.
+  - #961 (MERGE1 proposal, COORD-7): the eng 12:05 entry placed newest first between `uxa` 12:10 and 11:50.
+  - #815 (ASM1-C6, migration 0106): ADR-140 and ADR-142 kept; the eng 12:30 entry placed newest first. No code conflict this time; no migration 0107 to 0122 defines a function that 0106 defines (checked with grep). The `cra` gate on the #815 head is still the PO's condition.
+- **Local tests (LOCAL TEST RULE), on each of the three branches:** `node scripts/agents-check.mjs`: ran, passed. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**, the npm registry is blocked by the session's network settings (`registry.npmjs.org`: DNS not resolvable directly, proxy CONNECT 403), so no `node_modules`. `npm run test:db`, `npm run e2e`: **could not run**, no Supabase CLI and no npm. Owner: allow `registry.npmjs.org` in the session's network settings (as reported at 12:05).
+- **CI (GITHUB CI RULE), all jobs finished, all green (app, db, e2e, ui-screenshots):**
+  - #837: run 42371645076 on head `3b0318d`.
+  - #961: run 42371645614 on head `067c761`.
+  - #815: run 42371649187 on head `b221c83`.
+  - All three are `clean`. Comments are on #961 and #815. The CI result for this journal commit on #837 goes in a #837 comment.
+- **Status:** the rows stay `in-review` with their PRs. Issue #964 (MERGE1) is `active` but not claimed: the PO order starts MERGE1 only after #837, #961, #815 and #907 are merged.
+- Not merged by Engineering. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` v10 found.
 
 ---
 
@@ -1749,6 +1782,19 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-04 11:15 CET · Engineering (eng)
+
+- Step A only, no claim: all 17 own PRs green on their heads and `clean`; no bot run waiting for approval. #745 (UX2) unclaimed, but the PO order (0) holds further UX2 parts while #799, #800, #803, #804, #806, #809 wait for the PO; PLAN3 still needs #814 merged.
+- **#837 continued (docs only, PLANNED, nothing built):** `cra` 09:30 (#855) written into ADR-143 and the APP1 plan:
+  - **1d condition:** any `/field` command whose function writes a visit status, a `visit_events` row, an exception-ending note or an assignment is never queued, whatever (ii) says; mapping gains fields (v), (vi); `record_interruption_followup` (0045:161) added as never queued.
+  - **CGR-124 (advisory):** facts now state that `visit_stuck` / `visit_overdue` are server-derived (0038, CR-039 PROVISIONAL D-28) and raised by pg_cron every minute or, without pg_cron, by any other open page's poll; never suppressed for an offline visit. pg_cron on the production host is UNKNOWN until D-2.
+  - **1c absence:** read-only offline dialog ("Schliessen", focus rules, no request), as `uxa` proposed and `cra` confirmed.
+  - **AUT-42 with `cra` conditions (a)-(d):** a device-clock refusal is resent once automatically without the claim; "Gerätezeit verworfen" shown as information; per-team count only; point 2 names it as the single automatic retry. The PO may keep the explicit act instead (new OPEN line for `po`).
+  - **UXR-93:** one line block per card, each button described by its own sentence.
+- Tests: none run (docs only); only `node scripts/agents-check.mjs`. CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched.
+
+---
+
 ## 2026-11-04 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 09:30), `recovery/main` @ `d1f2771`: no code merged since 05:30; PO #853 and `aia` #854 read; open #837 (`8142bba`, head `c8cc314`) and `uxa` #850 07:50 read on their branches; code PR heads unchanged.
@@ -1776,6 +1822,18 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-04 07:15 CET · Engineering (eng)
+
+- **Step A only, no claim.** All 17 own PRs green on their heads; no bot run waited for approval. #745 (UX2) stays unclaimed: *Active now* (2026-11-03 06:30) item (0) still holds (#799, #800, #803, #804 unmerged), so no new UX2 part is opened.
+- **#837 continued (docs only):** `cra` CGR-123 (05:30, PR #852, blocking for ADR-143 acceptance and the M6-2 build), placed in force by the PO 06:10 (`DELIVERY_PROGRAM.md` §0c (2)), written into ADR-143 and `APP1_IMPLEMENTATION_PLAN.md` (PLANNED, nothing built):
+  - 1c: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence` never queued; offline `aria-disabled` with a line to call the team now; **no phone number** until MOB1 names one (Clinical Owner, UNKNOWN until G-1).
+  - 1d: membership by a rule, not a list review: a `FIELD_COMMAND_EFFECTS` mapping per `/field` command; source of truth the migrations (`private.evaluate_signals` 0060:234 reads OPS1 exceptions through `private.signal_kind_of` 0060:167; neither redefined later, checked by grep); vitest on the mapping; a pgTAP pins the signal-kind exception types so a new kind fails CI.
+  - 5 reads "No pending entry is deleted without her having seen it" (CGR-123 (4)); 6 adds the vitest and one offline e2e per command of 1c (CGR-123 (5)).
+  - 9 (`cra` device-clock condition): a resend refused for a device claim later than the server time is kept and can be sent once by "Ohne Gerätezeit senden", server time only, with a stored discard marker; never in billed minutes.
+- Merged `recovery/main` into #837 first (only conflict `JOURNAL.md`, every entry kept). **OPEN:** `cra` confirms 1c, the 1d mapping when written, and 9; `uxa` wording for 1c and 9. Tests: none run (docs only); `node scripts/agents-check.mjs` run before pushing. Live project not touched.
+
+---
+
 ## 2026-11-04 06:10 CET · po (Product Owner)
 
 - No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).
@@ -1790,6 +1848,17 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
   - AUT-41 is the target (confirm the device time through the audited correction path instead of retyping), gated on the Clinical Owner's documented-time decision with `lca`; challenge row with a pilot hypothesis.
   - MOB1 must name the offline "telefonisch melden" number (Clinical Owner; UNKNOWN until G-1). UXR-92 placed in MOB1. M6 offline criterion extended.
 - `ROADMAP.md` updated. No queue change; no new brief approved. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 06:10 CET · Engineering (eng)
+
+- **Step A only, no claim.** All 17 own PRs are green on their heads and `clean` against `recovery/main`; no bot run waited for approval. #745 (UX2) stays unclaimed: the PO's *Active now* item (0) still holds further UX2 parts while #799 to #815 wait for the PO.
+- **#837 continued (docs only):** `cra` CGR-122 (01:30, #848, blocking for ADR-143 and M6-2), `aia` AUT-41 (02:20, #849) and `uxa` UXR-92 (03:50, #850) written into ADR-143 and `APP1_IMPLEMENTATION_PLAN.md`:
+  - no "reaches another person" list; one line "Noch nicht beim Team." on every pending care entry; an allow-list and a never-queued list with a vitest that fails on an unlisted `/field` command;
+  - the visit timeline, `correct_visit_time`, `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` are never queued; offline their buttons are `aria-disabled` with a card line (safe default, CGR-122 (1));
+  - a device entry time is a labelled claim beside the server time, refused when later, never in the billed minutes (CGR-122 (2), (3); PLANNED, pgTAP named). Facts checked in the code: `visit_events.occurred_at default now()` (0007), `visit_care_minutes_exact` reads `coalesce(corrected_at, occurred_at)` (0023), `visit_observations.recorded_at default now()` (0009).
+- **OPEN:** `po` places CGR-122 and chooses 1a alone or the AUT-41 correction option (1b); the Clinical Owner and `lca` decide whether a device time may be the documented time (1b only); `cra` confirms the command split; `uxa` wording. ADR-143 stays PROPOSED. No test ran (docs only); `node scripts/agents-check.mjs` ok.
 
 ---
 
@@ -1848,6 +1917,18 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **CGR-113:** sentence by count with "gilt/gelten nicht mehr" (n = 1, n ≥ 2). **UXR-89 amended** with `cra`'s card conditions ((b) and (e) cards complete, "Kein Richtwert." visible). **CGR-118 / CGR-121 (a), (b):** offline banner, pending-card lines, sign-out `alertdialog` and access-end line PROPOSED; `cra` confirms the facts (and the offline "Zurück" variant), `lca` the deletion and access-end sentences, `po` places them in MOB1.
 - New **UXR-91** (medium, my own catalog A-07 "Wird gesendet …" on a pending card while offline). No severe or high finding, no issue opened, no PR comment.
 - DESIGN_SYSTEM v33 (figure-list card rule; new OPEN offline rule). No screenshots needed; no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 23:15 CET · eng (Engineering)
+
+- Step A: all 17 own PRs green on their heads, none in conflict with `recovery/main` `50db89d`, no bot run waiting. Nothing merged by Engineering.
+- **PR #837 continued** (COORDINATION rule 2) with the two items the PO's 22:00 cycle and `cra` 21:30 (PR #845) left for `eng`:
+  - **CGR-121 (a)-(d) written into ADR-143** (PROPOSED): confirming sign-out step with pending entries (default "Zurück und senden"); an expired session keeps entries and never lets another user see or send them; a resend refused `access_ended` (0074, IMPLEMENTED) is kept and shown, to pass on by phone; no refused entry dropped or auto-retried; e2e and vitest named, written before the queue code. Clearing on a confirmed sign-out stays (privacy control).
+  - **AUT-40:** C-15 withdrawn, M6-4 dropped, its days to M6-2 (now 2027-01-08) and M6-3 (2027-01-22); M6 date 2027-01-29 unchanged. CGR-120 noted on C-04.
+- OPEN: `lca` (SC-2, the period after an expiry, content shown after an access end); `cra` (kinds that reach another person; CGR-118 banner); `uxa` (wording of the sign-out step, foreground fact, access-end card); `cra`/`po`: a late-sent entry runs at server time, so whether the device entry time must be shown is UNKNOWN, and Engineering adds no client time without that decision.
+- Not done this run: CGR-113 (#815), CGR-114 (#841), CGR-115 (#828) are advisory and due before real data; no new UX2 part (*Active now* 06:30 (0) still holds). `IMPLEMENTATION_SEQUENCE.md` (#833) still names B-8 for C-15; it is corrected in that PR when it is next touched.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` run before pushing. Live project not touched.
 
 ---
 
@@ -1928,6 +2009,14 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
 - **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
 - DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 15:30 CET · eng (Lead Engineer)
+
+- Owner request: implementation plans on the `uxa` design set (#834). New `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md` (W-01 to W-11, M5) and `docs/engineering/APP1_IMPLEMENTATION_PLAN.md` (A-, C-, O-, L- screens; M2, M4 screens, M6, M8): per screen the components, reads, commands and step; development order, critical path, blockers, estimated dates. ADR-143 (PROPOSED): pending-command store and routes for C-15/C-17, refining ADR-142 of #835 (accepted by the owner 2026-11-03; the duplicate ADR-142 first drafted here was dropped, and `site/` renamed `website/`).
+- Estimates (not commitments): M2 2026-11-27 if `po` clears the 11-PR queue by 2026-11-10; M5 2027-01-15 if the owner decides host, domain and demo destination by 2026-12-11; M6 2027-01-29; M8 2027-02-19.
+- No code, no migration; no new UX2 part opened (PO order 06:30, item (0)). Docs only; `node scripts/agents-check.mjs` run.
 
 ---
 
