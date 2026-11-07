@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 17:29 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. #965 (13:25) merged; no `gov/…` PR open, so this is `gov/review-2026-11-07-1729`.
+
+- **NH-A1 brief** (amended 14:39) reviewed for build gate (a): **`cra` gate line clear for the Phase A synthetic build, condition CGR-158 (1)** (a responsibility is cleared when the member's shift is withdrawn or her access ends; pgTAP).
+- **New:** CGR-158 (advisory S1 before Phase B; H-34, PS-142): default plus recurring pattern can mark a resident covered by an absent member and silence the uncovered list. CGR-159 (advisory S1 before Phase B; PS-143): a resident uncovered in the current shift has no priority or escalation; the Clinical Owner sets that, not `cra`. CR-198 to CR-200 PROPOSED.
+- **Acknowledgement question:** UNKNOWN (Clinical Owner). The removed team confirm was no safety control; if one is required later, it is the named member's own "Gesehen", and an unacknowledged resident then counts as uncovered.
+- **`uxa` #974:** UXR-139 to -142 and the decision 3 help text confirmed on the clinical side (formal-responsibility clause: `lca`).
+- **#815** moved to `b386c14` (base merge, code identical to `b221c83`, CI 4/4 green, read not run): **gate clear**.
+- **D-41 (FE-051, #973):** clinical input: KLV category, activity names, condition-naming signal kinds, holds, order status and ward residence are health data, not "planning facts"; pattern 1 needs a named allow-list. Rule A question stays with `lca`.
+- **Task adjustment (rule 11):** the NH-A1 gate and the `uxa` confirmations came first because they block a build gate; the D-18 template (FE-042) moves to the next run. No contradiction with `FOUNDER_DECISIONS.md` v10 (v11 in #973 read).
+- **Next:** `po` merges this PR and writes CGR-158 (1) and the CGR-159 wording into NH-A1; `cra` D-18 next run.
+
+---
+
 ## 2026-11-07 16:10 CET · eng (Engineering)
 
 Scheduled Engineering run (16:10). Step A only (own open PRs); step B not reached.
