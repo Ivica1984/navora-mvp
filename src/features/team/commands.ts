@@ -6,7 +6,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
-import type { CommandResult } from "@/lib/commands/result";
+import { qualificationRefusal, type CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import { parseOverlapFact, type OverlapFact } from "@/features/visits/overlap-rules";
 import { parseMemberOverlap, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
@@ -130,9 +130,12 @@ export type PlanResult =
   | { ok: true; flags: string[]; released: boolean; overlap: OverlapFact; memberOverlap: MemberOverlapFact }
   | { ok: false; error: string };
 
-function planResult(op: string, data: unknown, error: { code?: string } | null): PlanResult {
+function planResult(op: string, data: unknown, error: { code?: string; message?: string } | null): PlanResult {
   if (error) {
     logEvent("warn", "command.failed", { op, ...errorFields(error) });
+    // QUAL1-10 (0121): the backstop refused the member for this visit (hand assignment, move).
+    const qual = qualificationRefusal(error);
+    if (qual) return { ok: false, error: qual };
     return {
       ok: false,
       error: error.code === "22023" ? "Bitte Datum (ab gestern), Zeiten, Minuten pro Kategorie und – bei Änderungen – einen Grund angeben." : "Planung konnte nicht gespeichert werden.",

@@ -5,7 +5,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
-import type { CommandResult } from "@/lib/commands/result";
+import { qualificationRefusal, type CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import { COVER_MESSAGES } from "./rules";
 
@@ -16,7 +16,8 @@ export async function acceptCover(input: unknown): Promise<CommandResult> {
   const { data, error } = await supabase.rpc("accept_cover", { p_visit_id: p.data.visitId, p_idempotency_key: p.data.idempotencyKey });
   if (error) {
     logEvent("warn", "command.failed", { op: "accept_cover", ...errorFields(error) });
-    return { ok: false, error: COVER_MESSAGES.failed };
+    // QUAL1-10 (0121): the backstop refused her as the covering member.
+    return { ok: false, error: qualificationRefusal(error) ?? COVER_MESSAGES.failed };
   }
   if (data === "ok" || data === "duplicate") {
     revalidatePath("/field");
