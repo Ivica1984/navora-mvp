@@ -132,7 +132,8 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
     await expect(lines).toHaveCount(1);
     const refused = lines.filter({ hasText: "14:00" });
     await expect(refused.getByTestId("suggestion-refusal")).toHaveText(
-      "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation).",
+      // QUAL1-21 (1), (3), ADR-166: the shared text, no verdict on a person.
+      "Nicht übernommen: Für die gewählte Person ist nicht erfasst, was dieser Einsatz verlangt (Teammitgliedschaft oder Qualifikation).",
     );
   });
 });
@@ -348,7 +349,8 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     const section = page.getByTestId("record-lookback");
     await section.getByRole("button", { name: "Erneut bestätigen" }).click();
     await expect(section.getByTestId("command-error")).toHaveText(
-      "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation).",
+      // QUAL1-21 (1), (3), ADR-166: the shared text, no verdict on a person.
+      "Nicht übernommen: Für die gewählte Person ist nicht erfasst, was dieser Einsatz verlangt (Teammitgliedschaft oder Qualifikation).",
     );
     await expect(page.getByTestId("record-lookback-line")).toHaveCount(1);
 
