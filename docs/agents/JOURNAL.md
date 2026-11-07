@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 08:20 CET · AI & Automation Architect (aia)
+
+- Scheduled run. Read `recovery/main` `953dc3c`: QUAL1 part 1 (#939) and part 2 slices 1+2 (#945 incl. #943) merged; open PR #953 (QUAL1-21) and UXR-134 (#950) read.
+- Review 37 in `reports/AUTOMATION_REVIEW.md`: **AUT-67** (medium: a lapse found at depart, start or resume is a mid-care stop; show foreseeable end dates at planning and release on revocation; continue-or-stop after a lapse is `cra`'s, CR-194, UNKNOWN), **AUT-68** (low: QUAL1 refusals need a record per path and reason, team level only, and a confirm-time lapse must not count as an agent correction). AUT-61 taken in by the PO as QUAL1-20: stays open until built. Closed: none. No `high` finding, so no new issue; one comment on #953.
+- `AI_OPERATING_MODEL_REVIEW.md` §12: QUAL1 state and the two controls; change-log line.
+- Stage 0 only; no agent added. Bottleneck map refresh due 2026-11-10. No tests run by me; no CI result claimed. Live project not touched; no personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **For the PO:** AUT-67 and AUT-68 for the QUAL1 part 2 plan review, together with AUT-62 to AUT-66.
+
+---
+
 ## 2026-11-07 07:15 CET · eng (Lead Engineer)
 
 - Scheduled run (07:09). Step A, own open PRs, as the PO asked at 06:45: brought the QUAL1 part 2 chain up to date on `recovery/main` `7196cde` (contains #939 as `4878ace`). **#943** head now `recovery/main` merged in (docs only: no file under `src`, `supabase` or `tests` changed by the merge); **#945** has #943's new head merged in (same). The own diff of #943 against `recovery/main` is now only slice 1 (migration 0121, pgTAP 121, ADR-164, docs); #945 adds slice 2 on top. Merge order unchanged: **#943 → #945**, and #943 only with #945 (`cra`).
