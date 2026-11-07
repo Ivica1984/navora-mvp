@@ -17,6 +17,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 05:45 CET · po (Product Owner)
+
+Scheduled PO run (05:39). No PO PR was open; this is `po/cycle-2026-11-07-0539`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, next Engineering PR) on head `50e372a`: **all seven conditions met** (CI `app`, `db`, `e2e`, `ui-screenshots`, `sync` green, `clean`; `cra-gate: #939 50e372a clear` at 05:45 on #937; no `lca` stop; QUAL1 approved and *Active now*; 0 reviews/threads, UXR-133 answered in the record as decided by QUAL1-21 for part 2; no "Blocked by"; migration 0120 adds only, RLS, select grants, append-only and audit triggers). Merge record comment posted on #939. **The merge call was refused by the scheduled session's permission check** ("merge without review"); not retried through another route. The next PO run merges on the same SHA. **#947** (`lca` review 04:56) **merged** as `e3975c6` on head `278299b` (CI 4/4 green, `clean`, 0 threads, own files only; record on #947). #937 (`cra`) not merged: `e2e` still running on `c2451ec`.
+- **Review (C):** nothing delivered for acceptance (no Engineering merge).
+- **Decisions (F), three packages in INDEX order (`lca` sections in):**
+  - **D-43** (tier 2): all inputs in (Engineering drafted by po). Recommendation **B + D**, **Medium**: review board with a product-rule mandate, Phase A provisional on synthetic data, Phase B binding only with the partner's adoption record (`lca`: A/B/C without D not compliant for Phase B). **Escalated: awaiting approval: owner** (governance mandate, liability, members).
+  - **D-42** (tier 3): recommendation **option B** (twelve legal points plus eight clinical clauses) as the drafting basis, **Medium**; D-2, an incident runbook and an organisation export named as Phase B gates before signing. **Escalated: owner**, not urgent.
+  - **D-44** (tier 3): Clinical section **drafted by po, not confirmed by cra** (two-run rule; `cra` runs 00:10, 01:35, 05:45 did not answer #927), taken only from CGR-146/-147 and CR-180/-182/-184. **Low**: the Phase B path A-D is unresolved after `lca` (adviser). Escalated for two points only: L-10 fee design binding, and **one adviser mandate** for Q-42a-c, Q-43a-b, Q-44a-b, L-11 and D-41 (9) (FE-026: concrete questions `lca` cannot settle).
+- **Prioritisation (D):** unchanged: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27); QUAL1 part 1 is the next merge, now gated only by the merge permission.
+- **Challenge (E):** *Why does each contract question go to a lawyer separately?* Seven adviser questions from four packages share two subjects: who carries responsibility for a rule a team follows, and how a team works inside a licensed home. From scratch, NAVORA asks them once, as one mandate, before Phase B, and the founder answers one line instead of four. Buurtzorg comparison: its legal form was fixed once by one organisation; NAVORA must make it repeatable for many teams, so the answers become reusable templates, not one-off advice.
+- **Blueprint v2.17:** version row, header, §7 FD-02/FD-28, §9.1 PB-1 and PB-6. `OPEN_DECISIONS.md`, `decisions/INDEX.md`, `OWNER_AGENDA.md` (bundle 3, merge permission row), `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO task's permission check still refuses Engineering merge calls intermittently (#934 00:39, #939 05:39) while role-PR merges go through; bundle 1 row updated. The prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041). The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: confirm or correct the D-44 Clinical draft (#927); give a clinical view on A-D. `eng`: confirm the D-42/D-43/D-44 Engineering drafts; do not push to #939 (merge pending on `50e372a`). `lca`: D-25 next.
+
+**Waiting for the owner (escalated this run):** **D-43**: "approve option B + D and name the board members"; default: no rule `APPROVED`, provisional rules on synthetic data only. **D-44**: "approve the L-10 fee design and one adviser mandate before Phase B"; default: Phase A simulation only. **D-42**: "approve option B as the drafting basis"; default: no draft leaves the repository. None blocks Phase A. Plus the merge permission for the scheduled PO task (bundle 1), which keeps #939 from merging.
+
+---
+
 ## 2026-11-07 04:45 CET · po (Product Owner)
 
 Scheduled PO run (04:39). No PO PR was open; this is `po/cycle-2026-11-07-0439`.
