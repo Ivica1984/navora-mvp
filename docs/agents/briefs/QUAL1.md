@@ -147,6 +147,39 @@ No QUAL1 code was merged this run: #953 (QUAL1-21, slice 3, head `9f6340c`, CI 4
 
 **Order within part 2 (unchanged at the top):** CGR-153 → CGR-154 with UXR-134 → QUAL1-20 → refusal record (QUAL1-15 / AUT-68) → UXR-136 → NH-EXT; the #944 e2e step with the first UI slice.
 
+## PO review of part 2, slice 3 (2026-11-07 09:39 CET, scheduled PO run)
+
+**PR #953 merged** as `ac6a303` on head `de4fd3f` (`PO merge #953: QUAL1 part 2 slice 3, QUAL1-21 (head de4fd3f)`); merge record with the seven conditions on #953. `cra-gate: #953 de4fd3f clear` (`CLINICAL_GOVERNANCE.md` 09:25, #937); `git diff 9f6340c de4fd3f -- src supabase tests e2e` empty. CI on the head: `app`, `db`, `e2e`, `ui-screenshots` success (run 42354068472). CI on the merge commit: see the journal entry of this run (section 5). **The PO did not run the tests**; results are read from CI and from the test files (`tests/unit/qual1-21-one-text.test.ts`, `qual1-labels`, `qual1-command-refusals`, e2e `aig1.spec.ts`).
+
+**Outcome: slice 3 reviewed, QUAL1 stays in progress.** Not accepted: the part 2 conditions below and part 3 are open. No changes-requested finding.
+
+| Criterion | Slice 3 result | Evidence |
+|---|---|---|
+| QUAL1-21 (1) one label function under `src/features/qualification/` | **met for QUAL1 refusals and proposal reasons**: `refusals.ts` `qualReasonText` / `qualRefusalText`, one sentence per reason, only the subject differs; unknown reason fails closed. **Open:** the old RN-rule texts outside QUAL1 (`team/commands.ts` `rn_required`, `absence/rules.ts` `not_qualified`) still exist for the non-simulation path, so UXR-129 (#935) stays open | `src/features/qualification/refusals.ts`; `tests/unit/qual1-21-one-text.test.ts` (in `app` unit) |
+| QUAL1-21 (2) every path maps the QUAL1 refusal | met: start/depart/resume, hand assignment, moves, take, cover, AIG1 `not_qualified`, day plan (`proposeDayPlan`, the #944 gap), PLAN2 `fromJson` | #953 diff `result.ts`, `planning/day-plan-commands.ts`, `planning/commands.ts`, `cover/commands.ts`, `absence/commands.ts`, `ai/labels.ts` |
+| QUAL1-21 (3) no verdict on a person, no code in user text | met: "Diese Person darf den Einsatz nicht durchführen" removed; no matrix code; banner "Regel vorläufig, nicht fachlich freigegeben"; `cra` confirmed the sentences (write "Pflegefachperson HF/FH" where FaGe is also shown) | `labels.ts`; `grep "Diese Person darf" src` empty on `ac6a303`; `cra` comment on #953 |
+| UXR-135 (own take and cover) | met: subject `dich` on take and cover | `refusals.ts` `subjectWords` (`self` → "dich"); `cover/commands.ts` |
+| UXR-134 / QUAL1-21 (5) resume text | **open** (part 2 condition, see below): one `start` text still serves depart, start and resume | `refusals.ts` `NEXT_STEP.start` |
+| #944 (UXR-132) | mapping met; e2e step still missing, #944 stays open | #953 body |
+
+**Deviations decided:** ADR-166 (1) the literal-string guard scans `qualification/` only: **accepted**; other folders are covered by their QUAL1 output tests, and the leftover non-QUAL1 texts are `uxa`'s (UXR-129). ADR-166 (2) "Der Einsatz bleibt geplant" at start until release on lapse: **accepted as interim**, replaced by the CGR-154/CGR-155/UXR-134 slice.
+
+**New `cra` finding CGR-155 (advisory S1, resume after a lapse during the visit) and the CR-194 review position:** placed as **part 2 acceptance conditions in the same slice as CGR-154 and UXR-134** (one text change, one release mechanism). The `cra` defaults are product defaults for the simulation, not clinical rules; whether care already begun is finished or stopped stays **UNKNOWN** (CR-194, D-43, `clinical`), and the product decides it neither way.
+
+~~Until `cra` answers, the resume text names **no next step** (QUAL1-21 (5)).~~ Replaced (PO 09:39, on `cra`'s review position of 09:25): the resume text states the true state and names only the two **implemented** steps, which `cra` confirms are no clinical instruction. Phase A only.
+
+| Condition (part 2) | Testable check |
+|---|---|
+| CGR-155 (1) resume refusal stays | pgTAP: delegation revoked while the visit is `paused` → `resume` refused with `qualification_lapsed`; status stays `paused`; no path completes it |
+| CGR-155 (2) / UXR-134 resume text | Vitest: `resumeVisit` text for `{code:"42501", message:"qualification_lapsed"}` contains "pausiert", names the two implemented steps (document what was done: observations stay open on a paused visit; record the visit as not completed: CSR1) in `uxa`'s words, and contains neither "Nicht begonnen" nor "geplant"; `departVisit` and `startVisit` have their own texts. Wording `uxa`, confirmed by `cra` |
+| CGR-155 (3) alert and release | pgTAP: on a refused resume an alert row for the team and a coverage fact exist; the remaining care is open for the team (CGR-154 pattern); no member name in the fact |
+| CGR-155 (4) countable reason | pgTAP: `record_visit_not_completed` accepts the new product reason code for a qualification lapse, and after a refused resume the code is **pre-set from the refusal** (the nurse confirms, she does not type a free-text "other" note for a stop the system caused; PO challenge 09:39); the refusal record (QUAL1-15 / AUT-68) counts it per team |
+| CGR-155 (5) revoking tells the revoker | pgTAP/Vitest: revoking a delegation or evidence that an in-progress visit relies on returns a result naming that a visit is running (no client data in the text) |
+
+**Order within part 2:** CGR-153 → **CGR-154 + UXR-134 + CGR-155** → QUAL1-20 → refusal record (QUAL1-15 / AUT-68) → UXR-136 → NH-EXT.
+
+**Business and care value:** a nurse who is refused anywhere now reads one sentence that says what the visit needs and what is not recorded, without a verdict on her and without a code; the team can act on it without calling an office (value 4, value 5). The real safety gain (no half-done visit without an alert) comes with the next slice. **Architecture:** consistent with the Handbook (pure label module, no rule changed, no migration).
+
 ## Rules and their input class
 - QUAL1-8/-10 activity rule: *care-context fact recorded by a person* (grade, evidence, delegation) gating an assignment; **for the adviser and the Clinical Owner**: built and tested on synthetic data only, not released to real clients before the matrix cells are `APPROVED` (D-43, K-1) and D-29 is decided (CGR-145).
 - QUAL1-4/-5 expiry and contradiction defaults: *care-context fact recorded by a person*; PROPOSED product defaults, `cra` confirms.
