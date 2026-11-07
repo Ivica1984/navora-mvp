@@ -1171,6 +1171,26 @@ isOneToOne: true
       referencedColumns: ["organization_id","user_id"]
     }
                   ]
+                },"member_qualification_evidence": {
+                  Row: {
+                    "created_at": string,"grade": string | null,"id": string,"organization_id": string,"recorded_by": string | null,"requirement": string,"seq": number,"state": string,"synthetic": boolean,"user_id": string,"valid_until": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"grade"?: string | null,"id"?: string,"organization_id": string,"recorded_by"?: string | null,"requirement": string,"seq"?: never,"state": string,"synthetic"?: boolean,"user_id": string,"valid_until"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"grade"?: string | null,"id"?: string,"organization_id"?: string,"recorded_by"?: string | null,"requirement"?: string,"seq"?: never,"state"?: string,"synthetic"?: boolean,"user_id"?: string,"valid_until"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "member_qualification_evidence_organization_id_user_id_fkey"
+      columns: ["organization_id","user_id"]
+isOneToOne: false
+      referencedRelation: "organization_memberships"
+      referencedColumns: ["organization_id","user_id"]
+    }
+                  ]
                 },"organization_memberships": {
                   Row: {
                     "created_at": string,"organization_id": string,"role": string,"user_id": string
@@ -1233,14 +1253,14 @@ isOneToOne: false
                   ]
                 },"organizations": {
                   Row: {
-                    "created_at": string,"id": string,"name": string
+                    "created_at": string,"id": string,"name": string,"simulation": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string
+                    "created_at"?: string,"id"?: string,"name": string,"simulation"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string
+                    "created_at"?: string,"id"?: string,"name"?: string,"simulation"?: boolean
                   }
                   Relationships: [
                     
@@ -1333,6 +1353,136 @@ isOneToOne: false
                   }
                   Update: {
                     "country"?: string,"dpf_read_on"?: string | null,"dpf_swiss_status"?: string | null,"hosts_exact"?: (string)[],"hosts_suffix"?: (string)[],"legal_entity"?: string,"vendor"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"qual_activities": {
+                  Row: {
+                    "code": string,"klv": string | null,"label_de": string,"parent": string | null,"sort": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"klv"?: string | null,"label_de": string,"parent"?: string | null,"sort": number
+                  }
+                  Update: {
+                    "code"?: string,"klv"?: string | null,"label_de"?: string,"parent"?: string | null,"sort"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_activities_parent_fkey"
+      columns: ["parent"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    }
+                  ]
+                },"qual_delegation_revocations": {
+                  Row: {
+                    "created_at": string,"delegation_id": string,"id": string,"organization_id": string,"revoked_by": string,"seq": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"delegation_id": string,"id"?: string,"organization_id": string,"revoked_by": string,"seq"?: never
+                  }
+                  Update: {
+                    "created_at"?: string,"delegation_id"?: string,"id"?: string,"organization_id"?: string,"revoked_by"?: string,"seq"?: never
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_delegation_revocations_delegation_id_fkey"
+      columns: ["delegation_id"]
+isOneToOne: true
+      referencedRelation: "qual_delegations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qual_delegation_revocations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"qual_delegations": {
+                  Row: {
+                    "activity_code": string,"case_id": string,"conditions": string | null,"created_at": string,"delegate_id": string,"delegator_id": string,"id": string,"instructed_on": string,"matrix_version": string,"organization_id": string,"seq": number,"supervisor_id": string,"team_id": string,"valid_from": string,"valid_until": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_code": string,"case_id": string,"conditions"?: string | null,"created_at"?: string,"delegate_id": string,"delegator_id": string,"id"?: string,"instructed_on": string,"matrix_version": string,"organization_id": string,"seq"?: never,"supervisor_id": string,"team_id": string,"valid_from": string,"valid_until": string
+                  }
+                  Update: {
+                    "activity_code"?: string,"case_id"?: string,"conditions"?: string | null,"created_at"?: string,"delegate_id"?: string,"delegator_id"?: string,"id"?: string,"instructed_on"?: string,"matrix_version"?: string,"organization_id"?: string,"seq"?: never,"supervisor_id"?: string,"team_id"?: string,"valid_from"?: string,"valid_until"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_delegations_activity_code_fkey"
+      columns: ["activity_code"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "qual_delegations_case_id_fkey"
+      columns: ["case_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qual_delegations_matrix_version_fkey"
+      columns: ["matrix_version"]
+isOneToOne: false
+      referencedRelation: "qual_matrix_versions"
+      referencedColumns: ["version"]
+    },{
+      foreignKeyName: "qual_delegations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qual_delegations_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"qual_matrix_cells": {
+                  Row: {
+                    "activity_code": string,"grade": string,"open_question": string | null,"requires": (string)[],"source": string,"status": string,"value": string,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_code": string,"grade": string,"open_question"?: string | null,"requires"?: (string)[],"source": string,"status": string,"value": string,"version": string
+                  }
+                  Update: {
+                    "activity_code"?: string,"grade"?: string,"open_question"?: string | null,"requires"?: (string)[],"source"?: string,"status"?: string,"value"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_matrix_cells_activity_code_fkey"
+      columns: ["activity_code"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "qual_matrix_cells_version_fkey"
+      columns: ["version"]
+isOneToOne: false
+      referencedRelation: "qual_matrix_versions"
+      referencedColumns: ["version"]
+    }
+                  ]
+                },"qual_matrix_versions": {
+                  Row: {
+                    "created_at": string,"source": string,"status": string,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"source": string,"status": string,"version": string
+                  }
+                  Update: {
+                    "created_at"?: string,"source"?: string,"status"?: string,"version"?: string
                   }
                   Relationships: [
                     
@@ -1871,6 +2021,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"visit_activities": {
+                  Row: {
+                    "activity_code": string,"created_at": string,"id": string,"organization_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_code": string,"created_at"?: string,"id"?: string,"organization_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "activity_code"?: string,"created_at"?: string,"id"?: string,"organization_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_activities_activity_code_fkey"
+      columns: ["activity_code"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "visit_activities_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_activities_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"visit_events": {
                   Row: {
                     "actor_id": string | null,"command": string | null,"event_type": string,"from_status": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"team_id": string | null,"to_status": string,"visit_id": string
@@ -2309,6 +2491,9 @@ isOneToOne: false
 "confirm_assessment":
 { Args: { "p_idempotency_key": string,"p_record_id": string }; Returns: Json
                            },
+"confirm_my_qualification":
+{ Args: { "p_grade": string,"p_idempotency_key": string,"p_organization_id": string,"p_requirement": string }; Returns: Json
+                           },
 "confirm_suggestion":
 { Args: { "p_idempotency_key": string,"p_outcome": string,"p_suggestion_id": string,"p_value": Json }; Returns: Json
                            },
@@ -2594,6 +2779,9 @@ isOneToOne: false
 "record_assessment":
 { Args: { "p_assessment_date": string,"p_assessor_id": string,"p_case_id": string,"p_document_ref": string,"p_idempotency_key": string,"p_instrument_id": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_period_a": string,"p_period_b": string,"p_period_c": string,"p_reason": string,"p_supersedes_id": string }; Returns: Json
                            },
+"record_delegation":
+{ Args: { "p_activity_code": string,"p_case_id": string,"p_conditions": string,"p_delegate_id": string,"p_idempotency_key": string,"p_instructed_on": string,"p_supervisor_id": string,"p_team_id": string,"p_valid_from": string,"p_valid_until": string }; Returns: Json
+                           },
 "record_gp_informed":
 { Args: { "p_case_id": string,"p_channel": string,"p_idempotency_key": string,"p_informed_on": string }; Returns: Json
                            },
@@ -2672,6 +2860,9 @@ isOneToOne: false
                            },
 "review_care_plan_against_assessment":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
+"revoke_delegation":
+{ Args: { "p_delegation_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
@@ -2840,6 +3031,11 @@ isOneToOne: false
                            },
 "visit_move_leaves_other_visit":
 { Args: { "p_visit_id": string }; Returns: boolean
+                           },
+"visit_qualification_check":
+{ Args: { "p_user_id": string,"p_visit_id": string }; Returns: {
+              "activity_code": string,"delegation_until": string,"label": string,"matrix_version": string,"reason": string,"result": string,"rule_status": string
+            }[]
                            },
 "visits_outside_watched_hours":
 { Args: { "p_own_teams"?: boolean }; Returns: {
