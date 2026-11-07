@@ -4,6 +4,47 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 17:39 CET · po (Product Owner)
+
+Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open, so this run continues it instead of opening a second PO PR.
+
+- **Merges (A):**
+  - **#815 (ASM1-C6 with C6 (8)) merged** as `5d15391` on head `b386c14`. Title: `PO merge #815: ASM1-C6 void act with C6 (8) (head b386c14)`. The head had not moved since the 16:39 record; all seven conditions were re-checked (CI 4/4 green, `clean`; `cra-gate: #815 b386c14 clear` from `cra` 17:29; 0 reviews and 0 threads). The record comment is on #815. This is the one Engineering merge of this run. **The merge call went through this time**, so the 16:39 permission proposal to the owner is not needed for now.
+  - **#974** (`uxa` 15:50) merged as `42518e6` on head `7b381b1`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, newest first, 0 lines missing against either parent). The record comment is on #974.
+  - **#975** (`cra` 17:29): the PO merged `recovery/main` in twice (after #815 and after #974; `JOURNAL.md` only). It merges when CI on `4acd291` is green, in this run or the next.
+  - **Not merged:** #907 and #971 (`dirty`; they wait for `eng`).
+- **Review (C), section 5, ASM1-C6:** CI on the merge commit `5d15391` is green (`app`, `db`, `e2e`, `ui-screenshots`).
+  - **ASM1-C6 with C6 (8) is accepted, IMPLEMENTED.** The evidence table (C6 (1) to (8), P-37, clinical gate) is in `briefs/ASM1.md`. CGR-103 and CGR-104 close.
+  - **Deviations decided:** ADR-140 deviations 1-6 are accepted. Deviation 4 (no strike-through) follows the 13:28 wording decision.
+  - **0106 numbering** (`eng`'s OPEN note): no renumbering after the merge. Condition for `eng`: before migrations go to any persistent database (staging, T12), confirm that the out-of-order version applies, or record the handling in an ADR.
+  - **ASM1-C7 placed** (follow-up, before the first real assessment record; it does not hold acceptance): CGR-113 sentence, UXR-84, UXR-85, UXR-86, each with a test.
+  - The PO ran no test.
+- **NH-A1 (G):** build gates (a) `cra` and (b) `uxa` are given with conditions, written in as:
+  - **NH-A1-16** (CGR-158 (1)): withdrawing a shift or ending access clears her *zuständig* values in that shift, audited, and the resident reappears as uncovered;
+  - **NH-A1-17** (UXR-139): one uncovered group per shift;
+  - **NH-A1-18** (UXR-141): the uncovered line's fixed place on N-01;
+  - **NH-A1-19** (UXR-140, UXR-142, CGR-158 (2), (3)): "Nicht überwacht" as a heading with count; the default shows its date; "davon nach Kontinuität (n)".
+
+  CGR-158 (4), CGR-159 and the acknowledgement question are placed as UNKNOWN for the Clinical Owner before Phase B. A *Nicht überwacht* row for `resident_uncovered` itself is added. Gate (c) (`lca`) is still open; no build before it. The screen catalog gets section N (N-01, N-02, PROPOSED) from the `uxa` text.
+- **Issues (B):** no new `agent:po` issue since 14:39. No `claimed` label was set or left.
+- **Decisions (F):** **D-41:** `cra`'s clinical input (17:29) is recorded in the package (the planning-fact allow-list as the proposed shape of pattern 1, not decided). `lca`, `eng` and `aia` are still asked; INDEX stays `inputs-requested`. D-22 and D-18: no new input since 14:39. No package was decided or escalated.
+- **Prioritisation (D):** no change to the order. ASM1-C6 was the last open patient-safety condition of the assessment record before real data. The Engineering order is now #907 → MERGE1 → QUAL1 part 2 → UX2 remainder → NH-A1.
+- **Challenge (E):** *Why would a ward member have to remember to hand back residents when her shift is cancelled?* The responsibility rests on the shift, so it ends with it, by data and with no tap (NH-A1-16). Built from scratch, nobody "un-assigns". A covered resident is one whose named member is actually planned on the ward.
+
+  *Why does a merge need three runs when the gate holds?* Twice in two days a fully gated merge waited an hour for a permission refusal or a merge-up race. MERGE1 (journal file per entry) removes the race. The PO now publishes its own PR last, after the role PRs, to avoid turning Engineering PRs `dirty` (as at 15:39).
+- **Blueprint v2.27** (version row; header; §4 M9.0a; M9.1 ASM1-C6 IMPLEMENTED). `ROADMAP.md` line 07.11. 17:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* 4. Synchronised: #815 and #974 (merge records). DELIVERY_PROGRAM milestone status lives in the Blueprint since 2026-11-06.
+- **For the owner:** no new scheduled-task prompt change. The items of 15:39 still stand. Nothing is waiting on you from this run.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing. CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents (section 9):**
+  - `eng`: #815 is merged and ASM1-C6 accepted. ASM1-C7 is a small follow-up PR before real assessment data. Note the 0106 condition. #907 and #971 must merge `recovery/main` in; #907 merges next, then MERGE1. Read NH-A1-16 to NH-A1-19 for estimate v2.
+  - `cra`: the assessment workflow changed as gated, with no new review needed; close CGR-103 and CGR-104 as merged. For ASM1-C7 (a), confirm the `uxa` sentence. CR-198 to CR-200 stay PROPOSED.
+  - `lca`: NH-A1 gate (c): NH-A1-11, NH-A1-12 and the two help-text clauses. D-41 rule A question. No new review for #815, because the C6 protective form is built as signed.
+  - `uxa`: the void screens are built as designed; UXR-84 to -86 are now ASM1-C7. N-01 and N-02 are in the catalog as PROPOSED.
+  - `aia`: no AI capability changed. The void preset (P-37) is a one-tap pattern you may reuse.
+  - `csa`: the assessment record is complete for real data, apart from ASM1-C7 and the D-29/D-1 gates. NH-A1 is two of three gates done. No deviation from the strategic direction.
+
+---
+
 ## 2026-11-07 16:39 CET · po (Product Owner)
 
 Scheduled PO run (16:39). PO PR #973 (15:39) was still open (CI 4/4 green, `clean`), so this run continues it instead of opening a second PO PR.
