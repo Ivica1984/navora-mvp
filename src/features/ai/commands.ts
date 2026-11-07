@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import { qualificationRefusal } from "@/lib/commands/result";
 import { refusalText } from "./labels";
 
 /** A value the consuming command refused in a ticked confirm: its suggestion id (one she sent) and the reason text. */
@@ -50,6 +51,9 @@ export async function confirmSuggestion(input: unknown): Promise<ConfirmResult> 
   });
   if (error) {
     logEvent("warn", "command.failed", { op: "confirm_suggestion", ...errorFields(error) });
+    // QUAL1-10 (0121): the confirmed member is refused by the backstop (UXR-132).
+    const qual = qualificationRefusal(error);
+    if (qual) return { ok: false, error: qual };
     return { ok: false, error: error.code === "22023" ? MESSAGES.invalid : MESSAGES.failed };
   }
   const r = asObject(data);
@@ -80,6 +84,9 @@ export async function confirmSuggestions(input: unknown): Promise<ConfirmResult>
   });
   if (error) {
     logEvent("warn", "command.failed", { op: "confirm_suggestions", ...errorFields(error) });
+    // QUAL1-10 (0121): a ticked member the backstop refuses is that refusal, not "einzeln bestätigen" (UXR-132).
+    const qual = qualificationRefusal(error);
+    if (qual) return { ok: false, error: qual };
     if (error.code === "42501") return { ok: false, error: MESSAGES.bulk };
     return { ok: false, error: error.code === "22023" ? MESSAGES.invalid : MESSAGES.failed };
   }
