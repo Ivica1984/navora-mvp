@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 19:55 CET · UX/UI Design Architect (uxa)
+
+Scheduled run. `recovery/main` at `f350085`. Read FE-052 (`FOUNDER_DECISIONS.md` v12) and `PRODUCT_BLOCKS.md`; adjusted this run's task to it (README rule 11): `uxa` line on the **merged** ASM1-C6 screens (#815, `5d15391`; no blocking UX finding; UXR-84 to -86 OPEN, now on `recovery/main`) and PROPOSED user-flow block test cases B1-UX-1 to -7 and B4-UX-1 to -8 (§8.5) in `UX_REVIEW.md`. New findings UXR-143 (low), UXR-144 and UXR-145 (medium, test gaps: the full field path only at desktop width; no e2e for client safety notes on `/field`). No issue opened, none closed. Design system v57 (§8 step 6). No screenshots available; no test run by me. Contradiction reported: my task prompt still says per-PR review; FE-052 §8.6 (c) is the founder's change. For the PO: place the block cases, answer B1-UX-4 (is "Rückfrage" built?).
+
+---
+
 ## 2026-11-07 19:40 CET · po (Product Owner)
 
 Live session with the founder (not a scheduled run). The founder's message reorganises the work, and it is recorded as **FE-052** (`FOUNDER_DECISIONS.md` v12). This branch is `po/founder-reorg-2026-11-07-1840`, PR #978.

@@ -6,6 +6,77 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-07 19:55 CET · `uxa`: FE-052 read; `uxa` line on the merged ASM1-C6 screens (#815, `5d15391`): UXR-84 to -86 now OPEN on `recovery/main`, no blocking finding; PROPOSED user-flow block test cases for B1 and B4 (PRODUCT_BLOCKS §8.5); the B4 full field path runs only at desktop width (UXR-144, medium); no e2e places the client safety notes before the first visit action (UXR-145, medium); voided records sit after every earlier record (UXR-143, low)
+
+**What changed since 15:50.** `recovery/main` moved from `d9a8150` to `f350085`. Code merged by the PO: **#815** ASM1-C6 "Irrtümlich erfasst" (merge `5d15391`, head `b386c14`; `team/assessment-section.tsx`, `assessment-void-form.tsx`, `assessment-void-fields.tsx`, `plan-assessment-basis.tsx`, `team-client.tsx`, `features/assessment/rules.ts`, `tests/e2e/asm1.spec.ts`, `tests/unit/asm1-c6-void.test.ts`). Docs: #973, #974 (my 15:50 section), #975 (`cra`), **#978 FE-052** (`FOUNDER_DECISIONS.md` v12, `docs/product/PRODUCT_BLOCKS.md`, Blueprint v2.28). Open PRs: #980 (CI2, workflow and script only), #971 and #907 (docs) — none changes a screen, so no PR comment this run.
+
+**Sources.** No `ui-screenshots` archive was downloaded this run (the archive host was refused to this role in every run today); **no screenshots were available**. Reviewed from the code on `f350085`: `team/assessment-section.tsx:185-237`, `team/assessment-void-form.tsx`, `team/assessment-void-fields.tsx:55-99`, `team/plan-assessment-basis.tsx:40-60`, `features/assessment/rules.ts:217-226, 355-400`; for the block cases the test titles in `tests/e2e/*.spec.ts` and `playwright.config.ts:20` (one project, Desktop Chrome). I ran no test; statements about tests say only that a test exists, not that it passed. Live project not touched. No benchmark this run (made at 03:50 today).
+
+**Founder direction.** FE-052 read (`FOUNDER_DECISIONS.md` v12, `PRODUCT_BLOCKS.md` §1-§8). It changes my run in two ways, both inside my brief (README rule 11): (1) a `uxa` line now names the **merged** commit and reads "geprüft" only for that commit (§1, §8.6 (c)); (2) until B0 is accepted my focus is the **user-flow test cases for B1 and B4** (§8.5). I adjusted this run's task to both. Contradiction, reported: my task prompt (step 10) still describes per-PR review and a per-run report; FE-052 asks reviews per block where the PO asks for it. I follow FE-052; the prompt change is the founder's (§8.6 (c)).
+
+### `uxa` line on ASM1-C6 (#815) on the merged commit
+
+**`uxa` 2026-11-07 19:55 on `5d15391`: the "Irrtümlich erfasst" screens on `/team` read; no blocking UX finding. Three findings stay OPEN and are now on `recovery/main`: UXR-84 (supersede sentence says «Ersetzen», the button reads "Korrigieren (ersetzen)", `rules.ts:370-371` vs. `assessment-section.tsx:196`), UXR-85 (the 10-to-500 bound is not in the label "Grund (eigener Text)", `assessment-void-fields.tsx:68`), UXR-86 (focus falls to the body after a refusal, `assessment-void-form.tsx:35-36`). This is a UX reading, not a block acceptance (B7, FE-052 (2)).**
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-143 | `/team` case card, "Frühere Erfassungen (n)" (registered nurse, phone and desktop) | low | Voided records are rendered after every earlier record (`earlier.map` then `voided.map`), whatever their date. A record voided today sits below an assessment superseded months ago, so the newest event in the history is the last line a nurse reaches. | `f350085`, `team/assessment-section.tsx:234-235` | §2 history folds, newest first; §1 what needs attention now | One list ordered by the event date, newest first (voided by `voided_on`, earlier by their supersede or assessment date); vitest renders one earlier and one voided record and asserts the order. Wording of the voided line unchanged (`cra`/`lca` fixed it). | — |
+| UXR-144 | `/field` full visit path (nurse, phone 390 × 844), block B4 | medium | The B4 criterion is "Besuch planen → losfahren → starten → erfassen → beenden auf 390 px", but the one e2e that walks depart, start, pause, resume, complete runs at the default Desktop Chrome viewport (no viewport set; the config has one desktop project). Phone width is covered only in single steps (F6, F7, ABS1, VIS2, WORK1). Nobody has shown the whole path on the screen size it is built for. | `f350085`, `tests/e2e/field.spec.ts:109` (no `setViewportSize`), `playwright.config.ts:20`; contrast `field.spec.ts:238`, `vis2.spec.ts:81-82` | §5 mobile first at 390 × 844; FE-052 §3 (4) e2e on 390 px and desktop | The F2 path runs at 390 × 844 (and stays at desktop): each step's button is visible without sideways scroll, `scrollWidth ≤ 390` after each step, the card has at most one filled button at each state. Test change, `eng`; proposed as case B4-UX-1 below. | — (medium; block test case) |
+| UXR-145 | `/field` first visit to a client, client safety notes (nurse, phone), block B1 (D-17) | medium | B1 names "Sicherheitshinweise vor Erstkontakt" (D-17, `cra`). `/field` has a "Sicherheitshinweise" section (`field-client.tsx:551`, `data-testid="safety-alerts"`), but no e2e refers to it: nothing proves the notes recorded at intake reach the nurse, nor that they stand before the visit's first action on a phone. | `f350085`, `src/app/(protected)/field/field-client.tsx:551`; `grep safety-alerts tests/e2e` empty; intake capture `intake-client.tsx:492` | §1 what needs attention now; §3 a safety signal is never below other content | e2e at 390 × 844: a note entered at intake is visible on the nurse's card, inside the first viewport of that card, above «Losfahren» in DOM order; no client name on an idle screen. Position and wording are `cra`'s to confirm. Proposed as case B1-UX-6 below. | — (medium; block test case) |
+
+### PROPOSED user-flow block test cases (PRODUCT_BLOCKS §8.5; for the PO to place in the block sections)
+
+These are the **UX side** of the B1 and B4 test definitions (§3 parts 2 and 3): what a person must see and be able to do, positive and negative, at 390 × 844 and desktop. They do not replace `cra`'s clinical or `eng`'s database cases. "Test exists" means a test with that intent is in the repository on `f350085`; whether it passes on a named commit is for the block acceptance (§3 (5)), not stated here. Nothing below is a new feature; each case reads a screen that is built.
+
+**B1 Anfrage, Fall, Teamentscheid**
+
+| Case | Who, where | Positive | Negative / stop | Test today |
+|---|---|---|---|---|
+| B1-UX-1 | Operations, `/intake`, 390 and desktop | A referral is recorded and converted; the case appears for the team | Urgency and team have no preset; a nurse who opens `/intake` gets the refusal, not an empty form | exists: `intake.spec.ts` (record and convert; "at 390 px the urgency has no preset"; "a nurse has no intake access") |
+| B1-UX-2 | Team member, `/team` new case, 390 | One filled button «Fall übernehmen», «Ablehnen» as outline; both ≥ 44 px; after taking over the case is in the team's list | A second tap while saving does nothing (buttons disabled, "Wird gespeichert …") | partly: `journey.spec.ts` takes over at desktop width only; 390 and the double tap: **none** |
+| B1-UX-3 | Team member, `/team` decline | «Ablehnen» opens "Grund der Ablehnung"; saving needs a reason; the case leaves the team's open list with the reason recorded | Cancel changes nothing; no reason, no save | **none** found (`team-client.tsx:386-400` built) |
+| B1-UX-4 | Team, Rückfrage to Operations | UNKNOWN: I find no "Rückfrage" screen in `src/app`. **`po`/`eng` to say** whether B1's "Rückfrage" means a built command; if not, B1's definition should name it PLANNED | — | UNKNOWN |
+| B1-UX-5 | Team, Bezugspflege (J6), 390 | "Bezugspflege noch nicht bestimmt." shown in words (not colour only) until set; a proposed former primary nurse reads "(bitte bestätigen oder ändern)", never set silently | Without a choice nothing is saved | partly: `journey.spec.ts:80-86` (desktop); the proposal line: **none** |
+| B1-UX-6 | Nurse, `/field`, first visit, 390 | Safety notes entered at intake stand on the card before «Losfahren» and inside its first viewport (UXR-145) | A case without notes shows no empty "Sicherheitshinweise" box | **none**; `cra` confirms position and wording |
+| B1-UX-7 | Every B1 screen, 390 | No sideways scroll; keyboard reaches every command with visible focus; no internal code (D-…, CGR-…) in user text | — | partly: shell checks in `ux2-shell.spec.ts`; per B1 screen: **none** |
+
+**B4 Mobile Besuchsausführung, Zeit und Leistung**
+
+| Case | Who, where | Positive | Negative / stop | Test today |
+|---|---|---|---|---|
+| B4-UX-1 | Nurse, `/field`, 390 | Losfahren → Einsatz starten → Pause → Fortsetzen → abschliessen; each time recorded separately; one filled button per card in each state (UXR-144) | A future visit offers only «auf heute verschieben», which never starts it | partly: `field.spec.ts:109` (desktop only); `ux1.spec.ts` UX1-7 (one filled button); `vis1.spec.ts` (future visit) |
+| B4-UX-2 | Nurse, refused start (QUAL1, B2 stop case) | The refusal stands under the status line, names the true state ("Der Einsatz bleibt geplant / pausiert") and the next step; the card keeps one filled button | Never "konnte nicht …" or a technical error for a known refusal | unit only: `qual1-command-refusals.test.ts`, `qual1-21-one-text.test.ts`; e2e **none**; UXR-134 (high, #950) still OPEN |
+| B4-UX-3 | Nurse, ending a started visit | "Nicht abgeschlossen beenden" needs a reason; the performer sees who ended it and why | A started visit cannot end as only "complete" without that choice | exists: `lifecycle.spec.ts` (CSR1, at phone width) |
+| B4-UX-4 | Nurse, time correction (F3) | A correction needs a reason and keeps the original visible | An impossible order (end before start) is refused with a sentence | exists: `field.spec.ts:154` (desktop only) |
+| B4-UX-5 | Nurse or coordinator, move onto a busy slot (VIS2) | The overlap is stated before saving; saving anyway works; the cards are told apart | — | exists: `vis2.spec.ts` (390) |
+| B4-UX-6 | Nurse, `/work` working day | Confirm, correct with reason, export; no sideways scroll | An unexported day is not hidden from the administrator at access end | exists: `work.spec.ts` (390) |
+| B4-UX-7 | Nurse, shell on `/field` | Tab bar Heute, Team, Arbeitstag, Mehr; SIG1 signals above the next visit; Tab and Shift+Tab never leave focus under the tab bar or header | — | exists: `ux2-shell.spec.ts`, `ux1.spec.ts` UX1-6 |
+| B4-UX-8 | Nurse, sign at completion (F6/F7), 390 | Draft waits at completion, one confirmation signs; corrections are new versions; a care assistant's report goes to a registered nurse | A visit without a recorded start gets no report | exists: `field.spec.ts:237, 315, 325` |
+
+**Gaps that block a B1/B4 UX gate today** (my reading, for the PO): B1-UX-2 at 390, B1-UX-3, B1-UX-6, B4-UX-1 at 390 and B4-UX-2 have no e2e. Under FE-052 §3 a missing test means the block is not accepted; the tests are `eng`'s (B0 first). B1-UX-4 needs an answer.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-84 to -86 | OPEN, **now on `recovery/main`** (#815 merged). | `5d15391`: `rules.ts:370-371`, `assessment-void-fields.tsx:68`, `assessment-void-form.tsx:35-36` |
+| UXR-139 to -142 | OPEN (NH-A1 not built). | `f350085` |
+| UXR-134 | OPEN (high, #950); no code change. | `f350085` |
+| UXR-136 to -138 | OPEN; no code change. | `f350085` |
+| UXR-94 | OPEN for the built screen (M6-2). | — |
+| UXR-104 to -112, -115 to -128 (open ones), UXR-80 to -83, -87 to -90 | OPEN, unchanged. | `f350085` |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+
+No finding closed this run. No issue opened (no severe or high finding).
+
+### For the PO
+
+(1) The `uxa` line on ASM1-C6 at `5d15391` above. (2) The B1 and B4 UX test cases, for the block sections (§3 part 3); B1-UX-4 needs your or `eng`'s answer. (3) UXR-144 and UXR-145 are test gaps for `eng` after B0; UXR-145's position and wording go to `cra`. (4) My task prompt still says per-PR review; FE-052 §8.6 (c) is the founder's to change.
+
+---
+
 ## 2026-11-07 15:50 CET · `uxa`: NH-A1 brief approved (ward and shift model, N-01/N-02): `uxa` gate line on N-01/N-02 given with two conditions; the uncovered list is titled "in dieser Schicht" but also holds the next shift (UXR-139, medium); the "Nicht überwacht" list has no fixed form on N-01 and the first-viewport criterion was dropped (UXR-140, medium); N-01 does not place the uncovered line (UXR-141, medium); "wie letzte <Schichtname>" breaks with data names (UXR-142, low); help text for *zuständig in dieser Schicht* proposed as the brief asks
 
 **What changed since 11:50.** `recovery/main` moved from `c9644f9` to `d9a8150`. `git diff --stat c9644f9 d9a8150 -- src tests e2e .github`: **empty** (no code, test or workflow change). Docs merged by the PO: #959 (my 11:50 section and the NH-A proposal), #961 (MERGE1, COORD-7), #963, #967, #835, **#837** (M1.4 WEB1/APP1 plans; ADR-143 1c and 6 now use the built label "Nicht angetroffen", which answers my UXR-94 note on the plan), #965 (`cra` 13:25), #970 (`aia` 38), #972. **New approved brief: `briefs/NH-A1.md`** (13:39, amended 14:39 for AUT-69 to -71); its build gate (b) asks a `uxa` line on N-01/N-02. Open PRs touching `src`: only #815, head `cd0746f` (was `81d131b`): base merges; its own screen change differs only in using the shared `ErrorText` for the void error (`team/assessment-void-form.tsx`), which is consistent with UX2-30 (3). UXR-84 to -86 are still present on that head (`rules.ts:370-371` still says «Ersetzen»; `assessment-void-fields.tsx:68` "Grund (eigener Text)"; `assessment-void-form.tsx:35` `setAsking(false)` on refusal).
