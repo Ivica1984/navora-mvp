@@ -24,7 +24,8 @@ export type QualCheckRow = {
   activity_code: string | null;
   result: QualResult;
   label: string;
-  reason: string;
+  /** null for a colleague (CGR-152: the evidence reason is the member's and the administrators' only). */
+  reason: string | null;
   matrix_version: string;
   rule_status: string | null;
   delegation_until: string | null;
@@ -60,9 +61,10 @@ const REQUIREMENT_WORDS: Record<string, string> = {
   instruction_record: "Instruktion",
 };
 
-function requirementWord(reason: string): string {
-  const key = reason.split(":")[0];
-  return REQUIREMENT_WORDS[key] ?? "Nachweis";
+/** ": Ausbildung" etc.; empty when the reason is withheld (CGR-152) or unknown. */
+function requirementSuffix(reason: string | null): string {
+  const word = reason ? REQUIREMENT_WORDS[reason.split(":")[0]] : undefined;
+  return word ? `: ${word}` : "";
 }
 
 function swissDate(isoDate: string | null): string {
@@ -81,13 +83,14 @@ export function qualReason(row: QualCheckRow): string {
     case "not_allowed":
       return `${act} nicht im Kompetenzbereich`;
     case "unresolved": {
-      const open = row.reason.startsWith("cell:?:") ? row.reason.slice("cell:?:".length) : null;
+      const reason = row.reason ?? "";
+      const open = reason.startsWith("cell:?:") ? reason.slice("cell:?:".length) : null;
       return `Regel ungeklärt (${act}, PROPOSED ?${open ? `, ${open}` : ""})`;
     }
     case "evidence_missing":
-      return `Nachweis fehlt: ${requirementWord(row.reason)}`;
+      return `Nachweis fehlt${requirementSuffix(row.reason)}`;
     case "evidence_expired":
-      return `Voraussetzung abgelaufen: ${requirementWord(row.reason)}`;
+      return `Voraussetzung abgelaufen${requirementSuffix(row.reason)}`;
     case "evidence_contradictory":
       return "Nachweise widersprüchlich";
     case "delegation_missing":

@@ -38,8 +38,11 @@
 -- Strict defaults chosen here (PROPOSED, for `cra`; ADR-163): (a) a cell with an open question (K-2, K-3) is "?", also
 -- HF/FH B8 ("specialist training ?"); (b) HF/FH A1-A4 and every delegator and supervisor need a verified practice
 -- licence (matrix §4.3 "where the canton requires one"; canton not modelled yet, so always); (c) trained-other C1 needs a
--- recorded instruction (matrix §4.2 "with selection, instruction and supervision"); (d) a visit without any activity
--- needs a verified grade only. NOT checked in this slice (PLANNED, QUAL1 part 2/3): the medical order for Bst. b rows,
+-- recorded instruction (matrix §4.2 "with selection, instruction and supervision"); (d) replaced by CGR-149: KLV-A
+-- minutes count as A1, KLV-C minutes and a visit without activity or minutes as C1; "no activity" is never allowed.
+-- CGR-150: a delegation needs instruction <= start <= ..., no start in the past, and counts only if instructed by the
+-- visit's day and recorded before the visit starts; a visit without an end time is checked at the day's end.
+-- CGR-152: visit_qualification_check returns the reason only to the member herself and administrators. NOT checked in this slice (PLANNED, QUAL1 part 2/3): the medical order for Bst. b rows,
 -- context modifiers NH-EXT / HOSP-IN (CR-180, QUAL1-18), the Einsatzvereinbarung, visit-start re-check (QUAL1-17).
 -- No clinical, tariff or legal rule is invented: every cell is copied from matrix v0.2 §4.2 and stays PROPOSED.
 -- Idempotent: `if not exists`, `create or replace`, `drop … if exists`, `on conflict do nothing`.
@@ -482,6 +485,16 @@ begin
   if p_valid_until < p_valid_from then
     raise exception 'the end date is before the start date' using errcode = '22023';
   end if;
+  -- CGR-150: no instruction after the start or in the future, no start in the past (no retroactive delegation).
+  if p_instructed_on > p_valid_from then
+    return jsonb_build_object('result', 'instruction_after_start');
+  end if;
+  if p_instructed_on > (private.now() at time zone 'Europe/Zurich')::date then
+    return jsonb_build_object('result', 'instruction_in_future');
+  end if;
+  if p_valid_from < (private.now() at time zone 'Europe/Zurich')::date then
+    return jsonb_build_object('result', 'start_in_past');
+  end if;
   if private.begin_command('record_delegation', p_idempotency_key) then
     perform private.end_command('duplicate');
     return jsonb_build_object('result', 'duplicate');
@@ -592,14 +605,22 @@ comment on function private.aig1_prohibited_target(text, text) is
 create or replace function private.qual_visit_activities(p_visit uuid)
 returns setof text language sql stable security definer set search_path = ''
 as $$
-  select a.activity_code from public.visit_activities a where a.visit_id = p_visit
+  -- CGR-149 (`cra` 2026-11-07 01:35): every minute class maps to a row when the visit lists none of that class, and a
+  -- visit with no activity and no minutes counts as C1; so no visit is ever checked against "no activity".
+  with v as (select * from public.care_visits x where x.id = p_visit),
+  listed as (select a.activity_code as code from public.visit_activities a where a.visit_id = p_visit)
+  select l.code from listed l
   union
-  select 'A1' from public.care_visits v where v.id = p_visit and v.is_needs_assessment
+  select 'A1' from v where v.is_needs_assessment
+     or (coalesce(v.planned_minutes_a, 0) > 0 and not exists (select 1 from listed l where l.code like 'A%'))
   union
-  select 'B13' from public.care_visits v
-  where v.id = p_visit and coalesce(v.planned_minutes_b, 0) > 0
-    and not exists (select 1 from public.visit_activities a join public.qual_activities q on q.code = a.activity_code
-                    where a.visit_id = p_visit and q.code like 'B%')
+  select 'B13' from v
+  where coalesce(v.planned_minutes_b, 0) > 0 and not exists (select 1 from listed l where l.code like 'B%')
+  union
+  select 'C1' from v
+  where (coalesce(v.planned_minutes_c, 0) > 0 and not exists (select 1 from listed l where l.code like 'C%'))
+     or (not exists (select 1 from listed) and not v.is_needs_assessment
+         and coalesce(v.planned_minutes_a, 0) = 0 and coalesce(v.planned_minutes_b, 0) = 0)
 $$;
 revoke all on function private.qual_visit_activities(uuid) from public, anon, authenticated;
 
@@ -624,6 +645,7 @@ declare
   v     public.care_visits%rowtype;
   ver   text := private.qual_matrix_version();
   inst  timestamptz;
+  v_start timestamptz;
   g     record;
   req   record;
   cell  public.qual_matrix_cells%rowtype;
@@ -637,8 +659,10 @@ begin
   select * into v from public.care_visits x where x.id = p_visit;
   if v.id is null or p_user is null then return; end if;
   -- The evidence must cover the whole visit, and count as lapsed from the instant it ends (QUAL1-2, QUAL1-4).
-  inst := greatest(private.at_zurich((v.visit_date + coalesce(v.time_end, v.time_start, time '23:59'))::timestamp),
+  inst := greatest(private.at_zurich((v.visit_date + coalesce(v.time_end, time '23:59'))::timestamp),
                    private.now());
+  -- CGR-150: a delegation counts only if it was instructed by the visit's day and recorded before the visit starts.
+  v_start := private.at_zurich((v.visit_date + coalesce(v.time_start, time '00:00'))::timestamp);
   select * into g from private.qual_evidence_state(v.organization_id, p_user, 'grade', inst);
   select array_agg(f.code order by q.sort) into acts
   from private.qual_visit_activities(p_visit) as f (code) join public.qual_activities q on q.code = f.code;
@@ -651,7 +675,7 @@ begin
                             else 'evidence_missing' end;
       r_why := 'grade:' || g.state;
     elsif a is null then
-      r_res := 'allowed_own'; r_why := 'no_activity_listed';
+      r_res := 'unresolved'; r_why := 'no_activity_listed';   -- CGR-149: never allowed (not reachable since the C1 fallback)
     else
       select * into cell from public.qual_matrix_cells c where c.version = ver and c.activity_code = a and c.grade = g.grade;
       rule_status := cell.status;
@@ -680,6 +704,7 @@ begin
         where d.organization_id = v.organization_id and d.team_id = v.team_id and d.case_id = v.case_id
           and d.activity_code = a and d.delegate_id = p_user
           and v.visit_date between d.valid_from and d.valid_until
+          and d.instructed_on <= v.visit_date and d.created_at <= v_start
           and not exists (select 1 from public.qual_delegation_revocations r where r.delegation_id = d.id)
           and private.qual_may_delegate(v.organization_id, v.team_id, d.delegator_id, inst)
           and private.qual_may_delegate(v.organization_id, v.team_id, d.supervisor_id, inst)
@@ -694,6 +719,7 @@ begin
           where d.organization_id = v.organization_id and d.team_id = v.team_id and d.case_id = v.case_id
             and d.activity_code = a and d.delegate_id = p_user
             and v.visit_date between d.valid_from and d.valid_until
+          and d.instructed_on <= v.visit_date and d.created_at <= v_start
             and not exists (select 1 from public.qual_delegation_revocations r where r.delegation_id = d.id)
           order by d.valid_until desc, d.seq desc limit 1;
           if dl.id is not null then
@@ -750,7 +776,10 @@ returns table (activity_code text, result text, label text, reason text, matrix_
                delegation_until date)
 language sql stable security definer set search_path = ''
 as $$
-  select c.activity_code, c.result, c.label, c.reason, c.matrix_version, c.rule_status, c.delegation_until
+  -- CGR-152: the reason (which may name a member's evidence) only for the member herself and administrators.
+  select c.activity_code, c.result, c.label,
+         case when p_user_id = (select auth.uid()) or private.is_org_admin(v.organization_id) then c.reason end,
+         c.matrix_version, c.rule_status, c.delegation_until
   from public.care_visits v
   join public.organizations o on o.id = v.organization_id and o.simulation
   cross join lateral private.qual_check(v.id, p_user_id) c

@@ -23,7 +23,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(51);
+select plan(61);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today = day T.
 select set_config('navora.test_now',
@@ -41,7 +41,7 @@ create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select ('a1200000-0000-4000-a000-0000000000' || case n
            when 'n1' then '01' when 'n2' then '02' when 'n3' then '03' when 'n4' then '04' when 'n5' then '05'
            when 'm2' then '12' when 'm3' then '13' when 'm4' then '14' when 'm5' then '15' when 'm7' then '17'
-           when 'm8' then '18' when 'o1' then '21' when 'la' then '31' when 'lr' then '32' end)::uuid $$;
+           when 'm8' then '18' when 't1' then '19' when 'o1' then '21' when 'la' then '31' when 'lr' then '32' end)::uuid $$;
 create function pg_temp.org() returns uuid language sql immutable as $$ select 'a1200000-0000-4000-b000-000000000001'::uuid $$;
 create function pg_temp.lorg() returns uuid language sql immutable as $$ select '00000000-0000-4000-b000-000000000011'::uuid $$;
 create function pg_temp.ta() returns uuid language sql immutable as $$ select 'a1200000-0000-4000-a000-000000000011'::uuid $$;
@@ -79,6 +79,10 @@ create function pg_temp.chk(p_visit int, p_user text) returns text language sql 
   left join public.qual_activities q on q.code = c.activity_code $$;
 create function pg_temp.may(p_visit int, p_user text) returns boolean language sql stable as $$
   select private.qual_may_perform(pg_temp.v(p_visit), pg_temp.u(p_user)) $$;
+create function pg_temp.deleg_on(p_by text, p_instructed date, p_from date, p_key int) returns text language sql as $$
+  select pg_temp.res(p_by, format('select public.record_delegation(%L, %L, %L, %L, %L, %L, %L, %L, null, %L)',
+    pg_temp.ta(), pg_temp.c(1), 'B7', pg_temp.u('m3'), pg_temp.u('n2'), p_instructed, p_from, pg_temp.t() + 30,
+    pg_temp.k(p_key))) $$;
 create function pg_temp.deleg(p_by text, p_case int, p_act text, p_to text, p_sup text, p_key int) returns text language sql as $$
   select pg_temp.res(p_by, format('select public.record_delegation(%L, %L, %L, %L, %L, %L, %L, %L, null, %L)',
     pg_temp.ta(), pg_temp.c(p_case), p_act, pg_temp.u(p_to), pg_temp.u(p_sup), pg_temp.t() - 1, pg_temp.t(),
@@ -88,10 +92,10 @@ create function pg_temp.deleg(p_by text, p_case int, p_act text, p_to text, p_su
 insert into public.organizations (id, name, simulation) values (pg_temp.org(), 'Synthetische Simulation QUAL1', true);
 insert into auth.users (id, email)
 select pg_temp.u(n), 'qual1-' || n || '@navora.test'
-from unnest(array['n1', 'n2', 'n3', 'n4', 'n5', 'm2', 'm3', 'm4', 'm5', 'm7', 'm8', 'o1', 'la', 'lr']) n;
+from unnest(array['n1', 'n2', 'n3', 'n4', 'n5', 'm2', 'm3', 'm4', 'm5', 'm7', 'm8', 't1', 'o1', 'la', 'lr']) n;
 insert into public.organization_memberships (organization_id, user_id, role)
 select pg_temp.org(), pg_temp.u(n), 'nurse'
-from unnest(array['n1', 'n2', 'n3', 'n4', 'n5', 'm2', 'm3', 'm4', 'm5', 'm7', 'm8', 'o1']) n
+from unnest(array['n1', 'n2', 'n3', 'n4', 'n5', 'm2', 'm3', 'm4', 'm5', 'm7', 'm8', 't1', 'o1']) n
 union all select pg_temp.lorg(), pg_temp.u(n), 'nurse' from unnest(array['la', 'lr']) n;
 insert into public.teams (organization_id, id, name, region, status)
 values (pg_temp.org(), pg_temp.ta(), 'Synth Station A (QUAL1)', 'Basel', 'active'),
@@ -99,7 +103,7 @@ values (pg_temp.org(), pg_temp.ta(), 'Synth Station A (QUAL1)', 'Basel', 'active
 -- The old column stays as it is (CR-007 outside the simulation); in the simulation the matrix decides.
 insert into public.team_memberships (team_id, user_id, qualification)
 select pg_temp.ta(), pg_temp.u(n), case when n like 'n%' then 'registered_nurse' else 'care_assistant' end
-from unnest(array['n1', 'n2', 'n3', 'n4', 'n5', 'm2', 'm3', 'm4', 'm5', 'm7', 'm8']) n
+from unnest(array['n1', 'n2', 'n3', 'n4', 'n5', 'm2', 'm3', 'm4', 'm5', 'm7', 'm8', 't1']) n
 union all select pg_temp.tb(), pg_temp.u('o1'), 'registered_nurse'
 union all select '00000000-0000-4000-a000-000000000101', pg_temp.u('la'), 'care_assistant'
 union all select '00000000-0000-4000-a000-000000000101', pg_temp.u('lr'), 'registered_nurse';
@@ -113,16 +117,19 @@ values (pg_temp.v(1), pg_temp.org(), pg_temp.c(1), pg_temp.ta(), pg_temp.t() + 2
        (pg_temp.v(5), pg_temp.org(), pg_temp.c(1), pg_temp.ta(), pg_temp.t() + 2, '13:00', '14:00', 'planned', 0, 0, true),
        (pg_temp.v(6), pg_temp.org(), pg_temp.c(1), pg_temp.ta(), pg_temp.t() + 2, '15:00', '15:20', 'planned', 0, 20, false),
        (pg_temp.v(8), pg_temp.org(), pg_temp.c(2), pg_temp.ta(), pg_temp.t() + 2, '16:00', '16:15', 'planned', 0, 0, false),
+       (pg_temp.v(10), pg_temp.org(), pg_temp.c(1), pg_temp.ta(), pg_temp.t() + 2, '18:00', '18:20', 'planned', 20, 0, false),
+       (pg_temp.v(11), pg_temp.org(), pg_temp.c(1), pg_temp.ta(), pg_temp.t() + 2, '19:00', '19:20', 'planned', 0, 0, false),
+       (pg_temp.v(12), pg_temp.org(), pg_temp.c(1), pg_temp.ta(), pg_temp.t(), '08:00', '08:30', 'planned', 0, 0, false),
        (pg_temp.v(9), pg_temp.lorg(), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
         pg_temp.t() + 2, '17:00', '17:20', 'planned', 0, 20, false);
 insert into public.visit_activities (organization_id, visit_id, activity_code)
 values (pg_temp.org(), pg_temp.v(1), 'C1'), (pg_temp.org(), pg_temp.v(1), 'B3'), (pg_temp.org(), pg_temp.v(1), 'B7'),
-       (pg_temp.org(), pg_temp.v(4), 'B4I'), (pg_temp.org(), pg_temp.v(8), 'B3');
+       (pg_temp.org(), pg_temp.v(4), 'B4I'), (pg_temp.org(), pg_temp.v(8), 'B3'), (pg_temp.org(), pg_temp.v(12), 'B7');
 -- Evidence ("verified (synthetisch)": fixture rows only, QUAL1-2).
 insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, valid_until)
 select pg_temp.org(), pg_temp.u(n), 'grade', g, 'verified', null
 from (values ('n1', 'nurse_hf_fh'), ('n2', 'nurse_hf_fh'), ('n3', 'nurse_hf_fh'), ('m2', 'fage_efz'), ('m3', 'fage_efz'),
-             ('m5', 'ags_eba'), ('m7', 'fage_efz'), ('m8', 'fage_efz'), ('o1', 'nurse_hf_fh')) x (n, g);
+             ('m5', 'ags_eba'), ('m7', 'fage_efz'), ('m8', 'fage_efz'), ('t1', 'trained_other'), ('o1', 'nurse_hf_fh')) x (n, g);
 insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, valid_until)
 values (pg_temp.org(), pg_temp.u('n4'), 'grade', 'nurse_hf_fh', 'verified', pg_temp.at(pg_temp.t() + 2, '09:30')),
        (pg_temp.org(), pg_temp.u('n5'), 'grade', 'nurse_hf_fh', 'verified', pg_temp.at(pg_temp.t() + 2, '09:31'));
@@ -190,6 +197,10 @@ select is(pg_temp.chk(8, 'm2'), 'B3=delegation_missing', 'NT-7: a delegation for
 select is(pg_temp.chk(5, 'n1'), 'A1=allowed_own', 'QUAL1-6: a needs assessment counts as A1; HF/FH with licence');
 select is(pg_temp.chk(5, 'm2'), 'A1=not_allowed', 'QUAL1-6: A1 is never delegable to FaGe');
 select is(pg_temp.chk(6, 'm2'), 'B13=unresolved', 'QUAL1-6: KLV-B minutes without an activity count as B13 ("?" for FaGe)');
+select is(pg_temp.chk(10, 'n1'), 'A1=allowed_own', 'CGR-149: KLV-A minutes without an activity count as A1 (HF/FH with licence)');
+select is(pg_temp.chk(10, 'm2'), 'A1=not_allowed', 'CGR-149: a KLV-A visit refuses FaGe');
+select is(pg_temp.chk(11, 't1'), 'C1=evidence_missing', 'CGR-149: a visit without activity or minutes counts as C1; trained-other needs an instruction record');
+select is(pg_temp.chk(11, 'm5'), 'C1=allowed_own', 'CGR-149: C1 for AGS in her own scope');
 
 -- QUAL1-4 Expiry from the instant (test clock) ------------------------------------------------------------------------------
 select is(pg_temp.chk(1, 'n4'), 'B3=evidence_expired,B7=evidence_expired,C1=evidence_expired',
@@ -209,9 +220,17 @@ select is(pg_temp.deleg('n1', 1, 'B7', 'm4', 'n2', 5), 'delegate_evidence_self_c
   'QUAL1-9: no delegation to a member without verified evidence');
 select is(pg_temp.deleg('n1', 1, 'B7', 'm3', 'n3', 6), 'supervisor_not_qualified',
   'QUAL1-9: the supervising nurse must meet the same test');
+select is(pg_temp.deleg_on('n1', pg_temp.t() + 1, pg_temp.t(), 11), 'instruction_after_start',
+  'CGR-150: the instruction cannot come after the start');
+select is(pg_temp.deleg_on('n1', pg_temp.t() + 1, pg_temp.t() + 1, 12), 'instruction_in_future',
+  'CGR-150: the instruction cannot be in the future');
+select is(pg_temp.deleg_on('n1', pg_temp.t() - 2, pg_temp.t() - 1, 13), 'start_in_past',
+  'CGR-150: no delegation starts in the past (no retroactive delegation)');
 select is(pg_temp.deleg('n1', 1, 'B7', 'm3', 'n2', 7), 'ok', 'S3a: a verified HF/FH records the B7 delegation (a human act)');
 select is(pg_temp.deleg('n1', 1, 'B7', 'm3', 'n2', 7), 'duplicate', 'the same idempotency key is a duplicate');
 select ok(pg_temp.may(1, 'm3'), 'S3a: with the new delegation M3 may be responsible');
+select is(pg_temp.chk(12, 'm3'), 'B7=delegation_expired',
+  'CGR-150: a delegation recorded after a visit started does not cover that visit');
 select is((select count(*)::int from public.audit_events a where a.table_name = 'qual_delegations'
            and a.command = 'record_delegation' and a.actor_id = pg_temp.u('n1')), 1,
   'QUAL1-15/AK-10: the delegation is in the audit trail');
@@ -226,6 +245,10 @@ select ok(not pg_temp.may(1, 'm3'), 'AK-6: after the revocation M3 is not suitab
 -- QUAL1-3 / QUAL1-16 Nobody but a fixture sets "verified" ---------------------------------------------------------------------
 select is(pg_temp.cmd('m4', format('select public.confirm_my_qualification(%L, %L, %L, %L)', pg_temp.org(), 'grade',
             'fage_efz', pg_temp.k(10))) ->> 'state', 'self_confirmed', 'QUAL1-3: the member''s confirmation is self_confirmed');
+select is(pg_temp.count_as('n1', format('select 1 from public.visit_qualification_check(%L, %L) where reason is not null',
+            pg_temp.v(1), pg_temp.u('m4'))), 0, 'CGR-152: a colleague sees the label, not the evidence reason');
+select is(pg_temp.count_as('m4', format('select 1 from public.visit_qualification_check(%L, %L) where reason = %L',
+            pg_temp.v(1), pg_temp.u('m4'), 'grade:self_confirmed')), 3, 'CGR-152: the member sees her own reason');
 select throws_ok(format($$ insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state)
                            values (%L, %L, 'grade', 'fage_efz', 'verified') $$, pg_temp.org(), pg_temp.u('m4')),
   '42501', null, 'QUAL1-3: inside a user request nothing may write verified evidence, not even the owner role');

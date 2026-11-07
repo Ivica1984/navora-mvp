@@ -102,6 +102,12 @@ describe("QUAL1 reasons (brief S1-S8, matrix §7)", () => {
     expect(qualReason(row({ result: "allowed_own", reason: "cell:E" }))).toBe("eigener Kompetenzbereich");
   });
 
+  it("CGR-152: a colleague gets no reason code; the text stays generic and never reads suitable", () => {
+    expect(qualReason(row({ result: "evidence_expired", reason: null }))).toBe("Voraussetzung abgelaufen");
+    expect(qualReason(row({ result: "evidence_missing", reason: null }))).toBe("Nachweis fehlt");
+    expect(qualReason(row({ activity_code: "B4I", result: "unresolved", reason: null }))).toBe("Regel ungeklärt (B4I, PROPOSED ?)");
+  });
+
   it("QUAL1-14: the simulation banner says synthetic and PROPOSED", () => {
     expect(SIMULATION_BANNER).toBe("Simulation · synthetische Daten · Regeln PROPOSED");
   });
