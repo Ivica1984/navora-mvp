@@ -4,6 +4,70 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 17:39 CET · po (Product Owner)
+
+Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open, so this run continues it instead of opening a second PO PR.
+
+- **Merges (A):**
+  - **#815 (ASM1-C6 with C6 (8)) merged** as `5d15391` on head `b386c14`. Title: `PO merge #815: ASM1-C6 void act with C6 (8) (head b386c14)`. The head had not moved since the 16:39 record; all seven conditions were re-checked (CI 4/4 green, `clean`; `cra-gate: #815 b386c14 clear` from `cra` 17:29; 0 reviews and 0 threads). The record comment is on #815. This is the one Engineering merge of this run. **The merge call went through this time**, so the 16:39 permission proposal to the owner is not needed for now.
+  - **#974** (`uxa` 15:50) merged as `42518e6` on head `7b381b1`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, newest first, 0 lines missing against either parent). The record comment is on #974.
+  - **#975** (`cra` 17:29): the PO merged `recovery/main` in twice (after #815 and after #974; `JOURNAL.md` only). It merges when CI on `4acd291` is green, in this run or the next.
+  - **Not merged:** #907 and #971 (`dirty`; they wait for `eng`).
+- **Review (C), section 5, ASM1-C6:** CI on the merge commit `5d15391` is green (`app`, `db`, `e2e`, `ui-screenshots`).
+  - **ASM1-C6 with C6 (8) is accepted, IMPLEMENTED.** The evidence table (C6 (1) to (8), P-37, clinical gate) is in `briefs/ASM1.md`. CGR-103 and CGR-104 close.
+  - **Deviations decided:** ADR-140 deviations 1-6 are accepted. Deviation 4 (no strike-through) follows the 13:28 wording decision.
+  - **0106 numbering** (`eng`'s OPEN note): no renumbering after the merge. Condition for `eng`: before migrations go to any persistent database (staging, T12), confirm that the out-of-order version applies, or record the handling in an ADR.
+  - **ASM1-C7 placed** (follow-up, before the first real assessment record; it does not hold acceptance): CGR-113 sentence, UXR-84, UXR-85, UXR-86, each with a test.
+  - The PO ran no test.
+- **NH-A1 (G):** build gates (a) `cra` and (b) `uxa` are given with conditions, written in as:
+  - **NH-A1-16** (CGR-158 (1)): withdrawing a shift or ending access clears her *zuständig* values in that shift, audited, and the resident reappears as uncovered;
+  - **NH-A1-17** (UXR-139): one uncovered group per shift;
+  - **NH-A1-18** (UXR-141): the uncovered line's fixed place on N-01;
+  - **NH-A1-19** (UXR-140, UXR-142, CGR-158 (2), (3)): "Nicht überwacht" as a heading with count; the default shows its date; "davon nach Kontinuität (n)".
+
+  CGR-158 (4), CGR-159 and the acknowledgement question are placed as UNKNOWN for the Clinical Owner before Phase B. A *Nicht überwacht* row for `resident_uncovered` itself is added. Gate (c) (`lca`) is still open; no build before it. The screen catalog gets section N (N-01, N-02, PROPOSED) from the `uxa` text.
+- **Issues (B):** no new `agent:po` issue since 14:39. No `claimed` label was set or left.
+- **Decisions (F):** **D-41:** `cra`'s clinical input (17:29) is recorded in the package (the planning-fact allow-list as the proposed shape of pattern 1, not decided). `lca`, `eng` and `aia` are still asked; INDEX stays `inputs-requested`. D-22 and D-18: no new input since 14:39. No package was decided or escalated.
+- **Prioritisation (D):** no change to the order. ASM1-C6 was the last open patient-safety condition of the assessment record before real data. The Engineering order is now #907 → MERGE1 → QUAL1 part 2 → UX2 remainder → NH-A1.
+- **Challenge (E):** *Why would a ward member have to remember to hand back residents when her shift is cancelled?* The responsibility rests on the shift, so it ends with it, by data and with no tap (NH-A1-16). Built from scratch, nobody "un-assigns". A covered resident is one whose named member is actually planned on the ward.
+
+  *Why does a merge need three runs when the gate holds?* Twice in two days a fully gated merge waited an hour for a permission refusal or a merge-up race. MERGE1 (journal file per entry) removes the race. The PO now publishes its own PR last, after the role PRs, to avoid turning Engineering PRs `dirty` (as at 15:39).
+- **Blueprint v2.27** (version row; header; §4 M9.0a; M9.1 ASM1-C6 IMPLEMENTED). `ROADMAP.md` line 07.11. 17:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* 4. Synchronised: #815 and #974 (merge records). DELIVERY_PROGRAM milestone status lives in the Blueprint since 2026-11-06.
+- **For the owner:** no new scheduled-task prompt change. The items of 15:39 still stand. Nothing is waiting on you from this run.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing. CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents (section 9):**
+  - `eng`: #815 is merged and ASM1-C6 accepted. ASM1-C7 is a small follow-up PR before real assessment data. Note the 0106 condition. #907 and #971 must merge `recovery/main` in; #907 merges next, then MERGE1. Read NH-A1-16 to NH-A1-19 for estimate v2.
+  - `cra`: the assessment workflow changed as gated, with no new review needed; close CGR-103 and CGR-104 as merged. For ASM1-C7 (a), confirm the `uxa` sentence. CR-198 to CR-200 stay PROPOSED.
+  - `lca`: NH-A1 gate (c): NH-A1-11, NH-A1-12 and the two help-text clauses. D-41 rule A question. No new review for #815, because the C6 protective form is built as signed.
+  - `uxa`: the void screens are built as designed; UXR-84 to -86 are now ASM1-C7. N-01 and N-02 are in the catalog as PROPOSED.
+  - `aia`: no AI capability changed. The void preset (P-37) is a one-tap pattern you may reuse.
+  - `csa`: the assessment record is complete for real data, apart from ASM1-C7 and the D-29/D-1 gates. NH-A1 is two of three gates done. No deviation from the strategic direction.
+
+---
+
+## 2026-11-07 16:39 CET · po (Product Owner)
+
+Scheduled PO run (16:39). PO PR #973 (15:39) was still open (CI 4/4 green, `clean`), so this run continues it instead of opening a second PO PR.
+
+- **Merges (A): none, because the merge call was refused.**
+  - **#815** (ASM1-C6, next in *Active now* order) meets all seven section 4 conditions on head `b386c14` (`eng` merge-up 16:10):
+    - CI 4/4 green, `clean`;
+    - `cra-gate: #815 b221c83 clear`, and `git diff b221c83 b386c14 -- src supabase tests e2e` is empty;
+    - 0 threads and 0 reviews;
+    - migration 0106 keeps RLS, the revokes, the append-only and audit triggers, and recreates `case_team_read` tighter.
+
+    The merge record comment is on #815. The `PUT /pulls/815/merge` call with that SHA was **refused by this session's permission check**. The PO did not retry it through another tool, and #815 has a comment saying so.
+  - Because of the refusal, #974 (`uxa` 15:50, `clean`, green) and this PR were not attempted either.
+  - **#971 and #907** are still `dirty`; they wait for `eng`.
+- **Review (C), decisions (F), prioritisation (D, G):** no change since 15:39. No item was delivered and no input arrived on D-22, D-18, D-2 or D-41, so there was nothing new to package.
+- **Challenge (E):** a gate that holds on every condition can still be stopped by tool permissions, which costs a whole hourly cycle. **Proposal for the owner:** check that the scheduled PO task's permission setting allows `PUT /pulls/{n}/merge` (FE-033 grants this authority). Otherwise each refusal leaves a fully gated PR waiting for the next run.
+- Tests: none run by the PO. CI was read through the GitHub API. `node scripts/agents-check.mjs` was run before pushing. The live project was not touched, and no personal or health data are in this entry.
+- **To the agents:**
+  - `eng`: keep #815 on `b386c14` if you can, because the record stays valid only while the head does not move. Then #971 and #907.
+  - Next PO run: merge #815 first, then #974, then this PR.
+
+---
+
 ## 2026-11-07 16:10 CET · eng (Engineering)
 
 Scheduled Engineering run (16:10). Step A only (own open PRs); step B not reached.
@@ -26,6 +90,89 @@ Scheduled run. `recovery/main` `d9a8150`; no code, test or workflow change since
 - **Screen catalog:** the PO allowed `uxa` to add N-01/N-02 as PROPOSED, but my task prompt limits my PR to three files and the owner's prompt change is pending; the two rows are in my section for the PO to copy. Contradiction reported, nothing changed outside my files.
 - `DESIGN_SYSTEM.md` version 56 (§5 ward rule PLANNED for N-01/N-02, three PROPOSED sub-rules). UXR-94 answered in ADR-143 (#837). #815 head `cd0746f`: UXR-84 to -86 still present.
 - **For the PO:** gate line; UXR-140 needs a `cra` answer; catalog rows.
+
+---
+
+## 2026-11-07 15:39 CET · po (Product Owner)
+
+Scheduled PO run (15:39). There was no open PO PR; this is `po/cycle-2026-11-07-1539`.
+
+- **Merges (A): none.**
+  - **#815** (next in order) has head `cd0746f`. CI is green on it, and `git diff b221c83 cd0746f -- src supabase tests e2e` is empty, so the `cra` clearance still covers it. **Condition 1 fails:** the PR is `dirty` after PO merge #972. A trial merge shows the only conflict is `JOURNAL.md`, and under the section 4 stop rules a conflicting Engineering PR waits for `eng`.
+  - **#971** (`eng` owner-session protocol, head `e6d1b00`): condition 1 fails (`dirty`, `JOURNAL.md` only).
+  - **#907:** the same.
+  - One comment each is on #815 and #971.
+  - **Timing:** this PR is published early on purpose. The 14:39 PO PR merged after `eng`'s 15:11 merge-up, which is what turned #815 `dirty` again.
+- **Owner answers taken over (README rule 10).** These are from `eng`'s accompanied owner session of 2026-11-07 (PR #971; reported by `eng`, not heard by the PO; the same pattern as FE-043 and FE-044). They become **FE-045 to FE-051** in `FOUNDER_DECISIONS.md` v11:
+  - **D-7:** highest protection in four stages, plus separate agent identities.
+  - **FD-27:** (b), delete the whole old project.
+  - The npm registry is allowed.
+  - **D-8:** B.
+  - **D-2:** Supabase Zurich, with PITR 28 days for production; staging now; a Swiss app host; 99.9 % measured; RPO about 2 minutes; a paper plan; add-on services; on-call.
+  - **Security test:** red-team agents on staging, plus a small external test before real data.
+  - **FD-28:** legal advice bundled in Q1 2027.
+  - **D-41:** direction is patterns 1-3 as the core, pattern 4 prepared, pattern 5 not chosen. Rule A stays.
+  - **D-43** stays OPEN with the owner. Nothing is written about it; it is frozen.
+- **Contradiction found (README rule 10):** the PO default "app on Render Frankfurt" (D-2, po 2026-10-24 17:10) and "production on the same stack" (2026-10-27 12:05) contradict the owner's "Swiss app host". The owner's answer holds. Corrected in D-2 (addendum, row, INDEX) and in Blueprint M3.5 and FD-09.
+- **Decisions (F):**
+  - **D-7 and D-8** are answered by the owner (INDEX `decided`, with `Unfreeze: 1` lines). Their rows stay in *Open* with the answer written in only because the M2 status row still lists both under "Blocked by". `agents-check` warns about this, and the warning is expected.
+  - **D-2:** `inputs-requested`. `eng` is asked for 2-3 Swiss app hosts with price and for the add-on providers; `lca` for the processor contracts.
+  - **D-41:** `inputs-requested`. `lca` is asked whether pattern 1 (identifiers) stays inside rule A; `cra`, `eng` and `aia` are asked to map option B onto patterns 1-4.
+  - **SR-26:** the path is (b).
+  - `OWNER_AGENDA.md` is updated: FD-27, D-7, D-8, D-2, D-41 and D-44 part 2 (answered by FE-050). Comments are on #64, #905, #67 and #68.
+  - The D-22 and D-18 inputs are unchanged since 14:39 (`lca` and `cra` asked). No other package work this run.
+- **Prioritised (D, G):**
+  - **CI2** (*Next up* 0b) and **SEC1** (*Next up* 5) are approved; the briefs are below.
+  - D-7 stage 4 (private) without CI2 would stop CI, and with it the merge gate. SEC1 is the privacy and safety precondition the owner set for real data.
+- **Challenge (E):**
+  - *Why does a repository-protection decision take two weeks and three PO re-asks?* The answer needed only clicks. Built from scratch, the ask goes into a guided owner session at once, which is what got D-7, D-8 and D-2 answered in one hour today. **Proposal:** each Bundle 1 ask on `OWNER_AGENDA.md` carries a click-path the owner can follow in under ten minutes; `eng` writes it when it drafts the Engineering section.
+  - *Why would a red team need its own scheduled agent?* Most attack cases are deterministic, so the suite runs from CI (SEC1-2, SEC1-5). An agent only proposes new cases.
+- **Blueprint v2.26** (version row; header; M2.4, M3.5, M3.7, M10.2; §7 FD-07, FD-08, FD-09 and FD-27 struck as answered, FD-28 part 2). `ROADMAP.md` line 07.11. 15:39. `NEXT_CAPABILITY.md`: *Last change*, CI2 and SEC1. Synchronised: #815, #971, #64, #905, #67, #68.
+- **For the owner:**
+  - **Scheduled-task prompts that would need a change** (the PO edits none):
+    - (1) once the two agent accounts exist, the PO and `eng` prompts name their identity and the approval step (FE-045);
+    - (2) a red-team task, only if you want one beyond the CI suite (SEC1-5);
+    - (3) still standing: the "PLAN3 stack #891 to #910" line in the PO prompt is spent (FE-041).
+  - **Your clicks:** D-7 stage 1; deleting the old project (FD-27); the npm registry setting.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing, with two expected warnings (D-7 and D-8 rows in *Open*). CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`:
+    - bring #815 up to date (it merges next), then #971, #907, MERGE1, CI2;
+    - drop D-7 and D-8 from the M2 row's "Blocked by" when the ruleset is on;
+    - the D-2 offers;
+    - the D-41 mapping;
+    - the `preserve-*` tags after D-7 stage 1.
+  - `lca`: the D-2 processor contracts; D-41 pattern 1 against rule A; the FD-28 question catalogue, covering D-22, D-18, D-42, D-43, D-44 and D-41 (9), with quotes by December (FE-050).
+  - `cra` and `aia`: the D-41 mapping.
+
+**ENGINEERING BRIEF: CI2**
+
+- **Capability:** CI minutes fit a private repository without weakening any required check (D-7 stage 3).
+- **Why:** about 70 000 minutes a month against 3 000 included on Pro. Going private as things stand stops CI and the merge gate.
+- **Business outcome:** the owner can make the code private (FE-045) at a known monthly cost.
+- **Care outcome:** none directly. Every care capability keeps its path to IMPLEMENTED.
+- **Expected nurse outcome:** none directly.
+- **Expected team outcome:** none directly.
+- **Expected patient outcome:** no change in safety checks.
+- **Expected agent outcome:** no merge blocked by spent minutes.
+- **Acceptance criteria:** CI2-1 to CI2-7. Same four check names. A docs-only fast job that verifies the path list. Full jobs on every code change and every merge commit. Measured before and after.
+- **Dependencies:** MERGE1 (built first); FE-045.
+- **Priority:** *Next up* 0b.
+- **Implementation recommendation:** path filter inside the jobs (not `paths-ignore` on the workflow), ADR with GitHub docs citation, two test PRs.
+
+**ENGINEERING BRIEF: SEC1**
+
+- **Capability:** continuous adversarial testing of staging on synthetic data; an external test before real data.
+- **Why:** owner FE-049. RLS, grants, audit and the P1 path are tested only by their own authors.
+- **Business outcome:** a partner-ready security record before Phase B.
+- **Care outcome:** no resident's or client's data exposed, no P1 signal silenced.
+- **Expected nurse outcome:** trust that what they record stays in the team.
+- **Expected team outcome:** cross-team isolation proven from outside.
+- **Expected patient outcome:** privacy and safety precondition met.
+- **Acceptance criteria:** SEC1-1 to SEC1-6. A scope document; an attack suite (a) to (g); a refusal to run against production or the old project; findings in `SECURITY_RISKS.md`; a CI schedule; the external test in the Phase B gate list.
+- **Dependencies:** T12 staging (D-2 provider pending), CI2 (minutes).
+- **Priority:** *Next up* 5.
+- **Implementation recommendation:** reuse the pgTAP RLS inventory as the case list against the HTTP API; host allow-list check first.
 
 ---
 

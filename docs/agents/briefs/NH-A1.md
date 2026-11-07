@@ -12,6 +12,8 @@ updated: 2026-11-07
 
 **Amended 2026-11-07 14:39 CET (PO, `aia` review 38):** NH-A1-6 now has no confirm act (AUT-69, #969). NH-A1-15 adds an own recurring pattern (AUT-70). The measures section names its four sources (AUT-71). Whether shift responsibility needs an acknowledgement is UNKNOWN and sits with `cra`.
 
+**Amended 2026-11-07 17:39 CET (PO, `cra` 17:29 #975 and `uxa` 15:50 #974):** build gates (a) and (b) are given with conditions, which are written in below as NH-A1-16 to NH-A1-19 and the PO decision section at the end. Gate (c) (`lca` on NH-A1-11 and NH-A1-12) is still open.
+
 **Build gate:** Engineering starts only when (a) this brief has a `cra` gate line, (b) a `uxa` line on N-01/N-02 (the screen-catalog entries), and (c) an `lca` line on NH-A1-11 (shared devices) and NH-A1-12 (working time). The COORD-7 order holds: NH-A1 comes after the UX2 remainder. Every rule in this brief is PROVISIONAL. A passed Phase A simulation is no clinical release (CGR-142 (5), O-6).
 
 ## Problem
@@ -50,10 +52,10 @@ A ward team works a 24-hour day without a shift planner and without a morning al
   - a member of another team cannot set it (RLS);
   - a member who has no planned shift in that shift cannot be set;
   - a member whose access has ended cannot be set (LEAVE1).
-- [ ] **NH-A1-5 Uncovered residents are derived, never entered.** A resident with nobody *zuständig* in the current or the next shift appears in "In dieser Schicht noch ohne Zuständige (n)" on N-02 and as a line on N-01. Rules:
+- [ ] **NH-A1-5 Uncovered residents are derived, never entered.** A resident with nobody *zuständig* in the current or the next shift appears in ~~"In dieser Schicht noch ohne Zuständige (n)"~~ one group per shift (NH-A1-17, po 17:39) on N-02 and as a line on N-01 (placed by NH-A1-18). Rules:
   - The list counts **residents** (`cra` 13:25 condition).
   - It is derived from the schedule facts (NH-A1-3, NH-A1-4) like OPS1 `visit_uncovered`, with a new exception kind `resident_uncovered`.
-  - Its **priority and any escalation step are UNKNOWN** (`cra`, Clinical Owner). Until `cra` sets them it is shown to the ward team and Operations with no P1/P2 level and starts no SIG1 delivery. pgTAP: `signal_kind_of` maps no signal kind to `resident_uncovered`.
+  - Its **priority and any escalation step are UNKNOWN** (`cra`, Clinical Owner). Until ~~`cra` sets them~~ the Clinical Owner sets them (`cra` proposes; CGR-159, po 17:39) it is shown to the ward team and Operations with no P1/P2 level and starts no SIG1 delivery. pgTAP: `signal_kind_of` maps no signal kind to `resident_uncovered`.
   - The exception ends by itself when a member is set (pgTAP).
 - [ ] **NH-A1-6 Continuity default (rule, no AI).** ~~The default is a proposal only, shown as "Vorschlag (wie letzte <Schichtname>)"; the team confirms it in one act per shift for all residents, or changes single residents.~~ (Replaced 2026-11-07 14:39 by the PO decision on `aia` AUT-69, #969. Why: the per-shift confirm was about 3 accept-all acts a day per ward, it named no patient-care benefit, and the brief left open whether an unconfirmed default counts for NH-A1-5.)
 
@@ -100,6 +102,7 @@ A ward team works a 24-hour day without a shift planner and without a morning al
 | `visit_interrupted` (OPS1): a broken-off visit | **no** | *Nicht überwacht* |
 | SIG1 delivery of P1 signals to the team | **yes**: signals reach the ward team as on `/field` | *Jetzt* |
 | ABS1 absence releases planned work | **UNKNOWN** until NH-A4 (shift release) | *Nicht überwacht* until NH-A4 |
+| `resident_uncovered` itself (NH-A1-5): a resident with nobody *zuständig* in the running shift | **no signal**: listed, but no priority, escalation or delivery until the Clinical Owner sets them (`cra` CGR-159, po 17:39) | *Nicht überwacht*: "Keine Meldung, wenn eine Bewohnerin in der laufenden Schicht niemanden hat" |
 | HAND1 "Seit deinem letzten Einsatz" | **UNKNOWN** until NH-A3 (per shift) | *Nicht überwacht* until NH-A3 |
 | QUAL1 check per activity at assignment and start | **UNKNOWN** until NH-A2 (activities on the resident's care plan); NH-A1 assigns no activity | *Nicht überwacht* until NH-A2 |
 | J1 readiness before the first visit; D-17 safety alerts before first contact | **UNKNOWN** until NH-A2 (admission) | *Nicht überwacht* until NH-A2 |
@@ -112,7 +115,7 @@ Each "no" or "UNKNOWN" is an open question for the Clinical Owner: does the ward
 |---|---|---|
 | Shift names, times and count | data; synthetic seed by `po` | organisation |
 | Staffing per shift, minimum staffing, skill mix | UNKNOWN; shown as counts only | `cra`, Clinical Owner (D-43); `lca` for any legal minimum (canton) |
-| Priority and escalation of an uncovered resident | UNKNOWN | `cra`, Clinical Owner |
+| Priority and escalation of an uncovered resident | UNKNOWN; set by the Clinical Owner, `cra` proposes (CGR-159, po 17:39) | Clinical Owner (`cra` proposes) |
 | Who may be *zuständig* by profession (e.g. a care assistant in a night shift) | UNKNOWN; NH-A1 sets no profession rule | `cra` (QAM, FE-039), Clinical Owner |
 | Rest periods and working time across shifts | UNKNOWN | `lca` |
 | Care-need level, instrument | out of scope (NH-A5; D-36) | `cra`, `lca` |
@@ -165,3 +168,29 @@ Administrative step removed: shift allocation and roster upkeep. The baseline is
 1. Ward as a team setting, or a ward entity under a team? The PO's requirement is only that a home-care team is untouched and a member can belong to both (NH-A1-8). Record the choice in an ADR.
 2. Shifts that cross midnight: which date does a night shift belong to on N-01 and N-02? Propose one rule in the ADR. It is a display and data rule, not a clinical one.
 3. Estimate in person-days for NH-A1, and whether NH-A1 and NH-A4 share a migration (this belongs in the M1.3 condition: estimate v2 with the NH-A effort before 2026-11-17).
+
+## PO decision — 2026-11-07 17:39 CET: build gates (a) and (b) given with conditions; `cra` CGR-158, CGR-159 and `uxa` UXR-139 to UXR-142 placed
+
+The PO read `cra` 17:29 (`CLINICAL_GOVERNANCE.md`, PR #975) and `uxa` 15:50 (`UX_REVIEW.md`, PR #974), and ran no test. **Gate (a):** `cra-gate: NH-A1 brief d9a8150 clear (condition CGR-158 (1))`. **Gate (b):** `uxa` clear for the screen slice on condition that UXR-139 and UXR-141 are in the brief. Both conditions are written in here, so both gates are met for the Phase A synthetic build. **Gate (c)** (`lca` on NH-A1-11, NH-A1-12 and the two help-text clauses below) is still open; Engineering does not start until it is given. The COORD-7 order is unchanged (after the UX2 remainder).
+
+New acceptance criteria (product authority; the rules are visit/schedule facts, PROVISIONAL, synthetic data only):
+
+- [ ] **NH-A1-16 A responsibility ends with the shift or the access it rests on** (`cra` CGR-158 (1), condition of gate (a)). Withdrawing or changing a planned shift (also one generated by NH-A1-15) and ending a member's access (LEAVE1) clear every *zuständig* value she holds in that shift, whether set by the default or by a person, in the same transaction, audited with the reason. The resident reappears in NH-A1-5. pgTAP: (i) set by default, shift withdrawn, resident listed; (ii) set by a person, access ended, resident listed; (iii) pattern shift withdrawn as an exception (NH-A1-15), resident listed; (iv) the audit row names the reason.
+- [ ] **NH-A1-17 One uncovered group per shift** (`uxa` UXR-139, `cra` agreed; replaces the single title in NH-A1-5 and NH-A1-9). N-02 shows one group per shift: "Ohne Zuständige · <Schichtname> <von>–<bis> (n)", the current shift first, then the next. A group with n = 0 is not shown. Playwright on the synthetic ward seed: a resident uncovered only in the next shift appears under the next shift's heading, not under the current one, and the current count excludes her.
+- [ ] **NH-A1-18 The uncovered line has a fixed place on N-01** (`uxa` UXR-141, position confirmed by `cra`). In *Jetzt*, after her P1 signals and before "Nicht überwacht", one row per shift with n > 0: "<n> Bewohnende ohne Zuständige · <Schichtname>", current shift before next, linking to that group on N-02. Neutral row, no colour or level (CGR-159). Playwright: DOM order P1 signal < uncovered line (current) < uncovered line (next) < "Nicht überwacht" < first resident card.
+- [ ] **NH-A1-19 "Nicht überwacht" on N-01 is a heading with count; the default shows its date** (`uxa` UXR-140 and UXR-142, both confirmed by `cra`; `cra` CGR-158 (2) and (3)).
+  - On N-01 the heading "Nicht überwacht auf dem Wohnbereich (n)" is always visible with its count and `data-tone` ≠ `ok`; the entries sit in a closed `details`; it is never removed, whatever n is. On N-02 the list is open. Added to NH-A1-8: with no P1 signal, the first resident card's primary action is inside the first viewport at 390 × 844 (Playwright).
+  - The continuity default reads "wie letzte Schicht (<Schichtname>, <Tag>)", with `<Tag>` "gestern" or weekday and date; replaces "wie letzte <Schichtname>" in NH-A1-6. Vitest: the shift name appears only inside the parentheses.
+  - N-02 shows per shift "davon nach Kontinuität (n)", a count with no tap and no judgement (Playwright).
+
+Placed, not built in NH-A1:
+- **CGR-158 (4)** (before Phase B): whether a default older than some span still applies, and whether an absence must clear responsibilities, is **UNKNOWN (Clinical Owner)**. NH-A4 answers the absence case by test. Added to the Phase B gate list of this brief.
+- **CGR-159** (before Phase B): priority, escalation and delivery of a resident uncovered in the running shift are set by the Clinical Owner; `cra` proposes (CR-199 note). Until then the *Nicht überwacht* row above carries the sentence, Vitest on the constant. NH-A1-5's "until `cra` sets them" now reads "until the Clinical Owner sets them (`cra` proposes)".
+- **Acknowledgement of shift responsibility:** UNKNOWN (Clinical Owner, before Phase B). If it is required later, it is the named member's own "Gesehen" on N-01, and an unacknowledged resident at shift begin then counts as uncovered in NH-A1-5 (`cra` 17:29). No act is built now.
+- **Help texts (PROPOSED by `uxa`, clinical part confirmed by `cra`):** label "Zuständig in dieser Schicht"; picker "Zuständige Person wählen"; help text "An diese Person wendet sich das Team in dieser Schicht für diese Bewohnerin oder diesen Bewohner. Wer welche Tätigkeit ausführen darf, legt das nicht fest. Es ist auch keine formelle Verantwortung im Heim." The last sentence waits for `lca`. NH-A1-12 help text "Ruhezeiten und Höchstarbeitszeit prüft NAVORA hier nicht. Geplante Schichten zählen nicht als gearbeitete Zeit." waits for `lca`. Empty shift: "Noch niemand geplant".
+- **Screen catalog:** N-01 and N-02 are added to `NAVORA_SCREEN_CATALOG.md` as PROPOSED from the `uxa` text (the PO owns the catalog's PO rows; `uxa`'s file list did not allow it).
+
+*Why:* CGR-158 is the one way the amended default (AUT-69) could silence the only gap control: a resident shown as covered by someone who is not on the ward. NH-A1-16 closes it by data, with no tap for anyone, which keeps the 14:39 decision (no confirm ritual) and removes the risk the ritual never addressed. UXR-139 to UXR-141 make "who has nobody, now" one glance instead of a count that mixes two shifts.
+
+**Asked next:** `lca`: gate (c) (NH-A1-11, NH-A1-12 and the two help-text clauses). `eng`: read NH-A1-16 to NH-A1-19 for estimate v2; no build before gate (c) and the COORD-7 order. `cra`: CR-198 to CR-200 stay PROPOSED until built.
+
