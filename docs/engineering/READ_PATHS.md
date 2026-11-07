@@ -53,6 +53,9 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `assessment_confirmations` (ASM1-5, 0100; no case column) | team of the record's case; `confirmed_by` not selectable | no | 100 |
 | `care_plan_assessment_reviews` (ASM1-C4, 0101, ADR-125) | **nobody through the table** (no grant, no policy); the case's latest act (record, state at the act, date, reviewer's name) is read per case through `team_case_assessments` (`plan_review`) by the case's assigned team only | no | 101 |
 | `assessment_instruments` (ASM1-6, 0100; no case column, no personal data) | every member of the organisation; `created_by`, `ended_by` not selectable | instrument name and version | 100 |
+| `qual_delegations` (QUAL1-9, 0120, ADR-163) | team of the delegation (`private.is_team_member(team_id)`) and the organisation's administrators; nothing after access end (LEAVE1-3) | `conditions` (team) | 120 |
+| `visit_activities` (QUAL1-6, 0120, ADR-163) | team of the visit and coordination roles (`private.is_team_member`, `private.is_coordinator`); nothing after access end | no (activity codes only) | 120 |
+| `member_qualification_evidence`, `qual_delegation_revocations` (QUAL1, 0120; no case column) | evidence: the member herself and the organisation's administrators; revocations: as `qual_delegations` | no | 120 |
 | `billable_facts` | team; coordination: intake role (billing preparation, J5); `created_by` not selectable (RLS4, 0099) | no | *022* |
 | `working_time_facts` | team (**was team + every coordination role, 0022**; RLS3-1, 0070); `performer_id` not selectable (RLS4, 0099) | no | 071 (F-2 closed), *042*, *043* |
 | `quality_events` | team; serious events: admin and coach (quality review, QG1); `author_id` not selectable (RLS4, 0099), `owner_id` stays (RLS4-2) | `description`, `closing_note` (team; admin and coach for serious events) | 015, *020* |
@@ -72,6 +75,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 
 | Function | Scope | Free text returned | Proof |
 |---|---|---|---|
+| `visit_qualification_check(visit, user)` (QUAL1-8, 0120, ADR-163) | team of the visit and coordination roles, simulation organisations only, for a member of the visit's team; LEAVE1-3 | no (activity and reason codes) | 120 |
 | `field_visits(date)` | team (INVOKER: joins the caller's `team_memberships`; reads the four tables under RLS) | correction `reason` (team) | 067, 008 |
 | `field_notes(date)` | team (INVOKER) | note content (team); since 0095 (**OBS1-2, ADR-118**) per observation the author's display name and the OBS1-1 marker (`private.observation_qualification_missing`, team members only). **RLS3-4 entry:** identity with an observation time, care task *authorship of a clinical entry (ZH GesG § 13, `lca` 13:57)*; per observation, never a list, count or filter per person | 067 sweep, 071 (RLS3-4 list), 095 |
 | `field_quality(date)`, `field_since_last(date)`, `field_visit_status_notes(date)` | team | entries of the team's visits (`field_visit_status_notes` and HAND1 also the DOOR1 codes `at_door`, `disclosure_basis`, 0072); `field_quality` names who recorded an event, never its owner, and since 0080 marks an `in_review` event whose owner's access ended (`claim_ended`, LEAVE1-C4) | 067 sweep, *033*, *042*, 072 |
@@ -93,6 +97,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `team_case_assessments()` (ASM1, 0100, ADR-123) | members of the case's assigned team (LEAVE1-3 guard); nobody else | per record: instrument, the assessor's display name and `assessor_is_me` (never who entered it), state, reference, minutes with period, supersede reason; per case: plan basis date, marker date, dated facts (kind, date). No list, count or filter per person | 100, 067 sweep |
 | `final_report_visits()`, `continuity_by_case(month)` | team; coordination | no | 067 sweep, *016*, *021* |
 | `pilot_kpis(month)`, `pilot_hypotheses(month)` | team rows for members; organisation rows under AN1 suppression; coordination: pilot review | no; **no per-person column** (asserted, RLS2-4) | 067, 059 |
+| `pilot_step_spans(month)` (AN3, 0108) | team rows for members; organisation rows under AN1 suppression; coordination: pilot review. Reads `partner_requests`/`cases` times, `case_tasks` (`inform_gp`), `case_lifecycle_events` (`close`), `ai_suggestions`/`ai_confirmations` times and outcome (never `confirmed_by`), visit times through `private.visit_times`; no WORK1 table | no; **no per-person column** (asserted, AN3-3, AN3-6) | 109 |
 | `billing_preview(month)` | team; coordination | no | 067 sweep, *022* |
 | `visit_correction_history(visit)` | (a) full trail: team, cover, the report's author or countersigner while in the visit's team or cover team; (b) billing view: every other coordination role of the organisation (as `billing_preview`). Per visit, never per person (RLS3-4b, 0070) | `reason` and corrector: (a) only; (b) gets old and new value, time, signed version and countersigner; both levels get `in_billed_version` per correction (FUP1-3, 0071: made at or before the countersignature, or signature, of the billed version; null without a fact) | 071 |
 
@@ -102,10 +107,12 @@ Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`,
 
 | Function | Scope | Person returned | Proof |
 |---|---|---|---|
-| `open_suggestions(team)` | active members of the team | the proposed member's name (the proposal itself), never a confirmer | 097 |
+| `open_suggestions(team)` | active members of the team | the proposed member's name (the proposal itself), never a confirmer; AIG1-C4: only proposals whose record is still open (expired ones are not listed) | 097, 105 |
+| `day_plan(team, date)` (PLAN3, 0109, ADR-145) | active members of the team | the proposed member's name and id (the proposal itself), never a confirmer; the decision state only | 110 (another team, Operations: nothing) |
+| `day_plan_load(team, date)`, `team_day_proposal_state(team)` (PLAN3, 0109, 0110; no case, visit or client column) | active members of the team | each member's planned minutes of that team and day (PLAN3-4) and only whether she has visits that day in another team, no count, client or time (PLAN3-14, 0110); the switch date, never its actor (PLAN3-10) | 110, 111 |
 | `value_provenance(entity_type, entity_id, field)` | active members of the record's team | the confirmer of **one** value ("bestätigt von <Name> am <Datum>"), with that value's status; at most one row (AIG1-11 (2a)) | 097, 071 |
 | `agent_correction_rates(month)` | team: own rows; coordinators: all teams of the organisation | none; per agent, field, team and month; a cell with fewer than three distinct confirmers is suppressed (AIG1-7) | 097 |
-| `agent_health(org)` | coordinators of the organisation | none (AIG1-10; AIG1-16 adds the written threshold and a per-agent "minimum reached" flag, no person column) | 097, 103 |
+| `agent_health(org)` | coordinators of the organisation | none (AIG1-10; AIG1-16 adds the written threshold and a per-agent "minimum reached" flag; AIG1-C4/-C5 add the last window's expired count and every stop of the agent with its look-back counts, no person column) | 097, 103, 105 |
 | `agent_stop_lookback(stop)` | coordinators: every line; team members: lines of their teams' records | none; no outcome column (AIG1-12 (i)-(iv)); `superseded`, `superseded_at` per record (AIG1-13 (b)); `not_open` per record (AIG1-C1, 0104) | 097, 104 |
 | `record_lookback_lines(entity_type, entity_id)` | active members of the record's team only (those who may call `confirm_suggestion` for it); coordinators who are not team members: none | none; the listed suggestion id, field, agent name, stop and `record_open` of one record (AIG1-C2 (a)/(d), 0104, ADR-130) | 104 |
 
@@ -114,6 +121,8 @@ Commands (`set_agent_state`, `propose_visit_responsible`, `confirm_suggestion`, 
 **VIS1-8 (0090, ADR-112):** `visit_move_leaves_other_visit(visit)` returns one boolean (no rows, no `case_id`/`visit_id` column), to a team member of the visit only (null otherwise): whether another visit of the same case, of any team and not cancelled, is on the visit's date. It shows no time, team, name or count of that visit; no new read permission. Care task: the "Heute machen" confirmation states what the move leaves behind (`cra` CGR-89).
 
 **VIS2-1/-2 (0098, ADR-121):** `client_visit_overlap(case, visit, date, start, end)` returns `{overlap, time_start, time_end}` or null: to a team member of the visit (visit given, the visit excluded) or a member of the case's assigned team (case given, `reads_case`), null for anyone else. `overlap` counts every other visit of the case on that date, any team, not cancelled, whose planned interval meets the half-open slot; `time_start`/`time_end` are only those of the earliest overlapping visit the caller can read (`reads_visit`), so another team's visit shows no time, team, member, service or count. No new read permission; `private.client_overlap_visits` is not executable by app roles. The three commands' `ok` result carries the same object (VIS2-5). Care task: the planning, /team move and "Heute machen" confirmations (VIS2-1).
+
+**PLAN3-16 (0118, ADR-161):** `member_slot_overlap(case, visit, member, date, start, end)` returns true, false or null: whether that member of the team already has a non-cancelled visit (any team of the organisation) at an overlapping time. The team as for `client_visit_overlap`: the visit's team for a team member of it (visit given, the visit excluded), else the case's assigned team for a member of it; only about a member of that team; LEAVE1-3 guarded; null for anyone else or an incomplete slot. yes/no only: no other team's client, case, visit, team or time. The four hand-assignment commands return the same yes/no as `member_overlap` on `ok`. Residual (OPEN for `lca`, ADR-161 deviation 3): repeated reads over slots of one day can narrow down when a colleague is busy elsewhere (an interval, never what or for whom).
 
 ## Findings (RLS2-5)
 
@@ -155,6 +164,8 @@ Every other audited key is a code: a closed value set (CHECK or foreign key), a 
 | `private.handover_entries` (HAND1, `field_since_last`) | team handover: care-plan schedule change, primary-nurse change, medical-order status and validity | no (codes, dates, member codes; reasons from `change_log`) |
 | `private.last_primary_nurse` (RET1) | the last primary nurse of a closed case | no (id) |
 | `private.case_order_as_of` (CSR1, CGR-33) | the medical order as of the visit date | no (status code, date) |
+| `private.plan3_visit_open_at` (PLAN3-13, ADR-150) | was a visit open at a past instant (old `status` and `visit_date`) | no (status code, date) |
+| `private.plan3_stop_lines` (PLAN3-13, ADR-150) | when a look-back line's visit closed after a stop (time of a `status`/`visit_date` change) | no (time) |
 | `public.pilot_hypotheses` (AN2) | absence end moved (CGR-35) | no (time) |
 | `public.read_audit_record` (AUD1-3) | administrators: one record, for `compliance`, `billing` or `safety_review` | only inside the team (AUD1-4) |
 

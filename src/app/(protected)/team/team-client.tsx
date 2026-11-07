@@ -1,15 +1,20 @@
 "use client";
 
 import AdmissionSection from "./admission-section";
+import { ErrorText } from "./error-text";
 import { SuccessorItems, TeamHandover } from "./contract-end-section";
 import { caseRefLabel, caseReference, continuityAnchorId, type Leaver, type SuccessorItem } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { PAGE_LABEL } from "@/lib/auth/nav";
+import { memberNumbers, pickerMemberLabel, teamPickerOptions } from "@/features/team/member-label";
+import { suggestionsLink, teamLookbackEntry, type TeamLookbackStop } from "@/features/ai/labels";
 import SignalBanner from "@/components/signals/SignalBanner";
 import OverlapNote, { OverlapAfterSave, slotFromForm, useOverlapNote, type OverlapSlot } from "@/components/visits/OverlapNote";
 import { overlapAfterSave, overlapNote } from "@/features/visits/overlap-rules";
+import MemberOverlapNote, { MemberOverlapAfterSave, useMemberOverlapNote } from "@/components/visits/MemberOverlapNote";
+import { memberOverlapAfterSave, memberOverlapNote } from "@/features/visits/member-overlap-rules";
 import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -33,7 +38,9 @@ import {
   CLEARANCE_TEXT,
   PROVISIONAL_NOTE,
   SIGNAL_POINTER,
+  VISIT_ALERT_FRAME_CLASS,
   alertRepeatsSignal,
+  visitAlertFrame,
 } from "@/features/team/rules";
 import { splitSignals } from "@/features/signals/rules";
 import { SETTINGS_ITEM } from "@/lib/auth/nav";
@@ -83,6 +90,8 @@ export default function TeamClient({
   successorItems = [],
   assessments = {},
   instruments = [],
+  openSuggestions = null,
+  lookbackStops = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -111,7 +120,12 @@ export default function TeamClient({
   assessments?: Record<string, CaseAssessments>;
   /** ASM1-6: the organisation's instrument entries. */
   instruments?: Instrument[];
+  /** PLAN3-12 (ADR-148): open proposals of the caller's teams; null when unknown (the link then reads plain "Vorschläge"). */
+  openSuggestions?: number | null;
+  /** PLAN3-11 (ADR-149): stops with open look-back lines of the caller's own teams. */
+  lookbackStops?: TeamLookbackStop[];
 }) {
+  const suggestionsEntry = suggestionsLink(openSuggestions);
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -128,9 +142,13 @@ export default function TeamClient({
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             {PAGE_LABEL.field}
           </Link>
-          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. */}
-          <Link href="/team/vorschlaege" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
-            Vorschläge
+          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. PLAN3-12 (ADR-148): with their count. */}
+          <Link href="/team/vorschlaege" aria-label={suggestionsEntry.ariaLabel} data-testid="suggestions-link" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            {suggestionsEntry.text}
+          </Link>
+          {/* PLAN3 part (b) (ADR-147): the team asks for a day plan and confirms it line by line. */}
+          <Link href="/team/tagesplan" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            Tagesvorschlag
           </Link>
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">{PAGE_LABEL.team}</h1>
@@ -142,6 +160,7 @@ export default function TeamClient({
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <SignalBanner initial={signals} onRows={setLiveSignals} />
         <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />
+        <TeamLookback stops={lookbackStops} />
         <SuccessorItems items={successorItems} />
         <TeamHandover leavers={leavers} openReports={leaverReports} />
         <OutsideDeliveryStatus rows={pushStatus} />
@@ -217,10 +236,14 @@ export default function TeamClient({
 // CSR1 / CGR-04: a visit that did not happen, or is stuck, stays visible to the whole team until it moves on or a
 // person closes it. CSR1 / CGR-25: a visit ended as not completed stays until someone records the follow-up decision. CSR1 / CGR-24: a report correction not final after the report_not_final threshold stays until it is final. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
 function VisitAlerts({ alerts, openSignals }: { alerts: TeamVisitAlert[]; openSignals: SignalRow[] }) {
-  if (alerts.length === 0) return null;
+  // UX2-16 (`cra` 17:30 answer 3; ADR-133): red while a P1 entry is shown in full, amber otherwise; empty list as before.
+  const frame = visitAlertFrame(alerts, openSignals);
+  if (frame === null) return null;
+  const muted = frame === "red" ? "text-rose-900/80" : "text-amber-900";
   return (
-    <section aria-label="Einsätze mit Handlungsbedarf" className="grid gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3">
-      <h2 className="text-lg font-bold text-rose-950">Einsätze mit Handlungsbedarf</h2>
+    <section aria-label="Einsätze mit Handlungsbedarf" data-testid="visit-alerts" data-frame={frame}
+      className={`grid gap-2 rounded-2xl border p-3 ${VISIT_ALERT_FRAME_CLASS[frame]}`}>
+      <h2 className={`text-lg font-bold ${frame === "red" ? "text-rose-950" : "text-amber-950"}`}>Einsätze mit Handlungsbedarf</h2>
       <ul className="grid gap-2">
         {sortVisitAlerts(alerts).map((a) =>
           // UX1-22 / `cra` C-1: an entry that only repeats an open signal card above shows one pointer line; an entry with
@@ -254,11 +277,11 @@ function VisitAlerts({ alerts, openSignals }: { alerts: TeamVisitAlert[]; openSi
         )}
       </ul>
       {/* UX1-22 / C-1: the clearance explanation behind one tap; its last sentence stays visible. */}
-      <details data-testid="visit-alert-clearance" className="text-xs text-rose-900/80">
+      <details data-testid="visit-alert-clearance" className={`text-xs ${muted}`}>
         <summary className="flex min-h-11 cursor-pointer items-center font-semibold">{CLEARANCE_SUMMARY}</summary>
         <p>{CLEARANCE_TEXT}</p>
       </details>
-      <p data-testid="visit-alert-provisional" className="text-xs text-rose-900/80">{PROVISIONAL_NOTE}</p>
+      <p data-testid="visit-alert-provisional" className={`text-xs ${muted}`}>{PROVISIONAL_NOTE}</p>
     </section>
   );
 }
@@ -447,6 +470,13 @@ function arr<T>(raw: unknown, key: string): T[] {
 }
 
 const hhmm = (t: string | null) => (t ? t.slice(0, 5) : "–");
+
+/** PLAN3-16: the member the overlap line speaks of, labelled as every picker labels her (PLAN3-17), no suffix. */
+function overlapMember(members: Member[], userId: string | null | undefined): { id: string; label: string; me: boolean } | null {
+  const m = userId ? members.find((x) => x.user_id === userId) : undefined;
+  if (!m) return null;
+  return { id: m.user_id, me: m.me, label: pickerMemberLabel({ name: m.name, me: m.me, no: memberNumbers(members).get(m.user_id) ?? null }) };
+}
 const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
 
 function SlotFields({ date, start, end }: { date: string; start: string; end: string }) {
@@ -479,15 +509,6 @@ function Flags({ flags }: { flags: string[] | null | undefined }) {
   );
 }
 
-function ErrorText({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <p role="alert" data-testid="command-error" className="mt-2 rounded-lg border border-rose-300 bg-rose-50 p-2 text-sm font-semibold text-rose-800">
-      {message}
-    </p>
-  );
-}
-
 function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, assessment = null, instruments = [] }: {
   teamCase: TeamCase; continuity: ContinuityRow | null; lifecycle: CaseLifecycle | null; planStatus: PlanStatus | null;
   gpNotice: GpNotice | null; assessment?: CaseAssessments | null; instruments?: Instrument[];
@@ -501,7 +522,7 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, asses
   return (
     <article aria-label={`Fall ${teamCase.client_name ?? ""}`} className="rounded-2xl bg-white p-4 shadow-sm">
       <h3 className="font-bold">{teamCase.client_name ?? "Klient:in"}</h3>
-      <p className="text-xs text-secondary" data-testid="case-ref">{caseRefLabel(caseReference(teamCase.case_id))}</p>
+      <p className="text-sm text-secondary" data-testid="case-ref">{caseRefLabel(caseReference(teamCase.case_id))}</p>
       <p className="text-sm text-secondary">
         {teamCase.region} · {teamCase.team_name}
         {needs.length > 0 ? ` · ${needs.join(", ")}` : ""}
@@ -922,12 +943,20 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   const overlap = useOverlapNote(caseId, null, slot, today, open);
   // VIS2-5 (2): the server's overlap the form did not show, stated after the save.
   const [after, setAfter] = useState<string | null>(null);
+  // PLAN3-16: the chosen responsible member, for the member-overlap line under "Verantwortlich".
+  const initialResponsible = members.find((m) => m.me)?.user_id ?? "";
+  const [responsibleId, setResponsibleId] = useState<string>(initialResponsible);
+  const chosen = overlapMember(members, responsibleId);
+  const memberOverlap = useMemberOverlapNote(caseId, null, chosen, slot, open);
+  const [memberAfter, setMemberAfter] = useState<string | null>(null);
 
   async function plan(form: FormData) {
     setPending(true);
     setError(null);
     setAfter(null);
+    setMemberAfter(null);
     const shown = overlap.shown;
+    const memberShown = memberOverlap.shown;
     const savedDay = String(form.get("date") ?? "");
     const m = minutesFromForm((k) => String(form.get(k) ?? ""));
     const responsible = String(form.get("responsible") ?? "");
@@ -943,6 +972,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       responsibleUserId: responsible || null,
       idempotencyKey: crypto.randomUUID(),
       overlapShown: shown,
+      memberOverlapShown: responsible ? memberShown : undefined,
     });
     setPending(false);
     if (!result.ok) {
@@ -951,6 +981,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
     }
     setFlags(result.flags);
     setAfter(overlapNote(savedDay, overlapAfterSave(shown, result.overlap), today));
+    setMemberAfter(memberOverlapNote(memberOverlapAfterSave(memberShown, result.memberOverlap), overlapMember(members, responsible)));
     setOpen(false);
     router.refresh();
   }
@@ -960,7 +991,8 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       <>
         <Flags flags={flags} />
         <OverlapAfterSave note={after} />
-        <button type="button" onClick={() => { setSlot(initialSlot); setAfter(null); setOpen(true); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-emerald-800 font-bold text-emerald-900">
+        <MemberOverlapAfterSave note={memberAfter} />
+        <button type="button" onClick={() => { setSlot(initialSlot); setResponsibleId(initialResponsible); setAfter(null); setMemberAfter(null); setOpen(true); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-emerald-800 font-bold text-emerald-900">
           {assessmentDone ? "Einsatz planen" : "Abklärungsbesuch planen"}
         </button>
       </>
@@ -968,7 +1000,10 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   }
 
   return (
-    <form action={plan} onChange={(e) => setSlot(slotFromForm(e.currentTarget, slot))} aria-label="Einsatz planen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
+    <form action={plan} onChange={(e) => {
+      setSlot(slotFromForm(e.currentTarget, slot));
+      setResponsibleId(String(new FormData(e.currentTarget).get("responsible") ?? ""));
+    }} aria-label="Einsatz planen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
       {!assessmentDone && (
         <p className="rounded-lg bg-amber-50 p-2 text-xs font-semibold text-amber-900">
           Erster Einsatz = Bedarfsabklärung durch eine Pflegefachperson (Kategorie A). Bis sie erfolgt ist, sind keine anderen Einsätze planbar.
@@ -996,17 +1031,18 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
         Verantwortlich
         <select name="responsible" defaultValue={members.find((m) => m.me)?.user_id ?? ""} className={field}>
           <option value="">Team (noch niemand)</option>
-          {members.map((m, i) => (
-            <option key={m.user_id} value={m.user_id}>
-              {m.me ? "Ich" : `Teammitglied ${i + 1}`}
-              {m.qualification ? ` – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : ""}
-            </option>
+          {/* UXR-113 / CGR-139 (ADR-154): the same label as every other picker that assigns a visit. */}
+          {teamPickerOptions(members).map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
       </label>
+      {/* PLAN3-16 (ADR-161): information under "Verantwortlich"; the save is never refused or delayed for it. */}
+      <MemberOverlapNote id={`member-overlap-plan-${caseId}`} note={memberOverlap.note} answered={memberOverlap.answered} />
       <ErrorText message={error} />
       <div className="grid grid-cols-[2fr_1fr] gap-2">
-        <button type="submit" disabled={pending} aria-describedby={overlap.note ? `overlap-plan-${caseId}` : undefined} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
+        <button type="submit" disabled={pending}
+          aria-describedby={[overlap.note ? `overlap-plan-${caseId}` : "", memberOverlap.note ? `member-overlap-plan-${caseId}` : ""].filter(Boolean).join(" ") || undefined} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
           {pending ? "Wird gespeichert …" : "Einsatz speichern"}
         </button>
         <button type="button" onClick={() => { setOpen(false); setError(null); }} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
@@ -1031,13 +1067,19 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
   const overlap = useOverlapNote(null, visit.visit_id, slot, today, mode === "move");
   // VIS2-5 (2): the server's overlap the form did not show, stated after the move.
   const [after, setAfter] = useState<string | null>(null);
+  // PLAN3-16: a move keeps the responsible member; the line says when she is busy at the new time (any team).
+  const holder = visit.responsible_set ? overlapMember(members, visit.responsible_id) : null;
+  const memberOverlap = useMemberOverlapNote(null, visit.visit_id, holder, slot, mode === "move");
+  const [memberAfter, setMemberAfter] = useState<string | null>(null);
 
   async function submit(form: FormData) {
     setPending(true);
     setError(null);
     setReleased(false);
     setAfter(null);
+    setMemberAfter(null);
     const shown = overlap.shown;
+    const memberShown = memberOverlap.shown;
     const savedDay = String(form.get("date") ?? "");
     const reason = String(form.get("reason") ?? "");
     const result =
@@ -1050,6 +1092,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
             reason,
             idempotencyKey: crypto.randomUUID(),
             overlapShown: shown,
+            memberOverlapShown: holder ? memberShown : undefined,
           })
         : await removePlannedVisit({ visitId: visit.visit_id, reason, idempotencyKey: crypto.randomUUID() });
     setPending(false);
@@ -1058,7 +1101,10 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
       return;
     }
     setReleased(result.released);
-    if (mode === "move") setAfter(overlapNote(savedDay, overlapAfterSave(shown, result.overlap), today));
+    if (mode === "move") {
+      setAfter(overlapNote(savedDay, overlapAfterSave(shown, result.overlap), today));
+      setMemberAfter(memberOverlapNote(memberOverlapAfterSave(memberShown, result.memberOverlap), holder));
+    }
     setMode("view");
     router.refresh();
   }
@@ -1098,7 +1144,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
         </div>
         {isPlanned && mode === "view" && (
           <div className="flex shrink-0 gap-1">
-            <button type="button" onClick={() => { setSlot(visitSlot); setAfter(null); setMode("move"); }} className="min-h-11 px-2 font-semibold underline underline-offset-4">
+            <button type="button" onClick={() => { setSlot(visitSlot); setAfter(null); setMemberAfter(null); setMode("move"); }} className="min-h-11 px-2 font-semibold underline underline-offset-4">
               Verschieben
             </button>
             <button type="button" onClick={() => setMode("remove")} className="min-h-11 px-2 font-semibold text-rose-800 underline underline-offset-4">
@@ -1113,12 +1159,19 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
           {mode === "move" && <SlotFields date={visit.date} start={hhmm(visit.start)} end={hhmm(visit.end)} />}
           {/* VIS2-1 / VIS2-2 (ADR-121): the moved visit itself is excluded by the database. */}
           {mode === "move" && <OverlapNote id={`overlap-move-${visit.visit_id}`} note={overlap.note} answered={overlap.answered} />}
+          {/* PLAN3-16 (ADR-161): the responsible member at the new time; information, never a refusal. */}
+          {mode === "move" && holder && (
+            <MemberOverlapNote id={`member-overlap-move-${visit.visit_id}`} note={memberOverlap.note} answered={memberOverlap.answered} />
+          )}
           <label className="grid gap-1 text-xs font-semibold">
             Grund
             <input name="reason" required minLength={3} maxLength={300} className={field} />
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <button type="submit" disabled={pending} aria-describedby={mode === "move" && overlap.note ? `overlap-move-${visit.visit_id}` : undefined}
+            <button type="submit" disabled={pending}
+              aria-describedby={mode === "move"
+                ? [overlap.note ? `overlap-move-${visit.visit_id}` : "", memberOverlap.note ? `member-overlap-move-${visit.visit_id}` : ""].filter(Boolean).join(" ") || undefined
+                : undefined}
               className={`min-h-11 rounded-lg font-bold text-white disabled:opacity-60 ${mode === "move" ? "bg-emerald-800" : "bg-rose-800"}`}>
               {mode === "move" ? "Verschieben" : "Entfernen"}
             </button>
@@ -1129,6 +1182,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
         </form>
       )}
       <OverlapAfterSave note={after} />
+      <MemberOverlapAfterSave note={memberAfter} />
       {released && (
         <p role="status" data-testid="moved-into-absence" className="mt-1 text-xs font-semibold text-amber-900">
           {RELEASED_ON_MOVE}
@@ -1147,36 +1201,71 @@ function OutsideDeliveryStatus({ rows }: { rows: TeamPushRow[] }) {
   // the app, the line is open, in amber (not the P1 colour), with the fixed text and a link to "Meine Einstellungen";
   // collapsed and neutral when all are on. No per-member detail beyond SIG2-2 (active / not active).
   const gap = !allReachable(rows);
+  // UX2-15 (`uxa` UXR-27; `cra` 17:30 answer 2; ADR-133): the gap sentence and the "Meine Einstellungen" link sit outside
+  // the `details`, so folding the member list never hides them; they stay in this status block, before any member list,
+  // in amber. The `summary` is at least 44 px high.
   return (
-    <details
-      open={gap}
+    <section
       className={gap ? "rounded-2xl border border-amber-800 bg-amber-50 p-4" : "rounded-2xl border border-emerald-900/10 bg-white p-4"}
       aria-label={OUTSIDE_LABEL}
       data-testid="push-team-status"
       data-reach={gap ? "gap" : "all"}
     >
-      <summary className="cursor-pointer text-sm font-bold">
-        {OUTSIDE_LABEL}: {rows.filter((r) => r.active).length} von {rows.length} aktiv
-      </summary>
       {gap && (
-        <p data-testid="push-team-gap" className="mt-2 text-sm font-semibold text-amber-900">
+        <p data-testid="push-team-gap" className="mb-1 text-sm font-semibold text-amber-900">
           {REACH_GAP_TEXT}{" "}
           <Link href={SETTINGS_ITEM.href} className="inline-flex min-h-11 items-center underline underline-offset-4">
             {SETTINGS_ITEM.label}
           </Link>
         </p>
       )}
-      <p className="mt-2 text-xs text-stone-600">{TEAM_STATUS_NOTE}</p>
-      {teams.map((teamId) => (
-        <ul key={teamId} className="mt-2 grid gap-1 text-sm" aria-label={rows.find((r) => r.team_id === teamId)?.team_name}>
-          {rows.filter((r) => r.team_id === teamId).map((r) => (
-            <li key={r.user_id} className="flex justify-between gap-2">
-              <span>{r.member_name}</span>
-              <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-700"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
-            </li>
-          ))}
-        </ul>
-      ))}
-    </details>
+      <details open={gap} data-testid="push-team-details">
+        <summary data-testid="push-team-summary" className="flex min-h-11 cursor-pointer items-center text-sm font-bold">
+          {OUTSIDE_LABEL}: {rows.filter((r) => r.active).length} von {rows.length} aktiv
+        </summary>
+        <p className="mt-2 text-xs text-stone-600">{TEAM_STATUS_NOTE}</p>
+        {teams.map((teamId) => (
+          <ul key={teamId} data-testid="push-team-members" className="mt-2 grid gap-1 text-sm" aria-label={rows.find((r) => r.team_id === teamId)?.team_name}>
+            {rows.filter((r) => r.team_id === teamId).map((r) => (
+              <li key={r.user_id} className="flex justify-between gap-2">
+                <span>{r.member_name}</span>
+                <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-700"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </details>
+    </section>
+  );
+}
+
+/**
+ * PLAN3-11 (ADR-149): after a stop, the team's own look-back lines where it plans. One entry per stop and team with at
+ * least one open line; the link opens the list narrowed to the member's own teams. Counts only: no person, no outcome,
+ * no colour above `info` (H-20). Nothing is shown when there is no such stop or the read failed.
+ */
+function TeamLookback({ stops }: { stops: TeamLookbackStop[] }) {
+  const entries = stops
+    .map((s) => ({ s, e: teamLookbackEntry(s) }))
+    .filter((x): x is { s: TeamLookbackStop; e: NonNullable<ReturnType<typeof teamLookbackEntry>> } => x.e !== null);
+  if (entries.length === 0) return null;
+  return (
+    <section aria-labelledby="team-lookback-title" className="grid gap-2 rounded-xl border border-stone-200 bg-white p-3">
+      <h2 id="team-lookback-title" className="text-base font-bold">
+        Rückblick nach einem Stopp
+      </h2>
+      <ul className="grid gap-2">
+        {entries.map(({ s, e }) => (
+          <li key={`${s.stop_id}:${s.team_name}`} data-testid="team-lookback-entry" className="grid gap-1 text-sm">
+            <span>
+              {e.text} · {s.team_name}
+            </span>
+            <Link href={e.href} className="flex min-h-11 items-center font-semibold underline underline-offset-4">
+              {e.linkText}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

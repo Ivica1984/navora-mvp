@@ -8,6 +8,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { parseOverlapFact, type OverlapFact } from "@/features/visits/overlap-rules";
+import { parseMemberOverlap, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const overlapSchema = z
@@ -39,4 +40,40 @@ export async function getClientOverlapFact(input: unknown): Promise<OverlapFact>
     return null;
   }
   return parseOverlapFact(data);
+}
+
+// PLAN3-16 (ADR-161, migration 0118): the member-overlap read behind the "Verantwortlich" line of the /team planning
+// form and the /team move. yes/no only; the database answers only a member of the visit's or case's team about a member
+// of that team. Writes nothing.
+const memberOverlapSchema = z
+  .object({
+    caseId: z.uuid().nullable(),
+    visitId: z.uuid().nullable(),
+    memberId: z.uuid(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    start: time,
+    end: time,
+  })
+  .refine((d) => d.caseId !== null || d.visitId !== null);
+
+export async function getMemberOverlapFact(input: unknown): Promise<MemberOverlapFact> {
+  const parsed = memberOverlapSchema.safeParse(input);
+  // No member chosen, or an incomplete slot: no answer, no request.
+  if (!parsed.success || parsed.data.end <= parsed.data.start) return null;
+  const d = parsed.data;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("member_slot_overlap", {
+    // Generated RPC types mark every argument as required; null = not given (the database derives the team).
+    p_case_id: d.caseId as string,
+    p_visit_id: d.visitId as string,
+    p_member_id: d.memberId,
+    p_visit_date: d.date,
+    p_time_start: d.start,
+    p_time_end: d.end,
+  });
+  if (error) {
+    logEvent("warn", "query.failed", { op: "member_slot_overlap", ...errorFields(error) });
+    return null;
+  }
+  return parseMemberOverlap(data);
 }
