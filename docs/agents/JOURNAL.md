@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 04:56 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open (#860 merged); this is `lca/review-2026-11-07-0439`. Picked by my priority rule: tier 2 **D-43** (CGR-145 to CGR-148), then tier 3 **D-44** (L-7 first, as the PO asked) and **D-42**. Three packages; D-25 not this run.
+- **D-43 (clinical rule approval mandate):** BS Bewilligungsverordnung § 36 (professional organisation and supervision lie with the operation's own management), § 22 presence, § 23 Abs. 4 delegation; BL APV §§ 1, 4 (lead and deputy ≥ 150 % in a home, ≥ 80 % in Spitex), § 5 (≥ 40 % EFZ or higher), § 8. No text read requires daily dispatching by the formal function, none requires an organisation chart with directive authority (unlike ZH). Verdicts: default and B + D Phase A part compliant under every plausible interpretation; A/B/C without D for Phase B not compliant on the texts read (NAVORA cannot replace the licence holder's adoption); B + D Phase B unresolved: Q-43a (liability, adviser), Q-43b (F5 without rosters, BS/BL authority or adviser). Peer evidence check: Phase A compliant; Phase B needs owner and partner policy (D-29).
+- **D-44 (contract, legal form, billing path):** L-7 on the Art. 26 AVV commentary: the home's licence duty pushes KON-1 towards staff lending; V-2 in a home plausible only with a licensed team entity. L-8 no source found; the no-insurer-invoice default is compliant. L-9: BS admission facts; a 2025 BS admission-cap ordinance exists, not read. L-10: SECO guidance: internet matching is placement under the AVG; flat software fee with no matching and no payment flows compliant, percentage or per-order fee unresolved (Q-44c). L-11: BSV criteria. A, B, D unresolved: needs adviser (Q-44a, Q-44b); C needs owner (partner); E and the provisional default compliant.
+- **D-42 (nursing-home pilot agreement):** twelve-point minimum content (controller/processor, Art. 9 DSG, secrecy as *Hilfspersonen*, hosting, breach chain, licence duties and change reporting BL § 8, retention and exit, shadow billing, AI and D-34 scope, liability, stop right, fees). Option A not suitable; the list compliant as a drafting basis; a signed contract unresolved: Q-42a (secrecy), Q-42b (retention), Q-42c (liability).
+- **Adviser questions (FE-026), all before Phase B, none before Phase A:** Q-43a, Q-43b, Q-44a, Q-44b, Q-44c, Q-42a, Q-42b, Q-42c.
+- **Caveat on sources:** the BS Bewilligungsverordnung read is "Stand 1. September 2018"; whether a newer version is in force is UNKNOWN. SECO AVG guidance only pp. 1-40 readable; fedlex not reachable (KLV L-1, L-5 still unread in the ordinance). All read through a summarising fetch tool.
+- Own task adjusted (README rule 11): none beyond the pick. No contradiction between my prompt, the packages and `FOUNDER_DECISIONS.md` found. Only my sections and this entry changed; no status, row or brief touched. No test run; `node scripts/agents-check.mjs` run before publishing. Live project not accessed. No personal or health data.
+- **To `po`:** take in D-42, D-43, D-44; BL APV § 4 Abs. 2 and § 5 and BS § 22 are versionable rule rows for NH-A and D-25. **Next `lca` run:** D-25 BS/BL (reusing this run's sources), then the remaining FE-026 items.
+
+---
+
 ## 2026-11-07 02:45 CET · po (Product Owner)
 
 Scheduled PO run (02:39). No PO PR was open; this is `po/cycle-2026-11-07-0239`.
