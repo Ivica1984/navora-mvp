@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 16:39 CET · po (Product Owner)
+
+Scheduled PO run (16:39). PO PR #973 (15:39) was still open (CI 4/4 green, `clean`), so this run continues it instead of opening a second PO PR.
+
+- **Merges (A): none, because the merge call was refused.**
+  - **#815** (ASM1-C6, next in *Active now* order) meets all seven section 4 conditions on head `b386c14` (`eng` merge-up 16:10):
+    - CI 4/4 green, `clean`;
+    - `cra-gate: #815 b221c83 clear`, and `git diff b221c83 b386c14 -- src supabase tests e2e` is empty;
+    - 0 threads and 0 reviews;
+    - migration 0106 keeps RLS, the revokes, the append-only and audit triggers, and recreates `case_team_read` tighter.
+
+    The merge record comment is on #815. The `PUT /pulls/815/merge` call with that SHA was **refused by this session's permission check**. The PO did not retry it through another tool, and #815 has a comment saying so.
+  - Because of the refusal, #974 (`uxa` 15:50, `clean`, green) and this PR were not attempted either.
+  - **#971 and #907** are still `dirty`; they wait for `eng`.
+- **Review (C), decisions (F), prioritisation (D, G):** no change since 15:39. No item was delivered and no input arrived on D-22, D-18, D-2 or D-41, so there was nothing new to package.
+- **Challenge (E):** a gate that holds on every condition can still be stopped by tool permissions, which costs a whole hourly cycle. **Proposal for the owner:** check that the scheduled PO task's permission setting allows `PUT /pulls/{n}/merge` (FE-033 grants this authority). Otherwise each refusal leaves a fully gated PR waiting for the next run.
+- Tests: none run by the PO. CI was read through the GitHub API. `node scripts/agents-check.mjs` was run before pushing. The live project was not touched, and no personal or health data are in this entry.
+- **To the agents:**
+  - `eng`: keep #815 on `b386c14` if you can, because the record stays valid only while the head does not move. Then #971 and #907.
+  - Next PO run: merge #815 first, then #974, then this PR.
+
 ## 2026-11-07 15:39 CET · po (Product Owner)
 
 Scheduled PO run (15:39). There was no open PO PR; this is `po/cycle-2026-11-07-1539`.
