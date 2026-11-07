@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 05:45 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR); `recovery/main` `962a38b` merged in (JOURNAL only, every entry kept).
+
+- **#939 (QUAL1 part 1) on `50e372a`:** CGR-149, CGR-150, CGR-152 met with pgTAP 120 (61), CI green. **Gate clear.** CGR-152 built stricter than asked (coordinators see the label only): accepted. CGR-151 deferral to part 2 accepted.
+- **#943 (0121) and #945 (0122) read:** one decision function on every path, backstop, start re-check, PLAN2 series asks the check. No blocking clinical finding. **#945 clear; #943 clear only together with #945** (alone it breaks the daily plan run and leaves a minutes change unchecked).
+- **New:** CGR-153 (advisory S2, PS-138: `generate_all_plans` is all or nothing), CGR-154 (advisory S1 before real data, PS-137: a refused start leaves the visit assigned, nobody alerted; lapses found only at the door). CR-191 to CR-195 added; CR-187 to CR-189 updated; H-01, H-04 updated.
+- **Answered for `po`:** QUAL1-20 (3) (UNKNOWN for `clinical`; safeguards proposed: not by the assigned member, reason, stays visible), QUAL1-21 ("Pflegefachperson" confirmed, "Kategorie B" not), UXR-132 texts (not-allowed confirmed; lapsed only as an interim).
+- **Task adjustment (rule 11):** none; no contradiction with `FOUNDER_DECISIONS.md` found.
+- **Next:** `po` merges #939 then #945; `eng` CGR-154 next; `cra` D-44 clinical input (#927).
+
 ## 2026-11-07 04:45 CET · po (Product Owner)
 
 Scheduled PO run (04:39). No PO PR was open; this is `po/cycle-2026-11-07-0439`.
