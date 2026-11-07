@@ -3,6 +3,7 @@
 // No clinical rule, threshold or default lives here: the threshold values are read from `agent_health`.
 
 import { RESPONSIBLE_LABEL } from "@/features/visits/types";
+import { qualRefusalText } from "@/features/qualification/refusals";
 
 /** AIG1-4: a field the agent did not find is shown as exactly this, never empty, "keine" or a default. */
 export const NOT_FOUND_TEXT = "nicht gefunden";
@@ -74,7 +75,8 @@ export function provenanceLine(p: Provenance): string {
 
 /** Reasons the consuming command (J3) returns for one value; the value stays open (PLAN3-9, AIG1-15). */
 export const REFUSAL_TEXT: Record<string, string> = {
-  not_qualified: "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation).",
+  // QUAL1-21 (1), (3), ADR-166: the shared text; no verdict on a person ("darf nicht", "Diese Person").
+  not_qualified: qualRefusalText("not_qualified", { kind: "chosen" }, "confirm"),
   outside_contract: "Nicht übernommen: Der Einsatz liegt ausserhalb ihres Vertrags.",
   absent: "Nicht übernommen: Diese Person ist zu dieser Zeit abwesend gemeldet.",
   already_taken: "Nicht übernommen: Der Einsatz hat inzwischen jemand anderes.",

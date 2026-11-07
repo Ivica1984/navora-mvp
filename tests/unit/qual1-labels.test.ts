@@ -61,38 +61,48 @@ describe("QUAL1 result labels (CR-183)", () => {
   });
 });
 
-describe("QUAL1 reasons (brief S1-S8, matrix §7)", () => {
+describe("QUAL1 reasons (brief S1-S8, matrix §7; QUAL1-21 (4): the activity in words, no code)", () => {
+  const B3 = "Medikamente richten und verabreichen";
   it("S2: a self-confirmed grade reads Nachweis fehlt: Ausbildung", () => {
     expect(qualReason(row({ result: "evidence_missing", reason: "grade:self_confirmed" }))).toBe("Nachweis fehlt: Ausbildung");
     expect(qualReason(row({ result: "evidence_missing", reason: "grade:missing" }))).toBe("Nachweis fehlt: Ausbildung");
   });
 
-  it("S3a / S3b: missing and expired delegation name the activity and the date", () => {
-    expect(qualReason(row({ result: "delegation_missing", reason: "no_delegation" }))).toBe("Delegation fehlt (B3)");
+  it("S3a / S3b: missing and expired delegation name the activity in words and the date", () => {
+    expect(qualReason(row({ result: "delegation_missing", reason: "no_delegation", activity_label: B3 }))).toBe(`Delegation fehlt: ${B3}`);
     expect(
-      qualReason(row({ activity_code: "B7", result: "delegation_expired", reason: "delegation_ended", delegation_until: "2026-11-06" })),
-    ).toBe("Delegation B7 abgelaufen am 06.11.2026");
+      qualReason(
+        row({ activity_code: "B7", activity_label: "Wundversorgung", result: "delegation_expired", reason: "delegation_ended", delegation_until: "2026-11-06" }),
+      ),
+    ).toBe("Delegation abgelaufen am 06.11.2026: Wundversorgung");
   });
 
-  it("S4: an open cell names the question and PROPOSED", () => {
-    expect(qualReason(row({ activity_code: "B4I", result: "unresolved", reason: "cell:?:K-2" }))).toBe(
-      "Regel ungeklärt (B4I, PROPOSED ?, K-2)",
+  it("S4: an open cell reads as a provisional rule still open, without the code or the question number", () => {
+    expect(qualReason(row({ activity_code: "B4I", activity_label: "Insulin-Injektion", result: "unresolved", reason: "cell:?:K-2" }))).toBe(
+      "vorläufige Regel noch offen: Insulin-Injektion",
     );
-    expect(qualReason(row({ activity_code: "B13", result: "unresolved", reason: "cell:?" }))).toBe(
-      "Regel ungeklärt (B13, PROPOSED ?)",
+    expect(qualReason(row({ activity_code: "B13", activity_label: null, result: "unresolved", reason: "cell:?" }))).toBe(
+      "vorläufige Regel noch offen: eine Tätigkeit dieses Einsatzes",
     );
   });
 
   it("names the other refusals without any client datum", () => {
-    expect(qualReason(row({ result: "not_allowed", reason: "cell:-" }))).toBe("B3 nicht im Kompetenzbereich");
+    expect(qualReason(row({ result: "not_allowed", reason: "cell:-", activity_label: B3 }))).toBe(`nicht im Kompetenzbereich erfasst: ${B3}`);
     expect(qualReason(row({ result: "evidence_expired", reason: "grade:expired" }))).toBe("Voraussetzung abgelaufen: Ausbildung");
     expect(qualReason(row({ result: "evidence_expired", reason: "practice_licence:expired" }))).toBe(
       "Voraussetzung abgelaufen: Berufsausübungsbewilligung",
     );
     expect(qualReason(row({ result: "evidence_contradictory", reason: "grade:contradictory" }))).toBe("Nachweise widersprüchlich");
-    expect(qualReason(row({ result: "delegation_review_needed", reason: "delegator_or_supervisor_lapsed" }))).toBe(
-      "Delegation B3: Überprüfung nötig",
+    expect(qualReason(row({ result: "delegation_review_needed", reason: "delegator_or_supervisor_lapsed", activity_label: B3 }))).toBe(
+      `Delegation: Überprüfung nötig (${B3})`,
     );
+  });
+
+  it("without a label the code is never shown (fail closed to a neutral phrase)", () => {
+    for (const result of QUAL_RESULTS) {
+      const t = qualReason(row({ result, activity_code: "B4I", activity_label: undefined, reason: "cell:?:K-2" }));
+      expect(t).not.toMatch(/\b[A-C][0-9]+[A-Z]?\b|PROPOSED|K-\d|\?/);
+    }
   });
 
   it("S1: an allowed delegation says until when", () => {
@@ -105,10 +115,12 @@ describe("QUAL1 reasons (brief S1-S8, matrix §7)", () => {
   it("CGR-152: a colleague gets no reason code; the text stays generic and never reads suitable", () => {
     expect(qualReason(row({ result: "evidence_expired", reason: null }))).toBe("Voraussetzung abgelaufen");
     expect(qualReason(row({ result: "evidence_missing", reason: null }))).toBe("Nachweis fehlt");
-    expect(qualReason(row({ activity_code: "B4I", result: "unresolved", reason: null }))).toBe("Regel ungeklärt (B4I, PROPOSED ?)");
+    expect(qualReason(row({ activity_code: "B4I", activity_label: "Insulin-Injektion", result: "unresolved", reason: null }))).toBe(
+      "vorläufige Regel noch offen: Insulin-Injektion",
+    );
   });
 
-  it("QUAL1-14: the simulation banner says synthetic and PROPOSED", () => {
-    expect(SIMULATION_BANNER).toBe("Simulation · synthetische Daten · Regeln PROPOSED");
+  it("QUAL1-14, QUAL1-21 (4): the simulation banner says synthetic and the one provisional wording", () => {
+    expect(SIMULATION_BANNER).toBe("Simulation · synthetische Daten · Regel vorläufig, nicht fachlich freigegeben");
   });
 });

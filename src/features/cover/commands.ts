@@ -17,7 +17,7 @@ export async function acceptCover(input: unknown): Promise<CommandResult> {
   if (error) {
     logEvent("warn", "command.failed", { op: "accept_cover", ...errorFields(error) });
     // QUAL1-10 (0121): the backstop refused her as the covering member.
-    return { ok: false, error: qualificationRefusal(error) ?? COVER_MESSAGES.failed };
+    return { ok: false, error: qualificationRefusal(error, { subject: { kind: "self" }, context: "take" }) ?? COVER_MESSAGES.failed };
   }
   if (data === "ok" || data === "duplicate") {
     revalidatePath("/field");

@@ -7,7 +7,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
-import type { CommandResult } from "@/lib/commands/result";
+import { qualificationRefusal, type CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import { dayPlanRefusalText } from "./day-plan-labels";
 
@@ -57,6 +57,9 @@ export async function proposeDayPlan(input: unknown): Promise<ProposeResult> {
   });
   if (error) {
     logEvent("warn", "command.failed", { op: "propose_day_plan", ...errorFields(error) });
+    // QUAL1-21 (2), ADR-166: the QUAL1 refusal before the generic 42501 (the proposal writes no visit; defence in depth).
+    const qual = qualificationRefusal(error);
+    if (qual) return { ok: false, error: qual };
     if (error.code === "42501") return { ok: false, error: MESSAGES.rejected };
     return { ok: false, error: error.code === "22023" ? MESSAGES.invalid : MESSAGES.failed };
   }

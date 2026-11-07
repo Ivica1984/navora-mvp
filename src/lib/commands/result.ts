@@ -1,6 +1,8 @@
 // Shared result model for Server Action commands (T10).
 // Pure module — no "use server", so schemas and mappers can be unit-tested.
 
+import { qualRefusalText, type QualContext, type QualSubject } from "@/features/qualification/refusals";
+
 export type CommandResult = { ok: true } | { ok: false; error: string };
 
 /** Codes returned by the Postgres command functions (migration …0004; VIS1 adds the day outcomes, 0089). */
@@ -29,27 +31,30 @@ export const QUALIFICATION_MISSING_MESSAGE =
 /**
  * QUAL1-10 (migration 0121, ADR-164/-165): in a simulation organisation the database refuses a write that makes a member
  * responsible for or covering a visit for which the qualification check does not confirm every activity (42501
- * `qualification_not_allowed`). Wording PROPOSED (`uxa` UXR-132), `cra` to confirm. It names no activity code, no rule
- * state and no reason: the database detail may name the member's evidence (CGR-152) and is never shown.
+ * `qualification_not_allowed`). QUAL1-17: the check runs again at the start (42501 `qualification_lapsed`).
+ * QUAL1-21 (ADR-166): the texts come from the one function in `@/features/qualification/refusals`; wording PROPOSED
+ * (`uxa`), `cra` to confirm. They name no activity code, no rule state and no reason: the database detail may name the
+ * member's evidence (CGR-152) and is never shown.
  */
-export const QUALIFICATION_NOT_ALLOWED_MESSAGE =
-  "Nicht gespeichert: Für mindestens eine Tätigkeit dieses Einsatzes ist für die gewählte Person nicht alles erfasst, was die vorläufige Regel verlangt. Bitte eine andere Person wählen oder den Einsatz offen im Team lassen.";
-/**
- * QUAL1-17 (migration 0121, CR-183): the check runs again at the start; a lapsed evidence or delegation refuses it
- * (42501 `qualification_lapsed`). Nothing was written. Wording PROPOSED (`uxa` UXR-132, QUAL1-21 (3)), `cra` to confirm.
- */
-export const QUALIFICATION_LAPSED_MESSAGE =
-  "Nicht begonnen: Bei der Prüfung zum Start ist für mindestens eine Tätigkeit dieses Einsatzes für dich nicht mehr alles erfasst, was die vorläufige Regel verlangt (Nachweis oder Delegation). Der Einsatz bleibt geplant; bitte im Team klären, wer übernimmt.";
+export const QUALIFICATION_NOT_ALLOWED_MESSAGE = qualRefusalText("qualification_not_allowed", { kind: "chosen" }, "save");
+export const QUALIFICATION_LAPSED_MESSAGE = qualRefusalText("qualification_lapsed", { kind: "self" }, "start");
 
 type DbError = { code?: string; message?: string } | null;
 
 /**
  * The QUAL1 refusal text for a database error, or null when the error is something else. Only 42501 with the exact
  * message counts (another 42501 is RLS, ADM2-6 or an AI prohibition). Commands call it before their generic branch.
+ * `subject`/`context` default to an assignment write for "the chosen person"; take and cover pass `self`/`take`.
+ * The lapsed refusal is always her own start.
  */
-export function qualificationRefusal(error: { code?: string; message?: string } | null | undefined): string | null {
+export function qualificationRefusal(
+  error: { code?: string; message?: string } | null | undefined,
+  opts: { subject?: QualSubject; context?: QualContext } = {},
+): string | null {
   if (!error || error.code !== "42501") return null;
-  if (error.message === "qualification_not_allowed") return QUALIFICATION_NOT_ALLOWED_MESSAGE;
+  if (error.message === "qualification_not_allowed") {
+    return qualRefusalText("qualification_not_allowed", opts.subject ?? { kind: "chosen" }, opts.context ?? "save");
+  }
   if (error.message === "qualification_lapsed") return QUALIFICATION_LAPSED_MESSAGE;
   return null;
 }
