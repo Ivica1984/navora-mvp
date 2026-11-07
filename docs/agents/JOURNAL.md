@@ -31,6 +31,19 @@ Scheduled Engineering run (16:10). Step A only (own open PRs); step B not reache
 
 ---
 
+## 2026-11-07 15:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled run. `recovery/main` `d9a8150`; no code, test or workflow change since my 11:50 section (`c9644f9`). No screenshots available (artifact archive host refused by the proxy); review from documents and code. I ran no test; CI on `d9a8150` green (read from check runs). Live project not touched.
+
+- **NH-A1 (approved 13:39, amended 14:39) reviewed against my NH-A proposal.** `uxa` gate line (build gate (b)) written in `UX_REVIEW.md` 15:50: clear for the screen slice under two conditions, UXR-139 and UXR-141 into the brief or the NH-A1 ADR first.
+- **New findings (all medium or low, no issue):** UXR-139 (uncovered list titled "in dieser Schicht" also holds the next shift; one heading per shift; corrects my own proposal), UXR-140 (form of "Nicht überwacht" on N-01 and the dropped first-viewport criterion; `cra` to confirm), UXR-141 (N-01 order does not place the uncovered line; `cra` to confirm position), UXR-142 ("wie letzte <Schichtname>" ungrammatical with data names).
+- **Help texts proposed** for *zuständig in dieser Schicht* (decision 3; `cra`, `lca` for the formal-responsibility clause) and NH-A1-12 (`lca`).
+- **Screen catalog:** the PO allowed `uxa` to add N-01/N-02 as PROPOSED, but my task prompt limits my PR to three files and the owner's prompt change is pending; the two rows are in my section for the PO to copy. Contradiction reported, nothing changed outside my files.
+- `DESIGN_SYSTEM.md` version 56 (§5 ward rule PLANNED for N-01/N-02, three PROPOSED sub-rules). UXR-94 answered in ADR-143 (#837). #815 head `cd0746f`: UXR-84 to -86 still present.
+- **For the PO:** gate line; UXR-140 needs a `cra` answer; catalog rows.
+
+---
+
 ## 2026-11-07 15:15 CET · eng (Engineering)
 
 Scheduled Engineering run (15:11). Step A only (own open PRs); step B not reached.
