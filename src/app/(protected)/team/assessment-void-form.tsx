@@ -11,6 +11,7 @@ import ConfirmStep from "@/app/(protected)/admin/confirm-step";
 import { voidAssessment } from "@/features/assessment/commands";
 import { VOID_CONFIRM_SENTENCE, VOID_SUBMIT_LABEL, type VoidChoice } from "@/features/assessment/rules";
 import VoidReasonForm from "./assessment-void-fields";
+import { ErrorText } from "./error-text";
 
 export default function AssessmentVoidForm({ recordId, onClose }: { recordId: string; onClose: () => void }) {
   const router = useRouter();
@@ -63,11 +64,8 @@ export default function AssessmentVoidForm({ recordId, onClose }: { recordId: st
           onCancel={onClose}
         />
       )}
-      {error && (
-        <p role="alert" data-testid="assessment-void-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 text-xs font-semibold text-rose-800">
-          {error}
-        </p>
-      )}
+      {/* UX2-30 (3) (UXR-58): the /team screen's one error line, merged in from recovery/main. */}
+      <ErrorText message={error} testId="assessment-void-error" />
     </div>
   );
 }

@@ -85,6 +85,8 @@ select is(
   'private.begin_command(p_command text, p_key uuid):true, '
   'private.case_order_as_of(p_case_id uuid, p_at timestamp with time zone):true, '
   'private.handover_entries(p_visit uuid, p_user uuid):true, private.last_primary_nurse(p_case uuid):true, '
+  'private.plan3_stop_lines(p_stop_id uuid):true, '
+  'private.plan3_visit_open_at(p_visit_id uuid, p_at timestamp with time zone):true, '
   'public.pilot_hypotheses(p_month date):true, '
   'public.read_audit_record(p_entity_type text, p_entity_id uuid, p_purpose text):true',
   'AUD1-1: the readers of audit_events are exactly the listed SECURITY DEFINER functions');

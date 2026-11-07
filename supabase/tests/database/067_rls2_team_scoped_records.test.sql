@@ -8,7 +8,21 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(129);
+select plan(130);
+
+-- CGR-110 remainder (#919, ADR-162; first part ADR-137 in 062): this file owns the SIG1 evaluation of org A, the only
+-- organisation it evaluates. evaluate_signals takes pg_try_advisory_xact_lock('navora.sig1', org) and returns 0 when
+-- another session holds it (0060: "skip instead of waiting"); the local stack's pg_cron job `navora-sig1-signals`
+-- (every minute, evaluate_all_signals) holds each organisation's lock until its run ends and cannot see this file's
+-- uncommitted fixtures. An evaluation that met such a run wrote nothing (080 tests 6-9 read "no delivery rows" on
+-- `f5f5e09`, #919). Taking the lock here (waiting, never skipping) makes every evaluation in this file run; the
+-- scheduler skips org A until the rollback. No assertion is changed, skipped, loosened or retried.
+select pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext('00000000-0000-4000-b000-000000000011'));
+select is((select count(*)::int from pg_locks
+           where locktype = 'advisory' and pid = pg_backend_pid() and granted and objsubid = 2
+             and classid::text::bigint = (hashtext('navora.sig1')::bigint & 4294967295)
+             and objid::text::bigint = (hashtext('00000000-0000-4000-b000-000000000011')::bigint & 4294967295)),
+  1, 'CGR-110: this file holds the SIG1 evaluation lock of org A, so no concurrent evaluator takes it');
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'rn' then '00000000-0000-4000-a000-000000000902' when 'ca' then '00000000-0000-4000-a000-000000000906'
@@ -337,14 +351,15 @@ select is((select string_agg(c.relname, ',' order by c.relname) from pg_class c 
                          and a.attname in ('case_id', 'visit_id', 'client_id'))),
   -- ASM1 (0100, ADR-123): assessment_records, read by the case's assigned team only (READ_PATHS.md)
   'assessment_records,billable_facts,care_notes,care_plan_items,care_visits,case_gp_notices,case_lifecycle_events,case_tasks,cover_events,matching_requests,'
-  'quality_events,quality_holds,safety_signals,signal_deliveries,team_decisions,visit_events,visit_observations,visit_plan_changes,'
+  -- QUAL1 (0120, ADR-163): qual_delegations (team of the delegation), visit_activities (team of the visit) (READ_PATHS.md)
+  'qual_delegations,quality_events,quality_holds,safety_signals,signal_deliveries,team_decisions,visit_activities,visit_events,visit_observations,visit_plan_changes,'
   'visit_report_returns,visit_reports,visit_status_notes,visit_time_corrections,working_time_facts',
   'RLS2-1: the tables with a case, visit or client column readable by authenticated are exactly the ones in READ_PATHS.md');
 select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace,
                   unnest(p.proargnames, p.proargmodes) a(nm, md)
            where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
              and md in ('t', 'o') and nm in ('case_id', 'visit_id', 'client_id')),
-  'case_funding_facts,continuity_by_case,cover_offers,field_countersign_queue,field_door_notes,field_notes,field_quality,field_reports,'
+  'case_funding_facts,continuity_by_case,cover_offers,day_plan,field_countersign_queue,field_door_notes,field_notes,field_quality,field_reports,'
   'field_returned_reports,field_safety_alert_history,field_safety_alerts,field_since_last,field_visit_status_notes,field_visits,final_report_visits,intake_cases,linkable_cases,'
   'my_covers,my_signals,operations_exceptions,ops_case_lifecycle,team_case_assessments,team_case_lifecycle,team_cases,team_open_visits,team_plan_status,'
   'team_visit_alerts,uncovered_visits,visits_outside_watched_hours',

@@ -841,6 +841,76 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"day_plan_line_closures": {
+                  Row: {
+                    "closed_at": string,"closed_by_proposal_id": string,"id": string,"organization_id": string,"plan_date": string,"suggestion_id": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "closed_at"?: string,"closed_by_proposal_id": string,"id"?: string,"organization_id": string,"plan_date": string,"suggestion_id": string,"team_id": string
+                  }
+                  Update: {
+                    "closed_at"?: string,"closed_by_proposal_id"?: string,"id"?: string,"organization_id"?: string,"plan_date"?: string,"suggestion_id"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "day_plan_line_closures_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_line_closures_suggestion_id_fkey"
+      columns: ["suggestion_id"]
+isOneToOne: true
+      referencedRelation: "ai_suggestions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_line_closures_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"day_plan_lines": {
+                  Row: {
+                    "assigned_before": string | null,"created_at": string,"include_assigned": boolean,"known_visits": number | null,"not_found_reason": string | null,"organization_id": string,"plan_date": string,"proposal_id": string,"reason": string | null,"suggestion_id": string,"team_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assigned_before"?: string | null,"created_at"?: string,"include_assigned": boolean,"known_visits"?: number | null,"not_found_reason"?: string | null,"organization_id": string,"plan_date": string,"proposal_id": string,"reason"?: string | null,"suggestion_id": string,"team_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "assigned_before"?: string | null,"created_at"?: string,"include_assigned"?: boolean,"known_visits"?: number | null,"not_found_reason"?: string | null,"organization_id"?: string,"plan_date"?: string,"proposal_id"?: string,"reason"?: string | null,"suggestion_id"?: string,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "day_plan_lines_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_lines_suggestion_id_fkey"
+      columns: ["suggestion_id"]
+isOneToOne: true
+      referencedRelation: "ai_suggestions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_lines_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_lines_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"exception_events": {
                   Row: {
                     "access_seq": number | null,"actor_id": string | null,"created_at": string,"exception_key": string,"id": number,"idempotency_key": string | null,"kind": string,"organization_id": string,"text": string | null
@@ -1159,6 +1229,26 @@ isOneToOne: true
       referencedColumns: ["organization_id","user_id"]
     }
                   ]
+                },"member_qualification_evidence": {
+                  Row: {
+                    "created_at": string,"grade": string | null,"id": string,"organization_id": string,"recorded_by": string | null,"requirement": string,"seq": number,"state": string,"synthetic": boolean,"user_id": string,"valid_until": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"grade"?: string | null,"id"?: string,"organization_id": string,"recorded_by"?: string | null,"requirement": string,"seq"?: never,"state": string,"synthetic"?: boolean,"user_id": string,"valid_until"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"grade"?: string | null,"id"?: string,"organization_id"?: string,"recorded_by"?: string | null,"requirement"?: string,"seq"?: never,"state"?: string,"synthetic"?: boolean,"user_id"?: string,"valid_until"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "member_qualification_evidence_organization_id_user_id_fkey"
+      columns: ["organization_id","user_id"]
+isOneToOne: false
+      referencedRelation: "organization_memberships"
+      referencedColumns: ["organization_id","user_id"]
+    }
+                  ]
                 },"organization_memberships": {
                   Row: {
                     "created_at": string,"organization_id": string,"role": string,"user_id": string
@@ -1221,14 +1311,14 @@ isOneToOne: false
                   ]
                 },"organizations": {
                   Row: {
-                    "created_at": string,"id": string,"name": string
+                    "created_at": string,"id": string,"name": string,"simulation": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string
+                    "created_at"?: string,"id"?: string,"name": string,"simulation"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string
+                    "created_at"?: string,"id"?: string,"name"?: string,"simulation"?: boolean
                   }
                   Relationships: [
                     
@@ -1321,6 +1411,136 @@ isOneToOne: false
                   }
                   Update: {
                     "country"?: string,"dpf_read_on"?: string | null,"dpf_swiss_status"?: string | null,"hosts_exact"?: (string)[],"hosts_suffix"?: (string)[],"legal_entity"?: string,"vendor"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"qual_activities": {
+                  Row: {
+                    "code": string,"klv": string | null,"label_de": string,"parent": string | null,"sort": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"klv"?: string | null,"label_de": string,"parent"?: string | null,"sort": number
+                  }
+                  Update: {
+                    "code"?: string,"klv"?: string | null,"label_de"?: string,"parent"?: string | null,"sort"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_activities_parent_fkey"
+      columns: ["parent"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    }
+                  ]
+                },"qual_delegation_revocations": {
+                  Row: {
+                    "created_at": string,"delegation_id": string,"id": string,"organization_id": string,"revoked_by": string,"seq": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"delegation_id": string,"id"?: string,"organization_id": string,"revoked_by": string,"seq"?: never
+                  }
+                  Update: {
+                    "created_at"?: string,"delegation_id"?: string,"id"?: string,"organization_id"?: string,"revoked_by"?: string,"seq"?: never
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_delegation_revocations_delegation_id_fkey"
+      columns: ["delegation_id"]
+isOneToOne: true
+      referencedRelation: "qual_delegations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qual_delegation_revocations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"qual_delegations": {
+                  Row: {
+                    "activity_code": string,"case_id": string,"conditions": string | null,"created_at": string,"delegate_id": string,"delegator_id": string,"id": string,"instructed_on": string,"matrix_version": string,"organization_id": string,"seq": number,"supervisor_id": string,"team_id": string,"valid_from": string,"valid_until": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_code": string,"case_id": string,"conditions"?: string | null,"created_at"?: string,"delegate_id": string,"delegator_id": string,"id"?: string,"instructed_on": string,"matrix_version": string,"organization_id": string,"seq"?: never,"supervisor_id": string,"team_id": string,"valid_from": string,"valid_until": string
+                  }
+                  Update: {
+                    "activity_code"?: string,"case_id"?: string,"conditions"?: string | null,"created_at"?: string,"delegate_id"?: string,"delegator_id"?: string,"id"?: string,"instructed_on"?: string,"matrix_version"?: string,"organization_id"?: string,"seq"?: never,"supervisor_id"?: string,"team_id"?: string,"valid_from"?: string,"valid_until"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_delegations_activity_code_fkey"
+      columns: ["activity_code"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "qual_delegations_case_id_fkey"
+      columns: ["case_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qual_delegations_matrix_version_fkey"
+      columns: ["matrix_version"]
+isOneToOne: false
+      referencedRelation: "qual_matrix_versions"
+      referencedColumns: ["version"]
+    },{
+      foreignKeyName: "qual_delegations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qual_delegations_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"qual_matrix_cells": {
+                  Row: {
+                    "activity_code": string,"grade": string,"open_question": string | null,"requires": (string)[],"source": string,"status": string,"value": string,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_code": string,"grade": string,"open_question"?: string | null,"requires"?: (string)[],"source": string,"status": string,"value": string,"version": string
+                  }
+                  Update: {
+                    "activity_code"?: string,"grade"?: string,"open_question"?: string | null,"requires"?: (string)[],"source"?: string,"status"?: string,"value"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "qual_matrix_cells_activity_code_fkey"
+      columns: ["activity_code"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "qual_matrix_cells_version_fkey"
+      columns: ["version"]
+isOneToOne: false
+      referencedRelation: "qual_matrix_versions"
+      referencedColumns: ["version"]
+    }
+                  ]
+                },"qual_matrix_versions": {
+                  Row: {
+                    "created_at": string,"source": string,"status": string,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"source": string,"status": string,"version": string
+                  }
+                  Update: {
+                    "created_at"?: string,"source"?: string,"status"?: string,"version"?: string
                   }
                   Relationships: [
                     
@@ -1761,6 +1981,32 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"team_day_proposal_settings": {
+                  Row: {
+                    "enabled": boolean,"id": string,"organization_id": string,"switched_on_at": string | null,"team_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "enabled"?: boolean,"id"?: string,"organization_id": string,"switched_on_at"?: string | null,"team_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "enabled"?: boolean,"id"?: string,"organization_id"?: string,"switched_on_at"?: string | null,"team_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_day_proposal_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_day_proposal_settings_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: true
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"team_decisions": {
                   Row: {
                     "actor_id": string,"case_id": string | null,"decided_at": string,"decision": string,"id": string,"idempotency_key": string,"matching_request_id": string,"organization_id": string,"reason": string | null,"reason_code": string | null,"team_id": string
@@ -1830,6 +2076,38 @@ isOneToOne: false
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"visit_activities": {
+                  Row: {
+                    "activity_code": string,"created_at": string,"id": string,"organization_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_code": string,"created_at"?: string,"id"?: string,"organization_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "activity_code"?: string,"created_at"?: string,"id"?: string,"organization_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_activities_activity_code_fkey"
+      columns: ["activity_code"]
+isOneToOne: false
+      referencedRelation: "qual_activities"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "visit_activities_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_activities_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
       referencedColumns: ["id"]
     }
                   ]
@@ -2229,12 +2507,17 @@ isOneToOne: false
                            },
 "agent_health":
 { Args: { "p_organization_id": string }; Returns: {
-              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_min_reached": boolean,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_min_proposals": number,"stop_reason": string,"stop_share": number,"stop_window_days": number,"stopped_at": string,"version": string
+              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_expired": number,"last_window_min_reached": boolean,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_min_proposals": number,"stop_reason": string,"stop_share": number,"stop_window_days": number,"stopped_at": string,"stops": Json,"version": string
             }[]
                            },
 "agent_stop_lookback":
 { Args: { "p_stop_id": string }; Returns: {
               "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"not_open": boolean,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
+            }[]
+                           },
+"agent_stop_measures":
+{ Args: { "p_stop_id": string }; Returns: {
+              "became_not_open": number,"days_to_zero_open": number,"lead_time_median_hours": number,"left_by_recheck": number,"lines_at_stop": number,"not_open_at_stop": number,"open_now": number,"proposals_in_window": number,"superseded": number,"team_id": string,"team_name": string
             }[]
                            },
 "assign_team_coach":
@@ -2270,6 +2553,9 @@ isOneToOne: false
                            },
 "confirm_assessment":
 { Args: { "p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
+"confirm_my_qualification":
+{ Args: { "p_grade": string,"p_idempotency_key": string,"p_organization_id": string,"p_requirement": string }; Returns: Json
                            },
 "confirm_suggestion":
 { Args: { "p_idempotency_key": string,"p_outcome": string,"p_suggestion_id": string,"p_value": Json }; Returns: Json
@@ -2310,6 +2596,16 @@ isOneToOne: false
                            },
 "create_team":
 { Args: { "p_idempotency_key": string,"p_name": string,"p_organization_id": string,"p_region": string }; Returns: string
+                           },
+"day_plan":
+{ Args: { "p_date": string,"p_team_id": string }; Returns: {
+              "bulk_allowed": boolean,"case_id": string,"changes_assignment": boolean,"decision": string,"is_needs_assessment": boolean,"known_visits": number,"member_id": string,"member_name": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_continuity": boolean,"not_found_reason": string,"proposal_id": string,"proposed_at": string,"reason": string,"suggestion_id": string,"time_end": string,"time_start": string,"visit_has_responsible": boolean,"visit_id": string
+            }[]
+                           },
+"day_plan_load":
+{ Args: { "p_date": string,"p_team_id": string }; Returns: {
+              "member_id": string,"member_name": string,"minutes_now": number,"minutes_with_proposal": number,"other_team_visits": boolean
+            }[]
                            },
 "deactivate_team":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string }; Returns: string
@@ -2430,8 +2726,11 @@ isOneToOne: false
               "kind": string,"team_name": string,"visit_date": string
             }[]
                            },
+"member_slot_overlap":
+{ Args: { "p_case_id": string,"p_member_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: boolean
+                           },
 "move_visit_to_today":
-{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
                            },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -2467,6 +2766,11 @@ isOneToOne: false
                            },
 "my_working_time_notice":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"open_day_plan_lines":
+{ Args: { "p_team_id": string }; Returns: {
+              "plan_date": string,"suggestion_id": string
+            }[]
                            },
 "open_suggestions":
 { Args: { "p_team_id": string }; Returns: {
@@ -2504,14 +2808,27 @@ isOneToOne: false
               "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number
             }[]
                            },
+"pilot_step_spans":
+{ Args: { "p_month": string }; Returns: {
+              "base": number,"measure": string,"note": string,"organization_id": string,"suppressed": boolean,"team_id": string,"team_name": string,"too_few": boolean,"value": number
+            }[]
+                           },
 "plan_from_care_plan":
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "plan_visit":
-{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+                           },
+"plan3_team_measures":
+{ Args: { "p_month": string }; Returns: {
+              "confirm_actions_per_plan": number,"confirmed_unchanged_share": number,"continuity_after_base": number,"continuity_after_share": number,"continuity_before_base": number,"continuity_before_share": number,"continuity_suppressed": boolean,"corrected_share": number,"day_plans": number,"decided_lines": number,"enabled_since": string,"lines": number,"lines_closed": number,"minutes_to_last_decision_median": number,"month": string,"no_proposal": number,"no_proposal_absent": number,"no_proposal_needs_rn": number,"no_proposal_not_active": number,"no_proposal_overlap": number,"no_proposal_share": number,"proposal_suppressed": boolean,"rejected_share": number,"requests_closing": number,"team_id": string,"team_name": string
+            }[]
                            },
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
+                           },
+"propose_day_plan":
+{ Args: { "p_date": string,"p_idempotency_key": string,"p_include_assigned": boolean,"p_team_id": string }; Returns: Json
                            },
 "propose_team_candidate":
 { Args: { "p_claimed_qualification": string,"p_display_name": string,"p_idempotency_key": string,"p_pensum_band": string,"p_team_id": string }; Returns: Json
@@ -2537,6 +2854,9 @@ isOneToOne: false
                            },
 "record_assessment":
 { Args: { "p_assessment_date": string,"p_assessor_id": string,"p_case_id": string,"p_document_ref": string,"p_idempotency_key": string,"p_instrument_id": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_period_a": string,"p_period_b": string,"p_period_c": string,"p_reason": string,"p_supersedes_id": string }; Returns: Json
+                           },
+"record_delegation":
+{ Args: { "p_activity_code": string,"p_case_id": string,"p_conditions": string,"p_delegate_id": string,"p_idempotency_key": string,"p_instructed_on": string,"p_supervisor_id": string,"p_team_id": string,"p_valid_from": string,"p_valid_until": string }; Returns: Json
                            },
 "record_gp_informed":
 { Args: { "p_case_id": string,"p_channel": string,"p_idempotency_key": string,"p_informed_on": string }; Returns: Json
@@ -2594,7 +2914,7 @@ isOneToOne: false
             }[]
                            },
 "reschedule_visit":
-{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
@@ -2616,6 +2936,9 @@ isOneToOne: false
                            },
 "review_care_plan_against_assessment":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
+"revoke_delegation":
+{ Args: { "p_delegation_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
@@ -2662,6 +2985,9 @@ isOneToOne: false
 "set_team_admission":
 { Args: { "p_enabled": boolean,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
                            },
+"set_team_day_proposal":
+{ Args: { "p_idempotency_key": string,"p_on": boolean,"p_team_id": string }; Returns: string
+                           },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
                            },
@@ -2686,7 +3012,7 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: number
                            },
 "take_open_visit":
-{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_visit_id": string }; Returns: Json
                            },
 "take_signal":
 { Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
@@ -2712,6 +3038,16 @@ isOneToOne: false
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
               "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"proposed_primary_nurse_id": string,"region": string,"return_referrer_requested_start": string,"return_urgency_source": string,"review_after_pause_reason": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
+            }[]
+                           },
+"team_day_proposal_state":
+{ Args: { "p_team_id": string }; Returns: {
+              "agent_state": string,"enabled_since": string,"team_enabled": boolean
+            }[]
+                           },
+"team_lookback_stops":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "agent_name": string,"not_open_count": number,"open_count": number,"stop_id": string,"stopped_at": string,"team_id": string,"team_name": string
             }[]
                            },
 "team_offers":
@@ -2776,6 +3112,11 @@ isOneToOne: false
                            },
 "visit_move_leaves_other_visit":
 { Args: { "p_visit_id": string }; Returns: boolean
+                           },
+"visit_qualification_check":
+{ Args: { "p_user_id": string,"p_visit_id": string }; Returns: {
+              "activity_code": string,"delegation_until": string,"label": string,"matrix_version": string,"reason": string,"result": string,"rule_status": string
+            }[]
                            },
 "visits_outside_watched_hours":
 { Args: { "p_own_teams"?: boolean }; Returns: {

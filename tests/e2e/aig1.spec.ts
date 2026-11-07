@@ -11,6 +11,10 @@ import { expect, test, type Page } from "@playwright/test";
 //   ("Einsatz nicht mehr offen", counted apart), …5b2 is open with a valid member, …5b3 (category B minutes) holds a
 //   member recorded as care assistant after the stop.
 // - teamf.test (Testorganisation F, registered nurse of Testteam F): re-checks look-back values on the record page at 390 px.
+//   AIG1-C4 (ADR-139, migration 0105): an undecided proposal of the stop window for …5b7, dated two days ago, has expired:
+//   not on /team/vorschlaege, counted as "Abgelaufen ohne Entscheid: 1" on the health list. CGR-106: "Ändern" on …5b3.
+// - opsg.test (Testorganisation G, operations): AIG1-C5: the agent stopped with one open line and was switched off; the
+//   OPS1 exception and the look-back link stay.
 // The confirm screen runs at 390 px, the health and look-back lists at desktop width (AIG1-10, AIG1-12 to AIG1-16).
 const PASSWORD = "navora-local-only";
 const AGENT = "Testassistent Bezugspflege";
@@ -20,6 +24,7 @@ const STOP_F = "00000000-0000-4000-a000-0000000006f1";
 const VISIT_F_PAST = "00000000-0000-4000-a000-0000000005b1";
 const VISIT_F_OPEN = "00000000-0000-4000-a000-0000000005b2";
 const VISIT_F_UNQUALIFIED = "00000000-0000-4000-a000-0000000005b3";
+const STOP_G = "00000000-0000-4000-a000-0000000006f2";
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login");
@@ -48,7 +53,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // AIG1-4: the agent found no value; the screen says so, never an empty value, and offers no tick and no plain confirm.
     const notFound = lines.filter({ hasText: "15:00" });
-    await expect(notFound.getByTestId("suggestion-value")).toHaveText("Zuständig: nicht gefunden");
+    await expect(notFound.getByTestId("suggestion-value")).toHaveText("Verantwortlich: nicht gefunden");
     await expect(notFound.getByTestId("suggestion-agent")).toHaveText(`vorgeschlagen von ${AGENT}`);
     await expect(notFound.getByTestId("suggestion-tick")).toHaveCount(0);
     await expect(notFound.getByRole("button", { name: "Bestätigen", exact: true })).toHaveCount(0);
@@ -57,7 +62,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // AIG1-3: one proposed value, "vorgeschlagen von", changed to another member; the changed value is hers.
     const change = lines.filter({ hasText: "13:00" });
-    await expect(change.getByTestId("suggestion-value")).toHaveText("Zuständig: Pflegekraft Bezug E");
+    await expect(change.getByTestId("suggestion-value")).toHaveText("Verantwortlich: Pflegekraft Bezug E");
     await expect(change.getByTestId("suggestion-agent")).toHaveText(`vorgeschlagen von ${AGENT}`);
     await expect(change.getByRole("button", { name: "Bestätigen", exact: true })).toBeVisible();
     await change.getByRole("button", { name: "Ändern" }).click();
@@ -67,7 +72,8 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // The record shows the value and "vorgeschlagen von <Agent> / … bestätigt von <Name> am <Datum>" for this one value.
     await page.goto(`/visits/${VISIT_E_1300}`);
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Team E");
+    // PLAN3-17 (2) (ADR-159): the responsible line uses the picker label, so the caller's own name ends "(du)".
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Team E (du)");
     await expect(page.getByTestId("value-provenance")).toHaveText(
       `vorgeschlagen von ${AGENT} / geändert und bestätigt von Pflegekraft Team E am ${zurichToday()}`,
     );
@@ -126,7 +132,8 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
     await expect(lines).toHaveCount(1);
     const refused = lines.filter({ hasText: "14:00" });
     await expect(refused.getByTestId("suggestion-refusal")).toHaveText(
-      "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation).",
+      // QUAL1-21 (1), (3), ADR-166: the shared text, no verdict on a person.
+      "Nicht übernommen: Für die gewählte Person ist nicht erfasst, was dieser Einsatz verlangt (Teammitgliedschaft oder Qualifikation).",
     );
   });
 });
@@ -141,13 +148,24 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     await page.goto("/operations/assistenten");
     const row = page.getByTestId("agent-health-row").filter({ hasText: AGENT });
     await expect(row).toHaveCount(1);
-    await expect(row.getByTestId("agent-state")).toHaveText("gestoppt");
+    // AIG1-C5 (c): the state is a status with its date.
+    await expect(row.getByTestId("agent-state")).toHaveText(/^Gestoppt seit \d{2}\.\d{2}\.\d{4}$/);
     await expect(row.getByTestId("agent-stop-share")).toHaveText("20 %");
     await expect(row.getByTestId("agent-stop-min")).toHaveText("5");
     await expect(row.getByTestId("agent-stop-window")).toHaveText("7 Tage");
     await expect(row.getByTestId("agent-min-reached")).toHaveText("Mindestzahl im letzten Fenster erreicht: ja");
     await expect(row.getByTestId("agent-last-share")).toContainText(/33[.,]33 %/);
     await expect(row.getByTestId("agent-stop-reason")).toContainText("Schwelle");
+    // AIG1-C4 (3): the expired proposal is counted apart, next to the decided count.
+    await expect(row.getByTestId("agent-expired")).toHaveText("Abgelaufen ohne Entscheid: 1");
+    // AIG1-C5 (b): the stop with open lines names its counts and links its look-back list.
+    const stop = row.getByTestId("agent-stop-open");
+    await expect(stop).toHaveCount(1);
+    await expect(stop.getByTestId("agent-stop-counts")).toContainText("Werte: 2 offen · 1 nicht mehr offen");
+    await expect(stop.getByRole("link", { name: "Betroffene Werte ansehen" })).toHaveAttribute(
+      "href",
+      `/operations/assistenten/rueckblick/${STOP_F}`,
+    );
     // No person column.
     await expect(page.getByRole("table", { name: "Assistenten" })).not.toContainText(CONFIRMER_F);
   });
@@ -164,6 +182,27 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     const lines = list.getByTestId("lookback-line");
     await expect(lines).toHaveCount(4);
     await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 2 offen · 1 nicht mehr offen");
+    // PLAN3-13 (ADR-150): the measure per team after the list (uxa UXR-115), counts only (pgTAP 113 owns every count).
+    const measure = page.getByTestId("stop-measure-row");
+    await expect(measure).toHaveCount(1);
+    await expect(measure.getByRole("rowheader")).toHaveText("Testteam F");
+    await expect(measure.getByTestId("stop-measure-lines_at_stop")).toHaveText("4");
+    await expect(measure.getByTestId("stop-measure-superseded")).toHaveText("1");
+    await expect(measure.getByTestId("stop-measure-not_open_at_stop")).toHaveText("0");
+    await expect(measure.getByTestId("stop-measure-became_not_open")).toHaveText("1");
+    await expect(measure.getByTestId("stop-measure-days_to_zero_open")).toHaveText(/^noch \d offen$/);
+    // UXR-115: the lines that need re-checking come first; at 390 px one card per team and no sideways scroll.
+    const firstLine = await lines.first().boundingBox();
+    const figures = await page.getByTestId("stop-measures").boundingBox();
+    expect(firstLine && figures && firstLine.y < figures.y).toBe(true);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(measure).toBeHidden();
+    const card = page.getByTestId("stop-measure-card");
+    await expect(card).toHaveCount(1);
+    await expect(card.getByTestId("stop-measure-card-lines_at_stop")).toHaveText("4");
+    await expect(card.getByTestId("stop-measure-card-days_to_zero_open")).toHaveText(/^noch \d offen$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await page.setViewportSize({ width: 1280, height: 900 });
     // AIG1-14: no confirmer's name, no "bestätigt von", no outcome, no person filter or sort.
     await expect(list).not.toContainText(CONFIRMER_F);
     await expect(list).not.toContainText("bestätigt von");
@@ -199,10 +238,80 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
   });
 });
 
+// PLAN3-7 (ADR-151): Operations opens the day-plan team measures from the health list. Testorganisation F has no
+// day-plan line (only the synthetic test agent), so the page shows its empty state or a row without any day plan; pgTAP
+// 114 owns every value. Never a person's name.
+test.describe("PLAN3-7: Tagesvorschlag in Zahlen at desktop width (Testorganisation F)", () => {
+  test("the page is reached from the health list, per team only, without a person", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await signIn(page, "opsf.test@navora.test");
+    await page.goto("/operations/assistenten");
+    await page.getByTestId("plan-team-measures-link").click();
+    await page.waitForURL(/\/operations\/assistenten\/tagesvorschlag$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Tagesvorschlag in Zahlen");
+    const section = page.getByTestId("plan-team-measures");
+    await expect(section).toBeVisible();
+    await expect(page.getByTestId("plan-team-measures-error")).toHaveCount(0);
+    const rows = page.getByTestId("plan-team-measure-row");
+    if ((await rows.count()) === 0) {
+      await expect(page.getByTestId("plan-team-measures-empty")).toBeVisible();
+    } else {
+      await expect(rows.first().getByTestId("plan-team-measure-day_plans")).toHaveText(/^0 · 0 Zeilen$/);
+    }
+    await expect(page.locator("main")).not.toContainText(CONFIRMER_F);
+    await expect(page.locator("main")).not.toContainText("bestätigt von");
+    // ?monat=YYYY-MM selects a month.
+    await page.goto("/operations/assistenten/tagesvorschlag?monat=2026-01");
+    await expect(page.getByRole("main")).toContainText("(2026-01)");
+  });
+});
+
+// PLAN3-11 (ADR-149, migration 0111): after a stop, the team finds its own look-back lines on `/team`. Runs before the
+// AIG1-C1 / AIG1-C2 block below (one worker, file order): that block, with #814's CGR-106 "Ändern" test, decides every
+// open line of stop F, and at "0 offen" `/team` shows no entry (AIG1-C5 (d)). Here the seeded count reads 2 (1 if the
+// health and look-back tests above ever decide a line). This block only reads.
+test.describe.serial("PLAN3-11: the team finds its own look-back lines on /team at 390 px (Testorganisation F)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "teamf.test@navora.test");
+  });
+
+  test("/team shows the stop with both counts and one link; the list names no person and a line opens its record with 'Erneut bestätigen'", async ({ page }) => {
+    await page.goto("/team");
+    const entry = page.getByTestId("team-lookback-entry");
+    await expect(entry).toHaveCount(1);
+    await expect(entry).toContainText(new RegExp(`${AGENT} gestoppt · Werte: [12] offen · 1 nicht mehr offen`));
+    await entry.getByRole("link", { name: "Werte prüfen" }).click();
+    await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
+
+    const list = page.getByRole("list", { name: "Betroffene Werte" });
+    await expect(list.getByTestId("lookback-line").first()).toBeVisible();
+    // AIG1-14: no confirmer's name, no "bestätigt von" on the list.
+    await expect(page.getByText(CONFIRMER_F)).toHaveCount(0);
+    await expect(page.getByText(/bestätigt von/)).toHaveCount(0);
+    // No horizontal scroll at 390 px.
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    // AIG1-C2: the line opens its record, which offers the team's action and links back to this list.
+    await page.locator(`a[href^="/visits/${VISIT_F_UNQUALIFIED}?von=team-rueckblick"]`).click();
+    await page.waitForURL(new RegExp(`/visits/${VISIT_F_UNQUALIFIED}\\?`));
+    await expect(page.getByTestId("record-lookback").getByRole("button", { name: "Erneut bestätigen" })).toBeVisible();
+    await expect(page.getByTestId("record-back")).toHaveText("Zurück zur Liste");
+    await page.getByTestId("record-back").click();
+    await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
+  });
+});
+
 test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on the record page at 390 px (Testorganisation F)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, "teamf.test@navora.test");
+  });
+
+  test("an undecided proposal whose visit passed is not listed (AIG1-C4 (1))", async ({ page }) => {
+    await page.goto("/team/vorschlaege");
+    await expect(page.getByTestId("suggestions-empty")).toBeVisible();
+    await expect(page.getByTestId("suggestion")).toHaveCount(0);
   });
 
   test("'Erneut bestätigen' on a line of an open visit: the line leaves the open count (AIG1-C2 (a))", async ({ page }) => {
@@ -240,7 +349,8 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     const section = page.getByTestId("record-lookback");
     await section.getByRole("button", { name: "Erneut bestätigen" }).click();
     await expect(section.getByTestId("command-error")).toHaveText(
-      "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation).",
+      // QUAL1-21 (1), (3), ADR-166: the shared text, no verdict on a person.
+      "Nicht übernommen: Für die gewählte Person ist nicht erfasst, was dieser Einsatz verlangt (Teammitgliedschaft oder Qualifikation).",
     );
     await expect(page.getByTestId("record-lookback-line")).toHaveCount(1);
 
@@ -248,10 +358,48 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 1 offen · 1 nicht mehr offen");
   });
 
+  test("'Ändern' to a qualified member: the record holds her and the line leaves the list (CGR-106)", async ({ page }) => {
+    await page.goto(`/visits/${VISIT_F_UNQUALIFIED}`);
+    const section = page.getByTestId("record-lookback");
+    await section.getByRole("button", { name: "Ändern" }).click();
+    await section.getByRole("combobox").selectOption({ label: "Pflegekraft Bezug F" });
+    await section.getByRole("button", { name: "Geänderten Wert bestätigen" }).click();
+    await expect(page.getByTestId("record-lookback-result")).toHaveText("Geändert und bestätigt. Der Wert ist nicht mehr auf der Liste.");
+    await expect(page.getByTestId("record-lookback-line")).toHaveCount(0);
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Bezug F");
+
+    await page.goto(`/operations/assistenten/rueckblick/${STOP_F}`);
+    await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 0 offen · 1 nicht mehr offen");
+  });
+
   test("a line of a visit no longer open: 'Einsatz nicht mehr offen', no confirm or change control (AIG1-C1 (2), AIG1-C2 (b))", async ({ page }) => {
     await page.goto(`/visits/${VISIT_F_PAST}`);
     const section = page.getByTestId("record-lookback");
     await expect(section.getByTestId("record-lookback-not-open")).toHaveText("Einsatz nicht mehr offen");
     await expect(section.getByRole("button")).toHaveCount(0);
+  });
+});
+
+test.describe("AIG1-C5: a stop's follow-up does not depend on the agent's state (Testorganisation G, desktop)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await signIn(page, "opsg.test@navora.test");
+  });
+
+  test("after the stopped agent was switched off, Operations still reaches the look-back list from the exception and the health list (AIG1-C5 (a)-(c))", async ({ page }) => {
+    await page.goto("/operations");
+    const exception = page.getByRole("article", { name: "Ausnahme Assistent gestoppt" });
+    await expect(exception).toContainText(`${AGENT} · Werte: 1 offen · 0 nicht mehr offen`);
+    await exception.getByTestId("lookback-link").click();
+    await page.waitForURL(new RegExp(`/operations/assistenten/rueckblick/${STOP_G}$`));
+    await expect(page.getByRole("list", { name: "Betroffene Werte" }).getByTestId("lookback-line")).toHaveCount(1);
+
+    await page.goto("/operations/assistenten");
+    const row = page.getByTestId("agent-health-row").filter({ hasText: AGENT });
+    await expect(row.getByTestId("agent-state")).toHaveText("Aus");
+    const stop = row.getByTestId("agent-stop-open");
+    await expect(stop.getByTestId("agent-stop-counts")).toContainText("Werte: 1 offen · 0 nicht mehr offen");
+    await stop.getByRole("link", { name: "Betroffene Werte ansehen" }).click();
+    await page.waitForURL(new RegExp(`/operations/assistenten/rueckblick/${STOP_G}$`));
   });
 });
