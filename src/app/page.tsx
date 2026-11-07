@@ -1,3 +1,4 @@
+// CI2 probe (docs + src/app): must run every job in full; never merged.
 import { redirect } from "next/navigation";
 import { getHomePath } from "@/lib/auth/home";
 
