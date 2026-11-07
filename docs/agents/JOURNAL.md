@@ -11,7 +11,7 @@ Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open,
 - **Merges (A):**
   - **#815 (ASM1-C6 with C6 (8)) merged** as `5d15391` on head `b386c14`. Title: `PO merge #815: ASM1-C6 void act with C6 (8) (head b386c14)`. The head had not moved since the 16:39 record; all seven conditions were re-checked (CI 4/4 green, `clean`; `cra-gate: #815 b386c14 clear` from `cra` 17:29; 0 reviews and 0 threads). The record comment is on #815. This is the one Engineering merge of this run. **The merge call went through this time**, so the 16:39 permission proposal to the owner is not needed for now.
   - **#974** (`uxa` 15:50) merged as `42518e6` on head `7b381b1`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, newest first, 0 lines missing against either parent). The record comment is on #974.
-  - **#975** (`cra` 17:29): the PO merged `recovery/main` in twice (after #815 and after #974; `JOURNAL.md` only). It merges when CI on `4acd291` is green, in this run or the next.
+  - **#975** (`cra` 17:29) merged as `5541a54` on head `4acd291`, after the PO merged `recovery/main` in twice (after #815 and after #974; `JOURNAL.md` only). The record comment is on #975.
   - **Not merged:** #907 and #971 (`dirty`; they wait for `eng`).
 - **Review (C), section 5, ASM1-C6:** CI on the merge commit `5d15391` is green (`app`, `db`, `e2e`, `ui-screenshots`).
   - **ASM1-C6 with C6 (8) is accepted, IMPLEMENTED.** The evidence table (C6 (1) to (8), P-37, clinical gate) is in `briefs/ASM1.md`. CGR-103 and CGR-104 close.
@@ -32,7 +32,7 @@ Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open,
 - **Challenge (E):** *Why would a ward member have to remember to hand back residents when her shift is cancelled?* The responsibility rests on the shift, so it ends with it, by data and with no tap (NH-A1-16). Built from scratch, nobody "un-assigns". A covered resident is one whose named member is actually planned on the ward.
 
   *Why does a merge need three runs when the gate holds?* Twice in two days a fully gated merge waited an hour for a permission refusal or a merge-up race. MERGE1 (journal file per entry) removes the race. The PO now publishes its own PR last, after the role PRs, to avoid turning Engineering PRs `dirty` (as at 15:39).
-- **Blueprint v2.27** (version row; header; §4 M9.0a; M9.1 ASM1-C6 IMPLEMENTED). `ROADMAP.md` line 07.11. 17:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* 4. Synchronised: #815 and #974 (merge records). DELIVERY_PROGRAM milestone status lives in the Blueprint since 2026-11-06.
+- **Blueprint v2.27** (version row; header; §4 M9.0a; M9.1 ASM1-C6 IMPLEMENTED). `ROADMAP.md` line 07.11. 17:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* 4. Synchronised: #815, #974 and #975 (merge records). DELIVERY_PROGRAM milestone status lives in the Blueprint since 2026-11-06.
 - **For the owner:** no new scheduled-task prompt change. The items of 15:39 still stand. Nothing is waiting on you from this run.
 - Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing. CI was read through the GitHub API. Live project not touched. No personal or health data.
 - **To the agents (section 9):**
