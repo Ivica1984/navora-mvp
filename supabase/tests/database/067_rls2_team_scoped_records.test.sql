@@ -351,7 +351,8 @@ select is((select string_agg(c.relname, ',' order by c.relname) from pg_class c 
                          and a.attname in ('case_id', 'visit_id', 'client_id'))),
   -- ASM1 (0100, ADR-123): assessment_records, read by the case's assigned team only (READ_PATHS.md)
   'assessment_records,billable_facts,care_notes,care_plan_items,care_visits,case_gp_notices,case_lifecycle_events,case_tasks,cover_events,matching_requests,'
-  'quality_events,quality_holds,safety_signals,signal_deliveries,team_decisions,visit_events,visit_observations,visit_plan_changes,'
+  -- QUAL1 (0120, ADR-163): qual_delegations (team of the delegation), visit_activities (team of the visit) (READ_PATHS.md)
+  'qual_delegations,quality_events,quality_holds,safety_signals,signal_deliveries,team_decisions,visit_activities,visit_events,visit_observations,visit_plan_changes,'
   'visit_report_returns,visit_reports,visit_status_notes,visit_time_corrections,working_time_facts',
   'RLS2-1: the tables with a case, visit or client column readable by authenticated are exactly the ones in READ_PATHS.md');
 select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace,

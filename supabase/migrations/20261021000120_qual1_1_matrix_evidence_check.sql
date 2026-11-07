@@ -67,7 +67,7 @@ create table if not exists public.qual_matrix_versions (
   version    text primary key,
   status     text not null check (status in ('PROPOSED', 'APPROVED')),
   source     text not null,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default private.now()
 );
 
 create table if not exists public.qual_matrix_cells (
@@ -432,6 +432,18 @@ create trigger audit_qual_delegations after insert on public.qual_delegations
 drop trigger if exists audit_qual_delegation_revocations on public.qual_delegation_revocations;
 create trigger audit_qual_delegation_revocations after insert on public.qual_delegation_revocations
   for each row execute function private.write_audit_event('delegation_id', 'revoked_by');
+-- AUD1-1 value catalogue: every audited key is a code (ids, dates, constrained or referenced codes; no free text).
+insert into private.audit_value_classes (table_name, key, class) values
+  ('member_qualification_evidence', 'user_id', 'code'), ('member_qualification_evidence', 'requirement', 'code'),
+  ('member_qualification_evidence', 'grade', 'code'), ('member_qualification_evidence', 'state', 'code'),
+  ('member_qualification_evidence', 'valid_until', 'code'),
+  ('qual_delegations', 'case_id', 'code'), ('qual_delegations', 'activity_code', 'code'),
+  ('qual_delegations', 'delegate_id', 'code'), ('qual_delegations', 'delegator_id', 'code'),
+  ('qual_delegations', 'supervisor_id', 'code'), ('qual_delegations', 'matrix_version', 'code'),
+  ('qual_delegations', 'valid_from', 'code'), ('qual_delegations', 'valid_until', 'code'),
+  ('qual_delegation_revocations', 'delegation_id', 'code'), ('qual_delegation_revocations', 'revoked_by', 'code'),
+  ('visit_activities', 'visit_id', 'code'), ('visit_activities', 'activity_code', 'code')
+on conflict (table_name, key) do nothing;
 drop trigger if exists audit_visit_activities on public.visit_activities;
 create trigger audit_visit_activities after insert on public.visit_activities
   for each row execute function private.write_audit_event('visit_id', 'activity_code');

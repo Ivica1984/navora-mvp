@@ -53,6 +53,9 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `assessment_confirmations` (ASM1-5, 0100; no case column) | team of the record's case; `confirmed_by` not selectable | no | 100 |
 | `care_plan_assessment_reviews` (ASM1-C4, 0101, ADR-125) | **nobody through the table** (no grant, no policy); the case's latest act (record, state at the act, date, reviewer's name) is read per case through `team_case_assessments` (`plan_review`) by the case's assigned team only | no | 101 |
 | `assessment_instruments` (ASM1-6, 0100; no case column, no personal data) | every member of the organisation; `created_by`, `ended_by` not selectable | instrument name and version | 100 |
+| `qual_delegations` (QUAL1-9, 0120, ADR-163) | team of the delegation (`private.is_team_member(team_id)`) and the organisation's administrators; nothing after access end (LEAVE1-3) | `conditions` (team) | 120 |
+| `visit_activities` (QUAL1-6, 0120, ADR-163) | team of the visit and coordination roles (`private.is_team_member`, `private.is_coordinator`); nothing after access end | no (activity codes only) | 120 |
+| `member_qualification_evidence`, `qual_delegation_revocations` (QUAL1, 0120; no case column) | evidence: the member herself and the organisation's administrators; revocations: as `qual_delegations` | no | 120 |
 | `billable_facts` | team; coordination: intake role (billing preparation, J5); `created_by` not selectable (RLS4, 0099) | no | *022* |
 | `working_time_facts` | team (**was team + every coordination role, 0022**; RLS3-1, 0070); `performer_id` not selectable (RLS4, 0099) | no | 071 (F-2 closed), *042*, *043* |
 | `quality_events` | team; serious events: admin and coach (quality review, QG1); `author_id` not selectable (RLS4, 0099), `owner_id` stays (RLS4-2) | `description`, `closing_note` (team; admin and coach for serious events) | 015, *020* |
@@ -72,6 +75,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 
 | Function | Scope | Free text returned | Proof |
 |---|---|---|---|
+| `visit_qualification_check(visit, user)` (QUAL1-8, 0120, ADR-163) | team of the visit and coordination roles, simulation organisations only, for a member of the visit's team; LEAVE1-3 | no (activity and reason codes) | 120 |
 | `field_visits(date)` | team (INVOKER: joins the caller's `team_memberships`; reads the four tables under RLS) | correction `reason` (team) | 067, 008 |
 | `field_notes(date)` | team (INVOKER) | note content (team); since 0095 (**OBS1-2, ADR-118**) per observation the author's display name and the OBS1-1 marker (`private.observation_qualification_missing`, team members only). **RLS3-4 entry:** identity with an observation time, care task *authorship of a clinical entry (ZH GesG § 13, `lca` 13:57)*; per observation, never a list, count or filter per person | 067 sweep, 071 (RLS3-4 list), 095 |
 | `field_quality(date)`, `field_since_last(date)`, `field_visit_status_notes(date)` | team | entries of the team's visits (`field_visit_status_notes` and HAND1 also the DOOR1 codes `at_door`, `disclosure_basis`, 0072); `field_quality` names who recorded an event, never its owner, and since 0080 marks an `in_review` event whose owner's access ended (`claim_ended`, LEAVE1-C4) | 067 sweep, *033*, *042*, 072 |
