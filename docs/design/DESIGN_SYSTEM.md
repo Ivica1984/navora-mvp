@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 56 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 57 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 **Companion build specification (2026-11-03, for M2 to M8, #832):** [`NAVORA_DESIGN_SYSTEM_V1.md`](NAVORA_DESIGN_SYSTEM_V1.md) (token values, CSS, components with states, phone and desktop systems, marketing extension), [`NAVORA_SCREEN_CATALOG.md`](NAVORA_SCREEN_CATALOG.md) (every screen), [`NAVORA_INFORMATION_ARCHITECTURE.md`](NAVORA_INFORMATION_ARCHITECTURE.md) (surfaces, roles, navigation, website sitemap). This file keeps the behaviour rules.
 
@@ -167,9 +167,11 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 3. **Check every captured route and role** at 390 × 844 first, then 1440 × 900: (a) the three questions in order (§1); (b) one primary action per card (§2); (c) severity colours only where they belong (§3); (d) no internal codes, one name NAVORA, plain Swiss German (§4); (e) no horizontal scroll, next step in the first viewport, at most four facts per card (§5); (f) contrast, 44 px targets, focus, meaning not only in colour (§6); (g) tokens and components, no inline layout (§7); (h) regressions against the previous section.
 4. **Rate and route:** severe and high → one issue each for the PO (`agents`, `agent:po`, `ux`, plus `ux:severe`); lower → the report. Anything about how a safety signal or safety-related state is shown → a request to `cra`; anything shown to a client, a referrer or outside the app, or any text `lca` fixed → a request to `lca`. Requests are listed in the report with one question each and stay OPEN until answered.
 5. **Close with evidence:** a finding is closed only with a screenshot or test on `recovery/main` that shows the remedy.
+6. **Gate line and block cases (FE-052, from 2026-11-07; IMPLEMENTED as a process):** a `uxa` line names the merged commit it read and means "read on that commit, no blocking UX finding", never a block acceptance. For each block that changes a screen, `uxa` writes user-flow test cases (positive and negative, 390 × 844 and desktop, each with the existing test or "none") for the PO's block section (`PRODUCT_BLOCKS.md` §3). A case without a test is a gap, not a pass.
 
 ## Change log
 
+- 2026-11-07 19:55 CET (`uxa`): version 57. §8 review procedure step 6: gate line on the merged commit and user-flow block test cases (FE-052, `PRODUCT_BLOCKS.md` §8.5, §8.6 (c)). No token change.
 - 2026-11-07 15:50 CET (`uxa`): version 56. §5 ward rule: N-01/N-02 PLANNED (NH-A1 approved); three PROPOSED sub-rules: one heading per shift (UXR-139), shift names never inflected in code (UXR-142), standing "nicht überwacht" list on a phone as heading with count (UXR-140, `cra` to confirm). No token change.
 - 2026-11-07 12:10 CET (`uxa`): version 55. §5 ward rule links the new PROPOSED ward and shift screen proposal (`proposals/NH-A_WARD_SHIFT_SCREENS.md`), written on the owner's instruction of 2026-11-07 that `uxa` works out solutions proactively where the Blueprint and the founder say nothing. No token change.
 - 2026-11-07 11:50 CET (`uxa`): version 54. §4 rule "a refusal states the true state after it" extended to a change of date or time (UXR-138) and marked PARTLY IMPLEMENTED (#953, `ac6a303`: one label function with subject and context; UXR-135 closed). No token change.
