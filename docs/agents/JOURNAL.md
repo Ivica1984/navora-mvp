@@ -4,6 +4,150 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 20:00 CET · po (Product Owner)
+
+Scheduled PO run (started 19:39, written 20:00), the first one under **FE-052**. PR #978 (live session) was already merged as `f350085`, so this run uses `po/cycle-2026-11-07-1939`. This prompt still says "merge one Engineering PR per run". `FOUNDER_DECISIONS.md` v12 (FE-052) suspends that for feature PRs, so this run follows FE-052 (README rule 10). The contradiction is listed under prompt changes below.
+
+- **Merges (A):**
+  - **#980 merged** (Block B0: CI2 with the B0-1 configuration, issue #976, ADR-167) as `75ff53a`, on head `9433c23`, with the title `PO merge #980: CI2 with B0-1 configuration (head 9433c23)`.
+  - **Why it could merge:** this is B0 work, not a feature PR, so `PRODUCT_BLOCKS.md` §8 (1) applies.
+  - **Conditions:** all seven held on that head:
+    - CI run 42403021994 was 4/4 green, `clean`;
+    - 0 reviews and 0 threads;
+    - the PO read the `.github/` diff and found nothing weakened.
+
+    The PO waited for the e2e job of `eng`'s last docs commit before merging. The record comment is on #980.
+  - **Not merged:** #907 and #971 (`dirty`, they wait for `eng`), and the probes #981 and #982 (never merge; `eng` closes them).
+- **Review (C):**
+  - Under FE-052 per-PR "accepted" is no longer used. The CI2 evidence table is in `briefs/CI2.md`:
+    - **shown:** CI2-1 to -4 and -6, from probe #981 (fast path, `full=false` verified in the log) and #982 (docs plus `src/app`, full jobs);
+    - **open:** CI2-5 and CI2-7.
+  - **CI2 is in review, not accepted.** Three deviations were decided.
+  - B0-1 stays *open* in `PRODUCT_BLOCKS.md`: the configuration is merged, but the test case (three quick merges, each green) is not shown yet.
+  - The push run on `75ff53a` was still running when this entry was written. The next PO run reads it for CI2-5.
+  - **No block is accepted.** The PO ran no test.
+- **Issues (B):** no new `agent:po` issue since the 19:40 live session. No `claimed` label was set.
+- **Decisions (F):**
+  - No new input on D-22, D-18, D-41, D-43 or D-44 since 17:39, so no package was advanced, decided or escalated.
+  - E-1 to E-4 are with the founder (`PRODUCT_BLOCKS.md` §7).
+  - The PO does not repeat them.
+- **Prioritisation (D, G):** this run approved no new brief. While the freeze holds, the order is B0-1 evidence, then B0-2 to B0-8. A feature brief now would only lengthen a queue that cannot merge.
+- **Challenge (E):**
+  - *Why does PR #3 exist as an open PR today?* It re-runs all four jobs on every push to `recovery/main`, on commits the push run already tests: about 717 of 4 015 minutes a day (18 %, ADR-167). Merging into `main` is blocked by D-7 and D-8 anyway.
+  - **Proposal under D-8 (#68), for the owner:** close #3 until D-8 is due, and reopen a fresh `recovery/main` → `main` PR then. This is reversible and loses no history, and it removes the largest duplicate. If D-8 needs the PR open, the alternative is the ruleset (B0-6) plus one run per merge commit.
+  - Even with both, CI2-1 projects about 28 000 min/month, against 3 000 on Pro. **Going private (FE-045 stage 4) still needs an owner budget decision**, and the price is UNKNOWN.
+  - *If NAVORA were built from scratch today, would every role push several times per run?* No. One push per run is a prompt change for the owner (ADR-167 lever 3).
+- **Blueprint v2.29** (version row; header). `PRODUCT_BLOCKS.md` B0-1 line and §9. `ROADMAP.md` line 07.11. 19:39. `NEXT_CAPABILITY.md` *Active now*. Synchronised: #980 (merge record), #976 and #68 (comments).
+- **Scheduled-task prompt changes for the owner** (the PO edits none). FE-052 / `PRODUCT_BLOCKS.md` §8 (6) (a) and (d) still apply to the PO prompt:
+  - step A still says "merge (merge commit) the next Engineering PR … at most one Engineering PR per run";
+  - the FE-033 block still names the "PLAN3 stack #891 to #910".
+
+  New: (e) all role prompts: one push per run, for CI minutes.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: close #981 and #982. Next is B0-1 evidence (three merge commits, each with a complete green push run, read through the API), then B0-2. One PR per criterion, each starting with `Block: B0`. Merge `recovery/main` into #907 and #971 when you can.
+  - `cra`, `lca`, `uxa`, `aia`, `csa`: no change from the 19:40 tasks. CI2 means a docs-only role PR now gets fast db, e2e and ui-screenshots checks, with the same names.
+
+---
+
+## 2026-11-07 19:46 CET · eng (Engineering)
+
+Same run as the entry below, CI result. **Block: B0.** PR #980 (CI2 + B0-1 config).
+
+- First CI run 42401751165 (head `f226733`): `app` failed: typecheck TS2339 in `tests/unit/ci2-scope.test.ts:138` (env copy without the `NodeJS.ProcessEnv` type); `npm test` itself passed in that job. Fixed in `50b6647`.
+- CI run **42401933240** on `50b6647`: app, db, e2e, ui-screenshots all **success**.
+- **CI2-2 evidence:** probe #981 (one `docs/` line on top of #980), run 42401936057 on `e077dc5`: all four jobs success; `db` 5 s, `e2e` 6 s, `ui-screenshots` 8 s with the notice `full=false: 1 files, all under docs/: verified docs-only`; `app` ran in full (88 s).
+- **CI2-3 evidence:** probe #982 (`docs/` plus `src/app/page.tsx`), run 42401937641 on `5cf4792`: notice `full=true: changes outside docs/: src/app/page.tsx`; `db`, `e2e`, `ui-screenshots` ran every step (70 screenshots); all success.
+- Both probes closed unmerged. Status row CI2 `in-review` with #980. Local suite as in the 19:30 entry (npm registry unreachable; agents-check passed). This status commit gets its own CI run, recorded on #980.
+
+---
+
+## 2026-11-07 19:30 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0.** Branch `feature/hourly-update-2026-11-07-ci2`, issue #976 (CI2, `active`), claimed 19:11.
+
+- **Step A (own PRs):** #907 and #971 are green; #971 conflicts with `recovery/main` on `JOURNAL.md` again. **Task adjusted (README rule 11):** not merged up this run. Both PRs are docs-only and frozen by FE-052 (po comment 18:45); each merge-up costs a full CI run (about 19 min) and is undone by the next PO merge, the very cost CI2 is about. Merge-ups resume when the PO lifts the freeze or asks for one.
+- **CI2 (ADR-167), IMPLEMENTED on the branch, CI decides:** `scripts/ci-scope.mjs` (deterministic, fail-closed) plus step gates in `db`, `e2e`, `ui-screenshots`: a PR whose merge commit changes only `docs/` keeps the four check names and passes only after verifying the diff; every other path, every push, an empty diff, a non-merge HEAD or a missing `GITHUB_OUTPUT` runs in full or fails. `app` unchanged (agents-check stays, CI2-4). Tests first: `tests/unit/ci2-scope.test.ts` (rule, CLI on real git merge commits, workflow wiring, concurrency).
+- **B0-1 configuration included:** pushes to `main`/`recovery/main` get a `concurrency` group per commit, so a merge commit's run is neither cancelled nor replaced (needed for CI2-5). Deviation recorded in the status row; B0-1 evidence is for after the merge.
+- **Measured (CI2-1), Actions API, 2026-11-06 UTC:** 212 runs, 4 015 billed job-minutes; docs-only PR runs 47 (762 min); PR #3 re-runs every `recovery/main` push (36 runs, 717 min); cancelled 484 min. Saving about 527 min a day (13 %). **The ≤ 3 000 min a month target is not met by CI2 alone** (about 35 000 a month projected at the 7-day average); overage price UNKNOWN (owner). Further levers listed in ADR-167 for `po` (PR #3 duplicates, MERGE1, fewer pushes per role run).
+- **For `po`:** brief CI2 says "after MERGE1"; built first because MERGE1 is blocked and the watcher activated CI2. FE-052 orders B0-1 to B0-8 one PR per criterion; this PR carries CI2 and the B0-1 config together because CI2-5 depends on it. No contradiction with `FOUNDER_DECISIONS.md` found otherwise.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve (getaddrinfo ENOTFOUND; via the proxy no response), `--offline` fails (ENOTCACHED); so `npm run lint`, `typecheck`, `npm test`, `npm run build` could not run. `node scripts/agents-check.mjs` ran and passed. `test:db`, `e2e`: could not run (no Supabase CLI, no Docker, no node_modules). Extra, **not** a substitute for `npm test`: the new test file ran under Node 22 type stripping with a minimal vitest shim, 32/32 passed, and a mutation (gate removed from the Playwright step) made the wiring test fail. Owner: E-1 / FE-046 (registry) still not effective in this session.
+- **CI:** recorded on the PR once every job has finished. Clinical gate: out of scope (CI only). No personal or health data. Live project not touched.
+
+---
+
+## 2026-11-07 19:40 CET · po (Product Owner)
+
+Live session with the founder (not a scheduled run). The founder's message reorganises the work, and it is recorded as **FE-052** (`FOUNDER_DECISIONS.md` v12). This branch is `po/founder-reorg-2026-11-07-1840`, PR #978.
+
+- **Starting point (FE-052):** NAVORA has no demonstrably viable pilot yet. *Merged*, *tests run*, *reviewed*, *released* and *accepted* are separate facts. **No block is accepted.** Every earlier "accepted" means a PO check against the brief with CI on the PR.
+- **Merge freeze:** no Engineering feature PR merges until block B0 is accepted. The FE-018/FE-033 merge step is suspended for features. A single security fix may still go in after a documented risk review. Comments are on #907 and #971.
+- **New:** `docs/product/PRODUCT_BLOCKS.md` holds blocks B0 to B12 with owner, reviewer, approver, dependencies, result and state; the acceptance definition; B0-1 to B0-8; the two Phase A flows with stop cases; the path to Phase A and B; and decisions E-1 to E-4. `docs/product/inventory/INVENTORY_2026-11-07.md` covers 701 merged PRs and 256 issues, generated automatically from the GitHub API and checked in samples.
+- **Findings:**
+  - 36 of the 167 product, test and CI PRs have no green run on their own merge commit;
+  - on 13 `recovery/main` commits the same commit was both green and red;
+  - #919: the cause was never reproduced, so it is **reopened** (B0-4);
+  - **#979** is new: the UX2-23 e2e test fails intermittently (contract end / access end);
+  - #603 has a comment;
+  - the AN3 status files contradict each other (B10);
+  - the repository is public, with no ruleset and no secret scanning;
+  - there are no local tests (the npm registry does not resolve, and there is no Docker daemon);
+  - there is no staging and no restore test.
+- **Correction:** at 17:39 the PO called ASM1-C6 "accepted". It is merged, CI is green on `5d15391`, and `cra` raised no blocking finding, but there is no clinical release and no block acceptance. A correction section is in `briefs/ASM1.md`.
+- **Blueprint v2.28:** new §0 (block states lead over the milestone percentages); version row; correction of v2.27. `ROADMAP.md` line 07.11. 19:40. `NEXT_CAPABILITY.md`: the merge-freeze note.
+- **For the founder:** E-1 (local tests), E-2 (scheduled tasks during the reorganisation), E-3 (the AI documentation draft in Phase A) and E-4 (M9 date), all in `PRODUCT_BLOCKS.md` §7. Four prompt changes are proposed in §8 (6); the PO edits no scheduled task.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed. Live project not touched. No personal or health data.
+- **To the agents (binding through FE-052, README rule 10):**
+  - `eng`: B0-1 to B0-8 in that order, one PR per criterion; no feature PR; every PR and issue starts with `Block: B<n>`.
+  - `cra`: B0-3 and B0-4 (#919, #979).
+  - `lca`: B0-6 and B0-7; NH-A1 gate (c); the E-3 provider question.
+  - `uxa`: block test cases for B1 and B4.
+  - `aia` and `csa`: concept work only.
+  - Scheduled PO runs: merge no feature PR; leave #978 to the live session.
+
+---
+
+## 2026-11-07 17:39 CET · po (Product Owner)
+
+Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open, so this run continues it instead of opening a second PO PR.
+
+- **Merges (A):**
+  - **#815 (ASM1-C6 with C6 (8)) merged** as `5d15391` on head `b386c14`. Title: `PO merge #815: ASM1-C6 void act with C6 (8) (head b386c14)`. The head had not moved since the 16:39 record; all seven conditions were re-checked (CI 4/4 green, `clean`; `cra-gate: #815 b386c14 clear` from `cra` 17:29; 0 reviews and 0 threads). The record comment is on #815. This is the one Engineering merge of this run. **The merge call went through this time**, so the 16:39 permission proposal to the owner is not needed for now.
+  - **#974** (`uxa` 15:50) merged as `42518e6` on head `7b381b1`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, newest first, 0 lines missing against either parent). The record comment is on #974.
+  - **#975** (`cra` 17:29) merged as `5541a54` on head `4acd291`, after the PO merged `recovery/main` in twice (after #815 and after #974; `JOURNAL.md` only). The record comment is on #975.
+  - **Not merged:** #907 and #971 (`dirty`; they wait for `eng`).
+- **Review (C), section 5, ASM1-C6:** CI on the merge commit `5d15391` is green (`app`, `db`, `e2e`, `ui-screenshots`).
+  - **ASM1-C6 with C6 (8) is accepted, IMPLEMENTED.** The evidence table (C6 (1) to (8), P-37, clinical gate) is in `briefs/ASM1.md`. CGR-103 and CGR-104 close.
+  - **Deviations decided:** ADR-140 deviations 1-6 are accepted. Deviation 4 (no strike-through) follows the 13:28 wording decision.
+  - **0106 numbering** (`eng`'s OPEN note): no renumbering after the merge. Condition for `eng`: before migrations go to any persistent database (staging, T12), confirm that the out-of-order version applies, or record the handling in an ADR.
+  - **ASM1-C7 placed** (follow-up, before the first real assessment record; it does not hold acceptance): CGR-113 sentence, UXR-84, UXR-85, UXR-86, each with a test.
+  - The PO ran no test.
+- **NH-A1 (G):** build gates (a) `cra` and (b) `uxa` are given with conditions, written in as:
+  - **NH-A1-16** (CGR-158 (1)): withdrawing a shift or ending access clears her *zuständig* values in that shift, audited, and the resident reappears as uncovered;
+  - **NH-A1-17** (UXR-139): one uncovered group per shift;
+  - **NH-A1-18** (UXR-141): the uncovered line's fixed place on N-01;
+  - **NH-A1-19** (UXR-140, UXR-142, CGR-158 (2), (3)): "Nicht überwacht" as a heading with count; the default shows its date; "davon nach Kontinuität (n)".
+
+  CGR-158 (4), CGR-159 and the acknowledgement question are placed as UNKNOWN for the Clinical Owner before Phase B. A *Nicht überwacht* row for `resident_uncovered` itself is added. Gate (c) (`lca`) is still open; no build before it. The screen catalog gets section N (N-01, N-02, PROPOSED) from the `uxa` text.
+- **Issues (B):** no new `agent:po` issue since 14:39. No `claimed` label was set or left.
+- **Decisions (F):** **D-41:** `cra`'s clinical input (17:29) is recorded in the package (the planning-fact allow-list as the proposed shape of pattern 1, not decided). `lca`, `eng` and `aia` are still asked; INDEX stays `inputs-requested`. D-22 and D-18: no new input since 14:39. No package was decided or escalated.
+- **Prioritisation (D):** no change to the order. ASM1-C6 was the last open patient-safety condition of the assessment record before real data. The Engineering order is now #907 → MERGE1 → QUAL1 part 2 → UX2 remainder → NH-A1.
+- **Challenge (E):** *Why would a ward member have to remember to hand back residents when her shift is cancelled?* The responsibility rests on the shift, so it ends with it, by data and with no tap (NH-A1-16). Built from scratch, nobody "un-assigns". A covered resident is one whose named member is actually planned on the ward.
+
+  *Why does a merge need three runs when the gate holds?* Twice in two days a fully gated merge waited an hour for a permission refusal or a merge-up race. MERGE1 (journal file per entry) removes the race. The PO now publishes its own PR last, after the role PRs, to avoid turning Engineering PRs `dirty` (as at 15:39).
+- **Blueprint v2.27** (version row; header; §4 M9.0a; M9.1 ASM1-C6 IMPLEMENTED). `ROADMAP.md` line 07.11. 17:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* 4. Synchronised: #815, #974 and #975 (merge records). DELIVERY_PROGRAM milestone status lives in the Blueprint since 2026-11-06.
+- **For the owner:** no new scheduled-task prompt change. The items of 15:39 still stand. Nothing is waiting on you from this run.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing. CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents (section 9):**
+  - `eng`: #815 is merged and ASM1-C6 accepted. ASM1-C7 is a small follow-up PR before real assessment data. Note the 0106 condition. #907 and #971 must merge `recovery/main` in; #907 merges next, then MERGE1. Read NH-A1-16 to NH-A1-19 for estimate v2.
+  - `cra`: the assessment workflow changed as gated, with no new review needed; close CGR-103 and CGR-104 as merged. For ASM1-C7 (a), confirm the `uxa` sentence. CR-198 to CR-200 stay PROPOSED.
+  - `lca`: NH-A1 gate (c): NH-A1-11, NH-A1-12 and the two help-text clauses. D-41 rule A question. No new review for #815, because the C6 protective form is built as signed.
+  - `uxa`: the void screens are built as designed; UXR-84 to -86 are now ASM1-C7. N-01 and N-02 are in the catalog as PROPOSED.
+  - `aia`: no AI capability changed. The void preset (P-37) is a one-tap pattern you may reuse.
+  - `csa`: the assessment record is complete for real data, apart from ASM1-C7 and the D-29/D-1 gates. NH-A1 is two of three gates done. No deviation from the strategic direction.
+
+---
+
 ## 2026-11-07 17:29 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review run. #965 (13:25) merged; no `gov/…` PR open, so this is `gov/review-2026-11-07-1729`.
@@ -16,6 +160,29 @@ Scheduled review run. #965 (13:25) merged; no `gov/…` PR open, so this is `gov
 - **D-41 (FE-051, #973):** clinical input: KLV category, activity names, condition-naming signal kinds, holds, order status and ward residence are health data, not "planning facts"; pattern 1 needs a named allow-list. Rule A question stays with `lca`.
 - **Task adjustment (rule 11):** the NH-A1 gate and the `uxa` confirmations came first because they block a build gate; the D-18 template (FE-042) moves to the next run. No contradiction with `FOUNDER_DECISIONS.md` v10 (v11 in #973 read).
 - **Next:** `po` merges this PR and writes CGR-158 (1) and the CGR-159 wording into NH-A1; `cra` D-18 next run.
+
+---
+
+## 2026-11-07 16:39 CET · po (Product Owner)
+
+Scheduled PO run (16:39). PO PR #973 (15:39) was still open (CI 4/4 green, `clean`), so this run continues it instead of opening a second PO PR.
+
+- **Merges (A): none, because the merge call was refused.**
+  - **#815** (ASM1-C6, next in *Active now* order) meets all seven section 4 conditions on head `b386c14` (`eng` merge-up 16:10):
+    - CI 4/4 green, `clean`;
+    - `cra-gate: #815 b221c83 clear`, and `git diff b221c83 b386c14 -- src supabase tests e2e` is empty;
+    - 0 threads and 0 reviews;
+    - migration 0106 keeps RLS, the revokes, the append-only and audit triggers, and recreates `case_team_read` tighter.
+
+    The merge record comment is on #815. The `PUT /pulls/815/merge` call with that SHA was **refused by this session's permission check**. The PO did not retry it through another tool, and #815 has a comment saying so.
+  - Because of the refusal, #974 (`uxa` 15:50, `clean`, green) and this PR were not attempted either.
+  - **#971 and #907** are still `dirty`; they wait for `eng`.
+- **Review (C), decisions (F), prioritisation (D, G):** no change since 15:39. No item was delivered and no input arrived on D-22, D-18, D-2 or D-41, so there was nothing new to package.
+- **Challenge (E):** a gate that holds on every condition can still be stopped by tool permissions, which costs a whole hourly cycle. **Proposal for the owner:** check that the scheduled PO task's permission setting allows `PUT /pulls/{n}/merge` (FE-033 grants this authority). Otherwise each refusal leaves a fully gated PR waiting for the next run.
+- Tests: none run by the PO. CI was read through the GitHub API. `node scripts/agents-check.mjs` was run before pushing. The live project was not touched, and no personal or health data are in this entry.
+- **To the agents:**
+  - `eng`: keep #815 on `b386c14` if you can, because the record stays valid only while the head does not move. Then #971 and #907.
+  - Next PO run: merge #815 first, then #974, then this PR.
 
 ---
 
@@ -41,6 +208,89 @@ Scheduled run. `recovery/main` `d9a8150`; no code, test or workflow change since
 - **Screen catalog:** the PO allowed `uxa` to add N-01/N-02 as PROPOSED, but my task prompt limits my PR to three files and the owner's prompt change is pending; the two rows are in my section for the PO to copy. Contradiction reported, nothing changed outside my files.
 - `DESIGN_SYSTEM.md` version 56 (§5 ward rule PLANNED for N-01/N-02, three PROPOSED sub-rules). UXR-94 answered in ADR-143 (#837). #815 head `cd0746f`: UXR-84 to -86 still present.
 - **For the PO:** gate line; UXR-140 needs a `cra` answer; catalog rows.
+
+---
+
+## 2026-11-07 15:39 CET · po (Product Owner)
+
+Scheduled PO run (15:39). There was no open PO PR; this is `po/cycle-2026-11-07-1539`.
+
+- **Merges (A): none.**
+  - **#815** (next in order) has head `cd0746f`. CI is green on it, and `git diff b221c83 cd0746f -- src supabase tests e2e` is empty, so the `cra` clearance still covers it. **Condition 1 fails:** the PR is `dirty` after PO merge #972. A trial merge shows the only conflict is `JOURNAL.md`, and under the section 4 stop rules a conflicting Engineering PR waits for `eng`.
+  - **#971** (`eng` owner-session protocol, head `e6d1b00`): condition 1 fails (`dirty`, `JOURNAL.md` only).
+  - **#907:** the same.
+  - One comment each is on #815 and #971.
+  - **Timing:** this PR is published early on purpose. The 14:39 PO PR merged after `eng`'s 15:11 merge-up, which is what turned #815 `dirty` again.
+- **Owner answers taken over (README rule 10).** These are from `eng`'s accompanied owner session of 2026-11-07 (PR #971; reported by `eng`, not heard by the PO; the same pattern as FE-043 and FE-044). They become **FE-045 to FE-051** in `FOUNDER_DECISIONS.md` v11:
+  - **D-7:** highest protection in four stages, plus separate agent identities.
+  - **FD-27:** (b), delete the whole old project.
+  - The npm registry is allowed.
+  - **D-8:** B.
+  - **D-2:** Supabase Zurich, with PITR 28 days for production; staging now; a Swiss app host; 99.9 % measured; RPO about 2 minutes; a paper plan; add-on services; on-call.
+  - **Security test:** red-team agents on staging, plus a small external test before real data.
+  - **FD-28:** legal advice bundled in Q1 2027.
+  - **D-41:** direction is patterns 1-3 as the core, pattern 4 prepared, pattern 5 not chosen. Rule A stays.
+  - **D-43** stays OPEN with the owner. Nothing is written about it; it is frozen.
+- **Contradiction found (README rule 10):** the PO default "app on Render Frankfurt" (D-2, po 2026-10-24 17:10) and "production on the same stack" (2026-10-27 12:05) contradict the owner's "Swiss app host". The owner's answer holds. Corrected in D-2 (addendum, row, INDEX) and in Blueprint M3.5 and FD-09.
+- **Decisions (F):**
+  - **D-7 and D-8** are answered by the owner (INDEX `decided`, with `Unfreeze: 1` lines). Their rows stay in *Open* with the answer written in only because the M2 status row still lists both under "Blocked by". `agents-check` warns about this, and the warning is expected.
+  - **D-2:** `inputs-requested`. `eng` is asked for 2-3 Swiss app hosts with price and for the add-on providers; `lca` for the processor contracts.
+  - **D-41:** `inputs-requested`. `lca` is asked whether pattern 1 (identifiers) stays inside rule A; `cra`, `eng` and `aia` are asked to map option B onto patterns 1-4.
+  - **SR-26:** the path is (b).
+  - `OWNER_AGENDA.md` is updated: FD-27, D-7, D-8, D-2, D-41 and D-44 part 2 (answered by FE-050). Comments are on #64, #905, #67 and #68.
+  - The D-22 and D-18 inputs are unchanged since 14:39 (`lca` and `cra` asked). No other package work this run.
+- **Prioritised (D, G):**
+  - **CI2** (*Next up* 0b) and **SEC1** (*Next up* 5) are approved; the briefs are below.
+  - D-7 stage 4 (private) without CI2 would stop CI, and with it the merge gate. SEC1 is the privacy and safety precondition the owner set for real data.
+- **Challenge (E):**
+  - *Why does a repository-protection decision take two weeks and three PO re-asks?* The answer needed only clicks. Built from scratch, the ask goes into a guided owner session at once, which is what got D-7, D-8 and D-2 answered in one hour today. **Proposal:** each Bundle 1 ask on `OWNER_AGENDA.md` carries a click-path the owner can follow in under ten minutes; `eng` writes it when it drafts the Engineering section.
+  - *Why would a red team need its own scheduled agent?* Most attack cases are deterministic, so the suite runs from CI (SEC1-2, SEC1-5). An agent only proposes new cases.
+- **Blueprint v2.26** (version row; header; M2.4, M3.5, M3.7, M10.2; §7 FD-07, FD-08, FD-09 and FD-27 struck as answered, FD-28 part 2). `ROADMAP.md` line 07.11. 15:39. `NEXT_CAPABILITY.md`: *Last change*, CI2 and SEC1. Synchronised: #815, #971, #64, #905, #67, #68.
+- **For the owner:**
+  - **Scheduled-task prompts that would need a change** (the PO edits none):
+    - (1) once the two agent accounts exist, the PO and `eng` prompts name their identity and the approval step (FE-045);
+    - (2) a red-team task, only if you want one beyond the CI suite (SEC1-5);
+    - (3) still standing: the "PLAN3 stack #891 to #910" line in the PO prompt is spent (FE-041).
+  - **Your clicks:** D-7 stage 1; deleting the old project (FD-27); the npm registry setting.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing, with two expected warnings (D-7 and D-8 rows in *Open*). CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`:
+    - bring #815 up to date (it merges next), then #971, #907, MERGE1, CI2;
+    - drop D-7 and D-8 from the M2 row's "Blocked by" when the ruleset is on;
+    - the D-2 offers;
+    - the D-41 mapping;
+    - the `preserve-*` tags after D-7 stage 1.
+  - `lca`: the D-2 processor contracts; D-41 pattern 1 against rule A; the FD-28 question catalogue, covering D-22, D-18, D-42, D-43, D-44 and D-41 (9), with quotes by December (FE-050).
+  - `cra` and `aia`: the D-41 mapping.
+
+**ENGINEERING BRIEF: CI2**
+
+- **Capability:** CI minutes fit a private repository without weakening any required check (D-7 stage 3).
+- **Why:** about 70 000 minutes a month against 3 000 included on Pro. Going private as things stand stops CI and the merge gate.
+- **Business outcome:** the owner can make the code private (FE-045) at a known monthly cost.
+- **Care outcome:** none directly. Every care capability keeps its path to IMPLEMENTED.
+- **Expected nurse outcome:** none directly.
+- **Expected team outcome:** none directly.
+- **Expected patient outcome:** no change in safety checks.
+- **Expected agent outcome:** no merge blocked by spent minutes.
+- **Acceptance criteria:** CI2-1 to CI2-7. Same four check names. A docs-only fast job that verifies the path list. Full jobs on every code change and every merge commit. Measured before and after.
+- **Dependencies:** MERGE1 (built first); FE-045.
+- **Priority:** *Next up* 0b.
+- **Implementation recommendation:** path filter inside the jobs (not `paths-ignore` on the workflow), ADR with GitHub docs citation, two test PRs.
+
+**ENGINEERING BRIEF: SEC1**
+
+- **Capability:** continuous adversarial testing of staging on synthetic data; an external test before real data.
+- **Why:** owner FE-049. RLS, grants, audit and the P1 path are tested only by their own authors.
+- **Business outcome:** a partner-ready security record before Phase B.
+- **Care outcome:** no resident's or client's data exposed, no P1 signal silenced.
+- **Expected nurse outcome:** trust that what they record stays in the team.
+- **Expected team outcome:** cross-team isolation proven from outside.
+- **Expected patient outcome:** privacy and safety precondition met.
+- **Acceptance criteria:** SEC1-1 to SEC1-6. A scope document; an attack suite (a) to (g); a refusal to run against production or the old project; findings in `SECURITY_RISKS.md`; a CI schedule; the external test in the Phase B gate list.
+- **Dependencies:** T12 staging (D-2 provider pending), CI2 (minutes).
+- **Priority:** *Next up* 5.
+- **Implementation recommendation:** reuse the pgTAP RLS inventory as the case list against the HTTP API; host allow-list check first.
 
 ---
 

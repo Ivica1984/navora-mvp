@@ -426,6 +426,22 @@
 
 ---
 
+## N. Nursing-home ward (simulated, Phase A) · PROPOSED (NH-A1) · M9.0a
+
+Text from `uxa` 15:50 (`UX_REVIEW.md`, #974), copied by `po` 2026-11-07 17:39. Synthetic data only.
+
+### N-01 Meine Schicht · `/field` (shift view, no new tab) · PROPOSED (NH-A1)
+- **User:** ward member; phone and ward tablet.
+- **Reads:** own planned shifts, residents she is *zuständig* for, P1 signals, uncovered count per shift, the "Nicht überwacht" constant.
+- **Commands:** none new on the screen (own shift entry lives on N-02 or its own form, `eng`).
+- **Criteria:** NH-A1-8, NH-A1-18, NH-A1-19 (UXR-140, UXR-141).
+
+### N-02 Schichtplan Wohnbereich · `/team/schichten?datum=…` · PROPOSED (NH-A1)
+- **User:** ward member, coordinating member; phone list, grid from 1024 px.
+- **Reads:** shift definitions, planned shifts, responsibility per resident and shift.
+- **Commands:** set or change *zuständig* (NH-A1-4); own shift entry and pattern (NH-A1-3, NH-A1-15).
+- **Criteria:** NH-A1-5, NH-A1-9, NH-A1-10, NH-A1-12, NH-A1-16, NH-A1-17 (UXR-139).
+
 ## F. Family app (S-F) · FROZEN (D-40) · M7 specification only
 
 No screen is designed beyond this frame and nothing is built (M7: `eng` confirms no code, table or migration). The M7 specification (`po`, with `lca`, `cra`) fills for each screen: data source, consent rule, the team role that answers, notification text (`lca`), what AI may and may not do.
@@ -471,3 +487,4 @@ No screen is designed beyond this frame and nothing is built (M7: `eng` confirms
 
 ## Change log
 - 2026-11-03 15:00 CET (`uxa`): version 1, from the Delivery Program (#832) and issue #831.
+- 2026-11-07 17:39 CET (`po`): section N (N-01, N-02) added as PROPOSED from the `uxa` 15:50 text (#974), NH-A1 brief.

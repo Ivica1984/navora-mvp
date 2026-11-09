@@ -220,3 +220,46 @@ No delivery reviewed (ASM1 stays `accepted`; ASM1-C6 with C6 (8) PLANNED, deadli
 - **C6 (8) privacy test kept as a requirement of the C6 PR** (`lca` 17:45 proviso): no date or field of the voided record appears in the care-plan block for a voided basis.
 
 **Asked next:** `eng`: ASM1-C6 with C6 (8) as amended here, one PR, in *Active now* order, before real assessment data. `uxa`: may refine the words of the supersede sentence (meaning fixed). `cra`, `lca`: nothing new.
+
+## PO review — 2026-11-07 17:39 CET: ASM1-C6 with C6 (8) delivered (#815), **accepted**
+
+Merged by the PO as `5d15391` on head `b386c14` (merge record on #815; `cra-gate: #815 b386c14 clear`, `cra` 17:29, #975). CI on the merge commit `5d15391`: run 42392510972 `app`, `db`, `e2e`, `ui-screenshots` success (read through the GitHub API); in the second run 42392516329, `app`, `db` and `ui-screenshots` succeeded and `e2e` was cancelled when the next merge (`42518e6`) pushed to `recovery/main`, which is no failure. **The PO did not run the tests.** Evidence is from the PR, its files and the check runs.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| C6 (1) append-only void act; record kept; current falls back or none | met | migration 0106 `assessment_voids` (append-only triggers, no update/delete/truncate for any role), `void_assessment()`; `current_assessment` skips voided records; pgTAP 107 (`plan(50)`) fallback, no current record left, voided chain head |
+| C6 (2) the act asserts no minutes, date or assessor | met | `void_assessment(record, kind, reason, key)` takes no such field; pgTAP 107 |
+| C6 (3) the team sees only that an entry was voided ("Irrtümlich erfasst am <Datum> von <Name>. Grund: <Grund>"), not its fields | met | `assessment_records` policy `case_team_read` recreated with `and not private.assessment_withheld(id)`; reader returns no field of a withheld record; vitest `asm1-c6-void.test.ts`; Playwright `asm1.spec.ts` step 7 (void line in the history) |
+| C6 (4) as P-37 (po 2026-10-30 18:25): two radios, none preselected; preset stored as shown; "Anderer Grund" 10-500 with the hint | met | check binds `wrong_client` to the preset text; pgTAP 107 (preset stored as shown, short "Anderer Grund" refused); vitest (nothing preselected, submit disabled, free text and hint only after "Anderer Grund", `cra` sentence before the options) |
+| C6 (5) the named assessor learns of it; her open-confirmation line disappears | met | `confirm_assessment` refuses a voided record (`voided`); ASM1-C1 filter excludes voided records (ADR-140); pgTAP 107 |
+| C6 (6) who may void: a registered nurse of the case's team | met | refusals `not_team_member`, `not_rn`; pgTAP 107 (other team, other org, Operations refused) |
+| C6 (7) pgTAP and standing output rule (no voided field through any reader) | met | pgTAP 107: no voided field through reader or table; items/J3/J5 hashes unchanged (ASM1-8 billing facts) |
+| C6 (8) basis read by identity; act offered for newer, same-date parallel, voided basis; `not_current` with no current record; privacy of the voided basis | met | reader `team_case_assessments()` `basis_fact` (`voided` / `not_current`), `voided_records`; pgTAP 107 cases (v) incl. act on record 2 then voided → fact, only record voided → `not_current`; vitest: planBasisText/planReviewText never name a voided record, no voided field in the care-plan block |
+| Clinical gate | met | `cra` 2026-11-03 13:30 (no blocking finding; CGR-103, CGR-104 met), re-cleared 13:25 and 17:29 at `b386c14` |
+
+**Deviations (ADR-140), each decided by the PO:**
+1. A void withholds the voided record's predecessors too: **accepted** (protective; nothing deleted). The nurse must be told: CGR-113, placed in ASM1-C7 below.
+2. Only a chain head can be voided (`superseded`): **accepted.**
+3. The review line of an act against a later-voided record is not shown: **accepted** (C6 (8) privacy proviso).
+4. No strike-through on the voided line: **accepted.** It follows the 13:28 wording decision ("as a label, not a strike"); the earlier ASM1-C2 phrase "shown struck" is replaced by it.
+5. For mixed plans the `voided` sentence wins: **accepted.**
+6. «Ersetzen» in the `cra` sentence against the button "Korrigieren (ersetzen)": **accepted for synthetic data**, fixed by ASM1-C7 (UXR-84).
+
+**Engineering note (OPEN for `po` in the 12:30 comment): migration 0106 sorts below the merged 0107 to 0122.** Decision: no renumbering after the merge (a rename now changes the history of a merged file). CI applies it on a fresh database, where it is correct. **Condition for `eng`:** before migrations are applied to any persistent database (staging, T12), confirm that the tool applies an out-of-order version, or record the handling in an ADR.
+
+**Decision: `accepted`.** CGR-103 and CGR-104 close with this merge (`cra`). ASM1-C6 meets its deadline (before the first real assessment record).
+
+- [ ] **ASM1-C7 Void step polish** (follow-up; **deadline: before the first real assessment record**; does not hold this acceptance):
+  - (a) `cra` CGR-113: when the record has `supersedes_id`, the confirming step shows, before submit, "Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr." (`uxa` wording; `cra` confirms). Vitest: present when `supersedes_id` is set, absent otherwise.
+  - (b) `uxa` UXR-84: the supersede sentence quotes «Korrigieren (ersetzen)» from the same constant as the button. Vitest on the constant.
+  - (c) `uxa` UXR-85: the free-text label reads "Grund (10–500 Zeichen)". Vitest: the label names the bounds that `voidSubmitEnabled` checks.
+  - (d) `uxa` UXR-86: after a refusal, focus moves to "Irrtümlich erfasst markieren" or the error line. Vitest or Playwright.
+
+  Owner: `eng`. Order: after the COORD-7 queue items ahead of it; one small PR.
+
+*Why accepted:* a record entered for the wrong client was the last way an assessment could stay visible to a team that must not see it (CGR-103) or leave a plan resting on a record that is no longer current with no sign of it (CGR-104). Both are now closed in the database, not only on screen. The care value is safety and continuity (values 2 and 6); the void is one tap for the common case (P-37), with no form to fill.
+
+## PO correction — 2026-11-07 19:40 CET (Founder FE-052)
+
+The 17:39 review above says "**accepted**". Under FE-052 that word is replaced by the separate facts: **merged** (`5d15391`, head `b386c14`); **tests run** in CI on the merge commit (run 42392510972: `app`, `db`, `e2e`, `ui-screenshots` success); **reviewed** (`cra` gate clear on `b386c14`, advisory); **clinical release: not given** (no Clinical Owner, D-27, G-1); **block acceptance (B7): not given**. The evidence table and the deviation decisions above stay valid as the PO's check against the brief. ASM1-C7 stays open.
+
