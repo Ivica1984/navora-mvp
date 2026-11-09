@@ -258,3 +258,8 @@ Merged by the PO as `5d15391` on head `b386c14` (merge record on #815; `cra-gate
   Owner: `eng`. Order: after the COORD-7 queue items ahead of it; one small PR.
 
 *Why accepted:* a record entered for the wrong client was the last way an assessment could stay visible to a team that must not see it (CGR-103) or leave a plan resting on a record that is no longer current with no sign of it (CGR-104). Both are now closed in the database, not only on screen. The care value is safety and continuity (values 2 and 6); the void is one tap for the common case (P-37), with no form to fill.
+
+## PO correction — 2026-11-07 19:40 CET (Founder FE-052)
+
+The 17:39 review above says "**accepted**". Under FE-052 that word is replaced by the separate facts: **merged** (`5d15391`, head `b386c14`); **tests run** in CI on the merge commit (run 42392510972: `app`, `db`, `e2e`, `ui-screenshots` success); **reviewed** (`cra` gate clear on `b386c14`, advisory); **clinical release: not given** (no Clinical Owner, D-27, G-1); **block acceptance (B7): not given**. The evidence table and the deviation decisions above stay valid as the PO's check against the brief. ASM1-C7 stays open.
+

@@ -4,6 +4,109 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 20:00 CET · po (Product Owner)
+
+Scheduled PO run (started 19:39, written 20:00), the first one under **FE-052**. PR #978 (live session) was already merged as `f350085`, so this run uses `po/cycle-2026-11-07-1939`. This prompt still says "merge one Engineering PR per run". `FOUNDER_DECISIONS.md` v12 (FE-052) suspends that for feature PRs, so this run follows FE-052 (README rule 10). The contradiction is listed under prompt changes below.
+
+- **Merges (A):**
+  - **#980 merged** (Block B0: CI2 with the B0-1 configuration, issue #976, ADR-167) as `75ff53a`, on head `9433c23`, with the title `PO merge #980: CI2 with B0-1 configuration (head 9433c23)`.
+  - **Why it could merge:** this is B0 work, not a feature PR, so `PRODUCT_BLOCKS.md` §8 (1) applies.
+  - **Conditions:** all seven held on that head:
+    - CI run 42403021994 was 4/4 green, `clean`;
+    - 0 reviews and 0 threads;
+    - the PO read the `.github/` diff and found nothing weakened.
+
+    The PO waited for the e2e job of `eng`'s last docs commit before merging. The record comment is on #980.
+  - **Not merged:** #907 and #971 (`dirty`, they wait for `eng`), and the probes #981 and #982 (never merge; `eng` closes them).
+- **Review (C):**
+  - Under FE-052 per-PR "accepted" is no longer used. The CI2 evidence table is in `briefs/CI2.md`:
+    - **shown:** CI2-1 to -4 and -6, from probe #981 (fast path, `full=false` verified in the log) and #982 (docs plus `src/app`, full jobs);
+    - **open:** CI2-5 and CI2-7.
+  - **CI2 is in review, not accepted.** Three deviations were decided.
+  - B0-1 stays *open* in `PRODUCT_BLOCKS.md`: the configuration is merged, but the test case (three quick merges, each green) is not shown yet.
+  - The push run on `75ff53a` was still running when this entry was written. The next PO run reads it for CI2-5.
+  - **No block is accepted.** The PO ran no test.
+- **Issues (B):** no new `agent:po` issue since the 19:40 live session. No `claimed` label was set.
+- **Decisions (F):**
+  - No new input on D-22, D-18, D-41, D-43 or D-44 since 17:39, so no package was advanced, decided or escalated.
+  - E-1 to E-4 are with the founder (`PRODUCT_BLOCKS.md` §7).
+  - The PO does not repeat them.
+- **Prioritisation (D, G):** this run approved no new brief. While the freeze holds, the order is B0-1 evidence, then B0-2 to B0-8. A feature brief now would only lengthen a queue that cannot merge.
+- **Challenge (E):**
+  - *Why does PR #3 exist as an open PR today?* It re-runs all four jobs on every push to `recovery/main`, on commits the push run already tests: about 717 of 4 015 minutes a day (18 %, ADR-167). Merging into `main` is blocked by D-7 and D-8 anyway.
+  - **Proposal under D-8 (#68), for the owner:** close #3 until D-8 is due, and reopen a fresh `recovery/main` → `main` PR then. This is reversible and loses no history, and it removes the largest duplicate. If D-8 needs the PR open, the alternative is the ruleset (B0-6) plus one run per merge commit.
+  - Even with both, CI2-1 projects about 28 000 min/month, against 3 000 on Pro. **Going private (FE-045 stage 4) still needs an owner budget decision**, and the price is UNKNOWN.
+  - *If NAVORA were built from scratch today, would every role push several times per run?* No. One push per run is a prompt change for the owner (ADR-167 lever 3).
+- **Blueprint v2.29** (version row; header). `PRODUCT_BLOCKS.md` B0-1 line and §9. `ROADMAP.md` line 07.11. 19:39. `NEXT_CAPABILITY.md` *Active now*. Synchronised: #980 (merge record), #976 and #68 (comments).
+- **Scheduled-task prompt changes for the owner** (the PO edits none). FE-052 / `PRODUCT_BLOCKS.md` §8 (6) (a) and (d) still apply to the PO prompt:
+  - step A still says "merge (merge commit) the next Engineering PR … at most one Engineering PR per run";
+  - the FE-033 block still names the "PLAN3 stack #891 to #910".
+
+  New: (e) all role prompts: one push per run, for CI minutes.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: close #981 and #982. Next is B0-1 evidence (three merge commits, each with a complete green push run, read through the API), then B0-2. One PR per criterion, each starting with `Block: B0`. Merge `recovery/main` into #907 and #971 when you can.
+  - `cra`, `lca`, `uxa`, `aia`, `csa`: no change from the 19:40 tasks. CI2 means a docs-only role PR now gets fast db, e2e and ui-screenshots checks, with the same names.
+
+---
+
+## 2026-11-07 19:46 CET · eng (Engineering)
+
+Same run as the entry below, CI result. **Block: B0.** PR #980 (CI2 + B0-1 config).
+
+- First CI run 42401751165 (head `f226733`): `app` failed: typecheck TS2339 in `tests/unit/ci2-scope.test.ts:138` (env copy without the `NodeJS.ProcessEnv` type); `npm test` itself passed in that job. Fixed in `50b6647`.
+- CI run **42401933240** on `50b6647`: app, db, e2e, ui-screenshots all **success**.
+- **CI2-2 evidence:** probe #981 (one `docs/` line on top of #980), run 42401936057 on `e077dc5`: all four jobs success; `db` 5 s, `e2e` 6 s, `ui-screenshots` 8 s with the notice `full=false: 1 files, all under docs/: verified docs-only`; `app` ran in full (88 s).
+- **CI2-3 evidence:** probe #982 (`docs/` plus `src/app/page.tsx`), run 42401937641 on `5cf4792`: notice `full=true: changes outside docs/: src/app/page.tsx`; `db`, `e2e`, `ui-screenshots` ran every step (70 screenshots); all success.
+- Both probes closed unmerged. Status row CI2 `in-review` with #980. Local suite as in the 19:30 entry (npm registry unreachable; agents-check passed). This status commit gets its own CI run, recorded on #980.
+
+---
+
+## 2026-11-07 19:30 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0.** Branch `feature/hourly-update-2026-11-07-ci2`, issue #976 (CI2, `active`), claimed 19:11.
+
+- **Step A (own PRs):** #907 and #971 are green; #971 conflicts with `recovery/main` on `JOURNAL.md` again. **Task adjusted (README rule 11):** not merged up this run. Both PRs are docs-only and frozen by FE-052 (po comment 18:45); each merge-up costs a full CI run (about 19 min) and is undone by the next PO merge, the very cost CI2 is about. Merge-ups resume when the PO lifts the freeze or asks for one.
+- **CI2 (ADR-167), IMPLEMENTED on the branch, CI decides:** `scripts/ci-scope.mjs` (deterministic, fail-closed) plus step gates in `db`, `e2e`, `ui-screenshots`: a PR whose merge commit changes only `docs/` keeps the four check names and passes only after verifying the diff; every other path, every push, an empty diff, a non-merge HEAD or a missing `GITHUB_OUTPUT` runs in full or fails. `app` unchanged (agents-check stays, CI2-4). Tests first: `tests/unit/ci2-scope.test.ts` (rule, CLI on real git merge commits, workflow wiring, concurrency).
+- **B0-1 configuration included:** pushes to `main`/`recovery/main` get a `concurrency` group per commit, so a merge commit's run is neither cancelled nor replaced (needed for CI2-5). Deviation recorded in the status row; B0-1 evidence is for after the merge.
+- **Measured (CI2-1), Actions API, 2026-11-06 UTC:** 212 runs, 4 015 billed job-minutes; docs-only PR runs 47 (762 min); PR #3 re-runs every `recovery/main` push (36 runs, 717 min); cancelled 484 min. Saving about 527 min a day (13 %). **The ≤ 3 000 min a month target is not met by CI2 alone** (about 35 000 a month projected at the 7-day average); overage price UNKNOWN (owner). Further levers listed in ADR-167 for `po` (PR #3 duplicates, MERGE1, fewer pushes per role run).
+- **For `po`:** brief CI2 says "after MERGE1"; built first because MERGE1 is blocked and the watcher activated CI2. FE-052 orders B0-1 to B0-8 one PR per criterion; this PR carries CI2 and the B0-1 config together because CI2-5 depends on it. No contradiction with `FOUNDER_DECISIONS.md` found otherwise.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve (getaddrinfo ENOTFOUND; via the proxy no response), `--offline` fails (ENOTCACHED); so `npm run lint`, `typecheck`, `npm test`, `npm run build` could not run. `node scripts/agents-check.mjs` ran and passed. `test:db`, `e2e`: could not run (no Supabase CLI, no Docker, no node_modules). Extra, **not** a substitute for `npm test`: the new test file ran under Node 22 type stripping with a minimal vitest shim, 32/32 passed, and a mutation (gate removed from the Playwright step) made the wiring test fail. Owner: E-1 / FE-046 (registry) still not effective in this session.
+- **CI:** recorded on the PR once every job has finished. Clinical gate: out of scope (CI only). No personal or health data. Live project not touched.
+
+---
+
+## 2026-11-07 19:40 CET · po (Product Owner)
+
+Live session with the founder (not a scheduled run). The founder's message reorganises the work, and it is recorded as **FE-052** (`FOUNDER_DECISIONS.md` v12). This branch is `po/founder-reorg-2026-11-07-1840`, PR #978.
+
+- **Starting point (FE-052):** NAVORA has no demonstrably viable pilot yet. *Merged*, *tests run*, *reviewed*, *released* and *accepted* are separate facts. **No block is accepted.** Every earlier "accepted" means a PO check against the brief with CI on the PR.
+- **Merge freeze:** no Engineering feature PR merges until block B0 is accepted. The FE-018/FE-033 merge step is suspended for features. A single security fix may still go in after a documented risk review. Comments are on #907 and #971.
+- **New:** `docs/product/PRODUCT_BLOCKS.md` holds blocks B0 to B12 with owner, reviewer, approver, dependencies, result and state; the acceptance definition; B0-1 to B0-8; the two Phase A flows with stop cases; the path to Phase A and B; and decisions E-1 to E-4. `docs/product/inventory/INVENTORY_2026-11-07.md` covers 701 merged PRs and 256 issues, generated automatically from the GitHub API and checked in samples.
+- **Findings:**
+  - 36 of the 167 product, test and CI PRs have no green run on their own merge commit;
+  - on 13 `recovery/main` commits the same commit was both green and red;
+  - #919: the cause was never reproduced, so it is **reopened** (B0-4);
+  - **#979** is new: the UX2-23 e2e test fails intermittently (contract end / access end);
+  - #603 has a comment;
+  - the AN3 status files contradict each other (B10);
+  - the repository is public, with no ruleset and no secret scanning;
+  - there are no local tests (the npm registry does not resolve, and there is no Docker daemon);
+  - there is no staging and no restore test.
+- **Correction:** at 17:39 the PO called ASM1-C6 "accepted". It is merged, CI is green on `5d15391`, and `cra` raised no blocking finding, but there is no clinical release and no block acceptance. A correction section is in `briefs/ASM1.md`.
+- **Blueprint v2.28:** new §0 (block states lead over the milestone percentages); version row; correction of v2.27. `ROADMAP.md` line 07.11. 19:40. `NEXT_CAPABILITY.md`: the merge-freeze note.
+- **For the founder:** E-1 (local tests), E-2 (scheduled tasks during the reorganisation), E-3 (the AI documentation draft in Phase A) and E-4 (M9 date), all in `PRODUCT_BLOCKS.md` §7. Four prompt changes are proposed in §8 (6); the PO edits no scheduled task.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed. Live project not touched. No personal or health data.
+- **To the agents (binding through FE-052, README rule 10):**
+  - `eng`: B0-1 to B0-8 in that order, one PR per criterion; no feature PR; every PR and issue starts with `Block: B<n>`.
+  - `cra`: B0-3 and B0-4 (#919, #979).
+  - `lca`: B0-6 and B0-7; NH-A1 gate (c); the E-3 provider question.
+  - `uxa`: block test cases for B1 and B4.
+  - `aia` and `csa`: concept work only.
+  - Scheduled PO runs: merge no feature PR; leave #978 to the live session.
+
+---
+
 ## 2026-11-07 18:10 CET · eng (Engineering)
 
 Scheduled run, step A only (own open PRs); no issue claimed, no code change.
