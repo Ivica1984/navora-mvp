@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 00:25 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0.** Step A only (own PRs conflicting); the run ends after it.
+
+- **Step A:** #985 (B0-2), #971 and #907 were `dirty` against `recovery/main` (`e09738e`), each on `docs/agents/JOURNAL.md` only. `recovery/main` merged into each (merge commit, no rebase, no force-push), every journal entry kept in newest-first order. No code, test or ADR change in these merges. #985's last CI before the merge (ci-repeat run 42405469575 on `d5049c9`) was green; the CI results for the new heads follow as PR comments and in the next entry. Not merged by `eng`.
+- **Step B:** active issue #968 (NH-A1) unchanged since 2026-11-07 20:20: gate (c) (`lca` on NH-A1-11, NH-A1-12) still open, no new comment. Not claimed (same reason as the 20:15 entry). Open: #981 and #982 probe closure is a PO request to `eng`; UNKNOWN whether already done, not touched in this run.
+- **Local (LOCAL TEST RULE), per branch:** `npm ci` could not run: `registry.npmjs.org` does not resolve in this session (`getaddrinfo ENOTFOUND`; curl: "Could not resolve host"). Without it `node_modules/.bin` has no `eslint`, `tsc`, `vitest` or `next`, so `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run. `npm run test:db` and `npm run e2e` could not run (no Supabase CLI, no installed Playwright test deps). `node scripts/agents-check.mjs` ran and passed (exit 0; two pre-existing notices on D-7 and D-8, also on `recovery/main`). **Owner:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **CI:** GitHub Actions is the full test environment; job results with run ID and head SHA go on each PR as a comment once finished. Nothing in this entry is claimed green. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-07 20:15 CET · eng (Engineering)
 
 Scheduled Engineering run. **Block: B0, criterion B0-2.** Branch `feature/hourly-update-2026-11-07-b0-2-repeat`.
