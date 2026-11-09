@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 00:25 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0.** Step A only (own PRs conflicting); the run ends after it.
+
+- **Step A:** #985 (B0-2), #971 and #907 were `dirty` against `recovery/main` (`e09738e`), each on `docs/agents/JOURNAL.md` only. `recovery/main` merged into each (merge commit, no rebase, no force-push), every journal entry kept in newest-first order. No code, test or ADR change in these merges. #985's last CI before the merge (ci-repeat run 42405469575 on `d5049c9`) was green; the CI results for the new heads follow as PR comments and in the next entry. Not merged by `eng`.
+- **Step B:** active issue #968 (NH-A1) unchanged since 2026-11-07 20:20: gate (c) (`lca` on NH-A1-11, NH-A1-12) still open, no new comment. Not claimed (same reason as the 20:15 entry). Open: #981 and #982 probe closure is a PO request to `eng`; UNKNOWN whether already done, not touched in this run.
+- **Local (LOCAL TEST RULE), per branch:** `npm ci` could not run: `registry.npmjs.org` does not resolve in this session (`getaddrinfo ENOTFOUND`; curl: "Could not resolve host"). Without it `node_modules/.bin` has no `eslint`, `tsc`, `vitest` or `next`, so `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run. `npm run test:db` and `npm run e2e` could not run (no Supabase CLI, no installed Playwright test deps). `node scripts/agents-check.mjs` ran and passed (exit 0; two pre-existing notices on D-7 and D-8, also on `recovery/main`). **Owner:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **CI:** GitHub Actions is the full test environment; job results with run ID and head SHA go on each PR as a comment once finished. Nothing in this entry is claimed green. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-07 20:15 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0, criterion B0-2.** Branch `feature/hourly-update-2026-11-07-b0-2-repeat`.
+
+- **Step A (own PRs):** #980 (CI2) was merged by the PO (`75ff53a`); its push run 42403923562 and PR #3 run 42403927625 on `75ff53a` are green (all four jobs). #971 and #907 conflict with `recovery/main` again (`JOURNAL.md`); not merged up, as in the 19:30 run: both are docs-only and frozen by FE-052 (po comment 18:45), and each merge-up is undone by the next PO merge.
+- **Step B, task adjusted (README rules 10 and 11):** the active issue is #968 (NH-A1). Not claimed: its build gate (c) (`lca` on NH-A1-11, NH-A1-12) is still open (brief, PO decision 17:39: "no build before gate (c)"), and FE-052 / `PRODUCT_BLOCKS.md` §8 (5) give `eng` the order B0-1 to B0-8, one PR per criterion. **Contradiction reported:** the scheduled prompt says "take the active issue"; FE-052 (newer founder decision) holds. The watcher activates feature items that FE-052 freezes; for `po`: a B0 row or brief would let the watcher route B0 work.
+- **B0-1:** configuration merged with #980. Evidence so far: push run of the merge commit `75ff53a` complete and green (42403923562). Still open for the criterion: three quick merges in a row, each merge commit green (needs PO merges), and the negative case. Not claimed as passed.
+- **B0-2 (ADR-168), IMPLEMENTED on the branch, CI decides:** `.github/workflows/ci-repeat.yml` runs `db` and `e2e` as a matrix of 10 attempts (`repeat/2/…`: 2) on a push to a `repeat/**` branch, `fail-fast: false`, never cancelled, own check names (never the four required ones). The file is generated from `ci.yml` by `scripts/ci-repeat.mjs` (`--check` / `--write`), so the steps cannot drift. **Deviation from the criterion text:** no `workflow_dispatch`, because GitHub dispatches only workflows on the default branch `main`, which has none yet (PR #3). Tests first: `tests/unit/b0-2-ci-repeat.test.ts`.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve, and through the proxy `CONNECT` is refused (`connect_rejected`; the host is not allowed in this session's network settings). Therefore `npm run lint`, `npm run typecheck`, `npm test` (vitest), `npm run build` could not run. `npm run test:db`, `npm run e2e` could not run (no dependencies, no Supabase CLI). Ran and passed: `node scripts/agents-check.mjs`; `node scripts/ci-repeat.mjs --check`; the test file's assertions replayed in plain Node (14 checks, all ok; not vitest); the generated YAML parses (Python `yaml.safe_load`).
+- **CI:** results per job with run ID and head SHA follow on the PR and in the next entry. Clinical gate: out of scope (CI only, no assertion changed). No personal or health data. Live project not touched.
+
+---
+
 ## 2026-11-07 20:00 CET · po (Product Owner)
 
 Scheduled PO run (started 19:39, written 20:00), the first one under **FE-052**. PR #978 (live session) was already merged as `f350085`, so this run uses `po/cycle-2026-11-07-1939`. This prompt still says "merge one Engineering PR per run". `FOUNDER_DECISIONS.md` v12 (FE-052) suspends that for feature PRs, so this run follows FE-052 (README rule 10). The contradiction is listed under prompt changes below.
