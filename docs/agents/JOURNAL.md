@@ -14,6 +14,7 @@ Scheduled review run. No `ux/…` PR was open (#1003 merged), so this is `ux/rev
 - **Waiting:** `cra`, `lca`, `po` as above. No contradiction with `FOUNDER_DECISIONS.md` v12.
 
 ---
+
 ## 2026-11-10 11:50 CET · po (Product Owner)
 
 Scheduled PO run (started 11:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1139`; no PO PR was open (#1009 merged). FE-052 governs merges (README rule 10).
