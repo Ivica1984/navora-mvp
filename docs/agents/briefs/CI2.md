@@ -64,3 +64,14 @@ FE-045; D-7; `PO_MERGE_PROCESS.md` §4 conditions 1 and 7; MERGE1 (fewer conflic
 3. Brief question 1 was answered from GitHub documentation that was not re-read. **Accepted for Phase A.** The probes show the behaviour directly: no check stayed pending.
 
 **What this does not solve (for the owner, FE-045 stage 4):** going private still costs about 32 000 minutes a month over the included minutes. The largest single lever named in ADR-167 is PR #3, which re-runs every push to `recovery/main` (about 717 min/day, 18 %). The PO proposes it under D-8 (#68). See the journal entry of 19:39.
+
+## PO review 2026-11-10 00:39 CET (scheduled PO run): evidence update, not yet accepted
+
+**The PO ran no test.** Every result below was read through the GitHub Actions API.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CI2-5 pushes stay full | **shown for 2 merge commits; 2 more running** | Push run 42403923562 on `75ff53a` (#980): `app`, `db`, `e2e` and `ui-screenshots` all ran in full and finished `success`, with none cancelled. The `e2e` job took 9 min, so the run was not the fast path. The push run on `e09738e` (PO #984) is the same: four jobs, `success`. The push runs on `407568a` (#985, run 42722929299) and `395d8c6` (#983) were still running when this entry was written. The next PO run reads them. |
+| CI2-7 measured after | **in progress (day 1 of 7 with data)** | **2026-11-08 (UTC):** 0 runs, because no role ran. **2026-11-09 (UTC):** 7 runs, about 41 job-minutes (job durations rounded up per job; 2 runs were still in progress). The docs-only PR runs of #907, #971 and #983 took **5 job-minutes each** on the CI2 fast path. The B0-2 PR #985 (code) took 17. A day with almost no agent activity is no baseline: the figure for a normal working day is still UNKNOWN. |
+
+**CI2 stays in review.** Acceptance follows once CI2-5 holds on three or more merge commits in a row and CI2-7 has 7 days of data (to 2026-11-14), or earlier if the founder asks.

@@ -4,6 +4,59 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 01:05 CET · po (Product Owner)
+
+Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
+
+- **Merges (A):**
+  - **#985 merged** (Block B0, criterion B0-2: repeat check, ADR-168) as `407568a` on head `db33961`, title `PO merge #985: B0-2 repeat check (head db33961)`.
+    - **Why:** this is B0 work, not a feature (`PRODUCT_BLOCKS.md` §8 (1)).
+    - **Seven conditions** all held: CI run 42718953292 4/4 green and `clean`; 0 reviews and 0 threads. The `.github/` diff adds `ci-repeat.yml` only: it runs on `repeat/**` pushes, has `contents: read` and its own check names. `ci.yml` is unchanged, so no required check is weakened.
+    - **Deviation accepted:** no `workflow_dispatch`, because `main` has no workflows (D-8). The push trigger gives the same record.
+    - The record comment is on #985.
+  - **#983 merged** (`uxa` 19:55) as `395d8c6` on head `dc56f4f`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, 0 lines missing against either parent). CI2 fast path green. The record comment is on #983.
+  - **Not merged:** #907 and #971. Only one Engineering PR goes in per run (§4 stop rule), and both are now `dirty` again (`JOURNAL.md`).
+- **Decision (D, product authority):** #907 (weekly status) and #971 (owner answers 07.11.) change only `docs/`. They are **docs PRs, not features**, so the 07.11. 18:45 freeze comment was too broad. They go in under `PRODUCT_BLOCKS.md` §8 (1), one per run: **#907 next, then #971.** There is a comment on each.
+- **Review (C):**
+  - **B0-2 is not shown.** The mechanism is merged. The evidence is 10/10 on the B0 candidate, after B0-3 and B0-4.
+  - **CI2:** CI2-5 is shown for `75ff53a` and `e09738e`: full push runs, green, none cancelled. The push runs on `407568a` (42722929299) and `395d8c6` (42723504288) were still running at 01:05; the next run reads them. They are also the B0-1 positive case ("3 quick merges, each green") together with this run's PO merge. The B0-1 negative case is still missing.
+  - **CI2-7:** day 1 is recorded in `briefs/CI2.md`. Docs-only PR runs take 5 job-minutes on the fast path; #985 took 17.
+  - **CI2 stays in review. No block is accepted.** The PO ran no test.
+- **Prioritisation (D, G): brief `briefs/B0.md` approved**, *Next up* order **-1**. `eng` reported (07.11. 20:15) that the watcher marked NH-A1 (#968) `active`, although FE-052 freezes it. With B0 at rank 999 the planner now returns `active: B0`. The PO checked this locally with `parse.mjs` and `plan.mjs` on this branch; it is not a CI test. The B0 criteria stay in `PRODUCT_BLOCKS.md` §4; the brief adds only the one-PR-per-criterion rule and the acceptance form. `eng` adds the status row.
+- **Block test cases:** the `uxa` cases B1-UX-1 to -7 and B4-UX-1 to -8 are taken as the UX part of §3 no. 3 in the B1 and B4 rows. These have **no e2e**: B1-UX-2 (390 px), B1-UX-3, B1-UX-6 (UXR-145), B4-UX-1 (390 px, UXR-144) and B4-UX-2. They are test gaps for `eng` after B0. **B1-UX-4 answered:** "Rückfrage" is not built (not found in `src/`). It is PLANNED and not part of B1's Phase A acceptance.
+- **Challenge (E):** *Why does a team ask Operations, which then asks the referrer?* Routing the question through Operations is an intake-coordinator layer. The question belongs with the person who holds the answer, on the referral record. New challenge row: Rückfrage becomes a team-to-referrer question inside REF2 (draft, D-9 and D-3), with no relay through Operations. Pilot hypothesis: time from referral to team decision. *If NAVORA were built from scratch, would the coordination watcher pick work from a queue that the founder has frozen?* No. B0 now leads the queue, so the queue and FE-052 agree.
+- **Issues (B):** no new `agent:po` issue since 07.11. No `claimed` label was set.
+- **Decisions (F):** no `cra` or `lca` run since 07.11. 17:29, and no input on D-22, D-18, D-41, D-43 or D-44. Not two of their runs have passed, so no section is drafted by `po`. Nothing was decided or escalated. E-1 to E-4 stay with the founder.
+- **Blueprint v2.30** (version row; header). Also updated: `PRODUCT_BLOCKS.md` (B0-1, B0-2, B1, B4, §9), `NEXT_CAPABILITY.md` (*Active now*, *Next up* -1, challenge row) and `ROADMAP.md` (line 10.11. 00:39). Synchronised: #985 and #983 (merge records), #907 and #971 (reclassification).
+- **Scheduled-task prompt changes for the owner** (the PO edits none). Still open from FE-052 §8 (6):
+  - (a) PO step A: "one Engineering PR per run" → FE-052 wording;
+  - (d) delete the "PLAN3 stack #891 to #910" line (FE-041 used it up);
+  - (e) one push per run for every role.
+
+  New: (f) the `eng` prompt says "take the active issue". With the B0 brief this now points at B0, so no change is needed as long as B0 leads *Next up*.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: add a B0 status row (`not-started`, then per criterion). Next is B0-3 (#979, #603, #919 with B0-4), then B0-2 evidence on the candidate. Merge `recovery/main` into #907 (merges next run) and #971.
+  - `cra`: B0-3 and B0-4 reviews when `eng` delivers them. UXR-145 (safety-note position and wording on `/field`, D-17).
+  - `uxa`: B1-UX-4 is answered (PLANNED, not in Phase A acceptance).
+  - `lca`, `aia`, `csa`: no change.
+
+### ENGINEERING BRIEF
+
+- **Capability:** B0, technical base and database security (`briefs/B0.md`; criteria B0-1 to B0-8 in `PRODUCT_BLOCKS.md` §4).
+- **Why:** FE-052. No block acceptance is valid until a test result on a named commit can be repeated and trusted.
+- **Business outcome:** blocks can be accepted, and Phase A (M9, 2027-03-12) can be shown on evidence rather than merge counts.
+- **Care outcome:** none directly. It is the precondition for every patient-safety test (SIG1, COND1, F1) counting as passed.
+- **Expected nurse outcome:** none directly. Features reach nurses only on a tested base.
+- **Expected team outcome:** no more argument over green or red. A team-facing flow is accepted once, on evidence.
+- **Expected patient outcome:** safety tests that hold 10 of 10 times, before real data.
+- **Acceptance criteria:** B0-1 to B0-8 with positive and negative cases (`PRODUCT_BLOCKS.md` §4); B0-A one PR per criterion; B0-B a block acceptance section by `po` under §3.
+- **Dependencies:** E-1 (founder: package source, for B0-5); founder clicks for B0-6; `cra` for B0-3 and B0-4; `lca` for B0-6 and B0-7.
+- **Priority:** *Next up* order -1. Ahead of every feature, under the FE-052 merge freeze.
+- **Implementation recommendation:** B0-3 next (reproduce, then fix #979, #603, #919). Then B0-2 10/10 on that commit. Then B0-7 (catalog test: `anon` grants and SECURITY DEFINER `search_path`) and B0-8 (migration order script). Record B0-5 and B0-6 as blocked with their owner until the founder acts.
+
+---
+
 ## 2026-11-10 00:25 CET · eng (Engineering)
 
 Scheduled Engineering run. **Block: B0.** Step A only (own PRs conflicting); the run ends after it.
