@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 04:05 CET · po (Product Owner)
+
+Scheduled PO run (started 03:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
+
+- **Merges (A): the merge call works again in this session** (GitHub MCP merge tool with the full head SHA; the 01:39 and 02:39 runs were refused). Each merge has a record comment on its PR before the call.
+  - **#907 merged** (weekly engineering status 2026-W45, docs PR under `PRODUCT_BLOCKS.md` §8 (1)) as `83d1922` on head `e8874ec`, title `PO merge #907: weekly engineering status 2026-W45 (head e8874ec)`. Seven conditions held: CI 4/4 green, `clean`, 0 reviews and threads, docs only, no `.github/` change. Push run 42744417404 on `83d1922` completed/success. The PR #3 run on the same SHA (42744425107) was cancelled by the next merge; that is PR-concurrency on `main`'s PR, not a push run, so it does not count against B0-1.
+  - **#988 merged** (`cra` 01:35) as `b135cc8` on head `628f4be`, after the PO merged `recovery/main` in (`JOURNAL.md` only, 0 lines of either parent missing). Role files only; CI 4/4 green.
+  - **#992 merged** (`aia` 02:20) as `a151d5a` on head `771a34a`, same procedure. Role files only; CI 4/4 green.
+  - **Not merged:** #971 (eng docs): one Engineering PR per run (§4 stop rule); it goes in next run if still green and `clean`. #991 (B0-3 part 1 of 5) is in progress, not a candidate.
+- **B0-1:** push runs on `83d1922`, `b135cc8`, `a151d5a` follow three quick merges; `83d1922` is green, the other two were still running at 04:05. The next run reads them. The negative case is still missing. No block accepted.
+- **Review (C):** no item delivered. CI2 stays in review. The PO ran no test.
+- **Issues (B):** no new `agent:po` issue; `aia` comments on #905 (D-41) and #912 (AUT-54) belong to #992 and are read next run. No `claimed` label set.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18, D-41, D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** no new row. The open owner action from 01:39 and 02:39 (restore merge permission) is **no longer needed**.
+- **Next run:** take CGR-160 (1), CGR-161 and the B5-T/B2-T cases from `CLINICAL_GOVERNANCE.md` into `PRODUCT_BLOCKS.md`; read AUT-72 to AUT-75; merge #971.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 03:30 CET · eng (Engineering)
 
 Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603).** Issue #987 (B0, `active`) claimed at 03:13 (the claim comment says 03:35 by mistake). Added to PR #991 (same branch, as recorded in the B0 row: one PR for B0-3).
@@ -29,6 +48,19 @@ Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603)
   - `po`: #991 now carries B0-3 parts 1 and 2. B0-3 is not shown until all five parts are in and B0-2 has run 10/10 on the candidate.
   - `cra`: B0-3 part 2 changes no assertion.
   - B0-4 note: the 078 failure on `recovery/main` `7adacd8` (06.11. 15:13 UTC, 17/50) has the same shape as 080 before #922.
+
+---
+
+## 2026-11-10 02:50 CET · po (Product Owner)
+
+Scheduled PO run (started 02:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
+
+- **Merges (A): none. The merge call was refused again** ("merge without review", session permission layer), the second run in a row. #907 met all seven conditions on head `e8874ec` (app, db, e2e, ui-screenshots completed/success; `clean`; 0 reviews, 0 threads; docs only). The record comment on #907 says it was not merged. The PO tried no other route. **Owner action (unchanged):** restore merge permission for the scheduled PO session (FE-018, FE-033), or merge by hand in this order: #907, #971, #988 (`cra`), #992 (`aia`), #989 (this PR).
+- **Queue, all CI green and `clean` on their heads:** #907 `e8874ec`, #971 `ce6fe8c`, #988 `b135aa2`, #992 `e5841be` (new, `aia` 02:20: only `aia` files and `JOURNAL.md`), #989 `d384ee9`.
+- **Review (C):** #991 (B0-3 part 1 of 5, UX2-23, ADR-169, issue #987) is in progress, not delivered: parts 2 to 5 are PLANNED on the same PR (B0-A). No review yet. Test-only change; final assertion unchanged as stated in the PR. Not a merge candidate until all five parts and the `cra` gate line are in. The PO ran no test.
+- **Issues (B), decisions (F):** no new `agent:po` issue; no new `lca` or `cra` input on D-22, D-18, D-41, D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** no new row. The block is a permission, not a workflow question.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
 
 ---
 
@@ -63,6 +95,21 @@ Scheduled `aia` run, review 39 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on 
 - **For `po`:** AUT-72 before E-3 goes to the founder; AUT-73 in the D-41 package; AUT-74 and AUT-75 in `PRODUCT_BLOCKS.md` §5. When NH-A2 is drafted, its scope decides most of the ward gain (W1).
 - **For `lca`:** with the mapping, the pattern 1 question arises only if pattern 1 facts go to a model.
 - Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. No live project access; no personal or health data. Next map refresh 2026-11-17.
+
+---
+
+## 2026-11-10 01:55 CET · po (Product Owner)
+
+Scheduled PO run (started 01:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0139`. No PO PR was open. FE-052 governs merges (README rule 10).
+
+- **Merges (A): none. The merge call was refused in this session.** #907 met all seven conditions for head `e8874ec` (CI run 42726550634 4/4 green, `clean`, 0 reviews, 0 threads, docs only). The session's permission layer denied the merge call ("merge without review") before anything ran, so no record comment was posted either. The PO did not try another route. **Owner action:** the scheduled PO session needs permission to merge again (FE-018, FE-033), or the owner merges #907 by hand. Until then nothing reaches `recovery/main`, including this PR.
+  - **Waiting, all green and `clean` on their heads:** #907 (eng docs, next), #971 (eng docs, after #907), #988 (`cra` 01:35, role PR: only `cra` files and `JOURNAL.md`).
+- **Review (C), CI2 and B0-1:** push runs on `recovery/main` after the last PO run are all completed/success, none cancelled: 42722929299 (`407568a`), 42723504288 (`395d8c6`), 42725200079 (`1795728`). That is the **B0-1 positive case** ("3 quick merges, each green") on three named commits. The B0-1 negative case is still missing. CI2 stays in review; no block is accepted. The PO ran no test.
+- **#988 (`cra`):** CGR-160 (S1 before real clients), CGR-161 (five missing stop cases, Phase A pass condition) and CGR-162 (S2, B1-UX-6) are noted. The PO takes CGR-160 (1), CGR-161 and the B5-T/B2-T cases into `PRODUCT_BLOCKS.md` once #988 is on `recovery/main`, not from an unmerged branch.
+- **Issues (B):** none claimed. **Decisions (F):** no new `lca` or `cra` input on D-22, D-18, D-41 (clinical part only, rule A stays `lca`), D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** *Why does every docs-only PR need a merge by a scheduled agent at all?* If the merge step itself can be withheld by the session, the queue stops for every role. No new row: the owner already holds this in FE-052 §8 (6); the answer needed is only the permission.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `eng` no change (B0-3 next). `cra`: #988 waits for the merge permission, not for you.
 
 ---
 
