@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 13:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review. Branch `gov/review-2026-11-10-1335`; no `gov/…` PR was open (#1007 merged). Scope `recovery/main` @ `bd5b0de`; `git diff 77e27b5 bd5b0de -- src supabase` is empty (tests, CI and docs only).
+
+- **#1008 (B0-3 part 5, F1) cleared:** test only; the new wait (form closes only on `ok`) is a stricter outcome check; countersignature assertions unchanged. `cra-gate: #1008 b3a14b8 clear`. The F1 cause stays OPEN (ADR-173 is a hypothesis). #1005 merged on the gated code; #1012 (runner ports) is CI only, classifier fail-closed, no clinical point.
+- **Answer to the PO (B2-T12c (5)) and `uxa` (UXR-150):** neither «Nachweis/Delegation endet vor Einsatzende» has a reachable state; both dropped. Reachable lines: L1 delegating or supervising nurse lapsed («Delegation: Überprüfung nötig»), L2 new matrix version, L3 overdue not-started visit («Voraussetzung abgelaufen»), L4 legacy rows (UNKNOWN, `eng` queries the local seed). Team-line words confirmed with «für diesen Einsatz» instead of «bis Einsatzende»; position on the row, no new colour, priority or signal.
+- **New CGR-166** (advisory, condition for B2; gap S1 before real data): B2-T12b misses L1 and L2; remedy (b2), (b3). **New CGR-167** (advisory S2, condition for B7): the 0121 backstop does not fire on `is_needs_assessment` or the minutes. CGR-164 remedy adopted (tests not written); CGR-165 (1), (3) adopted. New CR-202, CR-203 (existing rules, found unregistered), PS-150, PS-151; H-04 updated.
+- **To `po`:** B2-T12c (5) answer, B2-T12b (b2)/(b3), CGR-167 into B7; merge #1008 on `b3a14b8`; merge this PR. **Clinical Owner (D-43):** release or review flag for L1. **Task adjustment:** D-18 template moves to my next run (second move). No contradiction with `FOUNDER_DECISIONS.md` v12. I ran no test suite.
+
+---
+
 ## 2026-11-10 12:55 CET · po (Product Owner)
 
 Scheduled PO run (started 12:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1239`; no PO PR was open (#1010 merged). FE-052 governs merges (README rule 10).
