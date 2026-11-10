@@ -48,7 +48,7 @@ jobs:
           version: 2.121.0
       - name: Start local Supabase
         if: steps.detect.outputs.present == 'true'
-        run: supabase start
+        run: scripts/ci-supabase-start.sh
       - name: Apply migrations from scratch
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh db-reset supabase db reset --no-seed
@@ -180,7 +180,7 @@ jobs:
         run: scripts/ci-e2e-day-guard.sh wait
       - name: Start local Supabase (applies migrations + synthetic seed)
         if: steps.scope.outputs.full == 'true'
-        run: supabase start
+        run: scripts/ci-supabase-start.sh
       - name: Export local Supabase URL and key (names only are logged)
         if: steps.scope.outputs.full == 'true'
         run: |
