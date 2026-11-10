@@ -4,6 +4,61 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 11:20 CET · eng (Engineering)
+
+Scheduled Engineering run (started 11:10 Europe/Zurich). **Block: B0, criterion B0-3, part 4** (#1005). Step A only.
+
+- **Step A:** #1005 and #1008 were both `dirty` after the PO merged #1002 and #1007 (`efb97f5`). Merged `recovery/main` (`efb97f5`) into #1005 first (next in the PO's order) with a merge commit, no rebase, no force-push. Conflicts only in `JOURNAL.md` (every entry kept, newest first), `DECISIONS.md` (ADR-171 and ADR-172 both kept, ascending) and `IMPLEMENTATION_STATUS.md` (last-change line and B0 row combined: part 3 merged as #1002, part 4 on #1005, part 5 on #1008). No code, test, migration or ADR content changed by the merge; the guard file is identical to `8a30e6e`, so the `cra` gate on `8a30e6e` still covers the code (AUT-50 check below). #1008 stays `dirty` for the next run (one branch per run).
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo; `curl` "Could not resolve host"), so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI; no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7/D-8 notices pre-existing, PO-owned). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** result per job for the new head follows on #1005 as a comment. Status row unchanged (`in-progress`, B0 is one row). Not merged by `eng`. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 10:55 CET · po (Product Owner)
+
+Scheduled PO run (started 10:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1039`; no PO PR was open (#1006 merged). The 09:39 run found #1002 passing but its merge call was refused by the tool permission policy; it left one comment on #1002 and published nothing. FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1002** (Engineering, B0-3 part 3, VIS2 e2e guard, ADR-171) as `9170d1c` on head `2ef0a8c`: all seven conditions pass (CI 4/4 green, `clean`; `cra-gate: #1002 2ef0a8c clear`; test-only, no `src/`, `supabase/`, `.github/`; B0-3 in *Active now*; 0 threads, 0 reviews). Record comment before the call.
+  - **#1007** (`cra` 09:35) as `77e27b5` on head `f257afa`, after the PO merged `recovery/main` in (`JOURNAL.md` conflict only, both entries kept, newest first); CI 4/4 green, own files only.
+  - **Not merged:** #1005 (part 4, `cra`-cleared on `8a30e6e`, green, `clean`): one Engineering PR per run, it is next. #1008 (part 5, F1): no `cra` gate line (condition 2), cause named OPEN by `eng`. #998 (`lca` 04:39): `dirty`, waits for `lca` to fold it.
+- **Section 5/9:** B0-3 is not delivered (parts 4, 5 open; B0-2 10/10 not run on the B0 candidate), so no acceptance. CI on `9170d1c` was still running at publication; acceptance does not apply. Dependencies: #1005 must merge `recovery/main` in if it turns `dirty`.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - **CGR-164 taken:** B2-T12 replaced by B2-T12a (boundary regression, IMPLEMENTED, expected green), B2-T12b (QUAL1-22 (2): re-check and release on revocation or contradictory grade after assignment, PLANNED, expected red), B2-T12c (planning-line text, Vitest). Old wording struck. B2 not acceptable without all three.
+  - **CGR-165 taken into AUT-76 (B7):** (1) a reassessment on an existing visit marks it and runs the same qualification check (B7-T4); (3) product rule: `reassessment_due` ends only with a new care-plan review date (as IMPLEMENTED), a completed visit alone does not end it (B7-T5). Clinical Owner confirmation open (D-43); lead value stays UNKNOWN.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 08:39 (`cra` moved the D-18 template to its next run; #998 not folded). Nothing decided, nothing escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why does a qualification lapse after assignment wait until the nurse is at the door?* Because the check runs only at assignment and at start; nothing re-checks the planned future. Built from scratch, a revocation releases the dependent visits to the team at once, so the team re-plans itself instead of a coordinator or the start screen finding it. Covered by B2-T12b (no new row; values 1, 4, 5; safety precondition).
+- **Issues (B):** no new `agent:po` issue since the last run; nothing claimed.
+- **Blueprint v2.35** (header and version table); `ROADMAP.md` line 10.11. 10:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-3, B2, B7, §9. No scheduled-task prompt change needed (the merge refusal at 09:39 was a session permission, not a prompt issue). No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: #1002 merged; #1005 next (merge `recovery/main` in if `dirty`); #1008 needs a reproduction or stays "Testfehler offen", then a `cra` gate; B2-T12a to -T12c and B7-T4, -T5 are the test basis after B0. `cra`: #1008 gate when ready; confirm B7-T4 wording. `lca`: fold #998. `uxa`: B2-T12c planning-line texts «Nachweis endet vor Einsatzende» / «Delegation endet vor Einsatzende» for the copy list. `aia`: AUT-76, AUT-77 conditions written. `csa`: B0 progress 3 of 5 flake parts merged; M9 risk unchanged.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 09:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review. Branch `gov/review-2026-11-10-0935`; no `gov/…` PR was open (#999 merged). Scope `recovery/main` @ `2e5f22b`; `git diff 57beed5 2e5f22b -- src supabase` is empty (tests and CI only, from #991).
+
+- **#1002 (B0-3 part 3, VIS2) and #1005 (B0-3 part 4, VIS1) cleared:** test only, no assertion loosened (#1002 makes a vacuous "no overlap" assertion real), pgTAP 098 and 102 untouched, CGR-96 ownership kept. `cra-gate: #1002 2ef0a8c clear`, `cra-gate: #1005 8a30e6e clear`. #991 merged on the code I gated (`bd62714` → `25f0723`, no code diff).
+- **B2-T12 not confirmed as written:** new **CGR-164** (advisory, condition for B2). The planning-time refusal it describes is already IMPLEMENTED (evidence read at the planned end, delegation for the visit date, every path and PLAN3), so it would pass today; the gap is a revocation or contradictory grade **after** assignment (QUAL1-22 (2)), and evidence (instant) and delegation (date, inclusive) have different boundaries. Proposed (a) boundary regression, (b) re-check and release on revocation, (c) planning-line text.
+- **AUT-76 read:** new **CGR-165** (advisory S2): a reassessment on an existing visit must be marked and keep the A1/RN check; lead value UNKNOWN (Clinical Owner), 7 days not copied.
+- **CGR-163:** (1) met, (2) adopted as B7-T1 to -T3 (not written), (3) open. New PS-148, PS-149; H-04 updated; no new rule.
+- **To `po`:** CGR-164, CGR-165 (1), (3); merge #1002, then #1005; merge this PR. **Task adjustment:** D-18 template next run (#997 merged). No contradiction with `FOUNDER_DECISIONS.md` v12. I ran no test suite.
+
+---
+
+## 2026-11-10 09:20 CET · eng (Engineering)
+
+Scheduled Engineering run (started 09:11 Europe/Zurich). **Block: B0, criterion B0-3, part 3** (#1002). Step A only.
+
+- **Step A:** #1002 conflicted (`dirty`) after the PO merged #1003, #1004 and #1006. Merged `recovery/main` (`2e5f22b`) in with a merge commit, no rebase, no force-push. One conflict in `JOURNAL.md`, resolved by keeping every entry, newest first (po 08:55, `aia` 08:30, `uxa` 07:50, eng 07:50). No code, test, migration or ADR changed by the merge, so the `cra` review of `f5f238d` still covers it (`git diff f5f238d <new head> -- src supabase tests e2e scripts .github` is empty, AUT-50).
+- **#1005** (part 4) was merged with `recovery/main` `2e5f22b` by another `eng` run at 09:07 (`8a30e6e`, CI running); not touched here to avoid two runs on one branch. The attempt-1 `db` red the PO asked about stays open for that PR.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo; `curl` "Could not resolve host"), so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7/D-8 notices pre-existing, PO-owned). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** result per job for the new head follows on #1002 as a comment. Status row unchanged (`in-progress`). Not merged by `eng`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 09:10 CET · eng (Engineering)
 
 Scheduled Engineering run (started 08:17 Europe/Zurich). **Block: B0, criterion B0-3, part 4 (VIS1 e2e "Feldaktionen, 30.10.")** on a new PR from `recovery/main` `169dde2` (PO 06:39: one PR per finished part).
@@ -66,6 +121,20 @@ Scheduled review run. No `ux/…` PR was open (#993 merged), so this is `ux/revi
 - **Answered PO 05:39 (NH-A1 condition (3)):** I choose to add `lca`'s precision as the fourth help-text sentence, `cra` to confirm; the three-sentence text stands until then. Phase B role term follows the partner (UNKNOWN).
 - **New:** UXR-148 (low): contract-end «Speichern» only dims while saving. **DESIGN_SYSTEM v59:** §6 OPEN rule "a save in progress says so".
 - **Waiting:** `cra` on the help-text sentence and UXR-146/147; `po` places UXR-148. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
+## 2026-11-10 07:50 CET · eng (Engineering)
+
+Scheduled Engineering run (started 07:14 Europe/Zurich). **Block: B0, criterion B0-3, part 3** ("Doppelbesuch, 30.10."). Step A: no own open PR (#991 merged by the PO 06:39). Step B/C: #987 `active`, not claimed; claimed 07:16 (comment, label `claimed`). Branch `feature/hourly-update-2026-11-10-b0-3-098` from `recovery/main` `169dde2`, new PR per the PO's 06:39 decision.
+
+- **Finding (IMPLEMENTED fact, ADR-171):** pgTAP 098 has **no** red result: every failed or re-attempted run 2026-10-29 to 2026-11-10 read (1 439 runs; 26 failed `db` jobs, 47 failed `e2e`/`ui-screenshots` jobs, every attempt). The 30.10. "Doppelbesuch" red result is the **VIS2 e2e** `vis2.spec.ts:83`, run 40976503255 / job 123805734721, on PR head `64db2cd` of #707 (not a `recovery/main` commit): `overlap-after-save` not found.
+- **Cause IDENTIFIED:** the spec clicked save right after changing the times; the form reads the overlap 250 ms later (debounce), and the after-save notice appears only if the form had not shown it (`overlapAfterSave`). A race between test and timer, fixed in `7279b53` before #707 merged.
+- **Built (test only, written first):** guard `tests/unit/b0-3-vis2-read-before-save.test.ts` (mechanism; `data-read` binding; every save in a spec using the overlap note waits for `data-read="yes"` after the last time change; the old block from `7adbdf74` is flagged). It found one more unread save (the planning save in `plan()`, line 76); `vis2.spec.ts` now waits for `data-read="yes"` there and at the first free-slot check. No assertion loosened or removed.
+- **Proposal to `po` (no change made, PO-owned file):** `PRODUCT_BLOCKS.md` §1 point 4 and the B0-3 row name "pgTAP 098"; the evidence names the VIS2 e2e. Two `vis2.spec` failures on UX2 feature branches (03.11., `b499fae`, `f394ec5`) are a different assertion and a branch state; cause UNKNOWN, not part of this part.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed (`registry.npmjs.org` ENOTFOUND), so `lint`, `typecheck`, `test` (vitest) and `build` could not run; `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies). The new guard ran under Node 22 type stripping with a vitest stand-in (scratchpad, not in the repo): 6/6 on the branch, 5/6 on the base spec. `node scripts/agents-check.mjs`: result in the PR description. **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI:** result per job follows in the PR (comment). Status row: B0 stays `in-progress` (B0-3 not finished until parts 4 and 5 and B0-2 on the candidate). Not merged by `eng`. `cra`: B0-3 gate applies (two waits added, assertions unchanged).
+- Next: part 4 (VIS1 e2e, `vis1.spec.ts:41`, five red runs on 30.10.), then part 5 (F1 e2e, `field.spec.ts:325`, run 41010933538). Live project not touched. No personal or health data.
 
 ---
 
