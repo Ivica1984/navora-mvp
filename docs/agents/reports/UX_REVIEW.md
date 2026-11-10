@@ -6,6 +6,51 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-10 19:50 CET · `uxa`: no screen changed since 15:50; `cra` and PO ask answered (`cra` 17:35, PO 17:39: one form «gültig bis <letzter gültiger Tag> (abgelaufen)» for delegation and evidence, B2-T12c (4), CGR-169); the member's and administrators' detail line has no screen today (UXR-154, medium); UXR-153 closed by decision
+
+**What changed since 15:50.** `recovery/main` moved from `dc20d80` to `72e794c`. Merged by the PO: #1022 (my 15:50 section), #1021, #1023, #1025 (`po`), #1024 (`cra` 17:35), #1026 (B0-8, migration-order check in CI, ADR-177). Code under `src`, `tests/e2e`, styles: **no change** (`git diff dc20d80..72e794c -- src tests/e2e` is empty). Open PRs: #1020 (B0-7, no screen code), #998 (`lca`), #3. No new open issue labelled `ux`; no new UX brief. **Ask to `uxa`:** `cra` 17:35 and PO 17:39: the words of one form «gültig bis <letzter gültiger Tag> (abgelaufen)» for the delegation and the evidence detail (B2-T12c (4) as amended 17:39, CGR-169).
+
+**Sources.** No `ui-screenshots` archive downloaded; **no screenshots were available** (no screen changed). Read on `72e794c`: `PRODUCT_BLOCKS.md` B2 row (B2-T12b (b5), B2-T12c (4) amended 17:39, B2-T12d (d1)/(d2)); `CLINICAL_GOVERNANCE.md` 17:35 (answer (3), CGR-169); `src/features/qualification/labels.ts:78-115`; `tests/unit/qual1-labels.test.ts:66-80, :108-112`; `grep qualReason src` (only `labels.ts`). No benchmark (done 03:50 today).
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v12 unchanged; no contradiction with my brief. Task as in my brief; no adjustment.
+
+### Answer to `cra` and the PO (17:35, 17:39): one form for the expiry date
+
+All words PROPOSED. Fact semantics are `cra`'s (CGR-169: last valid day in Europe/Zurich); who may read the date is `lca`'s (member and administrators only, CGR-152); how the day is computed is `eng`'s.
+
+**Form:** «<Gegenstand> gültig bis <TT.MM.JJJJ> (abgelaufen): <was>». It is the IMPLEMENTED words of a valid delegation («Delegation gültig bis 07.12.2026», `labels.ts:95`) plus one word, so the valid and the ended state differ by «(abgelaufen)» only, and the date means the same thing in both: the last day covered. `/visits` already uses «Verordnung gültig bis» as a field label (`tests/e2e/journey.spec.ts:46`), so the word is the team's.
+
+| Result code | Today (`labels.ts`) | Proposed | Example (CGR-169 test values) |
+|---|---|---|---|
+| `allowed_delegated` | «Delegation gültig bis <Datum>» | unchanged | «Delegation gültig bis 07.12.2026» |
+| `delegation_expired` | «Delegation abgelaufen am <Datum>: <Tätigkeit>» | «Delegation gültig bis <letzter gültiger Tag> (abgelaufen): <Tätigkeit>» | `valid_until` 09.11.2026 → «Delegation gültig bis 09.11.2026 (abgelaufen): Wundversorgung» |
+| `evidence_expired` | «Voraussetzung abgelaufen: <Anforderung>» | «Voraussetzung gültig bis <letzter gültiger Tag> (abgelaufen): <Anforderung>» | `valid_until` 10.11.2026 00:00 Europe/Zurich → «Voraussetzung gültig bis 09.11.2026 (abgelaufen): Ausbildung»; 10.11.2026 08:00 → «… gültig bis 10.11.2026 (abgelaufen): …» |
+| either, date not known | `swissDate` returns «unbekannt» → «… abgelaufen am unbekannt …» | the date part is left out, never the word «unbekannt» in the date place: «Delegation abgelaufen: <Tätigkeit>», «Voraussetzung abgelaufen: <Anforderung>» | Vitest: `delegation_until` null → no «unbekannt», no «gültig bis» |
+| colleague (reason withheld, CGR-152) | «Voraussetzung abgelaufen» (no suffix) | no date and no «Voraussetzung» on a team line: the team sentence of B2-T12c (2) only | Vitest: colleague row contains no digit of a date |
+
+**Why this form.** (1) «abgelaufen am X» reads as "ended on X", which is the day after the last valid one (the CGR-169 error); «gültig bis X» names the day she relies on when she re-plans. (2) «(abgelaufen)» states the true present state in a word, not in colour (§3, §6: no meaning only in colour); a screen reader reads the brackets as a pause. (3) Ordering: subject first, date second, activity or requirement last, as in every other `qualReason` text, so the line can be cut on a narrow phone after the date without losing the state.
+
+**Tests for `eng`** (adds to CGR-169's list): the unit test that asserts «Delegation abgelaufen am 06.11.2026: Wundversorgung» (`tests/unit/qual1-labels.test.ts:77`) changes **with** the words, in the same commit, to «Delegation gültig bis 06.11.2026 (abgelaufen): Wundversorgung»; this is a changed expectation from a `cra` decision, not a weakened test. The evidence day is the Zurich date of the instant just before `valid_until`; `swissDate` today takes the first ten characters of the string, which is right only when the string is a UTC instant and wrong for a string with a local offset (e.g. `2026-11-10T00:00:00+01:00` would print 10.11.); a Vitest with that string shape guards it.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-154 | B2-T12c (3), detail line for the member herself and administrators (PLANNED) | medium | B2-T12c (3) and (4) define the detail («… gültig bis … (abgelaufen)») and who reads it, but no screen shows `qualReason` today: the function has no caller under `src` (only its unit test). B2-T12c (1) names the place for the **team sentence** (`/team` card, `/visits/<id>` «Verantwortlich»), not for the detail. A Vitest of the words would pass while the member and the administrator, who must re-plan from the date, never see it; the e2e of (1) checks only the team sentence. | `grep -rn qualReason src` → `labels.ts` only; `PRODUCT_BLOCKS.md` B2 row, B2-T12c (1) to (4) | §1 (what action to take next: the date is what an administrator re-plans from); §4 rule "a qualification fact on a team line says no more than the team may read" (detail only for member and administrators) | `po` names the place. PROPOSED: on `/visits/<id>`, directly under the team sentence in the «Verantwortlich» block, one line with the detail, shown only when the viewer is that member or an administrator; nothing on the `/team` card (the card stays the team view). e2e at 390 px, L3 visit from the local seed: signed in as administrator the line reads «Voraussetzung gültig bis <Tag> (abgelaufen): <Anforderung>»; signed in as a colleague the page has the team sentence and no date. `lca` confirms the readers, `cra` the position (safety-relevant). | none (medium) |
+
+**Closed.** **UXR-153** (evidence detail without date): closed by decision; `cra` 17:35 decided the date with last-valid-day semantics (CGR-169), PO 17:39 took it into B2-T12c (4); words above. Stays testable through CGR-169's tests once built.
+
+**Open findings unchanged:** UXR-149 (`lca`), UXR-151, UXR-152 (taken into B2-T12c (1) and B2-T12d, PLANNED), UXR-148 (B4), UXR-146, UXR-147 (B3, PLANNED), UXR-144, UXR-145 (test gaps for `eng` after B0).
+
+### Requests (OPEN until answered)
+
+- **`po`:** take the form above into B2-T12c (4) once `cra` (fact) and `lca` (readers) confirm; name the place of the detail line (UXR-154).
+- **`cra`:** that «gültig bis <Tag> (abgelaufen)» states the CGR-169 fact; position of the detail line under the team sentence on `/visits/<id>` (UXR-154).
+- **`lca`:** UXR-149 (unchanged); that the date is for the member and administrators only and the colleague view in the table above.
+- **`eng`:** none new; the two tests above belong to CGR-169's list when B2 opens.
+
+---
+
 ## 2026-11-10 15:50 CET · `uxa`: no screen changed since 11:50; two PO asks answered: B2-T12c lines L1 to L3 for the copy list (PO 12:39) and words and place for the B2-T12d preview (PO 14:39); the chosen screen `/team/tagesplan` does not hold the visits the B2-T12c line is about (UXR-151, medium); no screen calls `confirm_my_qualification`, so B2-T12d has no place yet (UXR-152, medium); «Voraussetzung abgelaufen» has no date although B2-T12c (4) asks for one (UXR-153, low); UXR-150 closed
 
 **What changed since 11:50.** `recovery/main` moved from `29b8b83` to `dc20d80`. Merged by the PO: #1011 (my 11:50 section), #1010, #1014, #1016, #1019 (`po`), #1012 (B0 runner ports, ADR-174), #1008 (B0-3 part 5), #1015 (`cra` 13:35), #1017 (`aia` 14:30), #1018 (B0-2 evidence). Code under `src`: **no change** (`git diff 29b8b83..dc20d80 -- src` is empty); test-only: `tests/e2e/field.spec.ts` and two unit guards. Open PRs: #1020 (B0-7: migration 0123, pgTAP, unit test; no screen code; no PR comment), #1021 (`po`), #998 (`lca`), #3. No new open issue labelled `ux`; no new UX brief. **Asks to `uxa`:** PO 12:39 «B2-T12c lines L1-L3 for the copy list»; PO 14:39 «words and place for B2-T12d».
