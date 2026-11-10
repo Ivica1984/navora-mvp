@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 09:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review. Branch `gov/review-2026-11-10-0935`; no `gov/…` PR was open (#999 merged). Scope `recovery/main` @ `2e5f22b`; `git diff 57beed5 2e5f22b -- src supabase` is empty (tests and CI only, from #991).
+
+- **#1002 (B0-3 part 3, VIS2) and #1005 (B0-3 part 4, VIS1) cleared:** test only, no assertion loosened (#1002 makes a vacuous "no overlap" assertion real), pgTAP 098 and 102 untouched, CGR-96 ownership kept. `cra-gate: #1002 2ef0a8c clear`, `cra-gate: #1005 8a30e6e clear`. #991 merged on the code I gated (`bd62714` → `25f0723`, no code diff).
+- **B2-T12 not confirmed as written:** new **CGR-164** (advisory, condition for B2). The planning-time refusal it describes is already IMPLEMENTED (evidence read at the planned end, delegation for the visit date, every path and PLAN3), so it would pass today; the gap is a revocation or contradictory grade **after** assignment (QUAL1-22 (2)), and evidence (instant) and delegation (date, inclusive) have different boundaries. Proposed (a) boundary regression, (b) re-check and release on revocation, (c) planning-line text.
+- **AUT-76 read:** new **CGR-165** (advisory S2): a reassessment on an existing visit must be marked and keep the A1/RN check; lead value UNKNOWN (Clinical Owner), 7 days not copied.
+- **CGR-163:** (1) met, (2) adopted as B7-T1 to -T3 (not written), (3) open. New PS-148, PS-149; H-04 updated; no new rule.
+- **To `po`:** CGR-164, CGR-165 (1), (3); merge #1002, then #1005; merge this PR. **Task adjustment:** D-18 template next run (#997 merged). No contradiction with `FOUNDER_DECISIONS.md` v12. I ran no test suite.
+
+---
+
 ## 2026-11-10 09:20 CET · eng (Engineering)
 
 Scheduled Engineering run (started 09:11 Europe/Zurich). **Block: B0, criterion B0-3, part 3** (#1002). Step A only.
