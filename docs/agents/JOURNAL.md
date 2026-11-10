@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 17:50 CET · po (Product Owner)
+
+Scheduled PO run (started 17:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1739`; no PO PR was open (#1023 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A): none.**
+  - **#1020** (Engineering, B0-7) **not merged** on head `dbc97fc`: condition 3 still fails (no `lca` gate line). CI run 42853382318 4/4 green; `cra-gate: #1020 dbc97fc clear` (clinical read only, `CLINICAL_GOVERNANCE.md` 17:35 on #1024). Condition unchanged since 15:39, so no new comment. COORD-7 exception (B0-8 may open) stands.
+  - **#1024** (`cra` 17:35) **meets the role-PR conditions** on head `1d6236d` (check-runs 4/4 `success`: app 129968655226, db 129968655465, e2e 129968654838, ui-screenshots 129968655411; `clean`; 0 reviews, 0 threads, 0 comments; own files only) but is **not merged**: the session's tool permission refused the merge call (with its record comment) as "merge without review". The PO did not try another route. The next PO run merges it (record comment first); this PO PR then conflicts on `JOURNAL.md` and keeps both entries.
+  - **This PO PR** is left open for the same reason; the next run merges it last.
+  - **Not merged:** #998 (`lca` 04:39): waits for `lca` to fold it. #3 (M2): D-8 path.
+- **Section 5/9:** no Engineering merge; no acceptance.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9 17:39), from `cra` 17:35 (read on #1024):**
+  - **CGR-168 → B2-T12b (b5):** (1) release is the result of re-running the check on affected future visits after any write that can change it (evidence, delegation, revocation, membership, contract end, matrix version), in one function that the B2-T12d count also uses; pgTAP with a direct fixture insert of a second verified grade, for a delegating nurse and for a delegate. (2) released states as CR-051: `planned`, `suspended` released; `on_the_way`, `started`, `paused` keep the member. The `started` wording in (b) and (b2) is struck. `eng` confirms the state list against 0046. Why: a rule keyed on named commands misses writes outside them, and a release at the client's door would take a visit off a nurse who is already there (values 2, safety precondition).
+  - **B2-T12d (d1)** carries `cra`'s two conditions (release independent of the preview; one function); (d2) adds «Abbrechen» leaves the record unchanged. The other-team case closes when `eng` confirms the `cra` code reading.
+  - **B2-T12c:** stale «Lage: … Tagesplan» sentence struck; (4) shows the last valid day in Europe/Zurich for delegation and evidence (UXR-153 decided by `cra`, CGR-169), tests as `cra` lists; also fixes the IMPLEMENTED delegation words. **L3 on `/team` decided:** the safety signal is `visit_overdue` (CR-038); if `/team` does not list an overdue earlier-day visit, no new row is built and the e2e uses a today L3 visit.
+  - **D-18 template (`cra` ask, rule 11):** waits until B2-T12a to -T12d stand without an open `cra` question; then the next `cra` run. BILL1 stays frozen (FE-052), so nothing is held up.
+- **Decisions (F):** no new `lca` input on D-22, D-18 or D-43 since 04:39; `cra` 17:35 reports no person decision. Nothing decided or escalated anew; D-43 stays `awaiting-approval: owner` (Clinical Owner items).
+- **Challenge (E):** *Why does a qualification release wait for someone to press a particular button?* It should not: the team's plan should follow the facts, whichever path wrote them. Built from scratch, the rule is "the check result decides", and commands are only triggers. No new challenge row.
+- **Issues (B):** no new or updated `agent:po` issue; nothing claimed.
+- **Blueprint v2.42**; `ROADMAP.md` 10.11. 17:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B2-T12b, -T12c, -T12d, §9. No scheduled-task prompt change needed for the content. **For the owner:** this run's tool permission refused the PR merge call that FE-033/FE-052 and `PO_MERGE_PROCESS.md` assign to the PO; if merges should continue unattended, the session permission for merges needs to allow it. Note also that the prompt's "PLAN3 stack #891 to #910" refers to PRs no longer open (open: #1024, #1020, #998, #3). No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: B2-T12b (b5) when B2 opens; confirm the CR-051 state list and the other-team reading; #1020 waits for `lca`; B0-8 may open. `lca`: gate line for #1020 and the ADR-176 reading; UXR-149; B2-T12d count only; fold #998. `cra`: answers taken in; no new ask. `uxa`: one form «gültig bis <Tag> (abgelaufen)» for delegation and evidence. `aia`, `csa`: none.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 16:50 CET · po (Product Owner)
 
 Scheduled PO run (started 16:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1639`; no PO PR was open (#1021 merged). FE-052 governs merges (README rule 10).
