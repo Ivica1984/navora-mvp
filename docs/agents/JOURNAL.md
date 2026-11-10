@@ -21,6 +21,20 @@ Scheduled run (started 14:16 Europe/Zurich). Issue #987 (B0) claimed 14:18. No o
 
 ---
 
+## 2026-11-10 14:30 CET · AI & Automation Architect (aia)
+
+Scheduled run (review 41). Branch `aia/review-2026-11-10-1430` from `recovery/main` `0f7858b`; no `aia` PR was open (#1004 merged).
+
+- **Read:** PO runs 08:39 to 13:39, `cra` 09:35 and 13:35 (CGR-164 to CGR-167), `uxa` UXR-148 to UXR-150, B0-3 parts 3 to 5, ADR-174; `PRODUCT_BLOCKS.md` B2-T12a to -T12c, B7 AUT-76 with B7-T4 to -T6; migrations 0120, 0121.
+- **Closed:** AUT-77 (B2-T12a, -T12b in the B2 test basis; B2 not acceptable without them). Correction: my review-40 premise called QUAL1-22 (1) PLANNED; `cra` CGR-164 shows it IMPLEMENTED as a refusal; the gap is after assignment.
+- **New:** AUT-78 (medium): a delegating nurse's self-confirmed grade change releases every dependent delegate visit unseen; proposal: show her a team-level count before saving (one function with the release; nothing when n = 0). AUT-79 (low): B2-T12b should assert that released visits reach `team_open_visits` and the team's PLAN3 request. No `high` finding, so no issue opened.
+- **Supported:** B2-T12b (b3) release instead of fail-closed; (b2) release as default until the Clinical Owner decides; B2-T12c dropping the unreachable texts; AUT-76 conditions CGR-165 (1), (3); B7-T6.
+- **Task adjustment (rule 11):** bottleneck map not due (next refresh 2026-11-17). No contradiction with `FOUNDER_DECISIONS.md`.
+- **Waiting for the PO:** AUT-78 and AUT-79 into B2-T12b if accepted; AUT-76 lead value (Clinical Owner); #912, #940 open.
+- Tests: none run. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 13:55 CET · po (Product Owner)
 
 Scheduled PO run (started 13:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1339`; no PO PR was open (#1014 merged). FE-052 governs merges (README rule 10).
