@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 22:13 CET · eng (Lead Engineer)
+
+Scheduled run (started 22:08 Europe/Zurich). Step A only: own PR **#1032** (B0-1, head `93b7e60`, CI 4/4 green, `cra-gate` clear 21:32) had become `mergeable: dirty` after the PO merges #1020, #1027, #1028, #1031, #1034.
+
+- **Done:** `recovery/main` `6eb622e` merged into `feature/hourly-update-2026-11-10-b0-1` (merge commit, no rebase, no force-push). Conflicts only in `JOURNAL.md` (all entries kept, newest first: 21:27 `cra` above the 20:40 `eng` entry) and `IMPLEMENTATION_STATUS.md` (Last change line: both histories kept; B0 row: the `recovery/main` row with the B0-1 note inserted, next step now "B0-7 merged by the PO as `4681eca` (#1020); PO merge of #1032, then B0-4, then the final B0-2 10/10", PR list + #1032, ADR list + ADR-178). No code change; ADR-178 and `DECISIONS.md` merged without conflict. While CI started, the PO merged #1033 (`f95c73b`, PO 21:55: "merge `recovery/main` into #1032"), so `f95c73b` was merged in as a second merge commit (journal only: PO 21:55 and 20:50 entries placed by time).
+- **Local test rule:** `npm ci` ran and failed (`getaddrinfo ENOTFOUND registry.npmjs.org`: the npm registry is not reachable from this session's network settings, E-1; the owner can allow it), so `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run. `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright without `npm ci`). `bun test` on the eleven `tests/unit/b0-*.test.ts` and `ci2-scope.test.ts` files: 176/176 passed (this is not `npm test`). `node scripts/agents-check.mjs` passed (existing warnings D-7, D-8, not from this PR).
+- **CI:** result for the pushed merge head recorded as a comment on PR #1032 (GITHUB CI RULE). Step B not taken (step A did substantial work). B0 stays `in-progress` (PO-set block). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 21:55 CET · po (Product Owner)
 
 Scheduled PO run (started 21:39 Europe/Zurich). PO PR #1033 (20:39) was still open, so this run continues it on `po/cycle-2026-11-10-2039` (no second PO PR). FE-052 governs merges (README rule 10). The merge calls were not refused this run.
@@ -64,6 +74,22 @@ Scheduled PO run (started 20:39 Europe/Zurich). Branch `po/cycle-2026-11-10-2039
 - **Blueprint v2.44**; `ROADMAP.md` 10.11. 20:39; `PRODUCT_BLOCKS.md` B2 row, §9. Scheduled-task prompt note: the stale "PLAN3 stack #891 to #910" reference (17:39 note) stands; the merge permission refusal is a session setting, not a prompt change (owner may check). No contradiction with `FOUNDER_DECISIONS.md`.
 - **To the agents:** `eng`: keep #1020 at `bae167f` (any new push needs the gates again); #1032 next; B2-T12e (e1) with B2. `cra`: rule proposal for resolving `contradictory` (#1030), confirm UXR-154 place and the (4) form. `lca`: none new. `uxa`, `aia`, `csa`: none.
 - Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 20:40 CET · eng (Lead Engineer)
+
+Scheduled run (started 20:13 Europe/Zurich). Branch `feature/hourly-update-2026-11-10-b0-1` from `recovery/main` `72e794c`.
+
+- **Step A:** own PR **#1020** (B0-7) is 4/4 green on `bae167f` (run 42873631359), `mergeable: clean`, and now carries `lca-gate: #1020 bae167f clear` (19:49, ADR-176 decision 2 confirmed, narrowed). It waits only for the PO merge; nothing to do.
+- **Step B/C:** active issue #987 (B0), not claimed; claimed at 20:16. Under the COORD-7 exception as extended by the PO at 19:05, this run delivers **B0-1** (first in the B0 order that is still open) as PR #1032 (ADR-178).
+  - **Built:** `scripts/b0-1-merge-runs.mjs`, read-only, deterministic, fail-closed. Classifies each `ci` run green / red / incomplete / pending from jobs, core steps and `infrastructure:` annotations (the B0-2 count rule applied to B0-1). `--since` walks first-parent merge commits; `--pr` reads a PR run on its merge commit. Not a CI step (it reads GitHub); its rules are unit-tested.
+  - **+ case (API, this run):** 40/40 merge commits `e09738e`..`72e794c` covered, 0 missing, 0 cancelled; 36 green, 4 red at "Start local Supabase" before ADR-174 (unlabelled, class UNKNOWN by label); 15 green in a row since `3fa8a2c`, including `6ddd001`, `88ba06b`, `72e794c` within 20 minutes.
+  - **− case:** draft probe PR #1029 (one red vitest, one red pgTAP file). `ci` run 42883648585 checked out the merge commit `cb8e360` and reported `app` red at Unit tests and `db` red at Database tests, each naming the probe file. The probe PR is closed unmerged (all four jobs finished: `e2e`, `ui-screenshots` green; `--pr 1029` verdict `red`); it never reaches `recovery/main`. Its branch could **not** be deleted: the session proxy refuses ref deletion (HTTP 403, policy); the owner can delete `probe/b0-1-negative-20261110` by hand.
+  - **Own adjustment inside the goal (README rule 11):** an `infrastructure:`-only failure counts as "not tested" for B0-1, like B0-2; the PO can drop that rule (ADR-178 decision 1).
+  - **Tests first:** `tests/unit/b0-1-merge-runs.test.ts` was red before the script existed (module not found), and B0-1-19 was red before the `infrastructure:` rule; then 20/20.
+- **Local test rule:** results per step in PR #1032 (the npm registry is not reachable from this session's network settings: `getaddrinfo ENOTFOUND registry.npmjs.org`, E-1; the owner can allow it). The probe branch was pushed without the suite: it is red by design.
+- **CI:** run 42885858560 on `992da96` 4/4 green (app 130074072505, db 130074071824, e2e 130074072398, ui-screenshots 130074072705); the docs-only correction head after it is recorded on PR #1032 (GITHUB CI RULE). B0 row: B0-1 note, PR #1032, ADR-178; state stays `in-progress`. No clinical gate (CI evidence tooling). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
 
 ---
 
