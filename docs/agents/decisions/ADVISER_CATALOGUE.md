@@ -1,0 +1,94 @@
+# Legal adviser question catalogue (FE-050)
+
+**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 1, 2026-11-10 19:54 (Europe/Zurich).
+
+**Wording:** rows are copied from the signed sections; rows marked *condensed* or *adapted* say so.
+
+**Status of this file:** advisory preparation by an AI analyst, not legal advice and not a legal determination. Every question below is **OPEN**. None is needed for Phase A (simulated partner, synthetic data, nothing invoiced, IMPLEMENTED); each is needed **before Phase B** at the gate named in its row. The question texts are copied from the signed `lca` sections of the packages linked in each row; if a package and this file differ, the newer signed package section governs and this file is corrected in the next `lca` run.
+
+**Scope:** the packages FE-050 names: D-22, D-18, D-42, D-43, D-44, D-41 (condition 9), D-9, D-4. Pilot regions Basel-Stadt (BS) and Basel-Landschaft (BL); Phase B partner by current direction a nursing home (FE-021), home care also in scope.
+
+## How to use it
+
+1. **Before asking for quotes (owner):** attach the documents in section F; without the partner's payer contracts, part A cannot be answered with certainty.
+2. **Route per question:** *A* = legal adviser; *P* = the partner's billing or quality staff can answer from their contracts and practice; *K* = the cantonal authority can answer directly (an owner or partner letter, often cheaper than an adviser). A row may carry two routes.
+3. **Answers come back** into the package named in the row (the PO records them; `lca` re-reads and signs a new section). This file is then updated (status per row).
+
+## A. Medical orders, needs assessment and billing (D-22, D-18)
+
+| ID | Question | Route | Needed before | Package |
+|---|---|---|---|---|
+| D-22/1 | Under the administrative contracts the pilot provider will sign (current versions), is a qualified electronic signature (ZertES, OR 14 Abs. 2bis) of the doctor accepted as the signature of the Bedarfsmeldung/order for KLV Art. 7 Abs. 2 lit. b services? Is an authenticated web confirmation by an identified doctor (GLN) accepted as *Kenntnisnahme* for lit. a and c? | A, P | any electronic order (ORD1 a2/a3, R4) | [D-22](D-22.md) |
+| D-22/2 | The HSK contract valid from 1 January 2025 (Art. 7.1 Abs. 1 and 6, Art. 7.2 Abs. 2) allows lit. a/c without an order and asks that the result be sent to the doctor "zur Kenntnisnahme"; does payment depend on proof that the doctor took note, and do the partner's tarifsuisse and CSS contracts (in force since 1 January 2025) read the same, including the rule that the order's effective date must equal the start of treatment? | P, A | invoicing order-free care (b1) | [D-22](D-22.md) |
+| D-22/3 | Is an order "retroactive" in the sense of "Rückwirkende Verordnungen sind nicht zulässig" when the doctor issues it after the first visit but before the Bedarfsmeldung is sent (within the 14-day assessment window)? Which date counts: the doctor's issue date, receipt by the provider, or receipt by the payer? | A, P | any invoice (c1 vs c2) | [D-22](D-22.md) |
+| D-22/4 | KLV Art. 8 Abs. 2: from which date does the nine-month validity of an order for lit. b services run? May lit. b services already planned be given and billed after the nine months while a renewal is pending? Does a pilot payer contract set a different limit? | A | ORD1 on real data | [D-22](D-22.md) |
+| D-22/5 | KVG Art. 44: is a lit. a or c service given without the doctor's *Kenntnisnahme*, and therefore not paid under the payer contract, still a "Leistung nach dem KVG", so that the client may not be charged for it beyond the patient share (KVG Art. 25a)? | A | any client charge | [D-22](D-22.md) |
+| D-22/6 | Under KLV Art. 8a Abs. 1bis and the administrative contracts, when the needs of a client receiving lit. a or c services without an order change lastingly and a new needs assessment is done, must its result be sent to the treating doctor again? Within what time? Does a missing notification affect billing of the services after the change? | A, P | invoicing order-free care | [D-22](D-22.md) |
+| D-22/6a | If an order covering lit. b services is present and the team later adds a lit. a or c service that the order does not name, does that new service need the doctor's *Kenntnisnahme* again (or a new or amended order)? Is that also a reportable change under the administrative contract? | A, P | invoicing | [D-22](D-22.md) |
+| D-22/7 | Do the Gesundheitsgesetz Basel-Stadt (SG 300.100) or Basel-Landschaft (SGS 901) or their ordinances restrict a nurse or a home-care organisation holding a cantonal licence from providing KLV Art. 7 Abs. 2 lit. a and c services without a doctor's order, beyond what KLV Art. 7 Abs. 4 and Art. 8a Abs. 1bis require? | K, A | home-care care model b1 on real data | [D-22](D-22.md) |
+| D-22/8 | For a nursing home in BS or BL: in what form must the doctor confirm a resident's care level, for how long is it valid, and may a level be billed from a date before the doctor's confirmation? Which instrument (RAI-NH, BESA, other) does each canton currently require, and which payer contract governs it? | K, P, A | nursing-home billing (NH briefs) | [D-22](D-22.md) |
+| D-22/9 | Under KLV Art. 8 and the partner's administrative contracts (current versions), may a doctor give an order for KLV Art. 7 Abs. 2 lit. b services orally or by telephone, followed by a signed order? If so, from which date does it count for billing given "Rückwirkende Verordnungen sind nicht zulässig", and within what time must the signed order follow? Does BS or BL health law set a form for oral orders? | A | R3 (oral orders) | [D-22](D-22.md) |
+| D-22/10 | After a doctor renews or extends an order (KLV Art. 8a Abs. 7), or after the nine-month limit for order-free care (Art. 8a Abs. 8) has passed, are services given before the new needs assessment is closed billable to OKP once it is closed? Does the 14-day completion window of the administrative contracts (HSK 2025 Art. 7.1 Abs. 6) apply to these reassessments, and do the tarifsuisse and CSS 2025 contracts add a periodic reassessment independent of renewal? | P, A | releasing a billing hold (CGR-163 (3)) | [D-22](D-22.md) |
+| D-18/1 | KLV Art. 7a Abs. 2: how are measured minutes converted into 5-minute units (rounding direction, per visit/day/category), and does "Zu vergüten sind mindestens 10 Minuten" mean a visit under 10 minutes is paid as 10 minutes, or that it is not paid? | P, A | any invoice | [D-18](D-18.md) |
+| D-18/2 | Is any documentation or coordination time billable as KLV Art. 7 Abs. 2 lit. a, and does the pilot canton pay travel through residual financing? | P, K | any invoice | [D-18](D-18.md) |
+| D-18/3 | For a home-care client, are the residual-financing rules those of the provider's location canton while the residence canton pays (KVG Art. 25a Abs. 5)? When the recorded residence is corrected after a visit, which residence governs that visit? | A, K | residual-financing invoice | [D-18](D-18.md) |
+| D-18/4 | For a home-care visit to a client staying temporarily outside her residence canton: whose residual-financing rates apply (provider's location canton, KVG Art. 25a Abs. 5, or the place of care), and which municipality pays? | A, K | residual-financing invoice | [D-18](D-18.md) |
+| D-18/5 | How must the provider evidence the dates of a hospital or nursing-home stay under the partner's contracts, and do the tarifsuisse and CSS 2025 contracts keep the admission/discharge-day exception of HSK 2025 Art. 8 Abs. 4? | P | invoice around inpatient stays | [D-18](D-18.md) |
+| D-18/6 | Under the pilot tariff contract and KLV Art. 7a, when two care persons of one provider attend one client at the same time, may each person's minutes be billed? What must the needs assessment or the order record for that, and how must the invoice show it? | P, A | two-person visits | [D-18](D-18.md) |
+| D-18/9 | KLV Art. 7a Abs. 2 and the EDI commentary of 10 June 2009 read "pro Einsatz mindestens 10 Minuten". Under the Forum Datenaustausch standard and the partner's contracts, is an *Einsatz* one visit, one service line, or the day's minutes per category; and are minutes rounded up, down or to the nearest 5-minute unit? | P | any invoice | [D-18](D-18.md) |
+| D-18/10 | In BL, does the residence municipality pay residual costs at the Regierungsrat's Pflegenormkosten or under its own service agreement with the provider (APG BL, care regions), and does a provider without such an agreement get the same residual? | K, A | BL residual financing | [D-18](D-18.md) |
+
+## B. Professional secrecy, processors and data protection (D-42, D-41, D-9, D-4)
+
+| ID | Question | Route | Needed before | Package |
+|---|---|---|---|---|
+| Q-42a | Can the employees and sub-processors of a software processor be bound as *Hilfspersonen* of a BS/BL nursing home under StGB Art. 321 and § 26 GesG BS (and the BL equivalent), and what must the agreement say for that? | A | pilot contract, first real data | [D-42](D-42.md) |
+| Q-42b | What retention period applies to a BS/BL nursing home's care records, and may the processor delete its copy after a verified export? | A, K | pilot contract (exit clause) | [D-42](D-42.md) |
+| Q-42c | How can the software provider's liability towards the home and its residents be allocated and capped, given that the home keeps the professional organisation and supervision of care? (Read with Q-43a: PrHG Art. 8 forbids a contractual limit towards the injured person.) | A | pilot contract | [D-42](D-42.md) |
+| D-41/9 | May a licensed home-care organisation or nursing home in BS or BL, as controller, with NAVORA as processor, entrust client health data (a nurse's free-text note) to an AI model as a sub-processor or operated by NAVORA (DSG Art. 9), given StGB Art. 321 **and** § 26 GesG BS (and the BL equivalent)? Under exactly which contractual conditions (no training, no own purpose, no provider-side human review of inputs, deletion period, location CH), and must the processor agreement bind the operator expressly to both secrecies (condition 9)? Since FE-051 the target is a model in NAVORA's own Swiss hosting (pattern 4); the question applies to that operator in the same way. *(Widened D-35 question 1 of 2026-11-06 16:10 plus condition (9), adapted by `lca` to FE-051.)* | A | first AI call on real data (pattern 4) | [D-41](D-41.md) |
+| D-9/1 | For a private home-care provider or nursing home in BS/BL: is the care contract (DSG Art. 31 Abs. 2 lit. a) together with the cantonal record duty sufficient for the case and the care record, without the client's consent? Does that also hold when a representative contracts for a client without capacity? | A | first real client | [D-9](D-9.md) |
+| D-9/2 | May a hospital or GP pass referral data, including need and diagnosis, to a provider the client has not yet engaged? What must the referrer document, and must the provider check it? | A | referrals on real data | [D-9](D-9.md) |
+| D-9/3 | Is a home-care organisation or nursing home (a legal entity) a "private Person, die gesetzlich zur Geheimhaltung verpflichtet ist" under DSG Art. 20 Abs. 1 lit. c, so that the information duty lapses? Or must it inform anyway? | A | first real client | [D-9](D-9.md) |
+| D-9/4 | May the provider entrust the client's data to NAVORA as a processor without each client's consent, given StGB Art. 321? Who is the controller for referrals held before a provider accepts them? (Overlaps Q-42a.) | A | first real data | [D-9](D-9.md) |
+| D-9/5 | After consent is withdrawn, which parts of the record must, may or may not be processed further, and for how long? | A | first real client | [D-9](D-9.md) |
+| D-4/1 | In BS/BL, is the audit trail of a care record (who changed status, order status or signature, and when) part of the *Patientendokumentation*, with its retention period? | A, K | production retention rule | [D-4](D-4.md) |
+| D-4/2 | Are audit rows that reconstruct the order basis of a billed visit *Buchungsbelege* under OR Art. 958f or GeBüV, or evidence towards the insurer under KVG/KVV and the contract? What period applies to them? | A | production retention rule | [D-4](D-4.md) |
+| D-4/3 | For how long may operational audit rows (idempotency keys, plan moves) be kept under DSG Art. 6 Abs. 4? Is anonymisation of the actor and the client reference sufficient? | A | production retention rule | [D-4](D-4.md) |
+| D-4/4 | May the organisation's admins read the full audit log, including rows naming individual employees, for purposes beyond compliance and billing (OR Art. 328b, ArGV 3 Art. 26)? | A | production access rule | [D-4](D-4.md) |
+| D-4/5 | When a client asks for her data (DSG Art. 25), may the provider withhold the names of the nurses and admins in the audit rows of her case by default and reveal them only on a further request? Or must it weigh each request first? Does BS/BL patient law give her a right to know who made or read entries in her record? | A | first access request | [D-4](D-4.md) |
+| D-4/6 | To decide whether staff names and third-party mentions in a client's records may be withheld from her (DSG Art. 26 Abs. 1 lit. b), must the person handling the request read the content concerned, or is it enough to weigh on the categories withheld? | A | first access request | [D-4](D-4.md) |
+| D-4/7 | Who may file a DSG Art. 25 request for a client or resident who lacks capacity (holder of a Vorsorgeauftrag, deputy, relatives), and what proof of that authority must the provider check (DSV Art. 16 Abs. 5)? | A | first access request | [D-4](D-4.md) |
+| D-4/8 | Must, may or must not a voided needs-assessment record that holds another client's data be included in the access response of the client in whose record it was filed by mistake (DSG Art. 25, limits in Art. 26)? | A | first access request | [D-4](D-4.md) (item (7)) |
+
+## C. Clinical rule governance and liability (D-43)
+
+| ID | Question | Route | Needed before | Package |
+|---|---|---|---|---|
+| Q-43a | (1) Is a rule set delivered as part of SaaS software a "Produkt" under PrHG Art. 3? (2) If not, which basis applies to harm to a resident or client caused by a board-approved rule that the licensed partner adopted (contract with the partner, OR Art. 41, other), and does the partner's own adoption interrupt causation? (3) Which limitation of liability towards the partner is valid under OR Art. 100 for a commercially offered service, and which insurance (professional, product, cyber) should NAVORA and the board members hold? | A | Phase B rules binding real residents | [D-43](D-43.md) |
+| Q-43b | Does a partner's licensed care leadership (§ 36 Bewilligungsverordnung BS; *pflegefachverantwortliche Person* under APV BL §§ 1, 4) fulfil "fachliche Organisation und Aufsicht" when it adopts the qualification and activity matrix, delegates, reviews and is the last escalation, but does not make the roster itself (F5 model)? *(Condensed from the 04:46 section.)* | K, A | Phase B licence talks | [D-43](D-43.md) |
+
+## D. Operating model and constellations (D-44)
+
+| ID | Question | Route | Needed before | Package |
+|---|---|---|---|---|
+| Q-44a | Under Art. 12 AVG / Art. 26 AVV and the BS/BL licensing law, can a team entity deliver nursing care to residents of a licensed BS/BL nursing home under a service contract (own responsible nurse, own planning, own risk, flat price) when the home's PDL / *pflegefachverantwortliche Person* must keep the professional organisation and supervision of care, and which contract terms and actual practices must the parties keep so the arrangement is not staff lending? | A | KON-1 / GM-1 in a home | [D-44](D-44.md) |
+| Q-44b | Do BS and BL cap OKP admissions for nurses (Art. 49 KVV) or Spitex organisations (Art. 51 KVV) under the 2025 admission rules, and is residual financing paid to a newly licensed private provider on the same terms as to existing providers? | K, A | team-owned provider path (D) | [D-44](D-44.md) |
+| L-11 | For any freelance member: an AHV status ruling by the compensation office ("Die Kasse entscheidet"); not an adviser question but a step per person. | AHV office | freelance members | [D-44](D-44.md) |
+
+## E. Grouping for the quote request (proposal for the owner)
+
+- **Block 1, health and social-insurance law (KVG/KLV, payer contracts, BS/BL financing):** D-22/1-10, D-18/1-6, 9, 10, Q-44b. Many rows are route P: ask the partner's billing staff first; the adviser then answers only what remains.
+- **Block 2, data protection and professional secrecy:** Q-42a, Q-42b, D-41/9, D-9/1-5, D-4/1-8.
+- **Block 3, contract, liability and labour-leasing law:** Q-42c, Q-43a, Q-44a.
+- **Authority letters (owner or partner, no adviser needed first):** Q-43b, D-22/7, D-22/8, D-18/10, the BS/BL parts of Q-44b.
+
+## F. Documents the adviser will need (who supplies them)
+
+- The Phase B partner's administrative contracts with tarifsuisse, HSK and CSS in their current versions, and its tariff and residual-financing agreements (owner, from the partner). Without them, part A rows marked P stay open.
+- The partner's legal form (private or public law; if public, the cantonal IDG applies to part B) (owner).
+- The consolidated KLV in force at the time of the mandate (fedlex; agents could not read the "Stand 1. August 2026" version) and the enacted texts of AS 2026/337 and AS 2026/348 (adviser or a human reader).
+- NAVORA's processing description, DSFA draft and processor-agreement draft (D-3, D-42; owner and `po`), and the D-43 owner sentence as approved.
+
+## Changes
+
+- **v1, 2026-11-10 19:54 (`lca`):** first version from the signed `lca` sections up to 2026-11-10 19:52; D-22/10 new (CGR-163 (3)); Q-43a in its narrowed wording; D-22/2 and D-22/9 in one wording each (04:39 and 04:46 readings reconciled).
