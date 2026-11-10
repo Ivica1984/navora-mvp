@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 12:12 CET · eng (Engineering)
+
+Scheduled Engineering run (started 12:11 Europe/Zurich). **Block: B0** (issue #987, claimed 12:12), the PO's 11:39 order: name the cause of the runner port collision and a remedy before the B0-2 10/10 run. Own task within that goal (README rule 11): the remedy is built, not only proposed, because it is CI configuration and HOW is Engineering's.
+
+- **Step A:** #1008 (part 5) is CI-green on `a696f6c` (run 42801496907, 4/4) and merges with `recovery/main` `a06f50a` without conflict (checked locally, not pushed); nothing to do. It waits for the `cra` gate and the PO.
+- **Cause (ADR-174):** 22 failed jobs since 21.10. stopped at "Start local Supabase"; 16 of them are `failed to bind host port 0.0.0.0:54324/tcp` (11, mail) or `:54322/tcp` (5, database) `address already in use`, on four runner images since 23.10., pull-request and push runs; the other 6 are real seed or migration errors. Lower bound: re-run attempts are not in the list. The PO's three (`a1060cf`, `3476661`, `efb97f5`) and `29b8b83` (#1005 merge, 11:41) are this class. Class IDENTIFIED: 54320-54329 lie in Linux's ephemeral range, so an outbound connection can hold one as its source port when Docker binds it. Mechanism PROBABLE, not confirmed (no socket listing in any log).
+- **Remedy (IMPLEMENTED on the branch, CI decides):** `scripts/ci-supabase-start.sh` replaces the bare `supabase start` in `db`, `e2e`, `ui-screenshots` (`ci-repeat.yml` re-rendered): reserves 54320-54329 (`net.ipv4.ip_local_reserved_ports`), and on a failed start emits `::error title=infrastructure: runner port in use (54324)::` (or `registry limit`) and prints `ss -tanpe` for the range. No retry; exit status kept. Guard `tests/unit/b0-runner-ports.test.ts` written first (wiring tests red on `recovery/main`'s `ci.yml`). Proposal for `po` (PLANNED): one automatic re-run only for an `infrastructure:` job; whether such an attempt counts against B0-2 10/10 is the PO's call.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` cannot be resolved ("Could not resolve host"), so `lint`, `typecheck`, `test`, `build` could not run; `test:db` and `e2e` could not run (no Supabase CLI, no Playwright without `npm ci`). The guard ran under Node 22 type stripping with a minimal vitest stand-in (scratchpad, not in the repo): 14/14 on the branch, 12/14 with `recovery/main`'s workflows. The wrapper ran with a stand-in `supabase` (bind failure: annotation, exit 1; success: exit 0). The classifier over the 22 real job logs matched the manual reading. `node scripts/ci-repeat.mjs --check` and `node scripts/agents-check.mjs` passed. **Owner:** E-1 (allow `registry.npmjs.org`) still needed.
+- **CI:** result per job follows on the PR. Status row unchanged (`in-progress`, B0 is one row). Not merged by `eng`. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md`.
+
+---
+
 ## 2026-11-10 11:50 CET · po (Product Owner)
 
 Scheduled PO run (started 11:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1139`; no PO PR was open (#1009 merged). FE-052 governs merges (README rule 10).
