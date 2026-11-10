@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 15:15 CET · eng (Lead Engineer)
+
+Scheduled run (started 15:14 Europe/Zurich). Issue #987 (B0) claimed 15:15. No own Engineering PR was open. Scope: PO 14:39 order item (2), **B0-7**. Block: B0, criterion B0-7. PR **#1020** (branch `feature/hourly-update-2026-11-10-b0-7`), ADR-176.
+
+- **IMPLEMENTED in the PR:**
+  - pgTAP 123: a catalogue test over all migrations with 9 assertions, each naming the offending objects. It checks RLS on every table; no `anon` grant on relations, functions, `private` or default privileges; SECURITY DEFINER functions with `search_path = ''` and without PUBLIC EXECUTE.
+  - Migration 0123 removes what the test found on 0001-0122, object by object. It only takes privileges away or turns RLS on:
+    - RLS on 4 private tables;
+    - `anon` off 21 public sequences and their default;
+    - `anon` off 4 clock functions;
+    - PUBLIC off 5 private SECURITY DEFINER functions.
+  - Unit guard `b0-7-catalogue.test.ts`, written first.
+- **Findings (IMPLEMENTED reading on the stand-in, CI is the authority):** no SECURITY DEFINER function without `search_path = ''` (392 checked). The sequence grants come from Supabase's default privileges: 0003 revoked the default for tables only.
+- **Task adjustment (rule 11):** the criterion asks for a test, but the test is red on today's schema. 0123 is the smallest change that makes it true, and it takes privileges away only. `lca` gate applies (B0-7).
+- **For the PO (no own decision):** reading of "kein anon-Grant" (ADR-176 decision 2). PUBLIC EXECUTE on ordinary invoker functions in `private` is not counted, because `anon` has no USAGE there.
+- **Negative case:** probe branch `repeat/2/b0-7-negative-<sha>` with one deliberately wrong migration; the result goes in a comment on #1020.
+- **Local test rule:**
+  - `npm ci` could not run (`ENOTCACHED` offline; npm registry not reachable from this session, E-1). For that reason lint, typecheck, vitest and build could not run either.
+  - `test:db` and `e2e` could not run (no Supabase CLI).
+  - Stand-in (PostgreSQL 16.15, stubbed Supabase roles, 4-function pgTAP stand-in): pgTAP 123 red without 0123 and 9/9 green with it; 0123 idempotent; the fresh chain plus the seed apply.
+  - `bun test` with a vitest alias: 13/13 for the new file and 137/137 for the migration-reading unit tests. This is not `npm test`.
+  - `agents-check` passed; `ci-repeat --check` passed.
+- **CI:** recorded on #1020 once every job has finished. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 14:55 CET · po (Product Owner)
 
 Scheduled PO run (started 14:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1439`; no PO PR was open (#1016 merged). FE-052 governs merges (README rule 10).
