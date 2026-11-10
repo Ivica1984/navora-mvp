@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 57 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 58 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 **Companion build specification (2026-11-03, for M2 to M8, #832):** [`NAVORA_DESIGN_SYSTEM_V1.md`](NAVORA_DESIGN_SYSTEM_V1.md) (token values, CSS, components with states, phone and desktop systems, marketing extension), [`NAVORA_SCREEN_CATALOG.md`](NAVORA_SCREEN_CATALOG.md) (every screen), [`NAVORA_INFORMATION_ARCHITECTURE.md`](NAVORA_INFORMATION_ARCHITECTURE.md) (surfaces, roles, navigation, website sitemap). This file keeps the behaviour rules.
 
@@ -88,6 +88,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - **A recorded value is not a verified fact** (OPEN, `uxa` 2026-11-06 23:50, UXR-129, UXR-131; FE-039, PLAN3-18 (2)): a reason or refusal names what is recorded and its state ("erfasst, nicht geprüft", "nachgewiesen (synthetisch)", "Nachweis fehlt"), never "darf", "geeignet" or "qualifiziert" as a statement about the person; a rule that is not clinically released says so in one fixed line, the same words on every screen ("Regel vorläufig, nicht fachlich freigegeben.", wording PROPOSED, `cra` confirms). Rule-status words from the registers (`PROPOSED`, `UNVALIDATED`, `PROVISIONAL`) and activity codes (B3, B4) are reviewer references (`data-ref`), never user text; the activity is named by its matrix label.
 - Say what happens, not which rule applies: "Wird nicht abgerechnet, bis die Sperre aufgehoben ist", not "QG1-Hold aktiv".
 - **One word for the member responsible for a visit:** "Verantwortlich:" and "noch niemand" on every screen (IMPLEMENTED: UX2-29, #800 merged as `30de12f`, for `/visits`, the record page, the AI field labels and the picker "Verantwortliche Person wählen"; UXR-53, UXR-79 closed). A visit no longer open with no responsible member reads "nicht erfasst", never "noch niemand" (IMPLEMENTED: UX2-29 amendment, `cra` CGR-109, G-25 (c); #800). **An author without a display name** keeps her member number where the screen has it: "Teammitglied <n> (ohne Namen)" (IMPLEMENTED: UX2-27 amendment, `cra` CGR-108, wording confirmed `uxa` 2026-11-03 11:50; #800 merged as `30de12f` for the handover; UXR-48 closed); the visit card's line follows the "von …" pattern (OPEN, UXR-83). Signal and exception texts that say "Zuständige" are `cra`-fixed safety wording; any alignment is `cra`'s (UNKNOWN; proposed in UXR-125).
+- **Open and not staffable are two states** (OPEN, `uxa` 2026-11-10 03:50, UXR-146, UXR-147; benchmark 2026-11-10; wording and position `cra` to confirm): a visit with nobody responsible that a team member may take reads as open with «Übernehmen»; one that no active member of the team may take at its time reads as not staffable, with the reason from the shared label function, the time left before the visit and the next step, listed first and visible while its list is collapsed. One term for "no responsible member" on every screen, the same in the list a signal points to and in the signal (signal texts are `cra`'s, SIG1-3). Whether and to whom such a visit escalates is a care rule (`cra`, CGR-160), not part of this rule.
 
 ## 5. Layout, density, mobile first
 
@@ -171,6 +172,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 
 ## Change log
 
+- 2026-11-10 03:50 CET (`uxa`): version 58. §4 new OPEN rule "open and not staffable are two states" (UXR-146, UXR-147, benchmark 2026-11-10). No token change.
 - 2026-11-07 19:55 CET (`uxa`): version 57. §8 review procedure step 6: gate line on the merged commit and user-flow block test cases (FE-052, `PRODUCT_BLOCKS.md` §8.5, §8.6 (c)). No token change.
 - 2026-11-07 15:50 CET (`uxa`): version 56. §5 ward rule: N-01/N-02 PLANNED (NH-A1 approved); three PROPOSED sub-rules: one heading per shift (UXR-139), shift names never inflected in code (UXR-142), standing "nicht überwacht" list on a phone as heading with count (UXR-140, `cra` to confirm). No token change.
 - 2026-11-07 12:10 CET (`uxa`): version 55. §5 ward rule links the new PROPOSED ward and shift screen proposal (`proposals/NH-A_WARD_SHIFT_SCREENS.md`), written on the owner's instruction of 2026-11-07 that `uxa` works out solutions proactively where the Blueprint and the founder say nothing. No token change.
