@@ -8,7 +8,7 @@ updated: 2026-11-11
 
 # RDATA1 — Aggregated real nursing-home figures for the Phase A comparison (draft)
 
-**Draft 2026-11-11 00:05 CET** under founder decision **FE-055** (6). Stays a draft until (a) `lca` answers L-13, (b) a data agreement with the cooperating home exists (D-42 path), (c) a named home is found by the owner. Built after B0 and BD.
+**Draft 2026-11-11 00:05 CET** under founder decision **FE-055** (6). Stays a draft until (a) `lca` answers L-13 (**met 2026-11-11 00:50** for cost, hours and covered shifts; absence counts wait for Q-42d, so they are optional), (b) a data agreement with the cooperating home exists (D-42 path), (c) a named home is found by the owner. Built after B0 and BD.
 
 ## Problem
 The Phase A comparison of temporary costs (`ECONOMICS_COMPARISON.md` §2) rests on secondary sources with a range of 1.1-1.7×. The founder wants NAVORA's simulation compared against a real home's history.
@@ -21,14 +21,16 @@ The simulation shows, as a labelled scenario, what the home's historical tempora
 
 ## Acceptance criteria
 - [ ] RDATA1-1: only figures per month and home: temporary hours, temporary cost (CHF), number of absences, number of shifts covered by temporary staff. No row about a person, no names, no absence reasons, no dates per person.
+  - *Amended 2026-11-11 00:39 (po, `lca` D-42 00:50):* the **number of absences is optional** and is not imported until adviser question Q-42d is answered; temporary hours, temporary cost and covered shifts do not wait.
 - [ ] RDATA1-2: an import refuses any file with columns beyond the agreed list, or with fewer than an agreed minimum count per cell (small-count rule, value set by `lca`).
+  - *Amended 2026-11-11 00:39 (po):* default values **PROPOSED** (product default by `lca`, no legal threshold found): an absence count below 5 is stored as "<5"; no figure per ward or unit; a month with fewer than 20 reported staff is refused. Parameters, versioned; an adviser may change them (Q-42d).
 - [ ] RDATA1-3: the figures are stored apart from synthetic data, labelled "real, aggregated", with source, period and data agreement reference.
 - [ ] RDATA1-4: every comparison result is labelled "Szenario, kein Beweis" and lists its assumptions (`ECONOMICS_COMPARISON.md` A1-A5).
 - [ ] RDATA1-5: no figure reaches an AI service (D-35 rule A).
-- [ ] Negative cases: a person-level file is refused; a team member cannot read the home's figures.
+- [ ] Negative cases: a person-level file is refused; a team member cannot read the home's figures. Added 2026-11-11 00:39: if the home is a NAVORA tenant with real staff data, the import is refused (GMSEP; `lca` D-42 note (3)).
 
 ## Rules and their input class
-Aggregated institution figures: business data, not personal data, provided RDATA1-1/-2 hold (to be confirmed by `lca`, L-13). No clinical content.
+Aggregated institution figures: business data, not personal data, provided RDATA1-1/-2 hold (`lca` L-13 answered 2026-11-11 00:50 in D-42: cost, hours and covered shifts compliant with the nine-item data agreement while the home is not a NAVORA tenant; absence counts wait for Q-42d). No clinical content.
 
 ## AI leverage
 No AI leverage: the comparison is arithmetic over agreed figures.
