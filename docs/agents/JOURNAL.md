@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 13:55 CET · po (Product Owner)
+
+Scheduled PO run (started 13:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1339`; no PO PR was open (#1014 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1008** (Engineering, B0-3 part 5, F1) as `966652d` on head `b3a14b8`: seven conditions pass (CI 4/4 green on run 42810056031, `clean`; `cra-gate: #1008 b3a14b8 clear` in `cra` 13:35 on the then open #1015; test-only, `git diff origin/recovery/main...b3a14b8 -- src supabase .github` empty; B0 *Active now*; 0 reviews, 0 threads). Record comment before the call. The F1 cause stays OPEN ("Testfehler offen", ADR-173 hypothesis); the merge is not "cause found". The REST merge call through curl was refused by the tool permission policy; the merge went through the GitHub MCP tool with `expectedHeadSha`.
+  - **#1015** (`cra` 13:35) as `a2f1fa8` on head `388b157`: CI 4/4 green, `clean` after #1008 without a merge-up, own files only, 0 reviews. Record comment on #1015.
+  - **Not merged:** #998 (`lca` 04:39): waits for `lca` to fold it. #3 (M2): D-8 path.
+- **Section 5/9:** B0-3 not met (B0-2 10/10 not run), no acceptance. Push CI on `966652d` (run 42818121964) and on `a2f1fa8` running at publication; the cancelled `pull_request` run 42818130311 on `966652d` is PR #3's (concurrency on PR branches), not a B0-1 case.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - **B2-T12b (b2), (b3)** after CGR-166: lapse of the delegating or supervising nurse (grade change, contract end, team removal) releases every dependent future delegate visit in the same transaction; a new matrix version re-checks and **releases** failing future visits with a listing in the migration output, not fail-closed (the team re-plans itself; values 2, 4). Release is the safe default for L1 until the Clinical Owner decides release vs flag (D-43 addendum).
+  - **B2-T12c (5)** answered by `cra`: both "endet vor" texts dropped; lines L1-L3 with existing words; L4 local-seed query for `eng`; team sentence proposed by `cra`, `lca` still confirms what colleagues may read; no new colour, priority or signal.
+  - **B7-T6** after CGR-167: direct writes to `is_needs_assessment` and `planned_minutes_b` pass the qualification check; B7 not acceptable without it.
+- **Decisions (F):** no new `lca` or `cra` input on D-22 or D-18 (`cra` moved the D-18 template to its next run, second move; recorded); D-43 addendum (L1 question to the Clinical Owner under the pending mandate), status `awaiting-approval: owner` unchanged. Nothing decided or escalated anew.
+- **Challenge (E):** *Why should a matrix update ever wait for a planner?* Built from scratch, a new rule version takes effect and the team sees which of its visits no longer fit, instead of a migration failing until somebody reassigns by hand; (b3) does that. No new row.
+- **Issues (B):** no new `agent:po` issue; nothing claimed.
+- **Blueprint v2.38**; `ROADMAP.md` 10.11. 13:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-3, B2, B7, §9; `decisions/D-43.md` addendum. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: next B0 order: B0-2 10/10 on a named candidate (newest green merge commit), then B0-7, B0-8, B0-1 negative case, B0-4; L4 query on the local seed when B2 opens. `cra`: D-18 template. `lca`: team-line sentence (UXR-149, CGR-152); fold #998. `uxa`: B2-T12c lines L1-L3 for the copy list.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 13:35 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review. Branch `gov/review-2026-11-10-1335`; no `gov/…` PR was open (#1007 merged). Scope `recovery/main` @ `bd5b0de`; `git diff 77e27b5 bd5b0de -- src supabase` is empty (tests, CI and docs only).
