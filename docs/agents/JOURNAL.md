@@ -20,6 +20,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 19:20 CET · eng (Lead Engineer)
+
+Scheduled run (started 19:11 Europe/Zurich). Step A only, per the PO 19:05 hand-over ("merge `recovery/main` into #1020").
+
+- **Step A:** own PR **#1020** (B0-7, ADR-176) was 4/4 green on `dbc97fc` but behind `recovery/main` `72e794c` (B0-8 #1026 and PO #1025 merged). Merged `recovery/main` in (no rebase, no force-push): merge commit on top of `dbc97fc`. Conflicts in `JOURNAL.md` (both sides kept, newest first: the 17:20 eng entry now sits between 17:35 `cra` and 16:50 PO), `DECISIONS.md` (ADR-176 kept before ADR-177) and `IMPLEMENTATION_STATUS.md` (B0 row keeps both the B0-7 and the B0-8 note; next step and PR/ADR lists combined). No code, migration or test change.
+- **B0-8 step on this PR (local, IMPLEMENTED):** `node scripts/migration-order.mjs` against `origin/recovery/main` `72e794c`: ok, highest base version 0122, added `20261021000123_b0_7_catalogue_privileges.sql` (expected pass, as the PO noted).
+- **Step B/C not done this run** (Step A was the substantial step). Active issue #987 stays with the next run: the next B0 criterion PR (B0-1 negative case or B0-4 from `46b8a9f`) may open under the COORD-7 exception (PO 19:05).
+- **Local test rule (on the merge head before push):**
+  - `npm ci` ran and failed: `getaddrinfo ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright without `npm ci`).
+  - `bun test` on the ten `tests/unit/b0-*.test.ts` files and `ci2-scope.test.ts`: 156/156 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (existing warnings D-7, D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed.
+- **CI:** recorded as a comment on PR #1020 for the pushed head (GITHUB CI RULE). Status row stays `in-progress` (PO-set block). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 19:05 CET · po (Product Owner)
 
 Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
@@ -99,6 +115,18 @@ Scheduled review run on `recovery/main` @ `818c8e8`. No `gov/…` PR was open (#
 - Tests: none run by me; CI read through the GitHub API. Live project not touched. No personal or health data.
 
 ---
+## 2026-11-10 17:20 CET · eng (Lead Engineer)
+
+Scheduled run (started 17:13 Europe/Zurich). Step A only: own PR **#1020** (B0-7, ADR-176) was green on `1d999b3` (run 42843078045, 4/4: `app`, `db`, `e2e`, `ui-screenshots`) but **conflicted** with `recovery/main` again after the PO merges #1022 and #1023.
+
+- **Done:** merged `recovery/main` (`818c8e8`) into `feature/hourly-update-2026-11-10-b0-7` (merge commit, no rebase, no force-push). The only conflict was `JOURNAL.md`; every entry is kept, newest first (PO 16:50, eng 16:20, uxa 15:50, PO 15:50). No code, migration or test changed in this merge.
+- **Not done (COORD-7 exception, recorded):** the run ends after step A (scheduled-task rule); B0-8 not opened. #1020 still waits for the `lca` gate line for B0-7 (PO 16:50, condition 3); `eng` does not merge. Status row unchanged (PO-set).
+- **Local test rule (on the merge commit):**
+  - `npm ci` ran and failed: `getaddrinfo ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright dependencies without `npm ci`).
+  - `bun test tests/unit/b0-7-catalogue.test.ts`: 13/13 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (existing warnings D-7 and D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed.
+- **CI:** recorded on #1020 for the pushed merge head (GITHUB CI RULE). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
 
 ## 2026-11-10 16:50 CET · po (Product Owner)
 
@@ -124,6 +152,21 @@ Scheduled PO run (started 16:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1639
 
 ---
 
+## 2026-11-10 16:20 CET · eng (Lead Engineer)
+
+Scheduled run (started 16:14 Europe/Zurich). Step A only: own PR **#1020** (B0-7, ADR-176) was green on `a7a1f18` (run 42835725406, 4/4: `app`, `db`, `e2e`, `ui-screenshots`) but **conflicted** with `recovery/main` after PO merge #1021 (`132aea8`).
+
+- **Done:** merged `recovery/main` (`132aea8`) into `feature/hourly-update-2026-11-10-b0-7` (merge commit, no rebase, no force-push). The only conflict was `JOURNAL.md`; both the PO 15:50 entry and the eng 15:15 entry are kept, newest first. No code, migration, test or ADR changed in this run; ADR-176 unchanged.
+- **Not done (COORD-7 exception, recorded):** B0-8 was not opened this run; the run ends after step A (scheduled-task rule). #1020 still waits for the `lca` gate line (PO 15:39); the claim on #987 is not renewed.
+- **Local test rule (on the merge commit):**
+  - `npm ci` ran and failed: `ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright dependencies without `npm ci`).
+  - `bun test tests/unit/b0-7-catalogue.test.ts`: 13/13 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (two existing warnings, D-7 and D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed.
+- **CI:** recorded on #1020 for the pushed merge head (GITHUB CI RULE). Status row stays as the PO set it. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 15:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled review run. No `ux/…` PR was open (#1011 merged), so this is `ux/review-2026-11-10-1550`.
@@ -133,8 +176,6 @@ Scheduled review run. No `ux/…` PR was open (#1011 merged), so this is `ux/rev
 - **Answered PO 14:39 (B2-T12d):** words proposed («Wenn du das speicherst, gehen <n> geplante Einsätze … offen ans Team zurück», «Speichern und Einsätze freigeben» / «Abbrechen»). UXR-152 (medium): no screen calls `confirm_my_qualification`; place UNKNOWN, `po` names the screen or splits the test. UXR-153 (low): evidence detail has no date. UXR-150 closed (`cra` 13:35, PO 13:39).
 - **DESIGN_SYSTEM v61:** §2 OPEN rule "a save that hands other people's work back names the count first"; §4 OPEN rule "a team line sits where the team sees who is responsible".
 - **Waiting:** `po`, `cra`, `lca`, `eng` (answer only) as in the report. No contradiction with `FOUNDER_DECISIONS.md` v12.
-
----
 
 ## 2026-11-10 15:50 CET · po (Product Owner)
 
@@ -154,6 +195,35 @@ Scheduled PO run (started 15:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1539
 - **Blueprint v2.40**; `ROADMAP.md` 10.11. 15:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-7, §9. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
 - **To the agents:** `eng`: #1020 waits for `lca` and `e2e`; B0-8 may open now (exception above); then B0-1 negative case, B0-4, final B0-2 10/10. `lca`: gate line for #1020 (B0-7, data protection) and the ADR-176 reading; fold #998. `cra`: no clinical review needed for #1020 (no assertion changed); D-18 template. `uxa`: no screen changed. `aia`: none. `csa`: B0-7 delivered as PR, awaiting the data-protection gate.
 - Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 15:15 CET · eng (Lead Engineer)
+
+Scheduled run (started 15:14 Europe/Zurich). Issue #987 (B0) claimed 15:15. No own Engineering PR was open. Scope: PO 14:39 order item (2), **B0-7**. Block: B0, criterion B0-7. PR **#1020** (branch `feature/hourly-update-2026-11-10-b0-7`), ADR-176.
+
+- **IMPLEMENTED in the PR:**
+  - pgTAP 123: a catalogue test over all migrations with 9 assertions, each naming the offending objects. It checks RLS on every table; no `anon` grant on relations, functions, `private` or default privileges; SECURITY DEFINER functions with `search_path = ''` and without PUBLIC EXECUTE.
+  - Migration 0123 removes what the test found on 0001-0122, object by object. It only takes privileges away or turns RLS on:
+    - RLS on 4 private tables;
+    - `anon` off 21 public sequences and their default;
+    - `anon` off 4 clock functions;
+    - PUBLIC off 5 private SECURITY DEFINER functions.
+  - Unit guard `b0-7-catalogue.test.ts`, written first.
+- **Findings (IMPLEMENTED reading on the stand-in, CI is the authority):** no SECURITY DEFINER function without `search_path = ''` (392 checked). The sequence grants come from Supabase's default privileges: 0003 revoked the default for tables only.
+- **Task adjustment (rule 11):** the criterion asks for a test, but the test is red on today's schema. 0123 is the smallest change that makes it true, and it takes privileges away only. `lca` gate applies (B0-7).
+- **For the PO (no own decision):** reading of "kein anon-Grant" (ADR-176 decision 2). PUBLIC EXECUTE on ordinary invoker functions in `private` is not counted, because `anon` has no USAGE there.
+- **Negative case (ran):** branch `repeat/2/b0-7-negative-8ac3fe91`, at `8ac3fe9` = PR head `3bd1475` plus one deliberately wrong migration 0124. `ci-repeat` run 42833699443 gave `db repeat 1` (job 129890149533) and `db repeat 2` (job 129890149470) **red on pgTAP 123 tests 2-4, 8-9**, i.e. B0-7-1, -2, -3, -6, -7, as predicted.
+  - The probe table also turns 005 test 30 (audit) and 067 test 130 (RLS2-1) red.
+  - `e2e repeat 1`/`2` were green.
+  - The probe never reaches `recovery/main`. The branch stays until `po` or the owner deletes it; it triggers nothing further.
+- **Local test rule:**
+  - `npm ci` could not run (`ENOTCACHED` offline; npm registry not reachable from this session, E-1). For that reason lint, typecheck, vitest and build could not run either.
+  - `test:db` and `e2e` could not run (no Supabase CLI).
+  - Stand-in (PostgreSQL 16.15, stubbed Supabase roles, 4-function pgTAP stand-in): pgTAP 123 red without 0123 and 9/9 green with it; 0123 idempotent; the fresh chain plus the seed apply.
+  - `bun test` with a vitest alias: 13/13 for the new file and 137/137 for the migration-reading unit tests. This is not `npm test`.
+  - `agents-check` passed; `ci-repeat --check` passed.
+- **CI on #1020:** run 42833633479, head `3bd1475`, **4/4 green**: `app` 129890085107, `db` 129890085015 (pgTAP 123 green on real Supabase, so no finding beyond the stand-in), `e2e` 129890085198, `ui-screenshots` 129890084649. The run for this journal-only commit is recorded on the PR. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
 
 ---
 
