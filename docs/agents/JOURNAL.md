@@ -8,9 +8,33 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 Scheduled run (started 22:08 Europe/Zurich). Step A only: own PR **#1032** (B0-1, head `93b7e60`, CI 4/4 green, `cra-gate` clear 21:32) had become `mergeable: dirty` after the PO merges #1020, #1027, #1028, #1031, #1034.
 
-- **Done:** `recovery/main` `6eb622e` merged into `feature/hourly-update-2026-11-10-b0-1` (merge commit, no rebase, no force-push). Conflicts only in `JOURNAL.md` (all entries kept, newest first: 21:27 `cra` above the 20:40 `eng` entry) and `IMPLEMENTATION_STATUS.md` (Last change line: both histories kept; B0 row: the `recovery/main` row with the B0-1 note inserted, next step now "B0-7 merged by the PO as `4681eca` (#1020); PO merge of #1032, then B0-4, then the final B0-2 10/10", PR list + #1032, ADR list + ADR-178). No code change; ADR-178 and `DECISIONS.md` merged without conflict.
+- **Done:** `recovery/main` `6eb622e` merged into `feature/hourly-update-2026-11-10-b0-1` (merge commit, no rebase, no force-push). Conflicts only in `JOURNAL.md` (all entries kept, newest first: 21:27 `cra` above the 20:40 `eng` entry) and `IMPLEMENTATION_STATUS.md` (Last change line: both histories kept; B0 row: the `recovery/main` row with the B0-1 note inserted, next step now "B0-7 merged by the PO as `4681eca` (#1020); PO merge of #1032, then B0-4, then the final B0-2 10/10", PR list + #1032, ADR list + ADR-178). No code change; ADR-178 and `DECISIONS.md` merged without conflict. While CI started, the PO merged #1033 (`f95c73b`, PO 21:55: "merge `recovery/main` into #1032"), so `f95c73b` was merged in as a second merge commit (journal only: PO 21:55 and 20:50 entries placed by time).
 - **Local test rule:** `npm ci` ran and failed (`getaddrinfo ENOTFOUND registry.npmjs.org`: the npm registry is not reachable from this session's network settings, E-1; the owner can allow it), so `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run. `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright without `npm ci`). `bun test` on the eleven `tests/unit/b0-*.test.ts` and `ci2-scope.test.ts` files: 176/176 passed (this is not `npm test`). `node scripts/agents-check.mjs` passed (existing warnings D-7, D-8, not from this PR).
 - **CI:** result for the pushed merge head recorded as a comment on PR #1032 (GITHUB CI RULE). Step B not taken (step A did substantial work). B0 stays `in-progress` (PO-set block). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 21:55 CET · po (Product Owner)
+
+Scheduled PO run (started 21:39 Europe/Zurich). PO PR #1033 (20:39) was still open, so this run continues it on `po/cycle-2026-11-10-2039` (no second PO PR). FE-052 governs merges (README rule 10). The merge calls were not refused this run.
+
+- **Merges (A):**
+  - **#1020** (Engineering, B0-7, ADR-176) **merged** as `4681eca` on head `bae167f`. Seven conditions met: check-runs 4/4 success (run 42873631359), `clean`; `lca-gate: #1020 bae167f clear` (19:39) and `cra-gate: #1020 bae167f clear` (21:27); B0 *Active now*; 0 reviews, 0 threads; no blocked decision; 0123 only revokes or enables RLS; negative case shown. Record comment on #1020.
+  - **Role PRs #1027 (`lca` 19:39), #1028 (`uxa` 19:50), #1031 (`aia` 20:30), #1034 (`cra` 21:27) merged** (`4a81c1c`, `c686ff7`, `6ff8af5`, `6eb622e`). All four conflicted only on `JOURNAL.md`. **Own adjustment (README rule 11):** the PO merged `recovery/main` into #1027 and then each branch into the next (#1027 → #1028 → #1031 → #1034 → this PR), keeping every entry, newest first, so they merged in order without a new conflict; each merged on a head with green CI, and after the earlier merges each diff was own files only. No force-push, no history rewrite. Record comment on each.
+  - **This PO PR (#1033)** merges last once CI is green.
+  - **Not merged:** #1032 (B0-1): one Engineering PR per run; next run, after `eng` merges `recovery/main` in (`cra-gate: #1032 93b7e60 clear`; B0-1 has no `lca` gate). #3 (M2): D-8 path.
+- **Section 5/9 (B0-7):** push CI 42897959573 on merge commit `4681eca` **green** (read 21:52). **B0-7 met** on `4681eca`. `lca`'s narrowing of ADR-176 decision 2 is taken in: the reading holds only while B0-7-4 holds and no invoker function in `private` is reachable through `public` or a view; the first view, storage policy or realtime publication brings a `security_invoker` check into pgTAP 123. B0 not accepted: remaining B0-1 (#1032), B0-4, then the final B0-2 10/10.
+- **Review (C):** no item delivered for acceptance; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` B2 row, §9):**
+  - **CGR-170 / CR-205 → B2-T12e (e3):** `cra`'s proposal (newest verified grade supersedes older verified; a differing newer self-confirmation ends only through the verification path, never by the member's own later statement) is the test basis (i)-(vii) plus invariants (a)-(e), and the default proposal for the Clinical Owner (D-43 addendum 21:39). Built only after the Clinical Owner decides; until then today's refusal stays. Expired-newest-verified case: UNKNOWN, stays `expired` (refused).
+  - **CGR-171 → AUT-81 line (delegation screen):** a revoke never depends on its replacement; a refused replacement leaves the old delegation revoked and its dependent visits released (pgTAP when the correction command is built).
+  - B2-T12c (3) place (UXR-154) and (4) form confirmed by `cra`; the no-date form only as fallback.
+- **Decisions (F):** D-43 addendum 21:39 (new item for the Clinical Owner under the existing mandate: CR-205 and the expired case); status stays `awaiting-approval: owner`, no re-escalation, no new ask beyond the existing one. D-22: `lca` 19:39 taken in at 20:39; stays open (adviser question 10). D-18: `cra` writes the FE-042 template next run. Nothing decided or escalated anew.
+- **Challenge (E):** *Why would a person need to approve a career step?* Under CR-205 they would not: a newer verified grade simply is the grade; only a doubt raised by the member herself needs the verification path, and that path already exists. No new approval role, no manager. No new challenge row.
+- **Issues (B):** #1030 answered (comment); nothing claimed.
+- **Blueprint v2.45**; `ROADMAP.md` 10.11. 21:39; `PRODUCT_BLOCKS.md` B0-7 and B2 rows, §9; `D-43.md` addendum. Scheduled-task prompt note: the stale "PLAN3 stack #891 to #910" reference (17:39 note) stands. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: merge `recovery/main` into #1032 (it now conflicts at least on `JOURNAL.md`), then B0-4; B2-T12e (e1) with B2. `cra`: D-18 template (FE-042). `lca`: Phase B writer of the resolution record (D-29) when asked; none new. `uxa`, `aia`, `csa`: none.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
 
 ---
 
@@ -27,6 +51,29 @@ Scheduled `cra` run (started 21:27 Europe/Zurich). Branch `gov/review-2026-11-10
 - **Registers:** CR-205, CR-181 note; PS-154, PS-155, PS-152/-153 status; H-04.
 - **Task adjustment (rule 11):** the D-18 template (FE-042) is my next run's task (PO 17:39 condition now met: no open `cra` question on B2-T12a to -T12d).
 - No contradiction with `FOUNDER_DECISIONS.md` v12. Tests: none run by `cra`; CI read via the GitHub API. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 20:50 CET · po (Product Owner)
+
+Scheduled PO run (started 20:39 Europe/Zurich). Branch `po/cycle-2026-11-10-2039`; no PO PR was open (#1025 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A): none.**
+  - **#1020** (Engineering, B0-7) **meets all seven conditions** on head `bae167f`: check-runs 4/4 success (app 130031046636, db 130031047124, e2e 130031046989, ui-screenshots 130031048338), `clean`; condition 3 now met by `lca-gate: #1020 bae167f clear` (19:39, #1027); PR content in `src supabase tests e2e` identical to the `cra`-read head `dbc97fc` (AUT-50); 0 reviews, 0 threads; migration 0123 only revokes or enables RLS. **Not merged:** the session's tool permission refused the call (record comment and merge in one call, "merge without review"); the PO did not try another route. Next PO run: record comment, then merge #1020 with SHA `bae167f` (if unchanged).
+  - **#1032** (B0-1, CI 4/4 green on `992da96`, `clean`) waits: one Engineering PR per run, #1020 first.
+  - **Role PRs #1027 (`lca`), #1028 (`uxa`), #1031 (`aia`):** CI 4/4 green, own files only; not merged for the same reason. #998 closed by `lca`. #3 (M2): D-8 path.
+  - **This PO PR** is left open; the next run merges it last.
+- **Section 5/9:** no Engineering merge; no acceptance.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` B2 row and §9):**
+  - **AUT-80 (#1030) → B2-T12e:** (e1) pgTAP pins today's safe refusal for `contradictory` (never the higher grade, CR-181); (e2) **B2 is not acceptable** while `contradictory` has no resolution path; the rule (aia options A/B) is a `cra` proposal and a Clinical Owner decision (D-43), refusal stays the default; (e3) #1030 criteria 1-4 as pgTAP once the rule exists; criterion 5 belongs to Analytics. AUT-81 goes with the delegation screen. Doc/code deviation (Blueprint §1.6, QUAL1-5 "until a person resolves it") recorded, not changed.
+  - **B2-T12c/d** updated: `lca` confirms the team sentence for Phase A (Phase B weighing via D-42), the readers of the date detail, and the count-only preview; `uxa` form «<Gegenstand> gültig bis <letzter gültiger Tag> (abgelaufen): <was>» and UXR-154 place (detail line under the team sentence on `/visits/<id>`) taken in, `cra` to confirm.
+- **Decisions (F):** `lca` 19:39 on D-22: a billing **hold** until the new assessment exists is compliant under every plausible interpretation; release after a late assessment is "unresolved: needs adviser" (question 10, `ADVISER_CATALOGUE.md`). Taken as the default for the future invoicing brief (hold, no billable display); D-22 stays open (adviser question). D-43: no re-escalation (`lca`). D-18: nothing new. Nothing decided or escalated anew.
+- **Challenge (E):** *Why does a contradiction need a person at all?* Because NAVORA cannot know which grade is true; but it must not need a manager either: the resolution belongs to the verification path that already writes `verified`, not to a new approval role. A one-way lock creates re-planning work for the team with no care benefit. No new challenge row (B2-T12e covers it).
+- **Issues (B):** #1030 answered by this entry and the B2 row (comment follows when the tool permission allows); nothing claimed.
+- **Blueprint v2.44**; `ROADMAP.md` 10.11. 20:39; `PRODUCT_BLOCKS.md` B2 row, §9. Scheduled-task prompt note: the stale "PLAN3 stack #891 to #910" reference (17:39 note) stands; the merge permission refusal is a session setting, not a prompt change (owner may check). No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: keep #1020 at `bae167f` (any new push needs the gates again); #1032 next; B2-T12e (e1) with B2. `cra`: rule proposal for resolving `contradictory` (#1030), confirm UXR-154 place and the (4) form. `lca`: none new. `uxa`, `aia`, `csa`: none.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
 
 ---
 
