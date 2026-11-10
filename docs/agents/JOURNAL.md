@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 05:55 CET · po (Product Owner)
+
+Scheduled PO run (started 05:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0539`; no PO PR was open (#996 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A), role PRs only** (conditions 1 and 5 plus own files only; record comment before each call):
+  - **#999** (`cra` 05:35) as `0a5a376` on head `4367dae`; CI 4/4 green, `clean`.
+  - **#995** (`csa` 04:40) as `8d67d77` on head `bc1fe00`, after the PO merged `recovery/main` in (`JOURNAL.md` only, auto-merged, order checked newest first); CI 4/4 green on `bc1fe00`.
+  - **#997** (`lca` 04:46: D-22, D-18, D-43) as `d47099c` on head `b44455b`, after the PO merged `recovery/main` in (`JOURNAL.md` conflict only, every entry kept, the `lca` entry placed by time; `lca` sections untouched); CI 4/4 green.
+  - **Not merged:** #998 (`lca` 04:39) reviews the same packages from the same base; `cra` asked for one reading per package. Left open with one comment: `lca` folds D-22 question 9 and the Q-43a narrowing into its next PR. #991 (B0-3, part 2 of 5, `cra-gate: #991 bd62714 clear`) is not delivered, not a candidate; no Engineering PR merged.
+- **Review (C):** no item delivered; nothing accepted. CI2 stays in review. The PO ran no test.
+- **Phase A (`PRODUCT_BLOCKS.md`, product authority), CGR-163:** the proposed stop case "keine aktuelle Abklärung → kein geplanter Besuch für diesen Bedarf" (STR-32) is **not taken**. Built as worded it would stop care for a late document (H-01). Replaced by two rows worded to the code: (f) no completed assessment → only the assessment visit is plannable (`assessment_first`); (g) review date passed → visit stays planned, flagged "Neubeurteilung fällig", OPS1 P3, no care stop. Both "nicht nachgewiesen"; test basis B7-T1 to -T3 for `eng` after B0. Whether care must ever stop or a person be told: UNKNOWN (Clinical Owner, D-43; `lca` for billing).
+- **NH-A1 build gate (c) given** (`lca` gate line on #968, conditions (1)-(3) written into the brief). All three gates are in; NH-A1 waits only for B0 (FE-052 order).
+- **Decisions (F), three packages in INDEX order:**
+  - **D-22:** `lca` asks (a), (b) answered. PO decision (Phase A only): KLV Stand 1 January 2026 suffices for drafting ORD1 on synthetic data; the newest text is read before real data. CGR-163 (3) billing question to `lca`. Stays `inputs-requested`.
+  - **D-18:** HSK 2025 read; the secondary "mindestens 10 Minuten pro Einsatz" reading goes to `cra`'s template and CR-029. Stays `inputs-requested`.
+  - **D-43: escalated again, `awaiting-approval: owner`** with one combined sentence (`cra` (6), `lca` (i)-(iii) and addition 5, `csa` STR-29: adoption per catalogue version, in whole or with exceptions). Medium (eng section drafted by po). `OPEN_DECISIONS.md`, INDEX, `OWNER_AGENDA.md` updated.
+  - FE-050 catalogue location answered on #997: `docs/agents/decisions/ADVISER_CATALOGUE.md`, owned by `lca`. **Scheduled-task prompt note for the owner:** `lca`'s file scope (decision packages and journal) may need this file named; (a), (d), (e) from 01:05 unchanged.
+- **`csa` #995 read:** STR-27 already a product invariant; STR-28 (D-42 operating-model clauses) and STR-34 (economics) wait for D-42 to return; P-5 to P-10, O-6, O-7 to the next run.
+- **Challenge (E):** *Why must the team type the care-plan review date and remember it?* Because NAVORA may not compute a clinical interval (CGR-84). It can disappear only with an approved interval rule from the D-43 board; no new row, it is held in D-43's blocks.
+- **Blueprint v2.32**; `ROADMAP.md` line 10.11. 05:39. Synchronised: #997, #998, #999, #995 (comments), #925 (D-43), #968 (NH-A1).
+- **To the agents:** `eng`: B0-3 on #991; after B0 B7-T1 to -T3, B5-T11; NH-A1 is buildable after B0 (propose the Phase A sign-out timeout). `cra`: D-18 template (one `lca` PR is now merged); CR-029 against the 10-minute reading. `lca`: fold #998 into a new PR, then the FE-050 catalogue; CGR-163 (3). `uxa`: optional NH-A1 help-text precision from `lca`.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 05:35 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review. Branch `gov/review-2026-11-10-0535`; no `gov/…` PR was open (#988 merged). Scope `recovery/main` @ `57beed5`; `git diff 1795728 57beed5 -- src supabase tests` is empty (docs only since 01:35).

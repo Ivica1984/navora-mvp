@@ -12,7 +12,7 @@ updated: 2026-11-07
 
 **Amended 2026-11-07 14:39 CET (PO, `aia` review 38):** NH-A1-6 now has no confirm act (AUT-69, #969). NH-A1-15 adds an own recurring pattern (AUT-70). The measures section names its four sources (AUT-71). Whether shift responsibility needs an acknowledgement is UNKNOWN and sits with `cra`.
 
-**Amended 2026-11-07 17:39 CET (PO, `cra` 17:29 #975 and `uxa` 15:50 #974):** build gates (a) and (b) are given with conditions, which are written in below as NH-A1-16 to NH-A1-19 and the PO decision section at the end. Gate (c) (`lca` on NH-A1-11 and NH-A1-12) is still open.
+**Amended 2026-11-07 17:39 CET (PO, `cra` 17:29 #975 and `uxa` 15:50 #974):** build gates (a) and (b) are given with conditions, which are written in below as NH-A1-16 to NH-A1-19 and the PO decision section at the end. Gate (c) (`lca` on NH-A1-11 and NH-A1-12) is still open. **Update 2026-11-10 05:39 (PO): gate (c) given, see the last section.**
 
 **Build gate:** Engineering starts only when (a) this brief has a `cra` gate line, (b) a `uxa` line on N-01/N-02 (the screen-catalog entries), and (c) an `lca` line on NH-A1-11 (shared devices) and NH-A1-12 (working time). The COORD-7 order holds: NH-A1 comes after the UX2 remainder. Every rule in this brief is PROVISIONAL. A passed Phase A simulation is no clinical release (CGR-142 (5), O-6).
 
@@ -194,3 +194,15 @@ Placed, not built in NH-A1:
 
 **Asked next:** `lca`: gate (c) (NH-A1-11, NH-A1-12 and the two help-text clauses). `eng`: read NH-A1-16 to NH-A1-19 for estimate v2; no build before gate (c) and the COORD-7 order. `cra`: CR-198 to CR-200 stay PROPOSED until built.
 
+
+## PO decision 2026-11-10 05:39 CET: build gate (c) given
+
+The PO read the `lca` gate line on issue #968 (2026-11-10 04:51 CET; full text in `lca` PR #998, JOURNAL 04:55) and ran no test. The `lca` analysis is advisory and not legal advice.
+
+**Gate (c):** `lca-gate: NH-A1 clear for the Phase A synthetic build, conditions (1)-(3)`. All three build gates (a), (b), (c) are now given for the Phase A synthetic build. The conditions are written in here:
+
+- **NH-A1-12 (working time), condition (1):** NAVORA checks no rest period or maximum working time and says so; the help text "Ruhezeiten und Höchstarbeitszeit prüft NAVORA hier nicht. Geplante Schichten zählen nicht als gearbeitete Zeit." is confirmed. NAVORA never presents a team-made plan as checked against the ArG. Any later warning or refusal is a new rule and needs the employer's regime as an input plus `cra`/`lca` and a sourced register row; it is not built from leaflet numbers.
+- **NH-A1-11 (shared ward devices), condition (2):** allowed in Phase A (synthetic data only) on the brief's interim terms: personal sign-in per person, no resident name on idle, lock or sign-in screens, attribution per person in the audit trail (D-4). `eng` proposes the Phase A sign-out timeout value in its estimate. Phase B device and timeout policy: unresolved, needs owner and partner (DSFA, D-42).
+- **Help-text clause, condition (3):** "Es ist auch keine formelle Verantwortung im Heim." confirmed. `lca`'s optional precision ("Die formelle fachliche Verantwortung trägt die Pflegeleitung des Heims.") goes to `uxa` to choose; the confirmed text stands until then.
+
+**Order unchanged:** FE-052 / `PRODUCT_BLOCKS.md` §8 (5): B0 first. NH-A1 is buildable once B0 is accepted; the gate no longer blocks it.
