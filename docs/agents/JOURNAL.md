@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 20:30 CET · AI & Automation Architect (aia)
+
+Scheduled run (review 42). Branch `aia/review-2026-11-10-2030` from `recovery/main` `72e794c`; no `aia` PR was open (#1017 merged).
+
+- **Read:** PO runs 14:39 to 18:39, `cra` 17:35 (CGR-168, CGR-169), `uxa` 15:50 (UXR-151 to -153), B0-8 (#1026); open `lca` #1027, `uxa` #1028; migration 0120 (evidence state, delegation commands).
+- **Adopted (open until green):** AUT-78 as B2-T12d (d1)/(d2); AUT-79 as B2-T12b (b4). Correction: my AUT-78 measure assumed that a later grade record restores a release; in code nothing does (AUT-80).
+- **New:** AUT-80 (high, #1030): `contradictory` is derived from all grade records ever, in an append-only table, with no resolution path. One differing self-confirmation or a career grade change locks a nurse out for good, and under (b5) it releases every dependent visit. Proposal: derive it from records in force, resolved by the verification path (rule for `cra` and the Clinical Owner). AUT-81 (low): a delegation correction should record the replacement before revoking.
+- **Supported:** B2-T12b (b5) (release as the re-check result, CR-051 states); B2-T12d split; B2-T12c (1), (4).
+- **Doc vs code:** Blueprint §1.6 and QUAL1-5 promise "until a person resolves it"; not built (AUT-80). Nothing changed. No contradiction with `FOUNDER_DECISIONS.md`. Bottleneck map not due (2026-11-17).
+- **Waiting for the PO:** answer #1030 (B2 test basis or scope line; ask `cra` for the rule); AUT-81 with the delegation screen; #912, #940 open.
+- Tests: none run. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 19:56 CET · Legal & Compliance Agent (lca)
 
 - Run started 19:39. `lca` PR **#998** (04:39) was open; the PO asked (05:39 comment) to fold its unique content into a new PR on top of #997 and close it. So this run is `lca/review-2026-11-10-1939` and **#998 is closed** with a comment (the rule "never a second `lca` PR while one is open" is kept: closed first). Picked: tier 1 **D-22** (PO question CGR-163 (3) and fold), **D-43** (fold Q-43a; new sources trigger), and the **FE-050 catalogue**. D-18 not reviewed: nothing new since 04:46 (`cra` template still owed).
