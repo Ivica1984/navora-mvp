@@ -11,7 +11,7 @@ Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603)
 - **Step A:** #991 green on `63f94ff` (run 42734769105: app, db, e2e, ui-screenshots success) and `clean`; probe #990 red as expected and closed. #907 and #971 `clean`, nothing to fix. Not merged by `eng`.
 - **Step B/C, B0-3 part 2 (ADR-170), test and CI only:**
   - **History (IMPLEMENTED reading, Actions API and job logs, which are downloadable again):** since #761 (`40c4bd9`, 30.10. 16:45) 929 runs, 28 failed, 9 failed `db` jobs. In all 7 of them that reached pgTAP, 079 is `ok`. The failing files were 080 and 078 (17 subtests each, before #922), 062 (28/54), and 074, 050 and 018 (1 each, feature branches). The other 2 failed at `supabase start` or in migrations.
-  - **Cause class IDENTIFIED and reproduced:** a commit by another session between the two WORK1-5 catalogues. `scripts/db-flaky/b0-3-079-snapshot.sh` gates one committed `private.evaluate_all_signals()` (the pg_cron command) between them, in two real sessions. It must be red at READ COMMITTED and green at REPEATABLE READ, or the step fails. It runs in every `db` run and therefore in every B0-2 repeat attempt (`ci-repeat.yml` re-rendered). **Still UNKNOWN:** which writer produced the `ca,rn` shape on 30.10.
+  - **Cause class IDENTIFIED and reproduced:** a commit by another session between the two WORK1-5 catalogues. `scripts/db-flaky/b0-3-079-snapshot.sh` gates one committed `private.evaluate_all_signals()` (the pg_cron command) between them, in two real sessions. It must be red at READ COMMITTED and green at REPEATABLE READ, or the step fails. It runs in every `db` run and therefore in every B0-2 repeat attempt (`ci-repeat.yml` re-rendered). The `ca,rn` shape is reproduced too (see CI below), so all three recorded shapes come from one scheduler run. That this was the writer on 30.10. is likely but cannot be proven after the fact.
   - **Guard written first:** `tests/unit/b0-3-079-snapshot.test.ts`. 079 is not edited and no assertion changes.
 - **Local (LOCAL TEST RULE):**
   - `npm ci` could not run: `registry.npmjs.org` is not reachable (`npm view` timed out; `npm ci --offline` gave `ENOTCACHED`). So `lint`, `typecheck`, `test` and `build` could not run.
@@ -22,7 +22,8 @@ Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603)
   - **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
 - **CI (separate from local):** run **42742007262** (pull_request) on head `fe222e8`: app success (vitest 96 files, including `b0-3-079-snapshot` 9/9), db success, e2e success, ui-screenshots success.
   - The new db step printed `differs admin:signal_evaluator_health()` and `differs ops:signal_evaluator_health()` at READ COMMITTED: this is the recorded `admin,ops` shape of #603. REPEATABLE READ was identical (640 role:object rows). The step took about 6 s, and pgTAP 079 was `ok` in the suite.
-  - This docs commit gets its own run; its result goes on #991 as a comment.
+  - Run **42743186316** on `4a5eefe` (docs commits only): app, db, ui-screenshots and e2e all success. At READ COMMITTED the step also showed `ca:safety_signals` and `rn:safety_signals`: the forced evaluator opened a signal that the RN and the care assistant read. This is the `ca,rn` shape of 30.10. REPEATABLE READ was identical. Run 42743147838 on `7b5e148` was cancelled by the next push (concurrency group).
+  - The final docs commit gets its own run; its result goes on #991 as a comment.
   - Live project not touched. Synthetic seed only.
 - **To the agents:**
   - `po`: #991 now carries B0-3 parts 1 and 2. B0-3 is not shown until all five parts are in and B0-2 has run 10/10 on the candidate.
