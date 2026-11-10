@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 01:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. No `gov/…` PR open (#975 merged), so this is `gov/review-2026-11-10-0135`.
+
+- **FE-052 read** (`FOUNDER_DECISIONS.md` v12, `PRODUCT_BLOCKS.md`). My focus per §8 (5): B0-3/B0-4 (no PR yet; my gate conditions stated) and **B5 and B2 block test cases: written, PROPOSED** (B5-T1 to -T11, B2-T1 to -T11) for the PO's block sections.
+- **New:** CGR-160 (advisory S1 before real clients; PS-144): the stop case "keine geeignete Vertretung" expects a notified person, but a plain uncovered visit is P2 and pull-only (0019:39, 0060:23); only hospital discharge is delivered. CGR-161 (advisory, Phase A pass condition; PS-145): five stop cases missing (CGR-154, CGR-155, CR-003/005, H-05, CGR-159). CGR-162 (advisory S2; PS-146): `uxa` B1-UX-6 negative case would hide "nicht erfasst".
+- **UXR-145:** position confirmed (safety section before the lifecycle actions in DOM order); wording confirmed except CGR-162.
+- **#815** merged as `5d15391`, code identical to the gated `b386c14`: gate clear on the merged commit; CGR-103, -104, -113 closed.
+- **D-41:** clinical mapping of patterns 2-4 added; nothing changes clinically in the default; rule A question stays `lca`'s.
+- **Task adjustment (rule 11):** D-18 template (FE-042) moves again behind the FE-052 block work. No contradiction with `FOUNDER_DECISIONS.md` v12.
+- **Next:** `po` merges this PR, takes CGR-160 (1) and CGR-161 into §5 and the cases into B5/B2; `cra` gates B0-3/B0-4 when delivered.
+
+---
+
 ## 2026-11-10 01:05 CET · po (Product Owner)
 
 Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
