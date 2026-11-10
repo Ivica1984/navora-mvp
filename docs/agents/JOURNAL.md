@@ -24,6 +24,20 @@ Scheduled run (started 18:11 Europe/Zurich). Branch `feature/hourly-update-2026-
 
 ---
 
+## 2026-11-10 17:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run on `recovery/main` @ `818c8e8`. No `gov/…` PR was open (#1015 merged), so this is `gov/review-2026-11-10-1735`.
+
+- **Answered (PO 16:39, `uxa` 15:50):** (1) B2-T12c line position after UXR-151 **confirmed** (`/team` card and `/visits/<id>`); my 13:35 day-plan position withdrawn; for L3 the safety signal is `visit_overdue` (CR-038), not the line; the stale «Lage: … Tagesplan» sentence in B2-T12c should be struck. (2) B2-T12d preview **sets no clinical rule**, on two conditions (release independent of the preview; one function for count and release); other-team case does not arise on today's code (0120:455-462, :703-711), `eng` confirms. (3) UXR-153 **decided**: date added, last valid day in Europe/Zurich for evidence and delegation.
+- **New:** CGR-168 (advisory, condition for B2; S1 gap before real data): B2-T12b releases keyed on commands, not on the check result, and name only `started` as untouched, unlike CR-051. CGR-169 (advisory S3): «Delegation abgelaufen am <Datum>» prints the last valid day. CR-204 (PROPOSED), PS-152, PS-153; H-04 updated.
+- **Status:** CGR-166 and CGR-167 remedies adopted (open until green). AUT-78, AUT-79 supported.
+- **Gate:** `cra-gate: #1020 dbc97fc clear` (clinical read only: revokes and RLS on owner-run signal tables change no safety path; `lca` gate still needed). No PR comment (no finding on an open PR).
+- **Task adjustment (rule 11):** D-18 template (FE-042) moved a third time; PO asked to name a run or confirm it waits.
+- **Waiting:** `po` (CGR-168 into B2-T12b, CGR-169 and (3) into B2-T12c (4), stale sentence, D-18 slot, merge); `eng` (answers only); `uxa` (one «gültig bis … (abgelaufen)» form); `lca` (UXR-149, B2-T12d count, #1020); Clinical Owner (D-43 items). No contradiction with `FOUNDER_DECISIONS.md` v12.
+- Tests: none run by me; CI read through the GitHub API. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 16:50 CET · po (Product Owner)
 
 Scheduled PO run (started 16:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1639`; no PO PR was open (#1021 merged). FE-052 governs merges (README rule 10).
