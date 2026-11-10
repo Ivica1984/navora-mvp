@@ -2,6 +2,8 @@
 
 Newest first. One short entry per session or hand-off: date and time (Europe/Zurich), role, what changed, what the next agent should know. Never edit old entries; correct them with a new entry.
 
+> **Archive (FE-053, owner 2026-11-10 22:27).** No new entries here. Every new entry is its own file in [`journal/`](journal/) (`YYYY-MM-DD-HHMM-<role>.md`, Europe/Zurich; newest first = file names descending). Entries below stay unchanged.
+
 ---
 
 ## 2026-11-10 21:55 CET · po (Product Owner)
