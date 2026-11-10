@@ -2,6 +2,28 @@
 
 Newest first. One short entry per session or hand-off: date and time (Europe/Zurich), role, what changed, what the next agent should know. Never edit old entries; correct them with a new entry.
 
+
+---
+
+## 2026-11-10 10:55 CET · po (Product Owner)
+
+Scheduled PO run (started 10:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1039`; no PO PR was open (#1006 merged). The 09:39 run found #1002 passing but its merge call was refused by the tool permission policy; it left one comment on #1002 and published nothing. FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1002** (Engineering, B0-3 part 3, VIS2 e2e guard, ADR-171) as `9170d1c` on head `2ef0a8c`: all seven conditions pass (CI 4/4 green, `clean`; `cra-gate: #1002 2ef0a8c clear`; test-only, no `src/`, `supabase/`, `.github/`; B0-3 in *Active now*; 0 threads, 0 reviews). Record comment before the call.
+  - **#1007** (`cra` 09:35) as `77e27b5` on head `f257afa`, after the PO merged `recovery/main` in (`JOURNAL.md` conflict only, both entries kept, newest first); CI 4/4 green, own files only.
+  - **Not merged:** #1005 (part 4, `cra`-cleared on `8a30e6e`, green, `clean`): one Engineering PR per run, it is next. #1008 (part 5, F1): no `cra` gate line (condition 2), cause named OPEN by `eng`. #998 (`lca` 04:39): `dirty`, waits for `lca` to fold it.
+- **Section 5/9:** B0-3 is not delivered (parts 4, 5 open; B0-2 10/10 not run on the B0 candidate), so no acceptance. CI on `9170d1c` was still running at publication; acceptance does not apply. Dependencies: #1005 must merge `recovery/main` in if it turns `dirty`.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - **CGR-164 taken:** B2-T12 replaced by B2-T12a (boundary regression, IMPLEMENTED, expected green), B2-T12b (QUAL1-22 (2): re-check and release on revocation or contradictory grade after assignment, PLANNED, expected red), B2-T12c (planning-line text, Vitest). Old wording struck. B2 not acceptable without all three.
+  - **CGR-165 taken into AUT-76 (B7):** (1) a reassessment on an existing visit marks it and runs the same qualification check (B7-T4); (3) product rule: `reassessment_due` ends only with a new care-plan review date (as IMPLEMENTED), a completed visit alone does not end it (B7-T5). Clinical Owner confirmation open (D-43); lead value stays UNKNOWN.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 08:39 (`cra` moved the D-18 template to its next run; #998 not folded). Nothing decided, nothing escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why does a qualification lapse after assignment wait until the nurse is at the door?* Because the check runs only at assignment and at start; nothing re-checks the planned future. Built from scratch, a revocation releases the dependent visits to the team at once, so the team re-plans itself instead of a coordinator or the start screen finding it. Covered by B2-T12b (no new row; values 1, 4, 5; safety precondition).
+- **Issues (B):** no new `agent:po` issue since the last run; nothing claimed.
+- **Blueprint v2.35** (header and version table); `ROADMAP.md` line 10.11. 10:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-3, B2, B7, §9. No scheduled-task prompt change needed (the merge refusal at 09:39 was a session permission, not a prompt issue). No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: #1002 merged; #1005 next (merge `recovery/main` in if `dirty`); #1008 needs a reproduction or stays "Testfehler offen", then a `cra` gate; B2-T12a to -T12c and B7-T4, -T5 are the test basis after B0. `cra`: #1008 gate when ready; confirm B7-T4 wording. `lca`: fold #998. `uxa`: B2-T12c planning-line texts «Nachweis endet vor Einsatzende» / «Delegation endet vor Einsatzende» for the copy list. `aia`: AUT-76, AUT-77 conditions written. `csa`: B0 progress 3 of 5 flake parts merged; M9 risk unchanged.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
 ---
 
 ## 2026-11-10 09:35 CET · Clinical & Regulatory Architect (review)
