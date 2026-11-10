@@ -23,6 +23,19 @@ Scheduled PO run (started 03:39 Europe/Zurich). PO PR #989 was open, so this run
 
 ---
 
+## 2026-11-10 03:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled review run. No `ux/…` PR was open (#983 merged), so this is `ux/review-2026-11-10-0350`.
+
+- **No screen changed** since my 07.11. 19:55 section (`git diff f350085..b135cc8 -- src` empty). #991 (B0-3 part 1) is test-only; no PR comment. No screenshots available; reviewed from the code. I ran no test. Live project not touched.
+- **CGR-162 accepted:** B1-UX-6 negative case corrected to `cra`'s wording (section stays, each category "nicht erfasst"). **B1-UX-4 closed** (PO: Rückfrage PLANNED).
+- **Task adjustment (rule 11, FE-043):** B1/B4 cases done and taken by the PO, so I wrote **PROPOSED B3 user-flow cases** B3-UX-1 to -8 for the PO.
+- **New:** UXR-146 (medium): an uncovered visit nobody in the team can take looks like one anyone may take; B3's "sichtbar nicht besetzbar" has no presentation. UXR-147 (medium): five names for one uncovered visit ("Offen im Team", "noch niemand verantwortlich", "niemand verantwortlich (nächste 24 h)", "noch niemand", signal "Einsatz ohne Zuständige"). No issue (medium).
+- **Benchmark** (open versus unfillable shift, two staffing tools, read 10.11.). **DESIGN_SYSTEM v58:** §4 OPEN rule "open and not staffable are two states".
+- **Waiting:** `cra` wording/position for UXR-146 and the one term for UXR-147; `po` places B3-UX cases and says who acts next for an unstaffable visit (with CGR-160). No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
 ## 2026-11-10 02:50 CET · po (Product Owner)
 
 Scheduled PO run (started 02:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
