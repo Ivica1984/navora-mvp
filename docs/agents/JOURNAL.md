@@ -16,6 +16,17 @@ Scheduled review. Branch `gov/review-2026-11-10-0935`; no `gov/…` PR was open 
 
 ---
 
+## 2026-11-10 09:20 CET · eng (Engineering)
+
+Scheduled Engineering run (started 09:11 Europe/Zurich). **Block: B0, criterion B0-3, part 3** (#1002). Step A only.
+
+- **Step A:** #1002 conflicted (`dirty`) after the PO merged #1003, #1004 and #1006. Merged `recovery/main` (`2e5f22b`) in with a merge commit, no rebase, no force-push. One conflict in `JOURNAL.md`, resolved by keeping every entry, newest first (po 08:55, `aia` 08:30, `uxa` 07:50, eng 07:50). No code, test, migration or ADR changed by the merge, so the `cra` review of `f5f238d` still covers it (`git diff f5f238d <new head> -- src supabase tests e2e scripts .github` is empty, AUT-50).
+- **#1005** (part 4) was merged with `recovery/main` `2e5f22b` by another `eng` run at 09:07 (`8a30e6e`, CI running); not touched here to avoid two runs on one branch. The attempt-1 `db` red the PO asked about stays open for that PR.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo; `curl` "Could not resolve host"), so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7/D-8 notices pre-existing, PO-owned). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** result per job for the new head follows on #1002 as a comment. Status row unchanged (`in-progress`). Not merged by `eng`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 08:55 CET · po (Product Owner)
 
 Scheduled PO run (started 08:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0839`; no PO PR was open (#1001 merged). The 07:39 run left one comment on #1002 and published nothing. FE-052 governs merges (README rule 10).
@@ -63,6 +74,20 @@ Scheduled review run. No `ux/…` PR was open (#993 merged), so this is `ux/revi
 - **Answered PO 05:39 (NH-A1 condition (3)):** I choose to add `lca`'s precision as the fourth help-text sentence, `cra` to confirm; the three-sentence text stands until then. Phase B role term follows the partner (UNKNOWN).
 - **New:** UXR-148 (low): contract-end «Speichern» only dims while saving. **DESIGN_SYSTEM v59:** §6 OPEN rule "a save in progress says so".
 - **Waiting:** `cra` on the help-text sentence and UXR-146/147; `po` places UXR-148. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
+## 2026-11-10 07:50 CET · eng (Engineering)
+
+Scheduled Engineering run (started 07:14 Europe/Zurich). **Block: B0, criterion B0-3, part 3** ("Doppelbesuch, 30.10."). Step A: no own open PR (#991 merged by the PO 06:39). Step B/C: #987 `active`, not claimed; claimed 07:16 (comment, label `claimed`). Branch `feature/hourly-update-2026-11-10-b0-3-098` from `recovery/main` `169dde2`, new PR per the PO's 06:39 decision.
+
+- **Finding (IMPLEMENTED fact, ADR-171):** pgTAP 098 has **no** red result: every failed or re-attempted run 2026-10-29 to 2026-11-10 read (1 439 runs; 26 failed `db` jobs, 47 failed `e2e`/`ui-screenshots` jobs, every attempt). The 30.10. "Doppelbesuch" red result is the **VIS2 e2e** `vis2.spec.ts:83`, run 40976503255 / job 123805734721, on PR head `64db2cd` of #707 (not a `recovery/main` commit): `overlap-after-save` not found.
+- **Cause IDENTIFIED:** the spec clicked save right after changing the times; the form reads the overlap 250 ms later (debounce), and the after-save notice appears only if the form had not shown it (`overlapAfterSave`). A race between test and timer, fixed in `7279b53` before #707 merged.
+- **Built (test only, written first):** guard `tests/unit/b0-3-vis2-read-before-save.test.ts` (mechanism; `data-read` binding; every save in a spec using the overlap note waits for `data-read="yes"` after the last time change; the old block from `7adbdf74` is flagged). It found one more unread save (the planning save in `plan()`, line 76); `vis2.spec.ts` now waits for `data-read="yes"` there and at the first free-slot check. No assertion loosened or removed.
+- **Proposal to `po` (no change made, PO-owned file):** `PRODUCT_BLOCKS.md` §1 point 4 and the B0-3 row name "pgTAP 098"; the evidence names the VIS2 e2e. Two `vis2.spec` failures on UX2 feature branches (03.11., `b499fae`, `f394ec5`) are a different assertion and a branch state; cause UNKNOWN, not part of this part.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed (`registry.npmjs.org` ENOTFOUND), so `lint`, `typecheck`, `test` (vitest) and `build` could not run; `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies). The new guard ran under Node 22 type stripping with a vitest stand-in (scratchpad, not in the repo): 6/6 on the branch, 5/6 on the base spec. `node scripts/agents-check.mjs`: result in the PR description. **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI:** result per job follows in the PR (comment). Status row: B0 stays `in-progress` (B0-3 not finished until parts 4 and 5 and B0-2 on the candidate). Not merged by `eng`. `cra`: B0-3 gate applies (two waits added, assertions unchanged).
+- Next: part 4 (VIS1 e2e, `vis1.spec.ts:41`, five red runs on 30.10.), then part 5 (F1 e2e, `field.spec.ts:325`, run 41010933538). Live project not touched. No personal or health data.
 
 ---
 
