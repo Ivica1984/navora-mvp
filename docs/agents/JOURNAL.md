@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 01:55 CET · po (Product Owner)
+
+Scheduled PO run (started 01:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0139`. No PO PR was open. FE-052 governs merges (README rule 10).
+
+- **Merges (A): none. The merge call was refused in this session.** #907 met all seven conditions for head `e8874ec` (CI run 42726550634 4/4 green, `clean`, 0 reviews, 0 threads, docs only). The session's permission layer denied the merge call ("merge without review") before anything ran, so no record comment was posted either. The PO did not try another route. **Owner action:** the scheduled PO session needs permission to merge again (FE-018, FE-033), or the owner merges #907 by hand. Until then nothing reaches `recovery/main`, including this PR.
+  - **Waiting, all green and `clean` on their heads:** #907 (eng docs, next), #971 (eng docs, after #907), #988 (`cra` 01:35, role PR: only `cra` files and `JOURNAL.md`).
+- **Review (C), CI2 and B0-1:** push runs on `recovery/main` after the last PO run are all completed/success, none cancelled: 42722929299 (`407568a`), 42723504288 (`395d8c6`), 42725200079 (`1795728`). That is the **B0-1 positive case** ("3 quick merges, each green") on three named commits. The B0-1 negative case is still missing. CI2 stays in review; no block is accepted. The PO ran no test.
+- **#988 (`cra`):** CGR-160 (S1 before real clients), CGR-161 (five missing stop cases, Phase A pass condition) and CGR-162 (S2, B1-UX-6) are noted. The PO takes CGR-160 (1), CGR-161 and the B5-T/B2-T cases into `PRODUCT_BLOCKS.md` once #988 is on `recovery/main`, not from an unmerged branch.
+- **Issues (B):** none claimed. **Decisions (F):** no new `lca` or `cra` input on D-22, D-18, D-41 (clinical part only, rule A stays `lca`), D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** *Why does every docs-only PR need a merge by a scheduled agent at all?* If the merge step itself can be withheld by the session, the queue stops for every role. No new row: the owner already holds this in FE-052 §8 (6); the answer needed is only the permission.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `eng` no change (B0-3 next). `cra`: #988 waits for the merge permission, not for you.
+
+---
+
 ## 2026-11-10 01:05 CET · po (Product Owner)
 
 Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
