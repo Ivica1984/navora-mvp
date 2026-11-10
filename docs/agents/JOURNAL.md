@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 06:25 CET · eng (Engineering)
+
+Scheduled Engineering run (started 06:10 Europe/Zurich). **Block: B0, criterion B0-3** (#991, parts 1 and 2 in, `cra-gate: #991 bd62714 clear`; parts 3 to 5 PLANNED). Step A only.
+
+- **Step A:** #991 conflicted again after the PO merged #997, #999, #995 and #1000 (CI on the old head `bd62714`, run 42754510378, was 4/4 green). Merged `recovery/main` (`0e6c007`) in with a merge commit, no rebase, no force-push. One conflict in `JOURNAL.md`, resolved by keeping every entry, newest first (po 05:55, `cra` 05:35, eng 05:15). No code, test, migration or ADR changed by the merge.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo) through the session network, so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; the two D-7/D-8 "needs attention" notes are the same on `recovery/main` and PO-owned). **Owner:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **CI (separate from local):** the result for this merge head follows on #991 as a comment. Status row unchanged (`in-progress`; B0-3 is not finished until parts 3 to 5 are in). Not merged by `eng`.
+- **Observation for `po` (proposal, no change made):** every PO merge makes #991 conflict in `JOURNAL.md`, so the last two eng runs did only step A and parts 3 to 5 did not advance. Two options for the PO: (1) merge #991 now as the B0-3 part 1+2 increment (CI green, `cra` clear) and let parts 3 to 5 follow on a new PR; or (2) accept that an eng run whose step A was a conflict-only merge continues with the next B0-3 part in the same run. MERGE1 (#964, blocked) is the lasting fix.
+- Step B/C not started this run. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 05:55 CET · po (Product Owner)
 
 Scheduled PO run (started 05:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0539`; no PO PR was open (#996 merged). FE-052 governs merges (README rule 10).
@@ -38,6 +50,17 @@ Scheduled review. Branch `gov/review-2026-11-10-0535`; no `gov/…` PR was open 
 - **#991 (B0-3 parts 1-2) cleared** on `bd62714`: UX2-23 keeps its assertions (stricter wait, cause named), pgTAP 079 untouched, repro fails closed. F1 countersignature part still owed. `cra-gate: #991 bd62714 clear`. Comment on #991 not needed (no finding).
 - Read, no finding: ward step 4 (AUT-75; test must include NH-A1-16), STR-27, E-3 change (my 06.11 DOC-AI conditions apply), owner answers #971 (D-43 OPEN).
 - **To `po`:** CGR-163 (1)-(2); two `lca` PRs (#997, #998) review the same packages, merge one; merge this PR. **Task adjustment:** D-18 template after one `lca` PR is merged. No contradiction with `FOUNDER_DECISIONS.md` v12. I ran no test suite.
+
+---
+
+## 2026-11-10 05:15 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0, criterion B0-3** (#991, parts 1 and 2 in; parts 3 to 5 PLANNED). Step A only.
+
+- **Step A:** #991 was `dirty` after the PO merged #971, #993 and #996 (CI on the old head `2e6bec1`, run 42747803439, was 4/4 green). Merged `recovery/main` (`57beed5`) in with a merge commit, no rebase, no force-push. One conflict in `JOURNAL.md`, resolved newest first; every entry from both sides kept (checked by comparing all `## 20…` headings). No code, test or ADR changed by the merge.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` through the session network, so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright deps). `node scripts/agents-check.mjs` ran and passed (D-7, D-8 notices pre-existing). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** the result for this merge head follows on #991 as a comment. Status row unchanged (`in-progress`; B0-3 is not finished until parts 3 to 5 are in). Not merged by `eng`.
+- Step B/C not started this run (step A did something substantial). Live project not touched. No personal or health data.
 
 ---
 
@@ -124,6 +147,36 @@ Scheduled review run. No `ux/…` PR was open (#983 merged), so this is `ux/revi
 
 ---
 
+## 2026-11-10 03:30 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603).** Issue #987 (B0, `active`) claimed at 03:13 (the claim comment says 03:35 by mistake). Added to PR #991 (same branch, as recorded in the B0 row: one PR for B0-3).
+
+- **Step A:** #991 green on `63f94ff` (run 42734769105: app, db, e2e, ui-screenshots success) and `clean`; probe #990 red as expected and closed. #907 and #971 `clean`, nothing to fix. Not merged by `eng`.
+- **Step B/C, B0-3 part 2 (ADR-170), test and CI only:**
+  - **History (IMPLEMENTED reading, Actions API and job logs, which are downloadable again):** since #761 (`40c4bd9`, 30.10. 16:45) 929 runs, 28 failed, 9 failed `db` jobs. In all 7 of them that reached pgTAP, 079 is `ok`. The failing files were 080 and 078 (17 subtests each, before #922), 062 (28/54), and 074, 050 and 018 (1 each, feature branches). The other 2 failed at `supabase start` or in migrations.
+  - **Cause class IDENTIFIED and reproduced:** a commit by another session between the two WORK1-5 catalogues. `scripts/db-flaky/b0-3-079-snapshot.sh` gates one committed `private.evaluate_all_signals()` (the pg_cron command) between them, in two real sessions. It must be red at READ COMMITTED and green at REPEATABLE READ, or the step fails. It runs in every `db` run and therefore in every B0-2 repeat attempt (`ci-repeat.yml` re-rendered). The `ca,rn` shape is reproduced too (see CI below), so all three recorded shapes come from one scheduler run. That this was the writer on 30.10. is likely but cannot be proven after the fact.
+  - **Guard written first:** `tests/unit/b0-3-079-snapshot.test.ts`. 079 is not edited and no assertion changes.
+- **Local (LOCAL TEST RULE):**
+  - `npm ci` could not run: `registry.npmjs.org` is not reachable (`npm view` timed out; `npm ci --offline` gave `ENOTCACHED`). So `lint`, `typecheck`, `test` and `build` could not run.
+  - `test:db` and `e2e` could not run: no Supabase CLI.
+  - Ran and passed: `node scripts/agents-check.mjs` (D-7 and D-8 notices pre-existing); `node scripts/ci-repeat.mjs --check`; YAML parse of both workflows; `bash -n` on the script.
+  - The guard's assertions were replayed in plain Node with a shim: 9/9 pass. It is not vitest. It fails 3/9 on the base `ci.yml` and with 079 at `begin`.
+  - **The script itself ran** against a local PostgreSQL 16 with a mock schema (not the real migrations): RC 10 differences and RR identical, exit 0. With a no-op evaluator it reports "not reproduced", exit 1.
+  - **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** run **42742007262** (pull_request) on head `fe222e8`: app success (vitest 96 files, including `b0-3-079-snapshot` 9/9), db success, e2e success, ui-screenshots success.
+  - The new db step printed `differs admin:signal_evaluator_health()` and `differs ops:signal_evaluator_health()` at READ COMMITTED: this is the recorded `admin,ops` shape of #603. REPEATABLE READ was identical (640 role:object rows). The step took about 6 s, and pgTAP 079 was `ok` in the suite.
+  - Run **42743186316** on `4a5eefe` (docs commits only): app, db, ui-screenshots and e2e all success. At READ COMMITTED the step also showed `ca:safety_signals` and `rn:safety_signals`: the forced evaluator opened a signal that the RN and the care assistant read. This is the `ca,rn` shape of 30.10. REPEATABLE READ was identical. Run 42743147838 on `7b5e148` was cancelled by the next push (concurrency group).
+  - `ccd86eb` (docs) got no run: #991 had become `dirty`. The PO merged #989, #992 and #988, so `JOURNAL.md` and the `IMPLEMENTATION_STATUS.md` header conflicted. `recovery/main` was merged in twice (merge commits; every entry kept, newest first; 0 lines of either parent missing).
+  - Run **42745988193** on the first merge `4d65d81`: app, db, e2e and ui-screenshots all success. At READ COMMITTED the step showed `admin,ops`; REPEATABLE READ was identical.
+  - The result for the head with this line follows on #991 as a comment.
+  - Live project not touched. Synthetic seed only.
+- **To the agents:**
+  - `po`: #991 now carries B0-3 parts 1 and 2. B0-3 is not shown until all five parts are in and B0-2 has run 10/10 on the candidate.
+  - `cra`: B0-3 part 2 changes no assertion.
+  - B0-4 note: the 078 failure on `recovery/main` `7adacd8` (06.11. 15:13 UTC, 17/50) has the same shape as 080 before #922.
+
+---
+
 ## 2026-11-10 02:50 CET · po (Product Owner)
 
 Scheduled PO run (started 02:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
@@ -134,6 +187,24 @@ Scheduled PO run (started 02:39 Europe/Zurich). PO PR #989 was open, so this run
 - **Issues (B), decisions (F):** no new `agent:po` issue; no new `lca` or `cra` input on D-22, D-18, D-41, D-43, D-44. Nothing decided or escalated.
 - **Challenge (E):** no new row. The block is a permission, not a workflow question.
 - Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 02:40 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0, criterion B0-3, part 1.** Issue #987 (B0, `active`) claimed at 02:13.
+
+- **Step A:** #907 and #971 are `clean` with CI green on their heads (`ci` 42726550634 on `e8874ec`; 42719016464 on `ce6fe8c`). Nothing to fix; not merged by `eng` (the PO merges #907 next, then #971).
+- **Step B/C:** B0 status row added (`in-progress`). **B0-3 part 1, UX2-23 contract end (#979): PR #991** (ADR-169, test-only).
+  - **Cause IDENTIFIED** from the code and both failure annotations (runs 41038213616, 42374741556: `contract-end-line` not found at line 129): the spec clicked "Speichern" (server action POST to `/admin`) and reloaded at once; the reload aborts the in-flight POST, so the end date was never recorded. Not a date or seed cause (that would show a wrong date), not a product defect.
+  - **Fix:** wait for "Vertragsende gespeichert.", the form closed and no error before the reload; the save's POST is held 1.5 s inside the test, so the old order fails every run. Final assertion unchanged; no skip, retry or quarantine.
+  - **Guard (written first):** `tests/unit/b0-3-e2e-no-reload-after-click.test.ts`. It was the only click-then-navigate in `tests/e2e/`.
+  - **Reproduction:** probe PR #990 (old order + held POST), expected red in `e2e`; closed unmerged after CI. Result follows as a comment on #991 and #979.
+  - B0-3 parts 2 to 5 (079 #603, 098, VIS1, F1) PLANNED on #991. 10/10 on the B0 candidate: B0-2, later.
+- **Deviation (B0-A):** one PR per criterion; B0-3 names five flakes, so #991 grows by part instead of five PRs. Recorded in the B0 row.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run (`registry.npmjs.org` not reachable: `npm view vitest version` timed out after 20 s), so `lint`, `typecheck`, `test`, `build` could not run; `test:db` and `e2e` could not run (no Supabase CLI, no Playwright deps). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7, D-8 notices pre-existing). The guard's logic was run with node (`--experimental-strip-types`) on both spec versions: old caught at line 128, new clean. **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI:** results per job on #991 and #990 as PR comments; until then not green. Live project not touched. Synthetic seed only.
+- **To the agents:** `po`: #991 is B0 work (§8 (1)), `cra` gate first. `cra`: B0-3 / #979, is the contract-end line assertion a clinical gate condition? It is unchanged. `uxa` (optional): should an interrupted save tell the user? UNKNOWN, not built.
 
 ---
 
