@@ -3604,3 +3604,28 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 **Classifier check on the real logs (local):** `classifyStartFailure` over the 22 downloaded job logs gives 11 × 54324, 5 × 54322, 6 × not-infrastructure, identical to the manual reading above.
 
 **Clinical review gate:** none needed (CI tooling, no product behaviour, no assertion). **No data:** synthetic seed only; the live project is not touched. **Rollback:** restore `run: supabase start` in the three jobs, re-render `ci-repeat.yml`, delete the two scripts and the guard.
+
+### ADR-175 — B0-4 (#919): the pgTAP 080 SIG1 lock race, reproduced in real sessions (red without the #922 block, green with it; 062, 078, 080 under a forced scheduler run)
+
+**Date:** 2026-11-10 13:18 Europe/Zurich · **Status:** IMPLEMENTED on branch `feature/hourly-update-2026-11-10-b0-4` (CI decides; PR not yet opened, see *COORD-7*) · **Base:** `recovery/main` `bd5b0de` · **Block:** B0, criterion B0-4 (`PRODUCT_BLOCKS.md` §4, issue #987). Test tooling and CI only: no product code, migration, seed, rule, text, grant or pgTAP assertion changed. ADR-173 is on the open PR #1008, so this is ADR-175.
+
+**Facts (IMPLEMENTED, read from the repository).**
+- `private.evaluate_signals` takes `pg_try_advisory_xact_lock(hashtext('navora.sig1'), hashtext(org))` and returns 0 without writing when another session holds it (0060:247); `private.evaluate_all_signals()` (pg_cron job `navora-sig1-signals`, every minute) calls it for every organisation.
+- #919: on `f5f5e09` one of two `db` runs failed 080 17/58, tests 6-9 `have` empty (no delivery rows). #922 (`4cd6bf2`, ADR-162) added to 080 (and 064, 065, 067, 068, 069, 078, 090, 099) a waiting lock of org A right after `plan()` plus one assertion that the file holds it.
+- `git diff f5f5e09 HEAD -- 080…` shows exactly that block and `plan(58)` → `plan(59)` and nothing else (comments aside). So today's 080 with the block removed **is** 080 as it ran on `f5f5e09`, and its test numbers are the #919 numbers.
+
+**Decision.**
+1. `scripts/db-flaky/b0-4-strip-sig1-lock.mjs` builds "the state before #922" from today's file: it removes the consecutive SIG1 lock call(s), the one CGR-110 lock assertion that must follow them, and lowers the plan by one. Fail-closed: no lock block, an assertion that does not follow, or not exactly one plan line throws, so the "before" run can never silently be today's file. One source of truth: no stored copy of the old file that could drift from today's schema.
+2. `scripts/db-flaky/b0-4-sig1-lock-race.sh` (new `db` step after "Unpin the database clock", every full `db` job and, generated, every `ci-repeat` attempt), in real psql sessions:
+   - (1) **before #922:** a second session (`application_name = b0-4-holder`) holds org A's SIG1 lock while the stripped 080 runs. Required: red with tests 6, 7, 8 and 9 among the failures (the #919 signature). Green fails the step ("race not reproduced", proves nothing); red without 6-9 fails it ("shape differs"). A later SQL error is allowed and printed, because with the lock held for the whole file every evaluation skips.
+   - (2) **today:** 080 as it is, started while the holder has the lock. Required: it queues on the lock (a not-granted row in `pg_locks`), and after the holder is ended (`pg_terminate_backend` by application name) it passes in full (59/59).
+   - (3) **forced scheduler run:** 062, 078 and 080 as they are, each while a second session runs the pg_cron job's own command `select private.evaluate_all_signals();` again and again (each run committed, 0.3 s apart). Required per file: at least one scheduler run started during the file, no scheduler error, and the file passes in full.
+3. Guard `tests/unit/b0-4-sig1-lock-race.test.ts`, written first: the strip function on 080 (one lock, one assertion, 59 → 58, every other line kept in order), on 062 (two locks) and 078, and its three fail-closed cases; today's 062/078/080 still take the waiting lock before their first evaluation and 0060 still skips; the script's required messages, the #919 signature check, the holder and terminate path, the forced scheduler command and the CI wiring (after unpin, not limited to a branch).
+
+**Why a holder for the whole file, not only one evaluation:** B0-4 names "a second session holds the SIG1 lock during `eval()`"; holding it throughout makes (1) deterministic. It is stricter than #919 (17 failures there), so only 6-9 are required, not the count.
+
+**What this proves and what not:** (1) and (2) together show that the #919 failure shape follows from a concurrent lock holder and that the #922 block removes it, on the commit CI runs. That the holder on `f5f5e09` was the pg_cron run stays PROBABLE (its run log is not kept); no other writer takes this lock in the repository. (3) shows 062, 078, 080 green against a scheduler forced to run during them; it is not a 10/10 (that is B0-2).
+
+**COORD-7:** the PO's 12:39 note keeps one open Engineering code PR at a time, and #1008 is open (waits for the `cra` gate). So this branch is pushed without a PR; CI evidence for the `db` step comes from a `repeat/2/…` branch on the same commit (ADR-168, two `db` and two `e2e` attempts). The PR is opened once #1008 is merged or the PO says otherwise.
+
+**Clinical review gate:** `cra` for B0-4 (080 is the evidence for LEAVE1-C2 / CGR-64, the SIG2 immediate step, LEAVE1-C4, DOOR1-12 to -14). No assertion changed; the stripped file exists only in the job's temp directory. **No data:** synthetic seed only; the live project is not touched. **Rollback:** delete the step (and re-render `ci-repeat.yml`), the two scripts and the guard.

@@ -162,6 +162,11 @@ jobs:
       - name: pgTAP 079 snapshot race reproduced (B0-3)
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh b0-3-079-snapshot scripts/db-flaky/b0-3-079-snapshot.sh
+      # B0-4 (#919, ADR-175): pgTAP 080 without the #922 lock block is red (tests 6-9) while a second session holds org A's
+      # SIG1 lock; 080 as it is waits for the lock and passes; 062, 078 and 080 pass under a forced scheduler run.
+      - name: pgTAP 080 SIG1 lock race reproduced (B0-4)
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh b0-4-sig1-lock-race scripts/db-flaky/b0-4-sig1-lock-race.sh
       - name: Generated types match the migrations (T14)
         if: steps.detect.outputs.present == 'true'
         run: |
