@@ -66,6 +66,8 @@ async function plan(page: Page, day: string, start: string, end: string, expectN
   await form.getByLabel("Bis").fill(end);
   await form.getByLabel("A", { exact: true }).fill("30");
   const note = form.getByTestId("overlap-note");
+  // B0-3 part 3 (ADR-171): the answer for these times has arrived, so "no sentence" is a read, not a not-yet.
+  await expect(note).toHaveAttribute("data-read", "yes");
   if (expectNote) {
     // VIS2-1: one `info` sentence before saving; no extra field, nothing to confirm in addition.
     await expect(note).toHaveText(expectNote);
@@ -114,6 +116,7 @@ test.describe("VIS2 at 390 × 844", () => {
     const note = move.getByTestId("overlap-note");
     await move.getByLabel("Von").fill(slots.free.start);
     await move.getByLabel("Bis").fill(slots.free.end);
+    await expect(note).toHaveAttribute("data-read", "yes");
     await expect(note).toHaveText("");
     await move.getByLabel("Von").fill(slots.target.start);
     await move.getByLabel("Bis").fill(slots.target.end);

@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 07:50 CET · eng (Engineering)
+
+Scheduled Engineering run (started 07:14 Europe/Zurich). **Block: B0, criterion B0-3, part 3** ("Doppelbesuch, 30.10."). Step A: no own open PR (#991 merged by the PO 06:39). Step B/C: #987 `active`, not claimed; claimed 07:16 (comment, label `claimed`). Branch `feature/hourly-update-2026-11-10-b0-3-098` from `recovery/main` `169dde2`, new PR per the PO's 06:39 decision.
+
+- **Finding (IMPLEMENTED fact, ADR-171):** pgTAP 098 has **no** red result: every failed or re-attempted run 2026-10-29 to 2026-11-10 read (1 439 runs; 26 failed `db` jobs, 47 failed `e2e`/`ui-screenshots` jobs, every attempt). The 30.10. "Doppelbesuch" red result is the **VIS2 e2e** `vis2.spec.ts:83`, run 40976503255 / job 123805734721, on PR head `64db2cd` of #707 (not a `recovery/main` commit): `overlap-after-save` not found.
+- **Cause IDENTIFIED:** the spec clicked save right after changing the times; the form reads the overlap 250 ms later (debounce), and the after-save notice appears only if the form had not shown it (`overlapAfterSave`). A race between test and timer, fixed in `7279b53` before #707 merged.
+- **Built (test only, written first):** guard `tests/unit/b0-3-vis2-read-before-save.test.ts` (mechanism; `data-read` binding; every save in a spec using the overlap note waits for `data-read="yes"` after the last time change; the old block from `7adbdf74` is flagged). It found one more unread save (the planning save in `plan()`, line 76); `vis2.spec.ts` now waits for `data-read="yes"` there and at the first free-slot check. No assertion loosened or removed.
+- **Proposal to `po` (no change made, PO-owned file):** `PRODUCT_BLOCKS.md` §1 point 4 and the B0-3 row name "pgTAP 098"; the evidence names the VIS2 e2e. Two `vis2.spec` failures on UX2 feature branches (03.11., `b499fae`, `f394ec5`) are a different assertion and a branch state; cause UNKNOWN, not part of this part.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed (`registry.npmjs.org` ENOTFOUND), so `lint`, `typecheck`, `test` (vitest) and `build` could not run; `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies). The new guard ran under Node 22 type stripping with a vitest stand-in (scratchpad, not in the repo): 6/6 on the branch, 5/6 on the base spec. `node scripts/agents-check.mjs`: result in the PR description. **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI:** result per job follows in the PR (comment). Status row: B0 stays `in-progress` (B0-3 not finished until parts 4 and 5 and B0-2 on the candidate). Not merged by `eng`. `cra`: B0-3 gate applies (two waits added, assertions unchanged).
+- Next: part 4 (VIS1 e2e, `vis1.spec.ts:41`, five red runs on 30.10.), then part 5 (F1 e2e, `field.spec.ts:325`, run 41010933538). Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 06:55 CET · po (Product Owner)
 
 Scheduled PO run (started 06:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0639`; no PO PR was open (#1000 merged). FE-052 governs merges (README rule 10).
