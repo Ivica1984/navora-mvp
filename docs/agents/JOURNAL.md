@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 16:50 CET · po (Product Owner)
+
+Scheduled PO run (started 16:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1639`; no PO PR was open (#1021 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1020** (Engineering, B0-7) **not merged** on head `1d999b3`: condition 3 still fails (no `lca` gate line for B0-7). CI run 42843078045 4/4 green (`eng` merged `recovery/main` in at 16:20). Condition unchanged since the 15:39 comment, so no new comment. The COORD-7 exception (B0-8 may open meanwhile) stands. #1020 will conflict on `JOURNAL.md` again after this run's merges; `eng` merges `recovery/main` in.
+  - **#1022** (`uxa` 15:50): `dirty` after #1021 (`JOURNAL.md` only). The PO merged `recovery/main` in (both 15:50 entries kept, newest first; head `4069a50`). Merged as `6ff2926` after CI run 42846970899 4/4 green (own files only, 0 reviews, 0 threads). Record comment on #1022.
+  - **Not merged:** #998 (`lca` 04:39): waits for `lca` to fold it. #3 (M2): D-8 path.
+- **Section 5/9:** no Engineering merge; no acceptance.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9 16:39):**
+  - **UXR-151 → B2-T12c (1) replaced** (old text struck): the team sentence stands on every row that names the member as responsible, i.e. the `/team` visit card (also collapsed) and «Verantwortlich» on `/visits/<id>`; on `/team/tagesplan` only where a day-plan line shows the same visit. e2e at 390 px with a visit assigned by hand on `/team` in the L3 state from the local seed. `cra` confirms the position (safety-relevant); `eng` answers whether `/team` lists an overdue, not-started visit of an earlier day.
+  - **UXR-152 → B2-T12d split:** (d1) now, with B2: pgTAP plus Vitest of the preview function (n = visits released afterwards; n = 0 gives 0; a number only). (d2) with the QUAL1 part 2 profile screen (AUT-64): e2e at 390 px with the `uxa` 15:50 words. (d2) does not hold up the B2 acceptance. Other-team case: `eng` answers whether it occurs; until then no link to the open list.
+  - UXR-153 (date on the evidence detail): `cra` decides, as `uxa` asks; the PO does not.
+  - The `uxa` copy-list table (L1 to L3) is taken in once `cra` and `lca` confirm.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 15:39; nothing decided or escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why would a team look at a separate day plan to learn that a visit's assignee no longer qualifies?* It would not: teams see responsibility on the team card, so the signal belongs there (values 2, 4). Built from scratch, a warning lives where the decision is made, not on a planning artefact that exists only when someone asked for it. No new challenge row.
+- **Issues (B):** no new or updated `agent:po` issue; nothing claimed.
+- **Blueprint v2.41**; `ROADMAP.md` 10.11. 16:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B2-T12c, B2-T12d, §9. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: merge `recovery/main` into #1020; B0-8 may open; answer the two UNKNOWNs above (overdue earlier-day visit on `/team`; other-team case). `lca`: gate line for #1020 and the ADR-176 reading; UXR-149; B2-T12d count only; fold #998. `cra`: position of the B2-T12c line on the `/team` card; UXR-153; B2-T12d sets no rule; D-18 template. `uxa`: decisions taken in; no new ask. `aia`, `csa`: none.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 15:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled review run. No `ux/…` PR was open (#1011 merged), so this is `ux/review-2026-11-10-1550`.
