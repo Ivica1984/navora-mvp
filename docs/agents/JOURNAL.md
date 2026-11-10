@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 04:05 CET · po (Product Owner)
+
+Scheduled PO run (started 03:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
+
+- **Merges (A): the merge call works again in this session** (GitHub MCP merge tool with the full head SHA; the 01:39 and 02:39 runs were refused). Each merge has a record comment on its PR before the call.
+  - **#907 merged** (weekly engineering status 2026-W45, docs PR under `PRODUCT_BLOCKS.md` §8 (1)) as `83d1922` on head `e8874ec`, title `PO merge #907: weekly engineering status 2026-W45 (head e8874ec)`. Seven conditions held: CI 4/4 green, `clean`, 0 reviews and threads, docs only, no `.github/` change. Push run 42744417404 on `83d1922` completed/success. The PR #3 run on the same SHA (42744425107) was cancelled by the next merge; that is PR-concurrency on `main`'s PR, not a push run, so it does not count against B0-1.
+  - **#988 merged** (`cra` 01:35) as `b135cc8` on head `628f4be`, after the PO merged `recovery/main` in (`JOURNAL.md` only, 0 lines of either parent missing). Role files only; CI 4/4 green.
+  - **#992 merged** (`aia` 02:20) as `a151d5a` on head `771a34a`, same procedure. Role files only; CI 4/4 green.
+  - **Not merged:** #971 (eng docs): one Engineering PR per run (§4 stop rule); it goes in next run if still green and `clean`. #991 (B0-3 part 1 of 5) is in progress, not a candidate.
+- **B0-1:** push runs on `83d1922`, `b135cc8`, `a151d5a` follow three quick merges; `83d1922` is green, the other two were still running at 04:05. The next run reads them. The negative case is still missing. No block accepted.
+- **Review (C):** no item delivered. CI2 stays in review. The PO ran no test.
+- **Issues (B):** no new `agent:po` issue; `aia` comments on #905 (D-41) and #912 (AUT-54) belong to #992 and are read next run. No `claimed` label set.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18, D-41, D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** no new row. The open owner action from 01:39 and 02:39 (restore merge permission) is **no longer needed**.
+- **Next run:** take CGR-160 (1), CGR-161 and the B5-T/B2-T cases from `CLINICAL_GOVERNANCE.md` into `PRODUCT_BLOCKS.md`; read AUT-72 to AUT-75; merge #971.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 03:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled review run. No `ux/…` PR was open (#983 merged), so this is `ux/review-2026-11-10-0350`.
@@ -14,6 +33,19 @@ Scheduled review run. No `ux/…` PR was open (#983 merged), so this is `ux/revi
 - **New:** UXR-146 (medium): an uncovered visit nobody in the team can take looks like one anyone may take; B3's "sichtbar nicht besetzbar" has no presentation. UXR-147 (medium): five names for one uncovered visit ("Offen im Team", "noch niemand verantwortlich", "niemand verantwortlich (nächste 24 h)", "noch niemand", signal "Einsatz ohne Zuständige"). No issue (medium).
 - **Benchmark** (open versus unfillable shift, two staffing tools, read 10.11.). **DESIGN_SYSTEM v58:** §4 OPEN rule "open and not staffable are two states".
 - **Waiting:** `cra` wording/position for UXR-146 and the one term for UXR-147; `po` places B3-UX cases and says who acts next for an unstaffable visit (with CGR-160). No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
+## 2026-11-10 02:50 CET · po (Product Owner)
+
+Scheduled PO run (started 02:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
+
+- **Merges (A): none. The merge call was refused again** ("merge without review", session permission layer), the second run in a row. #907 met all seven conditions on head `e8874ec` (app, db, e2e, ui-screenshots completed/success; `clean`; 0 reviews, 0 threads; docs only). The record comment on #907 says it was not merged. The PO tried no other route. **Owner action (unchanged):** restore merge permission for the scheduled PO session (FE-018, FE-033), or merge by hand in this order: #907, #971, #988 (`cra`), #992 (`aia`), #989 (this PR).
+- **Queue, all CI green and `clean` on their heads:** #907 `e8874ec`, #971 `ce6fe8c`, #988 `b135aa2`, #992 `e5841be` (new, `aia` 02:20: only `aia` files and `JOURNAL.md`), #989 `d384ee9`.
+- **Review (C):** #991 (B0-3 part 1 of 5, UX2-23, ADR-169, issue #987) is in progress, not delivered: parts 2 to 5 are PLANNED on the same PR (B0-A). No review yet. Test-only change; final assertion unchanged as stated in the PR. Not a merge candidate until all five parts and the `cra` gate line are in. The PO ran no test.
+- **Issues (B), decisions (F):** no new `agent:po` issue; no new `lca` or `cra` input on D-22, D-18, D-41, D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** no new row. The block is a permission, not a workflow question.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
 
 ---
 
@@ -30,6 +62,21 @@ Scheduled `aia` run, review 39 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on 
 - **For `po`:** AUT-72 before E-3 goes to the founder; AUT-73 in the D-41 package; AUT-74 and AUT-75 in `PRODUCT_BLOCKS.md` §5. When NH-A2 is drafted, its scope decides most of the ward gain (W1).
 - **For `lca`:** with the mapping, the pattern 1 question arises only if pattern 1 facts go to a model.
 - Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. No live project access; no personal or health data. Next map refresh 2026-11-17.
+
+---
+
+## 2026-11-10 01:55 CET · po (Product Owner)
+
+Scheduled PO run (started 01:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0139`. No PO PR was open. FE-052 governs merges (README rule 10).
+
+- **Merges (A): none. The merge call was refused in this session.** #907 met all seven conditions for head `e8874ec` (CI run 42726550634 4/4 green, `clean`, 0 reviews, 0 threads, docs only). The session's permission layer denied the merge call ("merge without review") before anything ran, so no record comment was posted either. The PO did not try another route. **Owner action:** the scheduled PO session needs permission to merge again (FE-018, FE-033), or the owner merges #907 by hand. Until then nothing reaches `recovery/main`, including this PR.
+  - **Waiting, all green and `clean` on their heads:** #907 (eng docs, next), #971 (eng docs, after #907), #988 (`cra` 01:35, role PR: only `cra` files and `JOURNAL.md`).
+- **Review (C), CI2 and B0-1:** push runs on `recovery/main` after the last PO run are all completed/success, none cancelled: 42722929299 (`407568a`), 42723504288 (`395d8c6`), 42725200079 (`1795728`). That is the **B0-1 positive case** ("3 quick merges, each green") on three named commits. The B0-1 negative case is still missing. CI2 stays in review; no block is accepted. The PO ran no test.
+- **#988 (`cra`):** CGR-160 (S1 before real clients), CGR-161 (five missing stop cases, Phase A pass condition) and CGR-162 (S2, B1-UX-6) are noted. The PO takes CGR-160 (1), CGR-161 and the B5-T/B2-T cases into `PRODUCT_BLOCKS.md` once #988 is on `recovery/main`, not from an unmerged branch.
+- **Issues (B):** none claimed. **Decisions (F):** no new `lca` or `cra` input on D-22, D-18, D-41 (clinical part only, rule A stays `lca`), D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** *Why does every docs-only PR need a merge by a scheduled agent at all?* If the merge step itself can be withheld by the session, the queue stops for every role. No new row: the owner already holds this in FE-052 §8 (6); the answer needed is only the permission.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `eng` no change (B0-3 next). `cra`: #988 waits for the merge permission, not for you.
 
 ---
 
@@ -244,6 +291,16 @@ Live session with the founder (not a scheduled run). The founder's message reorg
 
 ---
 
+## 2026-11-07 18:10 CET · eng (Engineering)
+
+Scheduled run, step A only (own open PRs); no issue claimed, no code change.
+- **#971 and #907** were `dirty` again after PO merges #974/#975; `recovery/main` (5541a54) merged into both (merge commit, no rebase, no force-push). #971: `JOURNAL.md` only, every entry kept, newest first. #907: `IMPLEMENTATION_STATUS.md` header only, newest *Last change* line from `recovery/main` kept and #907's escalation-rule line kept.
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs` ran and passed on both branches. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: could not run: npm registry blocked by the session's network settings (`registry.npmjs.org` does not resolve directly; through the proxy `CONNECT` returns 403). `npm run test:db` and `npm run e2e`: could not run (no npm dependencies, no Supabase CLI). Owner: please allow `registry.npmjs.org` in the session's network settings.
+- **CI (GITHUB CI RULE):** result of every job for the pushed heads goes in a comment on #971 and #907 once all jobs have finished.
+- **Not done this run:** issue #968 (NH-A1, `active`, unclaimed) waits for the next run, since step A did substantial work (end-of-run rule). Nothing merged by eng.
+
+---
+
 ## 2026-11-07 17:39 CET · po (Product Owner)
 
 Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open, so this run continues it instead of opening a second PO PR.
@@ -297,6 +354,16 @@ Scheduled review run. #965 (13:25) merged; no `gov/…` PR open, so this is `gov
 - **D-41 (FE-051, #973):** clinical input: KLV category, activity names, condition-naming signal kinds, holds, order status and ward residence are health data, not "planning facts"; pattern 1 needs a named allow-list. Rule A question stays with `lca`.
 - **Task adjustment (rule 11):** the NH-A1 gate and the `uxa` confirmations came first because they block a build gate; the D-18 template (FE-042) moves to the next run. No contradiction with `FOUNDER_DECISIONS.md` v10 (v11 in #973 read).
 - **Next:** `po` merges this PR and writes CGR-158 (1) and the CGR-159 wording into NH-A1; `cra` D-18 next run.
+
+---
+
+## 2026-11-07 17:10 CET · eng (Engineering)
+
+Scheduled run, step A only (own open PRs); no issue claimed, no code change.
+- **#971 and #907** conflicted with `recovery/main`; `recovery/main` (d9a8150) merged into both (no rebase, no force-push). #971: `JOURNAL.md` only, every entry kept. #907: newest `IMPLEMENTATION_STATUS.md` header kept plus its escalation rule line; every journal entry kept.
+- **CI (GitHub, all four jobs green):** #971 run 42390077142 head d4596f7; #907 run 42390118776 head 2f4d339. **#815** already green (run 42385260653, head b386c14), no conflict, untouched.
+- **Local:** `node scripts/agents-check.mjs` ran and passed. `npm ci` (and so lint, typecheck, vitest, build) could not run: npm registry blocked by the session's network settings (`registry.npmjs.org` connect_rejected by the egress proxy). `test:db` and `e2e` could not run (no Supabase CLI/Docker). **For `owner`:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **For `po`:** #971 may overlap #973 (FE-045 to FE-051); judge the overlap. Nothing merged by eng.
 
 ---
 
@@ -428,6 +495,17 @@ Scheduled PO run (15:39). There was no open PO PR; this is `po/cycle-2026-11-07-
 - **Dependencies:** T12 staging (D-2 provider pending), CI2 (minutes).
 - **Priority:** *Next up* 5.
 - **Implementation recommendation:** reuse the pgTAP RLS inventory as the case list against the HTTP API; host allow-list check first.
+
+---
+
+## 2026-11-07 15:30 CET · eng (Engineering)
+
+Begleitete Sitzung mit dem Owner (kein geplanter Lauf): Frage für Frage durch alles, was für eine produktive („scharfe“) Version nötig ist. Die Antworten stehen in [`../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md`](../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md).
+
+- **Owner-Antworten (Kurz):** D-7 höchste Stufe (Ruleset, Secret Scanning, Push Protection, privat per Stufenplan); eigenes Agenten-Konto (zwei Identitäten); FD-27 altes Projekt ganz löschen; npm-Registry freigeben; D-8 Variante B; D-2 Supabase Team Zürich + PITR 28 Tage, Schweizer App-Host, 99,9 % gemessen, RPO ≤ ca. 2 Min.; Backup CH, Überwachung, Fehler-Tracking, E-Mail CH/EU; Bereitschaft Owner + Pilotteam; Red-Team-Agenten + kleiner externer Test; Rechtsberatung gebündelt Q1 2027; KI-Muster 1-3 als Kern, Muster 4 (eigenes Modell in CH) vorbereiten, D-35 Regel A bleibt. **D-43 OPEN** (Owner liefert die Angaben).
+- **Nicht ausgeführt:** Repo-Einstellungen über die API (Proxy 403 „Repository settings writes are not permitted through this proxy“); der Owner schaltet sie per Klick-Anleitung ein. Das alte Live-Projekt wurde nicht berührt.
+- **Für `po`:** bitte neue FE-Zeilen in `FOUNDER_DECISIONS.md` und die Pakete D-2, D-7, D-8, D-41, FD-27, FD-28 nachführen; Red-Team-Agent und CI-Minuten-Reduktion als Items platzieren (Rule 1: Engineering schlägt vor, der PO entscheidet). **Widerspruch gemeldet:** der PO-Staging-Default „Render Frankfurt“ (D-2) widerspricht der neuen Owner-Antwort „Schweizer App-Host“.
+- Tests: nur `node scripts/agents-check.mjs` lokal (Ergebnis im PR); npm-Registry in dieser Session weiter gesperrt. CI-Ergebnis im PR. Keine personenbezogenen oder Gesundheitsdaten.
 
 ---
 
