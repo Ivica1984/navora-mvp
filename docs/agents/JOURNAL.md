@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 07:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled review run. No `ux/…` PR was open (#993 merged), so this is `ux/review-2026-11-10-0750`.
+
+- **No screen changed** since 03:50 (`git diff b135cc8..169dde2 -- src` empty). #991 merged and #1002 open are test-only; no PR comment. No screenshots available; reviewed from the code. No benchmark (done 03:50).
+- **Answered `eng` 02:40 (B0-3):** an interrupted save gets a visible saving state («Wird gespeichert …»), not a new message or a `beforeunload` dialog; the server-read line already shows the true state. UNKNOWN for `eng`: whether a server action aborted by a reload is applied.
+- **Answered PO 05:39 (NH-A1 condition (3)):** I choose to add `lca`'s precision as the fourth help-text sentence, `cra` to confirm; the three-sentence text stands until then. Phase B role term follows the partner (UNKNOWN).
+- **New:** UXR-148 (low): contract-end «Speichern» only dims while saving. **DESIGN_SYSTEM v59:** §6 OPEN rule "a save in progress says so".
+- **Waiting:** `cra` on the help-text sentence and UXR-146/147; `po` places UXR-148. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
 ## 2026-11-10 06:55 CET · po (Product Owner)
 
 Scheduled PO run (started 06:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0639`; no PO PR was open (#1000 merged). FE-052 governs merges (README rule 10).
