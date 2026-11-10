@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 20:50 CET · po (Product Owner)
+
+Scheduled PO run (started 20:39 Europe/Zurich). Branch `po/cycle-2026-11-10-2039`; no PO PR was open (#1025 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A): none.**
+  - **#1020** (Engineering, B0-7) **meets all seven conditions** on head `bae167f`: check-runs 4/4 success (app 130031046636, db 130031047124, e2e 130031046989, ui-screenshots 130031048338), `clean`; condition 3 now met by `lca-gate: #1020 bae167f clear` (19:39, #1027); PR content in `src supabase tests e2e` identical to the `cra`-read head `dbc97fc` (AUT-50); 0 reviews, 0 threads; migration 0123 only revokes or enables RLS. **Not merged:** the session's tool permission refused the call (record comment and merge in one call, "merge without review"); the PO did not try another route. Next PO run: record comment, then merge #1020 with SHA `bae167f` (if unchanged).
+  - **#1032** (B0-1, CI 4/4 green on `992da96`, `clean`) waits: one Engineering PR per run, #1020 first.
+  - **Role PRs #1027 (`lca`), #1028 (`uxa`), #1031 (`aia`):** CI 4/4 green, own files only; not merged for the same reason. #998 closed by `lca`. #3 (M2): D-8 path.
+  - **This PO PR** is left open; the next run merges it last.
+- **Section 5/9:** no Engineering merge; no acceptance.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` B2 row and §9):**
+  - **AUT-80 (#1030) → B2-T12e:** (e1) pgTAP pins today's safe refusal for `contradictory` (never the higher grade, CR-181); (e2) **B2 is not acceptable** while `contradictory` has no resolution path; the rule (aia options A/B) is a `cra` proposal and a Clinical Owner decision (D-43), refusal stays the default; (e3) #1030 criteria 1-4 as pgTAP once the rule exists; criterion 5 belongs to Analytics. AUT-81 goes with the delegation screen. Doc/code deviation (Blueprint §1.6, QUAL1-5 "until a person resolves it") recorded, not changed.
+  - **B2-T12c/d** updated: `lca` confirms the team sentence for Phase A (Phase B weighing via D-42), the readers of the date detail, and the count-only preview; `uxa` form «<Gegenstand> gültig bis <letzter gültiger Tag> (abgelaufen): <was>» and UXR-154 place (detail line under the team sentence on `/visits/<id>`) taken in, `cra` to confirm.
+- **Decisions (F):** `lca` 19:39 on D-22: a billing **hold** until the new assessment exists is compliant under every plausible interpretation; release after a late assessment is "unresolved: needs adviser" (question 10, `ADVISER_CATALOGUE.md`). Taken as the default for the future invoicing brief (hold, no billable display); D-22 stays open (adviser question). D-43: no re-escalation (`lca`). D-18: nothing new. Nothing decided or escalated anew.
+- **Challenge (E):** *Why does a contradiction need a person at all?* Because NAVORA cannot know which grade is true; but it must not need a manager either: the resolution belongs to the verification path that already writes `verified`, not to a new approval role. A one-way lock creates re-planning work for the team with no care benefit. No new challenge row (B2-T12e covers it).
+- **Issues (B):** #1030 answered by this entry and the B2 row (comment follows when the tool permission allows); nothing claimed.
+- **Blueprint v2.44**; `ROADMAP.md` 10.11. 20:39; `PRODUCT_BLOCKS.md` B2 row, §9. Scheduled-task prompt note: the stale "PLAN3 stack #891 to #910" reference (17:39 note) stands; the merge permission refusal is a session setting, not a prompt change (owner may check). No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: keep #1020 at `bae167f` (any new push needs the gates again); #1032 next; B2-T12e (e1) with B2. `cra`: rule proposal for resolving `contradictory` (#1030), confirm UXR-154 place and the (4) form. `lca`: none new. `uxa`, `aia`, `csa`: none.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 19:05 CET · po (Product Owner)
 
 Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
