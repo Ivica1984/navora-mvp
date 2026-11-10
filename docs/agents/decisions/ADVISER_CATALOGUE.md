@@ -1,12 +1,12 @@
 # Legal adviser question catalogue (FE-050)
 
-**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 1, 2026-11-10 19:54 (Europe/Zurich).
+**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 2, 2026-11-11 00:55 (Europe/Zurich).
 
 **Wording:** rows are copied from the signed sections; rows marked *condensed* or *adapted* say so.
 
 **Status of this file:** advisory preparation by an AI analyst, not legal advice and not a legal determination. Every question below is **OPEN**. None is needed for Phase A (simulated partner, synthetic data, nothing invoiced, IMPLEMENTED); each is needed **before Phase B** at the gate named in its row. The question texts are copied from the signed `lca` sections of the packages linked in each row; if a package and this file differ, the newer signed package section governs and this file is corrected in the next `lca` run.
 
-**Scope:** the packages FE-050 names: D-22, D-18, D-42, D-43, D-44, D-41 (condition 9), D-9, D-4. Pilot regions Basel-Stadt (BS) and Basel-Landschaft (BL); Phase B partner by current direction a nursing home (FE-021), home care also in scope.
+**Scope:** the packages FE-050 names: D-22, D-18, D-42, D-43, D-44, D-41 (condition 9), D-9, D-4; since v2 also the FE-055 questions L-12 to L-14 (D-44, D-42, D-14). Pilot regions Basel-Stadt (BS) and Basel-Landschaft (BL); Phase B partner by current direction a nursing home (FE-021), home care also in scope.
 
 ## How to use it
 
@@ -45,6 +45,7 @@
 | Q-42a | Can the employees and sub-processors of a software processor be bound as *Hilfspersonen* of a BS/BL nursing home under StGB Art. 321 and § 26 GesG BS (and the BL equivalent), and what must the agreement say for that? | A | pilot contract, first real data | [D-42](D-42.md) |
 | Q-42b | What retention period applies to a BS/BL nursing home's care records, and may the processor delete its copy after a verified export? | A, K | pilot contract (exit clause) | [D-42](D-42.md) |
 | Q-42c | How can the software provider's liability towards the home and its residents be allocated and capped, given that the home keeps the professional organisation and supervision of care? (Read with Q-43a: PrHG Art. 8 forbids a contractual limit towards the injured person.) | A | pilot contract | [D-42](D-42.md) |
+| Q-42d | Are monthly home-level absence counts (no reasons, no dates, no unit) delivered by a BS/BL nursing home to a software provider personal data of the home's staff under Art. 5 lit. a DSG, and from which minimum count per month and minimum staff size are they anonymous for the recipient? May the home produce and disclose them on Art. 31 Abs. 2 lit. e DSG without informing its staff? *(L-13, FE-055 (6).)* | A | absence counts in RDATA1 (cost and hours figures do not wait) | [D-42](D-42.md) |
 | D-41/9 | May a licensed home-care organisation or nursing home in BS or BL, as controller, with NAVORA as processor, entrust client health data (a nurse's free-text note) to an AI model as a sub-processor or operated by NAVORA (DSG Art. 9), given StGB Art. 321 **and** § 26 GesG BS (and the BL equivalent)? Under exactly which contractual conditions (no training, no own purpose, no provider-side human review of inputs, deletion period, location CH), and must the processor agreement bind the operator expressly to both secrecies (condition 9)? Since FE-051 the target is a model in NAVORA's own Swiss hosting (pattern 4); the question applies to that operator in the same way. *(Widened D-35 question 1 of 2026-11-06 16:10 plus condition (9), adapted by `lca` to FE-051.)* | A | first AI call on real data (pattern 4) | [D-41](D-41.md) |
 | D-9/1 | For a private home-care provider or nursing home in BS/BL: is the care contract (DSG Art. 31 Abs. 2 lit. a) together with the cantonal record duty sufficient for the case and the care record, without the client's consent? Does that also hold when a representative contracts for a client without capacity? | A | first real client | [D-9](D-9.md) |
 | D-9/2 | May a hospital or GP pass referral data, including need and diagnosis, to a provider the client has not yet engaged? What must the referrer document, and must the provider check it? | A | referrals on real data | [D-9](D-9.md) |
@@ -73,13 +74,16 @@
 |---|---|---|---|---|
 | Q-44a | Under Art. 12 AVG / Art. 26 AVV and the BS/BL licensing law, can a team entity deliver nursing care to residents of a licensed BS/BL nursing home under a service contract (own responsible nurse, own planning, own risk, flat price) when the home's PDL / *pflegefachverantwortliche Person* must keep the professional organisation and supervision of care, and which contract terms and actual practices must the parties keep so the arrangement is not staff lending? | A | KON-1 / GM-1 in a home | [D-44](D-44.md) |
 | Q-44b | Do BS and BL cap OKP admissions for nurses (Art. 49 KVV) or Spitex organisations (Art. 51 KVV) under the 2025 admission rules, and is residual financing paid to a newly licensed private provider on the same terms as to existing providers? | K, A | team-owned provider path (D) | [D-44](D-44.md) |
+| Q-44c | Is a software platform that lets homes find self-organised care teams and charges a percentage of the team's revenue or per order an Arbeitsvermittler under Art. 2 AVG, and do payments routed through it make it a financial intermediary under the GwG? **Widened 2026-11-11 (D-14, L-14):** and does a monthly software fee weighted by each member's confirmed working time become a placement fee under Art. 9 AVG when part of that working time comes from orders the platform matched (POOL1)? | A | any matching or per-order fee for real use; FEE1 counting POOL1 hours on real data | [D-44](D-44.md), [D-14](D-14.md) |
+| Q-44d | Is a care-team software platform that, at a team's request, passes the team's contact data to one FINMA-registered insurance broker, without comparing products or linking to offers, an insurance intermediary under Art. 40 VAG / Art. 182a AVO (i) if it receives no remuneration, (ii) if it receives a fee per referral or a share of the broker's commission? What must the platform tell the team (Art. 45 VAG)? *(L-12, FE-055 (5).)* | A | broker partner step in ONB1 | [D-44](D-44.md) |
 | L-11 | For any freelance member: an AHV status ruling by the compensation office ("Die Kasse entscheidet"); not an adviser question but a step per person. | AHV office | freelance members | [D-44](D-44.md) |
 
 ## E. Grouping for the quote request (proposal for the owner)
 
 - **Block 1, health and social-insurance law (KVG/KLV, payer contracts, BS/BL financing):** D-22/1-10, D-18/1-6, 9, 10, Q-44b. Many rows are route P: ask the partner's billing staff first; the adviser then answers only what remains.
-- **Block 2, data protection and professional secrecy:** Q-42a, Q-42b, D-41/9, D-9/1-5, D-4/1-8.
-- **Block 3, contract, liability and labour-leasing law:** Q-42c, Q-43a, Q-44a.
+- **Block 2, data protection and professional secrecy:** Q-42a, Q-42b, Q-42d, D-41/9, D-9/1-5, D-4/1-8.
+- **Block 3, contract, liability and labour-leasing law:** Q-42c, Q-43a, Q-44a, Q-44c.
+- **Block 4, financial-market law (insurance intermediation, payment flows):** Q-44d, the GwG part of Q-44c.
 - **Authority letters (owner or partner, no adviser needed first):** Q-43b, D-22/7, D-22/8, D-18/10, the BS/BL parts of Q-44b.
 
 ## F. Documents the adviser will need (who supplies them)
@@ -92,3 +96,4 @@
 ## Changes
 
 - **v1, 2026-11-10 19:54 (`lca`):** first version from the signed `lca` sections up to 2026-11-10 19:52; D-22/10 new (CGR-163 (3)); Q-43a in its narrowed wording; D-22/2 and D-22/9 in one wording each (04:39 and 04:46 readings reconciled).
+- **v2, 2026-11-11 00:55 (`lca`):** Q-44c added (signed in D-44 on 2026-11-07, missing in v1) and widened for FEE1 (D-14, L-14); Q-44d new (L-12, D-44); Q-42d new (L-13, D-42); block 4 added. L-14 itself needs no adviser for its data-protection part (owner: terms and team agreement).
