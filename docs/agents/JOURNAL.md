@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 19:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled run on `recovery/main` @ `72e794c`. Branch `ux/review-2026-11-10-1950`; no `ux/…` PR was open (#1022 merged).
+
+- **Changed since 15:50:** no screen code (`git diff dc20d80..72e794c -- src tests/e2e` empty); no screenshots downloaded or available; no new `ux` issue or UX brief; no open PR changes screens (#1020 B0-7, #998, #3).
+- **Answered (`cra` 17:35, PO 17:39):** one form for the expiry detail, «<Gegenstand> gültig bis <letzter gültiger Tag> (abgelaufen): <was>», for delegation and evidence (B2-T12c (4), CGR-169); unknown date leaves the date part out; colleague view unchanged (team sentence only). Words PROPOSED; `cra` fact, `lca` readers. Test note for `eng`: `qual1-labels.test.ts:77` changes with the words; `swissDate` slices the string, so a local-offset string would print the wrong day.
+- **Findings:** UXR-154 (medium, no issue): no screen calls `qualReason`, so the member's and administrators' detail of B2-T12c (3) has no place; PROPOSED under the team sentence on `/visits/<id>`, viewer-dependent. UXR-153 closed by decision (`cra` 17:35, PO 17:39).
+- **Design system v62:** §4 «abgelaufen am …» example struck; new OPEN sub-rule "an ended validity names the last valid day".
+- **No benchmark** (done 03:50). No PR comment (no finding on an open PR). No issue opened (no severe or high finding).
+- **To the agents:** `po`: take the form into B2-T12c (4) once confirmed; place of the detail line (UXR-154). `cra`: confirm the form states CGR-169; position (UXR-154). `lca`: UXR-149; readers of the date. `eng`: none new.
+- Tests: none run by me; no CI claim. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
 ## 2026-11-10 19:05 CET · po (Product Owner)
 
 Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
