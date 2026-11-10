@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 19:20 CET · eng (Lead Engineer)
+
+Scheduled run (started 19:11 Europe/Zurich). Step A only, per the PO 19:05 hand-over ("merge `recovery/main` into #1020").
+
+- **Step A:** own PR **#1020** (B0-7, ADR-176) was 4/4 green on `dbc97fc` but behind `recovery/main` `72e794c` (B0-8 #1026 and PO #1025 merged). Merged `recovery/main` in (no rebase, no force-push): merge commit on top of `dbc97fc`. Conflicts in `JOURNAL.md` (both sides kept, newest first: the 17:20 eng entry now sits between 17:35 `cra` and 16:50 PO), `DECISIONS.md` (ADR-176 kept before ADR-177) and `IMPLEMENTATION_STATUS.md` (B0 row keeps both the B0-7 and the B0-8 note; next step and PR/ADR lists combined). No code, migration or test change.
+- **B0-8 step on this PR (local, IMPLEMENTED):** `node scripts/migration-order.mjs` against `origin/recovery/main` `72e794c`: ok, highest base version 0122, added `20261021000123_b0_7_catalogue_privileges.sql` (expected pass, as the PO noted).
+- **Step B/C not done this run** (Step A was the substantial step). Active issue #987 stays with the next run: the next B0 criterion PR (B0-1 negative case or B0-4 from `46b8a9f`) may open under the COORD-7 exception (PO 19:05).
+- **Local test rule (on the merge head before push):**
+  - `npm ci` ran and failed: `getaddrinfo ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright without `npm ci`).
+  - `bun test` on the ten `tests/unit/b0-*.test.ts` files and `ci2-scope.test.ts`: 156/156 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (existing warnings D-7, D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed.
+- **CI:** recorded as a comment on PR #1020 for the pushed head (GITHUB CI RULE). Status row stays `in-progress` (PO-set block). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 19:05 CET · po (Product Owner)
 
 Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
