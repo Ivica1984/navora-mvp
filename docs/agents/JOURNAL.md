@@ -99,6 +99,21 @@ Scheduled PO run (started 10:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1039
 
 ---
 
+## 2026-11-10 10:50 CET · eng (Engineering)
+
+Scheduled Engineering run (started 10:10 Europe/Zurich). **Block: B0, criterion B0-3, part 5 (F1 e2e "Gegenzeichnung, 30.10.")** on a new PR from `recovery/main` `2e5f22b` (PO 06:39: one PR per finished part).
+
+- **Step A:** my open PRs #1002 (part 3, head `2ef0a8c`) and #1005 (part 4, head `8a30e6e`) are `clean`, CI 4/4 green on their heads (check runs read). They wait for the `cra` gate and the PO. Nothing to fix. B0 stays `in-progress`.
+- **Step B/C:** #987 (`active`, claim released 09:17) claimed at 10:16.
+- **PO 08:39 ask (cause of the `db` red on #1005 attempt 1):** answered in the #1005 journal entry and ADR-172: "Start local Supabase", `0.0.0.0:54324` already in use, runner/infra, same class as `a1060cf`.
+- **Finding (IMPLEMENTED fact, Actions API, 117 failed or re-attempted runs 26.10.–10.11., 68 failed e2e/ui logs):** "F1 Gegenzeichnung" is `field.spec.ts` F6R (countersign, return, correct, countersign), one red job: `54f1706`, run 41010933538, 30.10. 06:56. After "Korrektur speichern" the row did not read "korrigiert" within 5 s: form open for 12 polls, then closed with the old row. No `command.failed` logged, so the command was not refused or failed. **Cause OPEN, not reproduced:** the trace expired (7-day retention), so whether the command, the revalidated render or the refresh took the time is UNKNOWN. No recurrence (154 green push runs on `recovery/main` since, every hour). Per the B0-3 row this part stays **Testfehler offen**. Whole-file `field.spec` reds near midnight (26.–28.10.) are a different class, not this item.
+- **Change (test only):** guard `tests/unit/b0-3-f1-correction-save-phases.test.ts` (written first; red on `2e5f22b` at lines 182 and 405, green on the branch). `field.spec.ts`: at both successful corrections the wait is split into "the form closes" (only on `ok`) and "the refreshed row shows korrigiert", each with a phase message; no assertion removed. Side effect: up to 10 s before a failure; **not presented as a fix**. ADR-173; B0 status row.
+- **Local (LOCAL TEST RULE):** `npm ci` **could not run** (`registry.npmjs.org` does not resolve: `curl: (6) Could not resolve host`), so `lint`, `typecheck`, `test`, `build` **could not run**; `test:db`, `e2e` **could not run** (no Supabase CLI, no Playwright dependencies). `node scripts/agents-check.mjs` **ran and passed** (exit 0; D-7, D-8 notices pre-existing). Outside the suite: the guard ran 4/4 under Node 22 type stripping with a vitest stand-in (scratchpad, not in the repo), 3/4 against the unchanged spec. **Owner:** E-1 (allow `registry.npmjs.org`) still needed.
+- **CI:** PR #1008; result in the PR (separate from local). Gate: `cra` for B0-3. Not merged by `eng`. Like #1002 and #1005, this PR touches `JOURNAL.md`, `DECISIONS.md` and the B0 row, so later merges need docs-only conflict merges (MERGE1 #964).
+- **Next:** with parts 1 to 5 in PRs, B0-3 waits for B0-2 (10/10 on the B0 candidate). No contradiction with `FOUNDER_DECISIONS.md` found. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 09:35 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review. Branch `gov/review-2026-11-10-0935`; no `gov/…` PR was open (#999 merged). Scope `recovery/main` @ `2e5f22b`; `git diff 57beed5 2e5f22b -- src supabase` is empty (tests and CI only, from #991).
