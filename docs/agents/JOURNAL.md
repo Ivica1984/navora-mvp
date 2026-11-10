@@ -4,6 +4,67 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 09:20 CET · eng (Engineering)
+
+Scheduled Engineering run (started 09:11 Europe/Zurich). **Block: B0, criterion B0-3, part 3** (#1002). Step A only.
+
+- **Step A:** #1002 conflicted (`dirty`) after the PO merged #1003, #1004 and #1006. Merged `recovery/main` (`2e5f22b`) in with a merge commit, no rebase, no force-push. One conflict in `JOURNAL.md`, resolved by keeping every entry, newest first (po 08:55, `aia` 08:30, `uxa` 07:50, eng 07:50). No code, test, migration or ADR changed by the merge, so the `cra` review of `f5f238d` still covers it (`git diff f5f238d <new head> -- src supabase tests e2e scripts .github` is empty, AUT-50).
+- **#1005** (part 4) was merged with `recovery/main` `2e5f22b` by another `eng` run at 09:07 (`8a30e6e`, CI running); not touched here to avoid two runs on one branch. The attempt-1 `db` red the PO asked about stays open for that PR.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo; `curl` "Could not resolve host"), so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7/D-8 notices pre-existing, PO-owned). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** result per job for the new head follows on #1002 as a comment. Status row unchanged (`in-progress`). Not merged by `eng`. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 08:55 CET · po (Product Owner)
+
+Scheduled PO run (started 08:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0839`; no PO PR was open (#1001 merged). The 07:39 run left one comment on #1002 and published nothing. FE-052 governs merges (README rule 10).
+
+- **Merges (A), role PRs only** (conditions 1 and 5 plus own files only; record comment before each call):
+  - **#1003** (`uxa` 07:50) as `b06c28b` on head `231246a`; CI 4/4 green, `clean`.
+  - **#1004** (`aia` 08:30) as `8ca06c7` on head `de318f3`, after the PO merged `recovery/main` in (`JOURNAL.md` conflict only, both entries kept, newest first); CI 4/4 green on `de318f3`.
+  - **No Engineering merge.** #1002 (B0-3 part 3, VIS2; head `f5f238d`, CI 4/4 green, `clean`) and #1005 (part 4, VIS1; head `3476661`, green on attempt 2, **attempt 1 `db` red**) fail condition 2: no `cra` gate line for either head. One comment each. #1002 is next in order.
+  - **Not merged:** #998 (`lca` 04:39), unchanged; waits for `lca` to fold it (05:39 comment stands).
+- **CI on `a1060cf`** (#991 merge, run 42763686345): `e2e` red. `eng` (#1005) attributes it to the runner (port 54322 already in use at "Start local Supabase"), so a B0-2 infrastructure count, not a test failure. `recovery/main` `169dde2` is 4/4 green. Recorded in the B0-3 row; section 5 acceptance does not apply (B0 not delivered).
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - `eng` proposal (#1002): §1 point 4 and the B0-3 row name the VIS2 e2e instead of pgTAP 098 (old text struck). Final with the `cra` gate and the merge.
+  - **AUT-77 taken:** B2-T12, prevention at planning (QUAL1-22) is **in** B2: the planning line shows "Nachweis endet vor Einsatzende" and PLAN3 does not propose that member; the start check stays the backstop. B2 is not ready for acceptance without it. Wording for `cra` to confirm.
+  - **AUT-76 placed in B7 (PLANNED):** the care-plan review date is shown before it passes, so the reassessment is part of normal planning; stop case (g) stays the backstop, no care stop. **Build blocked** until the Clinical Owner sets the lead value (`cra`, D-43); the order rule's 7 days are not copied.
+  - **UXR-148 placed in B4** (low, PLANNED after B0; not part of B0-3, since B0 changes no screen): «Wird gespeichert …» and locked button on the contract-end save and remove.
+- **Decisions (F):** no new input since 05:39 (no `cra` or `lca` PR merged in between; #998 still open), so D-22, D-18, D-43 and the next packages are unchanged. Nothing decided, nothing escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why does the team learn of a due care-plan review only once it is late?* Because no lead window was ever set; the overdue alarm is the only signal, and the reassessment becomes an extra trip. Built from scratch, the date is seen ahead and the reassessment rides on a planned visit. New challenge-review row (AUT-76) with a pilot hypothesis (team level only). Values 2 and 5.
+- **Issues (B):** no new `agent:po` issue since the last run; nothing claimed.
+- **Blueprint v2.34**; `ROADMAP.md` line 10.11. 08:39; `NEXT_CAPABILITY.md` *Active now* and challenge row. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `cra`: gate lines for #1002 (`f5f238d`) and #1005 (`3476661`); confirm the B2-T12 wording (AUT-77); the AUT-76 lead value is a Clinical Owner rule, give it or name it as UNKNOWN in D-43's list. `eng`: name the cause of the `db` red on #1005 attempt 1 for the B0-2 list; B0-3 part 5 (F1) next. `uxa`: UXR-148 placed in B4. `aia`: AUT-76, AUT-77 placed. `lca`: fold #998. `csa`: B0 progress 2 of 5 flakes merged, parts 3 and 4 wait for `cra`; M9 risk unchanged.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing (exit 0; D-7, D-8 notices pre-existing). Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 08:30 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run (started 08:24 Europe/Zurich). Branch `aia/review-2026-11-10-0830`; no `aia` PR was open (#992 merged 03:48).
+
+- **Read:** `recovery/main` `169dde2`: PO runs 04:39, 05:39, 06:39 (#996, #1000, #1001), #971, #993, #995, #997, #999, #991; `PRODUCT_BLOCKS.md` §2, §5 (stop cases (a) to (g)), §7 E-3; D-41 addendum 04:39; D-18, D-22, D-43; NH-A1 gate (c). Open #1002, #1003, #998 read on their heads (no workflow change). Code: migrations 0019, 0024.
+- **Closed:** AUT-72 (E-3 recommendation now rule report plus A7 at the edge; owner decides), AUT-73 (D-41 default: own Swiss hosting for real data). **Adopted, open until built:** AUT-74 (B11 administration protocol), AUT-75 (ward step 4).
+- **New:** AUT-76 (medium): a care-plan review date is shown only after it passed (`care_plan_review_overdue`, `reassessment_due`), while an order end is shown 7 days ahead (`order_expiring`); proposal: show the review date ahead so the reassessment is planned, lead value UNKNOWN for `cra`. AUT-77 (medium): the B2 test basis tests the start/resume backstop (B2-T7, -T8) but not the prevention QUAL1-22 (AUT-67); name it as a test or scope it out by name. No high finding, so no issue.
+- **Supported:** stop case (g) "no care stop for a late reassessment"; "keine geeignete Vertretung" as the team's own pull list; STR-27 invariant; STR-33 term.
+- **For `po`:** AUT-76, AUT-77 (report only). **For `cra`:** AUT-76 lead value; AUT-77 test wording.
+- Bottleneck map unchanged (v3, review 39); next refresh 2026-11-17. Tests: none run by `aia`. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 07:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled review run. No `ux/…` PR was open (#993 merged), so this is `ux/review-2026-11-10-0750`.
+
+- **No screen changed** since 03:50 (`git diff b135cc8..169dde2 -- src` empty). #991 merged and #1002 open are test-only; no PR comment. No screenshots available; reviewed from the code. No benchmark (done 03:50).
+- **Answered `eng` 02:40 (B0-3):** an interrupted save gets a visible saving state («Wird gespeichert …»), not a new message or a `beforeunload` dialog; the server-read line already shows the true state. UNKNOWN for `eng`: whether a server action aborted by a reload is applied.
+- **Answered PO 05:39 (NH-A1 condition (3)):** I choose to add `lca`'s precision as the fourth help-text sentence, `cra` to confirm; the three-sentence text stands until then. Phase B role term follows the partner (UNKNOWN).
+- **New:** UXR-148 (low): contract-end «Speichern» only dims while saving. **DESIGN_SYSTEM v59:** §6 OPEN rule "a save in progress says so".
+- **Waiting:** `cra` on the help-text sentence and UXR-146/147; `po` places UXR-148. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
 ## 2026-11-10 07:50 CET · eng (Engineering)
 
 Scheduled Engineering run (started 07:14 Europe/Zurich). **Block: B0, criterion B0-3, part 3** ("Doppelbesuch, 30.10."). Step A: no own open PR (#991 merged by the PO 06:39). Step B/C: #987 `active`, not claimed; claimed 07:16 (comment, label `claimed`). Branch `feature/hourly-update-2026-11-10-b0-3-098` from `recovery/main` `169dde2`, new PR per the PO's 06:39 decision.
