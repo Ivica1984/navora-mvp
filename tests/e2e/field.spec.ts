@@ -180,8 +180,11 @@ test.describe("field tool (F1)", () => {
     await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-back));
     await departed.getByLabel("Begründung").fill("Abfahrt zu spät getippt");
     await departed.getByRole("button", { name: "Korrektur speichern" }).click();
-
-    await expect(departed).toContainText("korrigiert");
+    // B0-3 part 5 (ADR-173): the save's own outcome first (the form closes), then the refreshed row.
+    // The form closes only on the command's `ok` (a refusal keeps it open with its error); the button's label alone
+    // would also change while the save is pending («Wird gespeichert …»).
+    await expect(departed.getByLabel("Richtige Uhrzeit"), "B0-3 part 5: the save returns ok").toHaveCount(0);
+    await expect(departed, "B0-3 part 5: the refreshed row shows the correction").toContainText("korrigiert");
     await expect(departed).toContainText("Abfahrt zu spät getippt");
     await expect(card.getByRole("region", { name: "Erfasste Zeit" }))
       .toContainText(back === 20 ? /(19|20|21) min/ : /1 h (19|20|21) min/);
@@ -403,7 +406,11 @@ test.describe("field tool (F1)", () => {
     await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-typeableMinutesBack(15, 75)));
     await departed.getByLabel("Begründung").fill("Abfahrt zu spät getippt");
     await departed.getByRole("button", { name: "Korrektur speichern" }).click();
-    await expect(departed).toContainText("korrigiert");
+    // B0-3 part 5 (ADR-173): the save's own outcome first (the form closes), then the refreshed row.
+    // The form closes only on the command's `ok` (a refusal keeps it open with its error); the button's label alone
+    // would also change while the save is pending («Wird gespeichert …»).
+    await expect(departed.getByLabel("Richtige Uhrzeit"), "B0-3 part 5: the save returns ok").toHaveCount(0);
+    await expect(departed, "B0-3 part 5: the refreshed row shows the correction").toContainText("korrigiert");
     await mine.getByTestId("visit-report").getByRole("form", { name: "Bericht prüfen und unterschreiben" })
       .getByRole("button", { name: "Bericht unterschreiben" }).click();
     await expect(mine.getByTestId("report-status")).toHaveText("Unterschrieben – Gegenzeichnung offen (Fassung 2)");

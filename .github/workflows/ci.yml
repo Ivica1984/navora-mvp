@@ -42,6 +42,12 @@ jobs:
         run: npm ci --no-fund
       - name: Agent collaboration layer (docs/agents)
         run: scripts/ci-step.sh agents node scripts/agents-check.mjs
+      - name: Migration order (B0-8, ADR-177)
+        # HEAD^1 is the base parent of the pull-request merge commit (the base branch tip), or the previous tip on a
+        # push of a merge commit: every added migration must sort above the base's highest version.
+        env:
+          MIGRATION_BASE_REF: HEAD^1
+        run: scripts/ci-step.sh migration-order node scripts/migration-order.mjs
       - name: Lint
         run: scripts/ci-step.sh lint npm run lint
       - name: Typecheck

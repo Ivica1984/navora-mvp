@@ -4,7 +4,7 @@
 
 > **Autonomous coordination:** the files below drive hand-off issues and scheduled PO and Engineering agents. See [`COORDINATION.md`](COORDINATION.md).
 >
-> **Every agent starts here.** Read the three official files, then the newest entries in `JOURNAL.md`. Write only the sections your role owns. Change these files through a pull request like any other change. CI validates them (`npm run agents:check`).
+> **Every agent starts here.** Read the three official files, then the newest entries in [`journal/`](journal/) (file names descending; `JOURNAL.md` is the archive before 2026-11-10 22:27, FE-053). Write only the sections your role owns. Change these files through a pull request like any other change. CI validates them (`npm run agents:check`).
 
 ## The official files
 
@@ -16,7 +16,7 @@
 
 Supporting files:
 - `briefs/<ID>.md`: one engineering brief per priority (PO), from [`briefs/_TEMPLATE.md`](briefs/_TEMPLATE.md).
-- [`JOURNAL.md`](JOURNAL.md): hand-off notes, newest first, never edited afterwards (anyone).
+- [`journal/`](journal/): hand-off notes, **one file per entry** `YYYY-MM-DD-HHMM-<role>.md` (Europe/Zurich), newest first by file name, never edited afterwards (anyone; FE-053). [`JOURNAL.md`](JOURNAL.md) is the archive up to 2026-11-10 22:27 and takes no new entries.
 - Technical decisions stay as ADRs in `docs/engineering/DECISIONS.md`. Engineering's internal task list stays in `docs/engineering/BACKLOG.md`.
 
 ## Roles
@@ -94,7 +94,7 @@ Supporting files:
 4. **Blocked names its blocker.** State `blocked` requires decision IDs in *Blocked by*, and those decisions must exist in `OPEN_DECISIONS.md`.
 5. **Decisions go to the right owner.** Legal, financial, regulatory, clinical and production questions are owned by `owner`, `legal` or `clinical`, never by `eng` (CI enforces this). **Decision packages first (owner 2026-10-24):** no such decision is put to a person as an open question. The agents prepare a package (`decisions/<ID>.md`) with Engineering, Clinical & Regulatory and, where needed, Legal & Compliance input; the PO decides it when the package shows owner approval is not required, and escalates only on the criteria in [`DECISION_PACKAGES.md`](DECISION_PACKAGES.md).
 6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`. For items in clinical scope, delivery and acceptance also follow the clinical review gate (*Roles* above).
-7. **Leave a trail.** Every session that changes one of these files adds a `JOURNAL.md` entry.
+7. **Leave a trail.** Every session that changes one of these files adds a journal entry as a **new file** in `journal/` (FE-053; never an entry in `JOURNAL.md`, never an edit of another file there).
 8. **No personal or health data** in this folder.
 9. **Frozen packages bind every role** (po 2026-10-28, `csa` STR-17 F1, owner approved STR-14 the same day). A decision package at `awaiting-approval: <role>` is frozen ([`DECISION_PACKAGES.md`](DECISION_PACKAGES.md#frozen-packages)). No role writes about it (no addendum, no re-check, no INDEX or journal line, no "no new evidence" line) unless one of the five unfreeze triggers holds, and that edit starts with `Unfreeze: <trigger 1-5> <reference>`. `npm run agents:check` enforces it against `AGENTS_BASE_REF` (default `origin/recovery/main`; `AGENTS_NOW` for tests), COORD6. A run with no unfrozen package writes nothing about packages. Agent time goes to new value, not to re-reading unchanged material (owner, 2026-10-28).
 10. **The newest founder decision overrides** (owner 2026-11-06, FE-030). [`../product/FOUNDER_DECISIONS.md`](../product/FOUNDER_DECISIONS.md) is the versioned list of everything the owner decided. Where a brief, package, issue, plan or scheduled-task prompt contradicts a newer entry there, the entry holds. The finder does not change the founder decision; it names the contradiction in its journal entry and the PO corrects the document in its next PR. History is never rewritten.
