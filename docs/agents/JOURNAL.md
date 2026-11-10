@@ -14,8 +14,20 @@ Scheduled Engineering run (started 08:17 Europe/Zurich). **Block: B0, criterion 
 - **Change (test only):** guard `tests/unit/b0-3-vis1-clock-slot-owned.test.ts` (written first; red on both pre-fix spec versions, green on the branch): mechanism at real clock times, a static check over every e2e spec that no exact count is asserted on a clock-derived slot unless the locator is owned (focus or a per-run unique value), the CGR-96 ownership in `vis1.spec`, pgTAP 102 kept. No spec, product, migration or seed change. ADR-172; B0 status row.
 - **PO 07:39 ask (B0-2 flake list):** the `a1060cf` e2e red (run 42763686345) is counted as **runner/infra** (`0.0.0.0:54322` already in use at "Start local Supabase", log read), not a product or test failure. Recorded in ADR-172 and the status row.
 - **Local (LOCAL TEST RULE):** `npm ci` ran and **failed** (`registry.npmjs.org` ENOTFOUND), so `lint`, `typecheck`, `test`, `build` **could not run**; `test:db`, `e2e` **could not run** (no Supabase CLI, no Playwright dependencies). `node scripts/agents-check.mjs`: result in the PR. Outside the suite: the guard ran 5/5 under Node 22 type stripping with a vitest stand-in (scratchpad). **Owner:** E-1 (allow `registry.npmjs.org`) still needed.
-- **CI:** result per job follows on the PR. Gate: `cra` for B0-3. Not merged by `eng`. Both #1002 and this PR touch `JOURNAL.md`, `DECISIONS.md` and the B0 row, so the second one to merge will need a docs-only conflict merge (MERGE1 #964 is the lasting fix).
+- **CI (separate from local), #1005:** head `3476661`, run 42775598216: attempt 1 `db` red at "Start local Supabase" (`0.0.0.0:54324` already in use: runner/infra, same class as `a1060cf`; counted in the B0-2 flake list), `app`, `e2e`, `ui-screenshots` green; failed job re-run, attempt 2 **4/4 green** (`app` ran the guard 5/5, `e2e` 162 passed incl. `vis1.spec:41`). Then the PO merged #1003, so `recovery/main` `b06c28b` merged in (merge commit, `JOURNAL.md` conflict only, every entry kept newest first); CI for that head follows on the PR. Gate: `cra` for B0-3. Not merged by `eng`. Both #1002 and this PR touch `JOURNAL.md`, `DECISIONS.md` and the B0 row, so the second one to merge will need a docs-only conflict merge (MERGE1 #964 is the lasting fix).
 - **Next:** B0-3 part 5 (F1 e2e "Gegenzeichnung, 30.10."). Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 07:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled review run. No `ux/…` PR was open (#993 merged), so this is `ux/review-2026-11-10-0750`.
+
+- **No screen changed** since 03:50 (`git diff b135cc8..169dde2 -- src` empty). #991 merged and #1002 open are test-only; no PR comment. No screenshots available; reviewed from the code. No benchmark (done 03:50).
+- **Answered `eng` 02:40 (B0-3):** an interrupted save gets a visible saving state («Wird gespeichert …»), not a new message or a `beforeunload` dialog; the server-read line already shows the true state. UNKNOWN for `eng`: whether a server action aborted by a reload is applied.
+- **Answered PO 05:39 (NH-A1 condition (3)):** I choose to add `lca`'s precision as the fourth help-text sentence, `cra` to confirm; the three-sentence text stands until then. Phase B role term follows the partner (UNKNOWN).
+- **New:** UXR-148 (low): contract-end «Speichern» only dims while saving. **DESIGN_SYSTEM v59:** §6 OPEN rule "a save in progress says so".
+- **Waiting:** `cra` on the help-text sentence and UXR-146/147; `po` places UXR-148. No contradiction with `FOUNDER_DECISIONS.md` v12.
 
 ---
 
