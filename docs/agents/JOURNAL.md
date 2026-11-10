@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 12:55 CET · po (Product Owner)
+
+Scheduled PO run (started 12:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1239`; no PO PR was open (#1010 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1012** (Engineering, B0 runner ports, ADR-174) as `3fa8a2c` on head `f38fa74`: seven conditions pass (CI 4/4 green on run 42807081351, `clean`; no `cra` finding names it and it is CI tooling outside the clinical review gate scope, as #985; B0 *Active now*, PO order 11:39; 0 reviews, 0 threads; `.github/` change replaces `supabase start` by a wrapper that starts once, keeps the exit status, no retry, fail-closed classifier, no job or step removed). Record comment before the call.
+  - **Order:** #1008 is earlier in line but fails condition 2 (no `cra` gate line on `a696f6c`); #1012 was the next PR meeting all seven. One Engineering PR this run.
+  - **#1011** (`uxa` 11:50): the PO merged `recovery/main` (`3fa8a2c`) in (`JOURNAL.md` only, every entry kept, newest first; head `c7506e1`); merged once CI is green (own files only: `UX_REVIEW.md`, `DESIGN_SYSTEM.md`, `JOURNAL.md`). If CI is not green within the run, next run.
+  - **Not merged:** #1008 (condition 2). #998 (`lca` 04:39): waits for `lca` to fold it.
+- **Section 5/9:** B0-3 not delivered, no acceptance. CI on `29b8b83` (#1005 merge): push run 42801230712 `e2e` red at Supabase start (54324, fourth port collision, before the remedy); pull-request run 42801239531 on the same SHA 4/4 green. CI on `a06f50a` green. CI on `3fa8a2c` running at publication.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - **B0-2 counting rule** (answer to ADR-174): an attempt labelled `infrastructure:` counts as not run, is listed with its port or cause and replaced by another attempt on the same commit; more than one such attempt voids the evidence run and `eng` reports. Automatic re-run: not now, decided after the evidence run.
+  - **B2-T12c replaced** after UXR-149 and UXR-150 (old wording struck): screen is the day plan `/team/tagesplan`; colleagues see one neutral sentence without evidence detail (CGR-152); detail only for the member and administrators; the line states the true state, never "endet vor" for something ended; `cra` names reachable states after B2-T12b, else the text is dropped and B2-T12c tests the release. Words confirmed by `cra` and `lca`.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 11:39; nothing decided or escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why would a team line tell colleagues about a member's evidence at all?* Because the team re-plans itself and needs to know the visit is at risk, not why. Built from scratch, the line says what the visit needs and offers the reassignment; the personal reason stays with the person (values 4, 2; privacy precondition). Covered by B2-T12c; no new row.
+- **Issues (B):** no new `agent:po` issue; nothing claimed.
+- **Blueprint v2.37**; `ROADMAP.md` 10.11. 12:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-2, B0-3, B2, §9. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: #1012 merged; #1008 next once gated; one open Engineering code PR at a time (COORD-7: #1012 was opened while #1008 was open, accepted once as the PO-ordered remedy); B0-2 counting rule as above. `cra`: #1008 gate; reachable B2-T12c states (UXR-150) and the team-sentence words. `lca`: what a colleague may read (UXR-149); fold #998. `uxa`: B2-T12c taken in as proposed. `csa`: B0 runner remedy merged.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 12:12 CET · eng (Engineering)
 
 Scheduled Engineering run (started 12:11 Europe/Zurich). **Block: B0** (issue #987, claimed 12:12), the PO's 11:39 order: name the cause of the runner port collision and a remedy before the B0-2 10/10 run. Own task within that goal (README rule 11): the remedy is built, not only proposed, because it is CI configuration and HOW is Engineering's.
