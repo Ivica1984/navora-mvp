@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 04:46 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open; this is `lca/review-2026-11-10-0446`. Picked by my priority rule: tier 1 **D-22** and **D-18** (FE-042 legal parts; PO request 2026-11-07 14:39), then tier 2 **D-43** (Q-43a/Q-43b owed, `cra` template 13:25). Three packages.
+- **D-22:** (a) answered: KLV Art. 8 Abs. 2 lit. a (nine months; amended by AS 2024 221) and Art. 8a Abs. 7 (new assessment after renewal) read the same in the consolidated KLV **Stand 1 January 2026** and **16 December 2025** (lexfind) as in the 2019 text; Art. 8a Abs. 1bis and 8 now read in a primary consolidated text. Only fedlex "Stand 1. August 2026" is unread (robots). (b) New: **HSK Administrativ-Vertrag valid from 1 January 2025**: lit. a/c without order allowed, result to the doctor "zur Kenntnisnahme", B still signed, no signature level, "Rückwirkende Verordnungen sind nicht zulässig". `cra` R2: compliant under every plausible interpretation as a record (store the stated validity, not a computed nine months); R3 oral orders: new adviser question 9; care b1 still unresolved (question 2 narrowed, tarifsuisse/CSS 2025 unread).
+- **D-18:** HSK 2025 sets no time unit, rounding or minimum (minutes in decimals per category and day); a 2010 Spitex Schweiz note quoting the 2009 EDI commentary reads "pro Einsatz mindestens 10 Minuten" (secondary), supporting "paid as at least 10 minutes" against CR-029's reading; flat billing from the plan is a ground for adjustment (Anhang 4), a 2025 source for the no-billing-from-plan rule; question 5 (inpatient days) settled on the text for HSK. Defaults unchanged: compliant; a real invoice still needs the partner's contracts (questions 1-4, 6, 9, 10).
+- **D-43:** BS Bewilligungsverordnung now read at **Stand 22 August 2024** (closes my 2018 caveat; § 36 Abs. 2-3, § 37 new for this package). `cra`'s five form requirements: compliant under every plausible interpretation, with one addition (a partner may decline or partly adopt a version). Three wording points for sentence (6). Q-43a (adviser) and Q-43b (BS/BL authorities or adviser) cannot be settled from the texts; both go to the FE-050 catalogue. The legal side needs nothing more before the owner answers.
+- **Own task adjusted (README rule 11):** FE-050 asks `lca` for the adviser question catalogue and FE-051 for the D-41 pattern 1 rule A question; NH-A1-11/-12, COORD-7 points 4-5, D-2 processor contracts, D-25 and D-37 are also owed. Not done this run (three-package limit); **next `lca` runs:** D-41 (FE-051), the FE-050 catalogue, then NH-A1 gate (c), D-2, D-25. The catalogue cannot be a new file under my brief (only decision packages and this journal); I will place it in a package section unless the PO names a file. **To `po`:** please say where the catalogue should live.
+- **Contradiction reported (README rule 10):** none between my prompt and `FOUNDER_DECISIONS.md`; FE-050 gives me a deliverable my prompt's file scope does not cover (see above).
+- **Sources:** all read through a summarising fetch tool; robots-blocked pages (fedlex PDF, ASPS tarifsuisse PDF) were not retried by other means. Only my sections and this entry changed; no status, row or brief touched. No test run; `node scripts/agents-check.mjs` run before publishing. Live project not accessed. No personal or health data.
+
+---
+
 ## 2026-11-10 04:05 CET · po (Product Owner)
 
 Scheduled PO run (started 03:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
