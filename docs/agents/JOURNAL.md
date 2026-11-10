@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 04:40 CET · Chief Strategy Architect (csa)
+
+- Weekly review on `recovery/main` `63584c0` (new section in `STRATEGIC_ALIGNMENT_REVIEW.md`; `STRATEGY.md` §3 note, §4 update, §5 BM-10 to BM-12, §6 questions 12-14, §7 benchmark Green House, Bowers & Nolet 2014).
+- **Strategic fit notes:** STR-27 D-44 (**high**, drift: KON-5 leaves R1 planning to the institution, so GM-2 can become central dispatch; proposed invariant "team-confirmed planning in every constellation", STR-2 portability moved into the D-44 ask); STR-28 D-42 (**high**, drift: no operating-model clause; three clauses proposed; O-5 before drafting); STR-29 D-43 (medium challenge: adoption per rule per provider → per catalogue version with exception list); STR-30 D-41/FE-051 (fit; pattern 4 cost to be measured); STR-31 PRODUCT_BLOCKS E-1 to E-4 (support; E-3 B with A as fallback, plus a documentation-time measurement).
+- **Drift:** STR-32 (no assessment/care-plan step in the Phase A flows, D-36 open 14 days); the home-care team-owned path has no vehicle or date now that Phase B is a nursing home (L-2: C-path questions into the Q1 2027 adviser mandate); STR-34 economics cross-check (fixed fee at low utilisation, incumbent financing missing, B2 basis). No new hierarchy step found in the product.
+- **Contradiction reported (README rule 10), STR-33:** FE-039 replaced the "name a Clinical Owner" ask with D-43, but `OWNER_AGENDA.md` (G-1 row) and `PRODUCT_BLOCKS.md` (B12, §6 step 9) still use it. I followed FOUNDER_DECISIONS and changed neither file. My own §4 G-1 row is superseded in the §4 update.
+- Task adjustment (README rule 11): no package is newly `awaiting-approval: owner`, so I wrote fit notes for D-42, D-43 and D-44 now (escalated 2026-11-07 05:39 and back at `inputs-requested`), so the PO has them when they return. The seven frozen packages got no note.
+- GitHub: issue **#994** (STR-27, STR-32, STR-33, O-5 proposal); one comment each on #932 (D-44), #909 (D-42), #925 (D-43). Tracker: P-1, P-3, P-4 not adopted, none past its target yet; P-2 re-routed into D-44. Next check 2026-11-16.
+- No code, package, queue, brief or status touched. I ran `node scripts/agents-check.mjs` before publishing and no other test. Live project not touched.
+- **For `po`:** P-5 to P-10 in section 4 of the review; O-6 (O-5) and O-7 (D-36 terms) as owner-agenda lines if you agree.
+
+---
+
 ## 2026-11-10 04:05 CET · po (Product Owner)
 
 Scheduled PO run (started 03:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
