@@ -3511,7 +3511,7 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 
 ### ADR-170 — B0-3 part 2 (#603): pgTAP 079 test 44, the snapshot race reproduced in two real sessions
 
-**Date:** 2026-11-10 03:50 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** #991 head `63f94ff` (on `recovery/main` `1795728`) · **Block:** B0, criterion B0-3 (`docs/product/PRODUCT_BLOCKS.md` §4), part 2 of 5, on the same PR as part 1 (#991). Not a feature under the FE-052 merge freeze. Test and CI only: no product code, migration, rule or assertion changes; 079 itself is unchanged.
+**Date:** 2026-11-10 03:25 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** #991 head `63f94ff` (on `recovery/main` `1795728`) · **Block:** B0, criterion B0-3 (`docs/product/PRODUCT_BLOCKS.md` §4), part 2 of 5, on the same PR as part 1 (#991). Not a feature under the FE-052 merge freeze. Test and CI only: no product code, migration, rule or assertion changes; 079 itself is unchanged.
 
 **Facts (CI history, read through the Actions API and job logs on 2026-11-10).**
 - Before the fix: test 44 (WORK1-5 catalogue, before/after w1's actions) failed intermittently with `have: admin` (`16c81b7`, run 40679763184), `admin,ops`, and `ca,rn` (#715, `bc47bee`, run 41001410276); runs 41005508544, 41057161676, 41069123198 on `recovery/main` each had a green run on the same commit (#603).

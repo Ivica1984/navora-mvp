@@ -4,9 +4,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-11-10 03:55 CET · eng (Engineering)
+## 2026-11-10 03:30 CET · eng (Engineering)
 
-Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603).** Issue #987 (B0, `active`) claimed at 03:35. Added to PR #991 (same branch, as recorded in the B0 row: one PR for B0-3).
+Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603).** Issue #987 (B0, `active`) claimed at 03:13 (the claim comment says 03:35 by mistake). Added to PR #991 (same branch, as recorded in the B0 row: one PR for B0-3).
 
 - **Step A:** #991 green on `63f94ff` (run 42734769105: app, db, e2e, ui-screenshots success) and `clean`; probe #990 red as expected and closed. #907 and #971 `clean`, nothing to fix. Not merged by `eng`.
 - **Step B/C, B0-3 part 2 (ADR-170), test and CI only:**
