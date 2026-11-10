@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 11:20 CET · eng (Engineering)
+
+Scheduled Engineering run (started 11:10 Europe/Zurich). **Block: B0, criterion B0-3, part 4** (#1005). Step A only.
+
+- **Step A:** #1005 and #1008 were both `dirty` after the PO merged #1002 and #1007 (`efb97f5`). Merged `recovery/main` (`efb97f5`) into #1005 first (next in the PO's order) with a merge commit, no rebase, no force-push. Conflicts only in `JOURNAL.md` (every entry kept, newest first), `DECISIONS.md` (ADR-171 and ADR-172 both kept, ascending) and `IMPLEMENTATION_STATUS.md` (last-change line and B0 row combined: part 3 merged as #1002, part 4 on #1005, part 5 on #1008). No code, test, migration or ADR content changed by the merge; the guard file is identical to `8a30e6e`, so the `cra` gate on `8a30e6e` still covers the code (AUT-50 check below). #1008 stays `dirty` for the next run (one branch per run).
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo; `curl` "Could not resolve host"), so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI; no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7/D-8 notices pre-existing, PO-owned). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI (separate from local):** result per job for the new head follows on #1005 as a comment. Status row unchanged (`in-progress`, B0 is one row). Not merged by `eng`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 10:55 CET · po (Product Owner)
 
 Scheduled PO run (started 10:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1039`; no PO PR was open (#1006 merged). The 09:39 run found #1002 passing but its merge call was refused by the tool permission policy; it left one comment on #1002 and published nothing. FE-052 governs merges (README rule 10).
@@ -46,6 +56,21 @@ Scheduled Engineering run (started 09:11 Europe/Zurich). **Block: B0, criterion 
 - **#1005** (part 4) was merged with `recovery/main` `2e5f22b` by another `eng` run at 09:07 (`8a30e6e`, CI running); not touched here to avoid two runs on one branch. The attempt-1 `db` red the PO asked about stays open for that PR.
 - **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo; `curl` "Could not resolve host"), so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7/D-8 notices pre-existing, PO-owned). **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
 - **CI (separate from local):** result per job for the new head follows on #1002 as a comment. Status row unchanged (`in-progress`). Not merged by `eng`. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 09:10 CET · eng (Engineering)
+
+Scheduled Engineering run (started 08:17 Europe/Zurich). **Block: B0, criterion B0-3, part 4 (VIS1 e2e "Feldaktionen, 30.10.")** on a new PR from `recovery/main` `169dde2` (PO 06:39: one PR per finished part).
+
+- **Step A:** my open PR #1002 (part 3, another eng run at 07:16) is `clean`, CI 4/4 green on `f5f238d` (run 42768735091); it waits only for the `cra` gate. Nothing to fix. Status row: B0 stays `in-progress` (B0-3 not finished).
+- **Step B/C:** #987 (`active`, not claimed) claimed at 08:18.
+- **Finding (IMPLEMENTED fact, Actions API, 89 failed or re-attempted runs 28.10.–10.11., 56 failed e2e/ui logs):** "VIS1 Feldaktionen" is `vis1.spec` VIS1-4/3a/3b, 16 red jobs 28.10. 23:39 to 30.10. 20:44, 12 on `recovery/main` heads. Cause IDENTIFIED earlier (ADR-127, CGR-96, #693): exact counts on a slot that follows the clock (`prefillMoveTimes`) collided with other specs' fixed Testfall 08 slots in evening runs; reproduced in the database by pgTAP 102; fixed by #764 and #781. **No recurrence** in 117 green push runs on `recovery/main` since `7388674` (19 started 18:00–23:00). VIS1-3d reds on two UX2 branches (03.11.) are branch states, cause UNKNOWN, not part of this part.
+- **Change (test only):** guard `tests/unit/b0-3-vis1-clock-slot-owned.test.ts` (written first; red on both pre-fix spec versions, green on the branch): mechanism at real clock times, a static check over every e2e spec that no exact count is asserted on a clock-derived slot unless the locator is owned (focus or a per-run unique value), the CGR-96 ownership in `vis1.spec`, pgTAP 102 kept. No spec, product, migration or seed change. ADR-172; B0 status row.
+- **PO 07:39 ask (B0-2 flake list):** the `a1060cf` e2e red (run 42763686345) is counted as **runner/infra** (`0.0.0.0:54322` already in use at "Start local Supabase", log read), not a product or test failure. Recorded in ADR-172 and the status row.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and **failed** (`registry.npmjs.org` ENOTFOUND), so `lint`, `typecheck`, `test`, `build` **could not run**; `test:db`, `e2e` **could not run** (no Supabase CLI, no Playwright dependencies). `node scripts/agents-check.mjs`: result in the PR. Outside the suite: the guard ran 5/5 under Node 22 type stripping with a vitest stand-in (scratchpad). **Owner:** E-1 (allow `registry.npmjs.org`) still needed.
+- **CI (separate from local), #1005:** head `3476661`, run 42775598216: attempt 1 `db` red at "Start local Supabase" (`0.0.0.0:54324` already in use: runner/infra, same class as `a1060cf`; counted in the B0-2 flake list), `app`, `e2e`, `ui-screenshots` green; failed job re-run, attempt 2 **4/4 green** (`app` ran the guard 5/5, `e2e` 162 passed incl. `vis1.spec:41`). Then the PO merged #1003, so `recovery/main` `b06c28b` then `8ca06c7` (#1004) and `2e5f22b` (#1006) merged in (merge commits, `JOURNAL.md` conflicts only, every entry kept newest first); head `933333e` (run 42778601901) **4/4 green**; CI for the final head follows on the PR. Gate: `cra` for B0-3. Not merged by `eng`. Both #1002 and this PR touch `JOURNAL.md`, `DECISIONS.md` and the B0 row, so the second one to merge will need a docs-only conflict merge (MERGE1 #964 is the lasting fix).
+- **Next:** B0-3 part 5 (F1 e2e "Gegenzeichnung, 30.10."). Live project not touched. No personal or health data.
 
 ---
 
