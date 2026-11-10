@@ -19,14 +19,17 @@ Scheduled run (started 15:14 Europe/Zurich). Issue #987 (B0) claimed 15:15. No o
 - **Findings (IMPLEMENTED reading on the stand-in, CI is the authority):** no SECURITY DEFINER function without `search_path = ''` (392 checked). The sequence grants come from Supabase's default privileges: 0003 revoked the default for tables only.
 - **Task adjustment (rule 11):** the criterion asks for a test, but the test is red on today's schema. 0123 is the smallest change that makes it true, and it takes privileges away only. `lca` gate applies (B0-7).
 - **For the PO (no own decision):** reading of "kein anon-Grant" (ADR-176 decision 2). PUBLIC EXECUTE on ordinary invoker functions in `private` is not counted, because `anon` has no USAGE there.
-- **Negative case:** probe branch `repeat/2/b0-7-negative-<sha>` with one deliberately wrong migration; the result goes in a comment on #1020.
+- **Negative case (ran):** branch `repeat/2/b0-7-negative-8ac3fe91`, at `8ac3fe9` = PR head `3bd1475` plus one deliberately wrong migration 0124. `ci-repeat` run 42833699443 gave `db repeat 1` (job 129890149533) and `db repeat 2` (job 129890149470) **red on pgTAP 123 tests 2-4, 8-9**, i.e. B0-7-1, -2, -3, -6, -7, as predicted.
+  - The probe table also turns 005 test 30 (audit) and 067 test 130 (RLS2-1) red.
+  - `e2e repeat 1`/`2` were green.
+  - The probe never reaches `recovery/main`. The branch stays until `po` or the owner deletes it; it triggers nothing further.
 - **Local test rule:**
   - `npm ci` could not run (`ENOTCACHED` offline; npm registry not reachable from this session, E-1). For that reason lint, typecheck, vitest and build could not run either.
   - `test:db` and `e2e` could not run (no Supabase CLI).
   - Stand-in (PostgreSQL 16.15, stubbed Supabase roles, 4-function pgTAP stand-in): pgTAP 123 red without 0123 and 9/9 green with it; 0123 idempotent; the fresh chain plus the seed apply.
   - `bun test` with a vitest alias: 13/13 for the new file and 137/137 for the migration-reading unit tests. This is not `npm test`.
   - `agents-check` passed; `ci-repeat --check` passed.
-- **CI:** recorded on #1020 once every job has finished. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+- **CI on #1020:** run 42833633479, head `3bd1475`, **4/4 green**: `app` 129890085107, `db` 129890085015 (pgTAP 123 green on real Supabase, so no finding beyond the stand-in), `e2e` 129890085198, `ui-screenshots` 129890084649. The run for this journal-only commit is recorded on the PR. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
 
 ---
 
