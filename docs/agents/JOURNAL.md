@@ -4,6 +4,94 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 01:20 CET · eng (Engineering)
+
+Scheduled Engineering run. **Step A only** (own PR conflicting); the run ends after it.
+
+- **Step A:** #907 (weekly status 2026-W45, docs only) was `dirty` against `recovery/main` (`1795728`). `recovery/main` merged in (merge commit, no rebase, no force-push). One conflict, the header of `IMPLEMENTATION_STATUS.md`: the newer *Last change* line from `recovery/main` kept, and #907's *Escalation rule* line kept below it. `JOURNAL.md` merged automatically; checked: 0 lines of either parent missing. No code, test, row or ADR change. #971 is `clean` (CI run 42719016464 on `ce6fe8c` green) and was not touched. Neither PR is merged by `eng` (PO order: #907 next, then #971).
+- **Not done this run (PLANNED):** the B0 status row the PO asked for (01:05), and B0-3 on active issue #987 (#979, #603, #919). They follow in the next run as their own PR, so #907 stays a pure merge-up.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve in this session ("Could not resolve host"). Without dependencies `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` could not run; `npm run test:db` and `npm run e2e` could not run (no Supabase CLI, no Playwright test dependencies). `node scripts/agents-check.mjs` ran (result in the PR comment). **Owner:** allow `registry.npmjs.org` in the session's network settings.
+- **CI:** results per job with run ID and head SHA go on #907 as a comment once finished. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 01:05 CET · po (Product Owner)
+
+Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
+
+- **Merges (A):**
+  - **#985 merged** (Block B0, criterion B0-2: repeat check, ADR-168) as `407568a` on head `db33961`, title `PO merge #985: B0-2 repeat check (head db33961)`.
+    - **Why:** this is B0 work, not a feature (`PRODUCT_BLOCKS.md` §8 (1)).
+    - **Seven conditions** all held: CI run 42718953292 4/4 green and `clean`; 0 reviews and 0 threads. The `.github/` diff adds `ci-repeat.yml` only: it runs on `repeat/**` pushes, has `contents: read` and its own check names. `ci.yml` is unchanged, so no required check is weakened.
+    - **Deviation accepted:** no `workflow_dispatch`, because `main` has no workflows (D-8). The push trigger gives the same record.
+    - The record comment is on #985.
+  - **#983 merged** (`uxa` 19:55) as `395d8c6` on head `dc56f4f`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, 0 lines missing against either parent). CI2 fast path green. The record comment is on #983.
+  - **Not merged:** #907 and #971. Only one Engineering PR goes in per run (§4 stop rule), and both are now `dirty` again (`JOURNAL.md`).
+- **Decision (D, product authority):** #907 (weekly status) and #971 (owner answers 07.11.) change only `docs/`. They are **docs PRs, not features**, so the 07.11. 18:45 freeze comment was too broad. They go in under `PRODUCT_BLOCKS.md` §8 (1), one per run: **#907 next, then #971.** There is a comment on each.
+- **Review (C):**
+  - **B0-2 is not shown.** The mechanism is merged. The evidence is 10/10 on the B0 candidate, after B0-3 and B0-4.
+  - **CI2:** CI2-5 is shown for `75ff53a` and `e09738e`: full push runs, green, none cancelled. The push runs on `407568a` (42722929299) and `395d8c6` (42723504288) were still running at 01:05; the next run reads them. They are also the B0-1 positive case ("3 quick merges, each green") together with this run's PO merge. The B0-1 negative case is still missing.
+  - **CI2-7:** day 1 is recorded in `briefs/CI2.md`. Docs-only PR runs take 5 job-minutes on the fast path; #985 took 17.
+  - **CI2 stays in review. No block is accepted.** The PO ran no test.
+- **Prioritisation (D, G): brief `briefs/B0.md` approved**, *Next up* order **-1**. `eng` reported (07.11. 20:15) that the watcher marked NH-A1 (#968) `active`, although FE-052 freezes it. With B0 at rank 999 the planner now returns `active: B0`. The PO checked this locally with `parse.mjs` and `plan.mjs` on this branch; it is not a CI test. The B0 criteria stay in `PRODUCT_BLOCKS.md` §4; the brief adds only the one-PR-per-criterion rule and the acceptance form. `eng` adds the status row.
+- **Block test cases:** the `uxa` cases B1-UX-1 to -7 and B4-UX-1 to -8 are taken as the UX part of §3 no. 3 in the B1 and B4 rows. These have **no e2e**: B1-UX-2 (390 px), B1-UX-3, B1-UX-6 (UXR-145), B4-UX-1 (390 px, UXR-144) and B4-UX-2. They are test gaps for `eng` after B0. **B1-UX-4 answered:** "Rückfrage" is not built (not found in `src/`). It is PLANNED and not part of B1's Phase A acceptance.
+- **Challenge (E):** *Why does a team ask Operations, which then asks the referrer?* Routing the question through Operations is an intake-coordinator layer. The question belongs with the person who holds the answer, on the referral record. New challenge row: Rückfrage becomes a team-to-referrer question inside REF2 (draft, D-9 and D-3), with no relay through Operations. Pilot hypothesis: time from referral to team decision. *If NAVORA were built from scratch, would the coordination watcher pick work from a queue that the founder has frozen?* No. B0 now leads the queue, so the queue and FE-052 agree.
+- **Issues (B):** no new `agent:po` issue since 07.11. No `claimed` label was set.
+- **Decisions (F):** no `cra` or `lca` run since 07.11. 17:29, and no input on D-22, D-18, D-41, D-43 or D-44. Not two of their runs have passed, so no section is drafted by `po`. Nothing was decided or escalated. E-1 to E-4 stay with the founder.
+- **Blueprint v2.30** (version row; header). Also updated: `PRODUCT_BLOCKS.md` (B0-1, B0-2, B1, B4, §9), `NEXT_CAPABILITY.md` (*Active now*, *Next up* -1, challenge row) and `ROADMAP.md` (line 10.11. 00:39). Synchronised: #985 and #983 (merge records), #907 and #971 (reclassification).
+- **Scheduled-task prompt changes for the owner** (the PO edits none). Still open from FE-052 §8 (6):
+  - (a) PO step A: "one Engineering PR per run" → FE-052 wording;
+  - (d) delete the "PLAN3 stack #891 to #910" line (FE-041 used it up);
+  - (e) one push per run for every role.
+
+  New: (f) the `eng` prompt says "take the active issue". With the B0 brief this now points at B0, so no change is needed as long as B0 leads *Next up*.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: add a B0 status row (`not-started`, then per criterion). Next is B0-3 (#979, #603, #919 with B0-4), then B0-2 evidence on the candidate. Merge `recovery/main` into #907 (merges next run) and #971.
+  - `cra`: B0-3 and B0-4 reviews when `eng` delivers them. UXR-145 (safety-note position and wording on `/field`, D-17).
+  - `uxa`: B1-UX-4 is answered (PLANNED, not in Phase A acceptance).
+  - `lca`, `aia`, `csa`: no change.
+
+### ENGINEERING BRIEF
+
+- **Capability:** B0, technical base and database security (`briefs/B0.md`; criteria B0-1 to B0-8 in `PRODUCT_BLOCKS.md` §4).
+- **Why:** FE-052. No block acceptance is valid until a test result on a named commit can be repeated and trusted.
+- **Business outcome:** blocks can be accepted, and Phase A (M9, 2027-03-12) can be shown on evidence rather than merge counts.
+- **Care outcome:** none directly. It is the precondition for every patient-safety test (SIG1, COND1, F1) counting as passed.
+- **Expected nurse outcome:** none directly. Features reach nurses only on a tested base.
+- **Expected team outcome:** no more argument over green or red. A team-facing flow is accepted once, on evidence.
+- **Expected patient outcome:** safety tests that hold 10 of 10 times, before real data.
+- **Acceptance criteria:** B0-1 to B0-8 with positive and negative cases (`PRODUCT_BLOCKS.md` §4); B0-A one PR per criterion; B0-B a block acceptance section by `po` under §3.
+- **Dependencies:** E-1 (founder: package source, for B0-5); founder clicks for B0-6; `cra` for B0-3 and B0-4; `lca` for B0-6 and B0-7.
+- **Priority:** *Next up* order -1. Ahead of every feature, under the FE-052 merge freeze.
+- **Implementation recommendation:** B0-3 next (reproduce, then fix #979, #603, #919). Then B0-2 10/10 on that commit. Then B0-7 (catalog test: `anon` grants and SECURITY DEFINER `search_path`) and B0-8 (migration order script). Record B0-5 and B0-6 as blocked with their owner until the founder acts.
+
+---
+
+## 2026-11-10 00:25 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0.** Step A only (own PRs conflicting); the run ends after it.
+
+- **Step A:** #985 (B0-2), #971 and #907 were `dirty` against `recovery/main` (`e09738e`), each on `docs/agents/JOURNAL.md` only. `recovery/main` merged into each (merge commit, no rebase, no force-push), every journal entry kept in newest-first order. No code, test or ADR change in these merges. #985's last CI before the merge (ci-repeat run 42405469575 on `d5049c9`) was green; the CI results for the new heads follow as PR comments and in the next entry. Not merged by `eng`.
+- **Step B:** active issue #968 (NH-A1) unchanged since 2026-11-07 20:20: gate (c) (`lca` on NH-A1-11, NH-A1-12) still open, no new comment. Not claimed (same reason as the 20:15 entry). Open: #981 and #982 probe closure is a PO request to `eng`; UNKNOWN whether already done, not touched in this run.
+- **Local (LOCAL TEST RULE), per branch:** `npm ci` could not run: `registry.npmjs.org` does not resolve in this session (`getaddrinfo ENOTFOUND`; curl: "Could not resolve host"). Without it `node_modules/.bin` has no `eslint`, `tsc`, `vitest` or `next`, so `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run. `npm run test:db` and `npm run e2e` could not run (no Supabase CLI, no installed Playwright test deps). `node scripts/agents-check.mjs` ran and passed (exit 0; two pre-existing notices on D-7 and D-8, also on `recovery/main`). **Owner:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **CI:** GitHub Actions is the full test environment; job results with run ID and head SHA go on each PR as a comment once finished. Nothing in this entry is claimed green. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-07 20:15 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0, criterion B0-2.** Branch `feature/hourly-update-2026-11-07-b0-2-repeat`.
+
+- **Step A (own PRs):** #980 (CI2) was merged by the PO (`75ff53a`); its push run 42403923562 and PR #3 run 42403927625 on `75ff53a` are green (all four jobs). #971 and #907 conflict with `recovery/main` again (`JOURNAL.md`); not merged up, as in the 19:30 run: both are docs-only and frozen by FE-052 (po comment 18:45), and each merge-up is undone by the next PO merge.
+- **Step B, task adjusted (README rules 10 and 11):** the active issue is #968 (NH-A1). Not claimed: its build gate (c) (`lca` on NH-A1-11, NH-A1-12) is still open (brief, PO decision 17:39: "no build before gate (c)"), and FE-052 / `PRODUCT_BLOCKS.md` §8 (5) give `eng` the order B0-1 to B0-8, one PR per criterion. **Contradiction reported:** the scheduled prompt says "take the active issue"; FE-052 (newer founder decision) holds. The watcher activates feature items that FE-052 freezes; for `po`: a B0 row or brief would let the watcher route B0 work.
+- **B0-1:** configuration merged with #980. Evidence so far: push run of the merge commit `75ff53a` complete and green (42403923562). Still open for the criterion: three quick merges in a row, each merge commit green (needs PO merges), and the negative case. Not claimed as passed.
+- **B0-2 (ADR-168), IMPLEMENTED on the branch, CI decides:** `.github/workflows/ci-repeat.yml` runs `db` and `e2e` as a matrix of 10 attempts (`repeat/2/…`: 2) on a push to a `repeat/**` branch, `fail-fast: false`, never cancelled, own check names (never the four required ones). The file is generated from `ci.yml` by `scripts/ci-repeat.mjs` (`--check` / `--write`), so the steps cannot drift. **Deviation from the criterion text:** no `workflow_dispatch`, because GitHub dispatches only workflows on the default branch `main`, which has none yet (PR #3). Tests first: `tests/unit/b0-2-ci-repeat.test.ts`.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve, and through the proxy `CONNECT` is refused (`connect_rejected`; the host is not allowed in this session's network settings). Therefore `npm run lint`, `npm run typecheck`, `npm test` (vitest), `npm run build` could not run. `npm run test:db`, `npm run e2e` could not run (no dependencies, no Supabase CLI). Ran and passed: `node scripts/agents-check.mjs`; `node scripts/ci-repeat.mjs --check`; the test file's assertions replayed in plain Node (14 checks, all ok; not vitest); the generated YAML parses (Python `yaml.safe_load`).
+- **CI:** results per job with run ID and head SHA follow on the PR and in the next entry. Clinical gate: out of scope (CI only, no assertion changed). No personal or health data. Live project not touched.
+
+---
+
 ## 2026-11-07 20:00 CET · po (Product Owner)
 
 Scheduled PO run (started 19:39, written 20:00), the first one under **FE-052**. PR #978 (live session) was already merged as `f350085`, so this run uses `po/cycle-2026-11-07-1939`. This prompt still says "merge one Engineering PR per run". `FOUNDER_DECISIONS.md` v12 (FE-052) suspends that for feature PRs, so this run follows FE-052 (README rule 10). The contradiction is listed under prompt changes below.
@@ -47,6 +135,12 @@ Scheduled PO run (started 19:39, written 20:00), the first one under **FE-052**.
 - **To the agents:**
   - `eng`: close #981 and #982. Next is B0-1 evidence (three merge commits, each with a complete green push run, read through the API), then B0-2. One PR per criterion, each starting with `Block: B0`. Merge `recovery/main` into #907 and #971 when you can.
   - `cra`, `lca`, `uxa`, `aia`, `csa`: no change from the 19:40 tasks. CI2 means a docs-only role PR now gets fast db, e2e and ui-screenshots checks, with the same names.
+
+---
+
+## 2026-11-07 19:55 CET · UX/UI Design Architect (uxa)
+
+Scheduled run. `recovery/main` at `f350085`. Read FE-052 (`FOUNDER_DECISIONS.md` v12) and `PRODUCT_BLOCKS.md`; adjusted this run's task to it (README rule 11): `uxa` line on the **merged** ASM1-C6 screens (#815, `5d15391`; no blocking UX finding; UXR-84 to -86 OPEN, now on `recovery/main`) and PROPOSED user-flow block test cases B1-UX-1 to -7 and B4-UX-1 to -8 (§8.5) in `UX_REVIEW.md`. New findings UXR-143 (low), UXR-144 and UXR-145 (medium, test gaps: the full field path only at desktop width; no e2e for client safety notes on `/field`). No issue opened, none closed. Design system v57 (§8 step 6). No screenshots available; no test run by me. Contradiction reported: my task prompt still says per-PR review; FE-052 §8.6 (c) is the founder's change. For the PO: place the block cases, answer B1-UX-4 (is "Rückfrage" built?).
 
 ---
 
