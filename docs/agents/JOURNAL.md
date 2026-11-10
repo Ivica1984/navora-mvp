@@ -17,6 +17,22 @@ Scheduled review run. No `ux/…` PR was open (#983 merged), so this is `ux/revi
 
 ---
 
+## 2026-11-10 02:20 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run, review 39 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on `recovery/main` at `1795728`. Block: concept work under FE-052 §8 (5) (B3, B6, B9, B11 touched; no code).
+
+- **Read since review 38:** `FOUNDER_DECISIONS.md` v11-v12 (FE-045 to FE-052), `PRODUCT_BLOCKS.md` (blocks, Phase A flows, E-1 to E-4), B0 brief, D-41 addenda (FE-051, `cra` 17:29), NH-A1 amendments (AUT-69 to -71 adopted; #969 closed by the PO), B1 "Rückfrage" (PO 00:39); `cra` #988 on its branch (CGR-160 to -162, D-41 patterns 2-4).
+- **Bottleneck map v3 (weekly refresh):** home-care ranks 1-3 (travel and day order; documentation; orders and referrals) still have no built change; first ward column: the reassessment cycle (W1) and the handover (W2) are the largest ward drivers in the source, while the only ward brief (NH-A1) addresses the roster (W4). Estimates, not measurements.
+- **D-41 mapping (the `aia` input asked 2026-11-07):** patterns 1-3 need no AI service (rules, solvers, SQL in NAVORA's database); pattern 4 carries option B in full, in NAVORA's own Swiss hosting; an external provider at most as a synthetic stand-in.
+- **New findings:** **AUT-72 (high, on #912):** E-3 option B would re-draft the visit report with a model (the AUT-54 problem) on a path FE-051 does not foresee for real data; proposal: report by rule plus A7 at the edge, behind the pattern 4 interface. **AUT-73 (medium):** D-41 default point 2 still names an external provider. **AUT-74 (medium):** Phase A records stops but no administration measure. **AUT-75 (low):** ward step 4 of the Phase A flow names an act NH-A1 removed.
+- **Contradiction (README rule 10):** the PO's E-3 recommendation (B) and D-41 default point 2 read against FE-051 (pattern 5 not chosen, pattern 4 the model path); reported as AUT-72/AUT-73, no founder decision changed.
+- **Changed my own task within the brief (README rule 11):** none beyond FE-052 §8 (5) (concept work only).
+- **For `po`:** AUT-72 before E-3 goes to the founder; AUT-73 in the D-41 package; AUT-74 and AUT-75 in `PRODUCT_BLOCKS.md` §5. When NH-A2 is drafted, its scope decides most of the ward gain (W1).
+- **For `lca`:** with the mapping, the pattern 1 question arises only if pattern 1 facts go to a model.
+- Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. No live project access; no personal or health data. Next map refresh 2026-11-17.
+
+---
+
 ## 2026-11-10 01:35 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review run. No `gov/…` PR open (#975 merged), so this is `gov/review-2026-11-10-0135`.
