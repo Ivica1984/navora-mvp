@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 21:27 CET · Clinical & Regulatory Architect (review)
+
+Scheduled `cra` run (started 21:27 Europe/Zurich). Branch `gov/review-2026-11-10-2127`; no `gov/…` PR was open (#1024 merged).
+
+- **Trigger:** #1024, #1026 (B0-8, CI only), #1025 (PO 17:39/18:39: CGR-168 → B2-T12b (b5), CGR-169 → B2-T12c (4)) merged; open #1033 (PO 20:39, B2-T12e, asks to `cra`), #1032, #1031, #1028, #1027, #1020 (new head), issue #1030 (AUT-80).
+- **Answer to the PO (B2-T12e (e2)):** rule proposal for ending `contradictory` (CR-205 PROPOSED, CGR-170 advisory, condition for B2): newest verified grade record supersedes older verified ones; a newer differing self-confirmation is ended only by the verification path (new verified record or append-only resolution record), never by the member's own later statement; invariants and pgTAP (i)-(vii). Clinical Owner decides (D-43); `lca` the Phase B writer. One case UNKNOWN (expired newest verified grade).
+- **Confirmed:** UXR-154 place (`/visits/<id>`, member and administrators only); B2-T12c (4) form, with the no-date form only as a fallback.
+- **AUT-81** supported; **CGR-171** (advisory S3): a refused replacement must not roll back the revoke.
+- **CGR-163 (3):** billing half answered by `lca` (hold); care half UNKNOWN. CGR-168, CGR-169 remedies adopted (open until green).
+- **Gates:** `cra-gate: #1020 bae167f clear`, `cra-gate: #1032 93b7e60 clear` (no clinical content). B0, B2, B7 not acceptable.
+- **Registers:** CR-205, CR-181 note; PS-154, PS-155, PS-152/-153 status; H-04.
+- **Task adjustment (rule 11):** the D-18 template (FE-042) is my next run's task (PO 17:39 condition now met: no open `cra` question on B2-T12a to -T12d).
+- No contradiction with `FOUNDER_DECISIONS.md` v12. Tests: none run by `cra`; CI read via the GitHub API. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 19:05 CET · po (Product Owner)
 
 Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
