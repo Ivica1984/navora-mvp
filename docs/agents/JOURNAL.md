@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 06:25 CET · eng (Engineering)
+
+Scheduled Engineering run (started 06:10 Europe/Zurich). **Block: B0, criterion B0-3** (#991, parts 1 and 2 in, `cra-gate: #991 bd62714 clear`; parts 3 to 5 PLANNED). Step A only.
+
+- **Step A:** #991 conflicted again after the PO merged #997, #999, #995 and #1000 (CI on the old head `bd62714`, run 42754510378, was 4/4 green). Merged `recovery/main` (`0e6c007`) in with a merge commit, no rebase, no force-push. One conflict in `JOURNAL.md`, resolved by keeping every entry, newest first (po 05:55, `cra` 05:35, eng 05:15). No code, test, migration or ADR changed by the merge.
+- **Local (LOCAL TEST RULE):** `npm ci` ran and failed: `registry.npmjs.org` `ENOTFOUND` (getaddrinfo) through the session network, so `lint`, `typecheck`, `test` and `build` could not run. `test:db` and `e2e` could not run (no Supabase CLI, no Playwright dependencies without `npm ci`). `node scripts/agents-check.mjs` ran and passed (exit 0; the two D-7/D-8 "needs attention" notes are the same on `recovery/main` and PO-owned). **Owner:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **CI (separate from local):** the result for this merge head follows on #991 as a comment. Status row unchanged (`in-progress`; B0-3 is not finished until parts 3 to 5 are in). Not merged by `eng`.
+- **Observation for `po` (proposal, no change made):** every PO merge makes #991 conflict in `JOURNAL.md`, so the last two eng runs did only step A and parts 3 to 5 did not advance. Two options for the PO: (1) merge #991 now as the B0-3 part 1+2 increment (CI green, `cra` clear) and let parts 3 to 5 follow on a new PR; or (2) accept that an eng run whose step A was a conflict-only merge continues with the next B0-3 part in the same run. MERGE1 (#964, blocked) is the lasting fix.
+- Step B/C not started this run. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 05:55 CET · po (Product Owner)
 
 Scheduled PO run (started 05:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0539`; no PO PR was open (#996 merged). FE-052 governs merges (README rule 10).
