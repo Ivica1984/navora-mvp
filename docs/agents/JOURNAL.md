@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 05:05 CET · po (Product Owner)
+
+Scheduled PO run (started 04:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0439`; no PO PR was open (#989 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#971 merged** (eng docs: owner answers on production readiness, under `PRODUCT_BLOCKS.md` §8 (1)) as `3fd999d` on head `ce6fe8c`, title `PO merge #971: owner answers on production readiness (head ce6fe8c)`. Seven conditions held: CI run 42719016464 4/4 green, `clean`, merge-tree conflict-free, 0 reviews and threads, docs only (2 files). **Correction to my record comment on #971:** it says a remaining gap is listed here; there is none, FE-045 to FE-051 (v11) already carry every answer of that session, so no new FE row.
+  - **#993 merged** (`uxa` 03:50) as `cd73624` on head `6d08297`, after the PO merged `recovery/main` in (`JOURNAL.md` only, every entry kept, newest first, 0 lines of either parent missing). Role files only; CI run 42751098826 4/4 green.
+  - **Not merged:** #991 (B0-3 part 1 of 5) is in progress, not a candidate.
+- **B0-1:** push runs on `83d1922`, `b135cc8`, `a151d5a`, `63584c0` all completed/success (42744417404, 42745023402, 42745311036, 42746545723): the positive case again. The negative case is still missing. No block accepted.
+- **Review (C):** no item delivered. CI2 stays in review. The PO ran no test.
+- **Phase A and blocks (`PRODUCT_BLOCKS.md`, product authority):**
+  - Stop case "keine geeignete Vertretung" rewritten to the built behaviour (CGR-160 (1)): visible without a responsible member on `/team` and OPS1, P2, no delivery except hospital discharge. Whether a person must be notified is the clinical approval function's rule (CGR-160 (3)), UNKNOWN.
+  - Five stop cases added (CGR-161 (a)-(e)); (a), (b), (e) are **"nicht nachgewiesen"**. Phase A is not passed while a stop case is untested or failing.
+  - Ward step 4 reworded to the NH-A1 continuity default (AUT-75); the B11 protocol records human acts per step, no threshold (AUT-74).
+  - Test bases taken: `cra` B2-T1 to -T11 (B2-T7/-T8 expected red today) and B5-T1 to -T11 (B5 not acceptable without 10/10 on B5-T7, B5-T9); `uxa` B3-UX-1 to -8; B1-UX-6 corrected (CGR-162). UXR-146/147 placed as B3 remedies, PLANNED.
+  - `csa` #994: STR-27 adopted as a product invariant (the planned team confirms, no central dispatch mode, every constellation); STR-32 step 1b assessment → care plan added, its stop case first to `cra`; STR-33 resolved ("Clinical Owner" = D-43 approval function; G-1 ask struck in `OWNER_AGENDA.md`). The D-44 line and O-5 wait for the `csa` PR.
+- **E-3 recommendation changed (AUT-72):** rule report plus an agent at the edge behind the pattern 4 interface; old text struck. Still the founder's question.
+- **Decisions (F):** D-41 addendum: `aia` mapping in; default point 2 adjusted (AUT-73: own Swiss hosting for real data). `lca` and `eng` inputs requested again on #905. No new `lca` or `cra` input on D-22, D-18, D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** *Why does Operations watch uncovered visits behind the team?* Because the screen cannot tell "take it" from "nobody can". New challenge row with a pilot hypothesis (share resolved inside the team before Operations touches the OPS1 exception).
+- **Issues (B):** #994 claimed and answered in one comment; no `claimed` label left set (work finished in this run); stays open for the `csa` follow-ups.
+- **Blueprint v2.31** (version row, header); `ROADMAP.md` line 10.11. 04:39. Synchronised: #971, #993 (merge records), #994, #905, #912. Scheduled-task prompt changes for the owner: unchanged from 01:05 ((a), (d), (e)).
+- **To the agents:** `eng`: B0-3 continues on #991; after B0 the new tests B5-T11, B2-T7 to -T9 and the B3-UX gaps. `cra`: STR-32 stop case against ASM1; UXR-146/147 wording. `lca`: D-41 pattern 1 question.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 04:05 CET · po (Product Owner)
 
 Scheduled PO run (started 03:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
