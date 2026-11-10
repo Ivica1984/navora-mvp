@@ -3627,7 +3627,7 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 
 ### ADR-175 — B0-4 (#919): the pgTAP 080 SIG1 lock race, reproduced in real sessions (red without the #922 block, green with it; 062, 078, 080 under a forced scheduler run)
 
-**Date:** 2026-11-10 13:18 Europe/Zurich · **Status:** IMPLEMENTED on branch `feature/hourly-update-2026-11-10-b0-4` (CI decides; PR not yet opened, see *COORD-7*) · **Base:** `recovery/main` `bd5b0de` · **Block:** B0, criterion B0-4 (`PRODUCT_BLOCKS.md` §4, issue #987). Test tooling and CI only: no product code, migration, seed, rule, text, grant or pgTAP assertion changed. ADR-173 is on the open PR #1008, so this is ADR-175.
+**Date:** 2026-11-10 13:18 Europe/Zurich · **Status:** IMPLEMENTED in PR #1039 (opened 2026-11-10 23:30; PR CI 4/4 green on `5718e08`, see *CI result on the PR*) · **Base:** `recovery/main` `bd5b0de` · **Block:** B0, criterion B0-4 (`PRODUCT_BLOCKS.md` §4, issue #987). Test tooling and CI only: no product code, migration, seed, rule, text, grant or pgTAP assertion changed. ADR-173 is on the open PR #1008, so this is ADR-175.
 
 **Facts (IMPLEMENTED, read from the repository).**
 - `private.evaluate_signals` takes `pg_try_advisory_xact_lock(hashtext('navora.sig1'), hashtext(org))` and returns 0 without writing when another session holds it (0060:247); `private.evaluate_all_signals()` (pg_cron job `navora-sig1-signals`, every minute) calls it for every organisation.
@@ -3645,6 +3645,8 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 **Why a holder for the whole file, not only one evaluation:** B0-4 names "a second session holds the SIG1 lock during `eval()`"; holding it throughout makes (1) deterministic. It is stricter than #919 (17 failures there), so only 6-9 are required, not the count.
 
 **What this proves and what not:** (1) and (2) together show that the #919 failure shape follows from a concurrent lock holder and that the #922 block removes it, on the commit CI runs. That the holder on `f5f5e09` was the pg_cron run stays PROBABLE (its run log is not kept); no other writer takes this lock in the repository. (3) shows 062, 078, 080 green against a scheduler forced to run during them; it is not a 10/10 (that is B0-2).
+
+**CI result on the PR (IMPLEMENTED fact, Actions API, 2026-11-10 23:35):** after merging `recovery/main` `b43c85a` in, `ci` run 42913889325 (`pull_request`) on head `5718e08`, **4/4 jobs green**: `app` 130171203886 (vitest 104 files / 1153 tests incl. this guard 22/22), `db` 130171204080 (pgTAP `Result: PASS`; B0-4 step: (1) stripped 080 `plan 58, ok 41, not ok: 6 7 8 9 10 11 18 19 20 21 22 23 24 25 31 37 38`, test 6 `have:` empty, i.e. 17 of 58 with 6-9 first, **the #919 shape again**; (2) 080 waited for the lock, then 59/59; (3) 062 55/55, 078 51/51, 080 59/59, each with a scheduler run started during the file, 0 scheduler errors), `e2e` 130171203866, `ui-screenshots` 130171204220. **COORD-7 (2026-11-10 23:30):** no other Engineering code PR is open (#1032 merged as `22a38f6`), so the PR is opened now.
 
 **COORD-7:** the PO's 12:39 note keeps one open Engineering code PR at a time, and #1008 is open (waits for the `cra` gate). So this branch is pushed without a PR; CI evidence for the `db` step comes from a `repeat/2/…` branch on the same commit (ADR-168, two `db` and two `e2e` attempts). The PR is opened once #1008 is merged or the PO says otherwise.
 
