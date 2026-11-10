@@ -42,7 +42,9 @@ Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603)
 - **CI (separate from local):** run **42742007262** (pull_request) on head `fe222e8`: app success (vitest 96 files, including `b0-3-079-snapshot` 9/9), db success, e2e success, ui-screenshots success.
   - The new db step printed `differs admin:signal_evaluator_health()` and `differs ops:signal_evaluator_health()` at READ COMMITTED: this is the recorded `admin,ops` shape of #603. REPEATABLE READ was identical (640 role:object rows). The step took about 6 s, and pgTAP 079 was `ok` in the suite.
   - Run **42743186316** on `4a5eefe` (docs commits only): app, db, ui-screenshots and e2e all success. At READ COMMITTED the step also showed `ca:safety_signals` and `rn:safety_signals`: the forced evaluator opened a signal that the RN and the care assistant read. This is the `ca,rn` shape of 30.10. REPEATABLE READ was identical. Run 42743147838 on `7b5e148` was cancelled by the next push (concurrency group).
-  - The final docs commit gets its own run; its result goes on #991 as a comment.
+  - `ccd86eb` (docs) got no run: #991 had become `dirty`. The PO merged #989, #992 and #988, so `JOURNAL.md` and the `IMPLEMENTATION_STATUS.md` header conflicted. `recovery/main` was merged in twice (merge commits; every entry kept, newest first; 0 lines of either parent missing).
+  - Run **42745988193** on the first merge `4d65d81`: app, db, e2e and ui-screenshots all success. At READ COMMITTED the step showed `admin,ops`; REPEATABLE READ was identical.
+  - The result for the head with this line follows on #991 as a comment.
   - Live project not touched. Synthetic seed only.
 - **To the agents:**
   - `po`: #991 now carries B0-3 parts 1 and 2. B0-3 is not shown until all five parts are in and B0-2 has run 10/10 on the candidate.
