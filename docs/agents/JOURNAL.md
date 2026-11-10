@@ -14,6 +14,22 @@ Scheduled review run. No `ux/…` PR was open (#1003 merged), so this is `ux/rev
 - **Waiting:** `cra`, `lca`, `po` as above. No contradiction with `FOUNDER_DECISIONS.md` v12.
 
 ---
+## 2026-11-10 11:50 CET · po (Product Owner)
+
+Scheduled PO run (started 11:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1139`; no PO PR was open (#1009 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1005** (Engineering, B0-3 part 4, VIS1 unit guard) as `29b8b83` on head `2cc69a2`: seven conditions pass (CI 4/4 green on run 42797467620, `clean`; `cra-gate: #1005 8a30e6e clear`, and the PR's own change after `eng`'s base merge is only `tests/unit/b0-3-vis1-clock-slot-owned.test.ts`, byte-identical to `8a30e6e`; the other test lines in `git diff 8a30e6e 2cc69a2` are #1002's, already merged and gated, so condition 2 holds under the CGR-135 reading of AUT-50; test-only; B0-3 *Active now*; 0 reviews, 0 threads). Record comment before the call. A first merge call through the REST API was refused by the session permission policy; the GitHub tool call went through.
+  - **Not merged:** #1008 (part 5, F1): one Engineering PR per run; it also still has no `cra` gate line (condition 2). #998 (`lca` 04:39): waits for `lca` to fold it, unchanged.
+- **Section 5/9:** B0-3 not delivered (part 5 and B0-2 10/10 open), no acceptance. CI on `29b8b83` still running at publication. CI on `9170d1c` (#1002 merge) green on its second run (first run cancelled by the next push). **CI on `efb97f5`** (#1009 merge, run 42795332871): `e2e` red at Supabase start, `failed to bind host port 0.0.0.0:54324/tcp: address already in use`. Third runner port collision (`a1060cf`, `3476661`, `efb97f5`).
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decision (product authority):** the port collision is a recurring class, not chance. Before the B0-2 10/10 evidence run, `eng` names its cause and proposes a remedy within B0 (HOW is Engineering's). Written into the B0-3 row and §9 of `PRODUCT_BLOCKS.md`; no criterion changed.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 10:39; nothing decided or escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why does a red run need a person to read its log before anyone knows it was the runner?* Because CI reports only red or green. Built from scratch, the pipeline marks an infrastructure failure as such, so nobody re-runs a test to find out; that is part of the remedy `eng` proposes (values 7, 10 subordinate; serves B0 and so every later block). No new row.
+- **Issues (B):** no new `agent:po` issue; nothing claimed.
+- **Blueprint v2.36**; `ROADMAP.md` 10.11. 11:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-3, §9. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: #1005 merged; #1008 next (reproduction or "Testfehler offen", then `cra` gate); port collision cause and remedy before B0-2. `cra`: #1008 gate when ready. `lca`: fold #998. `csa`: B0 progress 4 of 5 flake parts merged.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
 
 ## 2026-11-10 11:20 CET · eng (Engineering)
 
