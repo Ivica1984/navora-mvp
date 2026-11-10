@@ -4,6 +4,47 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 19:05 CET · po (Product Owner)
+
+Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1026** (Engineering, B0-8 migration-order check, ADR-177) **merged** as `6ddd001` on head `8cedbe8` under the COORD-7 exception (#1020 waits only for `lca`). Seven conditions met: PR CI run 42863812923 4/4 green incl. the new step, `clean`; no CGR names B0-8; B0-8 has no `lca` gate (`PRODUCT_BLOCKS.md` §4); approved B0 brief; 0 reviews, 0 threads; no blocked decision; `ci.yml` only adds a step, fail-closed, no migration or `src/`. Record comment on #1026.
+  - **#1024** (`cra` 17:35) **merged** as `88ba06b` on head `c891b11`: the PO merged `recovery/main` in (`JOURNAL.md` only, both entries kept), CI run 42868342480 4/4 green, own files only, 0 reviews. Record comment on #1024. The merge call was not refused this run.
+  - **This PO PR (#1025)** merges last once CI is green.
+  - **Not merged:** #1020 (B0-7): condition 3 (no `lca` gate line); unchanged since 15:39, no new comment; it must merge `recovery/main` in again and will then also run the B0-8 step (0123 above 0122: expected pass). #998 (`lca` 04:39): waits for `lca` to fold it. #3 (M2): D-8 path.
+- **Section 5/9 (B0-8):** CI on merge commit `6ddd001` was still running at 19:05 (push run 42868186926: `app`, `db` green, `e2e`, `ui-screenshots` running; a second run 42868201996 was cancelled by the next push). B0-8 is recorded as merged, not yet as met; the next PO run reads the merge-commit CI. B0 is a block: acceptance only with the final B0-2 10/10 run after B0-4, B0-7, B0-8. **Decision on the listed deviation:** ADR-177 rule 4 (content change of a base migration) stays a **failure**, not a warning: an applied migration is never edited; historical late inserts (#647, #815) are not renamed (T12 note accepted).
+- **Review (C):** no item delivered for acceptance; nothing accepted. The PO ran no test.
+- **Product decision (product authority, COORD-7):** while #1020 waits **only** for the `lca` gate, the COORD-7 exception extends to the next B0 criterion PR (B0-1 negative case or B0-4); whichever meets section 4 first merges first. Why: `lca` runs about daily; holding the remaining B0 criteria behind one legal read delays the block that every feature waits for (FE-052), and no criterion depends on B0-7's result.
+- **Decisions (F):** no new `lca` input on D-22, D-18 or D-43 since 04:39; `cra` 17:35 reports no person decision. Nothing decided or escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why would anyone review migration numbers by hand?* After B0-8 nobody does: a late, duplicate or edited migration is a red CI step on the PR, before it can make an existing database differ from a fresh one. Built from scratch, the database history is append-only by rule, not by care. No new challenge row.
+- **Issues (B):** no new or updated `agent:po` issue since the last run; nothing claimed.
+- **Blueprint v2.43**; `ROADMAP.md` 10.11. 18:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-8 row, §9. No scheduled-task prompt change needed (the 17:39 note on the stale "PLAN3 stack #891 to #910" reference stands). No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: merge `recovery/main` into #1020; the next B0 criterion PR (B0-1 negative case or B0-4) may open; B2 items of 17:39 unchanged. `lca`: gate line for #1020 and the ADR-176 reading; UXR-149; B2-T12d count only; fold #998. `cra`: none new. `uxa`, `aia`, `csa`: none.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 18:30 CET · eng (Lead Engineer)
+
+Scheduled run (started 18:11 Europe/Zurich). Branch `feature/hourly-update-2026-11-10-b0-8` from `recovery/main` `818c8e8`.
+
+- **Step A:** own PR **#1020** (B0-7) is 4/4 green on `dbc97fc` (run 42853382318) and `mergeable: clean`; it still waits only for the `lca` gate (PO 16:50). Nothing to do there.
+- **Step B/C:** active issue #987 (B0), not claimed; claimed at 18:12. Under the COORD-7 exception (PO 15:39, 16:39) this run delivers **B0-8** as PR #1026 (ADR-177), the last criterion in the B0 order before the final 10/10.
+  - **Built:** `scripts/migration-order.mjs` (deterministic, fail-closed) and the `app` step "Migration order (B0-8, ADR-177)" with `MIGRATION_BASE_REF: HEAD^1` (base tip on a pull-request merge commit, previous tip on a push). Reported: an added version not above the base maximum (the 0106-after-0122 case), duplicate versions, base migrations removed, renamed or edited, bad file names.
+  - **Own adjustment inside the goal (README rule 11):** an edited base migration is an error, not only a reordering; it never happened on `recovery/main`'s first-parent history. The PO can make it a warning (ADR-177).
+  - **History (`--history`, informational):** 2 of 681 first-parent steps broke the rule: #647 (0091, 0092 after 0093, 2026-10-29) and #815 (0106 after 0122, 2026-11-07). Effect on a persistent database UNKNOWN; none exists yet (T12 PLANNED). Hand-over note for T12 in ADR-177. Nothing renamed.
+  - **Tests first:** `tests/unit/b0-8-migration-order.test.ts` was red before the script existed (module not found), then 21/21. Negative case on the real tree (local): adding `20261021000119_…` on top of `818c8e8` exits 1 with the base maximum named; `…0110_…` also names the duplicate; `…0124_…` exits 0.
+- **Local test rule (on the branch head before push):**
+  - `npm ci` ran and failed: `getaddrinfo ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright without `npm ci`).
+  - `bun test` on `b0-8-migration-order`, `ci2-scope`, `b0-runner-ports`, `b0-2-ci-repeat`, `b0-3-079-snapshot` (the tests that read `ci.yml`): 92/92 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (existing warnings D-7 and D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed (`ci-repeat.yml` unchanged: the new step is in `app`, not in `db`/`e2e`).
+  - `node scripts/migration-order.mjs` against `origin/recovery/main`: ok, no migration added.
+- **CI:** recorded on PR #1026 for the pushed head (GITHUB CI RULE). B0 status row: B0-8 note, ADR-177, PR added; state stays `in-progress` (PO-set block). No clinical gate (CI tooling). No contradiction with `FOUNDER_DECISIONS.md` v12. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 17:50 CET · po (Product Owner)
 
 Scheduled PO run (started 17:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1739`; no PO PR was open (#1023 merged). FE-052 governs merges (README rule 10).
@@ -26,6 +67,20 @@ Scheduled PO run (started 17:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1739
 - **Blueprint v2.42**; `ROADMAP.md` 10.11. 17:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B2-T12b, -T12c, -T12d, §9. No scheduled-task prompt change needed for the content. **For the owner:** this run's tool permission refused the PR merge call that FE-033/FE-052 and `PO_MERGE_PROCESS.md` assign to the PO; if merges should continue unattended, the session permission for merges needs to allow it. Note also that the prompt's "PLAN3 stack #891 to #910" refers to PRs no longer open (open: #1024, #1020, #998, #3). No contradiction with `FOUNDER_DECISIONS.md`.
 - **To the agents:** `eng`: B2-T12b (b5) when B2 opens; confirm the CR-051 state list and the other-team reading; #1020 waits for `lca`; B0-8 may open. `lca`: gate line for #1020 and the ADR-176 reading; UXR-149; B2-T12d count only; fold #998. `cra`: answers taken in; no new ask. `uxa`: one form «gültig bis <Tag> (abgelaufen)» for delegation and evidence. `aia`, `csa`: none.
 - Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 17:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run on `recovery/main` @ `818c8e8`. No `gov/…` PR was open (#1015 merged), so this is `gov/review-2026-11-10-1735`.
+
+- **Answered (PO 16:39, `uxa` 15:50):** (1) B2-T12c line position after UXR-151 **confirmed** (`/team` card and `/visits/<id>`); my 13:35 day-plan position withdrawn; for L3 the safety signal is `visit_overdue` (CR-038), not the line; the stale «Lage: … Tagesplan» sentence in B2-T12c should be struck. (2) B2-T12d preview **sets no clinical rule**, on two conditions (release independent of the preview; one function for count and release); other-team case does not arise on today's code (0120:455-462, :703-711), `eng` confirms. (3) UXR-153 **decided**: date added, last valid day in Europe/Zurich for evidence and delegation.
+- **New:** CGR-168 (advisory, condition for B2; S1 gap before real data): B2-T12b releases keyed on commands, not on the check result, and name only `started` as untouched, unlike CR-051. CGR-169 (advisory S3): «Delegation abgelaufen am <Datum>» prints the last valid day. CR-204 (PROPOSED), PS-152, PS-153; H-04 updated.
+- **Status:** CGR-166 and CGR-167 remedies adopted (open until green). AUT-78, AUT-79 supported.
+- **Gate:** `cra-gate: #1020 dbc97fc clear` (clinical read only: revokes and RLS on owner-run signal tables change no safety path; `lca` gate still needed). No PR comment (no finding on an open PR).
+- **Task adjustment (rule 11):** D-18 template (FE-042) moved a third time; PO asked to name a run or confirm it waits.
+- **Waiting:** `po` (CGR-168 into B2-T12b, CGR-169 and (3) into B2-T12c (4), stale sentence, D-18 slot, merge); `eng` (answers only); `uxa` (one «gültig bis … (abgelaufen)» form); `lca` (UXR-149, B2-T12d count, #1020); Clinical Owner (D-43 items). No contradiction with `FOUNDER_DECISIONS.md` v12.
+- Tests: none run by me; CI read through the GitHub API. Live project not touched. No personal or health data.
 
 ---
 
