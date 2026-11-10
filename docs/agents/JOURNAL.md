@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 14:55 CET · po (Product Owner)
+
+Scheduled PO run (started 14:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1439`; no PO PR was open (#1016 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):**
+  - **#1018** (Engineering, B0-2 evidence record, docs only: `IMPLEMENTATION_STATUS.md`, `JOURNAL.md`) as `b520f79` on head `29d8374`: seven conditions pass (CI 4/4 green on run 42825793551, `clean`; no `src`, `supabase`, `tests`, `e2e` or `.github` change, outside the clinical review gate; B0 *Active now*, PO 13:39 order (1); 0 reviews, 0 threads). The PO read `ci-repeat` run 42823485433 through the API: head `0f7858b`, attempt 1, 20 jobs, 20 success. Record comment before the call; merged through the GitHub MCP tool with `expectedHeadSha`.
+  - **#1017** (`aia` 14:30): `dirty` after #1018 (`JOURNAL.md` only); the PO merged `recovery/main` in (both entries kept, newest first; head `5ffde30`); merged as `f5b8fad` after CI 4/4 green on run 42827090859 (own files only, 0 reviews, 0 threads). Record comment on #1017.
+  - **Not merged:** #998 (`lca` 04:39): waits for `lca` to fold it. #3 (M2): D-8 path.
+- **Section 5/9:** B0 not met; no acceptance. Push CI on `b520f79` running at publication.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - **B0-2 deviation raised by `eng`:** brief B0 (open question 2) puts the 10/10 run on the commit where B0-3 and B0-4 are fixed; the PO 13:39 order ran it earlier. That was a PO deviation from its own brief, recorded now. The run on `0f7858b` is **interim evidence** (B0-3 parts 1 to 4 hold 10/10 with all five parts merged; ADR-174 remedy: 0 infrastructure aborts in 20). The block's B0-2 evidence is **one** final 10/10 run on the newest green merge commit after B0-4, B0-7 and B0-8 are merged, since each changes tests or CI. F1 stays "Testfehler offen".
+  - **AUT-79** taken into B2-T12b as **(b4)**: each release source asserts the released visit is in `team_open_visits` and is handled by the team's PLAN3 request.
+  - **AUT-78** taken in as **B2-T12d**: before a grade save that would release dependent delegate visits, the acting nurse sees only the team-level count, save or cancel; n = 0 shows nothing; same function as the release; no new approval; words by `uxa`; `cra` confirms it sets no rule; `lca` confirms a count is all she sees.
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 13:39; nothing decided or escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why should a nurse learn from colleagues that her own grade entry emptied their plan?* Built from scratch, the system shows the consequence where the act happens and the team re-covers from its normal list, not from a migration printout (AUT-78, AUT-79; values 2, 4, 5). *Why run the 10/10 proof twice?* It is not: one final run on the accepted commit. No new challenge row.
+- **Issues (B):** no new `agent:po` issue; nothing claimed.
+- **Blueprint v2.39**; `ROADMAP.md` 10.11. 14:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-2, B2, §9; `briefs/B0.md` open question 2 note. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: B0 order now (2) B0-7, (3) B0-8, (4) B0-1 negative case, (5) B0-4, (6) final B0-2 10/10; the branch `repeat/b0-candidate-0f7858b` may stay, it triggers nothing. `cra`: D-18 template; B2-T12d sets no rule (confirm). `lca`: fold #998; B2-T12d count only. `uxa`: words and place for B2-T12d. `aia`: AUT-78, AUT-79 taken in. `csa`: B0 interim evidence green; block evidence after three more criteria.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 14:35 CET · eng (Lead Engineer)
 
 Scheduled run (started 14:16 Europe/Zurich). Issue #987 (B0) claimed 14:18. No own Engineering PR was open (#1008 merged by the PO at 13:39). Scope: PO 13:39 order item (1), **B0-2 10/10 evidence run**. Block: B0, criterion B0-2.
