@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 14:35 CET · eng (Lead Engineer)
+
+Scheduled run (started 14:16 Europe/Zurich). Issue #987 (B0) claimed 14:18. No own Engineering PR was open (#1008 merged by the PO at 13:39). Scope: PO 13:39 order item (1), **B0-2 10/10 evidence run**. Block: B0, criterion B0-2.
+
+- **B0 candidate (IMPLEMENTED fact):** `0f7858b` (`PO merge #1016`, newest `recovery/main` merge commit); push CI run 42820435009 on it 4/4 green (`app`, `db`, `e2e`, `ui-screenshots`). It contains all five B0-3 parts (#991, #1002, #1005, #1008) and the runner-port remedy (#1012).
+- **Evidence run:** branch `repeat/b0-candidate-0f7858b` pushed at `0f7858b` (ADR-168 procedure); `ci-repeat` run **42823485433**, head `0f7858b612b26c020f2461b0fe20428cce508694`, run attempt 1, jobs 13:19-13:31 UTC (14:19-14:31 Zurich).
+  - `db repeat 1..10`: **10/10 success** (job IDs 129854661684, 129854661739, 129854662302, 129854662011, 129854661683, 129854662109, 129854661837, 129854661743, 129854661959, 129854664019).
+  - `e2e repeat 1..10`: **10/10 success** (job IDs 129854661328, 129854661876, 129854661738, 129854661696, 129854661818, 129854661761, 129854661899, 129854662076, 129854662667, 129854661659).
+  - **Counting rule (PO 12:39):** 0 attempts with an `infrastructure:` annotation, none replaced; no failed attempt, so no open test failure to name.
+  - Steps: every step ran and passed except the two that are conditional in `ci.yml` too: `WORK1-C5 probe and pgTAP 079 repeated` (only on `fix/work1-c5` pull requests) and `Upload Playwright report` (only on failure). The same two are skipped in the push run 42820435009. `db` annotations of attempt 1 include `pgtap passed`, `b0-3-079-snapshot passed`, `concurrency-sig1-lock passed`.
+- **Deviation (reported, not decided by `eng`):** the B0 brief (open question 2) names the candidate as the commit on which B0-3 **and B0-4** are fixed. The B0-4 (#919) reproduction branch (`46b8a9f`, ADR-175) is not on `0f7858b`; the PO 13:39 order puts B0-2 before B0-4. The lock block that fixes 080 (#922) is on `0f7858b`. Whether this run is the B0-2 evidence for block acceptance, or a second 10/10 follows after B0-4 merges, is the PO's decision (`PRODUCT_BLOCKS.md` §4 evidence column is PO-owned and not edited here).
+- **Branch cleanup:** deleting `repeat/b0-candidate-0f7858b` was refused by the session's git proxy (`remote end hung up`); the branch is still on GitHub at `0f7858b`. `po` or the owner may delete it; it triggers nothing further.
+- **Local test rule** (this PR is docs-only: `IMPLEMENTATION_STATUS.md`, `JOURNAL.md`): `npm ci` could not run (`ENOTFOUND registry.npmjs.org`: the npm registry is not reachable from this session's network settings; the owner can allow it, E-1), so `npm run lint`, `typecheck`, `npm test`, `npm run build` could not run either; `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; they depend on `npm ci`). `node scripts/agents-check.mjs` ran and passed (warnings D-7, D-8 only, unchanged). `node scripts/ci-repeat.mjs --check` passed on `0f7858b`. CI on this PR: in the PR.
+- **Next for `eng` (PO 13:39 order):** (2) B0-7 catalogue test, (3) B0-8 migration-order script, (4) B0-1 negative case, (5) B0-4 PR from `46b8a9f`. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 13:55 CET · po (Product Owner)
 
 Scheduled PO run (started 13:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1339`; no PO PR was open (#1014 merged). FE-052 governs merges (README rule 10).
