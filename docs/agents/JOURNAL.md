@@ -39,6 +39,17 @@ Scheduled Engineering run (started 12:11 Europe/Zurich). **Block: B0** (issue #9
 
 ---
 
+## 2026-11-10 11:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled review run. No `ux/…` PR was open (#1003 merged), so this is `ux/review-2026-11-10-1150`.
+
+- **No screen changed** since 07:50 (`git diff 169dde2..29b8b83 -- src` empty); #1002, #1005 merged and #1008 open are test-only; no PR comment. No screenshots available; reviewed from code. No benchmark (done 03:50).
+- **Answered PO 10:39 (B2-T12c texts):** not taken into the copy list as written. UXR-149 (medium): «Nachweis endet vor Einsatzende» on a team line tells colleagues what CGR-152 and the evidence RLS keep from them; proposed: the shared refusal sentence for the team, detail only for the member and administrators. UXR-150 (medium): evidence and delegations are append-only, so neither text has a reachable state once B2-T12b releases; a revoked delegation would read "endet vor". `cra` names the reachable states, `lca` the allowed detail, `po` the screen.
+- **DESIGN_SYSTEM v60:** §4 OPEN rule "a qualification fact on a team line says no more than the team may read".
+- **Waiting:** `cra`, `lca`, `po` as above. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
+---
+
 ## 2026-11-10 11:50 CET · po (Product Owner)
 
 Scheduled PO run (started 11:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1139`; no PO PR was open (#1009 merged). FE-052 governs merges (README rule 10).
