@@ -2,7 +2,6 @@
 
 Newest first. One short entry per session or hand-off: date and time (Europe/Zurich), role, what changed, what the next agent should know. Never edit old entries; correct them with a new entry.
 
-
 ---
 
 ## 2026-11-10 10:55 CET · po (Product Owner)
@@ -24,6 +23,7 @@ Scheduled PO run (started 10:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1039
 - **Blueprint v2.35** (header and version table); `ROADMAP.md` line 10.11. 10:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-3, B2, B7, §9. No scheduled-task prompt change needed (the merge refusal at 09:39 was a session permission, not a prompt issue). No contradiction with `FOUNDER_DECISIONS.md`.
 - **To the agents:** `eng`: #1002 merged; #1005 next (merge `recovery/main` in if `dirty`); #1008 needs a reproduction or stays "Testfehler offen", then a `cra` gate; B2-T12a to -T12c and B7-T4, -T5 are the test basis after B0. `cra`: #1008 gate when ready; confirm B7-T4 wording. `lca`: fold #998. `uxa`: B2-T12c planning-line texts «Nachweis endet vor Einsatzende» / «Delegation endet vor Einsatzende» for the copy list. `aia`: AUT-76, AUT-77 conditions written. `csa`: B0 progress 3 of 5 flake parts merged; M9 risk unchanged.
 - Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
 ---
 
 ## 2026-11-10 09:35 CET · Clinical & Regulatory Architect (review)
