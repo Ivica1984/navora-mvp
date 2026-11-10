@@ -278,6 +278,16 @@ Live session with the founder (not a scheduled run). The founder's message reorg
 
 ---
 
+## 2026-11-07 18:10 CET · eng (Engineering)
+
+Scheduled run, step A only (own open PRs); no issue claimed, no code change.
+- **#971 and #907** were `dirty` again after PO merges #974/#975; `recovery/main` (5541a54) merged into both (merge commit, no rebase, no force-push). #971: `JOURNAL.md` only, every entry kept, newest first. #907: `IMPLEMENTATION_STATUS.md` header only, newest *Last change* line from `recovery/main` kept and #907's escalation-rule line kept.
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs` ran and passed on both branches. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: could not run: npm registry blocked by the session's network settings (`registry.npmjs.org` does not resolve directly; through the proxy `CONNECT` returns 403). `npm run test:db` and `npm run e2e`: could not run (no npm dependencies, no Supabase CLI). Owner: please allow `registry.npmjs.org` in the session's network settings.
+- **CI (GITHUB CI RULE):** result of every job for the pushed heads goes in a comment on #971 and #907 once all jobs have finished.
+- **Not done this run:** issue #968 (NH-A1, `active`, unclaimed) waits for the next run, since step A did substantial work (end-of-run rule). Nothing merged by eng.
+
+---
+
 ## 2026-11-07 17:39 CET · po (Product Owner)
 
 Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open, so this run continues it instead of opening a second PO PR.
@@ -331,6 +341,16 @@ Scheduled review run. #965 (13:25) merged; no `gov/…` PR open, so this is `gov
 - **D-41 (FE-051, #973):** clinical input: KLV category, activity names, condition-naming signal kinds, holds, order status and ward residence are health data, not "planning facts"; pattern 1 needs a named allow-list. Rule A question stays with `lca`.
 - **Task adjustment (rule 11):** the NH-A1 gate and the `uxa` confirmations came first because they block a build gate; the D-18 template (FE-042) moves to the next run. No contradiction with `FOUNDER_DECISIONS.md` v10 (v11 in #973 read).
 - **Next:** `po` merges this PR and writes CGR-158 (1) and the CGR-159 wording into NH-A1; `cra` D-18 next run.
+
+---
+
+## 2026-11-07 17:10 CET · eng (Engineering)
+
+Scheduled run, step A only (own open PRs); no issue claimed, no code change.
+- **#971 and #907** conflicted with `recovery/main`; `recovery/main` (d9a8150) merged into both (no rebase, no force-push). #971: `JOURNAL.md` only, every entry kept. #907: newest `IMPLEMENTATION_STATUS.md` header kept plus its escalation rule line; every journal entry kept.
+- **CI (GitHub, all four jobs green):** #971 run 42390077142 head d4596f7; #907 run 42390118776 head 2f4d339. **#815** already green (run 42385260653, head b386c14), no conflict, untouched.
+- **Local:** `node scripts/agents-check.mjs` ran and passed. `npm ci` (and so lint, typecheck, vitest, build) could not run: npm registry blocked by the session's network settings (`registry.npmjs.org` connect_rejected by the egress proxy). `test:db` and `e2e` could not run (no Supabase CLI/Docker). **For `owner`:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **For `po`:** #971 may overlap #973 (FE-045 to FE-051); judge the overlap. Nothing merged by eng.
 
 ---
 
@@ -462,6 +482,17 @@ Scheduled PO run (15:39). There was no open PO PR; this is `po/cycle-2026-11-07-
 - **Dependencies:** T12 staging (D-2 provider pending), CI2 (minutes).
 - **Priority:** *Next up* 5.
 - **Implementation recommendation:** reuse the pgTAP RLS inventory as the case list against the HTTP API; host allow-list check first.
+
+---
+
+## 2026-11-07 15:30 CET · eng (Engineering)
+
+Begleitete Sitzung mit dem Owner (kein geplanter Lauf): Frage für Frage durch alles, was für eine produktive („scharfe“) Version nötig ist. Die Antworten stehen in [`../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md`](../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md).
+
+- **Owner-Antworten (Kurz):** D-7 höchste Stufe (Ruleset, Secret Scanning, Push Protection, privat per Stufenplan); eigenes Agenten-Konto (zwei Identitäten); FD-27 altes Projekt ganz löschen; npm-Registry freigeben; D-8 Variante B; D-2 Supabase Team Zürich + PITR 28 Tage, Schweizer App-Host, 99,9 % gemessen, RPO ≤ ca. 2 Min.; Backup CH, Überwachung, Fehler-Tracking, E-Mail CH/EU; Bereitschaft Owner + Pilotteam; Red-Team-Agenten + kleiner externer Test; Rechtsberatung gebündelt Q1 2027; KI-Muster 1-3 als Kern, Muster 4 (eigenes Modell in CH) vorbereiten, D-35 Regel A bleibt. **D-43 OPEN** (Owner liefert die Angaben).
+- **Nicht ausgeführt:** Repo-Einstellungen über die API (Proxy 403 „Repository settings writes are not permitted through this proxy“); der Owner schaltet sie per Klick-Anleitung ein. Das alte Live-Projekt wurde nicht berührt.
+- **Für `po`:** bitte neue FE-Zeilen in `FOUNDER_DECISIONS.md` und die Pakete D-2, D-7, D-8, D-41, FD-27, FD-28 nachführen; Red-Team-Agent und CI-Minuten-Reduktion als Items platzieren (Rule 1: Engineering schlägt vor, der PO entscheidet). **Widerspruch gemeldet:** der PO-Staging-Default „Render Frankfurt“ (D-2) widerspricht der neuen Owner-Antwort „Schweizer App-Host“.
+- Tests: nur `node scripts/agents-check.mjs` lokal (Ergebnis im PR); npm-Registry in dieser Session weiter gesperrt. CI-Ergebnis im PR. Keine personenbezogenen oder Gesundheitsdaten.
 
 ---
 
