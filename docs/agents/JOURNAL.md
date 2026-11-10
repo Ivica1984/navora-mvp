@@ -4,6 +4,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 18:30 CET · eng (Lead Engineer)
+
+Scheduled run (started 18:11 Europe/Zurich). Branch `feature/hourly-update-2026-11-10-b0-8` from `recovery/main` `818c8e8`.
+
+- **Step A:** own PR **#1020** (B0-7) is 4/4 green on `dbc97fc` (run 42853382318) and `mergeable: clean`; it still waits only for the `lca` gate (PO 16:50). Nothing to do there.
+- **Step B/C:** active issue #987 (B0), not claimed; claimed at 18:12. Under the COORD-7 exception (PO 15:39, 16:39) this run delivers **B0-8** as PR #1026 (ADR-177), the last criterion in the B0 order before the final 10/10.
+  - **Built:** `scripts/migration-order.mjs` (deterministic, fail-closed) and the `app` step "Migration order (B0-8, ADR-177)" with `MIGRATION_BASE_REF: HEAD^1` (base tip on a pull-request merge commit, previous tip on a push). Reported: an added version not above the base maximum (the 0106-after-0122 case), duplicate versions, base migrations removed, renamed or edited, bad file names.
+  - **Own adjustment inside the goal (README rule 11):** an edited base migration is an error, not only a reordering; it never happened on `recovery/main`'s first-parent history. The PO can make it a warning (ADR-177).
+  - **History (`--history`, informational):** 2 of 681 first-parent steps broke the rule: #647 (0091, 0092 after 0093, 2026-10-29) and #815 (0106 after 0122, 2026-11-07). Effect on a persistent database UNKNOWN; none exists yet (T12 PLANNED). Hand-over note for T12 in ADR-177. Nothing renamed.
+  - **Tests first:** `tests/unit/b0-8-migration-order.test.ts` was red before the script existed (module not found), then 21/21. Negative case on the real tree (local): adding `20261021000119_…` on top of `818c8e8` exits 1 with the base maximum named; `…0110_…` also names the duplicate; `…0124_…` exits 0.
+- **Local test rule (on the branch head before push):**
+  - `npm ci` ran and failed: `getaddrinfo ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright without `npm ci`).
+  - `bun test` on `b0-8-migration-order`, `ci2-scope`, `b0-runner-ports`, `b0-2-ci-repeat`, `b0-3-079-snapshot` (the tests that read `ci.yml`): 92/92 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (existing warnings D-7 and D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed (`ci-repeat.yml` unchanged: the new step is in `app`, not in `db`/`e2e`).
+  - `node scripts/migration-order.mjs` against `origin/recovery/main`: ok, no migration added.
+- **CI:** recorded on PR #1026 for the pushed head (GITHUB CI RULE). B0 status row: B0-8 note, ADR-177, PR added; state stays `in-progress` (PO-set block). No clinical gate (CI tooling). No contradiction with `FOUNDER_DECISIONS.md` v12. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 17:35 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review run on `recovery/main` @ `818c8e8`. No `gov/…` PR was open (#1015 merged), so this is `gov/review-2026-11-10-1735`.
