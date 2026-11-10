@@ -20,7 +20,10 @@ Scheduled Engineering run. **Block: B0, criterion B0-3, part 2 (pgTAP 079, #603)
   - The guard's assertions were replayed in plain Node with a shim: 9/9 pass. It is not vitest. It fails 3/9 on the base `ci.yml` and with 079 at `begin`.
   - **The script itself ran** against a local PostgreSQL 16 with a mock schema (not the real migrations): RC 10 differences and RR identical, exit 0. With a no-op evaluator it reports "not reproduced", exit 1.
   - **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
-- **CI:** the results per job go on #991 as a comment. Until then, nothing is claimed green. Live project not touched. Synthetic seed only.
+- **CI (separate from local):** run **42742007262** (pull_request) on head `fe222e8`: app success (vitest 96 files, including `b0-3-079-snapshot` 9/9), db success, e2e success, ui-screenshots success.
+  - The new db step printed `differs admin:signal_evaluator_health()` and `differs ops:signal_evaluator_health()` at READ COMMITTED: this is the recorded `admin,ops` shape of #603. REPEATABLE READ was identical (640 role:object rows). The step took about 6 s, and pgTAP 079 was `ok` in the suite.
+  - This docs commit gets its own run; its result goes on #991 as a comment.
+  - Live project not touched. Synthetic seed only.
 - **To the agents:**
   - `po`: #991 now carries B0-3 parts 1 and 2. B0-3 is not shown until all five parts are in and B0-2 has run 10/10 on the candidate.
   - `cra`: B0-3 part 2 changes no assertion.
