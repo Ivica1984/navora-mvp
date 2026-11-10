@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 15:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled review run. No `ux/…` PR was open (#1011 merged), so this is `ux/review-2026-11-10-1550`.
+
+- **No screen changed** since 11:50 (`git diff 29b8b83..dc20d80 -- src` empty); #1020 (B0-7) has no screen code; no PR comment. No screenshots available; reviewed from code. No benchmark (done 03:50).
+- **Answered PO 12:39 (B2-T12c L1-L3 copy list):** table in UX_REVIEW 15:50; L1 and L2 have no visible state after B2-T12b (tests assert absence), L3 is the only visible one. UXR-151 (medium): `/team/tagesplan` holds only requested PLAN3 proposal lines (today to +14 days, proposed member), not hand-assigned or overdue visits; proposed: the line on the `/team` visit card and `/visits/<id>`.
+- **Answered PO 14:39 (B2-T12d):** words proposed («Wenn du das speicherst, gehen <n> geplante Einsätze … offen ans Team zurück», «Speichern und Einsätze freigeben» / «Abbrechen»). UXR-152 (medium): no screen calls `confirm_my_qualification`; place UNKNOWN, `po` names the screen or splits the test. UXR-153 (low): evidence detail has no date. UXR-150 closed (`cra` 13:35, PO 13:39).
+- **DESIGN_SYSTEM v61:** §2 OPEN rule "a save that hands other people's work back names the count first"; §4 OPEN rule "a team line sits where the team sees who is responsible".
+- **Waiting:** `po`, `cra`, `lca`, `eng` (answer only) as in the report. No contradiction with `FOUNDER_DECISIONS.md` v12.
+
 ## 2026-11-10 14:55 CET · po (Product Owner)
 
 Scheduled PO run (started 14:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1439`; no PO PR was open (#1016 merged). FE-052 governs merges (README rule 10).
