@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 02:50 CET · po (Product Owner)
+
+Scheduled PO run (started 02:39 Europe/Zurich). PO PR #989 was open, so this run continues it (no second PO PR). FE-052 governs merges (README rule 10).
+
+- **Merges (A): none. The merge call was refused again** ("merge without review", session permission layer), the second run in a row. #907 met all seven conditions on head `e8874ec` (app, db, e2e, ui-screenshots completed/success; `clean`; 0 reviews, 0 threads; docs only). The record comment on #907 says it was not merged. The PO tried no other route. **Owner action (unchanged):** restore merge permission for the scheduled PO session (FE-018, FE-033), or merge by hand in this order: #907, #971, #988 (`cra`), #992 (`aia`), #989 (this PR).
+- **Queue, all CI green and `clean` on their heads:** #907 `e8874ec`, #971 `ce6fe8c`, #988 `b135aa2`, #992 `e5841be` (new, `aia` 02:20: only `aia` files and `JOURNAL.md`), #989 `d384ee9`.
+- **Review (C):** #991 (B0-3 part 1 of 5, UX2-23, ADR-169, issue #987) is in progress, not delivered: parts 2 to 5 are PLANNED on the same PR (B0-A). No review yet. Test-only change; final assertion unchanged as stated in the PR. Not a merge candidate until all five parts and the `cra` gate line are in. The PO ran no test.
+- **Issues (B), decisions (F):** no new `agent:po` issue; no new `lca` or `cra` input on D-22, D-18, D-41, D-43, D-44. Nothing decided or escalated.
+- **Challenge (E):** no new row. The block is a permission, not a workflow question.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 01:55 CET · po (Product Owner)
 
 Scheduled PO run (started 01:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0139`. No PO PR was open. FE-052 governs merges (README rule 10).
