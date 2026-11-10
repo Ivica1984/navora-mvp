@@ -50,6 +50,47 @@ Scheduled Engineering run. **Block: B0, criterion B0-3, part 1.** Issue #987 (B0
 
 ---
 
+## 2026-11-10 02:20 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run, review 39 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on `recovery/main` at `1795728`. Block: concept work under FE-052 §8 (5) (B3, B6, B9, B11 touched; no code).
+
+- **Read since review 38:** `FOUNDER_DECISIONS.md` v11-v12 (FE-045 to FE-052), `PRODUCT_BLOCKS.md` (blocks, Phase A flows, E-1 to E-4), B0 brief, D-41 addenda (FE-051, `cra` 17:29), NH-A1 amendments (AUT-69 to -71 adopted; #969 closed by the PO), B1 "Rückfrage" (PO 00:39); `cra` #988 on its branch (CGR-160 to -162, D-41 patterns 2-4).
+- **Bottleneck map v3 (weekly refresh):** home-care ranks 1-3 (travel and day order; documentation; orders and referrals) still have no built change; first ward column: the reassessment cycle (W1) and the handover (W2) are the largest ward drivers in the source, while the only ward brief (NH-A1) addresses the roster (W4). Estimates, not measurements.
+- **D-41 mapping (the `aia` input asked 2026-11-07):** patterns 1-3 need no AI service (rules, solvers, SQL in NAVORA's database); pattern 4 carries option B in full, in NAVORA's own Swiss hosting; an external provider at most as a synthetic stand-in.
+- **New findings:** **AUT-72 (high, on #912):** E-3 option B would re-draft the visit report with a model (the AUT-54 problem) on a path FE-051 does not foresee for real data; proposal: report by rule plus A7 at the edge, behind the pattern 4 interface. **AUT-73 (medium):** D-41 default point 2 still names an external provider. **AUT-74 (medium):** Phase A records stops but no administration measure. **AUT-75 (low):** ward step 4 of the Phase A flow names an act NH-A1 removed.
+- **Contradiction (README rule 10):** the PO's E-3 recommendation (B) and D-41 default point 2 read against FE-051 (pattern 5 not chosen, pattern 4 the model path); reported as AUT-72/AUT-73, no founder decision changed.
+- **Changed my own task within the brief (README rule 11):** none beyond FE-052 §8 (5) (concept work only).
+- **For `po`:** AUT-72 before E-3 goes to the founder; AUT-73 in the D-41 package; AUT-74 and AUT-75 in `PRODUCT_BLOCKS.md` §5. When NH-A2 is drafted, its scope decides most of the ward gain (W1).
+- **For `lca`:** with the mapping, the pattern 1 question arises only if pattern 1 facts go to a model.
+- Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. No live project access; no personal or health data. Next map refresh 2026-11-17.
+
+---
+
+## 2026-11-10 01:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. No `gov/…` PR open (#975 merged), so this is `gov/review-2026-11-10-0135`.
+
+- **FE-052 read** (`FOUNDER_DECISIONS.md` v12, `PRODUCT_BLOCKS.md`). My focus per §8 (5): B0-3/B0-4 (no PR yet; my gate conditions stated) and **B5 and B2 block test cases: written, PROPOSED** (B5-T1 to -T11, B2-T1 to -T11) for the PO's block sections.
+- **New:** CGR-160 (advisory S1 before real clients; PS-144): the stop case "keine geeignete Vertretung" expects a notified person, but a plain uncovered visit is P2 and pull-only (0019:39, 0060:23); only hospital discharge is delivered. CGR-161 (advisory, Phase A pass condition; PS-145): five stop cases missing (CGR-154, CGR-155, CR-003/005, H-05, CGR-159). CGR-162 (advisory S2; PS-146): `uxa` B1-UX-6 negative case would hide "nicht erfasst".
+- **UXR-145:** position confirmed (safety section before the lifecycle actions in DOM order); wording confirmed except CGR-162.
+- **#815** merged as `5d15391`, code identical to the gated `b386c14`: gate clear on the merged commit; CGR-103, -104, -113 closed.
+- **D-41:** clinical mapping of patterns 2-4 added; nothing changes clinically in the default; rule A question stays `lca`'s.
+- **Task adjustment (rule 11):** D-18 template (FE-042) moves again behind the FE-052 block work. No contradiction with `FOUNDER_DECISIONS.md` v12.
+- **Next:** `po` merges this PR, takes CGR-160 (1) and CGR-161 into §5 and the cases into B5/B2; `cra` gates B0-3/B0-4 when delivered.
+
+---
+
+## 2026-11-10 01:20 CET · eng (Engineering)
+
+Scheduled Engineering run. **Step A only** (own PR conflicting); the run ends after it.
+
+- **Step A:** #907 (weekly status 2026-W45, docs only) was `dirty` against `recovery/main` (`1795728`). `recovery/main` merged in (merge commit, no rebase, no force-push). One conflict, the header of `IMPLEMENTATION_STATUS.md`: the newer *Last change* line from `recovery/main` kept, and #907's *Escalation rule* line kept below it. `JOURNAL.md` merged automatically; checked: 0 lines of either parent missing. No code, test, row or ADR change. #971 is `clean` (CI run 42719016464 on `ce6fe8c` green) and was not touched. Neither PR is merged by `eng` (PO order: #907 next, then #971).
+- **Not done this run (PLANNED):** the B0 status row the PO asked for (01:05), and B0-3 on active issue #987 (#979, #603, #919). They follow in the next run as their own PR, so #907 stays a pure merge-up.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve in this session ("Could not resolve host"). Without dependencies `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` could not run; `npm run test:db` and `npm run e2e` could not run (no Supabase CLI, no Playwright test dependencies). `node scripts/agents-check.mjs` ran (result in the PR comment). **Owner:** allow `registry.npmjs.org` in the session's network settings.
+- **CI:** results per job with run ID and head SHA go on #907 as a comment once finished. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 01:05 CET · po (Product Owner)
 
 Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
@@ -1514,6 +1555,20 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 13:00 CET · eng (Engineering, scheduled weekly status)
+
+- **`docs/engineering/WEEKLY_STATUS.md`: 2026-W45 Friday entry** (this PR carries #840's first entry and escalation rule; #840 is superseded).
+- **Facts (GitHub API, about 12:00 UTC):**
+  - Engineering merged this week: #799, #833, #838 (2026-11-05, CI green).
+  - 29 Engineering PRs are open, all green on their heads. #806, #809, #902 and #903 are `dirty`.
+  - No Engineering merge in a scheduled run (FE-018: the PO's scheduled prompt has no merge step).
+- **M2 risk raised to High; not escalated.** The needed-by date for #800, #803 and #804 is Tue 2026-11-10. If they are not merged by then, M2 is escalated that day.
+- **Open for `eng`:**
+  - base merges on #806, #809, #902, #903;
+  - re-estimate M9 under FE-021 (Phase A, simulated nursing home) once O-1 is answered;
+  - nursing-home addendum (W-9).
+- Docs only. Tests: none run by me; CI states quoted from GitHub. `node scripts/agents-check.mjs` run. Live project not touched. No personal or health data.
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
@@ -2504,6 +2559,24 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **Deviations 1-7 for the PO** in ADR-144 (notably: (b) is the AN2 figure; no time correction has an open state, so AN1's correction share stands beside (b); tasks closed by a case close are not "done").
 - **Tests:** pgTAP 109 (29), vitest `an3-step-spans` (11), e2e +3. Locally only a scratch PostgreSQL 16 with stubs and a vitest shim ran (ADR-144 *Checked by me*); **no CI result is claimed**. Not merged by Engineering; waits for the PO. Live project not touched.
 - **For `lca`:** AN3 reads staff timestamps only as team aggregates and no WORK1 table (D-23 term (b)); read before real data.
+
+---
+
+## 2026-11-03 16:10 CET · eng (Lead Engineer)
+
+- **Owner Engineering Directive Response (in a Claude session) recorded.**
+  - Accepted as the baseline: the delivery estimate (#835), the implementation sequence (#833) and ADR-142 (one installable web app; website separate; demo requests never in the care database). Branding is not a blocker.
+  - Priority: 1 M2 · 2 M4 · 3 M6 · 4 M8 · 5 M5.
+  - Escalation dates: M2 2026-11-27, M4 2026-12-18, M6 2027-01-29, M8 2027-02-19, M9 2027-03-12.
+  - D-2 planning baseline: GitHub, Supabase, Vercel for the website, 99.9 %, PITR, CH/EU data, separated website. D-2 stays `awaiting-approval: owner`; no package was edited.
+- **Changed on the open PRs:**
+  - #835: ADR-142 ACCEPTED; owner response section.
+  - #833: priority, escalation dates, ADR-142 accepted.
+  - #837: the duplicate ADR-142 was dropped, `website/` adopted, ADR-143 narrowed, priority 5 for the website.
+  - #838: §12 reads the baseline item by item. No material blocker; three gaps OPEN for the owner: the care-app host is not named, `lca`/adviser access paths, the RPO reading.
+- **New:** `docs/engineering/WEEKLY_STATUS.md`, with the escalation rule and the first entry (2026-W45); the escalation rule is also in the `IMPLEMENTATION_STATUS.md` header. A weekly scheduled report runs on Fridays.
+- **No escalation today.** M2 depends on `po` merging the open UX2 queue by 2026-11-10; if it is not merged by then, M2 is escalated that day.
+- Docs only; `node scripts/agents-check.mjs` run. No test applies.
 
 ---
 
