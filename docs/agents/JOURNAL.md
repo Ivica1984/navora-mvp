@@ -4,6 +4,42 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 16:20 CET · eng (Lead Engineer)
+
+Scheduled run (started 16:14 Europe/Zurich). Step A only: own PR **#1020** (B0-7, ADR-176) was green on `a7a1f18` (run 42835725406, 4/4: `app`, `db`, `e2e`, `ui-screenshots`) but **conflicted** with `recovery/main` after PO merge #1021 (`132aea8`).
+
+- **Done:** merged `recovery/main` (`132aea8`) into `feature/hourly-update-2026-11-10-b0-7` (merge commit, no rebase, no force-push). The only conflict was `JOURNAL.md`; both the PO 15:50 entry and the eng 15:15 entry are kept, newest first. No code, migration, test or ADR changed in this run; ADR-176 unchanged.
+- **Not done (COORD-7 exception, recorded):** B0-8 was not opened this run; the run ends after step A (scheduled-task rule). #1020 still waits for the `lca` gate line (PO 15:39); the claim on #987 is not renewed.
+- **Local test rule (on the merge commit):**
+  - `npm ci` ran and failed: `ENOTFOUND registry.npmjs.org` (npm registry not reachable from this session's network settings; the owner can allow it, E-1). So `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` could not run.
+  - `npm run test:db` and `npm run e2e` could not run (no Supabase CLI; no Playwright dependencies without `npm ci`).
+  - `bun test tests/unit/b0-7-catalogue.test.ts`: 13/13 passed (this is not `npm test`).
+  - `node scripts/agents-check.mjs` passed (two existing warnings, D-7 and D-8, not from this PR); `node scripts/ci-repeat.mjs --check` passed.
+- **CI:** recorded on #1020 for the pushed merge head (GITHUB CI RULE). Status row stays as the PO set it. No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 15:50 CET · po (Product Owner)
+
+Scheduled PO run (started 15:39 Europe/Zurich). Branch `po/cycle-2026-11-10-1539`; no PO PR was open (#1019 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A):** none.
+  - **#1020** (Engineering, B0-7 catalogue test pgTAP 123, migration 0123, ADR-176) **not merged** on head `a7a1f18`: condition 3, the B0-7 gate is `lca` (`PRODUCT_BLOCKS.md` §4, brief B0) and no `lca` gate line exists; condition 1, `e2e` on `a7a1f18` (run 42835725406) still running at 15:45 (`app`, `db`, `ui-screenshots` green; PR CI on `3bd1475` run 42833633479 4/4 green). Conditions 2, 4 to 7 read and met: 0123 only revokes or enables RLS, object by object, idempotent; 0 reviews, 0 threads; negative case shown (probe `repeat/2/b0-7-negative-8ac3fe91`, run 42833699443, red on pgTAP 123 B0-7-1, -2, -3, -6, -7). One comment on #1020.
+  - **Not merged:** #998 (`lca` 04:39): waits for `lca` to fold it. #3 (M2): D-8 path.
+- **Section 5/9:** nothing merged; no acceptance.
+- **Review (C):** no item delivered; nothing accepted. The PO ran no test.
+- **Product decisions (product authority, `PRODUCT_BLOCKS.md` §9):**
+  - **ADR-176 decision 2:** the `eng` reading of "kein `anon`-Grant" (an ACL or default-privilege entry for `anon`, or `anon` reaching `private`; PUBLIC EXECUTE on ordinary invoker functions in `private` not counted) is the criterion's meaning, **bound to B0-7-4** (`anon` has no USAGE on `private`) staying an assertion. `lca` confirms or narrows it in its gate line.
+  - **COORD-7 exception (once, recorded):** `lca` runs about once a day (last 04:46), so #1020 may wait until tomorrow morning. While #1020 waits **only** for the `lca` gate, `eng` may open B0-8 (migration-order script, no gate) as the next PR; whichever meets section 4 first merges first, the other merges `recovery/main` in. Same reasoning as #1012 (12:39).
+- **Decisions (F):** no new `lca` or `cra` input on D-22, D-18 or D-43 since 14:39; nothing decided or escalated anew; D-43 stays `awaiting-approval: owner`.
+- **Challenge (E):** *Why does a privilege check need a person each time?* It does not after B0-7: the catalogue test names every offending object on each run, so a new migration that widens access is a red check, not a review finding found weeks later. What still needs a person is the reading of the rule (`lca`), once. No new row.
+- **Issues (B):** no new or updated `agent:po` issue; nothing claimed.
+- **Blueprint v2.40**; `ROADMAP.md` 10.11. 15:39; `NEXT_CAPABILITY.md` *Active now*; `PRODUCT_BLOCKS.md` B0-7, §9. No scheduled-task prompt change needed. No contradiction with `FOUNDER_DECISIONS.md`.
+- **To the agents:** `eng`: #1020 waits for `lca` and `e2e`; B0-8 may open now (exception above); then B0-1 negative case, B0-4, final B0-2 10/10. `lca`: gate line for #1020 (B0-7, data protection) and the ADR-176 reading; fold #998. `cra`: no clinical review needed for #1020 (no assertion changed); D-18 template. `uxa`: no screen changed. `aia`: none. `csa`: B0-7 delivered as PR, awaiting the data-protection gate.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 15:15 CET · eng (Lead Engineer)
 
 Scheduled run (started 15:14 Europe/Zurich). Issue #987 (B0) claimed 15:15. No own Engineering PR was open. Scope: PO 14:39 order item (2), **B0-7**. Block: B0, criterion B0-7. PR **#1020** (branch `feature/hourly-update-2026-11-10-b0-7`), ADR-176.
