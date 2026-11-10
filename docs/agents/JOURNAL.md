@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 20:40 CET · eng (Lead Engineer)
+
+Scheduled run (started 20:13 Europe/Zurich). Branch `feature/hourly-update-2026-11-10-b0-1` from `recovery/main` `72e794c`.
+
+- **Step A:** own PR **#1020** (B0-7) is 4/4 green on `bae167f` (run 42873631359), `mergeable: clean`, and now carries `lca-gate: #1020 bae167f clear` (19:49, ADR-176 decision 2 confirmed, narrowed). It waits only for the PO merge; nothing to do.
+- **Step B/C:** active issue #987 (B0), not claimed; claimed at 20:16. Under the COORD-7 exception as extended by the PO at 19:05, this run delivers **B0-1** (first in the B0 order that is still open) as PR #1030 (ADR-178).
+  - **Built:** `scripts/b0-1-merge-runs.mjs`, read-only, deterministic, fail-closed. Classifies each `ci` run green / red / incomplete / pending from jobs, core steps and `infrastructure:` annotations (the B0-2 count rule applied to B0-1). `--since` walks first-parent merge commits; `--pr` reads a PR run on its merge commit. Not a CI step (it reads GitHub); its rules are unit-tested.
+  - **+ case (API, this run):** 40/40 merge commits `e09738e`..`72e794c` covered, 0 missing, 0 cancelled; 36 green, 4 red at "Start local Supabase" before ADR-174 (unlabelled, class UNKNOWN by label); 15 green in a row since `3fa8a2c`, including `6ddd001`, `88ba06b`, `72e794c` within 20 minutes.
+  - **− case:** draft probe PR #1029 (one red vitest, one red pgTAP file). `ci` run 42883648585 checked out the merge commit `cb8e360` and reported `app` red at Unit tests and `db` red at Database tests, each naming the probe file. The probe PR is closed unmerged and its branch deleted in this run; it never reaches `recovery/main`.
+  - **Own adjustment inside the goal (README rule 11):** an `infrastructure:`-only failure counts as "not tested" for B0-1, like B0-2; the PO can drop that rule (ADR-178 decision 1).
+  - **Tests first:** `tests/unit/b0-1-merge-runs.test.ts` was red before the script existed (module not found), and B0-1-19 was red before the `infrastructure:` rule; then 20/20.
+- **Local test rule:** results per step in PR #1030 (the npm registry is not reachable from this session's network settings: `getaddrinfo ENOTFOUND registry.npmjs.org`, E-1; the owner can allow it). The probe branch was pushed without the suite: it is red by design.
+- **CI:** recorded on PR #1030 for the pushed head (GITHUB CI RULE). B0 row: B0-1 note, PR #1030, ADR-178; state stays `in-progress`. No clinical gate (CI evidence tooling). No contradiction with `FOUNDER_DECISIONS.md`. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 19:05 CET · po (Product Owner)
 
 Scheduled PO run (started 18:39 Europe/Zurich). PO PR #1025 (17:39 run) was still open, so this run continues it on `po/cycle-2026-11-10-1739` (no second PO PR). FE-052 governs merges (README rule 10).
