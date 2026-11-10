@@ -16,6 +16,126 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-10 01:35 CET: **FE-052 (product blocks)** read; **B5 and B2 block test cases PROPOSED** (FE-052 §8 (5), `cra` task); **Phase A stop-case table** (`PRODUCT_BLOCKS.md` §5) checked against the code: new **CGR-160** (advisory **S1** before real clients: the stop case "keine geeignete Vertretung" expects a notified person, but a plain uncovered visit is P2 and pull-only, never delivered), **CGR-161** (advisory, condition for Phase A passing: five stop cases with an open S1 finding or an existing control are missing) and **CGR-162** (advisory S2: `uxa` B1-UX-6 would hide the "nicht erfasst" safety notes); **UXR-145** answered; B0-3/B0-4 not yet delivered (my gate conditions stated); D-41 clinical mapping of patterns 2-4
+
+**Scope:** `recovery/main` @ `1795728`. **Trigger:** merged since my 17:29 section: #975 (mine), #815 (ASM1-C6, `5d15391`), #973, #974, #978 (FE-052, `PRODUCT_BLOCKS.md`, inventory), #980 (CI2/B0-1), #983 (`uxa` 19:55), #984, #985 (B0-2 repeat mechanism), #986 (PO 00:39: B0 brief approved). Open: #971 (owner session notes, docs), #907 (weekly status, docs), #3 (M2). **No clinical, legal or owner decision answered by a person in my area** (D-22, D-18, D-41, D-43, D-44 unchanged; FE-052 is a founder direction on working method, recorded in `FOUNDER_DECISIONS.md` v12).
+
+I read: `git diff ea6f7b06 1795728 --stat` and the diffs of `FOUNDER_DECISIONS.md` (v11, v12), `PRODUCT_BLOCKS.md` §0-§8 in full, `briefs/B0.md`, `OPEN_DECISIONS.md` (D-2, D-7, D-8, D-41), `decisions/D-41.md` addenda, `UX_REVIEW.md` 19:55 (UXR-143 to -145, B1-UX/B4-UX cases), JOURNAL 07.11. 17:39 to 10.11. 01:05. Code read for the stop cases: `supabase/migrations/20261021000019_operations_exceptions.sql:37-39`, `…0060_sig1_safety_signal_delivery.sql:4-23, 165-176, 258-272`, `…0044_csr1_correction_and_uncovered.sql:84, 167-177`, `src/app/(protected)/field/field-client.tsx:548-606`, `src/features/door/rules.ts:22, 59, 116`. **#815 merged code:** `git diff b386c14 5d15391 -- src supabase tests` is **empty**, so the merged ASM1-C6 equals my gated head. `git diff 5d15391 1795728 -- src supabase tests` touches only `tests/unit/b0-2-ci-repeat.test.ts` and `tests/unit/ci2-scope.test.ts` (CI, no clinical assertion).
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data. No CI result below was produced by me.
+
+### Task adjustment (README rule 11)
+
+FE-052 §8 (5) sets my focus until B0 is accepted: read B0-3 and B0-4, then prepare block test cases for **B5** and **B2**. B0-3 and B0-4 have no PR yet, so this run writes the B5 and B2 cases and checks the Phase A stop cases, which those blocks must prove. **The D-18 template (FE-042) moves again**, after the B5/B2 cases; it blocks no build (BILL1 is not built and frozen by FE-052). No founder decision, scope or other role's item changes. **Contradiction check:** none between my prompt and `FOUNDER_DECISIONS.md` v12. FE-052 §8 (6c) (gate line on the *merged* commit, reviews per block) is a proposed prompt change for the owner; I apply it now where it is stricter than my prompt (gate lines below name the merged commit when one exists).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-160** | `PRODUCT_BLOCKS.md` §5 stop case "keine geeignete Vertretung" (B3); H-01 | **advisory, S1** before real clients (for Phase A: the stop case must state what the code does) | The expected behaviour says "eine Person im Team ist benachrichtigt"; the table marks the notification UNKNOWN. **From the code:** a plain uncovered visit is `visit_uncovered`, **P2**, look-ahead 24 h, `escalate_to_p1_after_hours` **null**; SIG1 delivers only what is P1 by the effective rule, and "P2 and P3 stay pull-only". So nobody is notified: the visit is listed on `/team` and in OPS1 and closes only with its cause (CGR-22). Only `visit_uncovered_hospital` (hospital discharge) is **P1** and delivered. A test written to the present wording would either fail or be bent to pass on a list entry | 0019:37 (`visit_uncovered_hospital`, P1, 24 h), 0019:39 (`visit_uncovered`, P2, 24 h, escalation null); 0060:5-6, :23 ("P2 and P3 stay pull-only"), :173-174; 0044:167-177 (closes only with its cause); IMPLEMENTATION_STATUS SIG1 row | **(1)** `po` rewrites the stop case to the implemented behaviour: "Besuch bleibt sichtbar *ohne Zuständige* auf `/team` und in OPS1 (P2, schliesst nur mit der Ursache); **keine Zustellung** an eine Person, ausser bei Spitalaustritt (P1)". **(2)** Block test (pgTAP, pinned clock): an uncovered visit 23 h ahead appears in OPS1 and writes **no** `safety_signals` row; the same visit with `visit_uncovered_hospital` writes one episode and one delivery per recipient. **(3)** Whether a plain uncovered visit must reach a person, and when, is a **Clinical Owner** rule (D-28 thresholds, D-43); **UNKNOWN**, not set by `cra` or `po`. Until it is set, the *Nicht überwacht* text carries "Ein Einsatz ohne Zuständige wird nur angezeigt, nicht gemeldet (ausser Spitalaustritt)" (Vitest on the constant) |
+| **CGR-161** | `PRODUCT_BLOCKS.md` §5 stop-case table (Phase A pass condition, FE-052 (6)) | **advisory**; **condition for Phase A passing** (not for any merge) | FE-052 (6) makes the stop cases the test of Phase A. Five cases where NAVORA must not carry on are missing, although each has an open S1 finding or an existing control: **(a)** a start refused for qualification (QUAL1) leaves the visit assigned and nobody is alerted (CGR-154, PS-137); **(b)** a lapse found at resume stops care half done, nobody alerted (CGR-155, PS-139); **(c)** a category B service without a medical order `present` (CR-003; after the end date allowed and flagged, CR-005; ORD0-4 `order_without_end_date`); **(d)** a report not final or a correction open: no billing fact (H-05, `report_correction_open`); **(e)** on the ward, a resident with nobody in the current shift (CGR-159, PS-143). Without them a Phase A protocol can pass while these paths are untested | `PRODUCT_BLOCKS.md` §5 (eight rows); report 07.11. 05:45 (CGR-154), 09:25 (CGR-155), 17:29 (CGR-159); CR-003, CR-005 (Clinical Rule Register); IMPLEMENTATION_STATUS ORD0 row | `po` adds the five rows with expected behaviour and a "heute" column from the code: (a), (b) **"Lücke, kein Alarm" (CGR-154/155 open)**; (c) IMPLEMENTED for planning (CR-003), flagged after expiry (CR-005, UNVALIDATED); (d) IMPLEMENTED (H-05 controls); (e) **PLANNED** (NH-A1). A row whose control is missing stays **"nicht nachgewiesen"**, and Phase A is not passed with a stop case untested or failing. The expected behaviour of (a), (b) and (e) is UNKNOWN until the Clinical Owner sets it; the test records what happens today |
+| **CGR-162** | `uxa` B1-UX-6 negative case ("A case without notes shows no empty 'Sicherheitshinweise' box"); UXR-145 | **advisory, S2** | Hiding the section when no value is recorded turns "**not recorded**" into "**nothing to know**". DOOR1-4 shows each safety-alert category with "nicht erfasst" when no value was ever recorded, which tells the nurse that nobody asked (H-03: allergy, fall risk, infection precaution, access). The proposed negative case would remove that | `field-client.tsx:548-571` (section rendered for every case, one row per category); `src/features/door/rules.ts:22` (`NOT_RECORDED = "nicht erfasst"`), :59, :116; DOOR1-4 (0073) | B1-UX-6 negative case reads: "**Für einen Fall ohne erfasste Werte steht die Sektion trotzdem da; jede Kategorie zeigt «nicht erfasst»**" (e2e at 390 × 844: a new synthetic case with no values shows the section and one "nicht erfasst" per category, above «Losfahren»). Category names and values stay D-17 (Clinical Owner) |
+
+### Phase A stop cases (`PRODUCT_BLOCKS.md` §5), row by row against the code
+
+| Stop case | Table "heute" | `cra` reading of the code (not a block test) |
+|---|---|---|
+| keine geeignete Vertretung | in Teilen; Benachrichtigung UNKNOWN | **pull-only P2, no notification** except hospital discharge (CGR-160) |
+| fehlender/abgelaufener Nachweis | IMPLEMENTED in der Simulation | agrees (0120/0121); **but** refusal at start leaves the visit assigned, no alert (CGR-154 open) |
+| fehlende Delegation | IMPLEMENTED in der Simulation | agrees; a delegation dated after the visit no longer covers it (CGR-150 met at `50e372a`) |
+| ungeklärte Regel (`unresolved`) | IMPLEMENTED; Anzeige zu prüfen | agrees; the display check belongs to B2-T4 below |
+| widersprüchliche Zeiten | IMPLEMENTED für Besuche; Abrechnung PLANNED | agrees; offline times (BL-21, CGR-122) are a further cause, PLANNED (ADR-143) |
+| mögliche Doppelabrechnung | PLANNED | agrees |
+| Sicherheitssignal ohne Reaktion | IMPLEMENTED; 080 siehe B0-4 | agrees for P1 only; the step to Operations after `signal_untaken` (15 min, PROVISIONAL, D-28) and SIG2-5 (no `sent` in 2 min) exist; **counts as passed only under the stability rule** (B5-T7, B5-T9) |
+| KI-Vorschlag ohne Bestätigung | IMPLEMENTED für AIG1 | agrees; Doku-Entwurf PLANNED |
+
+### B5 block test cases (PROPOSED; for `PRODUCT_BLOCKS.md` §3 part 3)
+
+Every threshold below is **PROVISIONAL** (D-28) and **not** clinically approved; the block section must carry "klinische Freigabe: nicht erteilt". Each case is positive (+) and negative (−). Existing evidence is named so `eng` can see what is new; existing does **not** mean shown on the B0 candidate.
+
+| Case | Criterion | + / − | Test type | Existing evidence |
+|---|---|---|---|---|
+| **B5-T1** | A P1 visit signal reaches a person | + for each kind (`visit_overdue`, `visit_stuck`, `visit_uncovered_hospital`, `visit_interrupted`, `no_show`): one episode and one delivery per recipient (responsible member, present team members; Operations when nobody of the team is on duty) / − a P2 or P3 writes no episode; an absent member (ABS1) gets no delivery | pgTAP; e2e 390 and desktop | 062, `signals.spec.ts` |
+| **B5-T2** | Exactly once per episode | + repeated evaluation writes no second delivery; the episode ends with its cause and a new cause opens a new episode / − a hand close does not end it (CR-041) | pgTAP | 062 |
+| **B5-T3** | A take is attributable and limited | + "Ich übernehme" audited, idempotent (`duplicate`); for `no_show` and `visit_interrupted` only a registered nurse of the team, the covering registered nurse or Operations stops the step / − non-recipient `rejected`; a care assistant's take does not stop the step ("Meldung an Operations folgt"); a take by a person whose access has ended stops nothing | pgTAP | 065 (SIG1-C1), 078 (LEAVE1-14) |
+| **B5-T4** | Untaken goes up | + untaken after `signal_untaken` → Operations once / − not before the threshold; never twice | pgTAP at pinned clocks | 062 |
+| **B5-T5** | Outside delivery fails safe | + no `sent` within 2 min → `outside_none_at` and Operations at once / − an Operations push outside a watched period is `outside_working_time`, the in-app delivery stays | pgTAP at fixed instants (03:00, 12:00, 17:59, 18:00, 19:30, 22:30) | 064 |
+| **B5-T6** | A stopped evaluator is visible | + no scheduled run for 5 min → "Signalprüfung läuft nicht" on `/operations` and `/admin`, "aktiv" gone on `/team`, `/settings` / − page polls do not count as a run | pgTAP; e2e | 064 (SIG2-11) |
+| **B5-T7** | Fallback routing | + an organisation with no team member on duty and no Operations user reaches its administrator / − a coach never receives | pgTAP, **10/10 on the B0 candidate** at 03:00 and 20:00 Zurich (PS-99) | 062 tests 47, 50 |
+| **B5-T8** | Clock-change nights | + overdue, P1 and the step to Operations at the right instant on 2026-10-25 and 2027-03-28 / − no hour early or late | pgTAP at fixed instants | 068, 070 (DST1) |
+| **B5-T9** | No lost or doubled delivery under concurrency | + evaluation while a second session holds the SIG1 lock neither drops nor doubles a delivery, also with a forced cron run (B0-4) / − before #922 the repro is red | concurrency script, pgTAP | 080; B0-4 (not delivered) |
+| **B5-T10** | No client data in a signal | + episode, delivery and push payload carry kind, visit id and fixed text only / − no client name, free text or health value in any column or payload | pgTAP catalog check; vitest on the payload | 062 (by design), 064 |
+| **B5-T11** | Plain uncovered visit (CGR-160) | + listed on `/team` and OPS1 as P2 / − writes no `safety_signals` row (records today's behaviour until the Clinical Owner sets a rule) | pgTAP | none |
+
+**B5 cannot be accepted while** B5-T7 and B5-T9 lack 10/10 (or a reproduced and fixed cause) on the candidate commit (§3 stability rule), or while B0-4 is open.
+
+### B2 block test cases (PROPOSED)
+
+The matrix values (QAM v0.2, 115 cells) are **PROPOSED**; the block section must carry "klinische Freigabe: nicht erteilt" (D-27, G-1). Simulation organisation only (QUAL1-1).
+
+| Case | Criterion | + / − | Test type | Existing evidence |
+|---|---|---|---|---|
+| **B2-T1** | Matrix only in the simulation | + in a simulation organisation the matrix decides / − outside it, the old `private.may_perform_visit` result exactly, for every seed visit and member | pgTAP | 121 |
+| **B2-T2** | Every path asks the check | + an allowed member passes on each path / − each refusal reason (`evidence_missing`, `evidence_expired`, `evidence_contradictory`, `delegation_missing`, `delegation_expired`, `unresolved`) refuses on **every** path: take, hand assignment, PLAN2 series, swap (both sides), cover, ABS1 re-assignment, AIG1 confirm, PLAN3 proposal, direct write (backstop), activity added to an assigned visit, depart and start | pgTAP (one row per path × reason) | 121, 122 |
+| **B2-T3** | `verified` cannot be self-made | + only the simulation's verify path sets `verified` / − any user, command or non-simulation organisation is refused | pgTAP | 120 |
+| **B2-T4** | `unresolved` never counts as allowed | + shown as "ungeklärt" with the activity name / − never allowed, never hidden | pgTAP; vitest; e2e 390 | 120; display **not tested** |
+| **B2-T5** | No delegation after the fact | + a delegation valid at the visit's start covers it / − one recorded or valid from after the start does not (CGR-150) | pgTAP | 120 (`50e372a`) |
+| **B2-T6** | Fallback activity carries no extra grade | + the A1/B13 fallback requires the strictest grade / − no grade carries KLV-A minutes or an unlisted visit by fallback (CGR-149) | pgTAP | 120 |
+| **B2-T7** | Refused start leaves no silent gap (CGR-154) | + after a refused start the visit is released to the team **or** a person is alerted / − today: stays assigned, no alert → **expected to fail; Testfehler offen** until QUAL1 part 2 delivers | pgTAP | none |
+| **B2-T8** | Lapse at resume (CGR-155) | + the gap is recorded with a reason and reaches a person / − today: care stops half done, nobody alerted → **Testfehler offen** | pgTAP | none |
+| **B2-T9** | One failing case does not stop the daily run (CGR-153) | + the run completes for every other case and organisation, the failing one is listed / − one refusal rolls back the whole run | pgTAP | 122 covers the PLAN2 series repair only |
+| **B2-T10** | Reasons stay with the right people | + member, admins and the system see the reason / − colleagues see "nicht zugelassen" without the reason (CGR-152) | pgTAP (RLS) | 121 |
+| **B2-T11** | One text per reason | + each reason has one German text, activity in words, banner "Regel vorläufig, nicht fachlich freigegeben" / − no code shown, no "Diese Person darf" | vitest | `qual1-21-one-text` |
+
+**PLANNED parts that keep B2 *nicht abnahmebereit*:** release on lapse (QUAL1-4, QUAL1-17 second half), contradiction notice (QUAL1-5), QUAL1-20 inheritance, CGR-151 (K-7, K-4 strict defaults), NH-EXT (QUAL1-18). Either they are built and tested, or the block section scopes them out by name.
+
+### B0-3 and B0-4 (my gate, not yet delivered)
+
+No PR yet. When `eng` delivers, I check on the PR head and the merged commit: **B0-3** the F1 countersignature e2e and UX2-23 (contract end = access end) keep every clinical assertion (no `skip`, no wider timeout used as the fix without a named cause, no expected value relaxed); **B0-4** 062, 078 and 080 keep their assertions, the repro is red on the pre-#922 state and green today, and if not reproducible the cause stays **UNKNOWN** and B5 stays *Testfehler offen*.
+
+### UXR-145 (`uxa` 19:55, addressed to `cra`)
+
+- **Position: confirmed.** The "Sicherheitshinweise" section stands before the lifecycle actions in DOM order (`field-client.tsx:551` before `:606`), so the B1-UX-6 positive case ("before «Losfahren», inside the first viewport of the card") matches the code's order; the viewport part needs the e2e.
+- **Wording:** "Sicherheitshinweise" and "nicht erfasst" confirmed clinically. The negative case is not (CGR-162).
+
+### D-41 (FE-051): clinical mapping of patterns 2-4 onto option B (advisory, D-27)
+
+Pattern 1 was answered 17:29 (allow-list of fields with a `cra` line each). The rest, clinically:
+- **Pattern 2 (team measures only):** no client content leaves; the clinical condition is the existing AN1 small-count suppression and "never per person" (AN1, D-23). A measure whose name carries a condition is health data about a small team's clients; each measure needs the same `cra` line as a pattern 1 field.
+- **Pattern 3 (report by rule, no AI; E-3 option A):** no AI gate, but hazard H-14 stays: the generated text must contain **every** structured fact entered, once, and **nothing** not entered (vitest per field), and human release (F7) is unchanged.
+- **Pattern 4 (own model, synthetic first):** option B's entry gate applies unchanged (evaluation on synthetic cases with the Clinical Owner's bar, `cra` gate, human release). The bar is **UNKNOWN** (Clinical Owner); the omission of a fall, pain, wound, refusal of care or change in condition is what it must measure (D-41 *Clinical impact* 2).
+- **What changes in the recommended default:** nothing clinically. Whether pattern 1 stays inside rule A is `lca`'s.
+
+### Gate status
+
+| Item | Status |
+|---|---|
+| **#815** ASM1-C6, merged as `5d15391` | **clear on the merged commit** (code identical to gated `b386c14`); no clinical approval; not a block acceptance (FE-052) |
+| B0 brief (`1795728`) | no clinical content; gates for B0-3, B0-4 above |
+| #971, #907 | docs only; no clinical rule |
+| `PRODUCT_BLOCKS.md` §5 | CGR-160, CGR-161 for `po` |
+
+cra-gate: #815 5d15391 clear (merged commit)
+
+### Decisions requested
+
+- **`po`:** CGR-160 (1) and CGR-161 in `PRODUCT_BLOCKS.md` §5; take the B5 and B2 cases into the block sections; CGR-162 to `uxa` for B1-UX-6.
+- **`eng`:** B0-3 and B0-4 as stated; B5-T11 and B2-T7 to -T9 are new tests.
+- **Clinical Owner (once named, D-43):** whether a plain uncovered visit must reach a person and when (CGR-160 (3)); expected behaviour of CGR-161 (a), (b), (e); the evaluation bar for pattern 4.
+- **`lca`:** pattern 1 and rule A (unchanged ask).
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-103, CGR-104, CGR-113 | closed on merge (as announced 17:29) | `5d15391` code = `b386c14` (`git diff` empty) |
+| CGR-158, CGR-159 | open; NH-A1 frozen as a feature (FE-052) | `briefs/NH-A1.md` |
+| CGR-153, CGR-154, CGR-155, CGR-151 | open; now B2-T7 to -T9 | unchanged |
+| CGR-156, CGR-157 | open (ORD1-C1, -C2) | unchanged |
+| All other CGR findings | unchanged | as at 17:29 |
+
+---
+
 ## 2026-11-07 17:29 CET: **NH-A1 brief** (amended 14:39, AUT-69 to -71) reviewed for its build gate (a): **`cra` gate line clear for the Phase A synthetic build, with one condition** (CGR-158 (1) written into the brief or the NH-A1 ADR before slice 1); new **CGR-158** (advisory **S1** before Phase B: the continuity default and the recurring pattern can mark a resident *covered* by a member who is not on the ward, which silences the only gap control) and **CGR-159** (advisory **S1** before Phase B: a resident without anybody in the *current* shift has no priority, no escalation and no owner of that rule); answer on the **acknowledgement question** (UNKNOWN, Clinical Owner; no team confirm act needed now); `uxa` UXR-139 to -142 answered; **#815** re-cleared at `b386c14`; D-41 (FE-051) clinical input on what counts as a "planning fact"
 
 **Scope:** `recovery/main` @ `d9a8150`. **Trigger:** merged since my 13:25 section: #965 (my PR), #970 (`aia` 38), #837 (M1.4 plans, docs), #972 (PO 14:39: NH-A1 amended, D-22 and D-43 PO addenda). Open PRs: #815 (moved to `b386c14`), #973 (PO 15:39: FE-045 to FE-051, CI2, SEC1), #974 (`uxa` 15:50, NH-A1 gate line, UXR-139 to -142, points to `cra`), #971 (owner session notes), #907 (weekly status). **No clinical, legal or owner decision answered by a person** in my area since 13:25 (D-43 stays `awaiting approval: owner`; FE-045 to FE-051 are security, hosting, merge, legal timetable and AI direction).
