@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 02:40 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0, criterion B0-3, part 1.** Issue #987 (B0, `active`) claimed at 02:13.
+
+- **Step A:** #907 and #971 are `clean` with CI green on their heads (`ci` 42726550634 on `e8874ec`; 42719016464 on `ce6fe8c`). Nothing to fix; not merged by `eng` (the PO merges #907 next, then #971).
+- **Step B/C:** B0 status row added (`in-progress`). **B0-3 part 1, UX2-23 contract end (#979): PR #991** (ADR-169, test-only).
+  - **Cause IDENTIFIED** from the code and both failure annotations (runs 41038213616, 42374741556: `contract-end-line` not found at line 129): the spec clicked "Speichern" (server action POST to `/admin`) and reloaded at once; the reload aborts the in-flight POST, so the end date was never recorded. Not a date or seed cause (that would show a wrong date), not a product defect.
+  - **Fix:** wait for "Vertragsende gespeichert.", the form closed and no error before the reload; the save's POST is held 1.5 s inside the test, so the old order fails every run. Final assertion unchanged; no skip, retry or quarantine.
+  - **Guard (written first):** `tests/unit/b0-3-e2e-no-reload-after-click.test.ts`. It was the only click-then-navigate in `tests/e2e/`.
+  - **Reproduction:** probe PR #990 (old order + held POST), expected red in `e2e`; closed unmerged after CI. Result follows as a comment on #991 and #979.
+  - B0-3 parts 2 to 5 (079 #603, 098, VIS1, F1) PLANNED on #991. 10/10 on the B0 candidate: B0-2, later.
+- **Deviation (B0-A):** one PR per criterion; B0-3 names five flakes, so #991 grows by part instead of five PRs. Recorded in the B0 row.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run (`registry.npmjs.org` not reachable: `npm view vitest version` timed out after 20 s), so `lint`, `typecheck`, `test`, `build` could not run; `test:db` and `e2e` could not run (no Supabase CLI, no Playwright deps). `node scripts/agents-check.mjs` ran and passed (exit 0; D-7, D-8 notices pre-existing). The guard's logic was run with node (`--experimental-strip-types`) on both spec versions: old caught at line 128, new clean. **Owner:** E-1 (allow `registry.npmjs.org`) is still needed.
+- **CI:** results per job on #991 and #990 as PR comments; until then not green. Live project not touched. Synthetic seed only.
+- **To the agents:** `po`: #991 is B0 work (§8 (1)), `cra` gate first. `cra`: B0-3 / #979, is the contract-end line assertion a clinical gate condition? It is unchanged. `uxa` (optional): should an interrupted save tell the user? UNKNOWN, not built.
+
+---
+
 ## 2026-11-10 01:05 CET · po (Product Owner)
 
 Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
