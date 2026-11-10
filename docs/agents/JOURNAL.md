@@ -18,6 +18,17 @@ Scheduled review run. No `gov/…` PR open (#975 merged), so this is `gov/review
 
 ---
 
+## 2026-11-10 01:20 CET · eng (Engineering)
+
+Scheduled Engineering run. **Step A only** (own PR conflicting); the run ends after it.
+
+- **Step A:** #907 (weekly status 2026-W45, docs only) was `dirty` against `recovery/main` (`1795728`). `recovery/main` merged in (merge commit, no rebase, no force-push). One conflict, the header of `IMPLEMENTATION_STATUS.md`: the newer *Last change* line from `recovery/main` kept, and #907's *Escalation rule* line kept below it. `JOURNAL.md` merged automatically; checked: 0 lines of either parent missing. No code, test, row or ADR change. #971 is `clean` (CI run 42719016464 on `ce6fe8c` green) and was not touched. Neither PR is merged by `eng` (PO order: #907 next, then #971).
+- **Not done this run (PLANNED):** the B0 status row the PO asked for (01:05), and B0-3 on active issue #987 (#979, #603, #919). They follow in the next run as their own PR, so #907 stays a pure merge-up.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve in this session ("Could not resolve host"). Without dependencies `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` could not run; `npm run test:db` and `npm run e2e` could not run (no Supabase CLI, no Playwright test dependencies). `node scripts/agents-check.mjs` ran (result in the PR comment). **Owner:** allow `registry.npmjs.org` in the session's network settings.
+- **CI:** results per job with run ID and head SHA go on #907 as a comment once finished. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 01:05 CET · po (Product Owner)
 
 Scheduled PO run (started 00:39 Europe/Zurich, written 01:05). Branch `po/cycle-2026-11-09-2339`. No PO PR was open. No role ran on 2026-11-08 and only `eng` ran on 2026-11-09 (Actions API: 0 runs on 08.11.). FE-052 governs merges (README rule 10). The prompt still says "one Engineering PR per run" and names the "PLAN3 stack #891 to #910". Both are listed again under prompt changes below.
@@ -1482,6 +1493,20 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 13:00 CET · eng (Engineering, scheduled weekly status)
+
+- **`docs/engineering/WEEKLY_STATUS.md`: 2026-W45 Friday entry** (this PR carries #840's first entry and escalation rule; #840 is superseded).
+- **Facts (GitHub API, about 12:00 UTC):**
+  - Engineering merged this week: #799, #833, #838 (2026-11-05, CI green).
+  - 29 Engineering PRs are open, all green on their heads. #806, #809, #902 and #903 are `dirty`.
+  - No Engineering merge in a scheduled run (FE-018: the PO's scheduled prompt has no merge step).
+- **M2 risk raised to High; not escalated.** The needed-by date for #800, #803 and #804 is Tue 2026-11-10. If they are not merged by then, M2 is escalated that day.
+- **Open for `eng`:**
+  - base merges on #806, #809, #902, #903;
+  - re-estimate M9 under FE-021 (Phase A, simulated nursing home) once O-1 is answered;
+  - nursing-home addendum (W-9).
+- Docs only. Tests: none run by me; CI states quoted from GitHub. `node scripts/agents-check.mjs` run. Live project not touched. No personal or health data.
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
@@ -2472,6 +2497,24 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **Deviations 1-7 for the PO** in ADR-144 (notably: (b) is the AN2 figure; no time correction has an open state, so AN1's correction share stands beside (b); tasks closed by a case close are not "done").
 - **Tests:** pgTAP 109 (29), vitest `an3-step-spans` (11), e2e +3. Locally only a scratch PostgreSQL 16 with stubs and a vitest shim ran (ADR-144 *Checked by me*); **no CI result is claimed**. Not merged by Engineering; waits for the PO. Live project not touched.
 - **For `lca`:** AN3 reads staff timestamps only as team aggregates and no WORK1 table (D-23 term (b)); read before real data.
+
+---
+
+## 2026-11-03 16:10 CET · eng (Lead Engineer)
+
+- **Owner Engineering Directive Response (in a Claude session) recorded.**
+  - Accepted as the baseline: the delivery estimate (#835), the implementation sequence (#833) and ADR-142 (one installable web app; website separate; demo requests never in the care database). Branding is not a blocker.
+  - Priority: 1 M2 · 2 M4 · 3 M6 · 4 M8 · 5 M5.
+  - Escalation dates: M2 2026-11-27, M4 2026-12-18, M6 2027-01-29, M8 2027-02-19, M9 2027-03-12.
+  - D-2 planning baseline: GitHub, Supabase, Vercel for the website, 99.9 %, PITR, CH/EU data, separated website. D-2 stays `awaiting-approval: owner`; no package was edited.
+- **Changed on the open PRs:**
+  - #835: ADR-142 ACCEPTED; owner response section.
+  - #833: priority, escalation dates, ADR-142 accepted.
+  - #837: the duplicate ADR-142 was dropped, `website/` adopted, ADR-143 narrowed, priority 5 for the website.
+  - #838: §12 reads the baseline item by item. No material blocker; three gaps OPEN for the owner: the care-app host is not named, `lca`/adviser access paths, the RPO reading.
+- **New:** `docs/engineering/WEEKLY_STATUS.md`, with the escalation rule and the first entry (2026-W45); the escalation rule is also in the `IMPLEMENTATION_STATUS.md` header. A weekly scheduled report runs on Fridays.
+- **No escalation today.** M2 depends on `po` merging the open UX2 queue by 2026-11-10; if it is not merged by then, M2 is escalated that day.
+- Docs only; `node scripts/agents-check.mjs` run. No test applies.
 
 ---
 
