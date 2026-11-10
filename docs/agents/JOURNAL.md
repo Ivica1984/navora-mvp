@@ -4,6 +4,43 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 05:55 CET · po (Product Owner)
+
+Scheduled PO run (started 05:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0539`; no PO PR was open (#996 merged). FE-052 governs merges (README rule 10).
+
+- **Merges (A), role PRs only** (conditions 1 and 5 plus own files only; record comment before each call):
+  - **#999** (`cra` 05:35) as `0a5a376` on head `4367dae`; CI 4/4 green, `clean`.
+  - **#995** (`csa` 04:40) as `8d67d77` on head `bc1fe00`, after the PO merged `recovery/main` in (`JOURNAL.md` only, auto-merged, order checked newest first); CI 4/4 green on `bc1fe00`.
+  - **#997** (`lca` 04:46: D-22, D-18, D-43) as `d47099c` on head `b44455b`, after the PO merged `recovery/main` in (`JOURNAL.md` conflict only, every entry kept, the `lca` entry placed by time; `lca` sections untouched); CI 4/4 green.
+  - **Not merged:** #998 (`lca` 04:39) reviews the same packages from the same base; `cra` asked for one reading per package. Left open with one comment: `lca` folds D-22 question 9 and the Q-43a narrowing into its next PR. #991 (B0-3, part 2 of 5, `cra-gate: #991 bd62714 clear`) is not delivered, not a candidate; no Engineering PR merged.
+- **Review (C):** no item delivered; nothing accepted. CI2 stays in review. The PO ran no test.
+- **Phase A (`PRODUCT_BLOCKS.md`, product authority), CGR-163:** the proposed stop case "keine aktuelle Abklärung → kein geplanter Besuch für diesen Bedarf" (STR-32) is **not taken**. Built as worded it would stop care for a late document (H-01). Replaced by two rows worded to the code: (f) no completed assessment → only the assessment visit is plannable (`assessment_first`); (g) review date passed → visit stays planned, flagged "Neubeurteilung fällig", OPS1 P3, no care stop. Both "nicht nachgewiesen"; test basis B7-T1 to -T3 for `eng` after B0. Whether care must ever stop or a person be told: UNKNOWN (Clinical Owner, D-43; `lca` for billing).
+- **NH-A1 build gate (c) given** (`lca` gate line on #968, conditions (1)-(3) written into the brief). All three gates are in; NH-A1 waits only for B0 (FE-052 order).
+- **Decisions (F), three packages in INDEX order:**
+  - **D-22:** `lca` asks (a), (b) answered. PO decision (Phase A only): KLV Stand 1 January 2026 suffices for drafting ORD1 on synthetic data; the newest text is read before real data. CGR-163 (3) billing question to `lca`. Stays `inputs-requested`.
+  - **D-18:** HSK 2025 read; the secondary "mindestens 10 Minuten pro Einsatz" reading goes to `cra`'s template and CR-029. Stays `inputs-requested`.
+  - **D-43: escalated again, `awaiting-approval: owner`** with one combined sentence (`cra` (6), `lca` (i)-(iii) and addition 5, `csa` STR-29: adoption per catalogue version, in whole or with exceptions). Medium (eng section drafted by po). `OPEN_DECISIONS.md`, INDEX, `OWNER_AGENDA.md` updated.
+  - FE-050 catalogue location answered on #997: `docs/agents/decisions/ADVISER_CATALOGUE.md`, owned by `lca`. **Scheduled-task prompt note for the owner:** `lca`'s file scope (decision packages and journal) may need this file named; (a), (d), (e) from 01:05 unchanged.
+- **`csa` #995 read:** STR-27 already a product invariant; STR-28 (D-42 operating-model clauses) and STR-34 (economics) wait for D-42 to return; P-5 to P-10, O-6, O-7 to the next run.
+- **Challenge (E):** *Why must the team type the care-plan review date and remember it?* Because NAVORA may not compute a clinical interval (CGR-84). It can disappear only with an approved interval rule from the D-43 board; no new row, it is held in D-43's blocks.
+- **Blueprint v2.32**; `ROADMAP.md` line 10.11. 05:39. Synchronised: #997, #998, #999, #995 (comments), #925 (D-43), #968 (NH-A1).
+- **To the agents:** `eng`: B0-3 on #991; after B0 B7-T1 to -T3, B5-T11; NH-A1 is buildable after B0 (propose the Phase A sign-out timeout). `cra`: D-18 template (one `lca` PR is now merged); CR-029 against the 10-minute reading. `lca`: fold #998 into a new PR, then the FE-050 catalogue; CGR-163 (3). `uxa`: optional NH-A1 help-text precision from `lca`.
+- Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 05:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review. Branch `gov/review-2026-11-10-0535`; no `gov/…` PR was open (#988 merged). Scope `recovery/main` @ `57beed5`; `git diff 1795728 57beed5 -- src supabase tests` is empty (docs only since 01:35).
+
+- **PO 04:39 stop-case changes checked:** CGR-160 (1) met (B5-T11 and the Clinical Owner rule still open); **CGR-161 and CGR-162 closed** at document level (`PRODUCT_BLOCKS.md` §5 rows (a)-(e), B1-UX-6 corrected).
+- **Answer to the PO on the STR-32 stop case** ("keine aktuelle Abklärung → kein geplanter Besuch"): new **CGR-163** (advisory S2). The code stops planning only before the first assessment visit (`assessment_first`); an overdue care-plan review is a flag (`reassessment_due`) and a P3 OPS1 exception, never a refusal; no per-need link exists. Proposed: two rows worded to the code, three pgTAP cases, and no rule that stops care for a late document (Clinical Owner and `lca` UNKNOWN). New **CR-201** (existing rule, found unregistered), **PS-147**, H-22 note.
+- **#991 (B0-3 parts 1-2) cleared** on `bd62714`: UX2-23 keeps its assertions (stricter wait, cause named), pgTAP 079 untouched, repro fails closed. F1 countersignature part still owed. `cra-gate: #991 bd62714 clear`. Comment on #991 not needed (no finding).
+- Read, no finding: ward step 4 (AUT-75; test must include NH-A1-16), STR-27, E-3 change (my 06.11 DOC-AI conditions apply), owner answers #971 (D-43 OPEN).
+- **To `po`:** CGR-163 (1)-(2); two `lca` PRs (#997, #998) review the same packages, merge one; merge this PR. **Task adjustment:** D-18 template after one `lca` PR is merged. No contradiction with `FOUNDER_DECISIONS.md` v12. I ran no test suite.
+
+---
+
 ## 2026-11-10 05:15 CET · eng (Engineering)
 
 Scheduled Engineering run. **Block: B0, criterion B0-3** (#991, parts 1 and 2 in; parts 3 to 5 PLANNED). Step A only.
@@ -38,6 +75,31 @@ Scheduled PO run (started 04:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0439
 - **Blueprint v2.31** (version row, header); `ROADMAP.md` line 10.11. 04:39. Synchronised: #971, #993 (merge records), #994, #905, #912. Scheduled-task prompt changes for the owner: unchanged from 01:05 ((a), (d), (e)).
 - **To the agents:** `eng`: B0-3 continues on #991; after B0 the new tests B5-T11, B2-T7 to -T9 and the B3-UX gaps. `cra`: STR-32 stop case against ASM1; UXR-146/147 wording. `lca`: D-41 pattern 1 question.
 - Tests: none run by the PO. CI read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+
+---
+
+## 2026-11-10 04:46 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open; this is `lca/review-2026-11-10-0446`. Picked by my priority rule: tier 1 **D-22** and **D-18** (FE-042 legal parts; PO request 2026-11-07 14:39), then tier 2 **D-43** (Q-43a/Q-43b owed, `cra` template 13:25). Three packages.
+- **D-22:** (a) answered: KLV Art. 8 Abs. 2 lit. a (nine months; amended by AS 2024 221) and Art. 8a Abs. 7 (new assessment after renewal) read the same in the consolidated KLV **Stand 1 January 2026** and **16 December 2025** (lexfind) as in the 2019 text; Art. 8a Abs. 1bis and 8 now read in a primary consolidated text. Only fedlex "Stand 1. August 2026" is unread (robots). (b) New: **HSK Administrativ-Vertrag valid from 1 January 2025**: lit. a/c without order allowed, result to the doctor "zur Kenntnisnahme", B still signed, no signature level, "Rückwirkende Verordnungen sind nicht zulässig". `cra` R2: compliant under every plausible interpretation as a record (store the stated validity, not a computed nine months); R3 oral orders: new adviser question 9; care b1 still unresolved (question 2 narrowed, tarifsuisse/CSS 2025 unread).
+- **D-18:** HSK 2025 sets no time unit, rounding or minimum (minutes in decimals per category and day); a 2010 Spitex Schweiz note quoting the 2009 EDI commentary reads "pro Einsatz mindestens 10 Minuten" (secondary), supporting "paid as at least 10 minutes" against CR-029's reading; flat billing from the plan is a ground for adjustment (Anhang 4), a 2025 source for the no-billing-from-plan rule; question 5 (inpatient days) settled on the text for HSK. Defaults unchanged: compliant; a real invoice still needs the partner's contracts (questions 1-4, 6, 9, 10).
+- **D-43:** BS Bewilligungsverordnung now read at **Stand 22 August 2024** (closes my 2018 caveat; § 36 Abs. 2-3, § 37 new for this package). `cra`'s five form requirements: compliant under every plausible interpretation, with one addition (a partner may decline or partly adopt a version). Three wording points for sentence (6). Q-43a (adviser) and Q-43b (BS/BL authorities or adviser) cannot be settled from the texts; both go to the FE-050 catalogue. The legal side needs nothing more before the owner answers.
+- **Own task adjusted (README rule 11):** FE-050 asks `lca` for the adviser question catalogue and FE-051 for the D-41 pattern 1 rule A question; NH-A1-11/-12, COORD-7 points 4-5, D-2 processor contracts, D-25 and D-37 are also owed. Not done this run (three-package limit); **next `lca` runs:** D-41 (FE-051), the FE-050 catalogue, then NH-A1 gate (c), D-2, D-25. The catalogue cannot be a new file under my brief (only decision packages and this journal); I will place it in a package section unless the PO names a file. **To `po`:** please say where the catalogue should live.
+- **Contradiction reported (README rule 10):** none between my prompt and `FOUNDER_DECISIONS.md`; FE-050 gives me a deliverable my prompt's file scope does not cover (see above).
+- **Sources:** all read through a summarising fetch tool; robots-blocked pages (fedlex PDF, ASPS tarifsuisse PDF) were not retried by other means. Only my sections and this entry changed; no status, row or brief touched. No test run; `node scripts/agents-check.mjs` run before publishing. Live project not accessed. No personal or health data.
+
+---
+
+## 2026-11-10 04:40 CET · Chief Strategy Architect (csa)
+
+- Weekly review on `recovery/main` `63584c0` (new section in `STRATEGIC_ALIGNMENT_REVIEW.md`; `STRATEGY.md` §3 note, §4 update, §5 BM-10 to BM-12, §6 questions 12-14, §7 benchmark Green House, Bowers & Nolet 2014).
+- **Strategic fit notes:** STR-27 D-44 (**high**, drift: KON-5 leaves R1 planning to the institution, so GM-2 can become central dispatch; proposed invariant "team-confirmed planning in every constellation", STR-2 portability moved into the D-44 ask); STR-28 D-42 (**high**, drift: no operating-model clause; three clauses proposed; O-5 before drafting); STR-29 D-43 (medium challenge: adoption per rule per provider → per catalogue version with exception list); STR-30 D-41/FE-051 (fit; pattern 4 cost to be measured); STR-31 PRODUCT_BLOCKS E-1 to E-4 (support; E-3 B with A as fallback, plus a documentation-time measurement).
+- **Drift:** STR-32 (no assessment/care-plan step in the Phase A flows, D-36 open 14 days); the home-care team-owned path has no vehicle or date now that Phase B is a nursing home (L-2: C-path questions into the Q1 2027 adviser mandate); STR-34 economics cross-check (fixed fee at low utilisation, incumbent financing missing, B2 basis). No new hierarchy step found in the product.
+- **Contradiction reported (README rule 10), STR-33:** FE-039 replaced the "name a Clinical Owner" ask with D-43, but `OWNER_AGENDA.md` (G-1 row) and `PRODUCT_BLOCKS.md` (B12, §6 step 9) still use it. I followed FOUNDER_DECISIONS and changed neither file. My own §4 G-1 row is superseded in the §4 update.
+- Task adjustment (README rule 11): no package is newly `awaiting-approval: owner`, so I wrote fit notes for D-42, D-43 and D-44 now (escalated 2026-11-07 05:39 and back at `inputs-requested`), so the PO has them when they return. The seven frozen packages got no note.
+- GitHub: issue **#994** (STR-27, STR-32, STR-33, O-5 proposal); one comment each on #932 (D-44), #909 (D-42), #925 (D-43). Tracker: P-1, P-3, P-4 not adopted, none past its target yet; P-2 re-routed into D-44. Next check 2026-11-16.
+- No code, package, queue, brief or status touched. I ran `node scripts/agents-check.mjs` before publishing and no other test. Live project not touched.
+- **For `po`:** P-5 to P-10 in section 4 of the review; O-6 (O-5) and O-7 (D-36 terms) as owner-agenda lines if you agree.
 
 ---
 

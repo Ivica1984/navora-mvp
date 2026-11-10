@@ -16,6 +16,78 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-10 05:35 CET: PO 04:39 changes to the Phase A stop cases checked; **CGR-161 and CGR-162 closed** (document remedy met), **CGR-160 (1) met**, (2) and (3) open; **answer to the PO on the proposed stop case "keine aktuelle Abklärung → kein geplanter Besuch"** (STR-32): new **CGR-163** (advisory S2: as worded it is not what the code does, and if built for an overdue reassessment it would stop care); **B0-3 #991 cleared** on head `bd62714`; E-3 recommendation and ward step 4 read; new **CR-201**, **PS-147**
+
+**Scope:** `recovery/main` @ `57beed5`. **Trigger:** merged since my 01:35 section (`1795728`): #907 (weekly status W45, docs), #988 (mine), #992 (`aia` 39), #971 (owner answers on production readiness, docs), #993 (`uxa` 03:50), #996 (PO 04:39: `PRODUCT_BLOCKS.md` §2, §5, §7, §9; Blueprint v2.31). Open: **#991** (`eng`, B0-3 parts 1 and 2), #995 (`csa`), #997 and #998 (`lca`, D-22, D-18, D-43), #3 (M2). **No clinical, legal or owner decision answered by a person in my area.** The owner's answer 10 on D-43 is "will tell soon" (`PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md`): D-43 stays OPEN.
+
+I read: `git diff 1795728 57beed5` for `PRODUCT_BLOCKS.md`, `NEXT_CAPABILITY.md`, `IMPLEMENTATION_STATUS.md`, `ROADMAP.md`, the Blueprint header and v2.31 row, `PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md`; `AUTOMATION_REVIEW.md` 02:20 (AUT-72 to AUT-75); JOURNAL 10.11. 01:35 to 05:05; `briefs/NH-A1.md` (NH-A1-6, -16); #991 on its branch (`git diff origin/recovery/main...bd62714`: `tests/e2e/ux2-gates.spec.ts`, `tests/unit/b0-3-*.test.ts`, `scripts/db-flaky/b0-3-079-snapshot.sh`, `.github/workflows/ci.yml`, `ci-repeat.yml`); #997, #998 and #995 added lines that name `cra`. Code read for the assessment stop case: `supabase/migrations/20261021000014_care_plan_billable_planning.sql:1-27, 52-67, 140-160, 205-235`, `…0024_case_visit_lifecycle.sql:420-432` (the latest `private.visit_flags`), `…0025_self_planning.sql:162, 500`, `…0030_plan2_changes.sql:89, 240`, `…0100_asm1_assessment_record.sql:1-50, 256-310`; pgTAP `014_team_planning.test.sql:47, 121`. `git diff 1795728 57beed5 -- src supabase tests` is **empty**: no product code, migration or test changed on `recovery/main`.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data. The CI result named for #991 is GitHub's check-runs on `bd62714`, not mine.
+
+### Task adjustment (README rule 11)
+
+FE-052 §8 (5) keeps my focus on B0-3/B0-4, then B5 and B2. B0-3 part 1 and 2 are delivered (#991), so this run gates them. The PO sent the proposed STR-32 stop case to me first (`PRODUCT_BLOCKS.md` §9, 04:39), so I answer it from the code. **The D-18 template (FE-042) moves again**; `lca` #998 now reviewed D-18 without it, so I write it after the PO has merged one of the two `lca` PRs, to build on the merged text. No founder decision, scope or other role's item changes. **Contradiction check:** none between my prompt and `FOUNDER_DECISIONS.md` (unchanged, v12).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-163** | Proposed Phase A stop case "keine aktuelle Abklärung → kein geplanter Besuch für diesen Bedarf" (`csa` STR-32, PO 10.11. 04:39, `PRODUCT_BLOCKS.md` §9: not yet in the table); step 1b; H-22, H-01 | **advisory, S2** (for Phase A: the stop case must state what the code does, as CGR-160) | The wording mixes two cases the code treats differently, and one of them must not be a stop. **(i) No first assessment:** IMPLEMENTED as a stop per **case**: until a needs-assessment visit is completed, only that visit can be planned (`assessment_first`), on J3, self-planning and PLAN2. The gate reads the completed visit (`needs_assessment_done_at`), **not** an ASM1 record: ASM1 is by design read by no planning path (ASM1-8). **(ii) Assessment no longer current (care-plan review date passed):** the visit is **planned and flagged** `reassessment_due`, never refused, and the case appears in OPS1 as `care_plan_review_overdue` (**P3**, pull-only, "Team an die Neubeurteilung erinnern"); the review date is typed by the team, NAVORA computes no interval (CGR-84). **(iii) "für diesen Bedarf":** no per-need link exists; ASM1-7 stores which assessment an item rests on and blocks nothing. A block test written to the proposed wording fails on (ii) and (iii). Built as worded for (ii), it would **stop care for a client because a document is late**: a missed visit (H-01) for an administrative lapse. Whether care may continue, and for how long, after a review date or an order renewal without a new assessment (KLV Art. 8a Abs. 7, CR-197, CGR-157) is a **Clinical Owner and `lca`** question; the billing side of it is BL, not a care stop | 0014:9-10, :214-224 (`assessment_first`, `assessment_already_planned`), :53-67 (set by visit completion); 0025:162; 0030:89; 0024:428-429 (`reassessment_due` flag); 0019:46 (`care_plan_review_overdue`, P3), 0024:504-511 (raised when the earliest active review date is past); 0100:7-10 (J3 and J5 read nothing of ASM1), :41-45 ("No block, no signal, no exception"); pgTAP 014:47 (`assessment_first`), :121 (flag) | **(1)** `po` takes the stop case in two rows, worded to the code: **"Keine abgeschlossene Bedarfsabklärung → nur der Abklärungsbesuch ist planbar (`assessment_first`)"**, B7, heute IMPLEMENTED (CR-002, UNVALIDATED); and **"Überprüfungsdatum des Pflegeplans überschritten → Besuch bleibt geplant, sichtbar «Neubeurteilung fällig»; OPS1-Ausnahme P3 (pull-only, niemand benachrichtigt); kein Stopp der Pflege"**, B7, heute IMPLEMENTED as a flag (CR-201, UNVALIDATED). "für diesen Bedarf" is dropped (not built, not needed for Phase A). **(2)** Block tests (pgTAP): (a) a case with no completed assessment visit rejects a category A, B and C visit with `assessment_first` and accepts the assessment visit; (b) a visit dated after the earliest active review date is **accepted** and carries `reassessment_due`, and OPS1 lists one `care_plan_review_overdue` row for the case; (c) after an ASM1 record is entered and the review date is still past, the flag stays (ASM1 does not clear it). **(3)** Whether planning must ever stop, or a person must be told, when a reassessment is overdue is **UNKNOWN** (Clinical Owner, D-43; `lca` for the KLV Art. 8a Abs. 7 billing basis, D-22). `cra` recommends that no rule stops care for a late document; a billing hold is the place for it (H-14) |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-160** | **(1) met** (document): the stop case states the built behaviour, P2, pull-only, delivery only on hospital discharge, the Clinical Owner question named, "Block-Test B5-T11 fehlt". **(2) open:** no pgTAP B5-T11 yet. **(3) open, UNKNOWN** (Clinical Owner); the *Nicht überwacht* sentence with Vitest is not written yet (`eng` after B0). Stays **advisory S1** before real clients | `PRODUCT_BLOCKS.md` §5 first row (PO 04:39); B5 row ("Neuer Test für `eng`: B5-T11") |
+| **CGR-161** | **closed** (document remedy met). The five rows (a)-(e) carry expected behaviour and a "heute" column that matches my reading of the code; (a), (b) "Lücke, kein Alarm → nicht nachgewiesen", (e) PLANNED; the sentence "Phase A ist nicht bestanden, solange ein Stoppfall ungetestet ist oder fehlschlägt" is in. The underlying gaps stay open as CGR-154, CGR-155, CGR-159 | `PRODUCT_BLOCKS.md` §5 rows (a)-(e) and the closing sentence |
+| **CGR-162** | **closed** (document remedy met): B1-UX-6 negative case now reads "Für einen Fall ohne erfasste Werte steht die Sektion trotzdem da; jede Kategorie zeigt «nicht erfasst»", e2e 390 × 844, above «Losfahren»; `uxa` accepted it (03:50). The e2e itself is `eng` work after B0 (B1 row: "Kein e2e … B1-UX-6") | `PRODUCT_BLOCKS.md` B1 row; `UX_REVIEW.md` 03:50 |
+
+### Other items read (no new finding)
+
+- **Ward step 4 (AUT-75):** "Default wirkt (Quelle Kontinuität) … Lücken erscheinen in der Liste" matches NH-A1-6 as amended. **Condition for the step-4 test** (already NH-A1-16, from CGR-158): the B11 test includes "default set, then the member's shift withdrawn → resident listed as uncovered again". Without it the step can pass while a resident is shown as covered by someone not on the ward (H-34, PS-142).
+- **Product invariant STR-27** (the planned team confirms AI planning in every constellation): supported. It does not replace QUAL1: confirmation by the team never turns a refused check into an allowed one (B2 stop cases unchanged).
+- **E-3 recommendation changed** (rule report plus an agent at the edge, AUT-72): supported clinically. My level answer of 2026-11-06 17:30 applies unchanged and belongs in the DOC-AI brief: a proposal restates a span and never adds a finding; the nurse's note stays in the record beside the confirmed observations; spans that produced no proposal are shown to her before she finishes (omission of a fall, pain, wound, refusal of care or change in condition, H-20). The founder decides E-3.
+- **Owner answers (#971):** answer 2 (delete the old Supabase project) and answer 12 (D-41 patterns 1-4, pattern 5 not chosen, D-35 rule A in force) are consistent with my hard rules and with my D-41 mapping (01:35). Answer 10 leaves D-43 OPEN: every UNKNOWN for the "Clinical Owner" in this report waits on it.
+- **`lca` #997 and #998 (open):** both review D-22 and D-43 from the same base, 7 minutes apart. They give a source line for CGR-156 and CGR-157 (KLV Art. 8 Abs. 2 lit. a and Art. 8a Abs. 7, "Stand 1. Januar 2026"; 1 August 2026 not read). I take that line into CR-197 only after the PO merges one of them. **To `po`:** two `lca` PRs on the same packages; merge one, so the decision files carry one reading.
+
+### B0-3 (#991, head `bd62714`): my gate conditions of 01:35, checked
+
+| Condition | Result | Evidence |
+|---|---|---|
+| UX2-23 (contract end = access end) keeps every assertion | **met.** The last assertion (`expect(line).toHaveText(before ?? "")` after `page.reload()`) is unchanged. Added: the save's POST is held 1.5 s and the test waits for "Vertragsende gespeichert.", a closed form and no `command-error` before the reload. Stricter, not looser | `tests/e2e/ux2-gates.spec.ts` diff (+28/−3) |
+| no `skip`, no wider timeout as the fix without a named cause | **met.** The cause is named: a reload aborted the in-flight server action (runs 41038213616, 42374741556). The 15 s timeout waits for the result of the save, it does not widen an expected value. A Vitest guard forbids a navigation straight after a click in every e2e spec | `tests/unit/b0-3-e2e-no-reload-after-click.test.ts` |
+| no expected value relaxed (part 2, pgTAP 079, #603) | **met.** No file under `supabase/` changes. The reproduction is red at READ COMMITTED and green at REPEATABLE READ, and fails closed if the race is not reproduced. It commits one `private.evaluate_all_signals()` run on the CI database, as the pg_cron job does every minute; it runs after the pgTAP suite, so no signal assertion sees it | `scripts/db-flaky/b0-3-079-snapshot.sh`; `tests/unit/b0-3-079-snapshot.test.ts`; `ci.yml`, `ci-repeat.yml` (+5 each) |
+| F1 countersignature e2e | **not in this PR** (B0-3 is "part 1 of 5"); my condition stands for the next part | PR title; PO journal 05:05 |
+| B0-4 (062, 078, 080) | not delivered; B5 stays *Testfehler offen* | — |
+
+CI on `bd62714`: app, db, e2e and ui-screenshots completed `success` (GitHub check-runs). Not a block acceptance (FE-052); B0-3 is accepted only with all parts and B0-2 10/10.
+
+### Gate status
+
+| Item | Gate |
+|---|---|
+| **#991** B0-3 parts 1-2, head `bd62714` | **clear**; no clinical assertion changed; F1 countersignature part still owed |
+| #996 PO 04:39 (`57beed5`) | docs; CGR-160 (1), CGR-161, CGR-162 met; CGR-163 opened on the proposed STR-32 stop case (not yet in the table) |
+| #971 (`3fd999d`), #907, #992, #993 | docs; no clinical content beyond the notes above |
+
+cra-gate: #991 bd62714 clear
+
+### Decisions requested
+
+- **`po`:** CGR-163 (1): two stop-case rows worded to the code instead of the proposed one; B7 test cases CGR-163 (2) (a)-(c) for `eng` after B0. Merge one of `lca` #997/#998. Merge this PR.
+- **`eng`:** B0-3 next parts with the F1 countersignature condition; B0-4; after B0: B5-T11 (CGR-160 (2)), CGR-163 (2) tests.
+- **Owner (D-43):** unchanged. The Clinical Owner function is needed to answer CGR-160 (3), CGR-163 (3), CGR-154, CGR-155, CGR-159; none is decided by `cra` or `po`.
+- **`lca`:** CGR-163 (3): whether a visit after an overdue reassessment, or after an order renewal without a new assessment, may be billed (D-22; KLV Art. 8a Abs. 7). Reading only, no rule.
+
+### Findings closed with evidence
+
+| ID | Closed | Evidence |
+|---|---|---|
+| CGR-161 | document remedy met | `PRODUCT_BLOCKS.md` §5 rows (a)-(e), closing sentence (PO 04:39, `57beed5`) |
+| CGR-162 | document remedy met | `PRODUCT_BLOCKS.md` B1 row; `UX_REVIEW.md` 03:50 |
+
+---
+
 ## 2026-11-10 01:35 CET: **FE-052 (product blocks)** read; **B5 and B2 block test cases PROPOSED** (FE-052 §8 (5), `cra` task); **Phase A stop-case table** (`PRODUCT_BLOCKS.md` §5) checked against the code: new **CGR-160** (advisory **S1** before real clients: the stop case "keine geeignete Vertretung" expects a notified person, but a plain uncovered visit is P2 and pull-only, never delivered), **CGR-161** (advisory, condition for Phase A passing: five stop cases with an open S1 finding or an existing control are missing) and **CGR-162** (advisory S2: `uxa` B1-UX-6 would hide the "nicht erfasst" safety notes); **UXR-145** answered; B0-3/B0-4 not yet delivered (my gate conditions stated); D-41 clinical mapping of patterns 2-4
 
 **Scope:** `recovery/main` @ `1795728`. **Trigger:** merged since my 17:29 section: #975 (mine), #815 (ASM1-C6, `5d15391`), #973, #974, #978 (FE-052, `PRODUCT_BLOCKS.md`, inventory), #980 (CI2/B0-1), #983 (`uxa` 19:55), #984, #985 (B0-2 repeat mechanism), #986 (PO 00:39: B0 brief approved). Open: #971 (owner session notes, docs), #907 (weekly status, docs), #3 (M2). **No clinical, legal or owner decision answered by a person in my area** (D-22, D-18, D-41, D-43, D-44 unchanged; FE-052 is a founder direction on working method, recorded in `FOUNDER_DECISIONS.md` v12).
