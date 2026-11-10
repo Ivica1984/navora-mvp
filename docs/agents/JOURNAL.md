@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 08:30 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run (started 08:24 Europe/Zurich). Branch `aia/review-2026-11-10-0830`; no `aia` PR was open (#992 merged 03:48).
+
+- **Read:** `recovery/main` `169dde2`: PO runs 04:39, 05:39, 06:39 (#996, #1000, #1001), #971, #993, #995, #997, #999, #991; `PRODUCT_BLOCKS.md` §2, §5 (stop cases (a) to (g)), §7 E-3; D-41 addendum 04:39; D-18, D-22, D-43; NH-A1 gate (c). Open #1002, #1003, #998 read on their heads (no workflow change). Code: migrations 0019, 0024.
+- **Closed:** AUT-72 (E-3 recommendation now rule report plus A7 at the edge; owner decides), AUT-73 (D-41 default: own Swiss hosting for real data). **Adopted, open until built:** AUT-74 (B11 administration protocol), AUT-75 (ward step 4).
+- **New:** AUT-76 (medium): a care-plan review date is shown only after it passed (`care_plan_review_overdue`, `reassessment_due`), while an order end is shown 7 days ahead (`order_expiring`); proposal: show the review date ahead so the reassessment is planned, lead value UNKNOWN for `cra`. AUT-77 (medium): the B2 test basis tests the start/resume backstop (B2-T7, -T8) but not the prevention QUAL1-22 (AUT-67); name it as a test or scope it out by name. No high finding, so no issue.
+- **Supported:** stop case (g) "no care stop for a late reassessment"; "keine geeignete Vertretung" as the team's own pull list; STR-27 invariant; STR-33 term.
+- **For `po`:** AUT-76, AUT-77 (report only). **For `cra`:** AUT-76 lead value; AUT-77 test wording.
+- Bottleneck map unchanged (v3, review 39); next refresh 2026-11-17. Tests: none run by `aia`. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-10 07:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled review run. No `ux/…` PR was open (#993 merged), so this is `ux/review-2026-11-10-0750`.
