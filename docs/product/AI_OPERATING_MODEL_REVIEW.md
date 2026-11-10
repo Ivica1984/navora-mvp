@@ -445,6 +445,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Phase A measures administration, not only stops (AUT-74, OPEN, `po`):** acts per flow step from existing events, team level only.
 - **FE-052:** nothing is block-accepted; every IMPLEMENTED control above is "gemergt" with CI on its PR, not "abgenommen".
 
+**State 2026-11-10 08:30 (`aia` review 40):**
+- **Model path (D-41, PO 04:39):** the default now reads "C's hosting with B's governance for real data; an external provider only as a synthetic-only stand-in" (AUT-73 closed). The next-stage entry condition is a model server inside the D-2 hosting, not a provider contract.
+- **Documentation step (E-3, PO recommendation 04:39, owner decides):** report by rule plus A7 at the edge behind the pattern 4 interface (AUT-72 closed on the recommendation).
+- **Control added: a due date the record already holds is shown before it passes, never only as overdue** (AUT-76, OPEN): today an order end is shown 7 days ahead, a care-plan review date only after it passed. The lead value is a clinical rule (`cra`), UNKNOWN. The same control applies to evidence and delegation end dates (AUT-67, QUAL1-22) and must be part of the block test, not only the start backstop (AUT-77, OPEN).
+- No agent added or removed.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -487,3 +493,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-07 08:20 | `aia` | §12: QUAL1 state on `recovery/main` (prohibited class `qualification` IMPLEMENTED, PLAN3 rule before agent, AUT-61 adopted as QUAL1-20); added the controls "a foreseeable lapse is shown at planning" (AUT-67) and "a confirm-time lapse is not a correction" (AUT-68). No agent added or removed |
 | 2026-11-07 14:20 | `aia` | §12: NH-A1 recorded (no agent; continuity default is a rule); added the control "a rule default takes effect with a logged source, no team-wide accept-all confirm; uncovered counts what stays empty" (AUT-69), own shift patterns (AUT-70), ward measures from events (AUT-71); AUT-67/-68 adopted. No agent added or removed |
 | 2026-11-10 02:20 | `aia` | §12: FE-051 model path mapped (patterns 1-3 without an AI service; pattern 4 own Swiss hosting with option B governance; external provider synthetic-only stand-in at most; AUT-73), field allow-list for every agent (`cra` 17:29), E-3 documentation step as rule plus A7 (AUT-72), Phase A administration measure (AUT-74), FE-052 wording (gemergt, not abgenommen). No agent added or removed |
+| 2026-11-10 08:30 | `aia` | §12: D-41 default and E-3 recommendation as amended by the PO (AUT-72, AUT-73 closed); control "a recorded due date is shown before it passes, never only as overdue" added (AUT-76), with QUAL1-22 as block test (AUT-77). No agent added or removed |
