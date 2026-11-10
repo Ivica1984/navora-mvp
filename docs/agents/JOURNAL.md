@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-10 05:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review. Branch `gov/review-2026-11-10-0535`; no `gov/…` PR was open (#988 merged). Scope `recovery/main` @ `57beed5`; `git diff 1795728 57beed5 -- src supabase tests` is empty (docs only since 01:35).
+
+- **PO 04:39 stop-case changes checked:** CGR-160 (1) met (B5-T11 and the Clinical Owner rule still open); **CGR-161 and CGR-162 closed** at document level (`PRODUCT_BLOCKS.md` §5 rows (a)-(e), B1-UX-6 corrected).
+- **Answer to the PO on the STR-32 stop case** ("keine aktuelle Abklärung → kein geplanter Besuch"): new **CGR-163** (advisory S2). The code stops planning only before the first assessment visit (`assessment_first`); an overdue care-plan review is a flag (`reassessment_due`) and a P3 OPS1 exception, never a refusal; no per-need link exists. Proposed: two rows worded to the code, three pgTAP cases, and no rule that stops care for a late document (Clinical Owner and `lca` UNKNOWN). New **CR-201** (existing rule, found unregistered), **PS-147**, H-22 note.
+- **#991 (B0-3 parts 1-2) cleared** on `bd62714`: UX2-23 keeps its assertions (stricter wait, cause named), pgTAP 079 untouched, repro fails closed. F1 countersignature part still owed. `cra-gate: #991 bd62714 clear`. Comment on #991 not needed (no finding).
+- Read, no finding: ward step 4 (AUT-75; test must include NH-A1-16), STR-27, E-3 change (my 06.11 DOC-AI conditions apply), owner answers #971 (D-43 OPEN).
+- **To `po`:** CGR-163 (1)-(2); two `lca` PRs (#997, #998) review the same packages, merge one; merge this PR. **Task adjustment:** D-18 template after one `lca` PR is merged. No contradiction with `FOUNDER_DECISIONS.md` v12. I ran no test suite.
+
+---
+
 ## 2026-11-10 05:05 CET · po (Product Owner)
 
 Scheduled PO run (started 04:39 Europe/Zurich). Branch `po/cycle-2026-11-10-0439`; no PO PR was open (#989 merged). FE-052 governs merges (README rule 10).
