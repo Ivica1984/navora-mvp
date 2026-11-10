@@ -23,6 +23,21 @@ async function signIn(page: Page, email: string) {
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
 }
 
+/** Holds every server-action POST (`Next-Action` header) for `ms` before it goes to the server; returns the undo. */
+async function holdServerActions(page: Page, ms: number): Promise<() => Promise<void>> {
+  const pattern = "**/admin**";
+  await page.route(pattern, async (route) => {
+    const req = route.request();
+    if (req.method() === "POST" && req.headers()["next-action"]) await new Promise((r) => setTimeout(r, ms));
+    try {
+      await route.continue();
+    } catch {
+      // The page went away while the request was held: nothing reaches the server, which is what the wait prevents.
+    }
+  });
+  return () => page.unroute(pattern);
+}
+
 function zurichDay(n: number): string {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
   const [y, m, d] = today.split("-").map(Number);
@@ -123,8 +138,15 @@ test("UX2-23: removing a contract end asks once; cancel keeps it, confirm remove
   await expect(control.getByTestId("contract-end-notice")).toHaveText("Vertragsende entfernt.");
 
   await control.getByRole("button", { name: "Vertragsende erfassen" }).click();
-  await control.getByRole("form", { name: "Vertragsende erfassen" }).getByLabel("Letzter Vertragstag").fill(zurichDay(30));
-  await control.getByRole("form", { name: "Vertragsende erfassen" }).getByRole("button", { name: "Speichern" }).click();
+  const form = control.getByRole("form", { name: "Vertragsende erfassen" });
+  await form.getByLabel("Letzter Vertragstag").fill(zurichDay(30));
+  // B0-3 (#979, ADR-169): the save is a server action (a POST to /admin). Reloading while it is in flight aborts it,
+  // which lost the end date on 30.10. and 07.11. (line 129: no contract-end-line). The POST is held back here, so the
+  // order is tested on every run [probe: old order]: the reload waits for the command's result (form closed, notice, no error).
+  const release = await holdServerActions(page, 1500);
+  await form.getByRole("button", { name: "Speichern" }).click();
+  // PROBE (B0-3 reproduction, closed unmerged): the OLD order, reload straight after the click, with the POST held.
   await page.reload();
+  await release();
   await expect(line).toHaveText(before ?? "");
 });
