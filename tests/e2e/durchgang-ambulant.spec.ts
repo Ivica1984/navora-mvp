@@ -59,10 +59,13 @@ async function person(browser: Browser, email: string, phone: boolean): Promise<
   return page;
 }
 
-/** `uxa` G-6: the visible text of the page carries no internal code. */
+/**
+ * `uxa` G-6: the visible text of the page carries no internal code. A soft assertion: a hit still fails the test, but
+ * the run goes on, so one CI run names every G-6 hit and every later break (BD-3) instead of stopping at the first.
+ */
 async function noInternalCode(page: Page, where: string) {
   const text = await page.locator("body").innerText();
-  expect(text.match(INTERNAL_CODE)?.[0] ?? null, `internal code on ${where}`).toBeNull();
+  expect.soft(text.match(INTERNAL_CODE)?.[0] ?? null, `internal code on ${where}`).toBeNull();
 }
 
 /** The stored facts, read through the API as the signed-in synthetic person (anon key + her session; RLS applies). */
