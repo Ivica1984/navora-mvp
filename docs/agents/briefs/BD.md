@@ -96,6 +96,11 @@ The PO did not run the tests.
 - **Challenge (G-b):** why is the day proposal an organisation setting switched by an administrator at all? Hypothesis H-BD-1 (PROPOSED, decided by pilot data, not assumed): the team switches its own proposals on and off (team setting, audit-logged), and no administrator role is needed for it. Written to B2 as a question, not built in BD.
 - **`cra` answers (09:32) taken in:** UXR-158 closed from the clinical side. AUT-90 is acceptable for BD on synthetic data only; CGR-178 and CGR-179 go to B8 (brief J5 amendment 10:39).
 
+### Amendment 2026-11-11 17:39 CET (po: (G-b) owner answer reported by `eng`; product authority, no rule added, BD-6 holds)
+
+- **(G-b) reported owner answer «A»** (synthetic administrator in Testorganisation S, `/admin` screen path; `eng` comments on #1069, 16:54 and 17:04 CET). The PO did not hear it and could not verify it from the repository; it is **not yet recorded in `FOUNDER_DECISIONS.md`**. Until a recorded owner decision exists, the PO choice of 10:39 (seeded setting, merged with #1071) stays the state on `recovery/main`; `eng` may prepare the «A» gap PR, it merges once the answer is recorded. Owner asked to confirm (journal 17:39).
+- **If «A» is confirmed:** the administrator act is counted in the AUT-88 act table as its own row («Organisationseinstellung durch Admin»), not hidden in the baseline, so hypothesis H-BD-1 (team switches its own proposals) keeps a measured counter-case.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
