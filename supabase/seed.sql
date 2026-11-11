@@ -833,3 +833,27 @@ insert into public.member_qualification_evidence (organization_id, user_id, requ
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e6', 'grade', 'nurse_hf_fh', 'verified', true, null),
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e6', 'practice_licence', null, 'verified', true, null),
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e7', 'grade', 'pflegehelfer_srk', 'verified', true, null);
+
+-- BD seed completion for Testorganisation S (PO 2026-11-11 10:39, BD brief amendment 10:39, comment on PR #1069;
+-- ADR-183; pgTAP 126, vitest bd-seed-org-s-ga-gb). Fixture only: no grant, policy, rule or command changes.
+--   (G-a) the same synthetic ASM1 instrument list as Testorganisation A (ASM1-6 block above: same names, versions,
+--         validity and mark flag; synthetic names only, none designated, D-37; "Testmarke HC" shown as a third party's
+--         mark, D-36 A). No assessment record is seeded: the BD run records ASM1 through the command. Author: the
+--         registered nurse of Testteam Basel as fixture attribution (org S has no administrator on purpose); the list
+--         maintenance command stays administrator-only (ASM1-6), unchanged.
+--   (G-b) `plan3_day_proposal` on for org S, as for Testorganisation H (as set_agent_state would write it; threshold
+--         written by the switch-on, a test value, not a NAVORA default). No administrator in the run, so the AUT-88 act
+--         baseline holds no management act (PO 10:39). The team's own switch (PLAN3-10) stays off, as by default: a
+--         member of Testteam Basel switches it on in the run (a team act). Only org H and org S have it on (pgTAP 126).
+insert into public.assessment_instruments (id, organization_id, name, version, valid_from, valid_to, third_party_mark, created_by) values
+  ('00000000-0000-4000-a000-000000000974', '00000000-0000-4000-b000-000000000019', 'Testinstrument Bedarf', '1.0', date '2020-01-01', null, false,
+   '00000000-0000-4000-a000-0000000009e6'),
+  ('00000000-0000-4000-a000-000000000975', '00000000-0000-4000-b000-000000000019', 'Testmarke HC', '9.1', date '2020-01-01', null, true,
+   '00000000-0000-4000-a000-0000000009e6'),
+  ('00000000-0000-4000-a000-000000000976', '00000000-0000-4000-b000-000000000019', 'Testinstrument alt', '0.9', date '2019-01-01', date '2020-12-31', false,
+   '00000000-0000-4000-a000-0000000009e6');
+insert into public.ai_agent_settings (organization_id, agent_key, state, stop_share, stop_min_proposals, stop_window_days,
+                                      switched_on_by, switched_on_at, on_version, on_provider, on_region)
+select '00000000-0000-4000-b000-000000000019', d.key, 'on', 50, 10, 30, '00000000-0000-4000-a000-0000000009e6',
+       private.now() - interval '1 day', d.version, d.provider, d.region
+from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';
