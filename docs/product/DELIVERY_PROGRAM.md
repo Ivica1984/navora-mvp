@@ -132,6 +132,12 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **New blocker / risk:** every Engineering PR edits `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, so each merge makes the rest conflict (AUT-49 adopted as direction). Role docs PRs (`cra` chain, `uxa` #850, `aia` #869, `lca` #860) conflict on `JOURNAL.md` too; FAM1 approval waits for the `lca` and `cra` inputs to reach `recovery/main`.
 - **Deviation:** none from architecture or strategic direction.
 
+## 0j. Status 2026-11-11 11:39: block BD, (I1) guard merged
+
+- **Merged** (merge commit, CI green on the head, PO did not run the tests): **#1064** BD / D-18 (I1) billing-reader guard (`b4f4577`).
+- **Next:** #1071 (seed G-a/G-b), #1072 (G-6 gap), then #1069 (BD-2 on top of both). Each needs its own `cra` gate line; #1071 and #1072 both claim ADR-182, and #1071 adds a second pgTAP file numbered 125: Engineering renumbers one of each before merge.
+- **New blocker:** none. M1-M8 dates unchanged. **Deviation:** none.
+
 ## 0i. Status 2026-11-11 10:39: block BD, simulation seed merged
 
 - **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1062** BD / Q-BD-2 (`0c7e38b`, BD PR order step (3)), **#1068** `cra` 09:32 (docs).
