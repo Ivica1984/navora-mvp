@@ -132,6 +132,12 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **New blocker / risk:** every Engineering PR edits `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, so each merge makes the rest conflict (AUT-49 adopted as direction). Role docs PRs (`cra` chain, `uxa` #850, `aia` #869, `lca` #860) conflict on `JOURNAL.md` too; FAM1 approval waits for the `lca` and `cra` inputs to reach `recovery/main`.
 - **Deviation:** none from architecture or strategic direction.
 
+## 0i. Status 2026-11-11 10:39: block BD, simulation seed merged
+
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1062** BD / Q-BD-2 (`0c7e38b`, BD PR order step (3)), **#1068** `cra` 09:32 (docs).
+- **Next:** #1064 (D-18 (I1) guard; gate clear), then #1069 (BD-2 run; needs the (G-a) and (G-b) seed PRs before BD-2 can be accepted).
+- **Dependencies:** #1069 and #1064 must merge `recovery/main` in if GitHub reports a conflict. **New blocker:** none; BD-2 acceptance now waits on two small seed PRs. M1-M8 dates unchanged. **Deviation:** none.
+
 ## 0h. Status 2026-11-11 08:39: block BD, role reviews merged, D-18 Phase A decided
 
 - **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1063** `uxa` 07:52, **#1065** `aia` 08:20, **#1066** `lca` 08:45 (docs only).
