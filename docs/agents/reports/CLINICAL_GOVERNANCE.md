@@ -16,6 +16,93 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-11 09:32 CET: **#1062 (Q-BD-2 simulation seed) gated: `cra-gate: #1062 087c060 clear`** (CGR-177 (a)-(c) met in pgTAP 124; (d) is the PO's acceptance text, adopted in the BD brief 05:39); **#1064 (D-18 (I1) guard) gated: `cra-gate: #1064 31f17d0 clear`**, with new **CGR-178** (the team's billing preview, with per-visit «nicht abrechenbar» reasons and client names, sits on the page and in the file of «Einsatz planen», so the (I1) app guard allows the planning form; advisory, S2) and **CGR-179** (hand-planned category minutes are not checked against the care plan, and the fact takes them from the snapshot: D-18 (I3) open; advisory, S2); **meaning of the M3 warning** given (PO 08:39 ask); **UXR-158** acceptable from the clinical side; **AUT-90** answered by CGR-178; PO decision D-18 M3 for Phase A read, no objection
+
+**Scope:** `recovery/main` @ `0c95548`. **Trigger:** merged since my 05:26 section (`76cef8d`): #1057 (BD-1, on my gated head `0d05266`), #1058 (mine), #1059, #1060 (BD / UXR-155, ADR-179: `/field` «Zu erledigen» link to `/team#anfragen`), #1061, #1063 (`uxa`), #1065 (`aia`), #1066 (`lca` D-18), #1067 (PO 08:39: **D-18 Phase A decided M3**, J5-v4 in B8, BD-2 additions). Open: **#1062** (`eng` Q-BD-2 seed, head `087c060`), **#1064** (`eng` D-18 (I1) test, head `31f17d0`), #3 (unchanged).
+
+I read: `git diff 76cef8d 0c95548` (code: `field-client.tsx`, `field/page.tsx`, `team-client.tsx`, `features/field/queries.ts`, `todo.ts`, `journey.spec.ts`, unit `bd-uxr155-team-offer-todo.test.ts`); #1062 in full (migration 0124, `seed.sql` block, pgTAP 002 and 124, unit test, ADR-180); #1064 in full (pgTAP 125, `d18-i1-no-billing-in-planning.test.ts`, the `eng` D-18 input 08:40 and journals 08:40, 09:13); the PO decision in `decisions/D-18.md` 08:39, the J5 amendment 08:39, the BD amendments 05:39-08:39; `lca` D-18 08:45; `uxa` UXR-158; `aia` AUT-87 to AUT-90. For the claims: `team-client.tsx:161-171, 223-226, 1004-1014`; `components/billing/billing-preview.tsx:51-77`; `field-client.tsx:213-215`; `OutsideWatchedVisits.tsx`; `features/signals/rules.ts:140-145`; 0014:195-260 (`plan_visit`), 0014:70-85 (`care_plan_items.category`), 0025:173-180 (self-planning sums the care plan), 0030:186-193 (PLAN2); 0120:590.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data. CI results below are GitHub's check-runs, not mine.
+
+### Task adjustment (README rule 11)
+
+The PO asked me (08:39) for four things: the gate line on #1062, UXR-158, AUT-90 and the meaning of the M3 warning. #1064 also names my review ("reviewed against (I1) by `cra`" before a reader is added), so I gated it in the same run. No founder decision, scope or other role's item changes. **Contradiction check:** none between my prompt and `FOUNDER_DECISIONS.md` v16.
+
+### #1062 (BD / Q-BD-2, ADR-180): read, gate
+
+Against CGR-177:
+- **(a)** IMPLEMENTED: the name carries «synthetische Simulation» (pgTAP 124 test 3); every evidence row of org S is `verified`, `synthetic`, without `recorded_by` (test 5), and the seed holds no evidence outside it (test 6).
+- **(b)** IMPLEMENTED: exactly one simulation organisation, org S (tests 1-2); `authenticated` and `anon` have no INSERT/UPDATE and a nurse's update is refused (tests 7-8); `service_role` cannot set the flag on an existing or a new organisation (tests 9-10); a running command is refused (test 11), so a SECURITY DEFINER path is closed; an update that leaves the flag is not refused (test 12). Migration 0124 refuses on API role, `navora.command` or a request user; SECURITY INVOKER, `search_path = ''`, EXECUTE revoked.
+- **(c)** IMPLEMENTED: Testorganisation A is not a simulation (test 13); pgTAP 121 unchanged in the diff.
+- **QUAL1 mechanism on the seed accounts:** care assistant refused `qualification_not_allowed` on a KLV-B visit and on a needs assessment, registered nurse not (tests 14-16), the refusal from matrix `QAM-0.2` (test 18). The grades are fixture choices for synthetic people; no cell is validated (D-43).
+- **(d)** is the PO's acceptance text (BD brief 05:39, adopted); it is checked at BD acceptance, not on this PR.
+- One residual limit, named, not a finding: a SECURITY DEFINER function called by `service_role` without a command and without a JWT would pass the guard (`current_user` is then the owner). I found no function that writes `organizations.simulation`; pgTAP 124 tests the paths that exist.
+- CI on head `087c060`: `app` 130367154914, `db` 130367154650, `e2e` 130367154523, `ui-screenshots` 130367154809, all `success`.
+
+**`cra-gate: #1062 087c060 clear`**.
+
+### #1064 (D-18 (I1) test): read, gate
+
+- **DB side (pgTAP 125):** the set of functions in `public`/`private` that name `billing_rules`, `tariff_rates`, `min_billable_minutes` or call `billing_rule(`, `tariff_rate(`, `billing_preview(` is pinned to the J5 functions plus `private.aig1_prohibited_target` (names them to refuse them, 0120:590 has the same list); no view reads them. This turns (I1) from "IMPLEMENTED by reading" into IMPLEMENTED with a test for the billing **parameters**. Its limit (dynamic SQL, other schemas) is stated in the file.
+- **App side:** deny by default since 09:13 (AUT-87): every `.ts`/`.tsx` under `src` is scanned, nine named readers allowed, stale entries and a fixture tree fail. Good.
+- **Two gaps, as findings, not conditions for this PR:** the allowed list contains `app/(protected)/team/team-client.tsx`, the file of the planning form (CGR-178); and the pgTAP pins the billing parameters but not the billing **outcome** (`billable_facts`): a planning or proposal function that read which visits were billable would not fail (CGR-178 (3)).
+- CI on head `31f17d0`: `app` 130405142862, `db` 130405142599, `e2e` 130405143124, `ui-screenshots` 130405142881, all `success`.
+
+**`cra-gate: #1064 31f17d0 clear`** (the test adds no rule and makes (I1) testable; CGR-178 is a later change in B8).
+
+### #1060 (UXR-155, merged): read
+
+Count only, no client name, no urgency colour, decision stays on `/team`; a failed read hides only the link. No rule, no care decision. No finding.
+
+### Answers to the PO (08:39)
+
+**UXR-158 (jump to `/team#anfragen` passes the out-of-hours list and the delivery status): acceptable from the clinical side; close.** Reasons from the code: the acute signals are on `/field` and first there (SIG1 banner, `field-client.tsx:213-215`, "above everything", ADR-104); the out-of-hours list is a 7-day **planning** signal addressed to Operations and the go-live condition SIG1-8 (`features/signals/rules.ts:143-145`), shown also on `/admin`; nothing is hidden or reordered. It stays a go-live condition (SIG1-8) before real data, unchanged. If a later item puts an acute or nurse-addressed signal on `/team` only, the jump must be re-checked.
+
+**AUT-90 (billing preview on the planning page): not acceptable before real billing; acceptable for BD on synthetic data.** See CGR-178. It does not block #1062 or #1064.
+
+**Meaning of the M3 warning (J5-v4 criterion 5).** What it says and what it must never say (wording stays `uxa`'s; legal wording `lca` 08:45):
+- **(m1) It states one thing only:** the measured care minutes of this visit are under 10, and the KLV minimum (Art. 7a Abs. 2) is not applied because its level is open (D-18). Suggest «Gemessene Pflegezeit unter 10 Minuten» as the first words, so it is clear the measured, not the planned, time is meant.
+- **(m2) It says nothing about care.** A visit planned short by the care plan (eye drops, a check, a medication) and done in that time is correct care. The warning is not a quality signal, not a sign of a too-short visit, not a reason to review the visit, and not counted in any quality, staff or team performance measure. AN2-M7 counts it only as a frequency.
+- **(m3) Where it may appear:** billing surfaces only (billing preview, later the invoice draft). Never in the field app, the planning form or dialog, proposals, reminders or any AI input (I1, I2; J5-v4 criterion 7).
+- **(m4) How it looks:** neutral information tone, not amber or rose; no advice text («verlängern», «zusammenlegen», «nachdokumentieren»).
+- **(m5) It is independent of the F3 warning** («Gemessene Zeit enthält eine nachträgliche Korrektur (F3)», CGR-176 (3)): a fact may carry both; neither changes the billable status.
+- Testable: unit test on `features/billing/rules.ts` that the warning text has no advice verb and no «nicht abrechenbar»; the (I1) guard covers (m3); an e2e that the warning has the neutral tone.
+
+**PO decision D-18 M3 (Phase A) read:** it applies no reading of the minimum and no clinical rule, on synthetic data only, and keeps the owner and Clinical Owner sentences for Phase B. I see no clinical objection; it is what my template recommended. Until J5-v4 is merged M1 stays, named UNVALIDATED (CGR-176 (2)).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-178** | `/team` billing preview next to «Einsatz planen»; #1064 (I1) app guard; AUT-90; D-18 (h1), (h2), (I1), (I2); CR-029 | **advisory** now (synthetic); **S2** before real billing | **(1) The planner sees the money of each short visit.** `team-client.tsx` renders the team's «Abrechnungsvorschau» (223-226) on the same page as the planning form (1004-1014). The preview lists each not-billable visit with date, client name and reason (`billing-preview.tsx:72-77`), so under M1 a nurse planning minutes for a client sees that client's last short visits marked «nicht abrechenbar». That is the incentive of D-18 hazard (h1) (stretch or merge short visits) at the point where minutes are planned; under M3 the same holds for the «unter 10 Minuten» warning. **(2) The (I1) guard cannot see the planning form.** `team-client.tsx` and `team/page.tsx` are on the allowed list of #1064, so billing logic added to the planning form in that file passes the guard. **(3) The DB guard pins billing parameters, not the billing outcome.** pgTAP 125 does not list readers of `billable_facts`; a planning, proposal or AI function that read which visits or clients were billable would not fail, though it creates the same incentive. | `team-client.tsx:223-226, 1004-1014`; `billing-preview.tsx:51-77`; #1064 `BILLING_READERS`; pgTAP 125; `eng` D-18 input 08:40 (billing preview on `/team`, `authenticated` SELECT on `billing_rules`/`tariff_rates`) | (PLANNED, B8 with J5-v4 or UXR-156; `po`, placement `uxa`): **(1)** the billing preview moves to its own team billing page, not reachable from the planning form; e2e: `/team` shows no «Abrechnungsvorschau», no «nicht abrechenbar» and no «unter 10 Minuten»; **(2)** `team-client.tsx` and `team/page.tsx` leave `BILLING_READERS`; the guard test asserts that no file containing «Einsatz planen» or the plan dialog matches the billing pattern; **(3)** pgTAP 125 gets a second pinned set: the functions that read `billable_facts` are exactly the J5, AN1/AN2 and correction/withdraw functions (named list), no planning, proposal, cover, offer or AI function |
+| **CGR-179** | D-18 (I3) "every billed minute rests on the care-plan category"; `plan_visit` hand path; CR-001; J5 fact | **advisory** now; **S2** before real billing | **Hand-planned category minutes are not bound to the care plan.** `plan_visit` checks window, assessment first, A-only for the assessment, an order for B, team and RN (0014:208-245), but not that a category with minutes has an active care-plan item of that category (`care_plan_items.category`, 0014:76); PLAN2 and self-planning do derive minutes from the care plan (0025:173-180). The fact takes category minutes from the signed snapshot (`eng` 08:40), not from the care plan. So on the hand path B or C minutes can be planned, signed and become a billable fact for a case whose care plan has no item of that category (B still needs an order). Whether KLV or the contracts require each billed category minute to rest on a care-plan item is **UNKNOWN** (`lca`; clinical side: Clinical Owner, D-43); NAVORA's own D-18 invariant (I3) says it should. I read later rewrites of `plan_visit` (0061, 0118) only for their ORD0 and overlap parts; if one adds this check, the finding closes. | 0014:195-260; 0014:70-85; 0025:173-180; 0030:186-193; `decisions/D-18.md` (I3) and `eng` input 08:40 | (PLANNED, B8 or BILL1; `po`): either `plan_visit` returns a warning (not a refusal: care must not wait for a care-plan edit) when a category has minutes and the care plan has no active item of it, recorded on the visit; **and** the fact carries a warning `category_not_in_care_plan` (never a reason in Phase A); pgTAP both ways: hand-planned B minutes without a B care-plan item give the warning on visit and fact, with a B item none. `lca` answers whether Phase B needs a refusal |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-177** | (a), (b), (c) **met** in #1062 (pgTAP 124 tests 1-13, 14-18 for the mechanism); open until #1062 is merged and CI on the merge commit is green; (d) checked at BD acceptance | #1062 head `087c060`, CI 4/4 |
+| **CGR-176** | (1), (2) adopted in BD 05:39; (3) routed to B8/BILL1 (PO 05:39), wording `lca` 08:45; open until built | BD amendment 05:39; `lca` D-18 08:45 |
+| **CGR-175** | unchanged; open until BD-2 and BD-4 are green | – |
+| **CGR-31**, **CGR-110**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174** | open, unchanged | – |
+
+### Gate status
+
+- **#1062** (Q-BD-2): **`cra-gate: #1062 087c060 clear`**.
+- **#1064** (D-18 (I1)): **`cra-gate: #1064 31f17d0 clear`**.
+- **#1060** merged; no gate asked (no rule), read: no finding.
+- **BD** acceptance needs CGR-175, CGR-176 (1)-(2), CGR-177 (d) and `uxa` G-1 to G-6. **J5-v4** (B8) needs my gate line on its head and the M3 warning meaning above. B2 and B7 unchanged.
+
+### Decisions requested
+
+- **`po`:** merge this PR; take CGR-178 and CGR-179 into B8 (with J5-v4 or UXR-156) as PLANNED; put the warning meaning (m1)-(m5) into the J5-v4 acceptance text; close UXR-158 from the clinical side.
+- **`uxa`:** the placement of the team billing page (CGR-178 (1)) and the warning wording within (m1)-(m4).
+- **`eng` (answer only):** whether any later `plan_visit` rewrite checks the care-plan category (CGR-179).
+- **`lca`:** whether, for a real invoice, a billed A/B/C minute must rest on an assessed care-plan item of that category (CGR-179).
+- **Clinical Owner (D-43, owner escalated):** the D-18 invariants sentence (I1)-(I5), unchanged. All UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-11 05:26 CET: **D-18 decision template written** (FE-042, fourth deferral ended; in `decisions/D-18.md`): the 10-minute minimum as built (CR-029, "below → not billable") reads opposite to KLV Art. 7a Abs. 2, the BAG commentary ("pro Einsatz mindestens 10 Minuten umfassen", read today) and the BS leaflet; recommended **M3** (record minutes, no minimum or unit applied, "under 10" as a warning) plus clinical invariants (I1)-(I5); **#1057 (BD-1 inventory) read: `cra-gate: #1057 0d05266 clear`**, with new **CGR-176** (Q-BD-1: the billable main path through an F3 correction and a `below_minimum` negative step; advisory, condition for BD acceptance) and **CGR-177** (Q-BD-2 simulation seed organisation: supported with four conditions; advisory); **CGR-175 (1) confirmed from the code** by `eng`
 
 **Scope:** `recovery/main` @ `76cef8d`. **Trigger:** merged since my 01:26 section (`c651a24`): #1039 (B0-4, on my gated head `864b802`), #1048 (mine), #1050 (`aia`), #1051 (PO 02:39: CGR-172 to CGR-175 into BD, POOL1, FEE1, ONB1), #1052 (B0-2 final evidence, docs), #1053 (PO 03:39 and 04:39: **B0 accepted** under FE-054 (3), **BD active**, FE-056), #1054 (`uxa` G-1 to G-6, UXR-155 to -157), #1055 (`lca` D-14 re-check). Open: **#1057** (`eng`, BD-1, docs only) and #3 (M2, unchanged).
