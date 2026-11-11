@@ -3,7 +3,7 @@ id: BD
 title: Block BD, durchgängiger Ablauf ambulant (die gebauten Teile werden eine zusammenhängende Software)
 author: po
 status: approved
-updated: 2026-11-10
+updated: 2026-11-11
 ---
 
 # BD — Durchgang ambulant (Phase A, synthetisch)
@@ -27,6 +27,13 @@ One automated run proves that a referral becomes a planned, executed, documented
 - [ ] **BD-5 Repeatable:** the test is green on the PR head, on the merge commit, and 10/10 in `ci-repeat` on the merge commit (B0-2 rule; an `infrastructure:` attempt counts as not run).
 - [ ] **BD-6 No new rule:** where a step needs a rule that is not decided (billing release after a late assessment D-22, clinical rules D-43), the step ends in today's safe behaviour (refusal, hold, visible fact) and the inventory names the decision. Nothing invented.
 - [ ] **Negative:** a nurse of another team, or `anon`, cannot read or act on any record of the run (one assertion per step type, reusing RLS2 accounts).
+
+### Amendment 2026-11-11 02:39 CET (po, `cra` CGR-175, advisory, condition for BD acceptance)
+Taken in as acceptance conditions; product authority, no rule added (BD-6 holds):
+- [ ] **BD-1 (amended):** the inventory names for step 1b that the gate `assessment_first` (CR-002, 0014) reads the **completed assessment visit** (J3, F1-F4), not ASM1; ASM1 alone does not open it.
+- [ ] **BD-2 (amended):** step 1b completes the assessment **visit** through the screens; only then is a category-A or -B visit planned. Step 5 shows the QUAL1 check **again at visit start** (CR-183, QUAL1-17), not only at planning. Step 9 asserts the fact's billable status **and an empty reason list**; for any B minutes the medical order is recorded through ORD0 **before** the visit date (0051 reads the order as of the visit date).
+- [ ] **BD-4 (amended):** negatives in addition: a care visit before the completed assessment visit is refused `assessment_first`; B minutes without a valid order give `b_without_valid_order`; a report not final gives no fact; a visit start by a member whose evidence has lapsed is refused at the door. Stop cases (a), (b), (e) of §5 stay listed "nicht nachgewiesen" and do **not** count toward acceptance.
+- **Acceptance text:** BD's acceptance states that it proves the software path, and is **no clinical release** of the flow (CGR-145, CGR-146).
 
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.

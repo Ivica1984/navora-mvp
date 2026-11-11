@@ -21,6 +21,7 @@ Every order, contract, billing preparation and revenue metric carries exactly on
 
 ## Acceptance criteria
 - [ ] GMSEP-1: every order or engagement record carries `business_model` ∈ {`gm1_team`, `gm2_b2b`} and a constellation (KON-1 … KON-5), not null, set at creation, never changed afterwards (correction = new record).
+  - *Amended 2026-11-11 02:39 (po, `aia` AUT-85):* both values are **derived from the creating path** (team order from a client or institution → `gm1_team` with its constellation; an institution's own staff use under its licence → `gm2_b2b`; POOL1 acceptance → `gm1_team`/KON-1), never a form field. Test: no screen offers either value; every creating command sets them.
 - [ ] GMSEP-2: care remuneration (U-T), platform fee (U-N1) and licence (U-N2) are three separate data types; no column, view or function sums U-T into NAVORA revenue. pgTAP: an attempt to write a U-T amount into a NAVORA revenue record is refused.
 - [ ] GMSEP-3: no NAVORA record holds a percentage of, or an amount derived from, care remuneration (FE-055 (1)). pgTAP negative case: a fee row referencing a care-billing amount is refused.
 - [ ] GMSEP-4: a GM-2 institution's own staff, shifts and residents are not readable by any GM-1 team member, also not when the same institution is a GM-1 client (KON-1); pgTAP for both directions (team → institution staff, institution staff → team-internal data beyond the order).
