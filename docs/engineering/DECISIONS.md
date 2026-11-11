@@ -3729,7 +3729,7 @@ A fresh database runs them in number order; a database that had already applied 
 
 ### ADR-179 — BD / UXR-155: a referral offered to her team shows up on the nurse's `/field` as one neutral «Zu erledigen» link to the offers on `/team`
 
-**Date:** 2026-11-11 06:40 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** `recovery/main` `6314ad5f` · **Block:** BD (brief `docs/agents/briefs/BD.md`, amendment 2026-11-11 04:39: UXR-155 is a BD gap with its own PR and e2e test; order of the BD PRs, amendment 05:39, step (2)).
+**Date:** 2026-11-11 06:20 Europe/Zurich · **Status:** IMPLEMENTED in PR #1060 (CI `ci` 42964496410 4/4 green on `492a38e`) · **Base:** `recovery/main` `6314ad5f` · **Block:** BD (brief `docs/agents/briefs/BD.md`, amendment 2026-11-11 04:39: UXR-155 is a BD gap with its own PR and e2e test; order of the BD PRs, amendment 05:39, step (2)).
 
 **Context.** BD-1 (`docs/engineering/DURCHGANG_INVENTORY.md` §0 row 1, §1 step 1) found that the hand-over J1 → J2 has no cue where the nurse starts: an offer to her team (with a response deadline) is listed only on `/team` under «Anfragen an dein Team»; her `/field` and its «Zu erledigen» row say nothing (`uxa` UXR-155, medium, 2026-11-11 03:52).
 
