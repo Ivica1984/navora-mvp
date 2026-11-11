@@ -3761,3 +3761,12 @@ A fresh database runs them in number order; a database that had already applied 
 **Not in this PR.** The BD e2e steps on org S (BD-2, option (A) of Q-BD-1) and the BD-4 negatives at the screen; CGR-177 (d) is the PO's acceptance text.
 
 **Clinical review gate:** `cra` gate line needed on the PR head (CGR-177; BD brief). **No data:** synthetic seed only, `supabase db push` never runs the seed; the live project is not touched. **Rollback:** drop the trigger and function (0124 is additive), remove the seed block, set pgTAP 002 back to 14.
+
+### ADR-182 — BD G-6 gap fix: no decision codes in the billing preview text (UX1-11 applied to `REFERENCE_NOT_VALIDATED`)
+
+**Date:** 2026-11-11 11:16 Europe/Zurich · **Status:** PLANNED until CI is green on the PR head · **Base:** `recovery/main` `03fad62` · **Block:** BD (brief amendment 04:39, `uxa` G-6; gap fix as its own PR, BD-3)
+
+**Context.** The BD-2 run (PR #1069, CI `ci` 42994448317, 42996341896, 43000793609) found «… Pilotkanton offen: D-11, D-18» on `/team` in every run: `REFERENCE_NOT_VALIDATED` (`src/features/billing/rules.ts`, CSR1 part 6), rendered by `billing-preview.tsx` for every team whose rates or minimum are not validated. UX1-11 (string list UX1-12, confirmed by `cra`) already decided that codes leave page text and move into a `data-ref` attribute of the same element; this constant came later and kept the codes. `tests/unit/billing-rules.test.ts` required them in the text.
+**Decision.** Same pattern as UX1-11, no new rule: the text becomes «Tarife und Mindestdauer nicht validiert (kantonale Quelle, Pilotkanton offen)»; the element carries `data-ref="D-11 D-18"`. The meaning (CGR-08: rates and minimum not validated, pilot canton open) is unchanged; only the codes leave the sentence. Wording PROPOSED for `uxa`.
+**Tests (changed first).** `tests/unit/billing-rules.test.ts`: the text says «nicht validiert» and «Pilotkanton offen», carries no D-/CR-/CGR-/SIG- code, and the element in `billing-preview.tsx` carries `data-ref="D-11 D-18"` (the assertion on the codes moves from the text to the attribute; nothing is dropped). `tests/e2e/billing.spec.ts` keeps «nicht validiert». The BD-2 run's G-6 check is the e2e proof.
+**Clinical review gate:** wording of an existing notice; no rule, no assertion about care or billing. **No data:** none. **Rollback:** restore the constant and the test line.
