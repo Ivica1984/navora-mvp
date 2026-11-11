@@ -1,5 +1,5 @@
 -- BD seed completion for Testorganisation S (PO 2026-11-11 10:39, BD brief amendment 10:39, comment on PR #1069;
--- ADR-182). Fixture only: no grant, policy, rule or command changes.
+-- ADR-183). Fixture only: no grant, policy, rule or command changes.
 --   (G-a) org S has exactly the synthetic ASM1 instrument list of Testorganisation A (same names, versions, validity,
 --         third-party-mark flag), so the BD run can record an ASM1 assessment. No assessment record is seeded.
 --   (G-b) `plan3_day_proposal` is seeded `on` for org S (as for Testorganisation H; no administrator in the run, so the

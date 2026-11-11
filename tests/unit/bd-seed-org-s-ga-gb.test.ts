@@ -2,15 +2,15 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 /**
- * BD seed completion for Testorganisation S (PO 2026-11-11 10:39, BD brief amendment 10:39; ADR-182). This guard reads
- * files only; pgTAP 125 proves the same on the database after `supabase db reset`.
+ * BD seed completion for Testorganisation S (PO 2026-11-11 10:39, BD brief amendment 10:39; ADR-183). This guard reads
+ * files only; pgTAP 126 proves the same on the database after `supabase db reset`.
  *   (G-a) org S gets the same synthetic ASM1 instrument list as Testorganisation A (fixture only, no record);
  *   (G-b) `plan3_day_proposal` is seeded on for org S as for Testorganisation H; only org H and org S have it on;
  *         the team's own switch (PLAN3-10) is not seeded; org S gets no administrator.
  * Fixture only: the seed change adds no grant, policy, function or migration.
  */
 const SEED = readFileSync("supabase/seed.sql", "utf8");
-const PGTAP = readFileSync("supabase/tests/database/125_bd_seed_org_s_asm1_day_proposal.test.sql", "utf8");
+const PGTAP = readFileSync("supabase/tests/database/126_bd_seed_org_s_asm1_day_proposal.test.sql", "utf8");
 
 const ORG_A = "00000000-0000-4000-b000-000000000011";
 const ORG_H = "00000000-0000-4000-b000-000000000018";
@@ -74,7 +74,7 @@ describe("BD seed Testorganisation S: ASM1 instrument (G-a) and day proposal (G-
     expect(sql).not.toMatch(/update\s+public\.organizations/i);
   });
 
-  it("GX-2: pgTAP 125 keeps the PO's acceptance assertions", () => {
+  it("GX-2: pgTAP 126 keeps the PO's acceptance assertions", () => {
     for (const label of [
       "(G-a): Testorganisation S has exactly the instrument entries of Testorganisation A",
       "(G-a): no assessment record is seeded for org S",
