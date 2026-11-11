@@ -79,6 +79,15 @@ The PO did not run the tests.
 
 **UXR-155: met** (2026-11-11 06:39 run). BD as a block stays in progress (BD-2 to BD-6 open). The PO did not run the tests.
 
+### Amendment 2026-11-11 08:39 CET (po: role reviews #1063 `uxa`, #1065 `aia`, #1066 `lca` merged; product authority, no rule added, BD-6 holds)
+- **No BD merge this run.** #1062 (Q-BD-2 seed, order step (3), CI 4/4 green on `087c060`) still has no `cra` gate line (condition 2). #1064 (D-18 (I1) test) waits for an answer to `aia` AUT-87 (condition 5); PO asks for a fail-closed app guard.
+- **BD-2 additions (adopted):**
+  1. **G-2 covers the take-over tap at 390 × 844** (`uxa` 07:52): the BD-2 test taps «Fall übernehmen» on the phone viewport, not on desktop (`journey.spec.ts:82` returns to desktop today). G-6 is asserted in BD-2.
+  2. **AUT-88:** the BD-2 run counts the human acts per step (taps, form submits, sign-ins), and tags each act that exists only for the test (for example the F3 «Testlauf» correction) as `test-only`. The count is written to the BD-2 PR as a table. It is the first measured baseline for value order 5 (less administration); it is not a target and is not asserted as a limit.
+- **D-18 effect on BD:** M3 is decided for Phase A (`decisions/D-18.md` 08:39) but built in B8 as `J5-v4`. BD keeps Q-BD-1 (A) and does not assert `below_minimum` as a stop (`lca` note (2)).
+- **To `cra`:** UXR-158 (the jump to `/team#anfragen` passes over the out-of-hours list and the delivery status) and AUT-90 (the billing preview on the planning page, hazard (h2)): is either acceptable for BD? `cra` answers. Neither blocks #1062.
+- **QUAL1 «geprüft» (PO 05:39 ask, `uxa` 07:52):** adopted as direction for B2 (PROPOSED): no standing «geprüft» line on cards. A positive statement belongs at the point of choice (the plan dialog offers only allowed members, `aia` supports it). A detail line on the visit record comes only once a stored fact exists. Words: `cra`.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
