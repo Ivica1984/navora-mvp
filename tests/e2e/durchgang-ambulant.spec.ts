@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Locator, type Page } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { TEAM_OFFERS_HEADING } from "@/features/field/todo";
 import {
@@ -14,6 +14,7 @@ import {
   zurichDay,
   type Slot,
 } from "./support/durchgang-time";
+import { ActLog } from "./support/act-count";
 
 // BD-2 (block BD, brief docs/agents/briefs/BD.md; ADR-181): ONE continuous run of the home-care flow, steps 1 to 9 of
 // PRODUCT_BLOCKS.md §5 (ambulant), as far as they are proven to run (BD-3). Synthetic local-only accounts of
@@ -31,6 +32,9 @@ import {
 //   CGR-180 (1): the corrected times form a possible sequence (the assessment's completion is set back too): the care
 //   visit starts after the needs assessment ended, and the nurse's two visits do not overlap (asserted on the stored facts).
 //   «Der abrechenbare Hauptpfad nutzt eine Zeitkorrektur (F3) mit dem Grund ‹Testlauf: simulierte Einsatzdauer›.»
+//   AUT-88: every human act of the run goes through tap/submit/fill/choose/tick and is counted per step (one sign-in per
+//   person; the F3 «Testlauf» corrections tagged test-only). The table is attached to the run and printed to the log;
+//   it is a measured baseline, never asserted as a limit.
 //
 // Not in this run yet (BD-3: named, not faked; the PR names each break):
 //   step 1b ASM1 record — Testorganisation S has no assessment instrument (instruments are per organisation, seed has
@@ -48,6 +52,32 @@ const TITLE = "Durchgang Übergangspflege Basel";
 const FIRST = "Bea";
 const LAST = "Durchgangtest";
 
+// AUT-88 act count (support/act-count.ts). «submit» = the saving button of a form with entries; «tap» = any other
+// control (menu link, command button, disclosure); «input» = one field filled, chosen or ticked.
+const acts = new ActLog();
+let testOnlyDepth = 0;
+const actOptions = () => ({ testOnly: testOnlyDepth > 0 });
+async function tap(target: Locator) {
+  acts.act("tap", actOptions());
+  await target.click();
+}
+async function submit(target: Locator) {
+  acts.act("submit", actOptions());
+  await target.click();
+}
+async function fill(target: Locator, value: string) {
+  acts.act("input", actOptions());
+  await target.fill(value);
+}
+async function choose(target: Locator, value: string | { label: string }) {
+  acts.act("input", actOptions());
+  await target.selectOption(value);
+}
+async function tick(target: Locator) {
+  acts.act("input", actOptions());
+  await target.check();
+}
+
 async function signIn(page: Page, email: string) {
   await page.goto("/login");
   await page.getByLabel("E-Mail").fill(email);
@@ -59,6 +89,7 @@ async function signIn(page: Page, email: string) {
 async function person(browser: Browser, email: string, phone: boolean): Promise<Page> {
   const context = await browser.newContext(phone ? { viewport: { width: 390, height: 844 } } : {});
   const page = await context.newPage();
+  acts.act("sign-in"); // one act; the e-mail and password fields inside it are not counted separately
   await signIn(page, email);
   return page;
 }
@@ -85,7 +116,8 @@ async function asPerson(email: string): Promise<SupabaseClient> {
 
 /** Runs one visit on /field at 390 px: depart, start, complete; then F3 corrections (option (A)); then signs the report. */
 async function runVisit(nurse: Page, slot: Slot, back: CorrectionBack, label: string) {
-  await nurse.getByTestId("tab-bar").getByRole("link", { name: "Heute" }).click();
+  acts.step(`5 ${label}: unterwegs, Start, Abschluss`);
+  await tap(nurse.getByTestId("tab-bar").getByRole("link", { name: "Heute" }));
   await nurse.waitForURL(/\/field/);
   const card = nurse.getByRole("article", { name: new RegExp(`${slot.from} – ${slot.to}, ${FIRST} ${LAST}`) });
   await expect(card, `${label}: the planned visit is in her day`).toContainText("Geplant");
@@ -95,7 +127,7 @@ async function runVisit(nurse: Page, slot: Slot, back: CorrectionBack, label: st
     ["Einsatz starten", "Gestartet"], // QUAL1-17: the matrix is asked again at start; the qualified nurse is not refused
     ["Einsatz abschliessen", "Abgeschlossen"],
   ] as const) {
-    await card.getByRole("button", { name: button }).click();
+    await tap(card.getByRole("button", { name: button }));
     await expect(card, `${label}: ${button}`).toContainText(status);
     await expect(card.getByTestId("command-error")).toHaveCount(0);
   }
@@ -103,30 +135,35 @@ async function runVisit(nurse: Page, slot: Slot, back: CorrectionBack, label: st
   // Q-BD-1 option (A): departure first, then start, then (if set) completion, all earlier than recorded, so the order
   // departed < started < completed holds at every save (0040 neighbour check).
   const now = Date.now();
-  await card.getByText("Zeiten ansehen und korrigieren").click();
+  acts.step(`5 ${label}: Zeitkorrektur F3 (Testlauf)`);
+  testOnlyDepth += 1; // AUT-88: the F3 «Testlauf» corrections exist only because the run cannot wait real minutes
+  await tap(card.getByText("Zeiten ansehen und korrigieren"));
   const timeline = card.getByRole("list", { name: "Zeitverlauf" });
   const steps: [string, number][] = [["Losgefahren", back.departed], ["Gestartet", back.started]];
   if (back.completed !== undefined) steps.push(["Abgeschlossen", back.completed]);
   for (const [event, minutes] of steps) {
     const row = timeline.getByRole("listitem").filter({ hasText: event });
-    await row.getByRole("button", { name: "Korrigieren" }).click();
-    await row.getByLabel("Richtige Uhrzeit").fill(minutesBack(now, minutes));
-    await row.getByLabel("Begründung").fill(F3_REASON);
-    await row.getByRole("button", { name: "Korrektur speichern" }).click();
+    await tap(row.getByRole("button", { name: "Korrigieren" }));
+    await fill(row.getByLabel("Richtige Uhrzeit"), minutesBack(now, minutes));
+    await fill(row.getByLabel("Begründung"), F3_REASON);
+    await submit(row.getByRole("button", { name: "Korrektur speichern" }));
     // B0-3 part 5 (ADR-173): the save's own outcome first (the form closes only on `ok`), then the refreshed row.
     await expect(row.getByLabel("Richtige Uhrzeit"), `${label}: ${event} correction saved`).toHaveCount(0);
     await expect(row).toContainText("korrigiert");
     await expect(row).toContainText(F3_REASON);
   }
+  testOnlyDepth -= 1;
 
   // F6/F7: the draft from the visit data waits at completion; one confirmation signs it (registered nurse: final).
+  // The reload is the run waiting for the refreshed card, not a human act (not counted).
+  acts.step(`8 ${label}: Bericht unterschreiben`);
   await nurse.reload();
   const again = nurse.getByRole("article", { name: new RegExp(`${slot.from} – ${slot.to}, ${FIRST} ${LAST}`) });
   const report = again.getByTestId("visit-report");
   const review = report.getByRole("form", { name: "Bericht prüfen und unterschreiben" });
   await expect(review.getByTestId("report-facts")).toContainText("Leistungen");
-  await review.getByLabel("Zusammenfassung (optional)").fill(`Synthetischer Bericht (${label}), Durchgang BD.`);
-  await review.getByRole("button", { name: "Bericht unterschreiben" }).click();
+  await fill(review.getByLabel("Zusammenfassung (optional)"), `Synthetischer Bericht (${label}), Durchgang BD.`);
+  await submit(review.getByRole("button", { name: "Bericht unterschreiben" }));
   await expect(report.getByTestId("report-status"), `${label}: report final`).toHaveText("Bericht abgeschlossen");
   await expect(report.getByTestId("command-error")).toHaveCount(0);
   await noInternalCode(nurse, `/field after ${label}`);
@@ -140,99 +177,104 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   const today = zurichDay();
 
   // ── Step 1 (J1): Operations records the referral and opens the case; the menu offers «Aufnahme» (G-1). ─────────────
+  acts.step("1 Anfrage erfassen und Fall eröffnen (Operations)");
   const ops = await person(browser, OPS, false);
-  await ops.getByTestId("shell-sidebar").getByRole("link", { name: "Aufnahme" }).click();
+  await tap(ops.getByTestId("shell-sidebar").getByRole("link", { name: "Aufnahme" }));
   await ops.waitForURL(/\/intake$/);
   const form = ops.getByRole("form", { name: "Neue Anfrage" });
-  await form.getByLabel("Zuweisende Stelle").fill("Testspital Durchgang");
-  await form.getByLabel(/^Dringlichkeit/).selectOption("mittel");
-  await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
-  await form.getByLabel("Region").fill("Basel-Stadt");
-  await form.getByLabel("Titel").fill(TITLE);
-  await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, Durchgang BD.");
-  await form.getByLabel("Leistungen (mit Komma getrennt)").fill("Grundpflege");
-  await form.getByRole("button", { name: "Anfrage speichern" }).click();
+  await fill(form.getByLabel("Zuweisende Stelle"), "Testspital Durchgang");
+  await choose(form.getByLabel(/^Dringlichkeit/), "mittel");
+  await choose(form.getByLabel("Quelle der Dringlichkeit"), { label: "vom Zuweiser angegeben" });
+  await fill(form.getByLabel("Region"), "Basel-Stadt");
+  await fill(form.getByLabel("Titel"), TITLE);
+  await fill(form.getByLabel("Bedarf (Zusammenfassung)"), "Synthetischer Bedarf, Durchgang BD.");
+  await fill(form.getByLabel("Leistungen (mit Komma getrennt)"), "Grundpflege");
+  await submit(form.getByRole("button", { name: "Anfrage speichern" }));
   const request = ops.getByRole("article", { name: `Anfrage ${TITLE}` });
-  await request.getByRole("button", { name: "Prüfen und in Fall überführen" }).click();
-  await request.getByLabel("Vorname").fill(FIRST);
-  await request.getByLabel("Nachname").fill(LAST);
-  await request.getByLabel("Wohngemeinde").fill("Basel");
-  await request.getByLabel("Kanton").selectOption("BS");
-  await request.getByLabel("Krankenversicherer").fill("Testkasse");
-  await request.getByLabel("Versicherungsart").selectOption("KVG");
+  await tap(request.getByRole("button", { name: "Prüfen und in Fall überführen" }));
+  await fill(request.getByLabel("Vorname"), FIRST);
+  await fill(request.getByLabel("Nachname"), LAST);
+  await fill(request.getByLabel("Wohngemeinde"), "Basel");
+  await choose(request.getByLabel("Kanton"), "BS");
+  await fill(request.getByLabel("Krankenversicherer"), "Testkasse");
+  await choose(request.getByLabel("Versicherungsart"), "KVG");
   // A and C minutes only in this run: no category-B minutes, so no medical order as of the visit date is needed (0051).
-  await request.getByLabel("Ärztliche Verordnung").selectOption("present");
-  await request.getByLabel("Verordnung gültig bis").fill(zurichDay(Date.now(), 90));
-  await request.getByLabel("Gewünschter Beginn").fill(today);
-  await request.getByLabel("Erwartete Stunden pro Woche").fill("4");
-  await request.getByRole("checkbox").check();
-  await request.getByRole("button", { name: "Fall eröffnen" }).click();
+  await choose(request.getByLabel("Ärztliche Verordnung"), "present");
+  await fill(request.getByLabel("Verordnung gültig bis"), zurichDay(Date.now(), 90));
+  await fill(request.getByLabel("Gewünschter Beginn"), today);
+  await fill(request.getByLabel("Erwartete Stunden pro Woche"), "4");
+  await tick(request.getByRole("checkbox"));
+  await submit(request.getByRole("button", { name: "Fall eröffnen" }));
   await expect(request, "the referral became a case").toHaveCount(0);
   await noInternalCode(ops, "/intake");
   await ops.context().close();
 
   // ── Step 1 (J2): the nurse sees the offer first on /field (UXR-155), without the client's name, and takes it. ──────
+  acts.step("1 Team übernimmt den Fall (Pflege)");
   const nurse = await person(browser, NURSE, true);
   await nurse.waitForURL(/\/field$/);
   const cue = nurse.getByTestId("todo-links").getByTestId("todo-team-offers");
   await expect(cue, "G-3: what she sees first is the team offer").toHaveText(`${TEAM_OFFERS_HEADING} (1)`);
   await expect(nurse.getByTestId("todo-links")).not.toContainText(LAST);
   await noInternalCode(nurse, "/field (offer)");
-  await cue.click();
+  await tap(cue);
   await expect(nurse).toHaveURL(/\/team#anfragen$/);
   const offer = nurse.getByRole("article", { name: `Anfrage Teamsuche: ${TITLE}` });
   await expect(offer).toContainText("für Testteam Basel");
   await expect(nurse.getByText(LAST)).toHaveCount(0);
-  await offer.getByRole("button", { name: "Fall übernehmen" }).click();
+  await tap(offer.getByRole("button", { name: "Fall übernehmen" }));
   await expect(offer).toHaveCount(0);
 
   // ── Step 1b: the first visit is the needs assessment (CR-002 gate `assessment_first`: B and C closed before it). ───
+  acts.step("1b Abklärungsbesuch planen");
   const teamCase = nurse.getByRole("article", { name: `Fall ${FIRST} ${LAST}` });
   await expect(teamCase).toContainText("Testteam Basel");
   await expect(teamCase).toContainText("Bedarfsabklärung ausstehend");
   await noInternalCode(nurse, "/team (case taken)");
-  await teamCase.getByRole("button", { name: "Abklärungsbesuch planen" }).click();
+  await tap(teamCase.getByRole("button", { name: "Abklärungsbesuch planen" }));
   let plan = teamCase.getByRole("form", { name: "Einsatz planen" });
   await expect(plan.getByLabel("B", { exact: true }), "BD-4: no care visit before the assessment").toBeDisabled();
   await expect(plan.getByLabel("C", { exact: true })).toBeDisabled();
-  await plan.getByLabel("Datum").fill(today);
-  await plan.getByLabel("Von").fill(assessment.from);
-  await plan.getByLabel("Bis").fill(assessment.to);
-  await plan.getByLabel("A", { exact: true }).fill(String(ASSESSMENT_MINUTES));
+  await fill(plan.getByLabel("Datum"), today);
+  await fill(plan.getByLabel("Von"), assessment.from);
+  await fill(plan.getByLabel("Bis"), assessment.to);
+  await fill(plan.getByLabel("A", { exact: true }), String(ASSESSMENT_MINUTES));
   // Step 2 (QUAL1): the matrix is asked on this assignment (0121 backstop); the registered nurse is not refused.
-  await plan.getByRole("button", { name: "Einsatz speichern" }).click();
+  await submit(plan.getByRole("button", { name: "Einsatz speichern" }));
   await expect(plan, "the assessment visit is saved (no QUAL1 refusal)").toHaveCount(0);
   await expect(teamCase.getByRole("list", { name: "Geplante Einsätze" })).toContainText(`${assessment.from}–${assessment.to}`);
 
   await runVisit(nurse, assessment, CORRECTION_BACK.assessment, "Abklärungsbesuch");
 
   // The completed assessment visit opens the gate (0014 trigger): /team now offers «Einsatz planen» with B and C open.
-  await nurse.getByTestId("tab-bar").getByRole("link", { name: "Team" }).click();
+  acts.step("1b Pflegeplan: Leistung erfassen");
+  await tap(nurse.getByTestId("tab-bar").getByRole("link", { name: "Team" }));
   await nurse.waitForURL(/\/team/);
   await expect(teamCase).toContainText("Bedarfsabklärung erfolgt");
 
   // Care plan: one item, category C (synthetic values; no care rule asserted).
   const carePlan = teamCase.getByRole("region", { name: "Pflegeplan" });
-  await carePlan.getByRole("button", { name: "Leistung hinzufügen" }).click();
+  await tap(carePlan.getByRole("button", { name: "Leistung hinzufügen" }));
   const item = carePlan.getByRole("form", { name: "Leistung hinzufügen" });
-  await item.getByLabel("Leistung", { exact: true }).fill("Grundpflege");
-  await item.getByLabel("Kategorie").selectOption("C");
-  await item.getByLabel("Minuten pro Einsatz").fill(String(CARE_MINUTES));
-  await item.getByLabel("Häufigkeit").fill("1x täglich");
-  await item.getByLabel("Überprüfung am").fill(zurichDay(Date.now(), 60));
-  await item.getByLabel(/Pflegeziel/).fill("Selbständig waschen am Lavabo");
-  await item.getByRole("button", { name: "Leistung speichern" }).click();
+  await fill(item.getByLabel("Leistung", { exact: true }), "Grundpflege");
+  await choose(item.getByLabel("Kategorie"), "C");
+  await fill(item.getByLabel("Minuten pro Einsatz"), String(CARE_MINUTES));
+  await fill(item.getByLabel("Häufigkeit"), "1x täglich");
+  await fill(item.getByLabel("Überprüfung am"), zurichDay(Date.now(), 60));
+  await fill(item.getByLabel(/Pflegeziel/), "Selbständig waschen am Lavabo");
+  await submit(item.getByRole("button", { name: "Leistung speichern" }));
   await expect(carePlan).toContainText("Ziel: Selbständig waschen am Lavabo");
 
   // ── Step 2 + 4 (hand path until PLAN3 runs in org S): the team plans the care visit for the nurse. ────────────────
-  await teamCase.getByRole("button", { name: "Einsatz planen" }).click();
+  acts.step("4 Pflegeeinsatz planen (von Hand)");
+  await tap(teamCase.getByRole("button", { name: "Einsatz planen" }));
   plan = teamCase.getByRole("form", { name: "Einsatz planen" });
   await expect(plan.getByLabel("C", { exact: true })).toBeEnabled();
-  await plan.getByLabel("Datum").fill(today);
-  await plan.getByLabel("Von").fill(care.from);
-  await plan.getByLabel("Bis").fill(care.to);
-  await plan.getByLabel("C", { exact: true }).fill(String(CARE_MINUTES));
-  await plan.getByRole("button", { name: "Einsatz speichern" }).click();
+  await fill(plan.getByLabel("Datum"), today);
+  await fill(plan.getByLabel("Von"), care.from);
+  await fill(plan.getByLabel("Bis"), care.to);
+  await fill(plan.getByLabel("C", { exact: true }), String(CARE_MINUTES));
+  await submit(plan.getByRole("button", { name: "Einsatz speichern" }));
   await expect(plan, "the care visit is saved (no QUAL1 refusal)").toHaveCount(0);
   await expect(teamCase.getByRole("list", { name: "Geplante Einsätze" })).toContainText(`${care.from}–${care.to}`);
   await noInternalCode(nurse, "/team (planned)");
@@ -241,14 +283,20 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await runVisit(nurse, care, CORRECTION_BACK.care, "Pflegeeinsatz");
 
   // ── Step 9 (J5): the team creates the billing facts with the existing control (UXR-157: the button stays until B8). ─
-  await nurse.getByTestId("tab-bar").getByRole("link", { name: "Team" }).click();
+  acts.step("9 Abrechnungsfakten erzeugen");
+  await tap(nurse.getByTestId("tab-bar").getByRole("link", { name: "Team" }));
   await nurse.waitForURL(/\/team/);
   const preview = nurse.getByRole("region", { name: "Abrechnungsvorschau" });
   await expect(preview.getByTestId("estimate-label")).toContainText("Schätzung – keine Rechnung");
-  await preview.getByRole("button", { name: "Abrechnungsfakten erzeugen" }).click();
+  await tap(preview.getByRole("button", { name: "Abrechnungsfakten erzeugen" }));
   await expect(preview.getByRole("status")).toContainText("2 neue Abrechnungsfakten erfasst");
   await noInternalCode(nurse, "/team (billing)");
   await nurse.context().close();
+
+  // AUT-88: the measured act count of this run, attached and logged (a baseline, not asserted).
+  const actTable = acts.markdown();
+  console.log(actTable);
+  await test.info().attach("aut-88-act-count.md", { body: actTable, contentType: "text/markdown" });
 
   // ── Stored facts (G-3, BD-2 «the stored fact»), read as the nurse under RLS. ──────────────────────────────────────
   const db = await asPerson(NURSE);
