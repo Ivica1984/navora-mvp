@@ -31,6 +31,73 @@
 
 ---
 
+## 2026-11-11 20:20 CET · aia review 46: measured AUT-88 baseline (#1069, 61 product acts) compared with the static count of review 45 (they agree up to the two sign-ins); AUT-88, AUT-92, AUT-93 closed (measured, adopted); CGR-182 count-only default and K-3 (no catch-up button) supported; new AUT-95 (medium: a care-plan item's frequency is entered twice, once as free text the next nurse reads and once as the structure the series planner uses, and the two can differ), AUT-96 (low: the service named in the referral is typed again for the care-plan item); the act distribution of the measured run as the first measured input to map v4
+
+**Read:** `recovery/main` at `b87ffec` (since review 45 at `1548e20`): journal files 2026-11-11-1439-po to 1839-po (`uxa` 15:48, `lca` 16:25, `eng` 17:05 and 18:13, `cra` 17:27); brief J5 amendments 14:39, 16:39, 17:39; brief BD amendments 17:39, 18:39; merged #1071, #1072, #1077 to #1082, #1085, #1086, #1088, #1089. Open PRs on their heads: #1069 (`eng`, BD-2, head `2c5149a`, merge of `recovery/main`; the AUT-88 table comment of 17:12 UTC read in full), #1087 (STG1, waits for the owner record FE-057), #1090 (`uxa` 19:53, UXR-163), #1084 (dependabot). Code read: `src/app/(protected)/team/team-client.tsx` (346, 889-913), `src/app/(protected)/team/auto-plan.tsx` (119-157), `src/features/handover/rules.ts` (195), `src/features/assessment/rules.ts` (308-312), `tests/e2e/durchgang-ambulant.spec.ts` on `2c5149a` (act counter 60-95, step 1 178-210). Open `automation` issues: #912, #940, #1030 (unchanged).
+
+**Measured versus estimated.** The table in §2 is **measured** by `eng` on the synthetic seed (Testorganisation S), copied from CI run 43037240509; I did not run it. Everything else below is a reading of code or documents, or an estimate, and is labelled so. I ran no tests and read no database. **Contradiction check (README rule 10):** none with `FOUNDER_DECISIONS.md` v16. **Documentation versus code (CLAUDE.md):** none new. **Task adjustment (README rule 11):** the bottleneck map is not due (2026-11-17); the PO asked `aia` (18:39) to compare the measured baseline with the static count, so this run does that and uses the measured distribution as the first measured input for map v4.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-95 | Care plan and series planning (steps 1b to 4, PLAN2/PLAN3): the registered nurse who writes the care-plan item, the next nurse who reads it | **IMPLEMENTED:** the item form asks «Häufigkeit» as required free text (`team-client.tsx` 912-913, «z. B. 3x pro Woche»). To plan the item as a series, the nurse opens «Rhythmus» and enters the frequency again as structure: period (default «pro Woche», `auto-plan.tsx` 119), times per week, weekdays, window «Von»/«Bis» (133-157). The text is not parsed and not checked against the structure. The handover (`handover/rules.ts` 195) and the assessment summary (`assessment/rules.ts` 312) show the **text**; the series planner uses the **structure**. A text «3x pro Woche» with a structure «täglich» saves without a hint, so what the next nurse reads and what NAVORA plans can differ | **Rule (one entry, text derived):** the item form takes the frequency once, as the structure PLAN2 already stores (period, times, optional weekdays, optional window); the display text is generated from it («3× pro Woche, Mo/Mi/Fr, 08:00-10:00»); a free note stays optional for what the structure cannot say («nach Rücksprache»). An item without a structure (only a note) is planned by hand as today. No new field, no new rule about care; the structure is the one PLAN2 has. Test: an item saved with «3 pro Woche, Mo/Mi/Fr» shows that text in the handover and the planner creates three visits in a week; there is no path that stores a text and a structure that disagree | L (form and derivation; the care-plan content does not change) | stage 0; `cra` (care-plan display, what the handover must show), `eng` how, `uxa` (form) | typed or selected fields per care-plan item planned as a series (code reading today: 6 in the item form plus 4 to 10 in «Rhythmus»; target: one form); items whose text and structure differ on the synthetic seed (target 0, a check `eng` can run on the seed) | medium | report only |
+| AUT-96 | Care-plan item after intake (step 1b): the registered nurse | **IMPLEMENTED:** the referral records «Leistungen (mit Komma getrennt)» (`intake-client.tsx`; BD-2: «Grundpflege»), shown on the team's offer as `required_services` (`team-client.tsx` 346). The care-plan item asks «Leistung» as free text again (889-913; BD-2: «Grundpflege» typed a second time) | **Rule (prefill from the care graph):** «Leistung hinzufügen» offers the case's referral services as choices; the nurse picks one or types another. The referral's words are a starting point, not a care decision; the category, minutes and goal stay the nurse's entries | L | stage 0; `eng` how, `uxa` (form); `cra` only if the choice list may suggest a KLV category (I propose it does not) | typed fields in the care-plan step of the BD-2 run (measured today 6 inputs; target 5) | low | report only |
+
+### 2 Measured AUT-88 baseline against the static count (review 45 §2)
+
+Measured: `eng`, CI run 43037240509, job 130662360122, 2026-11-11 (synthetic seed). The spec counts a selection and a tick as an «Eingabe» and a sign-in as one act (spec 60-95).
+
+| Step | Measured total (product) | Static count, review 45 | Difference and reason |
+|---|---|---|---|
+| 1 intake and case (Operations) | 23 (18 inputs incl. 1 tick) | 22 (17 fields, 1 tick separately) | +1 sign-in; inputs agree (17 fields + 1 tick = 18) |
+| 1 team takes the case | 3 | 2 | +1 sign-in |
+| 1b plan the assessment visit | 6 | 6 | – |
+| 5 + 8 assessment visit run and sign | 6 | 6 | – |
+| 1b care-plan item | 9 | 9 | – |
+| 4 plan the care visit (hand) | 6 | 6 | – |
+| 5 + 8 care visit run and sign | 6 | 6 | – |
+| 9 billing facts | 2 | 2 | – |
+| **Total product acts** | **61** | **59** | the two sign-ins |
+| Test-only (F3 «Testlauf») | 22 | 24 | the static count included the two reloads; the spec does not count them |
+
+**Reading (IMPLEMENTED baseline; the time per act is UNKNOWN, so no minutes are claimed):**
+- **Intake** carries 23 of 61 acts (38 %): the largest single block, as the PO's 18:39 challenge states. **Planning** (assessment slot, care-plan item, care-visit slot) carries 21 (34 %). **Visit execution and signature** carry 12 (20 %), i.e. 6 per visit, of which 3 are status taps. **Team take-over** 3, **billing** 2.
+- **Design arithmetic, not a measurement:** AUT-91 (−2 typed fields per hand-planned visit), AUT-94 (−1 to −2 at intake), AUT-96 (−1 per care-plan item) and J5-S (−2, B8 PLANNED) would bring this run from 61 to about 54 to 55 product acts. Intake stays the largest block; only REF2 (structured referral, agent A1 as a rule, A8 later at level H) can remove most of its 18 inputs, and A8 needs the D-34 module, the Clinical Owner and D-35 stage 1 or later.
+- **Not in the run** (so not yet measured): steps 3-4 PLAN3/AIG1 and 6-7 B6 documentation; the PLAN2 series path where AUT-95 sits; the ward. The map v4 rows for documentation and cover therefore stay estimates.
+
+### 3 Review of the items placed since review 45 (automation and challenge duty)
+
+- **J5-S with K-3 (no catch-up button, scheduled catch-up, one team group count K-1, failure on the visit line K-4, nothing at signature K-5; PO 14:39, 16:39):** supported; it is AUT-92 as proposed and removes the monthly team act in full. `lca` 16:25: derivation at signature changes when reference rows are read, not which (IMPLEMENTED `build_billable_fact` by `visit_date`). **Closed AUT-92 (adopted, PLANNED B8).** For the AI operating model this is the first PLANNED instance of agent A6 (control health) as a deterministic job.
+- **CGR-180 (2) with CGR-183 (f1)-(f3) and `uxa` F-1 to F-6:** the check at the F3 save, never a refusal, a warning saved through stays visible on the fact and the report review. **Closed AUT-93 (adopted, PLANNED B8/BILL1).** (f2) adds no act: the stored warning is written by the save, not by a person.
+- **CGR-182 (count-only short-visit line for team members by default; per-visit lines with the right to plan for the team, C-3; PO 17:39):** supported; no review list arises for team members. **Challenge check (condition, not a finding):** C-3 must stay a right the team holds and gives to its own members (any member may hold it, the team changes it, audited), not a role above the team; who holds the right is UNKNOWN today (`uxa` C-3). Test for the B8 PR: a team member without the right to plan who is given it by the team sees the lines without any role outside the team acting. If the B8 brief ties C-3 to a coordination or management role, I will raise it as a finding.
+- **D-18/12, D-18/13 (`lca`, Phase B/M4):** no Phase A act; M4 must take insurer and residence as of the visit date from the case history, not by a person re-checking each fact (note for the M4 brief, PLANNED).
+- **#1087 (STG1) and the CI install outage (PO 17:39 challenge):** no care workflow; no finding. The four hours of red required checks without a code cause cost block delivery, not care time; the PO's proposal to `eng` (cache or pin the browser, keep all four checks) is supported.
+- **#1090 (`uxa` UXR-163):** internal codes on `/field`; covered by #508; no act added; no finding.
+- **Challenge check:** no item placed since review 45 adds a step, approval, role or field without a care benefit.
+
+### 4 Status of open findings changed by this run
+
+| AUT | Status | Evidence |
+|---|---|---|
+| AUT-88 | **Closed (implemented):** the BD-2 spec counts acts per step; the measured table is the BD reference count (61 product acts, 22 test-only) | #1069 comment 17:12 UTC (run 43037240509); brief BD amendment 18:39 |
+| AUT-92 | **Closed (adopted):** J5-S scheduled catch-up only, K-1 team count, no button (K-3); PLANNED B8 | brief J5 amendments 14:39, 16:39 |
+| AUT-93 | **Closed (adopted):** CGR-180 (2) at the F3 save and on the fact, CGR-183 (f1)-(f3); PLANNED B8/BILL1 | brief J5 amendments 14:39, 17:39; `cra` 17:27 |
+| AUT-91, AUT-94 | open; recorded for the B2 follow-up list (PO 14:39); open until built | PO 14:39 |
+| AUT-74 | open; AUT-88's counter is its first step (B11 reuses it) | – |
+| AUT-54, AUT-61, AUT-76, AUT-78 to AUT-86 | open, unchanged | – |
+
+### 5 AI readiness and stage tracking
+
+- No delivered item proposes, drafts or ranks since review 45 (#1072: texts; #1071: seed). The PLAN3 ledger, register and stop rule are unchanged.
+- **Stage 0** stays the only stage in force (D-35). Stage 1 entry conditions unchanged: D-41 model path OPEN (owner), D-2 hosting OPEN (STG1 `navora-staging` is a CI target for synthetic migrations, not an AI host; its record FE-057 is OPEN), AIG1 register IMPLEMENTED for rule agents only. New this run: a **measured act baseline** exists (AUT-88), so every later stage can be compared with the same counter (AI Operating Model Review §12, "measure acts before agent stages").
+
+### 6 Top bottlenecks (estimates from map v3, 2026-11-10 02:20, with the first measured act counts; not time measurements)
+
+1. Documentation per visit (home care) and per shift (ward): AUT-54/-72; not in the measured run. 2. Intake: 23 of 61 measured acts (AUT-94, REF2, A1/A8). 3. Planning and cover: 21 of 61 measured acts on the hand path (AUT-91, AUT-95, AUT-96); cover after absence PLAN3, COVER1, POOL1 (AUT-83) not measured. 4. Order and assessment chasing: AUT-76. 5. Qualification and delegation upkeep: AUT-78 to AUT-81, AUT-86. 6. Billing preparation: 2 measured acts, removed by J5-S (PLANNED). Map v4 on 2026-11-17 will rank intake against documentation once B6 runs in BD; until then documentation stays first on the estimate.
+
+---
+
 ## 2026-11-11 14:24 CET · aia review 45: PO runs 08:39 to 13:39, D-18 Phase A decided (M3, J5-v4 in B8), #1064 merged with the deny-by-default guard, `eng` J5 derive-on-sign answer (#1077), `cra` CGR-180/-181 (#1078), BD-2 spec on #1069 read; AUT-87 closed (implemented), AUT-89 and AUT-90 closed (adopted, PLANNED B8); H-BD-1 and derive-on-sign supported; new AUT-91 (medium: a care visit's minutes are typed three times and never prefilled from the care plan), AUT-92 (medium: a failed or missing derivation needs a monitor, not a monthly catch-up button), AUT-93 (medium: the sequence and overlap check of CGR-180 (2) belongs at the F3 save, where the person knows the true times), AUT-94 (low: the client's location is entered three times at intake); a first static act count of BD-2 (not a measurement)
 
 **Read:** `recovery/main` at `1548e20` (since review 44 at `2da7569`): journal files 2026-11-11-0839-po to 1239-po (`eng` 08:40, 09:13; `lca` 08:45, 12:32; `cra` 09:32; `uxa` 11:48); D-18 PO decision 08:39 (Phase A M3, `J5-v4`, B8; Phase B `awaiting-approval: owner`, frozen); brief J5 amendments 08:39, 10:39, 12:39; brief BD amendments 08:39, 10:39; #1064 merged (`b4f4577`). Open PRs on their heads: #1069 (`eng`, BD-2, head `f782230` with the CGR-180 (1) fix of 14:20; spec read in full), #1071 (seed G-a/G-b, `cra` clear), #1072 (G-6 codes, `cra` clear), #1077 (`eng` J5 answer; comment on #1069), #1078 (`cra` 13:30, CGR-180, CGR-181), #1079 (PO 13:39: merges refused by the session's permission check). Code read: `src/app/(protected)/team/team-client.tsx` (plan form, lines 480-500, 1010-1040), `src/app/(protected)/intake/intake-client.tsx` (lines 160-170, 335-360). Open `automation` issues: #912, #940, #1030 (unchanged).
