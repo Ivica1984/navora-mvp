@@ -1,6 +1,6 @@
 # Legal adviser question catalogue (FE-050)
 
-**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 4, 2026-11-11 12:32 (Europe/Zurich).
+**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 5, 2026-11-11 16:25 (Europe/Zurich).
 
 **Wording:** rows are copied from the signed sections; rows marked *condensed* or *adapted* say so.
 
@@ -38,6 +38,8 @@
 | D-18/9 | KLV Art. 7a Abs. 2 and the EDI commentary of 10 June 2009 read "pro Einsatz mindestens 10 Minuten". Under the Forum Datenaustausch standard and the partner's contracts, is an *Einsatz* one visit, one service line, or the day's minutes per category; and are minutes rounded up, down or to the nearest 5-minute unit? | P | any invoice | [D-18](D-18.md) |
 | D-18/10 | In BL, does the residence municipality pay residual costs at the Regierungsrat's Pflegenormkosten or under its own service agreement with the provider (APG BL, care regions), and does a provider without such an agreement get the same residual? | K, A | BL residual financing | [D-18](D-18.md) |
 | D-18/11 | Under the partner's administrative contracts (tarifsuisse 42.500.2292Q Art. 8-9, HSK 2025, CSS 2025, current versions) and KLV Art. 7 Abs. 1 and 8a Abs. 4: may minutes of a KLV Art. 7 Abs. 2 category that the valid Bedarfsmeldung does not list, or that exceed it, be invoiced to OKP; if so, after a report to the insurer (within 14 days) or only after a new needs assessment, and from which date; and does KVG Art. 56 allow the insurer to refuse them? *(CGR-179.)* | P, A | releasing an invoice hold; any invoice | [D-18](D-18.md) |
+| D-18/12 | Under the partner's administrative contracts (tarifsuisse 42.500.2292Q Art. 7 Abs. 5 and Art. 8 Abs. 2-4, HSK 2025, CSS 2025, current versions): are care services given between the start of care and the completion of the needs assessment paid, from which date does the Bedarfsmeldung count, and what happens to services given more than 14 days before the assessment was completed? *(CGR-180 (2).)* | P, A | releasing a `started_before_needs_assessment` hold; any invoice | [D-18](D-18.md) |
+| D-18/13 | When a KLV contribution, a payer tariff or a BS/BL residual-financing rate changes, does the rate of the day the service was given apply to services given before the change but invoiced after it; and for a client who changes insurer or residence within an invoicing month, is each visit billed to the insurer and the residence canton/municipality of its own date? *(J5-S, KVG Art. 25a Abs. 5.)* | P, A | any invoice | [D-18](D-18.md) |
 
 ## B. Professional secrecy, processors and data protection (D-42, D-41, D-9, D-4)
 
@@ -81,7 +83,7 @@
 
 ## E. Grouping for the quote request (proposal for the owner)
 
-- **Block 1, health and social-insurance law (KVG/KLV, payer contracts, BS/BL financing):** D-22/1-10, D-18/1-6, 9-11, Q-44b. Many rows are route P: ask the partner's billing staff first; the adviser then answers only what remains.
+- **Block 1, health and social-insurance law (KVG/KLV, payer contracts, BS/BL financing):** D-22/1-10, D-18/1-6, 9-13, Q-44b. Many rows are route P: ask the partner's billing staff first; the adviser then answers only what remains.
 - **Block 2, data protection and professional secrecy:** Q-42a, Q-42b, Q-42d, D-41/9, D-9/1-5, D-4/1-8.
 - **Block 3, contract, liability and labour-leasing law:** Q-42c, Q-43a, Q-44a, Q-44c.
 - **Block 4, financial-market law (insurance intermediation, payment flows):** Q-44d, the GwG part of Q-44c.
@@ -100,3 +102,4 @@
 - **v2, 2026-11-11 00:55 (`lca`):** Q-44c added (signed in D-44 on 2026-11-07, missing in v1) and widened for FEE1 (D-14, L-14); Q-44d new (L-12, D-44); Q-42d new (L-13, D-42); block 4 added. L-14 itself needs no adviser for its data-protection part (owner: terms and team agreement).
 - **v3, 2026-11-11 08:45 (`lca`):** section F updated (KLV Stand 1 August 2026 read in a copy, D-18 section 08:45); no question added or changed: the GP-information billing point of the D-18 template (I3) is already D-22/2 and D-22/6.
 - **v4, 2026-11-11 12:32 (`lca`):** D-18/11 new (CGR-179: minutes of a category the Bedarfsmeldung does not cover); block 1 updated.
+- **v5, 2026-11-11 16:25 (`lca`):** D-18/12 new (CGR-180 (2): services between start of care and completion of the needs assessment); D-18/13 new (J5-S: tariff and payer date after a change); block 1 updated.
