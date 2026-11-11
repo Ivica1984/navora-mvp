@@ -17,9 +17,12 @@ export const NOT_BILLABLE_LABEL: Record<string, string> = {
   order_recorded_after_visit: "Verordnung erst nach dem Besuchstag erfasst",
 };
 
-/** CSR1 / CGR-08: shown while a rate or the minimum duration in use is not validated (D-11, D-18). */
+/**
+ * CSR1 / CGR-08: shown while a rate or the minimum duration in use is not validated (D-11, D-18). UX1-11 / BD G-6
+ * (ADR-182): no internal code in page text; the open decisions are named in the element's `data-ref`.
+ */
 export const REFERENCE_NOT_VALIDATED =
-  "Tarife und Mindestdauer nicht validiert (kantonale Quelle, Pilotkanton offen: D-11, D-18)";
+  "Tarife und Mindestdauer nicht validiert (kantonale Quelle, Pilotkanton offen)";
 
 export function notBillableText(reasons: unknown): string {
   if (!Array.isArray(reasons) || reasons.length === 0) return "Grund unbekannt";
