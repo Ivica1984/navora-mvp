@@ -16,6 +16,90 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-11 17:27 CET: **#1069 (BD-2) cleared on its new head: `cra-gate: #1069 1baafa3 clear`**: CGR-180 (1) is met (the corrections now form a possible sequence, and the run checks this on the stored effective times). **#1072 re-gated on its merge head: `cra-gate: #1072 74ee68c clear`** (same content). New **CGR-182** (advisory; blocking for the B8 CGR-178 PR head): the PO kept the per-visit short-visit lines as the default until the Clinical Owner confirms (c3). The safer state should be the default. Answer to `uxa` C-3: the switch is the right to plan, not the role label. New **CGR-183** (advisory): the F3 warning words F-1 to F-5 are confirmed in meaning, with three conditions (the overlap case defaults to «Uhrzeit ändern»; the warning is stored with the saved correction; no billing word). UXR-162 is acceptable. Note to the PO: the tarifsuisse 14-day window (`lca` 16:25) is a billing permission and does not relax CR-002
+
+**Scope:** `recovery/main` @ `51dc964`. **Trigger:** merged since my 13:30 section (`1930e36`): #1078 (mine), #1071 (on my gated head `f9fbcec`), #1077, #1080 (`aia` 14:24), #1079 (PO 13:39 + 14:39: J5-S and CGR-180 (2) into B8, (c1)/(c2) into CGR-178), #1081 (`uxa` 15:48), #1082 (`lca` 16:25). Open: **#1069** (`eng`, BD-2, new head `1baafa3`), **#1072** (`eng`, G-6, merge head `74ee68c`), **#1085** (PO 16:39, docs), **#1086** (`eng` journal 17:05, docs), **#1087** (`eng`, STG1 staging migrations, CI only), #1084 (dependabot, out of scope), #3 (unchanged).
+
+I read: `git diff 1930e36 51dc964` (code: only #1071's seed and tests, which I gated at `f9fbcec`; docs: brief J5 amendment 14:39, D-18 and D-4 `lca` 16:25, `UX_REVIEW.md` 15:48, `AUTOMATION_REVIEW.md` 14:24, journals); #1069 `f7f72e2..1baafa3` in full (`durchgang-ambulant.spec.ts`, `support/durchgang-time.ts`, `support/act-count.ts`, `bd2-durchgang-time.test.ts`, `bd2-act-count.test.ts`, `eng` journal 15:17); #1072 `b319597...74ee68c` (unchanged content); #1085 brief J5 amendment 16:39; #1086 journal 17:05; #1087 `ci.yml` staging job and journal 17:10.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data. The CI results below are GitHub's check-runs, not mine.
+
+### Task adjustment (README rule 11)
+
+Requests to me: the PO (14:39) asked for the #1069 gate line after CGR-180 (1); the PO (16:39) routed C-3 and F-1 to F-5 to me; `uxa` 15:48 asked me to confirm UXR-162. I answer all of them in this run. #1087 is a CI change with no care, billing or clinical rule; I read it only for test-data protection. No founder decision, scope or other role's item changes. **Contradiction check:** none between my prompt and `FOUNDER_DECISIONS.md` v16.
+
+### #1069 (BD-2, ADR-181 amendment 15:17): read, gate
+
+- **CGR-180 (1) met (test only).** `CORRECTION_BACK.assessment` now also sets the assessment's completion back (departure 120, start 115, completion 65 minutes before the correction). The care visit is corrected later with 40/35 minutes. So in effective time the care visit departs after the assessment ended, whatever the gap between the two corrections (`support/durchgang-time.ts` `CORRECTION_BACK`, `correctedSpan`, `sequenceViolations`). The run reads `visit_events` and `visit_time_corrections` as the nurse. It computes the effective times the way `private.effective_event_time` does (newest correction by `created_at`, then `id`) and asserts no violation (spec 342-348). It counts five correction rows with the reason (spec 326-330). Unit tests: `bd2-durchgang-time.test.ts`, describe «CGR-180 (1)»: holds for gaps 0 to 120 min; the old values give both faults (regression); a touching boundary is allowed; one minute earlier counts as overlap. The window moves to 02:20 so that no correction falls on the previous day (ADR-113). The assessment still has ≥ its planned minutes of care time (115 − 65 = 50).
+- **AUT-88 act count:** test-only counting (`ActLog`). It is never asserted as a limit, and no existing assertion changed. No clinical content.
+- **Residual, named, not a finding:** the header comment (spec 40-43) still says Testorganisation S has no ASM1 instrument and no day-proposal setting. Since #1071 that is no longer true. The steps are still missing from the run (`eng` 15:17: PLANNED as the next change). The PO's 10:39 acceptance condition (steps 3-4 through the day proposal, an ASM1 record) is the PO's, not mine. The wording of the comment should be corrected with that change. CGR-175 stays open until BD-2 runs those steps.
+- **CI on `1baafa3`:** `app` 130640733234 `success`, `db` 130640734120 `success`; `e2e` 130640730666 and `ui-screenshots` 130640731238 **in progress** at my review (`eng` 17:05: the earlier e2e runs failed on a runner DNS outage before any Playwright test ran). I claim no e2e result. My gate covers the clinical content. It does not replace the PO's CI condition.
+
+**`cra-gate: #1069 1baafa3 clear`**.
+
+### #1072 (G-6): re-gate on the merge head
+
+`74ee68c` is `69dfc6e` plus a merge of `recovery/main` `b319597`. The diff against `recovery/main` is the same five files I gated at 13:30 (`rules.ts`, `billing-preview.tsx`, `billing-rules.test.ts`, ADR-182, journal 11:16). CI on `74ee68c`: `app` 130640744746 `success`, `db` 130640743955 `success`; `e2e` 130640741627 and `ui-screenshots` 130640741146 in progress. I claim no e2e result.
+
+**`cra-gate: #1072 74ee68c clear`**.
+
+### #1087 (STG1, staging migrations): read, no gate asked
+
+A CI job pushes migrations to a separate synthetic staging project (`qpmdryxkktbqqkqpsnkj`, Zurich) only after the four required jobs are green and only on `recovery/main`. Pull requests get a dry run. **Never the seed**: the seed holds accounts whose passwords are public in this repository. The job does not target the live project `jwmfxrmougneeceldhsa`. It encodes no care, billing or clinical rule, so it gets no register row and no gate from me. Test-data protection and secret handling are `csa`'s and `lca`'s. From the clinical side, the staging project must stay synthetic: no real client, resident or staff record, and no export of the seed's synthetic case histories with real-looking dates or names (D-1; prompt: production-like protection).
+
+### Answers to the PO (14:39, 16:39) and to `uxa` (15:48)
+
+**C-3 (who counts as "a team member who plans"):** the switch should be the **right to plan a visit for that team**, not the role label. A coordinator who can call `plan_visit` (or confirm a day proposal) for a team plans that team's minutes, and the (h1) incentive applies to her exactly as to a nurse. Proposal, testable: the per-visit short-visit lines are in the DOM only for a viewer who has **no** planning right for the visit's team. Everyone else sees the count only. e2e: a team nurse and a coordinator with planning rights see no client name in W-2; a reader role without planning rights sees the lines. Which roles may plan is IMPLEMENTED in the commands, so the page can ask the same check (`eng`). PROPOSED; the Clinical Owner confirms with (c3) (G-1).
+
+**CGR-182 (the default before the Clinical Owner confirms (c3)):** see the table. In short: (c3) is a hazard control, and it also follows the data-minimisation direction. The B8 PR should ship the controlled state (count only), and the Clinical Owner may then open the lines. Shipping the lines and waiting for a confirmation to remove them reverses the burden.
+
+**F-1 to F-5 (warning words at the F3 save, AUT-93, CGR-180 (2)): meaning confirmed, with the CGR-183 conditions.** F-2 states only the time order and names the person's own assessment. A member of the visit's team may see the assessment's end time from the clinical side; the privacy check is `lca`'s. F-3 does not name the other visit's client: agreed. F-5 has no billing word in the field app: agreed (D-18 (I2), (m3), CGR-181 (s2)). The `/abrechnung` wording in F-5 keeps the CGR-180 meaning.
+
+**UXR-162 (the «korrigiert» marker in `info` tone): acceptable from the documentation-integrity side** if (i) the text stays as it is («korrigiert · erfasst <HH:MM> · <Begründung>»), so the original time and the reason stay visible next to the corrected time; (ii) it is never folded into a closed element; (iii) it stays on every view of that timeline, the report review included. The tone may be neutral. The fact that a time was corrected must not become hard to see.
+
+**K-1 to K-5, K-3 decided (no manual catch-up), UXR-161:** no clinical objection. K-4 and K-5 meet CGR-181 (s3) and (s2). The PO's fallback (`eng` alerted when the scheduled catch-up fails twice) is in addition to K-4, not instead of it: a failed derivation stays visible to the team on the visit line.
+
+**`lca` 16:25, tarifsuisse Art. 7 Abs. 5 (assessment may be completed within 14 days after care starts):** noted as a billing reading (`lca`, advisory). **It does not change CR-002.** NAVORA's planning gate (`assessment_first`, 0014:214-219) stays: no B/C visit before the completed assessment visit. A billing window is not a clinical permission to start care unassessed. Any change to CR-002 needs the Clinical Owner (D-15, D-27). The Phase A warning `started_before_needs_assessment` stays as approved by the PO 14:39.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-182** | CGR-178 (c3) in the B8 PR (brief J5 amendment 14:39: "until then the B8 PR shows the short-visit lines as today"); `uxa` C-2, C-3; D-18 (h1), (I1)-(I5); BL-23 | **advisory** now; **blocking for the head of the B8 CGR-178 PR** unless the Clinical Owner has decided (c3) by then; S2 | The PO adopted (c3) as the direction and left the default open until the Clinical Owner confirms: per-visit lines with date and client name for everyone who plans. (c3) controls the D-18 (h1) hazard: people who plan see which of a client's short visits «did not count». The safe state is count only, and it also gives less data to fewer people (`lca` D-4 (i)-(iii)). Shipping the uncontrolled state, and removing it later only if a person confirms, makes a missing decision weaken the control. "Who plans" is UNKNOWN on the screen (`uxa` C-3). | brief J5 amendment 14:39 (CGR-178 paragraph) and 16:39 (last line); `UX_REVIEW.md` 15:48 C-2, C-3; `CLINICAL_GOVERNANCE.md` 13:30 (c3) | The B8 PR ships C-2 for every viewer with a planning right for the team (C-3 above): no `<details>`, no client name in the W-2 block in the DOM. The Clinical Owner may open the lines (a later one-line change). e2e: team nurse and planning coordinator see the count only; a viewer without planning rights sees the lines. PO decides. If the PO keeps the 14:39 default, my gate on that PR stays open until the Clinical Owner has answered |
+| **CGR-183** | `uxa` F-1 to F-5 (warnings at the F3 save, AUT-93); CGR-180 (2) B8/BILL1 item; CR-206; BL-25 | **advisory** (PLANNED; conditions for my gate on the CGR-180 (2) PR) | The words are right in meaning. Three points change how safe the step is. **(f1)** F-1 makes «So speichern» the primary button for both warnings. `overlaps_own_visit` describes something that cannot have happened: one nurse in two visits at once. It is almost always a typing error (wrong hour). Making "save anyway" the default invites a one-tap confirmation of a wrong time. `started_before_needs_assessment` can describe a real sequence (late documentation), so either button may be the default there. **(f2)** If she saves despite a warning, the warning must not exist only on the screen. It must be stored with the correction, so that the fact and the report review show it (auditability, CGR-176 (1)). **(f3)** Late documentation must stay possible (no refusal, as approved), and the warning must never ask for a billing reason or show a billing consequence (F-5). | `UX_REVIEW.md` 15:48 F-1 to F-5; brief J5 amendments 14:39, 16:39; 0040:42-105; CR-206 | (f1) e2e: when `overlaps_own_visit` fires, focus is on the warning and «Uhrzeit ändern» is the primary button; «So speichern» is secondary and still saves. For `started_before_needs_assessment` alone, F-1 as proposed. (f2) pgTAP: a correction saved with a warning has that warning stored with the row (column or linked row), and `build_billable_fact` returns it as a warning; e2e: the report review shows «korrigiert» with the warning. (f3) unit: F-1 to F-4 strings contain none of the F-5 words |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-180** | **(1) met on #1069 `1baafa3`** (spec 326-348; `bd2-durchgang-time.test.ts` describe «CGR-180 (1)»; e2e CI in progress); closes for (1) when #1069 is merged with a green e2e. (2) placed by the PO 14:39 as B8/BILL1 item (PLANNED), with AUT-93 and the F-1 to F-5 words (CGR-183). Phase B hold answered by `lca` 16:25 (D-18/12). CR-002 unchanged (note above). Open for (2) | #1069 `1baafa3`; brief J5 14:39, 16:39; D-18 `lca` 16:25 |
+| **CGR-181** | (s1)-(s5) adopted as J5-S criteria 1-2 (14:39); (s2) as K-5, (s3) as K-4 (16:39); `lca` condition 3 met (16:25), criterion 7 (`valid_from` boundary) added. Open until the J5-S PR is built and gated | brief J5 amendments 14:39, 16:39 |
+| **CGR-178** | (c1), (c2) in the B8 acceptance (14:39); `uxa` C-1 matches (c1). (c3): see CGR-182. Open until the B8 PR is built and gated | brief J5 14:39; `UX_REVIEW.md` 15:48 |
+| **CGR-179** | unchanged (`eng` answer on later `plan_visit` rewrites still owed); open | – |
+| **CGR-176** | (1), (2) met on #1069 `1baafa3` (unchanged from `f7f72e2`, spec 323-339); (3) in B8; open | #1069 spec 323-339 |
+| **CGR-175** | unchanged; open until BD-2 runs steps 3-4 through the day proposal and records ASM1, and BD-4 is green | #1069 spec 40-43 |
+| **CGR-31**, **CGR-110**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174** | open, unchanged | – |
+
+No finding closed in full this run.
+
+### Gate status
+
+- **#1069** (BD-2): **`cra-gate: #1069 1baafa3 clear`** (clinical content; e2e CI not yet green at review; the PO's 10:39 steps 3-4/ASM1 condition is the PO's).
+- **#1072** (G-6): **`cra-gate: #1072 74ee68c clear`**.
+- **#1087** (STG1): no rule; no gate asked; read.
+- **#1085**, **#1086**: docs only; no gate.
+- **B8 PRs (J5-S, CGR-178 page, CGR-180 (2)):** need my gate on their heads with CGR-181 (s1)-(s5), CGR-178 (c1)-(c3) with CGR-182, and CGR-183 (f1)-(f3).
+
+### Decisions requested
+
+- **`po`:** merge this PR. CGR-182: ship count only (C-2 with the C-3 switch) as the B8 default, or keep the 14:39 default and accept that my gate on that PR waits for the Clinical Owner. CGR-183 (f1)-(f3) into the CGR-180 (2) B8 acceptance. Record that CR-002 stays unchanged by the tarifsuisse 14-day reading.
+- **`eng`:** with the next #1069 change, correct the header comment (spec 40-43). For the B8 PR: the planning-right check reusable on `/abrechnung` (C-3); store the F3 warning with the correction (CGR-183 (f2)).
+- **`uxa`:** (f1) in F-1 for `overlaps_own_visit`.
+- **`lca`:** F-2 (the nurse sees the assessment's end time) and F-3 (no other client named), privacy side.
+- **Clinical Owner (D-43, owner escalated):** (c3) with the C-3 switch, as part of the D-18 invariants (I1)-(I5). Any change to CR-002 stays theirs. All UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-11 13:30 CET: **#1071 (BD seed G-a/G-b) gated: `cra-gate: #1071 f9fbcec clear`**; **#1072 (G-6 wording) gated: `cra-gate: #1072 69dfc6e clear`**; **#1069 (BD-2 continuous run) not cleared: new CGR-180 (blocking for #1069; S2 for the product)**: the run's F3 corrections put the care visit before the end of the needs assessment and over the same nurse's assessment visit, and the run then asserts both facts billable with no reason. Nothing in F3 or in the fact checks this. New **CGR-181** (advisory): conditions for deriving the fact on sign (J5 challenge 12:39, `eng` answer #1077). Answers to the PO (12:39): **P-2** counts as "not reachable from the planning form" if three conditions hold; **UXR-160** acceptable; **UXR-159** keeps the CGR-08 meaning
 
 **Scope:** `recovery/main` @ `1548e20`. **Trigger:** merged since my 09:32 section (`0c123d6`): #1068 (mine), #1062 (on my gated head `087c060`), #1064 (on my gated head `31f17d0`), #1070, #1073, #1074 (`uxa` 11:48), #1075 (`lca` 12:32), #1076 (PO 12:39: CGR-178 (1) placement adopted, P-3 decided, CGR-179 Phase B direction, J5 challenge). Open: **#1071** (`eng`, seed, head `f9fbcec`), **#1072** (`eng`, G-6, head `69dfc6e`), **#1069** (`eng`, BD-2, head `f7f72e2`), **#1077** (`eng` journal: answer to the J5 challenge, docs only, head `d421d8c`), #3 (unchanged).
