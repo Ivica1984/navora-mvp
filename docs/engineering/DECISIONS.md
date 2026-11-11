@@ -3776,3 +3776,41 @@ A fresh database runs them in number order; a database that had already applied 
 **Tests (written first; the unit file failed on the seed before the change: GA-1, GA-2, GB-1).** `tests/unit/bd-seed-org-s-ga-gb.test.ts` (6, reads files): org S's instrument entries equal org A's; authors are org S members and no assessment record is seeded; only org H and org S have the agent seeded on; the team switch is not seeded and org S has no administrator; the seed holds no grant, policy, function or organisation update; pgTAP 126 keeps the acceptance labels. `supabase/tests/database/126_bd_seed_org_s_asm1_day_proposal.test.sql` (16): set equality of org S and org A instrument entries, equal count, one valid non-mark entry today, authors are org S members, no record seeded, the org S nurse reads the list under RLS and a Testorganisation A member reads none; set equality {org H, org S} for `plan3_day_proposal` on; the row matches the definition and carries a threshold; `switched_on_by` is an org S member; org S has no administrator; no team switch row; the nurse reads `agent_state = on`, `team_enabled = false`; she switches her team on (`ok`) and then reads `team_enabled = true`; Operations is `rejected`.
 
 **Not in this PR.** BD-2 (#1069) steps 3-4 through the day proposal and the ASM1 record in the run (acceptance criterion (4) of the PO brief): #1069 is updated after this PR (it is being worked on by another run). **Clinical review gate:** none expected (fixture only, no rule; PO 10:39: `cra` gate only if a rule is touched). **No data:** synthetic seed only; the live project is not touched. **Rollback:** remove the seed block and pgTAP 126 and the unit file.
+
+### ADR-184 — STG1: migrations to the Supabase project `navora-staging` only from CI, after four green jobs; never the seed
+
+**Date:** 2026-11-11 17:08 Europe/Zurich · **Status:** PLANNED until CI is green on the PR head and the first push to `recovery/main` has applied the migrations · **Base:** `recovery/main` `51dc964` · **Block:** none. **Owner exception to FE-054**, live in the `eng` session on 2026-11-11 («jetzt als Ausnahme»): infrastructure for D-2 staging, built while BD stays the active block.
+
+**Context.** The owner made these changes live on 2026-11-11 (record on PR #1069):
+- The old project `jwmfxrmougneeceldhsa` is deleted (FD-27).
+- `eng` created the new Supabase project `navora-staging` (`qpmdryxkktbqqkqpsnkj`, Zurich `eu-central-2`, Free plan) on the owner's instruction. This deviates from D-2, which said «staging on Pro»; the owner chose Free to start.
+- The owner added two repository secrets, `SUPABASE_ACCESS_TOKEN` and `STAGING_DB_PASSWORD`. Their values are not visible to `eng`.
+
+D-2 (po design): migrations and seed reach staging only from CI; synthetic data only; staging is no production clearance.
+
+**Decision.**
+1. **A new job `staging` in `ci.yml`.** It is not one of the four required checks of the ruleset «Schutz Hauptversion».
+   - It runs after `app`, `db`, `e2e` and `ui-screenshots` (`needs`). It runs only on a push to `recovery/main`, or on a same-repository pull request; fork PRs never get it, since they have no secrets.
+   - Concurrency group `staging-navora`, never cancelled, so two merges never write at once.
+2. **Push to `recovery/main`:** `supabase link` to the fixed project ref, then `supabase db push`, which applies the pending migrations in order. This is the only write path to staging.
+3. **Pull request:** if it changes `supabase/migrations/` or `ci.yml`, `supabase db push --dry-run` lists the pending migrations and writes nothing. Otherwise the job only leaves a notice.
+4. **Never the seed** (no `--include-seed`, no `db reset`). `supabase/seed.sql` holds sign-in accounts with the password `navora-local-only`, which is public in this repository. Staging sign-in accounts are a follow-up PR (PLANNED), with passwords from a secret and synthetic people only. Until then, staging has the schema and the reference rows the migrations insert (catalogues, tariff and billing rules), and **no account and no client data**.
+5. **Secrets** are used only as job `env` values and are never printed. A step checks that both are present (by name) and fails with the missing name.
+
+**Tests (written first).** `tests/unit/stg1-staging-deploy.test.ts` reads `ci.yml` and checks:
+- `needs` is exactly the four jobs;
+- only the project ref `qpmdryxkktbqqkqpsnkj`, and the deleted live ref appears nowhere;
+- exactly one non-dry `db push`, only under push to `recovery/main`; the dry run only on a PR;
+- no seed and no reset;
+- secrets only as env values and never echoed;
+- no fork PRs, and the concurrency group is never cancelled.
+
+The real proof is the dry run on this PR's own CI run (`ci.yml` changes), and the first push run after the merge.
+
+**Risks (UNKNOWN until the first run).**
+- GitHub runners have no IPv6. If `supabase link`/`db push` cannot reach the database host, the job fails visibly. The fix is then a pooler connection string as one more secret; no grant or policy changes.
+- A failed `staging` job turns the `ci` run red on `recovery/main`, even when the four required jobs are green. The B0-1 merge-run checker would count it. This is accepted on purpose: a failed staging deploy is a real signal. The PO may decide otherwise.
+
+**Clinical review gate:** none; infrastructure only, no rule, no data.
+**No data:** synthetic only, and no rows beyond the migrations. The live project no longer exists.
+**Rollback:** remove the job. The staging project can be emptied by the owner in the Supabase dashboard.
