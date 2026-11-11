@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { TEAM_OFFERS_HEADING } from "@/features/field/todo";
 
 // Care journey front half: referral (J1) → team decision (J2). Synthetic local-only accounts.
 const OPS = "ops.test@navora.test"; //    org A, operations
@@ -11,6 +12,16 @@ async function signIn(page: Page, email: string, landing: RegExp) {
   await page.getByLabel("Passwort").fill(PASSWORD);
   await page.getByRole("button", { name: "Anmelden" }).click();
   await page.waitForURL(landing);
+}
+
+/** BD / UXR-155 (ADR-179): the count in the nurse's "Zu erledigen" team-offer link on /field, 0 when the link is absent. */
+async function teamOfferCue(page: Page): Promise<number> {
+  const link = page.getByTestId("todo-links").getByTestId("todo-team-offers");
+  if ((await link.count()) === 0) return 0;
+  const text = (await link.textContent()) ?? "";
+  const m = text.match(new RegExp(`^${TEAM_OFFERS_HEADING} \\((\\d+)\\)$`));
+  expect(m, `team-offer link text "${text}"`).not.toBeNull();
+  return Number(m![1]);
 }
 
 async function signOut(page: Page) {
@@ -53,11 +64,22 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await signOut(page);
 
   // The nurse's team sees the offer — without the client's name — and takes it.
+  // BD / UXR-155 (ADR-179, `uxa` G-3 for J2): what she sees first, on her phone (390 × 844), is one neutral
+  // "Zu erledigen" link to the team's offers, with the count and no client name; one tap lands on the offer card.
+  const desktop = page.viewportSize();
+  await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page, NURSE, /\/field$/);
-  // UX2-1 (ADR-131, selector only): "Dein Team" is now also a menu item, so the link is taken from the main menu.
-  await page.getByRole("navigation", { name: "Hauptmenü" }).getByRole("link", { name: "Dein Team", exact: true }).click();
-  await expect(page).toHaveURL(/\/team$/);
+  const offersBefore = await teamOfferCue(page);
+  expect(offersBefore, "the new offer is counted on /field").toBeGreaterThanOrEqual(1);
+  const cue = page.getByTestId("todo-team-offers");
+  await expect(cue).toBeVisible();
+  await expect(cue).toHaveAttribute("data-tone", "info");
+  await expect(page.getByTestId("todo-links")).not.toContainText("Journey");
+  await cue.click();
+  await expect(page).toHaveURL(/\/team#anfragen$/);
   const offer = page.getByRole("article", { name: "Anfrage Teamsuche: Journey Übergangspflege" });
+  await expect(offer).toBeVisible();
+  if (desktop) await page.setViewportSize(desktop);
   await expect(offer).toContainText("für Testteam Nord");
   await expect(offer.getByTestId("urgency-source")).toHaveText("Dringlichkeit: mittel (vom Zuweiser angegeben)");
   await expect(offer).toContainText("nicht automatisch geprüft");
@@ -109,6 +131,9 @@ test("referral → case → team takes it over → team plans a visit → it is 
 
   // The nurse's day shows the assessment with minutes per category and the care goal.
   await page.goto(`/field?datum=${tomorrow}`);
+  // BD / UXR-155: the offer was taken, so it no longer counts on her /field (link gone when it was the only one).
+  expect(await teamOfferCue(page), "the taken offer is no longer counted").toBe(offersBefore - 1);
+  if (offersBefore === 1) await expect(page.getByTestId("todo-team-offers")).toHaveCount(0);
   const visit = page.getByRole("article", { name: /14:00 – 14:45, Jonas Journeytest/ });
   await expect(visit).toContainText("Geplant");
   await expect(visit).toContainText("Bedarfsabklärung");

@@ -24,3 +24,17 @@ export const followupLabel = (count: number) => withCount(FOLLOWUP_HEADING, coun
 export const returnedLabel = (count: number) => withCount(RETURNED_HEADING, count);
 /** "Zur Gegenzeichnung (n)": link text and section heading. */
 export const countersignLabel = (count: number) => withCount(COUNTERSIGN_HEADING, count);
+
+// BD / UXR-155 (`uxa` 03:52, PO 04:39, ADR-179): a referral offered to her team shows up where she starts. One neutral
+// link in the "Zu erledigen" row, named like the offers heading on /team and followed by the count; it leads to that
+// section, where the team decides. No client name, no request title, no urgency colour (the urgency stays on the card).
+export const TEAM_OFFERS_HEADING = "Anfragen an dein Team";
+/** The id of the offers heading on /team. */
+export const TEAM_OFFERS_ANCHOR = "anfragen";
+/** "Anfragen an dein Team (n)": link text on /field. */
+export const teamOffersLabel = (count: number) => withCount(TEAM_OFFERS_HEADING, count);
+/** The offers section on /team. */
+export const teamOffersHref = () => `/team#${TEAM_OFFERS_ANCHOR}`;
+/** The offers /team lists as open ("Offene Anfragen"): those her team has not declined, one per request and team. */
+export const openTeamOfferCount = (offers: ReadonlyArray<{ my_team_declined: boolean | null }>) =>
+  offers.filter((o) => !o.my_team_declined).length;

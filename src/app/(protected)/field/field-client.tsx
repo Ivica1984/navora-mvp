@@ -84,7 +84,7 @@ import type { TeamVisitAlert } from "@/features/team/queries";
 import SignalBanner from "@/components/signals/SignalBanner";
 import type { SignalRow } from "@/features/signals/rules";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
-import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel } from "@/features/field/todo";
+import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
 
 type Props = {
   day: string;
@@ -128,6 +128,8 @@ type Props = {
   unqualifiedTeams?: string[];
   /** ASM1-C1 (UXR-59): records that name her and wait for her confirmation (her own read path; count and first record). */
   assessmentsToConfirm?: { count: number; firstId: string | null };
+  /** BD / UXR-155 (ADR-179): referrals offered to her teams and not declined (count only, no client or request). */
+  openTeamOffers?: number;
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -153,7 +155,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null } }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0 }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
@@ -227,7 +229,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
         )}
         {/* VIS1-3d / VIS1-3e: when the moved visit is not among her cards of this day, the notice stands above the list. */}
         {moved && !visits.some((v) => v.visit_id === movedId) && <MovedNoticeBlock moved={moved} overlapText={movedOverlapText} />}
-        {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0 || assessmentsToConfirm.count > 0) && (
+        {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0 || assessmentsToConfirm.count > 0 || openTeamOffers > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
           // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the
           // section's own heading.
@@ -251,6 +253,18 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                 className="flex min-h-11 items-center rounded-lg border border-stone-400 bg-white px-3 text-stone-800"
               >
                 {confirmTodoLabel(assessmentsToConfirm.count)}
+              </a>
+            )}
+            {openTeamOffers > 0 && (
+              /* BD / UXR-155 (ADR-179): a referral offered to her team, a team decision: neutral (`info`, no urgency
+                 colour), only when n >= 1, gone once taken or declined. Leads to the offers on /team; no client name. */
+              <a
+                href={teamOffersHref()}
+                data-testid="todo-team-offers"
+                data-tone="info"
+                className="flex min-h-11 items-center rounded-lg border border-stone-400 bg-white px-3 text-stone-800"
+              >
+                {teamOffersLabel(openTeamOffers)}
               </a>
             )}
           </nav>

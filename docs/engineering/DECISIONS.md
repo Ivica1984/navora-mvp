@@ -3726,3 +3726,21 @@ A fresh database runs them in number order; a database that had already applied 
 **Limits.** A re-run attempt replaces the earlier attempt in the API, so the checker sees the latest attempt per run. A merge commit pushed with `[skip ci]` would show as missing (fail-closed). The checker proves runs exist and finished; it does not re-check what a test asserts.
 
 **Clinical review gate:** none needed (CI evidence tooling, no product behaviour, no assertion). **No data:** none read or written; the live project is not touched. **Rollback:** delete the script and the test.
+
+### ADR-179 — BD / UXR-155: a referral offered to her team shows up on the nurse's `/field` as one neutral «Zu erledigen» link to the offers on `/team`
+
+**Date:** 2026-11-11 06:40 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** `recovery/main` `6314ad5f` · **Block:** BD (brief `docs/agents/briefs/BD.md`, amendment 2026-11-11 04:39: UXR-155 is a BD gap with its own PR and e2e test; order of the BD PRs, amendment 05:39, step (2)).
+
+**Context.** BD-1 (`docs/engineering/DURCHGANG_INVENTORY.md` §0 row 1, §1 step 1) found that the hand-over J1 → J2 has no cue where the nurse starts: an offer to her team (with a response deadline) is listed only on `/team` under «Anfragen an dein Team»; her `/field` and its «Zu erledigen» row say nothing (`uxa` UXR-155, medium, 2026-11-11 03:52).
+
+**Decision.**
+1. **Same read path as `/team`.** `getOpenTeamOfferCount()` (`src/features/field/queries.ts`) calls `public.team_offers()` (migration 0086; team-scoped, no client name, access end respected; pgTAP 013, 017, 086) and counts what `/team` lists as open: offers her team has not declined (`openTeamOfferCount`, `src/features/field/todo.ts`). **No migration, no new read scope, no new grant.**
+2. **Only a number reaches the screen.** The server component passes `openTeamOffers: number` to `FieldClient`; no request title, region, urgency or client field is sent to the browser for `/field` (data minimisation; J2: the name is visible only after acceptance).
+3. **Presentation.** In the «Zu erledigen» row, when n ≥ 1: one link «Anfragen an dein Team (n)», `data-tone="info"`, neutral border, no urgency colour (the urgency stays on the offer card), `min-h-11` touch target; gone at n = 0, i.e. once the offer is taken by any team or declined by hers. It leads to `/team#anfragen`; the `/team` heading takes the id and the same constant `TEAM_OFFERS_HEADING` (link text = heading + count, the UX1-30 rule, ADR-107). **The decision stays on `/team`** (team autonomy); `/field` offers no accept or decline.
+4. **Failure.** A failed read logs `field.team_offers_load_failed` and hides the link (count 0); her day plan still loads. Same as the ASM1-C1 confirmation link (`getMyAssessmentsToConfirm`). The offers themselves stay on `/team`, whose own read still fails loudly.
+
+**Tests (written first).** `tests/unit/bd-uxr155-team-offer-todo.test.ts`: the count excludes declined offers; label and anchor; the `/team` heading uses the anchor and the constant; the `/field` link is conditional on n > 0, `info`, no urgency colour, text from the constant; the row also appears when this is its only item; only the number is passed to the client component; the query reads `team_offers` and returns 0 on error. `tests/e2e/journey.spec.ts` (J1 → J2, `uxa` G-3 for J2, G-1 for this step): at 390 × 844 the nurse's `/field` shows the link with a count ≥ 1, `info`, without the client's name; one tap lands on `/team#anfragen` and the offer card is visible (this replaces the earlier main-menu click); after «Fall übernehmen» her `/field` count is one less (the link gone when it was the only offer).
+
+**Not in this PR.** The remaining `page.goto` steps of `journey.spec.ts` (G-1) are BD-2's; a positive «geprüft» line for QUAL1 is a `uxa` question (OPEN, not BD).
+
+**Clinical review gate:** presentation of an existing team-scoped read; no clinical rule, no assertion about care. **No data:** synthetic seed only; the live project is not touched. **Rollback:** remove the link, the query and the constant; `/team` heading text is unchanged.

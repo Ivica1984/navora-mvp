@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getCountersignQueue, getDoorNotes, getSafetyAlertHistory, getSafetyAlerts, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast, getTeamOpenReports, getOwnQualificationGaps } from "@/features/field/queries";
+import { getCountersignQueue, getDoorNotes, getSafetyAlertHistory, getSafetyAlerts, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast, getTeamOpenReports, getOwnQualificationGaps, getOpenTeamOfferCount } from "@/features/field/queries";
 import { parseDayParam, parseMovedNotice, shiftDay, todayInZurich } from "@/features/field/rules";
 import { parseOverlapParam } from "@/features/visits/overlap-rules";
 import { PLAN_FLAG_LABEL } from "@/features/team/rules";
@@ -28,7 +28,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   // SIG2-8: opened from the push message: record the tap (never display on the device).
   if (von === "push") await recordPushTap();
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes, safetyAlerts, alertHistory, teamOpenReports, unqualifiedTeams, assessmentsToConfirm] = await Promise.all([
+  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes, safetyAlerts, alertHistory, teamOpenReports, unqualifiedTeams, assessmentsToConfirm, openTeamOffers] = await Promise.all([
     getFieldVisits(day),
     getFieldNotes(day),
     getFieldReports(day),
@@ -50,6 +50,8 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getOwnQualificationGaps(),
     // ASM1-C1 (UXR-59): the assessment records that name her and wait for her confirmation.
     getMyAssessmentsToConfirm(),
+    // BD / UXR-155 (ADR-179): referrals waiting for her teams' decision; the number only, the decision stays on /team.
+    getOpenTeamOfferCount(),
   ]);
 
   return (
@@ -81,6 +83,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       movedOverlap={movedOverlap}
       unqualifiedTeams={unqualifiedTeams}
       assessmentsToConfirm={assessmentsToConfirm}
+      openTeamOffers={openTeamOffers}
     />
   );
 }

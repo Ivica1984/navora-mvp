@@ -66,6 +66,7 @@ import { OUTSIDE_LABEL, REACH_GAP_TEXT, TEAM_STATUS_NOTE, allReachable, statusTe
 import type { TeamPushRow } from "@/features/push/queries";
 import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
 import { GP_CHANNELS, GP_CHANNEL_LABEL, GP_MESSAGES, gpInformedText, informedOnProblem, latestNoticeByCase, type GpNotice } from "@/features/gp/rules";
+import { TEAM_OFFERS_ANCHOR, TEAM_OFFERS_HEADING } from "@/features/field/todo";
 
 function hoursSince(iso: string) {
   return Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 3_600_000));
@@ -166,7 +167,8 @@ export default function TeamClient({
         <OutsideDeliveryStatus rows={pushStatus} />
         <OutsideWatchedVisits rows={outsideWatched} />
 
-        <h2 className="text-lg font-bold">Anfragen an dein Team</h2>
+        {/* BD / UXR-155 (ADR-179): the /field "Zu erledigen" link lands here, named by the same constant. */}
+        <h2 id={TEAM_OFFERS_ANCHOR} className="text-lg font-bold">{TEAM_OFFERS_HEADING}</h2>
         {open.length === 0 && (
           <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center">
             Keine offenen Anfragen für deine Teams.
