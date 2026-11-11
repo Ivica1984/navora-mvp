@@ -779,3 +779,57 @@ insert into public.ai_agent_settings (organization_id, agent_key, state, stop_sh
 select '00000000-0000-4000-b000-000000000018', d.key, 'on', 50, 10, 30, '00000000-0000-4000-a000-0000000009d7',
        private.now() - interval '1 day', d.version, d.provider, d.region
 from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';
+
+-- BD / Q-BD-2 (brief docs/agents/briefs/BD.md amendment 2026-11-11 05:39; `cra` CGR-177; ADR-180; pgTAP 124):
+-- Testorganisation S, the one synthetic SIMULATION organisation of the seed, so the BD run (J1-J5) reaches the QUAL1
+-- matrix with login accounts. Synthetische Daten · Regeln PROPOSED (matrix QAM-0.2, every cell UNVALIDATED, D-43): the
+-- run proves the QUAL1 mechanism, not the cells. Every other organisation, Testorganisation A included, stays a
+-- non-simulation and keeps CR-007/CR-164 (pgTAP 121). Region: synthetic Basel-Stadt (Q-BD-3, pilot region); no tariff
+-- rule depends on it. Its own organisation, so no org-A to org-H fixture or count changes. No case and no visit is
+-- seeded: the BD run creates them through the screens (J1 intake by opsbs.test).
+--   opsbs.test     (…9e5): operations, referral intake (J1); signs in.
+--   pflegebs.test  (…9e6): registered nurse of Testteam Basel; signs in.
+--   assistbs.test  (…9e7): care assistant of Testteam Basel; signs in (BD-4 negative: refused on a KLV-B visit).
+-- Evidence (QUAL1-2, CR-187): written here by the synthetic fixture path only, as the table owner (no request user, no
+-- command), `verified`, `synthetic`, no `recorded_by`; 0120 refuses `verified` for every app user and command. Grades
+-- are fixture choices for synthetic people, not a statement about any real qualification: pflegebs nurse_hf_fh with a
+-- practice licence (strict default (b) of ADR-163 for A1-A4), assistbs pflegehelfer_srk.
+insert into public.organizations (id, name, simulation) values
+  ('00000000-0000-4000-b000-000000000019', 'Testorganisation S (synthetische Simulation Basel)', true);
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', private.now() - interval '120 days', 'Testteam Basel', 'Basel-Stadt', 'Ambulante Pflege', 'active', 3, 50, 'Leitung Test S', 'Keine Massnahme', false, null);
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e5', 'authenticated', 'authenticated',
+   'opsbs.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e6', 'authenticated', 'authenticated',
+   'pflegebs.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e7', 'authenticated', 'authenticated',
+   'assistbs.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009f5', '00000000-0000-4000-a000-0000000009e5', '00000000-0000-4000-a000-0000000009e5',
+   '{"sub":"00000000-0000-4000-a000-0000000009e5","email":"opsbs.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now()),
+  ('00000000-0000-4000-a000-0000000009f6', '00000000-0000-4000-a000-0000000009e6', '00000000-0000-4000-a000-0000000009e6',
+   '{"sub":"00000000-0000-4000-a000-0000000009e6","email":"pflegebs.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now()),
+  ('00000000-0000-4000-a000-0000000009f7', '00000000-0000-4000-a000-0000000009e7', '00000000-0000-4000-a000-0000000009e7',
+   '{"sub":"00000000-0000-4000-a000-0000000009e7","email":"assistbs.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e5', 'operations'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e6', 'nurse'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e7', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001b9', '00000000-0000-4000-a000-0000000009e6', 'registered_nurse'),
+  ('00000000-0000-4000-a000-0000000001b9', '00000000-0000-4000-a000-0000000009e7', 'care_assistant');
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e6', 'Pflegekraft Basel S', '00000000-0000-4000-a000-0000000009e6'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e7', 'Pflegekraft Assistenz Basel S', '00000000-0000-4000-a000-0000000009e6');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e6', 'grade', 'nurse_hf_fh', 'verified', true, null),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e6', 'practice_licence', null, 'verified', true, null),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009e7', 'grade', 'pflegehelfer_srk', 'verified', true, null);
