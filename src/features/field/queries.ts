@@ -6,6 +6,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import type { FieldReport } from "./report";
 import type { FieldNote, FieldVisit } from "./types";
 import { teamsWithoutQualification } from "./qualification";
+import { openTeamOfferCount } from "./todo";
 
 /**
  * Visits of the signed-in user's teams on one day (F1).
@@ -190,4 +191,20 @@ export async function getOwnQualificationGaps(): Promise<string[]> {
   }
 
   return teamsWithoutQualification(data ?? []);
+}
+
+/**
+ * BD / UXR-155 (ADR-179): how many referrals wait for a decision of her teams, counted as /team lists them (open, not
+ * declined). Same read path as /team: public.team_offers() (migration 0086, team-scoped, no client name; pgTAP 013, 017, 086).
+ * Only the number leaves the server. The cue is a pointer, not the place of decision: a failed read hides the link and
+ * leaves her day intact (the offers stay on /team).
+ */
+export async function getOpenTeamOfferCount(): Promise<number> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("team_offers");
+  if (error) {
+    logEvent("error", "field.team_offers_load_failed", errorFields(error));
+    return 0;
+  }
+  return openTeamOfferCount(data ?? []);
 }
