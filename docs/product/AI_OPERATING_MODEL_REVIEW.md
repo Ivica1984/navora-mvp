@@ -460,6 +460,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control added: every state only a verification path can end has an age signal to that path** (AUT-86; CR-205 option B adopted as B2-T12e test basis, AUT-80 adopted).
 - FEE1, GMSEP, ONB1 and RDATA1 state "no AI"; confirmed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
 
+**State 2026-11-11 08:20 (`aia` review 44; BD, D-18):**
+- **Control added: no agent input reads a billing parameter, tested deny-by-default on both sides** (D-18 invariant (I1), `cra` 05:26): database side pgTAP 125 (#1064, OPEN until merged); app side AUT-87 (OPEN): every source file guarded except a named list of billing readers, so each new agent folder (A7, A13) is covered from its first commit.
+- **Measurement before AI:** BD-2 is the first end-to-end run; AUT-88 (OPEN) proposes the human-act count per step there, so later agent stages are compared against a measured baseline, not an estimate.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -506,3 +511,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-10 14:30 | `aia` | §12: QUAL1-22 state corrected (part 1 IMPLEMENTED as refusal, part 2 PLANNED as B2-T12b; AUT-77 closed); control "a post-assignment lapse releases at once, with a count shown to the acting person before saving" added (AUT-78), released visits through the normal open list and PLAN3 (AUT-79). No agent added or removed |
 | 2026-11-10 20:30 | `aia` | §12: control "a one-way state is not a safe state" added (AUT-80: grade contradiction has no resolution path in code; AUT-81: delegation correction order); AUT-78/-79 adopted into B2. No agent added or removed |
 | 2026-11-11 02:30 | `aia` | §7: A13 demand pooling matcher (rule, stage 0, PLANNED) added; §12: FE-055 briefs recorded, controls "no fee penalises the entries the measures depend on" (AUT-82) and "a state only verification can end has an age signal" (AUT-86) added, AUT-80/-81 adopted. One agent added (A13, rule) |
+| 2026-11-11 08:20 | `aia` | §12: control "no agent input reads a billing parameter, deny-by-default on both sides" (D-18 (I1), pgTAP 125, AUT-87) and "measure acts before agent stages" (AUT-88, BD-2) added. No agent added or removed |
