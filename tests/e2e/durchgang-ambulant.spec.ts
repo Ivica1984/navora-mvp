@@ -6,8 +6,11 @@ import {
   CARE_MINUTES,
   CORRECTION_BACK,
   INTERNAL_CODE,
+  type CorrectionBack,
   durchgangSlots,
+  effectiveEventTimes,
   minutesBack,
+  sequenceViolations,
   zurichDay,
   type Slot,
 } from "./support/durchgang-time";
@@ -25,6 +28,8 @@ import {
 //   G-6 no internal code (D-, CR-, CGR-, SIG-) in any text the run passes.
 //   Q-BD-1 option (A): the nurse records each visit's start and departure through «Zeiten ansehen und korrigieren» (F3)
 //   with the reason «Testlauf: simulierte Einsatzdauer» before signing; the original visit_events stay unchanged.
+//   CGR-180 (1): the corrected times form a possible sequence (the assessment's completion is set back too): the care
+//   visit starts after the needs assessment ended, and the nurse's two visits do not overlap (asserted on the stored facts).
 //   «Der abrechenbare Hauptpfad nutzt eine Zeitkorrektur (F3) mit dem Grund ‹Testlauf: simulierte Einsatzdauer›.»
 //
 // Not in this run yet (BD-3: named, not faked; the PR names each break):
@@ -79,7 +84,7 @@ async function asPerson(email: string): Promise<SupabaseClient> {
 }
 
 /** Runs one visit on /field at 390 px: depart, start, complete; then F3 corrections (option (A)); then signs the report. */
-async function runVisit(nurse: Page, slot: Slot, back: { departed: number; started: number }, label: string) {
+async function runVisit(nurse: Page, slot: Slot, back: CorrectionBack, label: string) {
   await nurse.getByTestId("tab-bar").getByRole("link", { name: "Heute" }).click();
   await nurse.waitForURL(/\/field/);
   const card = nurse.getByRole("article", { name: new RegExp(`${slot.from} – ${slot.to}, ${FIRST} ${LAST}`) });
@@ -95,11 +100,14 @@ async function runVisit(nurse: Page, slot: Slot, back: { departed: number; start
     await expect(card.getByTestId("command-error")).toHaveCount(0);
   }
 
-  // Q-BD-1 option (A): departure first, then start, so the order departed < started < completed holds at every save.
+  // Q-BD-1 option (A): departure first, then start, then (if set) completion, all earlier than recorded, so the order
+  // departed < started < completed holds at every save (0040 neighbour check).
   const now = Date.now();
   await card.getByText("Zeiten ansehen und korrigieren").click();
   const timeline = card.getByRole("list", { name: "Zeitverlauf" });
-  for (const [event, minutes] of [["Losgefahren", back.departed], ["Gestartet", back.started]] as const) {
+  const steps: [string, number][] = [["Losgefahren", back.departed], ["Gestartet", back.started]];
+  if (back.completed !== undefined) steps.push(["Abgeschlossen", back.completed]);
+  for (const [event, minutes] of steps) {
     const row = timeline.getByRole("listitem").filter({ hasText: event });
     await row.getByRole("button", { name: "Korrigieren" }).click();
     await row.getByLabel("Richtige Uhrzeit").fill(minutesBack(now, minutes));
@@ -268,9 +276,9 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   // not selectable through the table API (RLS3, 0070: acts are not listed per person), so it is not read here; the
   // corrections were saved in the nurse's own session (only members of the visit's team may correct, 0008).
   const { data: corrections, error: correctionError } = await db
-    .from("visit_time_corrections").select("visit_id, event_id, corrected_at, reason").in("visit_id", ids);
+    .from("visit_time_corrections").select("id, visit_id, event_id, corrected_at, created_at, reason").in("visit_id", ids);
   expect(correctionError).toBeNull();
-  expect(corrections, "two corrections per visit").toHaveLength(4);
+  expect(corrections, "three corrections of the assessment, two of the care visit").toHaveLength(5);
   for (const c of corrections!) expect(c).toMatchObject({ reason: F3_REASON });
   const { data: events, error: eventError } = await db
     .from("visit_events").select("id, visit_id, event_type, occurred_at").in("visit_id", ids);
@@ -278,10 +286,18 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   for (const c of corrections!) {
     const original = events!.find((e) => e.id === c.event_id);
     expect(original, `event ${c.event_id} still there`).toBeTruthy();
-    expect(["departed", "started"]).toContain(original!.event_type);
+    expect(["departed", "started", "completed"]).toContain(original!.event_type);
     expect(Date.parse(original!.occurred_at), "the recorded time is kept, the correction is its own row")
       .toBeGreaterThan(Date.parse(c.corrected_at));
   }
+
+  // CGR-180 (1): in effective time (as private.effective_event_time computes it) the care visit starts at or after the
+  // assessment's completion, and the same nurse's two visits do not overlap.
+  const span = (visitId: string) => effectiveEventTimes(
+    events!.filter((e) => e.visit_id === visitId),
+    corrections!.filter((c) => c.visit_id === visitId),
+  );
+  expect(sequenceViolations(span(aVisit.id), span(cVisit.id)), "the stored times form a possible care sequence").toEqual([]);
 
   // Step 9: one fact per final report, billable, with an EMPTY reason list (BD-2 amendment 02:39). Warnings are not
   // asserted: they are information, not reasons (e.g. `reference_not_validated`, CGR-08).

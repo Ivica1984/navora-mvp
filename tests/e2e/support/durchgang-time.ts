@@ -35,16 +35,65 @@ export const CARE_MINUTES = 30;
 
 /**
  * F3 corrections of the run (Q-BD-1 option (A), reason «Testlauf: simulierte Einsatzdauer»): how many minutes before the
- * moment of correction the departure and the start are set, per visit. Care time = start → completion ≥ the planned
- * minutes, so the billable minutes are not scaled below the planned ones and no minimum applies.
+ * moment of correction each event is set, per visit; `completed` absent = the recorded completion stays. Care time =
+ * start → completion ≥ the planned minutes, so the billable minutes are not scaled below the planned ones and no minimum
+ * applies.
+ *
+ * CGR-180 (1) (`cra` 13:30): the effective times must form a possible care sequence. The care visit is corrected a few
+ * minutes after the assessment, so the assessment's completion is also set back (65 min) and lies before the care
+ * visit's corrected departure (40 min back from a later moment): the care visit starts after the needs assessment ended
+ * and the nurse's two visits do not overlap. Synthetic test values, no care rule.
  */
 export const CORRECTION_BACK = {
-  assessment: { departed: 55, started: 50 },
+  assessment: { departed: 120, started: 115, completed: 65 },
   care: { departed: 40, started: 35 },
 } as const;
 
+export type CorrectionBack = { departed: number; started: number; completed?: number };
+
+/** Effective times (ms) of one visit: departure, start, completion. */
+export type VisitSpan = { departed: number; started: number; completed: number };
+
+/** The effective span of a visit corrected at `correctedAtMs` with `back` (the completion is taken as that moment). */
+export function correctedSpan(correctedAtMs: number, back: CorrectionBack): VisitSpan {
+  const at = (minutes: number) => correctedAtMs - minutes * 60_000;
+  return { departed: at(back.departed), started: at(back.started), completed: at(back.completed ?? 0) };
+}
+
+export type SequenceViolation = "care_starts_before_assessment_completed" | "visits_overlap";
+
+/**
+ * CGR-180 (1): faults of the sequence assessment → care visit of the same nurse and client, in effective time.
+ * A visit occupies the nurse from departure to completion; touching ends (departure = completion) do not overlap.
+ */
+export function sequenceViolations(assessment: VisitSpan, care: VisitSpan): SequenceViolation[] {
+  const faults: SequenceViolation[] = [];
+  if (care.started < assessment.completed) faults.push("care_starts_before_assessment_completed");
+  if (care.departed < assessment.completed && assessment.departed < care.completed) faults.push("visits_overlap");
+  return faults;
+}
+
+type EventRow = { id: number; event_type: string; occurred_at: string };
+type CorrectionRow = { id: number; event_id: number; corrected_at: string; created_at: string };
+
+/**
+ * Effective departure, start and completion of one visit, as `private.effective_event_time` (0008) computes them: the
+ * newest correction of the event (created_at, then id), else the recorded time. Throws when one of the three is missing.
+ */
+export function effectiveEventTimes(events: EventRow[], corrections: CorrectionRow[]): VisitSpan {
+  const effective = (type: "departed" | "started" | "completed"): number => {
+    const event = events.find((e) => e.event_type === type);
+    if (!event) throw new Error(`the visit has no ${type} event`);
+    const newest = corrections
+      .filter((c) => c.event_id === event.id)
+      .sort((x, y) => Date.parse(y.created_at) - Date.parse(x.created_at) || y.id - x.id)[0];
+    return Date.parse(newest ? newest.corrected_at : event.occurred_at);
+  };
+  return { departed: effective("departed"), started: effective("started"), completed: effective("completed") };
+}
+
 /** Bounds of the run window in minutes of the Zurich day. */
-const EARLIEST_RUN_MINUTE = 75; // 01:15: the earliest correction (55 min back) stays after 00:00 with 20 min margin
+const EARLIEST_RUN_MINUTE = 140; // 02:20: the earliest correction (120 min back) stays after 00:00 with 20 min margin
 const LAST_SLOT_END_MINUTE = 23 * 60 + 40; // 23:40: the care visit ends before midnight, 20 min before the day guard
 
 /**
