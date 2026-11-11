@@ -64,6 +64,21 @@ Taken in as acceptance conditions; product authority, no rule added (BD-6 holds)
 
 The PO did not run the tests.
 
+### Amendment 2026-11-11 06:39 CET (po: UXR-155 merged #1060; product authority, no rule added, BD-6 holds)
+- **UXR-155 delivered** (PR #1060, head `9458752`, merge `1f2e0b7`, ADR-179). The nurse's `/field` «Zu erledigen» row shows one neutral link «Anfragen an dein Team (n)» to `/team#anfragen` while her teams have an open, not declined offer; count only, no client name; the decision stays on `/team`. No migration, same read as `/team` (`team_offers()`, 0086).
+- **BD review (care model):** the hand-over J1 → J2 now starts where the nurse starts her day. That removes one phone call or message per referral («hast du die Anfrage gesehen?») and keeps the decision with the team, not a dispatcher (value order 4, 5; continuity 2 because a slow team answer lets the referral go elsewhere). No new urgency colour: the deadline stays on the card, so the cue does not create pressure where no clinical rule says so.
+- **Next BD PR:** the Q-BD-2 seed organisation (Basel-Stadt, CGR-177 (a)-(c) pgTAP, `cra` gate line), then BD-2 with option (A) of Q-BD-1.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| UXR-155 (amendment 04:39): one neutral «Zu erledigen» line with the count and a link to `/team`, no client name | met | `src/app/(protected)/field/field-client.tsx` (`todo-team-offers`, `data-tone="info"`), `src/features/field/todo.ts`; unit `tests/unit/bd-uxr155-team-offer-todo.test.ts` |
+| UXR-155: own e2e test | met | `tests/e2e/journey.spec.ts`: 390 × 844, link visible with count ≥ 1 and no client name, one tap to `/team#anfragen` with the offer card, count one less after «Fall übernehmen» |
+| No new read scope (data minimisation) | met | `getOpenTeamOfferCount()` calls `team_offers()`; only a number is passed to the client (unit test) |
+| CI on the PR head | green | `9458752`: `app` 130343493311, `db` 130343493258, `e2e` 130343493011, `ui-screenshots` 130343493283 `success` |
+| CI on the merge commit | green | `ci` (push) 42967398866 on `1f2e0b7`: app, db, e2e, ui-screenshots `success`; `agents-coordination` 42967398925 `success`; the parallel `pull_request` run 42967405582 is PR #3's |
+
+**UXR-155: met** (2026-11-11 06:39 run). BD as a block stays in progress (BD-2 to BD-6 open). The PO did not run the tests.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
