@@ -41,6 +41,12 @@ Taken in for Phase A (synthetic); no price or founder decision changed:
 - **FEE1-4 (CGR-172 (d)):** the firewall test stays unchanged.
 - **Cap and bands (owner, D-14):** whether the 1.0 cap stays, and `aia` AUT-82's proposal to take FTE in **bands** so declared outside-visit minutes move the fee only when a band changes, are pricing-model questions; added to the D-14 package as options for the owner, not decided here. Until then FEE1 is built with the cap as written and without bands.
 
+### Amendment 2026-11-11 04:39 CET (po, `lca` D-14 re-check 04:20, advisory; product authority, synthetic data, no pricing choice made)
+- [ ] **FEE1-3a (amended):** the visit-derived floor is a fee input only: it **never writes to WORK1** and is **never shown or labelled as working time** (as WORK1-C4). A confirmed member-day always uses the confirmed value, never the floor. Unit test: a confirmed day whose visit span is longer than the confirmed time counts the confirmed time; pgTAP: computing the fee leaves the member's WORK1 rows unchanged.
+- [ ] **FEE1-5 (amended, team of two):** the option (b) sentence (the team agreement states what the team view reveals) covers the Σ FTE **and** the counts of FEE1-5a and FEE1-3b.
+- [ ] **FEE1-3b (amended, label):** the count is labelled «Monate über Referenz»; never «Überzeit», «Überstunden» or any wording of an ArG or overtime check (ArG limits are weekly and yearly and depend on the employer, D-12). Unit test on the label text.
+- Real-data conditions (`lca` (i)-(iii)) recorded; nothing is computed on real data (Phase A).
+
 ## Rules and their input class
 FTE from confirmed working time: *visit/schedule fact*. Fee formula: commercial rule (FE-055 (3)), no clinical content.
 
