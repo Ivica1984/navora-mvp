@@ -28,6 +28,7 @@ During team founding, a team sees the structure options, what each means for lia
 - [ ] ONB1-6: the BD flow test starts from a team founded through ONB1.
 - [ ] Negative cases: no member can record a choice for the team alone where the team agreement requires all members; no external data leave NAVORA (no broker interface in Phase A).
 - [ ] ONB1-7 (added 2026-11-11 00:39, po, `lca` D-44 00:45): the checklist names no insurer, no product and no premium, and the assistant suggests none; test: the content table and every assistant output of the step contain none of a test list of insurer and product names, and no CHF amount. A referral to a broker partner is not part of ONB1 (it waits for adviser question Q-44d).
+- [ ] ONB1-8 (added 2026-11-11 02:39, po, `cra` CGR-174, S1 for Phase B; PLANNED, not a Phase A criterion): a real client visit cannot be planned for a team whose ONB1 record is "not yet", or whose carrier, cover or admission is not confirmed by the named owner (pgTAP when built). The checklist names practice licence and KVG admission per option only once `lca` has the content (text not written by an agent; content UNKNOWN today).
 
 ## Rules and their input class
 Content table: legal information (not a NAVORA rule), reviewed by `lca`, never written by an agent as a legal determination. No clinical content.

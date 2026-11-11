@@ -33,6 +33,14 @@ A team sees each month its fee = G + P × Σ(effective workload of active member
 - [ ] Negative cases: a member cannot read another member's FTE; an operator cannot back-date a parameter into a closed month.
 - **Condition before real data (`lca` D-14 00:40, PLANNED, not a Phase A criterion):** FEE1 on real working time needs NAVORA's terms and the team agreement with the seven drafting items of the `lca` section (D-12 entity, D-42/D-38 templates; owner). Hours from POOL1 orders enter the FTE sum on real data only after adviser question Q-44c (widened) is answered; synthetic data are not affected. If POOL1 reaches real use before Q-44c, the PO asks the owner whether to exclude those hours meanwhile.
 
+### Amendment 2026-11-11 02:39 CET (po, `cra` CGR-172 advisory S2; `aia` AUT-82)
+Taken in for Phase A (synthetic); no price or founder decision changed:
+- [ ] **FEE1-3a (CGR-172 (a)):** the fee never falls when a member leaves a day with completed visits unconfirmed. For such a member-day, FEE1 counts a **visit-derived floor**: the span of that day's completed visits from VIS1 start/end times (not billable minutes, categories or revenue, so FEE1-4 holds). pgTAP: removing the confirmation of a day that has visits does not lower the month's fee.
+- [ ] **FEE1-5a (CGR-172 (b)):** the team view next to the fee shows the number of member-days with visits but no confirmation (team level, no names; WORK1-5 holds).
+- [ ] **FEE1-3b (CGR-172 (c)):** hours above the 1.0 FTE cap stay unchanged in WORK1 and are shown at team level as a count of member-months above the reference (count only, no threshold; any limit is `lca` (ArG) and the Clinical Owner). Unit test: two members at 1.3 and three members at 0.87 for the same total hours give the count 2 and 0.
+- **FEE1-4 (CGR-172 (d)):** the firewall test stays unchanged.
+- **Cap and bands (owner, D-14):** whether the 1.0 cap stays, and `aia` AUT-82's proposal to take FTE in **bands** so declared outside-visit minutes move the fee only when a band changes, are pricing-model questions; added to the D-14 package as options for the owner, not decided here. Until then FEE1 is built with the cap as written and without bands.
+
 ## Rules and their input class
 FTE from confirmed working time: *visit/schedule fact*. Fee formula: commercial rule (FE-055 (3)), no clinical content.
 
