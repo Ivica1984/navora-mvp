@@ -41,6 +41,29 @@ Taken in as acceptance conditions; product authority, no rule added (BD-6 holds)
 - **UXR-156 (billable state not visible on the item):** BD-2 step 9 asserts the stored fact per visit (billable, empty reason list). The per-item display is named in BD-1 and built in B8 (billing), not in BD; it does not block BD acceptance.
 - **UXR-157 (manual «Abrechnungsfakten erzeugen» button):** BD step 9 may use the existing control (reachable on `/team`, G-1 met). **Challenge, routed to B8:** why does a person have to press a button to turn a signed report into a billable fact? Proposal for B8: the fact is derived when the report is signed (same command, no new rule), with the `lca` gate on step 9. Until B8 decides, the button stays.
 
+### Amendment 2026-11-11 05:39 CET (po: BD-1 merged #1057; answers to Q-BD-1 to Q-BD-3 of `DURCHGANG_INVENTORY.md` §4; `cra` CGR-176, CGR-177; product authority, no rule added, BD-6 holds)
+- **BD-1 delivered** (PR #1057, merge `07cb664`). Evidence table below; the criterion is met once CI on the merge commit is green (section 5 of `PO_MERGE_PROCESS.md`).
+- **Q-BD-1 (step 9, `below_minimum` in a real-time run): option (A).** The nurse records the visit's start and end through «Zeiten ansehen und korrigieren» (F3) before signing, with the reason «Testlauf: simulierte Einsatzdauer». The test asserts the correction row (actor, reason) and that the original `visit_events` times are unchanged (CGR-176 (1)). **Option (B) is not part of BD:** no BD test asserts `below_minimum` as a correct stop case, because CR-029 reads opposite to KLV Art. 7a Abs. 2 and the BAG commentary on every source `cra` and `lca` read (D-18 template 05:26). The inventory and every test name, comment or text that mentions it call it «heutiges Verhalten von CR-029 (UNVALIDATED, Lesart umstritten, D-18)» (CGR-176 (2)). Option (C), a test clock in the database, is rejected.
+- **Q-BD-2 (step 2, QUAL1 matrix): yes.** One synthetic simulation organisation in `supabase/seed.sql`, its own gap PR with pgTAP and a `cra` gate line, under the four conditions of CGR-177: (a) labelled synthetic, evidence written by the fixture path only; (b) pgTAP: exactly one simulation organisation, no role can set `organizations.simulation`; (c) Testorganisation A keeps CR-007/CR-164 (pgTAP 121 stays green); (d) BD's acceptance text says the run proves the QUAL1 **mechanism** with the PROPOSED v0.2 cells, not the cells, and that a non-simulation organisation still runs CR-007/CR-164.
+- **Q-BD-3 (region): Basel.** The simulation organisation of Q-BD-2 lies in a synthetic Basel-Stadt region (pilot regions, founder direction 2026-11-06); the BD run uses it. Testorganisation A (Bern West) stays as it is for the existing tests. No tariff rule depends on it (`billing_rule` falls back to `CH`, 0043:58).
+- **Order of the BD PRs:** as proposed in the inventory §5: (1) BD-1 done; (2) UXR-155 «Zu erledigen» line on `/field`; (3) Q-BD-2 seed organisation; (4) BD-2 test with the proven steps on `recovery/main` and the full test on `repeat/2/bd-full-…`, BD-4 negatives; (5) BD-5 10/10. One PR per gap, each with its own test (FE-054).
+- **Acceptance text additions (for BD acceptance):** «Der abrechenbare Hauptpfad nutzt eine Zeitkorrektur (F3) mit dem Grund ‹Testlauf: simulierte Einsatzdauer›.» and the CGR-177 (d) sentence. **Routed to B8/BILL1 (PLANNED):** a fact whose minutes rest on a corrected event carries a warning, never a reason (CGR-176 (3), D-18 invariant I4).
+- **OPEN, not BD:** a positive «geprüft» line for a passed QUAL1 check (inventory §1 step 2) goes to `uxa` as a question; it does not block BD.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BD-1 inventory per step 1-9: screen, command, state from the code, tests, first break | met (docs) | `docs/engineering/DURCHGANG_INVENTORY.md` §0-§1 (#1057, read from `76cef8d`); first break step 2 (no simulation org), second step 9 (`below_minimum`) |
+| BD-1 no code change | met | #1057 diff: inventory, `IMPLEMENTATION_STATUS.md`, `eng` journal only |
+| BD-1 (amended 02:39): `assessment_first` reads the completed assessment visit, not ASM1 | met | inventory §1 step 1b (0014:52-62, 214-219); confirmed by `cra` (`cra-gate: #1057 0d05266 clear`) |
+| BD-1 (amended 04:39): UXR-155 named | met | inventory §0 row 1, §1 step 1 (MISSING, own PR) |
+| BD-1 (amended 04:39): UXR-156 per-item billing state named | met | inventory step 9 notes, routed to B8 |
+| CI on the PR head | green | `ci` 42958866748 on `0d05266`, 4/4 (`db`, `e2e`, `ui-screenshots` skipped their test steps by the docs-only rule ADR-167) |
+| CI on the merge commit | green | `ci` (push) 42960813630 on `07cb664`: app, db, e2e, ui-screenshots `success`; the cancelled run 42960820758 is the `pull_request` run of PR #3, superseded |
+
+**BD-1: met** (2026-11-11 05:39 run). BD as a block stays in progress (BD-2 to BD-6 open).
+
+The PO did not run the tests.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
