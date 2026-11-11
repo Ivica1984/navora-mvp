@@ -101,6 +101,13 @@ The PO did not run the tests.
 - **(G-b) reported owner answer «A»** (synthetic administrator in Testorganisation S, `/admin` screen path; `eng` comments on #1069, 16:54 and 17:04 CET). The PO did not hear it and could not verify it from the repository; it is **not yet recorded in `FOUNDER_DECISIONS.md`**. Until a recorded owner decision exists, the PO choice of 10:39 (seeded setting, merged with #1071) stays the state on `recovery/main`; `eng` may prepare the «A» gap PR, it merges once the answer is recorded. Owner asked to confirm (journal 17:39).
 - **If «A» is confirmed:** the administrator act is counted in the AUT-88 act table as its own row («Organisationseinstellung durch Admin»), not hidden in the baseline, so hypothesis H-BD-1 (team switches its own proposals) keeps a measured counter-case.
 
+### Amendment 2026-11-11 18:39 CET (po: G-6 merged; AUT-88 baseline adopted; product authority, no rule added)
+
+- **G-6 gap fix merged:** #1072 (head `74ee68c`, merge `42fdccf`; CI `ci` 43036745745 4/4 green after the runner outage; `cra-gate` clear). Post-merge CI on `recovery/main` is checked in the next run (FE-054). BD is not accepted by this merge; acceptance comes with the BD flow test (#1069).
+- **AUT-88 baseline adopted** (`eng` table on #1069, run 43037240509, synthetic seed of Testorganisation S): 83 acts, 22 of them test-only (Q-BD-1 (A) corrections), **61 product acts** for steps 1 to 9. It is the BD reference count; each later block reports its change against it in the same table form. It is a measurement, not a limit, and no test asserts it.
+- **Challenge (reading of the baseline):** 23 of 61 acts (38 %) are step 1 at Operations, 18 of them typed fields. That is the intake coordinator NAVORA wants to remove. Covered by REF2 (draft, D-9, D-3) and the intake hypothesis rows of the challenge table; no new row. The baseline gives those rows a measured starting point.
+- **Next:** #1069 (BD-2) merges next when its head is still `1baafa3`, CI green and `clean` against `recovery/main`; the `cra` advisory (stale header comment, spec 40-43) is not a merge stop and goes into the steps 3-4/ASM1 change.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
