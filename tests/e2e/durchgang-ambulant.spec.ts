@@ -258,12 +258,9 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   expect(cVisit).toMatchObject({ status: "completed", is_needs_assessment: false });
   const ids = [aVisit.id, cVisit.id];
 
-  const { data: reports, error: reportError } = await db.from("visit_reports").select("visit_id, status, performer_id").in("visit_id", ids);
-  expect(reportError).toBeNull();
-  for (const id of ids) {
-    expect(reports!.filter((r) => r.visit_id === id).map((r) => [r.status, r.performer_id]), `final report of ${id}`)
-      .toEqual([["final", NURSE_ID]]);
-  }
+  // `visit_reports` has no SELECT grant for `authenticated` (reports are read through the field functions); the final
+  // report is asserted on the screen («Bericht abgeschlossen», runVisit) and by the fact below, which only a final
+  // report without an open quality hold gives (0051, H-05). No grant is widened for the test.
 
   // CGR-176 (1): the correction rows name the actor and the reason; the original visit_events times are unchanged.
   const { data: corrections, error: correctionError } = await db
@@ -285,16 +282,17 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   // Step 9: one fact per final report, billable, with an EMPTY reason list (BD-2 amendment 02:39). Warnings are not
   // asserted: they are information, not reasons (e.g. `reference_not_validated`, CGR-08).
   const { data: facts, error: factError } = await db
-    .from("billable_facts").select("visit_id, billable, reasons, order_basis, planned_minutes_a, planned_minutes_c").in("visit_id", ids);
+    .from("billable_facts").select("visit_id, report_id, billable, reasons, order_basis, planned_minutes_a, planned_minutes_c").in("visit_id", ids);
   expect(factError).toBeNull();
   expect(facts).toHaveLength(2);
+  for (const f of facts!) expect(f.report_id, `fact of ${f.visit_id} names its final report`).toBeTruthy();
   expect(facts!.find((f) => f.visit_id === aVisit.id)).toMatchObject({ billable: true, reasons: [], planned_minutes_a: ASSESSMENT_MINUTES });
   expect(facts!.find((f) => f.visit_id === cVisit.id)).toMatchObject({ billable: true, reasons: [], planned_minutes_c: CARE_MINUTES });
   await db.auth.signOut();
 
   // ── Negative (BD brief): a nurse of another organisation reads none of the run's records. ──────────────────────────
   const other = await asPerson(OTHER_NURSE);
-  for (const table of ["care_visits", "visit_reports", "visit_time_corrections", "billable_facts"] as const) {
+  for (const table of ["care_visits", "visit_events", "visit_time_corrections", "billable_facts"] as const) {
     const column = table === "care_visits" ? "id" : "visit_id";
     const { data, error } = await other.from(table).select(column).in(column, ids);
     expect(error, `${table} as a nurse of another organisation`).toBeNull();
