@@ -35,6 +35,12 @@ Taken in as acceptance conditions; product authority, no rule added (BD-6 holds)
 - [ ] **BD-4 (amended):** negatives in addition: a care visit before the completed assessment visit is refused `assessment_first`; B minutes without a valid order give `b_without_valid_order`; a report not final gives no fact; a visit start by a member whose evidence has lapsed is refused at the door. Stop cases (a), (b), (e) of §5 stay listed "nicht nachgewiesen" and do **not** count toward acceptance.
 - **Acceptance text:** BD's acceptance states that it proves the software path, and is **no clinical release** of the flow (CGR-145, CGR-146).
 
+### Amendment 2026-11-11 04:39 CET (po, `uxa` 03:52 PROPOSED gate checklist, UXR-155 to UXR-157; product authority, no rule added)
+- [ ] **`uxa` gate = G-1 to G-6** of `reports/UX_REVIEW.md` 2026-11-11 03:52, adopted as BD acceptance conditions: G-1 every step entered by a control on the previous screen or the shell menu, `page.goto` only for `/login` (today `journey.spec.ts:25` and `:111` would fail; the fix is in the test); G-2 the nurse's steps at 390 × 844; G-3 each hand-over asserts what the next person sees first; G-4 every refusal shows its reason sentence and the next possible action; G-5 no dead end; G-6 no internal code (D-, CR-, CGR-, SIG-) in any text the run passes.
+- **UXR-155 (no cue on `/field` for a referral offered to the team):** a BD gap (hand-over J1 → J2, continuity and team autonomy). BD-1 names it; its fix is its own PR with its own e2e test (one neutral «Zu erledigen» line with the count and a link to `/team`, no client name, absent at 0; design rule `DESIGN_SYSTEM.md` v63). The decision stays on `/team`.
+- **UXR-156 (billable state not visible on the item):** BD-2 step 9 asserts the stored fact per visit (billable, empty reason list). The per-item display is named in BD-1 and built in B8 (billing), not in BD; it does not block BD acceptance.
+- **UXR-157 (manual «Abrechnungsfakten erzeugen» button):** BD step 9 may use the existing control (reachable on `/team`, G-1 met). **Challenge, routed to B8:** why does a person have to press a button to turn a signed report into a billable fact? Proposal for B8: the fact is derived when the report is signed (same command, no new rule), with the `lca` gate on step 9. Until B8 decides, the button stays.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
