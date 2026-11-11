@@ -138,3 +138,10 @@ These are proposals for the PO; they become decisions only when the PO records t
 3. Q-BD-2 seed simulation organisation (pgTAP), if the PO agrees.
 4. BD-2 test with the steps proven to run (1, 1b, 3, 4, 5, 8, 9 per Q-BD-1) on `recovery/main`; the full test on `repeat/2/bd-full-…` naming where it turns red; BD-4 negatives.
 5. BD-5: 10/10 `ci-repeat` on the merge commit.
+
+## 6. BD-2 findings (2026-11-11 10:20, `eng`, ADR-181)
+
+Written with the BD-2 PR; read from the code at the branch of #1062 plus `recovery/main` `0c95548`. PLANNED until the BD-2 run is green in CI.
+
+- **(G-a) Step 1b, ASM1 in Testorganisation S: MISSING.** `assessment_instruments` rows are per organisation; `supabase/seed.sql` seeds them for Testorganisation A only (…971, …972). `record_assessment` therefore has no instrument in org S. BD-2 adds the care-plan item (needs no ASM1) and does not record ASM1. Fix: own seed PR with pgTAP.
+- **(G-b) Steps 3 and 4, PLAN3/AIG1 in Testorganisation S: MISSING.** No `ai_agent_settings` row for `plan3_day_proposal` in org S, and no administrator account in org S to switch it on through `/admin`. BD-2 plans the care visit by hand. Fix: own PR; which way (administrator in the run, or a seeded setting as for Testorganisation H) is a PO choice under BD-3.
