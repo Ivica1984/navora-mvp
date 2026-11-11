@@ -132,6 +132,12 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **New blocker / risk:** every Engineering PR edits `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, so each merge makes the rest conflict (AUT-49 adopted as direction). Role docs PRs (`cra` chain, `uxa` #850, `aia` #869, `lca` #860) conflict on `JOURNAL.md` too; FAM1 approval waits for the `lca` and `cra` inputs to reach `recovery/main`.
 - **Deviation:** none from architecture or strategic direction.
 
+## 0g. Status 2026-11-11 06:39: block BD, UXR-155 merged
+
+- **Merged** (merge commit, CI green on the head, PO did not run the tests): **#1060** BD / UXR-155 «Zu erledigen» link to the team's offers on `/field` (`1f2e0b7`, ADR-179), with unit and e2e test.
+- **Block BD (FE-054):** next PRs Q-BD-2 seed organisation, BD-2 test, BD-4 negatives, BD-5 repeat. M1-M8 dates unchanged.
+- **New blocker / risk:** none new. **Deviation:** none.
+
 ## 0f. Status 2026-11-11 05:39: block BD under way
 
 - **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1057** BD-1 inventory of the Durchgang ambulant (`07cb664`); **#1058** `cra` review 05:26 (`e10475d`). Earlier today: B0 accepted (03:39), #1052, #1054, #1055 (04:39).
