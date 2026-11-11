@@ -217,6 +217,7 @@ The order follows value and risk: **L first**, because L agents need no clinical
 | A10 | Care-plan review proposer | observations, events, measured minutes | review proposal | primary nurse | calendar review | 6, 2 | **H** (L if it only shows facts) | D-34 module, Clinical Owner |
 | A11 | Evidence link suggester (NH2′) | observations | suggested item links | primary nurse | coordinator's project | 1 | **H** | D-24, licence, D-34 module |
 | A12 | Transfer drafter | the graph | transfer draft | sending nurse | transfer letter | 2 | **H** (prefer a scoped view, L) | D-9, D-3, D-34 |
+| A13 | Demand pooling matcher (POOL1, PLANNED; added 2026-11-11 by `aia`, AUT-84) | team idle intervals from existing facts (plan, ABS1), QUAL1 state in context NH-EXT, released demand | matches shown to the named member, fixed published order | the named member, within the team's pooling mandate (AUT-83) | phone and agency chains for short-term cover | 1, 4 | L (a deterministic rule, kind `rule`, stage 0) | `po`, `cra` CGR-173, `lca` L-7 before real use |
 
 **Agents not to build:**
 - **Signal triage:** P1 signals stay deterministic and rule-based (D-28). An AI that re-ranks safety signals is H and less auditable than the rule.
@@ -453,6 +454,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - No agent added or removed.
 - **Control added: a one-way state is not a safe state** (2026-11-10 20:30; AUT-80, OPEN): a qualification contradiction refuses assignment and start (CR-181), but it must end through a recorded fact owned by the verification path (never an app user or agent), or every later release it causes becomes permanent re-planning work for the team. A delegation correction records the replacement before revoking (AUT-81, OPEN). AUT-78 adopted as B2-T12d, AUT-79 as B2-T12b (b4).
 
+**State 2026-11-11 02:30 (`aia` review 43; FE-053 to FE-055):**
+- **A13 added (PLANNED):** the POOL1 matcher is a rule registered in AIG1 like PLAN3 (kind `rule`, off by default, ledger, stop threshold, allow-list without residents' or institution staff data), not an AI model (AUT-84). Idle capacity is derived from facts NAVORA already holds, never from a new availability entry, and the named member accepts within a standing team mandate (AUT-83, OPEN).
+- **Control added: a fee or other incentive must not penalise the entries NAVORA's measures depend on** (AUT-82, CGR-172): the working-time record feeds the North Star and the administration measure; a fee taken from it at the margin rewards leaving days unconfirmed and declaring less administration.
+- **Control added: every state only a verification path can end has an age signal to that path** (AUT-86; CR-205 option B adopted as B2-T12e test basis, AUT-80 adopted).
+- FEE1, GMSEP, ONB1 and RDATA1 state "no AI"; confirmed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -498,3 +505,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-10 08:30 | `aia` | §12: D-41 default and E-3 recommendation as amended by the PO (AUT-72, AUT-73 closed); control "a recorded due date is shown before it passes, never only as overdue" added (AUT-76), with QUAL1-22 as block test (AUT-77). No agent added or removed |
 | 2026-11-10 14:30 | `aia` | §12: QUAL1-22 state corrected (part 1 IMPLEMENTED as refusal, part 2 PLANNED as B2-T12b; AUT-77 closed); control "a post-assignment lapse releases at once, with a count shown to the acting person before saving" added (AUT-78), released visits through the normal open list and PLAN3 (AUT-79). No agent added or removed |
 | 2026-11-10 20:30 | `aia` | §12: control "a one-way state is not a safe state" added (AUT-80: grade contradiction has no resolution path in code; AUT-81: delegation correction order); AUT-78/-79 adopted into B2. No agent added or removed |
+| 2026-11-11 02:30 | `aia` | §7: A13 demand pooling matcher (rule, stage 0, PLANNED) added; §12: FE-055 briefs recorded, controls "no fee penalises the entries the measures depend on" (AUT-82) and "a state only verification can end has an age signal" (AUT-86) added, AUT-80/-81 adopted. One agent added (A13, rule) |
