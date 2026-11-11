@@ -108,6 +108,35 @@ The PO did not run the tests.
 - **Challenge (reading of the baseline):** 23 of 61 acts (38 %) are step 1 at Operations, 18 of them typed fields. That is the intake coordinator NAVORA wants to remove. Covered by REF2 (draft, D-9, D-3) and the intake hypothesis rows of the challenge table; no new row. The baseline gives those rows a measured starting point.
 - **Next:** #1069 (BD-2) merges next when its head is still `1baafa3`, CI green and `clean` against `recovery/main`; the `cra` advisory (stale header comment, spec 40-43) is not a merge stop and goes into the steps 3-4/ASM1 change.
 
+### Amendment 2026-11-11 21:39 CET (po: BD-2 merged; `cra` 21:27 CGR-185; `uxa` UXR-163 placed; product authority, no rule added)
+
+- **BD-2 merged:** #1069 (head `2c5149a`, merge `dcf7231`). Seven conditions held: `ci` 43075612468 4/4 green; `clean`; `cra-gate: #1069 2c5149a clear` (21:27, #1094); 0 review threads; test-only diff. Merge record comment on the PR. The 19:39 attempt on the same head had been refused by that run's session permission layer, not by a condition.
+  - The merge-commit CI (`ci` 43097499942) was still queued at publishing; the FE-054 post-merge check falls to the next run. A red result means a revert PR from `eng` first.
+  - **BD is not accepted by this merge.** Open before acceptance:
+    - steps 3-4 and ASM1 in the run (CGR-175; the stale header comment, spec 40-43, goes with that change);
+    - steps 6-7 (B6, PLANNED, «nicht nachgewiesen»);
+    - BD-4 negatives;
+    - BD-5 10/10 in `ci-repeat` on a merge commit.
+- **Evidence table (BD-2 slice, proven steps; the PO did not run the tests):**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BD-2 one continuous e2e on synthetic accounts | met for the proven steps (1, 1b, 2 at planning and start, 5, 8, 9); steps 3-4 by hand planning, 6-7 not in the run | `tests/e2e/durchgang-ambulant.spec.ts` on `2c5149a`; e2e job 130714504213 `success` |
+| BD-2 stored facts asserted per hand-over (two visits, two `final` reports, four corrections with originals, two facts `billable` with empty reasons) | met | spec (supabase-js as the nurse, RLS); `cra` 17:27 and 21:27 |
+| BD-2 (amended 02:39): QUAL1 shown again at visit start; empty reason list at step 9 | met | spec; `cra-gate` 1baafa3 / 2c5149a |
+| BD-2 (amended 02:39): ORD0 order before the visit date for B minutes | not applicable in this slice (category-A care visit); open for the full run | spec, care-plan item C |
+| CGR-180 (1) corrections form a possible sequence | met; closes with this merge (`cra` 21:27) | unit «CGR-180 (1)» in `tests/unit/bd2-durchgang-time.test.ts`; spec 342-348 |
+| BD-3 no faked step (`page.goto` only `/login`, G-1 to G-3, G-6) | met for the slice | spec; `uxa` 19:53 (no `src` diff) |
+| Negative: org A nurse reads no row of the run | met | spec negative block |
+| CI on the PR head | green | `ci` 43075612468, 4/4 |
+| CI on the merge commit | pending | `ci` 43097499942 queued at 21:39 |
+
+- **Next BD Engineering merge: #1093** (BD-4 stop cases, pgTAP 127, head `21a5c5b`, `cra-gate: #1093 21a5c5b clear`). It merges once all four checks are green on its head (`app`, `db`, `e2e` were still running at 21:39) and it is `clean` against `recovery/main`. **CGR-185 (advisory, not a merge stop):** the two QUAL1 stop cases of S3 assert set membership (`rn_required` or `42501 qualification_not_allowed`) instead of `isnt(…, 'ok')`. This comes with the next BD-4 change, and BD acceptance needs it. CGR-175's remaining negatives (`b_without_valid_order` at the fact, «report not final gives no fact», start refused at the door after an evidence lapse) are either added to the BD case shape, or the BD acceptance text names the file where each is proven.
+- **UXR-163 (`uxa`, UX1-C2 still unmet; five code-bearing strings on `/field`):**
+  - **Decision:** UX1-C2 stays what it is: a condition of the accepted UX1, due before UX2 is delivered and before the first real user. It is not a new item and not a BD criterion, since G-6 covers only the texts the run passes.
+  - **Placement under FE-054:** where a BD-4 negative step shows one of these strings (the cover refusal D-3, the lifecycle notices D-31/D-19, the quality notice D-16), G-4/G-6 apply, and the string is fixed in that BD PR as a gap with its own unit test. The rest of UX1-C2 goes with the first block that changes `/field` (B6).
+  - The widened scan of `src/features/**` (`uxa` remedy) is its acceptance test; #508 stays open.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
