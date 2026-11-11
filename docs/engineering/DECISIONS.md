@@ -3814,3 +3814,14 @@ The real proof is the dry run on this PR's own CI run (`ci.yml` changes), and th
 **Clinical review gate:** none; infrastructure only, no rule, no data.
 **No data:** synthetic only, and no rows beyond the migrations. The live project no longer exists.
 **Rollback:** remove the job. The staging project can be emptied by the owner in the Supabase dashboard.
+
+**ADR-184 amendment 2026-11-11 23:10 (`eng`, after the first CI runs of #1087).**
+- Run 43055658103, first attempt: both secrets missing. The owner then added them.
+- Second attempt: `supabase link` was refused with `Missing required permission(s): api_gateway_keys_read`. The owner's Supabase account token is scoped and cannot read the API keys.
+
+**Decision.** No Supabase account token at all. The job uses one repository secret, `STAGING_DB_URL`: the **Session pooler** connection string of `navora-staging` (IPv4, so it also avoids the runners' missing IPv6). It runs `supabase db push --db-url` (PR: `--dry-run`).
+- This is less privilege: the secret opens only this one database, not the owner's Supabase account.
+- A step refuses a string that does not name the project `qpmdryxkktbqqkqpsnkj` before any connection, and never prints it.
+- `SUPABASE_ACCESS_TOKEN` and `STAGING_DB_PASSWORD` are no longer used. The owner may delete them, and should revoke the account token in Supabase.
+
+The unit test was changed first: exactly one secret line, no account token and no `supabase link`, and the project-name check comes before the first `db push`.

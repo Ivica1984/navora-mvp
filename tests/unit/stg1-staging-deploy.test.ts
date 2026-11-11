@@ -54,9 +54,17 @@ describe("STG1: staging deploy job in ci.yml", () => {
     const secretLines = job.split("\n").filter((l) => l.includes("secrets."));
     expect(secretLines.length).toBeGreaterThan(0);
     for (const l of secretLines) expect(l, l).toMatch(/^\s+[A-Z_]+: \$\{\{ secrets\.[A-Z_]+ \}\}\s*$/);
-    expect(job).toMatch(/SUPABASE_ACCESS_TOKEN: \$\{\{ secrets\.SUPABASE_ACCESS_TOKEN \}\}/);
-    expect(job).toMatch(/SUPABASE_DB_PASSWORD: \$\{\{ secrets\.STAGING_DB_PASSWORD \}\}/);
-    expect(job).not.toMatch(/echo[^\n]*\$\{?(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD)/);
+    // One secret, the Session pooler connection string; no Supabase account token (first CI run: a scoped account token
+    // lacked `api_gateway_keys_read` for `supabase link`; the connection string needs no account-wide permission).
+    expect(secretLines.map((l) => l.trim())).toEqual(["STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}"]);
+    expect(job).not.toMatch(/SUPABASE_ACCESS_TOKEN|supabase link/);
+    expect(job).not.toMatch(/echo[^\n]*\$\{?STAGING_DB_URL/);
+  });
+
+  it("refuses a connection string that does not name navora-staging, before any connection", () => {
+    expect(job).toMatch(/\*"postgres\.\$STAGING_PROJECT_REF:"\*/);
+    expect(job).toMatch(/does not name the project navora-staging"; exit 1/);
+    expect(job.indexOf("does not name the project")).toBeLessThan(job.indexOf("supabase db push"));
   });
 
   it("does not run for pull requests from forks (no secrets there) and never two at once", () => {

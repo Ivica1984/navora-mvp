@@ -430,8 +430,8 @@ jobs:
   # are green, and ONLY on a push to recovery/main (a merge commit). A same-repository pull request that changes a
   # migration or this file gets a dry run (lists the pending migrations, writes nothing). Never the seed: it holds
   # sign-in accounts whose password is public in this repository; staging accounts come in their own PR with secret
-  # passwords. Secrets (owner, repository secrets): SUPABASE_ACCESS_TOKEN, STAGING_DB_PASSWORD; values are never printed.
-  # Not one of the four required checks (ruleset «Schutz Hauptversion»).
+  # passwords. One secret (owner, repository secret): STAGING_DB_URL, the Session pooler connection string (IPv4) of
+  # navora-staging; no Supabase account token is needed. The value is never printed. Not one of the four required checks.
   staging:
     name: staging (migrations → navora-staging)
     needs: [app, db, e2e, ui-screenshots]
@@ -445,8 +445,7 @@ jobs:
       cancel-in-progress: false
     env:
       STAGING_PROJECT_REF: qpmdryxkktbqqkqpsnkj
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -464,26 +463,23 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
             echo "::notice title=staging::no migration or ci.yml change, no dry run"
           fi
-      - name: Secrets present? (names only)
+      - name: Secret present and pointing at navora-staging? (never printed)
         if: steps.scope.outputs.run == 'true'
         run: |
-          missing=""
-          [ -n "$SUPABASE_ACCESS_TOKEN" ] || missing="$missing SUPABASE_ACCESS_TOKEN"
-          [ -n "$SUPABASE_DB_PASSWORD" ] || missing="$missing STAGING_DB_PASSWORD"
-          if [ -n "$missing" ]; then echo "::error title=staging secrets::missing repository secret(s):$missing"; exit 1; fi
-          echo "::notice title=staging secrets::both present"
+          if [ -z "$STAGING_DB_URL" ]; then echo "::error title=staging secrets::missing repository secret: STAGING_DB_URL"; exit 1; fi
+          case "$STAGING_DB_URL" in
+            *"postgres.$STAGING_PROJECT_REF:"*|*"@db.$STAGING_PROJECT_REF.supabase.co"*) echo "::notice title=staging secrets::present, project navora-staging" ;;
+            *) echo "::error title=staging secrets::STAGING_DB_URL does not name the project navora-staging"; exit 1 ;;
+          esac
       - uses: supabase/setup-cli@v1
         if: steps.scope.outputs.run == 'true'
         with:
           version: 2.121.0
-      - name: Link navora-staging
-        if: steps.scope.outputs.run == 'true'
-        run: supabase link --project-ref "$STAGING_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
       - name: Dry run against navora-staging (pull request, writes nothing)
         if: steps.scope.outputs.run == 'true' && github.event_name == 'pull_request'
-        run: supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD"
+        run: supabase db push --dry-run --db-url "$STAGING_DB_URL"
       - name: Apply migrations to navora-staging (push to recovery/main only)
         if: steps.scope.outputs.run == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/recovery/main'
         run: |
-          supabase db push --password "$SUPABASE_DB_PASSWORD"
+          supabase db push --db-url "$STAGING_DB_URL"
           echo "::notice title=staging::migrations applied to navora-staging at $(git rev-parse --short HEAD)"
