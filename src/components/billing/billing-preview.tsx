@@ -58,7 +58,7 @@ export default function BillingPreview({ rows, month }: { rows: BillingPreviewRo
                     {!r.insurer_complete && <span className="text-amber-800"> · Tarif fehlt für einen Teil der Minuten</span>}
                   </p>
                   {!r.reference_validated && (
-                    <p className="font-semibold text-amber-800" data-testid="reference-not-validated">
+                    <p className="font-semibold text-amber-800" data-testid="reference-not-validated" data-ref="D-11 D-18">
                       {REFERENCE_NOT_VALIDATED}
                     </p>
                   )}
