@@ -132,6 +132,30 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **New blocker / risk:** every Engineering PR edits `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, so each merge makes the rest conflict (AUT-49 adopted as direction). Role docs PRs (`cra` chain, `uxa` #850, `aia` #869, `lca` #860) conflict on `JOURNAL.md` too; FAM1 approval waits for the `lca` and `cra` inputs to reach `recovery/main`.
 - **Deviation:** none from architecture or strategic direction.
 
+## 0l. Status 2026-11-11 14:39: block BD, seed G-a/G-b merged
+
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1071** BD / seed G-a/G-b (`de196df`, head `f9fbcec`); **#1078** `cra` 13:30, **#1077** `eng` 13:25 journal, **#1080** `aia` 14:24 (docs). The 13:39 permission refusal did not recur.
+- **Next:** #1072 (G-6, `cra-gate` clear on `69dfc6e`), then #1069 (BD-2; held: CGR-180 (1), new head `f782230` needs a fresh `cra` gate line).
+- **B8 planned items added:** J5-S (billable fact on signature), CGR-180 (sequence and overlap warnings). **New blocker:** none. M1-M8 dates unchanged. **Deviation:** none.
+
+## 0k. Status 2026-11-11 12:39: block BD, role reviews merged
+
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1075** `lca` 12:32 (docs), **#1074** `uxa` 11:48 (docs). No Engineering merge.
+- **Next:** #1071 (renumbered ADR-183, pgTAP 126, CI green on `f9fbcec`) once `cra` gives its gate line; then #1072, then #1069.
+- **New blocker:** none. M1-M8 dates unchanged. **Deviation:** none.
+
+## 0j. Status 2026-11-11 11:39: block BD, (I1) guard merged
+
+- **Merged** (merge commit, CI green on the head, PO did not run the tests): **#1064** BD / D-18 (I1) billing-reader guard (`b4f4577`).
+- **Next:** #1071 (seed G-a/G-b), #1072 (G-6 gap), then #1069 (BD-2 on top of both). Each needs its own `cra` gate line; #1071 and #1072 both claim ADR-182, and #1071 adds a second pgTAP file numbered 125: Engineering renumbers one of each before merge.
+- **New blocker:** none. M1-M8 dates unchanged. **Deviation:** none.
+
+## 0i. Status 2026-11-11 10:39: block BD, simulation seed merged
+
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1062** BD / Q-BD-2 (`0c7e38b`, BD PR order step (3)), **#1068** `cra` 09:32 (docs).
+- **Next:** #1064 (D-18 (I1) guard; gate clear), then #1069 (BD-2 run; needs the (G-a) and (G-b) seed PRs before BD-2 can be accepted).
+- **Dependencies:** #1069 and #1064 must merge `recovery/main` in if GitHub reports a conflict. **New blocker:** none; BD-2 acceptance now waits on two small seed PRs. M1-M8 dates unchanged. **Deviation:** none.
+
 ## 0h. Status 2026-11-11 08:39: block BD, role reviews merged, D-18 Phase A decided
 
 - **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1063** `uxa` 07:52, **#1065** `aia` 08:20, **#1066** `lca` 08:45 (docs only).

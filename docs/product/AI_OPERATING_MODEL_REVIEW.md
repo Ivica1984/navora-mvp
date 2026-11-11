@@ -465,6 +465,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Measurement before AI:** BD-2 is the first end-to-end run; AUT-88 (OPEN) proposes the human-act count per step there, so later agent stages are compared against a measured baseline, not an estimate.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
 
+**State 2026-11-11 14:24 (`aia` review 45; D-18 M3, B8 items):**
+- **(I1) control IMPLEMENTED on both sides:** pgTAP 125 and the deny-by-default app guard (#1064 merged; AUT-87 closed).
+- **Control added: a consistency check runs where the person who knows the facts acts, not only on a later record** (AUT-93, OPEN): the sequence and overlap check of CGR-180 (2) is shown at the F3 save, never as a refusal, and the fact carries the warning only for what was saved knowingly. One check function for both places.
+- **Control added: a background derivation that may fail has a team-level monitor, not a manual catch-up act** (AUT-92, OPEN; CGR-181): derive-on-sign plus a scheduled catch-up and a count of final reports without a fact.
+- **Re-entry is a rule gap, not a form detail** (AUT-91, AUT-94, OPEN): values the care graph already holds (care-plan minutes, the client's municipality) are offered as defaults; PLAN3 uses the same source.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -512,3 +519,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-10 20:30 | `aia` | §12: control "a one-way state is not a safe state" added (AUT-80: grade contradiction has no resolution path in code; AUT-81: delegation correction order); AUT-78/-79 adopted into B2. No agent added or removed |
 | 2026-11-11 02:30 | `aia` | §7: A13 demand pooling matcher (rule, stage 0, PLANNED) added; §12: FE-055 briefs recorded, controls "no fee penalises the entries the measures depend on" (AUT-82) and "a state only verification can end has an age signal" (AUT-86) added, AUT-80/-81 adopted. One agent added (A13, rule) |
 | 2026-11-11 08:20 | `aia` | §12: control "no agent input reads a billing parameter, deny-by-default on both sides" (D-18 (I1), pgTAP 125, AUT-87) and "measure acts before agent stages" (AUT-88, BD-2) added. No agent added or removed |
+| 2026-11-11 14:24 | `aia` | §12: controls "a consistency check runs where the person who knows the facts acts" (AUT-93) and "a failing background derivation has a monitor, not a catch-up act" (AUT-92) added; re-entry of care-graph values recorded as a rule gap (AUT-91, AUT-94); (I1) control IMPLEMENTED (AUT-87 closed). No agent added or removed |
