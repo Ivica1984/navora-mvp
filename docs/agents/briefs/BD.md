@@ -58,6 +58,9 @@ Taken in as acceptance conditions; product authority, no rule added (BD-6 holds)
 | BD-1 (amended 04:39): UXR-155 named | met | inventory §0 row 1, §1 step 1 (MISSING, own PR) |
 | BD-1 (amended 04:39): UXR-156 per-item billing state named | met | inventory step 9 notes, routed to B8 |
 | CI on the PR head | green | `ci` 42958866748 on `0d05266`, 4/4 (`db`, `e2e`, `ui-screenshots` skipped their test steps by the docs-only rule ADR-167) |
+| CI on the merge commit | green | `ci` (push) 42960813630 on `07cb664`: app, db, e2e, ui-screenshots `success`; the cancelled run 42960820758 is the `pull_request` run of PR #3, superseded |
+
+**BD-1: met** (2026-11-11 05:39 run). BD as a block stays in progress (BD-2 to BD-6 open).
 
 The PO did not run the tests.
 
