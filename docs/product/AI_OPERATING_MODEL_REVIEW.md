@@ -210,7 +210,7 @@ The order follows value and risk: **L first**, because L agents need no clinical
 | A3 | Roster and day plan | plan, windows, qualifications, labour rules | roster or day order proposal | team | scheduling administrator | 1, 4 | L | NH1, Q7 (location), `legal` (labour rules) |
 | A4 | Billing and dispute | J5 facts | invoice draft; answer to an insurer question | licence holder | back office | 9, 5 | L | D-12, D-18 |
 | A5 | Compliance evidence | audit trail, decisions, gates | evidence pack for canton, insurer, DPIA | licence holder | manual compliance work | 5, 7 | L | D-4, D-12 |
-| A6 | Control health | job runs, deliveries, agent ledgers | "what is not working" list | Operations, admin | nobody does this today | safety | L (rules, no AI needed) | none |
+| A6 | Control health | job runs, deliveries, agent ledgers | "what is not working" list | Operations, admin | nobody does this today | safety | L (rules, no AI needed) | none (first PLANNED instance: J5-S catch-up and team count, B8; `aia` 2026-11-11 20:20, AUT-92) |
 | A7 | Dictation to entry | the nurse's speech | structured entry in her words | the nurse | typing on a phone | 1 | **G** (transcription; adviser to confirm) | D-35, D-34 |
 | A8 | Intake extraction | discharge letter | structured referral and safety values | receiving nurse | re-typing | 1, 5 | **H** | D-34 module, Clinical Owner, D-9, D-35 |
 | A9 | Report and handover drafter | visit facts, notes | report text or handover summary | performing nurse; next nurse | writing | 1 | **H** | D-34 module, Clinical Owner, D-35 |
@@ -472,6 +472,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Re-entry is a rule gap, not a form detail** (AUT-91, AUT-94, OPEN): values the care graph already holds (care-plan minutes, the client's municipality) are offered as defaults; PLAN3 uses the same source.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
 
+**State 2026-11-11 20:20 (`aia` review 46; AUT-88 measured, J5-S K-3):**
+- **Measurement before AI IMPLEMENTED:** the BD-2 spec counts human acts per step; the measured baseline (61 product acts on the synthetic seed, CI run 43037240509) is the BD reference (PO 18:39; AUT-88 closed). Later agent stages are compared with the same counter.
+- **A6 control health, first PLANNED instance:** J5-S scheduled catch-up with one team count and no catch-up button (PO 16:39 K-3; AUT-92 closed). A deterministic job, kind `rule`, stage 0. The consistency check at the F3 save is adopted (CGR-180 (2), CGR-183; AUT-93 closed).
+- **Control added: one entry for a value, every display derived from it** (AUT-95, OPEN): a care-plan item's frequency is entered once as structure and its text generated, so what the next nurse reads and what a planner (PLAN2, PLAN3, later A3) uses cannot differ. Any agent input must read the structure, never a parallel free text.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -520,3 +526,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-11 02:30 | `aia` | §7: A13 demand pooling matcher (rule, stage 0, PLANNED) added; §12: FE-055 briefs recorded, controls "no fee penalises the entries the measures depend on" (AUT-82) and "a state only verification can end has an age signal" (AUT-86) added, AUT-80/-81 adopted. One agent added (A13, rule) |
 | 2026-11-11 08:20 | `aia` | §12: control "no agent input reads a billing parameter, deny-by-default on both sides" (D-18 (I1), pgTAP 125, AUT-87) and "measure acts before agent stages" (AUT-88, BD-2) added. No agent added or removed |
 | 2026-11-11 14:24 | `aia` | §12: controls "a consistency check runs where the person who knows the facts acts" (AUT-93) and "a failing background derivation has a monitor, not a catch-up act" (AUT-92) added; re-entry of care-graph values recorded as a rule gap (AUT-91, AUT-94); (I1) control IMPLEMENTED (AUT-87 closed). No agent added or removed |
+| 2026-11-11 20:20 | `aia` | §7 A6: first PLANNED instance (J5-S catch-up and team count, AUT-92) noted in the gate column; §12: measured act baseline IMPLEMENTED (AUT-88 closed), AUT-92/-93 adopted, control "one entry for a value, every display derived" (AUT-95) added. No agent added or removed |
