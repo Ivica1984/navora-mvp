@@ -1,6 +1,6 @@
 # Legal adviser question catalogue (FE-050)
 
-**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 2, 2026-11-11 00:55 (Europe/Zurich).
+**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 3, 2026-11-11 08:45 (Europe/Zurich).
 
 **Wording:** rows are copied from the signed sections; rows marked *condensed* or *adapted* say so.
 
@@ -90,10 +90,11 @@
 
 - The Phase B partner's administrative contracts with tarifsuisse, HSK and CSS in their current versions, and its tariff and residual-financing agreements (owner, from the partner). Without them, part A rows marked P stay open.
 - The partner's legal form (private or public law; if public, the cantonal IDG applies to part B) (owner).
-- The consolidated KLV in force at the time of the mandate (fedlex; agents could not read the "Stand 1. August 2026" version) and the enacted texts of AS 2026/337 and AS 2026/348 (adviser or a human reader).
+- The consolidated KLV in force at the time of the mandate (fedlex; `lca` read the "Stand am 1. August 2026" text only in a copy on lexaris.de through a summarising tool on 2026-11-11, Art. 7 Abs. 4, 7a Abs. 2 and 8a; a fedlex check is still needed) and the enacted texts of AS 2026/337 and AS 2026/348 (adviser or a human reader).
 - NAVORA's processing description, DSFA draft and processor-agreement draft (D-3, D-42; owner and `po`), and the D-43 owner sentence as approved.
 
 ## Changes
 
 - **v1, 2026-11-10 19:54 (`lca`):** first version from the signed `lca` sections up to 2026-11-10 19:52; D-22/10 new (CGR-163 (3)); Q-43a in its narrowed wording; D-22/2 and D-22/9 in one wording each (04:39 and 04:46 readings reconciled).
 - **v2, 2026-11-11 00:55 (`lca`):** Q-44c added (signed in D-44 on 2026-11-07, missing in v1) and widened for FEE1 (D-14, L-14); Q-44d new (L-12, D-44); Q-42d new (L-13, D-42); block 4 added. L-14 itself needs no adviser for its data-protection part (owner: terms and team agreement).
+- **v3, 2026-11-11 08:45 (`lca`):** section F updated (KLV Stand 1 August 2026 read in a copy, D-18 section 08:45); no question added or changed: the GP-information billing point of the D-18 template (I3) is already D-22/2 and D-22/6.
