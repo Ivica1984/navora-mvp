@@ -6,6 +6,64 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-11 07:52 CET · `uxa`: UXR-155 closed by #1060 (`/field` «Zu erledigen» link «Anfragen an dein Team (n)», ADR-179); `uxa` gate G-1 to G-6 checked for hand-over J2 on `2da7569`: G-1, G-3, G-5 met, G-2 partly (the take-over tap runs at desktop); the jump to `/team#anfragen` passes over the out-of-hours and delivery blocks that only `/team` shows (UXR-158, low, `cra` to confirm); answer to the PO's open question on a positive «geprüft» line for QUAL1
+
+**What changed since 03:52.** `recovery/main` moved from `9bb38d1` to `2da7569`. Merged by the PO: #1053, #1054 (my 03:52 section), #1055 (`lca`), #1052, #1057 (BD-1 inventory, docs only), #1058 (`cra` 05:26), #1059, **#1060 (`eng`, BD / UXR-155, ADR-179)**, #1061. Screen code changed only in #1060: `src/app/(protected)/field/field-client.tsx`, `field/page.tsx`, `team/team-client.tsx` (heading id only), `src/features/field/queries.ts`, `src/features/field/todo.ts`, `tests/e2e/journey.spec.ts`, new `tests/unit/bd-uxr155-team-offer-todo.test.ts`. Open PRs: #1062 (`eng`, Q-BD-2 seed organisation; seed, migration, pgTAP, docs, no screen code), #3. No new `ux` issue; #508, #510, #944, #950 still open. **Ask to `uxa`:** PO 05:39 (positive «geprüft» line for a passed QUAL1 check, BD brief: OPEN, not BD) and PO 06:39 (G-1/G-3 check of J2 on the merged change).
+
+**Sources.** The `ui-screenshots` artifact for `recovery/main` `2da7569` exists (id 13833395797, 06:07 UTC) but its download was refused by this session's network proxy (blob storage host not allowed); **no screenshots were available**, so the change is reviewed from the code. Read on `2da7569`: the #1060 diff (`git diff 9bb38d1..2da7569 -- src tests`); `field-client.tsx:215, :232-271, :314-350`; `team-client.tsx:131-185`; `src/components/signals/OutsideWatchedVisits.tsx:1-30`; `src/app/globals.css:29-30`; `tests/e2e/journey.spec.ts:10-133`; `briefs/BD.md` amendments 04:39 and 06:39; `DURCHGANG_INVENTORY.md` §1 step 2 and break note (line 54). CI on the merge commit `1f2e0b7` is green as the PO records it (`ci` push 42967398866, PO journal 06:39); I ran no test. Live project not touched.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v16 read; no contradiction with my brief this run. Task as in my brief plus the PO's two asks; no adjustment. No benchmark this run (done 03:52 today).
+
+### UXR-155 closed (evidence)
+
+Remedy asked at 03:52: one neutral link with the count in the «Zu erledigen» row, to the offers on `/team`, `data-tone="info"`, no client name, gone at n = 0 and after taking the offer; Playwright at 390 × 844. On `2da7569`:
+
+| Remedy part | Code | Met |
+|---|---|---|
+| one link in the «Zu erledigen» row, only at n ≥ 1 | `field-client.tsx:232, :258-269` (`todo-team-offers`) | yes |
+| neutral, no urgency colour | same classes as the ASM1-C1 link (`border-stone-400 … text-stone-800`, `data-tone="info"`), `:262-264` | yes |
+| words: the `/team` heading plus count, one constant | `todo.ts` `TEAM_OFFERS_HEADING`, `teamOffersLabel`; `team-client.tsx:170-171` | yes; «Anfragen an dein Team (2)» reads as the heading it leads to |
+| lands on the offers | `href="/team#anfragen"`; heading `id="anfragen"`; `globals.css:29` keeps the target below the shell header | yes |
+| count equals what `/team` lists | `openTeamOfferCount` filters `!my_team_declined`, as `team-client.tsx:131` | yes |
+| no client name | count only leaves the server (`queries.ts` `getOpenTeamOfferCount`); spec asserts the row does not contain «Journey» (`journey.spec.ts:77`) | yes |
+| gone after taking | spec: count one less after «Fall übernehmen», link absent when it was the only one (`:135-136`) | yes |
+| a failed read does not break the day | read error logs and returns 0 (link hidden, offers stay on `/team`) | yes; hiding is right here because the link is a pointer, not a status ("none" is never stated) |
+| 390 × 844 | `journey.spec.ts:70` sets it before the nurse signs in | yes for the cue (see G-2 below) |
+
+The link sits below `SignalBanner` (`field-client.tsx:215`), so no safety signal moved. **UXR-155: closed.**
+
+### `uxa` gate for hand-over J2 (PO 06:39 ask; G-1 to G-6 as adopted in `BD.md` 04:39)
+
+| Gate | J2 on `2da7569` | Result |
+|---|---|---|
+| G-1 control on the previous screen | the nurse signs in at `/login`, then taps the cue on `/field` (`:79`); the earlier menu click is gone | met for J2. Outside J2 still open for BD-2: `goto("/operations")` (`:28`), `goto("/intake")` (`:36`), `goto("/field?datum=…")` (`:133`; the «Folgetag» link exists) |
+| G-2 nurse at 390 × 844 | the viewport goes back to desktop at `:82`, **before** the offer facts are read and before «Fall übernehmen» is tapped (`:94`) | partly: the cue is tested at 390; the take-over decision, the nurse's main act in J2, runs at desktop. For BD-2: keep 390 until after `:95` |
+| G-3 what the next person sees first | `:73-77` assert the cue is visible on her home screen | met |
+| G-4 refusal reason | no refusal in J2 | n/a |
+| G-5 no dead end | the take-over leaves the case card «Fall Jonas Journeytest» with «Noch keine Einsätze geplant» (`:98-100`), whose next control is the assessment plan | met |
+| G-6 no internal code | not asserted in J2 | open for BD-2 (one `not.toContainText(/\b(D|CR|CGR|SIG)-\d+/)` per screen) |
+
+These are notes for BD-2, not findings against #1060, which delivered what UXR-155 asked.
+
+### Answer to the PO (05:39): a positive «geprüft» line for a passed QUAL1 check
+
+PROPOSED, presentation only; the clinical meaning is `cra`'s, the words `cra`'s to confirm.
+
+1. **No standing positive line on the cards of `/field` and the rows of `/team`.** A passed check is the normal case on almost every visit; a line on each card adds one more line to read on the phone without changing what she does next (§1: what can wait; §5 density). Today the refusal is what tells her something; that stays (§4, refusal states the true state).
+2. **Avoid the word «geprüft».** It reads as "a person checked this" and, next to the referral's «nicht automatisch geprüft» (`journey.spec.ts:85`), as a statement about the person's competence. What the rule decides is narrower: the organisation's activity rule allows this person for this activity on this day.
+3. **Where a positive statement helps:** at the point of choice and on the record. (a) In the plan dialog, where the team picks who is responsible, the choice shows who may do the visit before the save, so a refusal is not the first sign (§2: a fact shown before a save, never a refusal). (b) On the visit record `/visits/[id]`, one quiet detail line once a stored fact exists, e.g. «Tätigkeit zugelassen nach Regel der Organisation (Stand <Datum>)». Words UNKNOWN until `cra` confirms them.
+4. **UNKNOWN, not mine:** whether a passed check is ever stored. The inventory says `visit_qualification_check` has no caller in `src/` and a pass writes no fact (`DURCHGANG_INVENTORY.md` §1 step 2). Without a stored fact the record line in 3 (b) would state something no record backs; then only 3 (a) applies. `eng` (how) and `cra` (whether the fact is needed) answer this.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-158 | `/field` → `/team#anfragen` (nurse, phone) | low | The cue jumps to the offers heading. Above that heading `/team` shows blocks that `/field` does not: the out-of-hours list «Einsätze ausserhalb überwachter Zeiten» (`OutsideWatchedVisits`, SIG2-C1, amber count), the push delivery status, the hand-over and successor items (`team-client.tsx:161-167`). A nurse who reaches `/team` mostly through this link lands past them every time. Nothing is moved or hidden, and the ASM1-C1 link (`/team#bedarfsabklaerung-…`) already does the same, so this is a pattern question, not a defect of #1060. Whether the out-of-hours list counts as a safety signal for this purpose is `cra`'s. | `2da7569`: `team-client.tsx:161-171`; `OutsideWatchedVisits.tsx:9-30`; `field-client.tsx:258-269` | §1 question 1; §3 (no safety signal below other content, `cra`) | `cra` to say whether a jump past the SIG2 blocks is acceptable. If not: the cue goes to `/team` without the fragment when the out-of-hours list or the delivery status has something to show, so she sees them first; with the fragment otherwise. Vitest on the href choice; Playwright: with a seeded out-of-hours visit, after the tap the block «Einsätze ausserhalb überwachter Zeiten» is in the first viewport at 390 × 844. If `cra` says acceptable: no change, close. | report only |
+
+**Closed.** UXR-155 (above). Other open findings unchanged (no other screen code changed).
+
+---
+
 ## 2026-11-11 03:52 CET · `uxa`: no screen changed since 19:50 (10.11.); BD is the active block (FE-054, PO 03:39, PR #1053 open): PROPOSED `uxa` gate checklist for BD and a pre-check of the path from the code; the nurse's home shows no sign of a referral waiting for her team (UXR-155, medium); a signed visit's billable state is visible on no item, only as a team total (UXR-156, medium); billable facts appear only after an unexplained button at the bottom of `/team` (UXR-157, low); V1-V14 statement `uxa.md`; benchmark: pending offers on a care worker's home screen
 
 **What changed since 19:50.** `recovery/main` moved from `72e794c` to `9bb38d1`. Merged by the PO include #1028 (my 19:50 section), #1020 (B0-7), #1032 (B0-1), #1039 (B0-4), #1040 and #1046 (FE-055, `lca`), #1041 (`eng` V1-V14), #1048 (`cra`), #1050 (`aia`), #1051 (`po`). Code under `src`, `tests/e2e`, styles: **no change** (`git diff 72e794c..9bb38d1 -- src tests e2e` touches only three unit tests: `b0-1-merge-runs`, `b0-4-sig1-lock-race`, `b0-7-catalogue`). Open PRs: #1052 (`eng`, docs only), #1053 (`po`, B0 accepted, BD active, FE-056), #3. No new `ux` issue; #508, #510, #944, #950 still open.
