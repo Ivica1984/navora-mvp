@@ -38,7 +38,6 @@ const OPS = "opsbs.test@navora.test"; //         org S, operations (J1 intake)
 const NURSE = "pflegebs.test@navora.test"; //    org S, registered nurse, Testteam Basel
 const OTHER_NURSE = "pflege.test@navora.test"; // org A, nurse of Testteam Nord (negative: no read of org S)
 const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel (seed, ADR-180)
-const NURSE_ID = "00000000-0000-4000-a000-0000000009e6";
 const F3_REASON = "Testlauf: simulierte Einsatzdauer";
 const TITLE = "Durchgang Übergangspflege Basel";
 const FIRST = "Bea";
@@ -258,16 +257,21 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   expect(cVisit).toMatchObject({ status: "completed", is_needs_assessment: false });
   const ids = [aVisit.id, cVisit.id];
 
-  // `visit_reports` has no SELECT grant for `authenticated` (reports are read through the field functions); the final
-  // report is asserted on the screen («Bericht abgeschlossen», runVisit) and by the fact below, which only a final
-  // report without an open quality hold gives (0051, H-05). No grant is widened for the test.
+  // RLS4 (0099): `performer_id`, `signed_by` and the snapshot are not selectable through the table API; status is.
+  const { data: reports, error: reportError } = await db.from("visit_reports").select("visit_id, status, version").in("visit_id", ids);
+  expect(reportError).toBeNull();
+  for (const id of ids) {
+    expect(reports!.filter((r) => r.visit_id === id).map((r) => r.status), `final report of ${id}`).toEqual(["final"]);
+  }
 
-  // CGR-176 (1): the correction rows name the actor and the reason; the original visit_events times are unchanged.
+  // CGR-176 (1): the correction rows carry the reason; the original visit_events times are unchanged. The actor column is
+  // not selectable through the table API (RLS3, 0070: acts are not listed per person), so it is not read here; the
+  // corrections were saved in the nurse's own session (only members of the visit's team may correct, 0008).
   const { data: corrections, error: correctionError } = await db
-    .from("visit_time_corrections").select("visit_id, event_id, corrected_at, reason, actor_id").in("visit_id", ids);
+    .from("visit_time_corrections").select("visit_id, event_id, corrected_at, reason").in("visit_id", ids);
   expect(correctionError).toBeNull();
   expect(corrections, "two corrections per visit").toHaveLength(4);
-  for (const c of corrections!) expect(c).toMatchObject({ reason: F3_REASON, actor_id: NURSE_ID });
+  for (const c of corrections!) expect(c).toMatchObject({ reason: F3_REASON });
   const { data: events, error: eventError } = await db
     .from("visit_events").select("id, visit_id, event_type, occurred_at").in("visit_id", ids);
   expect(eventError).toBeNull();
@@ -292,7 +296,7 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
 
   // ── Negative (BD brief): a nurse of another organisation reads none of the run's records. ──────────────────────────
   const other = await asPerson(OTHER_NURSE);
-  for (const table of ["care_visits", "visit_events", "visit_time_corrections", "billable_facts"] as const) {
+  for (const table of ["care_visits", "visit_events", "visit_time_corrections", "visit_reports", "billable_facts"] as const) {
     const column = table === "care_visits" ? "id" : "visit_id";
     const { data, error } = await other.from(table).select(column).in(column, ids);
     expect(error, `${table} as a nurse of another organisation`).toBeNull();
