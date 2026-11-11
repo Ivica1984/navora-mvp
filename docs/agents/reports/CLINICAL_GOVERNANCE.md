@@ -16,6 +16,106 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-11 21:27 CET: **The PO's adoption of CGR-182 (brief J5 amendment 17:39) reverses the control: new CGR-184 (blocking for the B8 CGR-178 PR head).** It shows the per-visit short-visit lines exactly to the people who plan, which is the D-18 (h1) hazard (c3) exists to control. `aia` 20:20 and `uxa` 19:53 have taken the reversed text over. **#1069 (BD-2) re-gated on its merge head: `cra-gate: #1069 2c5149a clear`** (test files unchanged from `1baafa3`; CI 4/4 green). **#1093 (BD-4, pgTAP 127): `cra-gate: #1093 21a5c5b clear`**, with advisory **CGR-185** (the QUAL1 stop cases are asserted only as "not ok", so an unrelated refusal would pass). New advisory **CGR-186** (`aia` AUT-95: the care-plan frequency the next nurse reads in the handover can differ from the series NAVORA plans). `uxa` F-1a and F-6 and `lca` (F2-a), (F6-a) and the UXR-159 words are confirmed
+
+**Scope:** `recovery/main` @ `b87ffec`. **Trigger:** merged since my 17:27 section (`2125c12`): #1088 (mine), #1086, #1089 (`eng` journals), **#1072** (G-6, merge `42fdccf`, on my gated head `74ee68c`), #1085 (PO 16:39 to 18:39: brief J5 amendments 16:39 and 17:39, brief BD amendments 17:39 and 18:39). Open: **#1069** (`eng`, BD-2, new merge head `2c5149a`), **#1093** (`eng`, BD-4, new, head `21a5c5b`), #1087 (STG1, head `f2bb4c1`, unchanged since my read at 17:27), **#1090** (`uxa` 19:53), **#1091** (`aia` 20:20), **#1092** (`lca` 20:22), #1084 (dependabot, out of scope), #3 (unchanged).
+
+I read: `git diff 2125c12 b87ffec` (code: only #1072's `rules.ts`, `billing-preview.tsx`, `billing-rules.test.ts`, the same content I gated at `74ee68c`; docs: brief J5 amendments 16:39 and 17:39, brief BD amendments 17:39 and 18:39, PO journals 16:39, 17:39, 18:39, `eng` journals 17:05, 18:13); #1069 `1baafa3..2c5149a` (only docs and journal 19:12; `git diff 1baafa3 2c5149a -- tests` is empty); #1093 in full (`127_bd4_stop_cases_org_s.test.sql`, `eng` journal 21:15, PR text); the open docs PRs #1090, #1091, #1092 on their branches, for the items addressed to me; the code that AUT-95 cites (`team-client.tsx:907-913`, `auto-plan.tsx:115-125`, `handover/rules.ts:194-197`); the seed rows of `assistbs.test` (team member, grade `pflegehelfer_srk`); 0014:170, 242-246 (plan-time reason codes).
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data. The CI results below are GitHub's check-runs, not mine.
+
+### Task adjustment (README rule 11)
+
+Requests to me: `uxa` 19:53 (#1090) asks me to confirm F-1a and the F-6 words; `lca` 20:22 (#1092) gives me the UXR-159 words for the CGR-08 meaning; `aia` 20:20 (#1091) routes AUT-95 (what the handover must show) and conditionally AUT-96 to me; `eng` asks for the gate line on #1093. While reading the 17:39 amendment I found that the PO's adoption of CGR-182 inverts my remedy; I raise that first, because three roles now build on it. No founder decision, scope or other role's item changes. **Contradiction check:** none between my prompt and `FOUNDER_DECISIONS.md` v16.
+
+### CGR-182 as adopted on 17:39: the control is reversed
+
+The hazard (D-18 (h1); my 13:30 (c3); BL-23): **people who plan a client's minutes** see, per visit, which of that client's short visits «did not count». That is a pull to plan longer than the need. (c3) removes the per-visit lines **from the planners**. My 17:27 remedy said so in testable form: «team nurse and planning coordinator see the count only; a viewer without planning rights sees the lines».
+
+The brief J5 amendment 17:39 reads: «the per-visit lines are shown **only to members holding the right to plan** for the team … e2e as a member without the planning right sees one count and no visit line; e2e as a member with the planning right sees the lines». That is the exact opposite. Under it, the people the hazard is about get the lines, and only people who cannot act on them get the count. The amendment cites my finding as its reason, so this is a transcription error, not a product decision against it. It has spread: `aia` 20:20 («per-visit lines with the right to plan for the team, C-3; PO 17:39: supported») and `uxa` 19:53 build on the 17:39 text.
+
+In a self-organised team almost every nurse holds the right to plan. Under the 17:39 text, (c3) would protect nobody. See **CGR-184**.
+
+`aia`'s condition (C-3 must be a right the team gives its own members, not a role above the team) is compatible with the corrected direction. From the clinical side, who holds the right does not matter for (c3). What matters is that **whoever holds it** sees the count only.
+
+### #1069 (BD-2): re-gate on the merge head
+
+`2c5149a` is `1baafa3` plus a merge of `recovery/main` after #1072 (`eng` 19:12). `git diff 1baafa3 2c5149a -- tests docs/engineering/DURCHGANG_INVENTORY.md` is empty. The five test files I gated at 17:27 are unchanged. CI on `2c5149a`: `app` 130714503857, `db` 130714504067, `e2e` 130714504213, `ui-screenshots` 130714504268, all `success`; `mergeable_state` `clean`. CGR-180 (1) is therefore met on a head with green e2e. It closes when #1069 is merged.
+
+**`cra-gate: #1069 2c5149a clear`**. The stale header comment (spec 40-43) and the PO's steps 3-4/ASM1 condition are unchanged, as at 17:27.
+
+### #1093 (BD-4, pgTAP 127, test only): read, gate
+
+What it proves, on Testorganisation S, through the BD commands (referral → case → Testteam Basel takes it → assessment visit → care plan):
+- **S1** a care visit before the completed assessment visit is refused `assessment_first` (CR-002), and nothing is stored;
+- **S2** an assessment visit with B minutes is refused `assessment_category_a_only`;
+- **S4** a KLV-B visit without a present order is refused `order_required`;
+- **S3** with `assistbs` (care assistant, team member) responsible, the assessment visit and a KLV-B visit are not `ok` and nothing is stored, with the registered nurse as control;
+- **N** a Testorganisation A nurse, org S Operations and `anon` neither read nor plan the case.
+
+Every assertion reads a refusal that exists today. No rule is added or interpreted. The QUAL1 matrix stays PROPOSED (D-43). The order is set by an owner fixture (`update public.cases … 'present'`), as in pgTAP 014. That is acceptable for a stop-case test. It is not the ORD0 path that CGR-175 (2) asks of BD-2 step 9.
+
+- **CGR-175 status:** BD-4 now covers the `assessment_first` negative, which CGR-175 names. It does not yet cover `b_without_valid_order` at the fact, «report not final gives no fact», or the start refused at the door after an evidence lapse. `eng` names these as PLANNED, or as covered in other files (022, 043, 047, 049, 051; 120-122). CGR-175 stays open until BD-4 has them on the BD case shape, or the BD acceptance text names where each one is proven.
+- **CGR-185 (advisory):** S3 asserts `isnt(…, 'ok')`. Any refusal passes, including one with no qualification meaning (a later code change could make it `responsible_not_in_team`, `minutes_exceed_window` or a raised error for another reason). The test would still read «care assistant is not made responsible (QUAL1 A1 or CR-007)». `eng` explains why the code is UNKNOWN: either the 0121 backstop (`42501 qualification_not_allowed`) or the plan-time `rn_required` (CR-007, 0014:246) refuses first. That is a closed set of two, so it can be asserted. See the table.
+- **CI on `21a5c5b`:** `ui-screenshots` 130781094147 `success`; `app` 130781094562, `db` 130781094681, `e2e` 130781100192 **in progress** at my review. I claim no pgTAP result.
+
+**`cra-gate: #1093 21a5c5b clear`** (clinical content; CGR-185 advisory, not a merge stop; the green `db` job is the PO's merge condition, not mine).
+
+### Answers to `uxa` (19:53), `lca` (20:22) and `aia` (20:20)
+
+**`uxa` F-1a: confirmed.** It meets CGR-183 (f1): with `overlaps_own_visit`, alone or with the other warning, «Uhrzeit ändern» is primary and gets focus; «So speichern» still saves; F-4 for the overlap case reads «Stimmt die Zeit trotzdem? Dann speichere sie so.».
+
+**`uxa` F-6 words: confirmed from the documentation-integrity side** («korrigiert · erfasst <HH:MM> · <Begründung> · gespeichert trotz Hinweis: Überschneidung mit eigenem Einsatz» / «… Beginn vor Ende der Bedarfsabklärung»). The marker keeps the original time, the reason and the warning together, unfolded, on every view and on the report review (UXR-162 (i)-(iii)). One condition: the segment comes from the **stored** warning (CGR-183 (f2)), not from recomputing it at display time. A later correction of the other visit must not silently remove the record that she saved through a warning. Test: pgTAP or e2e: correct visit 1 through an overlap warning, then correct visit 2 so that the overlap is gone; visit 1's marker still shows «gespeichert trotz Hinweis».
+
+**`lca` (F2-a)** (assessment visit of another team: warning without the time) and **(F3-a)**: no clinical objection. The warning still fires, and that is what matters for the sequence check. **(F6-a)** (no per-person aggregation of stored warnings): agreed. It is the same line as my (m2) for the short-visit count.
+
+**`lca` UXR-159 words: they keep the CGR-08 meaning.** «Tarife und Mindestdauer nicht validiert (kantonale Quellen Basel-Stadt/Basel-Landschaft noch nicht bestätigt)» states that the values are not validated and come from cantonal sources. That is what CGR-08 asks to be visible. Confirmed, on condition that the words stay bound to the `unvalidated` flag in the data and are not a fixed text: if a row is ever validated, the text for that row must change with the data.
+
+**`aia` AUT-95 (frequency entered twice): clinical answer, see CGR-186.** The handover timeline shows only the free text «Häufigkeit» (`handover/rules.ts:194-197`). The assessment summary shows the text and, where recorded, the structure beside it («Rhythmus erfasst: n× pro Woche», `assessment/rules.ts:309-312`); this corrects `aia`'s reading for that view, but even there nothing marks a disagreement. The series planner uses the structure entered in «Rhythmus» (`auto-plan.tsx:115-125`). Nothing compares the two. The next nurse reads one frequency while NAVORA plans another. If the plan has fewer visits than the text, care is missed and nobody sees it (H-01). If it has more, the care plan does not cover what is done (H-14). From the clinical side, **the handover must show what is planned**: the frequency that the series actually produces, and the free note next to it, never the note alone when a structure exists. `aia`'s one-entry proposal (structure first, text derived from it) controls this. I support it as the target. Until it is built, a mismatch must at least be visible.
+
+**`aia` AUT-96 (prefill the service from the referral):** no objection, on `aia`'s own condition. The referral's services are offered as words only. They never suggest or preselect a KLV category or minutes. Those stay the nurse's entries after the assessment (CR-001, CR-002). Test: unit: choosing a referral service leaves the category and minutes empty.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-184** | Brief J5 amendment 17:39 (CGR-182 adopted); CGR-178 (c3); `uxa` C-2, C-3; `aia` 20:20; D-18 (h1); BL-23 | **blocking for the head of the B8 CGR-178 PR**; advisory now (nothing built); S2 | The adopted text shows the per-visit short-visit lines (date, client) **only to members with the right to plan**, and gives the count only to members without it. (c3) and my CGR-182 remedy say the reverse. The (h1) hazard is the planner seeing which short visits «did not count». As adopted, the control misses the people it is for, and in a self-organised team (almost every member plans) it protects no one. `aia` and `uxa` have taken the reversed text over. | brief J5 amendment 17:39 («shown only to members holding the right to plan … e2e as a member with the planning right sees the lines»); `CLINICAL_GOVERNANCE.md` 17:27 CGR-182 remedy («team nurse and planning coordinator see the count only; a viewer without planning rights sees the lines») and 13:30 (c3); `AUTOMATION_REVIEW.md` 20:20 (#1091) | PO corrects the 17:39 text in its next amendment: **a viewer with the right to plan for the visit's team sees the count only** (no `<details>`, no client name, no visit date in the W-2 block in the DOM). A viewer without that right (a reader role) may see the lines (P-3, `lca` D-4). e2e: as a member with the planning right: one count, no visit line; as a member given the right by her team: the lines disappear; as a reader without the right: the lines show. pgTAP: the per-visit W-2 query returns no rows for a caller holding the planning right for that team. Any widening needs the Clinical Owner (G-1). `uxa` and `aia` align their texts |
+| **CGR-185** | #1093 (BD-4, pgTAP 127) S3, head `21a5c5b` | **advisory**; S3 | The two QUAL1 stop cases are asserted as `isnt(result, 'ok')`. A refusal for any other reason passes and is reported as «QUAL1 A1 or CR-007». So a regression that removed both the backstop and `rn_required` would still pass if some other check refused. `eng` names the two possible refusals. | `127_bd4_stop_cases_org_s.test.sql` S3 (two `isnt` assertions); 0014:246 (`rn_required`); 0121 backstop `qualification_not_allowed` (`eng` 21:15) | Assert set membership: `ok(r = 'rn_required' or r like '42501%qualification_not_allowed%', …)` for both S3 cases. The test name states which set is accepted. May come with the next BD-4 change; not a merge stop |
+| **CGR-186** | `aia` AUT-95 (#1091); care-plan item form (`team-client.tsx:907-913`), «Rhythmus» (`auto-plan.tsx:115-125`), handover (`handover/rules.ts:194-197`), assessment summary (`assessment/rules.ts:309-312`); PLAN2 (0030); H-01, H-14; CGR-179 | **advisory** (IMPLEMENTED gap; no real client in Phase A); S2 | A care-plan item stores a free-text frequency and a separate series structure. The handover shows only the text; the assessment summary shows both side by side, unmarked. The planner uses the structure. Nothing checks that they agree. The nurse who takes over reads «täglich» while NAVORA plans 3 per week (missed care, unseen), or the reverse (care not covered by the plan). This is the same family as CGR-179 (planned minutes not bound to the care plan). | code read on `b87ffec` (lines left); `aia` AUT-95 | Target: `aia`'s one-entry form (the structure is the frequency, the display text is derived from it, a free note stays optional). Until then, testable interim: (1) where an item has a structure, the handover shows the structure's frequency and the note beside it, as the assessment summary already does (unit on `handover/rules.ts`); a disagreement is marked on both views; (2) a seed check finds 0 items whose text and structure disagree (`eng`'s query on the synthetic seed). Placement: PO (B2/PLAN follow-up list with AUT-91, AUT-94, AUT-96). No frequency rule is set by me |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-182** | the direction (count only by default, no Clinical Owner act needed to ship it) is adopted (17:39), **but who gets which view is reversed**: see CGR-184. Open | brief J5 17:39 |
+| **CGR-180** | (1) met on #1069 `2c5149a` with CI 4/4 green; closes on merge. (2) PLANNED in B8/BILL1 with CGR-183, `uxa` F-1a, F-6 and `lca` (F2-a), (F6-a). Open | #1069 check-runs 130714503857 to 130714504268 |
+| **CGR-183** | (f1) met at design level by `uxa` F-1a; (f2) display PROPOSED by `uxa` F-6 (confirmed above, with the stored-not-recomputed condition); (f3) unchanged. Open until the B8 PR is built and gated | #1090 `UX_REVIEW.md` 19:53 |
+| **CGR-175** | BD-4 `assessment_first` negative on the BD case shape on #1093 `21a5c5b` (CI pending); the other three BD-4 negatives PLANNED; BD-2 steps 3-4/ASM1 still missing. Open | #1093 pgTAP 127 |
+| **CGR-178** | (c1), (c2) in the B8 acceptance; (c3): see CGR-184. Open | brief J5 14:39, 17:39 |
+| **CGR-179** | unchanged; CGR-186 is a related source of mismatch. Open | – |
+| **CGR-176** | (1), (2) met on #1069 `2c5149a` (unchanged); (3) in B8. Open | – |
+| **CGR-181** | unchanged since 17:27 (J5-S criteria); `lca` 20:22 confirmed the K-1 words. Open until the J5-S PR is gated | #1092 |
+| **CGR-31**, **CGR-110**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-177** (d) | open, unchanged | – |
+
+No finding closed in full this run. #1072's merge (`42fdccf`) is the head I gated at `74ee68c`; its G-6 change carries no clinical finding.
+
+### Gate status
+
+- **#1069** (BD-2): **`cra-gate: #1069 2c5149a clear`** (CI 4/4 green on this head).
+- **#1093** (BD-4): **`cra-gate: #1093 21a5c5b clear`** (CGR-185 advisory; `app`, `db`, `e2e` in progress at review).
+- **#1087** (STG1): unchanged head `f2bb4c1`; no rule, no gate asked (my 17:27 note stands: the staging project stays synthetic).
+- **#1090**, **#1091**, **#1092**: role docs; answered above; no gate.
+- **B8 CGR-178 PR** (not opened): my gate needs CGR-184 resolved as in the table, together with (c1), (c2).
+
+### Decisions requested
+
+- **`po`:** merge this PR. **Correct the CGR-182 adoption of 17:39 as in CGR-184** before the B8 CGR-178 PR is written. Take CGR-185 to `eng` with the next BD-4 change. Place CGR-186 with AUT-95 in the B2/PLAN follow-up list. Add `uxa` F-1a/F-6 and `lca` (F2-a)/(F6-a) to the CGR-180 (2) acceptance, with my stored-not-recomputed condition on F-6.
+- **`eng`:** CGR-185 (set-membership assertion); for CGR-183 (f2): store the warning with the correction, so the F-6 marker reads the stored value; the CGR-186 seed check when it is placed.
+- **`uxa`, `aia`:** align C-2/C-3 and the 20:20 support line with CGR-184 (planners see the count only).
+- **Clinical Owner (D-43, owner escalated):** (c3) with the C-3 switch, as part of the D-18 invariants (I1)-(I5); any change to CR-002. UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-11 17:27 CET: **#1069 (BD-2) cleared on its new head: `cra-gate: #1069 1baafa3 clear`**: CGR-180 (1) is met (the corrections now form a possible sequence, and the run checks this on the stored effective times). **#1072 re-gated on its merge head: `cra-gate: #1072 74ee68c clear`** (same content). New **CGR-182** (advisory; blocking for the B8 CGR-178 PR head): the PO kept the per-visit short-visit lines as the default until the Clinical Owner confirms (c3). The safer state should be the default. Answer to `uxa` C-3: the switch is the right to plan, not the role label. New **CGR-183** (advisory): the F3 warning words F-1 to F-5 are confirmed in meaning, with three conditions (the overlap case defaults to «Uhrzeit ändern»; the warning is stored with the saved correction; no billing word). UXR-162 is acceptable. Note to the PO: the tarifsuisse 14-day window (`lca` 16:25) is a billing permission and does not relax CR-002
 
 **Scope:** `recovery/main` @ `51dc964`. **Trigger:** merged since my 13:30 section (`1930e36`): #1078 (mine), #1071 (on my gated head `f9fbcec`), #1077, #1080 (`aia` 14:24), #1079 (PO 13:39 + 14:39: J5-S and CGR-180 (2) into B8, (c1)/(c2) into CGR-178), #1081 (`uxa` 15:48), #1082 (`lca` 16:25). Open: **#1069** (`eng`, BD-2, new head `1baafa3`), **#1072** (`eng`, G-6, merge head `74ee68c`), **#1085** (PO 16:39, docs), **#1086** (`eng` journal 17:05, docs), **#1087** (`eng`, STG1 staging migrations, CI only), #1084 (dependabot, out of scope), #3 (unchanged).
