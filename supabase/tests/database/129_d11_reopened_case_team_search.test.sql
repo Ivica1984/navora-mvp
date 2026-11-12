@@ -37,6 +37,7 @@ reset role;
 create temp table d11 as
   select c.id as case_id, (select m.id from public.matching_requests m where m.case_id = c.id) as first_request_id
   from public.cases c where c.last_name = 'D11A';
+grant select on d11 to authenticated;
 
 create function pg_temp.open_requests() returns int language sql as $$
   select count(*)::int from public.matching_requests m join d11 on d11.case_id = m.case_id where m.status = 'open';
