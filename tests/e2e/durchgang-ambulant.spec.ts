@@ -303,7 +303,8 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await fill(plan.getByLabel("Von"), care.from);
   await fill(plan.getByLabel("Bis"), care.to);
   await fill(plan.getByLabel("C", { exact: true }), String(CARE_MINUTES));
-  await choose(plan.getByLabel("Verantwortlich", { exact: true }), { label: "Team (noch niemand)" });
+  // The label wraps the picker, so its text includes the options: matched by its start, not exactly.
+  await choose(plan.getByLabel(/^Verantwortlich/), { label: "Team (noch niemand)" });
   await submit(plan.getByRole("button", { name: "Einsatz speichern" }));
   await expect(plan, "the care visit is saved").toHaveCount(0);
   const planned = teamCase.getByRole("list", { name: "Geplante Einsätze" });
