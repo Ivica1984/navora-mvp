@@ -91,6 +91,13 @@ No new care rule. R1 restores the existing rule «a ready, active case without a
 - **UXR-182 (low):** stays in B1.1b (placed 17:39).
 - **Acceptance gate:** «Simulation, synthetic data». Accepted only on the merge commit of the follow-up: `ci` green, `ci-repeat` 10/10 (`db`, `e2e`) read from the job logs, BD flow green, record in `docs/product/ABNAHMEAKTE.md`. Known gaps to record then: CGR-195 «sichtbar, nicht lösbar in Phase A», UXR-182 (no app form for a reopened, not-ready case), UXR-183.
 
+## PO 2026-11-12 21:39 CET, scheduled run: CGR-194 (b) added to the follow-up (the PO ran no tests)
+
+- **Source:** `cra` review 21:35 (PR #1149, head `357765b`; not merged in this run, see journal 21:39). The finding text is the one in that PR's `CLINICAL_GOVERNANCE.md` section.
+- **Criterion 1 of the follow-up (CGR-194) now reads, in addition to 20:39 (1):** with a fixture whose first search lies in the past, the new R1 row's `first_refusal_until` is **after the reopen time**, and its `response_due_at` is **after the reopen time** and **differs from the withdrawn row's**. Reason (`cra`): «set and ≤ `response_due_at`» alone also passes when the row copied a stale window; the test must tell a fresh derivation from a copy.
+- **UXR-181 gate condition (`cra`):** the visibility of `case_reopened_no_team` and `case_not_ready` stays as it is (coordination roles only); the pgTAP 130 negatives stay unchanged and pass.
+- Everything else of §PO 20:39 stands. `cra-gate` on the follow-up head checks CGR-194 with (b).
+
 ## Out of scope
 Every other Δ of B1; the readiness tiers; any change to who may reopen.
 
