@@ -36,15 +36,21 @@ import { ActLog } from "./support/act-count";
 //   person; the F3 «Testlauf» corrections tagged test-only). The table is attached to the run and printed to the log;
 //   it is a measured baseline, never asserted as a limit.
 //
-// Not in this run yet (BD-3: named, not faked; the PR names each break):
-//   step 1b ASM1 record — Testorganisation S has no assessment instrument (instruments are per organisation, seed has
-//            them for Testorganisation A only); the care plan item is added, the ASM1 record is not.
-//   steps 3-4 PLAN3/AIG1 — `plan3_day_proposal` is not switched on for Testorganisation S and S has no administrator who
-//            could switch it on through the screen; the care visit is planned to the nurse by hand (`plan_visit`).
-//   steps 6-7 dictation and AI draft — PLANNED (B6), «nicht nachgewiesen».
+// Steps 1b (ASM1) and 3-4 (PLAN3/AIG1) are in the run since the seed completion of ADR-183 (G-a: the synthetic
+// instrument list of Testorganisation S; G-b: `plan3_day_proposal` on for org S, no administrator in the run):
+//   step 1b — after the completed assessment visit the registered nurse records the ASM1 assessment naming herself
+//            (`record_assessment`, confirmed at once), then writes the care-plan item against it (ASM1-7). ASM1 is
+//            display only: the gate `assessment_first` reads the completed assessment VISIT (CGR-175, 0014).
+//   steps 3-4 — the care visit is planned «Team (noch niemand)»; a member of Testteam Basel switches the team's day
+//            proposal on (PLAN3-10, a team act), asks for today (`propose_day_plan`) and confirms the one line per value
+//            (AIG1, `confirm_suggestion`). The proposal is rule-based; no client data to any AI service (D-35 rule A).
+// Not in this run (BD-3: named, not faked): steps 6-7 dictation and AI draft — PLANNED (B6), «nicht nachgewiesen».
 const PASSWORD = "navora-local-only";
 const OPS = "opsbs.test@navora.test"; //         org S, operations (J1 intake)
 const NURSE = "pflegebs.test@navora.test"; //    org S, registered nurse, Testteam Basel
+const NURSE_ID = "00000000-0000-4000-a000-0000000009e6"; // her user id (seed, ADR-180)
+const INSTRUMENT_S = "00000000-0000-4000-a000-000000000974"; // «Testinstrument Bedarf 1.0» of org S (seed, ADR-183 G-a)
+const ASM1_REF = "BD-DURCHGANG-1"; // an opaque synthetic reference (ASM1-3: at least one digit, no file name)
 const OTHER_NURSE = "pflege.test@navora.test"; // org A, nurse of Testteam Nord (negative: no read of org S)
 const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel (seed, ADR-180)
 const F3_REASON = "Testlauf: simulierte Einsatzdauer";
@@ -252,7 +258,27 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await nurse.waitForURL(/\/team/);
   await expect(teamCase).toContainText("Bedarfsabklärung erfolgt");
 
-  // Care plan: one item, category C (synthetic values; no care rule asserted).
+  // ASM1 (G-a, ADR-183): the registered nurse records what the instrument says, naming herself as the assessing nurse,
+  // so the record is confirmed at once. Synthetic values; ASM1 is display only and blocks or derives nothing (ADR-123).
+  acts.step("1b Bedarfsabklärung erfassen (ASM1)");
+  const assessmentSection = teamCase.getByRole("region", { name: "Bedarfsabklärung", exact: true });
+  await expect(assessmentSection).toContainText("Noch keine Bedarfsabklärung erfasst.");
+  await tap(assessmentSection.getByRole("button", { name: "Bedarfsabklärung erfassen" }));
+  const asm1 = assessmentSection.getByRole("form", { name: "Bedarfsabklärung erfassen" });
+  await fill(asm1.getByLabel("Datum der Abklärung"), today);
+  await choose(asm1.getByLabel("Instrument"), INSTRUMENT_S);
+  await choose(asm1.getByLabel("Abklärende Pflegefachperson"), NURSE_ID);
+  await fill(asm1.getByLabel("Referenz der vollständigen Abklärung"), ASM1_REF);
+  await fill(asm1.getByLabel("Minuten C", { exact: true }), String(CARE_MINUTES));
+  await fill(asm1.getByLabel("Zeitraum C", { exact: true }), "pro Tag");
+  await submit(asm1.getByRole("button", { name: "Bedarfsabklärung speichern" }));
+  const currentAssessment = assessmentSection.getByTestId("assessment-current");
+  await expect(currentAssessment, "the ASM1 record is saved").toContainText(`Bedarfsabklärung vom ${today.slice(8, 10)}.${today.slice(5, 7)}.${today.slice(0, 4)}`);
+  await expect(currentAssessment.getByTestId("assessment-state"), "named herself: confirmed at once").toHaveText("Status: bestätigt");
+  await expect(assessmentSection.getByTestId("assessment-error")).toHaveCount(0);
+  await noInternalCode(nurse, "/team (assessment)");
+
+  // Care plan: one item, category C (synthetic values; no care rule asserted), written against that record (ASM1-7).
   const carePlan = teamCase.getByRole("region", { name: "Pflegeplan" });
   await tap(carePlan.getByRole("button", { name: "Leistung hinzufügen" }));
   const item = carePlan.getByRole("form", { name: "Leistung hinzufügen" });
@@ -265,8 +291,11 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await submit(item.getByRole("button", { name: "Leistung speichern" }));
   await expect(carePlan).toContainText("Ziel: Selbständig waschen am Lavabo");
 
-  // ── Step 2 + 4 (hand path until PLAN3 runs in org S): the team plans the care visit for the nurse. ────────────────
-  acts.step("4 Pflegeeinsatz planen (von Hand)");
+  await expect(carePlan.getByTestId("plan-assessment").getByTestId("plan-basis"), "the item is written against the ASM1 record")
+    .toContainText("Bedarfsabklärung vom");
+
+  // ── Step 3 (PLAN3): the care visit is planned for the team, nobody responsible yet, so the day proposal covers it. ──
+  acts.step("3 Pflegeeinsatz für das Team planen");
   await tap(teamCase.getByRole("button", { name: "Einsatz planen" }));
   plan = teamCase.getByRole("form", { name: "Einsatz planen" });
   await expect(plan.getByLabel("C", { exact: true })).toBeEnabled();
@@ -274,10 +303,45 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await fill(plan.getByLabel("Von"), care.from);
   await fill(plan.getByLabel("Bis"), care.to);
   await fill(plan.getByLabel("C", { exact: true }), String(CARE_MINUTES));
+  // The label wraps the picker, so its text includes the options: matched by its start, not exactly.
+  await choose(plan.getByLabel(/^Verantwortlich/), { label: "Team (noch niemand)" });
   await submit(plan.getByRole("button", { name: "Einsatz speichern" }));
-  await expect(plan, "the care visit is saved (no QUAL1 refusal)").toHaveCount(0);
-  await expect(teamCase.getByRole("list", { name: "Geplante Einsätze" })).toContainText(`${care.from}–${care.to}`);
-  await noInternalCode(nurse, "/team (planned)");
+  await expect(plan, "the care visit is saved").toHaveCount(0);
+  const planned = teamCase.getByRole("list", { name: "Geplante Einsätze" });
+  await expect(planned).toContainText(`${care.from}–${care.to}`);
+  await expect(planned).toContainText("noch niemand verantwortlich");
+  await noInternalCode(nurse, "/team (planned for the team)");
+
+  // The team switches its own day proposal on (PLAN3-10; the organisation's switch is on by the seed, ADR-183 G-b) and
+  // asks for today. The link «Tagesvorschlag» on /team is the entry (G-1).
+  acts.step("3 Tagesvorschlag einschalten und anfordern");
+  await tap(nurse.getByRole("link", { name: "Tagesvorschlag", exact: true }));
+  await nurse.waitForURL(/\/team\/tagesplan/);
+  await expect(nurse.getByTestId("day-plan-switch-state")).toHaveText("Der Tagesvorschlag ist für euer Team ausgeschaltet.");
+  await tap(nurse.getByTestId("day-plan-switch"));
+  await expect(nurse.getByTestId("day-plan-switch-state")).toContainText("Tagesvorschlag eingeschaltet");
+  const ask = nurse.getByRole("form", { name: "Tag vorschlagen" });
+  await fill(ask.getByLabel("Tag", { exact: true }), today);
+  await submit(ask.getByRole("button", { name: "Tag vorschlagen" }));
+  await nurse.waitForURL(new RegExp(`datum=${today}`));
+  await expect(nurse.getByTestId("day-plan-error")).toHaveCount(0);
+
+  // ── Step 4 (AIG1): the proposal names the member who knows the client (she performed the assessment visit,
+  // PLAN3-3); the team confirms the one value. Nothing is ticked in advance (PLAN3-9).
+  acts.step("4 Vorschlag je Wert bestätigen (AIG1)");
+  const lines = nurse.getByTestId("day-plan-line");
+  await expect(lines, "one open visit of the day: the care visit").toHaveCount(1);
+  const mine = nurse.getByRole("region", { name: /^Einsätze .+ \(du\)$/ });
+  const line = mine.getByTestId("day-plan-line");
+  await expect(line, "G-3: the line is proposed to her").toContainText(care.from);
+  await expect(line.getByTestId("day-plan-reason")).toHaveText("kennt Klient:in (1 Besuch)");
+  await expect(line.getByTestId("day-plan-tick")).not.toBeChecked();
+  await noInternalCode(nurse, "/team/tagesplan (proposal)");
+  await tap(line.getByRole("button", { name: "Bestätigen", exact: true }));
+  await expect(line.getByTestId("day-plan-decision"), "the value is confirmed").toHaveText("bestätigt");
+  await expect(line.getByTestId("day-plan-refusal")).toHaveCount(0);
+  await expect(line.getByTestId("day-plan-still-open")).toHaveCount(0);
+  await noInternalCode(nurse, "/team/tagesplan (confirmed)");
 
   // ── Steps 5 and 8: the care visit at 390 px, F3 option (A), report signed. ─────────────────────────────────────────
   await runVisit(nurse, care, CORRECTION_BACK.care, "Pflegeeinsatz");
@@ -302,7 +366,7 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   const db = await asPerson(NURSE);
   const { data: visits, error: visitError } = await db
     .from("care_visits")
-    .select("id, status, is_needs_assessment, visit_date, time_start")
+    .select("id, case_id, status, is_needs_assessment, visit_date, time_start, responsible_user_id")
     .eq("team_id", TEAM_S)
     .eq("visit_date", today)
     .order("time_start");
@@ -312,6 +376,34 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   expect(aVisit).toMatchObject({ status: "completed", is_needs_assessment: true });
   expect(cVisit).toMatchObject({ status: "completed", is_needs_assessment: false });
   const ids = [aVisit.id, cVisit.id];
+  expect(cVisit.case_id).toBe(aVisit.case_id);
+  const caseId = aVisit.case_id as string;
+
+  // Steps 3-4 (PLAN3/AIG1): the care visit holds the member of the confirmed day-plan line, and the day plan of the team
+  // (the same reader the screen uses, as the nurse) has exactly that one line, confirmed, proposing her.
+  expect(cVisit.responsible_user_id, "the confirmed value is the visit's responsible member").toBe(NURSE_ID);
+  const { data: dayPlan, error: dayPlanError } = await db.rpc("day_plan", { p_team_id: TEAM_S, p_date: today });
+  expect(dayPlanError).toBeNull();
+  expect(dayPlan, "one day-plan line: the care visit").toHaveLength(1);
+  expect(dayPlan![0]).toMatchObject({ visit_id: cVisit.id, member_id: NURSE_ID, reason: "knows_client", decision: "confirmed" });
+
+  // Step 1b (ASM1): one record of the case, the org-S instrument and the synthetic reference; the care-plan item points
+  // at it (ASM1-7, set by trigger on insert). She named herself, so the record is confirmed by its own entry
+  // (`private.assessment_confirmed`: entered_by = assessor, 0100) and no separate confirmation act exists; the screen
+  // showed «Status: bestätigt» above.
+  const { data: records, error: recordError } = await db
+    .from("assessment_records").select("id, instrument_id, document_ref, minutes_c, assessment_date").eq("case_id", caseId);
+  expect(recordError).toBeNull();
+  expect(records, "one ASM1 record of the run").toHaveLength(1);
+  expect(records![0]).toMatchObject({ instrument_id: INSTRUMENT_S, document_ref: ASM1_REF, minutes_c: CARE_MINUTES, assessment_date: today });
+  const { data: confirmations, error: confirmationError } = await db
+    .from("assessment_confirmations").select("record_id").eq("record_id", records![0].id);
+  expect(confirmationError).toBeNull();
+  expect(confirmations, "confirmed by her own entry: no separate confirmation row").toEqual([]);
+  const { data: items, error: itemError } = await db.from("care_plan_items").select("id, assessment_id").eq("case_id", caseId);
+  expect(itemError).toBeNull();
+  expect(items, "one care-plan item of the run").toHaveLength(1);
+  expect(items![0].assessment_id, "the item is written against the ASM1 record").toBe(records![0].id);
 
   // RLS4 (0099): `performer_id`, `signed_by` and the snapshot are not selectable through the table API; status is.
   const { data: reports, error: reportError } = await db.from("visit_reports").select("visit_id, status, version").in("visit_id", ids);
@@ -366,5 +458,14 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
     expect(error, `${table} as a nurse of another organisation`).toBeNull();
     expect(data, `${table}: no row of the run for a nurse of another organisation`).toEqual([]);
   }
+  for (const table of ["assessment_records", "care_plan_items"] as const) {
+    const { data, error } = await other.from(table).select("id").eq("case_id", caseId);
+    expect(error, `${table} as a nurse of another organisation`).toBeNull();
+    expect(data, `${table}: no row of the run for a nurse of another organisation`).toEqual([]);
+  }
+  const { data: otherPlan, error: otherPlanError } = await other.rpc("day_plan", { p_team_id: TEAM_S, p_date: today });
+  // PLAN3-8: the reader returns only lines of her own teams (0116 `day_plan`), so none of the run reaches her.
+  expect(otherPlanError).toBeNull();
+  expect(otherPlan, "day_plan: no line for a nurse of another organisation").toEqual([]);
   await other.auth.signOut();
 });
