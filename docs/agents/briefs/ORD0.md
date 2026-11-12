@@ -130,3 +130,24 @@ Everything else in ORD0-C2 and ORD0-C1 is unchanged. Acceptance: ORD0-C1 and the
 **Business and care value.** A client whose A or C care grows months later, or who is reassessed, is no longer silently left without a doctor link: the team gets one task at the moment of the event, never a stream of reminders, and no coordinator has to remember to ask (value 2 continuity; value 5 administration; value 6 outcomes). The task episodes feed AN2 measure 10, which is the evidence D-22 question 6 will need.
 
 **Result: `accepted`.** ORD0 moves from *Next up* into the priority queue; issue #314 closes with this cycle (#292 is already closed). The deadline and content of the information stay D-22 (owner/legal adviser, Clinical Owner).
+
+## PO note — 2026-11-12 01:39 CET: new condition **ORD0-C3** (`cra` CGR-187, advisory, S2; placed in block B7)
+
+**Finding:** a KLV-B visit whose case medical order stops being `present` after planning (status set back, intake correction) carries no flag and nothing at the start; the team first sees it as `b_without_valid_order` on the billing fact (`cra` 01:31; shown by pgTAP 128 R2 on #1096 `83a9fcb`; `private.visit_flags` reads only the end date, CR-003 only at planning). The doctor not being asked (H-18) stays invisible until billing.
+
+**Why ORD0, why B7:** ORD0 exists so that the doctor link does not get lost silently; this is the same loss, after planning. Block B7 (Assessment, Pflegeplanung, ärztliche Anordnung) carries ORD0/ORD1. Under FE-054 it is built when B7 is the active block, not inside BD; BD shows the gap as it is (pgTAP 128 R2 and the fact's reason list), which is what BD-3 asks.
+
+**ORD0-C3 (signal, not a care rule):**
+- (a) Every planned or started visit with B minutes whose case order is not `present` on the visit date carries a visit flag, shown on `/field` and `/team` like `order_expired` (name `eng`'s).
+- (b) pgTAP: R2's visit carries the flag after the order is set back; an A or C visit of the same case does not; an order back to `present` removes it.
+- (c) Nothing is refused or blocked by this condition. **Whether the start must be refused or only warned, and what the nurse may still do, is the Clinical Owner's and `legal`'s (D-22, D-28), not the PO's.** The flag text states only the fact (no order `present` for the visit date) and no rule (`uxa` words it, `cra` confirms).
+
+ORD0 stays `accepted`; ORD0-C3 is due before the first real data (Phase B) and is checked at B7 acceptance.
+
+## PO note — 2026-11-12 02:39 CET: ORD0-C3 (d) (`aia` AUT-97, low; product authority, no care rule)
+
+**Why:** ORD0 itself exists because a task that no command closes teaches teams to ignore tasks (CGR-36). A second, stored order signal next to `order_expired` would repeat that and give the team two order counts to read.
+
+- **(d)** The ORD0-C3 flag is derived at read time in the same family as `order_expired` (`private.visit_flags`): no stored row, no task, no exception, nothing a person sets or clears. It is counted together with `order_expired` in the team's one plan-status count of visits whose order is missing or expired (words `uxa`'s). pgTAP, with (b): after the order is set back, the team count rises by the number of affected B visits; when the order is `present` again it falls back, with no command by a person.
+- (c) is unchanged: nothing is refused or blocked; the start rule stays D-22/D-28 (Clinical Owner, `legal`).
+
