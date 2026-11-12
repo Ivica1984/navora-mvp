@@ -239,6 +239,33 @@ The PO did not run the tests.
 - **Open for BD acceptance:** only #1127 merged with green CI on its merge commit. Then the PO accepts BD with acceptance text version 2 (09:39) plus «Schritt 9 prüft, dass die Referenztarife als ‹nicht validiert› angezeigt werden.» and activates B1.
 - **BD is not accepted** in this run. The PO did not run the tests.
 
+### Amendment 2026-11-12 14:39 CET (po: #1127 merged; role PRs merged; **BD accepted for the simulation with synthetic data**, effective with the named-commit repeat run (FE-070); BD-H placed in B9; B1 approved as draft only (FE-070 (9)); product authority, no rule added, BD-6 holds)
+
+- **#1127 merged** (BD-7, test only), head `dd93afd`, merge `00b4700`, title `PO merge #1127: BD-7 e2e negative reads (head dd93afd)`, merge record comment 6825214544 (seven conditions rechecked on the head: `ci` 43209977795 4/4 `success`; `clean` against `4891ac3`; two files, no `src`, `supabase`, `.github`; `cra-gate: #1127 dd93afd clear` (#1130); `lca-gate: #1127 7261bfa clear` (#1128); 0 reviews and threads; FE-054 precondition CI on `4891ac3` green). The session permission layer let the call through this run.
+- **Merge commit CI (section 5):** `00b4700` push run `ci` 43229659680 `success` (`app` 131221269809, `db` 131221269334, `e2e` 131221268830, `ui-screenshots` 131221269245). No revert needed (FE-054). The PO did not run the tests.
+- **Role PRs merged after it:** `uxa` #1126 (`1503a85`), `lca` #1128 (`e099350`), `cra` #1130 (`353a9f7`), `aia` #1132 (`4a543c0`), each 4/4 green on its head, own files only.
+
+**Evidence table for the BD acceptance (criterion | result | evidence; the PO did not run the tests):**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BD-1 inventory | met | #1057 merged 2026-11-11 05:39, `docs/engineering/DURCHGANG_INVENTORY.md` |
+| Tests executed on the merge commit `00b4700` (GitHub Actions, FE-056; the PO ran none itself) | met | `ci` 43229659680: `app` 110 test files / 1203 unit tests passed; `db` 128 pgTAP files / 4646 tests «All tests successful»; `e2e` «163 passed»; read from the job logs, not only the status |
+| BD-2 one continuous e2e test, steps 1-9 ambulant, stored facts at each hand-over | met (steps 6 and 7 «nicht nachgewiesen», B6, as the acceptance text says) | #1069, #1109; amendment 08:39 table; spec `tests/e2e/durchgang-ambulant.spec.ts` on `00b4700` |
+| BD-3 nothing faked | met | `uxa` G-1 to G-6 over the whole run (#1126, 11:51): every step reached from the previous screen; F3 option (A) named in the acceptance text |
+| BD-4 stop cases | met for every IMPLEMENTED stop case; PLANNED ones listed «nicht nachgewiesen» | pgTAP 127, 128 (#1093, #1096); acceptance text version 2 lists file per negative |
+| BD-5 repeatable | met on `742f694` (`ci-repeat` 43173645422, 20/20); **named integrated commit for the acceptance: `4a543c0`** (contains BD-7 and only docs after it): `ci-repeat` 43231715012 (10 × `db`, 10 × `e2e`) | **the acceptance takes effect only when 43231715012 is 20/20 `success`** (FE-070 (6): tests run and reproducibly green on a named integrated commit); red or cancelled: BD stays not accepted, failing job named |
+| BD-6 no new rule | met | no rule, threshold or gate added by any BD PR (`cra` 09:26, `lca` 11:20) |
+| BD-7 (a)(i)-(iii), (b) | met | #1127 merged `00b4700`, CI 43229659680 green; `lca-gate: #1127 7261bfa clear`, `cra-gate: #1127 dd93afd clear` |
+| Negative: other team, other organisation, `anon` | met | pgTAP 127 N, 128 N; e2e negative step with the Testorganisation A nurse, widened by BD-7 |
+| Gate `cra` | met | acceptance text version 2 (09:26, #1120); `cra-gate` on #1127 |
+| Gate `lca` | met | `lca-gate: BD 742f694 clear` (11:20, #1124); `lca-gate: #1127 7261bfa clear` (12:24) |
+| Gate `uxa` | met | #1126 11:51; holds for `dd93afd` (amendment 12:39) |
+
+- **Decision: BD is accepted for the simulation with synthetic data (gate «Simulation»), not for real persons or data (gate «real», not given)** (2026-11-12 14:39, `po`; effective with `ci-repeat` 43231715012 20/20 on `4a543c0`, FE-070), with acceptance text version 2 (09:39) verbatim plus the BD-7 sentence: «Schritt 9 prüft, dass die Referenztarife als ‹nicht validiert› angezeigt werden.» BD proves the software path on synthetic data; it is **no clinical release, no tariff proof and no release for real data**.
+- **Deviation decided: BD-H (nursing-home column) is not opened as part 2 of BD; it becomes an acceptance condition of B9.** *Users and journey step* (10.11.) and amendment 08:39 said the PO opens BD-H once BD is accepted; amendment 12:39 said «activates B1». Reason: the nursing-home steps (NH-A1 to NH-A5) are B9 and not built (`PRODUCT_BLOCKS.md` B9: «nur Brief NH-A1»), so a BD-H run now would be an inventory of missing parts and would hold the one active block (FE-054) on work that cannot turn green. FE-054 orders B1 to B10 after BD; under the same rule each block is accepted only when its step is green in this flow, so B9 is accepted only when the nursing-home column (BD-H) runs green end to end. Product authority (README rule 11); no founder decision changed; recorded in the journal.
+- **Next block: not yet active.** The founder message of 2026-11-12 (FE-070, received during this run) requires the PO to present eight deliverables before B1 is «Ready» or the next feature block is implemented, and B1 to be cut into sequential sub-blocks. Brief [`B1.md`](B1.md) therefore stays a **draft**; the proposed first sub-block is in `docs/product/FE-070_LIEFERUNG_1.md`. ~~Next active block: B1 (approved 14:39), first PR B1-1 (Δ11).~~
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
