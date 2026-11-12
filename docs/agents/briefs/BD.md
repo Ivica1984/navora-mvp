@@ -26,6 +26,7 @@ One automated run proves that a referral becomes a planned, executed, documented
 - [ ] **BD-4 Stop cases on the way:** for each step, every stop case in §5 that is IMPLEMENTED gets a negative step (pgTAP or e2e): e.g. missing evidence refuses the assignment (B2), no completed assessment refuses a non-assessment visit (`assessment_first`), a report not final gives no billable fact (H-05). PLANNED stop cases stay listed as "nicht nachgewiesen".
 - [ ] **BD-5 Repeatable:** the test is green on the PR head, on the merge commit, and 10/10 in `ci-repeat` on the merge commit (B0-2 rule; an `infrastructure:` attempt counts as not run).
 - [ ] **BD-6 No new rule:** where a step needs a rule that is not decided (billing release after a late assessment D-22, clinical rules D-43), the step ends in today's safe behaviour (refusal, hold, visible fact) and the inventory names the decision. Nothing invented.
+- [ ] **BD-7 (added 2026-11-12 11:39, `lca` L-1, L-2):** (a) the e2e negative step proves that a nurse of another organisation reads no Testteam Basel row in `billing_preview`, no offer in `team_offers()`, no row in `partner_requests` / `matching_requests`; (b) step 9 asserts the «nicht validiert» tariff line while no rate is `validated`. Test-only PR (amendment 11:39).
 - [ ] **Negative:** a nurse of another team, or `anon`, cannot read or act on any record of the run (one assertion per step type, reusing RLS2 accounts).
 
 ### Amendment 2026-11-11 02:39 CET (po, `cra` CGR-175, advisory, condition for BD acceptance)
@@ -215,6 +216,18 @@ The PO did not run the tests.
 - **Not a condition, not taken in:** «UNVALIDATED» (D-43) next to «VORGESCHLAGENEN Zellen v0.2» (`cra` says the meaning is already there).
 - **Open gate lines (two of three):** `uxa` G-1 to G-6 over the whole run on `742f694` (or a later `recovery/main` head with the same spec), `lca` `lca-gate` on step 9 and the negative step. Requested at 08:39; neither role has published since. The `cra` line is met.
 - **BD is not accepted** in this run. When both lines are in and the `recovery/main` head CI is green, the PO accepts BD with version 2 above.
+
+### Amendment 2026-11-12 11:39 CET (po: #1122 merged; `lca` #1124 merged, `lca` gate clear; BD-7 added from L-1 and L-2; L-3 to B8; product authority, no rule added, BD-6 holds)
+
+- **#1122 merged** (`eng` journal 10:13, readers of `no_show`, docs only; head `1aa20cd`, merge `526ec78`, title `PO merge #1122: eng journal 10:13, no_show readers (head 1aa20cd)`; record 6821369848). FE-054 precondition: `ci` on `871cd01` (43193592614) and `0a9b66b` (43194414261) `success`. The PO did not run the tests.
+- **`lca` 11:20 (#1124, merged `64859c7`): `lca-gate: BD 742f694 clear`** (also valid for `0a9b66b`; `tests src supabase` unchanged since `742f694`). Advisory, not a legal determination. Step 9: fact from a `final` report, A and C minutes only, labelled as estimate; seeded rates `validated = false` (0043, CGR-08); D-18 / D-11 tariff questions not judged and stay in their packages. Negative step: e2e plus pgTAP 127 N and 128 N cover every record with health or identity content. **The `lca` side of BD acceptance is met.**
+- **BD-7 (new acceptance condition, PO decision; from `lca` L-1 and L-2):** `lca` calls both optional. The PO makes them conditions because BD is still open for the `uxa` line, both are test-only and size S, and both protect statements the acceptance text makes (data visibility; «nicht einen Tarif … nachweist», FE-060). Data protection comes before speed.
+  - **BD-7 (a) (L-1):** in the e2e negative step, the nurse of Testorganisation A sees (i) no Testteam Basel row in `billing_preview`, (ii) no offer of the run in `team_offers()`, (iii) no row of the run in `partner_requests` and `matching_requests`. One assertion each, under RLS, as the existing negative assertions.
+  - **BD-7 (b) (L-2):** step 9 asserts the «nicht validiert» line (`reference-not-validated`) while no tariff rate is `validated`. If a later seed validates a rate without a D-11 / D-18 decision, BD turns red.
+  - One test-only PR by `eng`, `cra` gate line not needed (no clinical behaviour), `lca` reads it in its next run (one line, not a merge stop unless it names a gap). No `src` or migration change; if an assertion fails, it is a finding for the PO, not fixed in the test.
+- **L-3 (Phase B, data minimisation) → B8:** the «nicht abrechenbare Einsätze» list shows the client's full name to coordinators of the whole organisation. Not BD (the list is empty in the run). Product direction for B8 (PROPOSED, PO, challenge row 11:39): outside the team only date, reason and case reference. Decided in the B8 brief before Phase B data.
+- **Open for BD acceptance:** `uxa` G-1 to G-6 over the whole run (requested 08:39, no `uxa` run since); BD-7. The `cra` and `lca` lines are met. When both are in and CI on the `recovery/main` head is green, the PO accepts BD with acceptance text version 2 (09:39), plus one sentence for BD-7 (b): «Schritt 9 prüft, dass die Referenztarife als ‹nicht validiert› angezeigt werden.»
+- **BD is not accepted** in this run.
 
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
