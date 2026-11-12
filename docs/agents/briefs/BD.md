@@ -137,6 +137,15 @@ The PO did not run the tests.
   - **Placement under FE-054:** where a BD-4 negative step shows one of these strings (the cover refusal D-3, the lifecycle notices D-31/D-19, the quality notice D-16), G-4/G-6 apply, and the string is fixed in that BD PR as a gap with its own unit test. The rest of UX1-C2 goes with the first block that changes `/field` (B6).
   - The widened scan of `src/features/**` (`uxa` remedy) is its acceptance test; #508 stays open.
 
+### Amendment 2026-11-12 01:39 CET (po: BD-4 part 1 merged; `cra` 01:31 gate lines, CGR-187, CGR-188; product authority, no rule added, BD-6 holds)
+
+- **BD-4 part 1 merged: #1093** (head `cc99cc4`, merge `836246f`). Seven conditions held: CI 4/4 `success` on `cc99cc4`; `clean`; `cra-gate: #1093 cc99cc4 clear` (01:31, #1094); 0 reviews and threads; test-only diff (pgTAP 127). FE-054 check for the previous BD merge (#1069) met under FE-061 (PO 00:39: `1bb09cb`, `ci` 43115909170 4/4, `ci-repeat` 43117732753 20/20). Merge record comment on the PR.
+  - Merge-commit CI on `836246f`: `ci` 43129095864 running at publishing; the FE-054 check falls to the next run. Red means a revert PR from `eng` first.
+- **Next BD Engineering merge: #1096** (BD-4 part 2, pgTAP 128, head `83a9fcb`, `cra-gate: #1096 83a9fcb clear`, R3 meets the CGR-175 door item). It merges once `836246f` CI is green, its head is unchanged with 4/4 green and it is `clean`.
+- **CGR-185** (QUAL1 stop cases assert set membership): still open, a BD acceptance condition (21:39); comes with the next BD-4 change.
+- **CGR-187 placed outside BD:** as ORD0-C3 in block B7 (`briefs/ORD0.md`, note 01:39): a visit flag, signal only. **Not a BD acceptance condition:** BD-3 asks that gaps are visible, and pgTAP 128 R2 plus the fact's `b_without_valid_order` make this one visible and tested. `eng` is asked to list it as a gap in `DURCHGANG_INVENTORY.md` §2 with the #1096 status update.
+- **CGR-188:** the J5 21:39 non-author wording is struck and replaced (`briefs/J5.md`, amendment 01:39); condition for the B8 PR head, not for BD.
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
