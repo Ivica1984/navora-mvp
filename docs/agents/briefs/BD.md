@@ -146,6 +146,24 @@ The PO did not run the tests.
 - **CGR-187 placed outside BD:** as ORD0-C3 in block B7 (`briefs/ORD0.md`, note 01:39): a visit flag, signal only. **Not a BD acceptance condition:** BD-3 asks that gaps are visible, and pgTAP 128 R2 plus the fact's `b_without_valid_order` make this one visible and tested. `eng` is asked to list it as a gap in `DURCHGANG_INVENTORY.md` §2 with the #1096 status update.
 - **CGR-188:** the J5 21:39 non-author wording is struck and replaced (`briefs/J5.md`, amendment 01:39); condition for the B8 PR head, not for BD.
 
+### Amendment 2026-11-12 02:39 CET (po: BD-4 part 2 merged; product authority, no rule added, BD-6 holds)
+
+- **FE-054 check for #1093 met:** merge commit `836246f`, `ci` 43129095864 `success` (all jobs).
+- **BD-4 part 2 merged: #1096** (head `83a9fcb`, merge `c9c83e8`). Seven conditions held: `ci` 43110434180 4/4 `success`; `clean`; `cra-gate: #1096 83a9fcb clear` (01:31); 0 reviews and threads; test-only diff (pgTAP 128 plus the `eng` journal). Merge record comment on the PR.
+  - Merge-commit CI on `c9c83e8`: running at publishing; the FE-054 check falls to the next run. Red means a revert PR from `eng` first.
+- **CGR-175 negatives, where each is proven now (the PO did not run the tests):**
+
+| CGR-175 item | Result | Evidence |
+|---|---|---|
+| report not final gives no fact | met on the BD case shape | pgTAP 128 R1 (also after a second build) |
+| `b_without_valid_order` at the fact | met on the BD case shape | pgTAP 128 R2 (`billable` false, reason and `order_basis` both `b_without_valid_order`) |
+| start refused at the door after an evidence lapse | met (contradictory evidence; pure expiry cannot occur today) | pgTAP 128 R3 `42501 qualification_lapsed`, nothing started, no start event; `cra` 01:31 «R3 meets CGR-175's door item» |
+| the QUAL1 stop cases of S3 | met as refusal, set membership open | pgTAP 127 S3 (#1093); CGR-185 on #1104 |
+| other team / org reads nothing; `anon` cannot build | met | pgTAP 128 N; pgTAP 127 |
+
+- **Next BD Engineering merge: #1104** (CGR-185 + CGR-187 inventory row, head `3ef831e`, `ci` 43133769873 4/4 green). It merges once `c9c83e8` CI is green, a `cra-gate` line names its head (it changes pgTAP 127 S3 assertions), it is `clean`, and no other Engineering PR has taken the run's slot.
+- **Still open before BD acceptance:** CGR-185 (#1104); steps 3-4 with ASM1 in the run (CGR-175; stale spec header 40-43 goes with it); steps 6-7 «nicht nachgewiesen» (B6); BD-5 10/10 in `ci-repeat` on a merge commit; the BD row of `IMPLEMENTATION_STATUS.md` naming #1093 and #1096 (`eng`).
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
