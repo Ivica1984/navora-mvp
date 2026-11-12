@@ -132,6 +132,20 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **New blocker / risk:** every Engineering PR edits `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, so each merge makes the rest conflict (AUT-49 adopted as direction). Role docs PRs (`cra` chain, `uxa` #850, `aia` #869, `lca` #860) conflict on `JOURNAL.md` too; FAM1 approval waits for the `lca` and `cra` inputs to reach `recovery/main`.
 - **Deviation:** none from architecture or strategic direction.
 
+## 0n. Status 2026-11-12 14:39: BD accepted for the simulation; FE-070, no feature block active
+
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1127** BD-7 (`00b4700`, merge-commit `ci` 43229659680 green); role docs **#1126** `uxa`, **#1128** `lca`, **#1130** `cra`, **#1132** `aia`.
+- **BD accepted** (FE-054; evidence table in `briefs/BD.md` amendment 14:39). Confirmation `ci-repeat` 43231715012 on `4a543c0`; red reopens BD.
+- **Next:** founder decision **FE-070**: the PO presents eight deliverables before any feature block starts; first proposal and inventory in `FE-070_LIEFERUNG_1.md`. BD-H moves to B9 acceptance.
+- **Risk:** the session permission layer refused PO merges at 12:39 and 13:39 and let them through at 14:39; the cause is UNKNOWN to the PO. **Deviation:** BD-H placement (decided in the brief).
+
+## 0m. Status 2026-11-11 16:39: block BD, role reviews merged
+
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1081** `uxa` 15:48, **#1082** `lca` 16:25 (docs). No Engineering merge.
+- **#1071 post-merge (FE-054):** CI on `de196df` green on its second run; `recovery/main` `c04b028` green 4/4. The docs-only `b319597` had `e2e` red at «Install Playwright browser» (runner DNS, before any test); `git diff c04b028 b319597 -- src supabase tests e2e .github` empty; PO re-ran the workflow (run 43033335279).
+- **Next:** #1072 (G-6) once `e2e` on `74ee68c` is green; then #1069 (BD-2, head `1baafa3`, needs a fresh `cra` gate line and the measured AUT-88 table).
+- **B8:** J5-S legal precondition met (`lca` 16:25), criterion 7 added, manual catch-up dropped. **New risk:** Playwright browser download outage on the runners delays every Engineering merge (infrastructure). M1-M8 dates unchanged. **Deviation:** none.
+
 ## 0l. Status 2026-11-11 14:39: block BD, seed G-a/G-b merged
 
 - **Merged** (merge commits, CI green on each head, PO did not run the tests): **#1071** BD / seed G-a/G-b (`de196df`, head `f9fbcec`); **#1078** `cra` 13:30, **#1077** `eng` 13:25 journal, **#1080** `aia` 14:24 (docs). The 13:39 permission refusal did not recur.

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { NOT_BILLABLE_LABEL, REFERENCE_NOT_VALIDATED, formatChf, monthStart, notBillableText, parseNotBillable } from "@/features/billing/rules";
 
@@ -15,9 +16,12 @@ describe("J5 billing preview helpers", () => {
       .toBe("Verordnung ohne Enddatum, Verordnung erst nach dem Besuchstag erfasst");
   });
 
-  it("names unvalidated reference data and its open decisions (CGR-08)", () => {
+  it("names unvalidated reference data (CGR-08); its open decisions only in data-ref, never in the text (UX1-11, BD G-6)", () => {
     expect(REFERENCE_NOT_VALIDATED).toContain("nicht validiert");
-    expect(REFERENCE_NOT_VALIDATED).toMatch(/D-11.*D-18/);
+    expect(REFERENCE_NOT_VALIDATED).toContain("Pilotkanton offen");
+    expect(REFERENCE_NOT_VALIDATED).not.toMatch(/\b(?:D|CR|CGR|SIG)-\d+/);
+    const preview = readFileSync("src/components/billing/billing-preview.tsx", "utf8");
+    expect(preview).toMatch(/data-testid="reference-not-validated"\s+data-ref="D-11 D-18"|data-ref="D-11 D-18"\s+data-testid="reference-not-validated"/);
   });
 
   it("formats Swiss francs and leaves unknown amounts blank", () => {

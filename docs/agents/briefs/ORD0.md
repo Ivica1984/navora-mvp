@@ -3,7 +3,7 @@ id: ORD0
 title: The doctor link that must not get lost (GP informed, order without end date)
 author: po
 status: approved
-updated: 2026-10-24
+updated: 2026-11-12
 ---
 
 # ORD0 — The doctor link that must not get lost
@@ -130,3 +130,53 @@ Everything else in ORD0-C2 and ORD0-C1 is unchanged. Acceptance: ORD0-C1 and the
 **Business and care value.** A client whose A or C care grows months later, or who is reassessed, is no longer silently left without a doctor link: the team gets one task at the moment of the event, never a stream of reminders, and no coordinator has to remember to ask (value 2 continuity; value 5 administration; value 6 outcomes). The task episodes feed AN2 measure 10, which is the evidence D-22 question 6 will need.
 
 **Result: `accepted`.** ORD0 moves from *Next up* into the priority queue; issue #314 closes with this cycle (#292 is already closed). The deadline and content of the information stay D-22 (owner/legal adviser, Clinical Owner).
+
+## PO note — 2026-11-12 01:39 CET: new condition **ORD0-C3** (`cra` CGR-187, advisory, S2; placed in block B7)
+
+**Finding:** a KLV-B visit whose case medical order stops being `present` after planning (status set back, intake correction) carries no flag and nothing at the start; the team first sees it as `b_without_valid_order` on the billing fact (`cra` 01:31; shown by pgTAP 128 R2 on #1096 `83a9fcb`; `private.visit_flags` reads only the end date, CR-003 only at planning). The doctor not being asked (H-18) stays invisible until billing.
+
+**Why ORD0, why B7:** ORD0 exists so that the doctor link does not get lost silently; this is the same loss, after planning. Block B7 (Assessment, Pflegeplanung, ärztliche Anordnung) carries ORD0/ORD1. Under FE-054 it is built when B7 is the active block, not inside BD; BD shows the gap as it is (pgTAP 128 R2 and the fact's reason list), which is what BD-3 asks.
+
+**ORD0-C3 (signal, not a care rule):**
+- (a) Every planned or started visit with B minutes whose case order is not `present` on the visit date carries a visit flag, shown on `/field` and `/team` like `order_expired` (name `eng`'s).
+- (b) pgTAP: R2's visit carries the flag after the order is set back; an A or C visit of the same case does not; an order back to `present` removes it.
+- (c) Nothing is refused or blocked by this condition. **Whether the start must be refused or only warned, and what the nurse may still do, is the Clinical Owner's and `legal`'s (D-22, D-28), not the PO's.** The flag text states only the fact (no order `present` for the visit date) and no rule (`uxa` words it, `cra` confirms).
+
+ORD0 stays `accepted`; ORD0-C3 is due before the first real data (Phase B) and is checked at B7 acceptance.
+
+## PO note — 2026-11-12 02:39 CET: ORD0-C3 (d) (`aia` AUT-97, low; product authority, no care rule)
+
+**Why:** ORD0 itself exists because a task that no command closes teaches teams to ignore tasks (CGR-36). A second, stored order signal next to `order_expired` would repeat that and give the team two order counts to read.
+
+- **(d)** The ORD0-C3 flag is derived at read time in the same family as `order_expired` (`private.visit_flags`): no stored row, no task, no exception, nothing a person sets or clears. It is counted together with `order_expired` in the team's one plan-status count of visits whose order is missing or expired (words `uxa`'s). pgTAP, with (b): after the order is set back, the team count rises by the number of affected B visits; when the order is `present` again it falls back, with no command by a person.
+- (c) is unchanged: nothing is refused or blocked; the start rule stays D-22/D-28 (Clinical Owner, `legal`).
+
+
+## PO note — 2026-11-12 05:39 CET: ORD0-C3 (a) amended (`cra` CGR-189, advisory, S2); O-1 to O-4 taken in (`uxa` 03:51, `cra` 05:29 confirmed)
+
+**Why:** a flag built «like `order_expired`» reaches the team planner, not the nurse at the door: on `/field` planning flags appear only in the notice after the nurse moves a visit herself (`cra` CGR-189, `field-client.tsx:1221-1246`). `lca`'s D-22 option (i) (#1110) is compliant only if the signal reaches the nurse before she acts. The same gap holds for `order_expired` today.
+
+- ~~(a) … shown on `/field` and `/team` like `order_expired` (name `eng`'s).~~ **Replaced 2026-11-12 05:39 by (a'):**
+- **(a')** Every planned or started visit with B minutes whose case order is not `present` on the visit date carries a visit flag, read from `private.visit_flags` at view time. **Both order flags (the new one and `order_expired`) are shown on the performer's `/field` visit card, before the start control**, and on `/team` cards as today. Position and tone `uxa`'s; `cra` confirms.
+- **Wording (O-1 to O-4, `uxa` 03:51, `cra` 05:29 confirmed):** O-1 «B-Leistung: für diesen Tag liegt keine ärztliche Verordnung vor»; O-3 «B-Leistung: Verordnung am Einsatztag abgelaufen» (`order_expired`); O-2 one team count «… ohne gültige ärztliche Verordnung am Einsatztag» (with (d)); O-4 the count opens its list. Facts only, no duty verb.
+- **e2e (390 px):** for pgTAP 128 R2's case the `/field` card shows the O-1 text before «Einsatz starten»; an A/C visit of the same case shows none; the order back to `present` removes it; a KLV-B visit after the order's end shows the O-3 text before «Einsatz starten».
+- (c) unchanged: nothing is refused; the lit. b start rule stays with the Clinical Owner (D-43) and the legal adviser (D-22/11).
+
+Placement: B7 (FE-054 order), due before the first real data. The `order_expired` part is not pulled forward into BD: Phase A holds only synthetic data (D-1), so no nurse acts on it before B7; this is a S2 advisory, not a blocking finding.
+
+
+## PO note — 2026-11-12 08:39 CET: ORD0-C3 (a') — `lca` D-22 verdict and `uxa` OF-1 to OF-6, UXR-164 (product authority, no rule added)
+
+- **`lca` 08:24 (D-22, #1115):** option (i), as placed by (a') with the O-1/O-3 words and OF-1 to OF-6, is compliant under every plausible interpretation once built as written. Legal point for the B7 acceptance: the order block sits before «Einsatz starten» at 390 px and the button stays **enabled**. The lit. b start rule stays unresolved (Clinical Owner and legal adviser, D-22/11).
+- **`uxa` 07:52 (#1114), PROPOSED, taken in subject to `cra`'s confirmation:** OF-1 one block directly after «Sicherheitshinweise», before every other section and the start control, never above the safety block, never folded; OF-2 tone `attention`, 14 px, word plus «⚠», no live region; OF-3 only the two order flags, in the O-1/O-3 words; OF-4 the block describes the card, «Einsatz starten» stays enabled; OF-5 shown on planned to paused visits, no dismiss; OF-6 (optional) `/team` flags to 14 px.
+- **e2e (390 px), added to (a'):** the block's position (after «Sicherheitshinweise», before «Einsatz starten»), and «Einsatz starten» is enabled while the block shows.
+- **UXR-164 (medium):** the team's order count on `/team` «Automatische Planung» uses the P1 colour (`auto-plan.tsx:47-50`); its remedy rides the O-2 PR (with (d)): the count uses the `attention` tone, not P1. Vitest on the tone class.
+- Placement unchanged: B7. Until `cra` confirms OF-1 to OF-6, they are the default for the B7 PR, not yet its acceptance.
+
+## PO note — 2026-11-12 09:39 CET: ORD0-C3 (a') OF-1 to OF-6 confirmed by `cra` 09:26, condition OF-1a (product authority, no rule added)
+
+- **`cra` 09:26 (#1120):** OF-1 to OF-6 **confirmed**; UXR-164 supported. OF-1 to OF-6 are now part of the B7 PR's acceptance, no longer only its default.
+- **OF-1a (new acceptance criterion for the B7 PR):** the «Sicherheitshinweise» section is drawn only when the visit has a case (`field-client.tsx:563-565`). e2e (390 px) also on a card whose safety section shows «nicht erfasst»: the order block is present, after that section and before «Einsatz starten», so "after the safety section" never becomes "not shown".
+- **OF-2 tone:** if the Clinical Owner later sets a stricter lit. b start rule (D-22/11, UNKNOWN), the tone follows that rule. Recorded; nothing changes for B7 until then.
+- Placement unchanged: B7.
+

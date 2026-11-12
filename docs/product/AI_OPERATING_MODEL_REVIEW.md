@@ -210,7 +210,7 @@ The order follows value and risk: **L first**, because L agents need no clinical
 | A3 | Roster and day plan | plan, windows, qualifications, labour rules | roster or day order proposal | team | scheduling administrator | 1, 4 | L | NH1, Q7 (location), `legal` (labour rules) |
 | A4 | Billing and dispute | J5 facts | invoice draft; answer to an insurer question | licence holder | back office | 9, 5 | L | D-12, D-18 |
 | A5 | Compliance evidence | audit trail, decisions, gates | evidence pack for canton, insurer, DPIA | licence holder | manual compliance work | 5, 7 | L | D-4, D-12 |
-| A6 | Control health | job runs, deliveries, agent ledgers | "what is not working" list | Operations, admin | nobody does this today | safety | L (rules, no AI needed) | none |
+| A6 | Control health | job runs, deliveries, agent ledgers | "what is not working" list | Operations, admin | nobody does this today | safety | L (rules, no AI needed) | none (first PLANNED instance: J5-S catch-up and team count, B8; `aia` 2026-11-11 20:20, AUT-92) |
 | A7 | Dictation to entry | the nurse's speech | structured entry in her words | the nurse | typing on a phone | 1 | **G** (transcription; adviser to confirm) | D-35, D-34 |
 | A8 | Intake extraction | discharge letter | structured referral and safety values | receiving nurse | re-typing | 1, 5 | **H** | D-34 module, Clinical Owner, D-9, D-35 |
 | A9 | Report and handover drafter | visit facts, notes | report text or handover summary | performing nurse; next nurse | writing | 1 | **H** | D-34 module, Clinical Owner, D-35 |
@@ -472,6 +472,35 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Re-entry is a rule gap, not a form detail** (AUT-91, AUT-94, OPEN): values the care graph already holds (care-plan minutes, the client's municipality) are offered as defaults; PLAN3 uses the same source.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
 
+**State 2026-11-11 20:20 (`aia` review 46; AUT-88 measured, J5-S K-3):**
+- **Measurement before AI IMPLEMENTED:** the BD-2 spec counts human acts per step; the measured baseline (61 product acts on the synthetic seed, CI run 43037240509) is the BD reference (PO 18:39; AUT-88 closed). Later agent stages are compared with the same counter.
+- **A6 control health, first PLANNED instance:** J5-S scheduled catch-up with one team count and no catch-up button (PO 16:39 K-3; AUT-92 closed). A deterministic job, kind `rule`, stage 0. The consistency check at the F3 save is adopted (CGR-180 (2), CGR-183; AUT-93 closed).
+- **Control added: one entry for a value, every display derived from it** (AUT-95, OPEN): a care-plan item's frequency is entered once as structure and its text generated, so what the next nurse reads and what a planner (PLAN2, PLAN3, later A3) uses cannot differ. Any agent input must read the structure, never a parallel free text.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
+
+**State 2026-11-12 02:22 (`aia` review 47; CGR-184 aligned, ORD0-C3):**
+- **Control added: a signal that an upstream fact changed after planning is derived at read time, in one family and one team count** (AUT-97, OPEN): ORD0-C3 joins `order_expired` in `visit_flags`; no stored task or exception to close by hand. Any later agent that reads visit signals (A3, A6) reads the derived flag, never a copy.
+- **Correction:** my review-46 support of the CGR-182 text is replaced by support of CGR-184 (whoever holds the right to plan sees the count only). The control "no per-person view" is unaffected.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41 OPEN; staging Free with synthetic data only, FE-059; Phase B billing inputs OPEN, FE-060).
+
+**State 2026-11-12 14:25 (`aia` review 49; PO questions on the departure tap, AN2 no-show category, «Fall eröffnen»):**
+- **Control added: an automation never derives a fact the person did not record** (AUT-100): a gap between visits is not «travel» in the working-day proposal; only a `departed` event makes a travel segment. The departure tap stays optional (IMPLEMENTED).
+- **Measures count what they say** (AUT-101): AN2 measure 8 classifies the first event other than `departed`, so «picked up» and «not reached» stay apart; AN2 stays a pilot hypothesis, never a safety monitor.
+- **Intake as rule plus monitor** (AUT-102, OPEN): complete referrals open the team search by a deterministic check with the CGR-193 controls done where data are entered; people handle exceptions. The edge for a later stage (structured alerts proposed from the referrer's free text for a named team confirmer) is named, not proposed: real referral text is client data (D-35 rule A).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**State 2026-11-12 08:23 (`aia` review 48; #1109 measured, PO challenge on minutes):**
+- **PLAN3 ledger exercised in the BD run (IMPLEMENTED in test, #1109):** one proposed line, one-tap confirmation, `day_plan` line with reason and state read back through RLS. Correction rate and stop rule are not exercised by a one-line run (B5 measure).
+- **Control added: a planning default may come from a confirmed care-graph value of the same unit; a clinical translation between units is never carried** (AUT-98, OPEN): visit minutes may default from the care-plan item (minutes per occurrence, AUT-91); the care-plan item never defaults from the assessment (minutes per period, ADR-123, CGR-84). Any later agent (A3, A10) follows the same line.
+- **Measurement before AI:** the act counter reports each act's scope (once, per day, per visit, per case) so a proposer's per-visit cost is read correctly (AUT-99, OPEN). Measured: 75 product acts (#1109) against the 61-act baseline.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41 OPEN; production on synthetic data only is an application host, not an AI host, FE-062 to FE-064).
+
+**Matching: rules decide eligibility, no score, no AI order among parallel offers (`aia` 2026-11-12 20:20, AUT-103 to AUT-105; input to FE-070 Lieferung 3):**
+- **Control:** team eligibility for an offer and for «Versorgung zugesagt» is a versioned deterministic rule; each criterion is shown as checked, not met or not checked, never as a number. No score among teams, also none that only explains. While every eligible team receives the offer at once, an AI order of teams has no reader and is not built; the only preference among teams is RET1 continuity (a rule, window set by the organisation, CGR-196).
+- **Control:** in a simulation organisation the offer and the commitment ask the same QUAL1 answer the planning paths ask, at team level, never a membership label alone (AUT-104, PLANNED for B1.2; activity mapping UNKNOWN, `cra`).
+- **Edge:** the only AI role in matching is upstream: structured facts and alert proposals from a referrer's text for a named confirmer (A8, H, stage 2 or later). It never decides eligibility, fills a missing qualification, ranks teams or commits.
+- **Measures:** team or organisation level only; the «Wir prüfen» signal is never read as a team's responsiveness (AUT-105).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -520,3 +549,8 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-11 02:30 | `aia` | §7: A13 demand pooling matcher (rule, stage 0, PLANNED) added; §12: FE-055 briefs recorded, controls "no fee penalises the entries the measures depend on" (AUT-82) and "a state only verification can end has an age signal" (AUT-86) added, AUT-80/-81 adopted. One agent added (A13, rule) |
 | 2026-11-11 08:20 | `aia` | §12: control "no agent input reads a billing parameter, deny-by-default on both sides" (D-18 (I1), pgTAP 125, AUT-87) and "measure acts before agent stages" (AUT-88, BD-2) added. No agent added or removed |
 | 2026-11-11 14:24 | `aia` | §12: controls "a consistency check runs where the person who knows the facts acts" (AUT-93) and "a failing background derivation has a monitor, not a catch-up act" (AUT-92) added; re-entry of care-graph values recorded as a rule gap (AUT-91, AUT-94); (I1) control IMPLEMENTED (AUT-87 closed). No agent added or removed |
+| 2026-11-11 20:20 | `aia` | §7 A6: first PLANNED instance (J5-S catch-up and team count, AUT-92) noted in the gate column; §12: measured act baseline IMPLEMENTED (AUT-88 closed), AUT-92/-93 adopted, control "one entry for a value, every display derived" (AUT-95) added. No agent added or removed |
+| 2026-11-12 02:22 | `aia` | §12: control "a changed upstream fact is a derived signal in one family and one count" (AUT-97, ORD0-C3) added; review-46 CGR-182 support corrected to CGR-184. No agent added or removed |
+| 2026-11-12 08:23 | `aia` | §12: PLAN3 ledger exercised in the BD run (#1109); control "a planning default from a same-unit care-graph value, never a carried clinical translation" (AUT-98) and the scoped act counter (AUT-99) added. No agent added or removed |
+| 2026-11-12 14:25 | `aia` | §12: controls «no derived fact the person did not record» (AUT-100) and «measures count what they say» (AUT-101); intake as rule plus monitor with the later-stage edge named (AUT-102). No agent added or removed |
+| 2026-11-12 20:20 | `aia` | §12: matching controls «rules decide eligibility, no score, no AI order among parallel offers», «QUAL1 answer at offer and commitment» and «signal never read as responsiveness» (AUT-103 to AUT-105, input to FE-070 Lieferung 3). No agent added or removed |

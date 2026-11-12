@@ -3,7 +3,7 @@ id: BD
 title: Block BD, durchgängiger Ablauf ambulant (die gebauten Teile werden eine zusammenhängende Software)
 author: po
 status: approved
-updated: 2026-11-11
+updated: 2026-11-12
 ---
 
 # BD — Durchgang ambulant (Phase A, synthetisch)
@@ -26,6 +26,7 @@ One automated run proves that a referral becomes a planned, executed, documented
 - [ ] **BD-4 Stop cases on the way:** for each step, every stop case in §5 that is IMPLEMENTED gets a negative step (pgTAP or e2e): e.g. missing evidence refuses the assignment (B2), no completed assessment refuses a non-assessment visit (`assessment_first`), a report not final gives no billable fact (H-05). PLANNED stop cases stay listed as "nicht nachgewiesen".
 - [ ] **BD-5 Repeatable:** the test is green on the PR head, on the merge commit, and 10/10 in `ci-repeat` on the merge commit (B0-2 rule; an `infrastructure:` attempt counts as not run).
 - [ ] **BD-6 No new rule:** where a step needs a rule that is not decided (billing release after a late assessment D-22, clinical rules D-43), the step ends in today's safe behaviour (refusal, hold, visible fact) and the inventory names the decision. Nothing invented.
+- [ ] **BD-7 (added 2026-11-12 11:39, `lca` L-1, L-2):** (a) the e2e negative step proves that a nurse of another organisation reads no Testteam Basel row in `billing_preview`, no offer in `team_offers()`, no row in `partner_requests` / `matching_requests`; (b) step 9 asserts the «nicht validiert» tariff line while no rate is `validated`. Test-only PR (amendment 11:39).
 - [ ] **Negative:** a nurse of another team, or `anon`, cannot read or act on any record of the run (one assertion per step type, reusing RLS2 accounts).
 
 ### Amendment 2026-11-11 02:39 CET (po, `cra` CGR-175, advisory, condition for BD acceptance)
@@ -95,6 +96,176 @@ The PO did not run the tests.
 - **#1069 (G-a), PO choice:** seed the same synthetic ASM1 instrument for Testorganisation S as for Testorganisation A (fixture only, no new instrument, no item changed), so BD-2 records an ASM1 assessment. Own PR before or with the (G-b) PR; pgTAP that org S has exactly the instruments of org A.
 - **Challenge (G-b):** why is the day proposal an organisation setting switched by an administrator at all? Hypothesis H-BD-1 (PROPOSED, decided by pilot data, not assumed): the team switches its own proposals on and off (team setting, audit-logged), and no administrator role is needed for it. Written to B2 as a question, not built in BD.
 - **`cra` answers (09:32) taken in:** UXR-158 closed from the clinical side. AUT-90 is acceptable for BD on synthetic data only; CGR-178 and CGR-179 go to B8 (brief J5 amendment 10:39).
+
+### Amendment 2026-11-11 17:39 CET (po: (G-b) owner answer reported by `eng`; product authority, no rule added, BD-6 holds)
+
+- **(G-b) reported owner answer «A»** (synthetic administrator in Testorganisation S, `/admin` screen path; `eng` comments on #1069, 16:54 and 17:04 CET). The PO did not hear it and could not verify it from the repository; it is **not yet recorded in `FOUNDER_DECISIONS.md`**. Until a recorded owner decision exists, the PO choice of 10:39 (seeded setting, merged with #1071) stays the state on `recovery/main`; `eng` may prepare the «A» gap PR, it merges once the answer is recorded. Owner asked to confirm (journal 17:39).
+- **If «A» is confirmed:** the administrator act is counted in the AUT-88 act table as its own row («Organisationseinstellung durch Admin»), not hidden in the baseline, so hypothesis H-BD-1 (team switches its own proposals) keeps a measured counter-case.
+
+### Amendment 2026-11-11 18:39 CET (po: G-6 merged; AUT-88 baseline adopted; product authority, no rule added)
+
+- **G-6 gap fix merged:** #1072 (head `74ee68c`, merge `42fdccf`; CI `ci` 43036745745 4/4 green after the runner outage; `cra-gate` clear). Post-merge CI on `recovery/main` is checked in the next run (FE-054). BD is not accepted by this merge; acceptance comes with the BD flow test (#1069).
+- **AUT-88 baseline adopted** (`eng` table on #1069, run 43037240509, synthetic seed of Testorganisation S): 83 acts, 22 of them test-only (Q-BD-1 (A) corrections), **61 product acts** for steps 1 to 9. It is the BD reference count; each later block reports its change against it in the same table form. It is a measurement, not a limit, and no test asserts it.
+- **Challenge (reading of the baseline):** 23 of 61 acts (38 %) are step 1 at Operations, 18 of them typed fields. That is the intake coordinator NAVORA wants to remove. Covered by REF2 (draft, D-9, D-3) and the intake hypothesis rows of the challenge table; no new row. The baseline gives those rows a measured starting point.
+- **Next:** #1069 (BD-2) merges next when its head is still `1baafa3`, CI green and `clean` against `recovery/main`; the `cra` advisory (stale header comment, spec 40-43) is not a merge stop and goes into the steps 3-4/ASM1 change.
+
+### Amendment 2026-11-11 21:39 CET (po: BD-2 merged; `cra` 21:27 CGR-185; `uxa` UXR-163 placed; product authority, no rule added)
+
+- **BD-2 merged:** #1069 (head `2c5149a`, merge `dcf7231`). Seven conditions held: `ci` 43075612468 4/4 green; `clean`; `cra-gate: #1069 2c5149a clear` (21:27, #1094); 0 review threads; test-only diff. Merge record comment on the PR. The 19:39 attempt on the same head had been refused by that run's session permission layer, not by a condition.
+  - The merge-commit CI (`ci` 43097499942) was still queued at publishing; the FE-054 post-merge check falls to the next run. A red result means a revert PR from `eng` first.
+  - **BD is not accepted by this merge.** Open before acceptance:
+    - steps 3-4 and ASM1 in the run (CGR-175; the stale header comment, spec 40-43, goes with that change);
+    - steps 6-7 (B6, PLANNED, «nicht nachgewiesen»);
+    - BD-4 negatives;
+    - BD-5 10/10 in `ci-repeat` on a merge commit.
+- **Evidence table (BD-2 slice, proven steps; the PO did not run the tests):**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BD-2 one continuous e2e on synthetic accounts | met for the proven steps (1, 1b, 2 at planning and start, 5, 8, 9); steps 3-4 by hand planning, 6-7 not in the run | `tests/e2e/durchgang-ambulant.spec.ts` on `2c5149a`; e2e job 130714504213 `success` |
+| BD-2 stored facts asserted per hand-over (two visits, two `final` reports, four corrections with originals, two facts `billable` with empty reasons) | met | spec (supabase-js as the nurse, RLS); `cra` 17:27 and 21:27 |
+| BD-2 (amended 02:39): QUAL1 shown again at visit start; empty reason list at step 9 | met | spec; `cra-gate` 1baafa3 / 2c5149a |
+| BD-2 (amended 02:39): ORD0 order before the visit date for B minutes | not applicable in this slice (category-A care visit); open for the full run | spec, care-plan item C |
+| CGR-180 (1) corrections form a possible sequence | met; closes with this merge (`cra` 21:27) | unit «CGR-180 (1)» in `tests/unit/bd2-durchgang-time.test.ts`; spec 342-348 |
+| BD-3 no faked step (`page.goto` only `/login`, G-1 to G-3, G-6) | met for the slice | spec; `uxa` 19:53 (no `src` diff) |
+| Negative: org A nurse reads no row of the run | met | spec negative block |
+| CI on the PR head | green | `ci` 43075612468, 4/4 |
+| CI on the merge commit | pending | `ci` 43097499942 queued at 21:39 |
+
+- **Next BD Engineering merge: #1093** (BD-4 stop cases, pgTAP 127, head `21a5c5b`, `cra-gate: #1093 21a5c5b clear`). It merges once all four checks are green on its head (`app`, `db`, `e2e` were still running at 21:39) and it is `clean` against `recovery/main`. **CGR-185 (advisory, not a merge stop):** the two QUAL1 stop cases of S3 assert set membership (`rn_required` or `42501 qualification_not_allowed`) instead of `isnt(…, 'ok')`. This comes with the next BD-4 change, and BD acceptance needs it. CGR-175's remaining negatives (`b_without_valid_order` at the fact, «report not final gives no fact», start refused at the door after an evidence lapse) are either added to the BD case shape, or the BD acceptance text names the file where each is proven.
+- **UXR-163 (`uxa`, UX1-C2 still unmet; five code-bearing strings on `/field`):**
+  - **Decision:** UX1-C2 stays what it is: a condition of the accepted UX1, due before UX2 is delivered and before the first real user. It is not a new item and not a BD criterion, since G-6 covers only the texts the run passes.
+  - **Placement under FE-054:** where a BD-4 negative step shows one of these strings (the cover refusal D-3, the lifecycle notices D-31/D-19, the quality notice D-16), G-4/G-6 apply, and the string is fixed in that BD PR as a gap with its own unit test. The rest of UX1-C2 goes with the first block that changes `/field` (B6).
+  - The widened scan of `src/features/**` (`uxa` remedy) is its acceptance test; #508 stays open.
+
+### Amendment 2026-11-12 01:39 CET (po: BD-4 part 1 merged; `cra` 01:31 gate lines, CGR-187, CGR-188; product authority, no rule added, BD-6 holds)
+
+- **BD-4 part 1 merged: #1093** (head `cc99cc4`, merge `836246f`). Seven conditions held: CI 4/4 `success` on `cc99cc4`; `clean`; `cra-gate: #1093 cc99cc4 clear` (01:31, #1094); 0 reviews and threads; test-only diff (pgTAP 127). FE-054 check for the previous BD merge (#1069) met under FE-061 (PO 00:39: `1bb09cb`, `ci` 43115909170 4/4, `ci-repeat` 43117732753 20/20). Merge record comment on the PR.
+  - Merge-commit CI on `836246f`: `ci` 43129095864 running at publishing; the FE-054 check falls to the next run. Red means a revert PR from `eng` first.
+- **Next BD Engineering merge: #1096** (BD-4 part 2, pgTAP 128, head `83a9fcb`, `cra-gate: #1096 83a9fcb clear`, R3 meets the CGR-175 door item). It merges once `836246f` CI is green, its head is unchanged with 4/4 green and it is `clean`.
+- **CGR-185** (QUAL1 stop cases assert set membership): still open, a BD acceptance condition (21:39); comes with the next BD-4 change.
+- **CGR-187 placed outside BD:** as ORD0-C3 in block B7 (`briefs/ORD0.md`, note 01:39): a visit flag, signal only. **Not a BD acceptance condition:** BD-3 asks that gaps are visible, and pgTAP 128 R2 plus the fact's `b_without_valid_order` make this one visible and tested. `eng` is asked to list it as a gap in `DURCHGANG_INVENTORY.md` §2 with the #1096 status update.
+- **CGR-188:** the J5 21:39 non-author wording is struck and replaced (`briefs/J5.md`, amendment 01:39); condition for the B8 PR head, not for BD.
+
+### Amendment 2026-11-12 02:39 CET (po: BD-4 part 2 merged; product authority, no rule added, BD-6 holds)
+
+- **FE-054 check for #1093 met:** merge commit `836246f`, `ci` 43129095864 `success` (all jobs).
+- **BD-4 part 2 merged: #1096** (head `83a9fcb`, merge `c9c83e8`). Seven conditions held: `ci` 43110434180 4/4 `success`; `clean`; `cra-gate: #1096 83a9fcb clear` (01:31); 0 reviews and threads; test-only diff (pgTAP 128 plus the `eng` journal). Merge record comment on the PR.
+  - Merge-commit CI on `c9c83e8`: running at publishing; the FE-054 check falls to the next run. Red means a revert PR from `eng` first.
+- **CGR-175 negatives, where each is proven now (the PO did not run the tests):**
+
+| CGR-175 item | Result | Evidence |
+|---|---|---|
+| report not final gives no fact | met on the BD case shape | pgTAP 128 R1 (also after a second build) |
+| `b_without_valid_order` at the fact | met on the BD case shape | pgTAP 128 R2 (`billable` false, reason and `order_basis` both `b_without_valid_order`) |
+| start refused at the door after an evidence lapse | met (contradictory evidence; pure expiry cannot occur today) | pgTAP 128 R3 `42501 qualification_lapsed`, nothing started, no start event; `cra` 01:31 «R3 meets CGR-175's door item» |
+| the QUAL1 stop cases of S3 | met as refusal, set membership open | pgTAP 127 S3 (#1093); CGR-185 on #1104 |
+| other team / org reads nothing; `anon` cannot build | met | pgTAP 128 N; pgTAP 127 |
+
+- **Next BD Engineering merge: #1104** (CGR-185 + CGR-187 inventory row, head `3ef831e`, `ci` 43133769873 4/4 green). It merges once `c9c83e8` CI is green, a `cra-gate` line names its head (it changes pgTAP 127 S3 assertions), it is `clean`, and no other Engineering PR has taken the run's slot.
+- **Still open before BD acceptance:** CGR-185 (#1104); steps 3-4 with ASM1 in the run (CGR-175; stale spec header 40-43 goes with it); steps 6-7 «nicht nachgewiesen» (B6); BD-5 10/10 in `ci-repeat` on a merge commit; the BD row of `IMPLEMENTATION_STATUS.md` naming #1093 and #1096 (`eng`).
+
+### Amendment 2026-11-12 06:39 CET (po: #1104 merge-commit CI green, CGR-185 met; #1109 merge refused by the session's permission check; product authority, no rule added, BD-6 holds)
+
+- **#1104 after the merge (section 5; the PO did not run the tests):** CI on the merge commit `d938535` `ci` 43156437896 `success` (`app`, `db`, `e2e`, `ui-screenshots`); the newer `recovery/main` head `4b604b9` `ci` 43157919459 `success`. No revert needed (FE-054).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CGR-185: the QUAL1 stop cases of pgTAP 127 S3 assert the two refusal codes (set membership), not `isnt(…, 'ok')` | met | #1104 head `8b22b96`, `cra-gate: #1104 8b22b96 clear` (05:29); merge `d938535` CI green |
+| CGR-187: inventory row in `DURCHGANG_INVENTORY.md` | met | #1104 diff; merge `d938535` |
+
+  CGR-185 is closed for BD. BD is **not** accepted: one item done, not the block.
+- **#1109 (BD-2 steps 1b ASM1 and 3-4 PLAN3/AIG1), head `b15aa72`:** all seven conditions hold (merge record comment 6815713740: 4/4 `success`, `clean`, `cra-gate: #1109 b15aa72 clear`, no `lca` stop, 0 reviews and threads, test and docs only, FE-054 precondition met on `4b604b9`). This run's session permission check refused the merge call («Merge Without Review»). The PO did not try another route. #1109 merges in the next PO run that is allowed to merge, if its head is unchanged and still 4/4 green and `clean`.
+- **Still open before BD acceptance:** #1109 (steps 1b, 3-4; CGR-175 (iv) remains: the BD acceptance text names where each negative is proven); steps 6-7 «nicht nachgewiesen» (B6); BD-5 10/10 in `ci-repeat` on a merge commit; the BD row of `IMPLEMENTATION_STATUS.md` (`eng`).
+
+### Amendment 2026-11-12 08:39 CET (po: #1109 merge-commit CI green; BD-5 evidence; #1113 merged; acceptance text drafted per CGR-175 (iv); gate requests; product authority, no rule added, BD-6 holds)
+
+- **#1109 after the merge (section 5; the PO did not run the tests):** merge commit `00432e9` `ci` 43169860969 `success` (`app`, `db`, `e2e`, `ui-screenshots`); `recovery/main` head `742f694` `ci` 43171051594 `success`. No revert needed (FE-054).
+- **#1113 merged** (BD status row, `eng`, head `5526d57`, merge `57ec7c7`; merge record 6817751245). The row still calls #1109 «in review»; `eng` updates it with its next status PR (with BD-5 below).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BD-2 (amended 02:39) step 1b through the assessment **visit**, then ASM1 and the care-plan item | met | #1109 head `b15aa72`, `cra-gate: #1109 b15aa72 clear` (CGR-175 (i)); spec steps «1b …», stored-fact asserts on `assessment_records`, `care_plan_items.assessment_id`; merge `00432e9` CI green |
+| BD-2 steps 3-4: PLAN3 day proposal, confirmed per value by the team (AIG1) | met | spec steps «3 …», «4 …»; `day_plan` asserted: one line, `confirmed`, member = visit's responsible member |
+| BD-2 steps 5, 8, 9 at 390 px, F3 option (A), report signed, billable fact | met (since #1069, unchanged) | spec `runVisit`, step «9 Abrechnungsfakten erzeugen», stored-fact asserts (reports `final`, corrections with reason) |
+| BD-5: green on PR head, merge commit, 10/10 in `ci-repeat` on a merge commit | met | PR head `ci` 43150837874; merge `00432e9` `ci` 43169860969; **`ci-repeat` 43173645422 on `742f694` (contains #1109): 20/20 jobs `success`** (`db repeat 1-10`, `e2e repeat 1-10`), checked by the PO through the jobs API; `eng` 08:35 (#1116) read «163 passed» in `e2e repeat 9` |
+| BD row of `IMPLEMENTATION_STATUS.md` naming #1093, #1096 (`eng`) | met | #1113 merged `57ec7c7` |
+| CGR-175 (iv) acceptance text | drafted below; `cra` to confirm | this amendment |
+| `uxa` gate G-1 to G-6 over the **whole** run | open | so far checked for hand-over J2 only (`UX_REVIEW.md` 2026-11-11 07:52) |
+| `lca` gate on step 9 (billable fact) and the negative case's data visibility (brief *Gates*) | open | never requested on a BD PR; requested now |
+
+- **Acceptance text (draft, for the BD acceptance; German as it will stand):**
+  > BD weist den **Softwarepfad** nach: In einem durchgehenden automatischen Lauf (Testorganisation S, synthetisch, Region Basel-Stadt) wird eine Anfrage zu einem geplanten, durchgeführten, dokumentierten und abrechenbaren Einsatz; das Team entscheidet an jeder Stelle, kein Schritt wird über eine direkte Adresse erreicht. **BD ist keine klinische Freigabe des Ablaufs** (CGR-145, CGR-146). Der Lauf weist den QUAL1-**Mechanismus** mit den VORGESCHLAGENEN Zellen v0.2 nach, nicht die Zellen; eine Organisation ohne Simulationskennzeichen prüft weiter nach CR-007/CR-164 (CGR-177 (d)). Der abrechenbare Hauptpfad nutzt eine Zeitkorrektur (F3) mit dem Grund ‹Testlauf: simulierte Einsatzdauer›.
+  > **Wo jeder Negativfall nachgewiesen ist:** Pflegeeinsatz vor abgeschlossenem Abklärungsbesuch → `assessment_first` (pgTAP 127 S1); B-Minuten ohne gültige Verordnung → `b_without_valid_order` am Fakt (pgTAP 128 R2); Bericht nicht final → kein Fakt (pgTAP 128 R1); Start an der Tür nach nicht mehr verifiziertem Nachweis verweigert (pgTAP 128 R3, `qualification_lapsed`); QUAL1-Stoppfälle der Zuteilung (pgTAP 127 S3, CGR-185); fremdes Team, fremde Organisation, `anon` lesen und handeln nicht (pgTAP 127, 128 N; e2e-Negativschritt mit einer Pflegeperson der Testorganisation A).
+  > **Nicht nachgewiesen, nicht Teil der Abnahme:** Schritt 6 (Diktat) und Schritt 7 (KI-Dokumentationsentwurf), GEPLANT in B6; Stoppfälle (a) Start wegen Qualifikation verweigert, (b) Nachweis läuft beim Fortsetzen ab, (e) Pflegeheim: Bewohnerin ohne Zuständige; ihr erwartetes Verhalten ist UNKNOWN bis zur Regel des Clinical Owners (CGR-154, CGR-155, CGR-159). Bekannte Lücke ohne Signal: eine nach der Planung zurückgesetzte KLV-B-Verordnung zeigt sich erst am Abrechnungsfakt (CGR-187; ORD0-C3 (a'), B7).
+- **Requested (one line each in the role's next run; nothing else blocks BD):**
+  - `cra`: confirm that the text above meets CGR-175 (iv) (or name the sentence to change).
+  - `uxa`: G-1 to G-6 for the whole run of `tests/e2e/durchgang-ambulant.spec.ts` on `742f694` (spec and CI screenshots; G-2 partly met at J2 is the known case).
+  - `lca`: `lca-gate` on step 9 (the billable fact and what the team sees in «Abrechnungsvorschau») and on the negative step (what a nurse of another organisation can read), on `742f694`.
+- **Not BD (AUT-99, `aia` 08:23, low):** the act counter gets a marker before the care-plan item and a scope column (once / per day / per visit). Placed with B6/B7 together with the 06:39 challenge row; it does not change BD's behaviour or acceptance.
+- **BD is not accepted** in this run: three gate lines are open. When all three are in and the `recovery/main` head CI stays green, the PO accepts BD with the text above and activates BD-H (part 2) per *Users and journey step*.
+
+### Amendment 2026-11-12 09:39 CET (po: #1116 merged; `cra` 09:26 T-1 and T-2 taken into the acceptance text; product authority, no rule added, BD-6 holds)
+
+- **#1116 merged** (`eng` journal 08:35, BD-5 evidence, docs only; head `2491117`, merge `86b633d`, title `PO merge #1116: BD-5 evidence journal (head 2491117)`; record 6818913911). FE-054 precondition before the merge: merge-commit `ci` on `57ec7c7` (#1113) 43177079964 `success` and on `53972dd` (#1118) 43178033425 `success`. The PO did not run the tests.
+- **`cra` 09:26 (#1120, merged `986d62a`):** the 08:39 draft meets CGR-175 (iv) and CGR-177 (d) once two sentences change. Both changes are taken in **verbatim** below (T-1 new sentence, T-2 replaces the stop case (a) wording). `cra` states no new `cra` run is needed for the text. **The `cra` side of BD acceptance is therefore met** with this text.
+- **BD acceptance text, version 2 (replaces the 08:39 draft; used verbatim at acceptance):**
+  > BD weist den **Softwarepfad** nach: In einem durchgehenden automatischen Lauf (Testorganisation S, synthetisch, Region Basel-Stadt) wird eine Anfrage zu einem geplanten, durchgeführten, dokumentierten und abrechenbaren Einsatz; das Team entscheidet an jeder Stelle, kein Schritt wird über eine direkte Adresse erreicht. **BD ist keine klinische Freigabe des Ablaufs** (CGR-145, CGR-146). Der Lauf weist den QUAL1-**Mechanismus** mit den VORGESCHLAGENEN Zellen v0.2 nach, nicht die Zellen; eine Organisation ohne Simulationskennzeichen prüft weiter nach CR-007/CR-164 (CGR-177 (d)). Der abrechenbare Hauptpfad nutzt eine Zeitkorrektur (F3) mit dem Grund ‹Testlauf: simulierte Einsatzdauer›. Der abrechenbare Fakt im Lauf enthält nur A- und C-Minuten; ein abrechenbarer B-Einsatz mit gültiger Verordnung ist nicht Teil des Laufs. Der Fakt weist den Mechanismus nach (signierter Bericht → Fakt ohne Grund), nicht einen Tarif, eine KLV-Einstufung oder eine Zahlerregel (FE-060); alle Werte sind synthetisch.
+  > **Wo jeder Negativfall nachgewiesen ist:** Pflegeeinsatz vor abgeschlossenem Abklärungsbesuch → `assessment_first` (pgTAP 127 S1); B-Minuten ohne gültige Verordnung → `b_without_valid_order` am Fakt (pgTAP 128 R2); Bericht nicht final → kein Fakt (pgTAP 128 R1); Start an der Tür nach nicht mehr verifiziertem Nachweis verweigert (pgTAP 128 R3, `qualification_lapsed`); QUAL1-Stoppfälle der Zuteilung (pgTAP 127 S3, CGR-185); fremdes Team, fremde Organisation, `anon` lesen und handeln nicht (pgTAP 127, 128 N; e2e-Negativschritt mit einer Pflegeperson der Testorganisation A).
+  > **Nicht nachgewiesen, nicht Teil der Abnahme:** Schritt 6 (Diktat) und Schritt 7 (KI-Dokumentationsentwurf), GEPLANT in B6; Stoppfälle (a) was nach einem an der Tür verweigerten Start geschieht (der Besuch bleibt zugeteilt, niemand wird gewarnt), (b) Nachweis läuft beim Fortsetzen ab, (e) Pflegeheim: Bewohnerin ohne Zuständige; ihr erwartetes Verhalten ist UNKNOWN bis zur Regel des Clinical Owners (CGR-154, CGR-155, CGR-159). Bekannte Lücke ohne Signal: eine nach der Planung zurückgesetzte KLV-B-Verordnung zeigt sich erst am Abrechnungsfakt (CGR-187; ORD0-C3 (a'), B7).
+- **Not a condition, not taken in:** «UNVALIDATED» (D-43) next to «VORGESCHLAGENEN Zellen v0.2» (`cra` says the meaning is already there).
+- **Open gate lines (two of three):** `uxa` G-1 to G-6 over the whole run on `742f694` (or a later `recovery/main` head with the same spec), `lca` `lca-gate` on step 9 and the negative step. Requested at 08:39; neither role has published since. The `cra` line is met.
+- **BD is not accepted** in this run. When both lines are in and the `recovery/main` head CI is green, the PO accepts BD with version 2 above.
+
+### Amendment 2026-11-12 11:39 CET (po: #1122 merged; `lca` #1124 merged, `lca` gate clear; BD-7 added from L-1 and L-2; L-3 to B8; product authority, no rule added, BD-6 holds)
+
+- **#1122 merged** (`eng` journal 10:13, readers of `no_show`, docs only; head `1aa20cd`, merge `526ec78`, title `PO merge #1122: eng journal 10:13, no_show readers (head 1aa20cd)`; record 6821369848). FE-054 precondition: `ci` on `871cd01` (43193592614) and `0a9b66b` (43194414261) `success`. The PO did not run the tests.
+- **`lca` 11:20 (#1124, merged `64859c7`): `lca-gate: BD 742f694 clear`** (also valid for `0a9b66b`; `tests src supabase` unchanged since `742f694`). Advisory, not a legal determination. Step 9: fact from a `final` report, A and C minutes only, labelled as estimate; seeded rates `validated = false` (0043, CGR-08); D-18 / D-11 tariff questions not judged and stay in their packages. Negative step: e2e plus pgTAP 127 N and 128 N cover every record with health or identity content. **The `lca` side of BD acceptance is met.**
+- **BD-7 (new acceptance condition, PO decision; from `lca` L-1 and L-2):** `lca` calls both optional. The PO makes them conditions because BD is still open for the `uxa` line, both are test-only and size S, and both protect statements the acceptance text makes (data visibility; «nicht einen Tarif … nachweist», FE-060). Data protection comes before speed.
+  - **BD-7 (a) (L-1):** in the e2e negative step, the nurse of Testorganisation A sees (i) no Testteam Basel row in `billing_preview`, (ii) no offer of the run in `team_offers()`, (iii) no row of the run in `partner_requests` and `matching_requests`. One assertion each, under RLS, as the existing negative assertions.
+  - **BD-7 (b) (L-2):** step 9 asserts the «nicht validiert» line (`reference-not-validated`) while no tariff rate is `validated`. If a later seed validates a rate without a D-11 / D-18 decision, BD turns red.
+  - One test-only PR by `eng`, `cra` gate line not needed (no clinical behaviour), `lca` reads it in its next run (one line, not a merge stop unless it names a gap). No `src` or migration change; if an assertion fails, it is a finding for the PO, not fixed in the test.
+- **L-3 (Phase B, data minimisation) → B8:** the «nicht abrechenbare Einsätze» list shows the client's full name to coordinators of the whole organisation. Not BD (the list is empty in the run). Product direction for B8 (PROPOSED, PO, challenge row 11:39): outside the team only date, reason and case reference. Decided in the B8 brief before Phase B data.
+- **Open for BD acceptance:** `uxa` G-1 to G-6 over the whole run (requested 08:39, no `uxa` run since); BD-7. The `cra` and `lca` lines are met. When both are in and CI on the `recovery/main` head is green, the PO accepts BD with acceptance text version 2 (09:39), plus one sentence for BD-7 (b): «Schritt 9 prüft, dass die Referenztarife als ‹nicht validiert› angezeigt werden.»
+- **BD is not accepted** in this run.
+
+### Amendment 2026-11-12 12:39 CET (po: `uxa` gate line received; #1127 ready, merge refused by the session; findings placed; product authority, no rule added, BD-6 holds)
+
+- **`uxa` 11:51 (#1126, 4/4 green, not yet merged): G-1 to G-6 over the whole BD run met** on `742f694` (= `4891ac3` for `src` and `tests`), read from spec, screen code and CI (`ci` 43171051594, `ci-repeat` 43173645422 20/20); no screenshots (artifact download refused by the `uxa` session proxy). **PO decision:** BD-7 (#1127) adds API reads and one assertion on the step 9 preview only (`getByTestId("reference-not-validated")` inside the existing preview); it adds no act, no `goto`, no `reload` and no screen. The `uxa` verdict therefore holds for `dd93afd`; no new `uxa` run is needed. **The `uxa` side of BD acceptance is met.**
+- **#1127 (BD-7 (a)(i)-(iii), (b)), head `dd93afd`:** all seven conditions hold: `ci` 43209977795 `app`, `db`, `e2e`, `ui-screenshots` `success`; `clean`; `lca-gate: #1127 7261bfa clear` (12:24); `git diff 7261bfa dd93afd` changes only the expected offer title to «Teamsuche: <title>», the title `private.open_matching_if_ready` stores (0017:347, 0034:193); 0 reviews and threads; test only. FE-054 precondition: `ci` 43203406370 on `4891ac3` `success`. **The merge call was refused by this run's session permission layer** («Merge Without Review»); the PO tried no other route. #1127 merges first in the next PO run if its head is still `dd93afd`, 4/4 green and `clean`.
+- **Deviation decided:** `dd93afd` corrected an expected value after a failing positive read (CI 43208342152). This is a test defect (wrong title expected), not product behaviour: the stored title follows 0034 and the negative filters became stricter, none was removed. It does not breach «a failing assertion is a finding, not a test fix» (amendment 11:39).
+- **`lca` L-4 (note, low):** (a)(iii) has no positive read as a coordinator of Testorganisation S. **→ B8** next to L-3 (pgTAP or e2e line as a reader who does see the rows). Not a BD condition: pgTAP 127 N and 128 N plus the RLS policy `coordinators_read` (0015) cover the rule; the BD sentence on data visibility is about the other organisation's nurse.
+- **`uxa` findings placed (none blocks BD, BD-6):** UXR-165 (`/intake` no status after «Fall eröffnen») → the intake block after BD, together with the new challenge row 12:39 in `NEXT_CAPABILITY.md`; UXR-166 (no `/field` cue after the assessment visit) → B6 or B7, `cra` confirms whether it may be a to-do; UXR-167 (reason 12 px, not linked) → the next PR on the plan form (B2 or B5); UXR-168 (reload at spec `:166`; G-6 not on open forms) → the first test PR after BD acceptance (not BD: #1127 is ready and is not reopened for an XS item). NA-1 to NA-5 → B4 row, M-1 to M-4 → B6/B7 pre-fill row, both once `cra` confirms.
+- **Open for BD acceptance:** only #1127 merged with green CI on its merge commit. Then the PO accepts BD with acceptance text version 2 (09:39) plus «Schritt 9 prüft, dass die Referenztarife als ‹nicht validiert› angezeigt werden.» and activates B1.
+- **BD is not accepted** in this run. The PO did not run the tests.
+
+### Amendment 2026-11-12 14:39 CET (po: #1127 merged; role PRs merged; **BD accepted for the simulation with synthetic data**, effective with the named-commit repeat run (FE-070); BD-H placed in B9; B1 approved as draft only (FE-070 (9)); product authority, no rule added, BD-6 holds)
+
+- **#1127 merged** (BD-7, test only), head `dd93afd`, merge `00b4700`, title `PO merge #1127: BD-7 e2e negative reads (head dd93afd)`, merge record comment 6825214544 (seven conditions rechecked on the head: `ci` 43209977795 4/4 `success`; `clean` against `4891ac3`; two files, no `src`, `supabase`, `.github`; `cra-gate: #1127 dd93afd clear` (#1130); `lca-gate: #1127 7261bfa clear` (#1128); 0 reviews and threads; FE-054 precondition CI on `4891ac3` green). The session permission layer let the call through this run.
+- **Merge commit CI (section 5):** `00b4700` push run `ci` 43229659680 `success` (`app` 131221269809, `db` 131221269334, `e2e` 131221268830, `ui-screenshots` 131221269245). No revert needed (FE-054). The PO did not run the tests.
+- **Role PRs merged after it:** `uxa` #1126 (`1503a85`), `lca` #1128 (`e099350`), `cra` #1130 (`353a9f7`), `aia` #1132 (`4a543c0`), each 4/4 green on its head, own files only.
+
+**Evidence table for the BD acceptance (criterion | result | evidence; the PO did not run the tests):**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BD-1 inventory | met | #1057 merged 2026-11-11 05:39, `docs/engineering/DURCHGANG_INVENTORY.md` |
+| Tests executed on the merge commit `00b4700` (GitHub Actions, FE-056; the PO ran none itself) | met | `ci` 43229659680: `app` 110 test files / 1203 unit tests passed; `db` 128 pgTAP files / 4646 tests «All tests successful»; `e2e` «163 passed»; read from the job logs, not only the status |
+| BD-2 one continuous e2e test, steps 1-9 ambulant, stored facts at each hand-over | met (steps 6 and 7 «nicht nachgewiesen», B6, as the acceptance text says) | #1069, #1109; amendment 08:39 table; spec `tests/e2e/durchgang-ambulant.spec.ts` on `00b4700` |
+| BD-3 nothing faked | met | `uxa` G-1 to G-6 over the whole run (#1126, 11:51): every step reached from the previous screen; F3 option (A) named in the acceptance text |
+| BD-4 stop cases | met for every IMPLEMENTED stop case; PLANNED ones listed «nicht nachgewiesen» | pgTAP 127, 128 (#1093, #1096); acceptance text version 2 lists file per negative |
+| BD-5 repeatable | met on `742f694` (`ci-repeat` 43173645422, 20/20); **named integrated commit for the acceptance: `4a543c0`** (contains BD-7 and only docs after it): `ci-repeat` 43231715012 (10 × `db`, 10 × `e2e`) | **the acceptance takes effect only when 43231715012 is 20/20 `success`** (FE-070 (6): tests run and reproducibly green on a named integrated commit); red or cancelled: BD stays not accepted, failing job named |
+| BD-6 no new rule | met | no rule, threshold or gate added by any BD PR (`cra` 09:26, `lca` 11:20) |
+| BD-7 (a)(i)-(iii), (b) | met | #1127 merged `00b4700`, CI 43229659680 green; `lca-gate: #1127 7261bfa clear`, `cra-gate: #1127 dd93afd clear` |
+| Negative: other team, other organisation, `anon` | met | pgTAP 127 N, 128 N; e2e negative step with the Testorganisation A nurse, widened by BD-7 |
+| Gate `cra` | met | acceptance text version 2 (09:26, #1120); `cra-gate` on #1127 |
+| Gate `lca` | met | `lca-gate: BD 742f694 clear` (11:20, #1124); `lca-gate: #1127 7261bfa clear` (12:24) |
+| Gate `uxa` | met | #1126 11:51; holds for `dd93afd` (amendment 12:39) |
+
+- **Decision: BD is accepted for the simulation with synthetic data (gate «Simulation»), not for real persons or data (gate «real», not given)** (2026-11-12 14:39, `po`; effective with `ci-repeat` 43231715012 20/20 on `4a543c0`, FE-070), with acceptance text version 2 (09:39) verbatim plus the BD-7 sentence: «Schritt 9 prüft, dass die Referenztarife als ‹nicht validiert› angezeigt werden.» BD proves the software path on synthetic data; it is **no clinical release, no tariff proof and no release for real data**.
+- **Named-commit evidence (15:10):** `ci-repeat` 43231715012 on `4a543c0`: **20/20 jobs `success`** (10 × `db`, 10 × `e2e`), read through the jobs API. **The BD acceptance for the simulation is effective.**
+- **Deviation decided: BD-H (nursing-home column) is not opened as part 2 of BD; it becomes an acceptance condition of B9.** *Users and journey step* (10.11.) and amendment 08:39 said the PO opens BD-H once BD is accepted; amendment 12:39 said «activates B1». Reason: the nursing-home steps (NH-A1 to NH-A5) are B9 and not built (`PRODUCT_BLOCKS.md` B9: «nur Brief NH-A1»), so a BD-H run now would be an inventory of missing parts and would hold the one active block (FE-054) on work that cannot turn green. FE-054 orders B1 to B10 after BD; under the same rule each block is accepted only when its step is green in this flow, so B9 is accepted only when the nursing-home column (BD-H) runs green end to end. Product authority (README rule 11); no founder decision changed; recorded in the journal.
+- **Next block: not yet active.** The founder message of 2026-11-12 (FE-070, received during this run) requires the PO to present eight deliverables before B1 is «Ready» or the next feature block is implemented, and B1 to be cut into sequential sub-blocks. Brief [`B1.md`](B1.md) therefore stays a **draft**; the proposed first sub-block is in `docs/product/FE-070_LIEFERUNG_1.md`. ~~Next active block: B1 (approved 14:39), first PR B1-1 (Δ11).~~
 
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
