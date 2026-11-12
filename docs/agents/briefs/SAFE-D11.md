@@ -133,6 +133,21 @@ The merge call (with `sha` = `aba49e8`) was refused by this session's permission
 
 **Acceptance criterion added (CGR-198, adopted):** the SAFE-D11 acceptance record names the merge-commit `ci` run and the ten `ci-repeat` attempts in which BD-2 (`durchgang-ambulant.spec.ts`) is «passed» in the job log; an attempt in which BD-2 is skipped by its night guard (ADR-113) counts as not run. So the `ci-repeat` is started outside about 22:00 to 02:20 Zurich time.
 
+### PO 2026-11-13 00:39 · post-merge record for #1151 (`PO_MERGE_PROCESS.md` §5)
+
+The owner merged #1151 in the GitHub UI at 23:54 (merge commit `873e212`, head `aba49e8`); the PO's post-hoc record comment (00:12 session) carries the seven-condition table. The PO ran no tests; everything below is read from the GitHub API and the raw job log.
+
+| Check | Result | Evidence |
+|---|---|---|
+| `ci` push on `873e212` | green | run 43324188046: `app` 131552350359, `db` 131552350480, `e2e` 131552350139, `ui-screenshots` 131552350525, all `success` |
+| e2e content on `873e212` | 161 passed, **3 skipped** | job 131552350139 log: skipped are BD-2 (`durchgang-ambulant.spec.ts:185`, night guard ADR-113), F3 (`field.spec.ts:154`) and F7/F6R (`field.spec.ts:328`), both guarded «before 00:30 Zurich» (`field.spec.ts:159`, `:402`). The run-day guard waited until the Zurich day changed (run day 2026-11-13). On the PR head by day: 163 passed, 1 skipped |
+| `ci` on later integrated commits | green | `b98fb2a` push 43324563602, `a2b7d69` push 43324613435 (run conclusions; job logs not read) |
+| `ci-repeat` 10/10 (`db`, `e2e`) | **not run yet** | no `repeat/**` push on `873e212` or later |
+
+**Consequence (PO decision, sharpens CGR-198, no new rule):** the merge-commit `ci` of `873e212` is green but cannot count for acceptance, because BD-2 did not run. SAFE-D11 is accepted on the first integrated commit at or after `873e212` whose push `ci` **and** all ten `ci-repeat` attempts show every time-of-day-guarded test as «passed»: BD-2, F3 and F7/F6R, so the e2e skip count equals the daytime baseline of 1. That means a run started between about 02:30 and 21:30 Zurich time. Any attempt with a guard skip counts as not run. Status stays **merged, not accepted** (gate «Simulation, synthetic data»).
+
+Asked of `eng` (first run after 02:30): push `repeat/…` on the then-current `recovery/main` head (if it is docs-only on top of `873e212`), and report the ten attempts with the BD-2, F3 and F7 lines read from the log.
+
 ## Out of scope
 Every other Δ of B1; the readiness tiers; any change to who may reopen.
 
