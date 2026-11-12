@@ -1,6 +1,6 @@
 # Legal adviser question catalogue (FE-050)
 
-**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 5, 2026-11-11 16:25 (Europe/Zurich).
+**Owner:** Legal & Compliance Agent (`lca`) (location named by `po` on #997, 2026-11-10 05:39) · **Mandate:** FE-050 (owner, 2026-11-07): one bundled adviser mandate; quotes by December 2026, mandate in January 2027, answers before M9 (2027-03-12). Agents contact no law firm or authority; **the owner sends** the prepared requests. · **Version:** 6, 2026-11-12 04:29 (Europe/Zurich).
 
 **Wording:** rows are copied from the signed sections; rows marked *condensed* or *adapted* say so.
 
@@ -29,6 +29,7 @@
 | D-22/8 | For a nursing home in BS or BL: in what form must the doctor confirm a resident's care level, for how long is it valid, and may a level be billed from a date before the doctor's confirmation? Which instrument (RAI-NH, BESA, other) does each canton currently require, and which payer contract governs it? | K, P, A | nursing-home billing (NH briefs) | [D-22](D-22.md) |
 | D-22/9 | Under KLV Art. 8 and the partner's administrative contracts (current versions), may a doctor give an order for KLV Art. 7 Abs. 2 lit. b services orally or by telephone, followed by a signed order? If so, from which date does it count for billing given "Rückwirkende Verordnungen sind nicht zulässig", and within what time must the signed order follow? Does BS or BL health law set a form for oral orders? | A | R3 (oral orders) | [D-22](D-22.md) |
 | D-22/10 | After a doctor renews or extends an order (KLV Art. 8a Abs. 7), or after the nine-month limit for order-free care (Art. 8a Abs. 8) has passed, are services given before the new needs assessment is closed billable to OKP once it is closed? Does the 14-day completion window of the administrative contracts (HSK 2025 Art. 7.1 Abs. 6) apply to these reassessments, and do the tarifsuisse and CSS 2025 contracts add a periodic reassessment independent of renewal? | P, A | releasing a billing hold (CGR-163 (3)) | [D-22](D-22.md) |
+| D-22/11 | Under GesBG Art. 16, the Heilmittelgesetz and the health law of Basel-Stadt (SG 300.100) and Basel-Landschaft (SGS 901): may a registered nurse in a licensed home-care organisation or nursing home carry out a treatment measure (KLV Art. 7 Abs. 2 lit. b) that a doctor ordered, after the order's status has been withdrawn or has lapsed but before the doctor has confirmed or ended it? Does the answer differ for prescription-only medicines? What must she document, and must the organisation prevent the act by organisational means (for example a system block)? *(CGR-187.)* | A, K | start rule for lit. b on real data (ORD0-C3, D-28) | [D-22](D-22.md) |
 | D-18/1 | KLV Art. 7a Abs. 2: how are measured minutes converted into 5-minute units (rounding direction, per visit/day/category), and does "Zu vergüten sind mindestens 10 Minuten" mean a visit under 10 minutes is paid as 10 minutes, or that it is not paid? | P, A | any invoice | [D-18](D-18.md) |
 | D-18/2 | Is any documentation or coordination time billable as KLV Art. 7 Abs. 2 lit. a, and does the pilot canton pay travel through residual financing? | P, K | any invoice | [D-18](D-18.md) |
 | D-18/3 | For a home-care client, are the residual-financing rules those of the provider's location canton while the residence canton pays (KVG Art. 25a Abs. 5)? When the recorded residence is corrected after a visit, which residence governs that visit? | A, K | residual-financing invoice | [D-18](D-18.md) |
@@ -83,11 +84,11 @@
 
 ## E. Grouping for the quote request (proposal for the owner)
 
-- **Block 1, health and social-insurance law (KVG/KLV, payer contracts, BS/BL financing):** D-22/1-10, D-18/1-6, 9-13, Q-44b. Many rows are route P: ask the partner's billing staff first; the adviser then answers only what remains.
+- **Block 1, health and social-insurance law (KVG/KLV, payer contracts, BS/BL financing):** D-22/1-11, D-18/1-6, 9-13, Q-44b. Many rows are route P: ask the partner's billing staff first; the adviser then answers only what remains.
 - **Block 2, data protection and professional secrecy:** Q-42a, Q-42b, Q-42d, D-41/9, D-9/1-5, D-4/1-8.
 - **Block 3, contract, liability and labour-leasing law:** Q-42c, Q-43a, Q-44a, Q-44c.
 - **Block 4, financial-market law (insurance intermediation, payment flows):** Q-44d, the GwG part of Q-44c.
-- **Authority letters (owner or partner, no adviser needed first):** Q-43b, D-22/7, D-22/8, D-18/10, the BS/BL parts of Q-44b.
+- **Authority letters (owner or partner, no adviser needed first):** Q-43b, D-22/7, the BS/BL part of D-22/11, D-22/8, D-18/10, the BS/BL parts of Q-44b.
 
 ## F. Documents the adviser will need (who supplies them)
 
@@ -103,3 +104,4 @@
 - **v3, 2026-11-11 08:45 (`lca`):** section F updated (KLV Stand 1 August 2026 read in a copy, D-18 section 08:45); no question added or changed: the GP-information billing point of the D-18 template (I3) is already D-22/2 and D-22/6.
 - **v4, 2026-11-11 12:32 (`lca`):** D-18/11 new (CGR-179: minutes of a category the Bedarfsmeldung does not cover); block 1 updated.
 - **v5, 2026-11-11 16:25 (`lca`):** D-18/12 new (CGR-180 (2): services between start of care and completion of the needs assessment); D-18/13 new (J5-S: tariff and payer date after a change); block 1 updated.
+- **v6, 2026-11-12 04:29 (`lca`):** D-22/11 new (CGR-187: lit. b measure after the order is withdrawn; start rule); block 1 and authority letters updated. D-2 production questions stay in D-2 (not FE-050 scope); Infomaniak points are in D-2 04:28.
