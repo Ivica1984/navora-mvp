@@ -3,7 +3,7 @@ id: ORD0
 title: The doctor link that must not get lost (GP informed, order without end date)
 author: po
 status: approved
-updated: 2026-10-24
+updated: 2026-11-12
 ---
 
 # ORD0 — The doctor link that must not get lost
@@ -163,3 +163,13 @@ ORD0 stays `accepted`; ORD0-C3 is due before the first real data (Phase B) and i
 - (c) unchanged: nothing is refused; the lit. b start rule stays with the Clinical Owner (D-43) and the legal adviser (D-22/11).
 
 Placement: B7 (FE-054 order), due before the first real data. The `order_expired` part is not pulled forward into BD: Phase A holds only synthetic data (D-1), so no nurse acts on it before B7; this is a S2 advisory, not a blocking finding.
+
+
+## PO note — 2026-11-12 08:39 CET: ORD0-C3 (a') — `lca` D-22 verdict and `uxa` OF-1 to OF-6, UXR-164 (product authority, no rule added)
+
+- **`lca` 08:24 (D-22, #1115):** option (i), as placed by (a') with the O-1/O-3 words and OF-1 to OF-6, is compliant under every plausible interpretation once built as written. Legal point for the B7 acceptance: the order block sits before «Einsatz starten» at 390 px and the button stays **enabled**. The lit. b start rule stays unresolved (Clinical Owner and legal adviser, D-22/11).
+- **`uxa` 07:52 (#1114), PROPOSED, taken in subject to `cra`'s confirmation:** OF-1 one block directly after «Sicherheitshinweise», before every other section and the start control, never above the safety block, never folded; OF-2 tone `attention`, 14 px, word plus «⚠», no live region; OF-3 only the two order flags, in the O-1/O-3 words; OF-4 the block describes the card, «Einsatz starten» stays enabled; OF-5 shown on planned to paused visits, no dismiss; OF-6 (optional) `/team` flags to 14 px.
+- **e2e (390 px), added to (a'):** the block's position (after «Sicherheitshinweise», before «Einsatz starten»), and «Einsatz starten» is enabled while the block shows.
+- **UXR-164 (medium):** the team's order count on `/team` «Automatische Planung» uses the P1 colour (`auto-plan.tsx:47-50`); its remedy rides the O-2 PR (with (d)): the count uses the `attention` tone, not P1. Vitest on the tone class.
+- Placement unchanged: B7. Until `cra` confirms OF-1 to OF-6, they are the default for the B7 PR, not yet its acceptance.
+
