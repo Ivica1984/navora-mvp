@@ -16,6 +16,93 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-12 09:26 CET: **BD acceptance text (brief BD 08:39): CGR-175 (iv) not yet met, two sentence changes named (T-1, T-2)**; with them the text meets CGR-175 (iv) and CGR-177 (d). **ORD0-C3 (a') `uxa` OF-1 to OF-6: confirmed**, with one condition (OF-1a). New advisory **CGR-191**: the PO's departure-tap row (08:39) touches three safety paths that read `on_the_way`; the «Klient:in nicht erreicht» record (DOOR1-5) is reachable **only** after the departure tap. New advisory **CGR-192**: of the «minutes typed three times» row (06:39), carrying the record's per-period minutes into the per-visit item would be the H-24 unit error; carrying the item's per-visit minutes into the visit plan is acceptable on two conditions. No PR head needs a gate this run
+
+**Scope:** `recovery/main` @ `53972dd`. **Trigger:** merged since my 05:29 section: #1104 (`d938535`, on my gated head `8b22b96`), #1109 (`00432e9`, on my gated head `b15aa72`), #1107, #1108, #1110, #1111 (my PR), #1112, #1113 (`eng` status row), #1114 (`uxa` 07:52), #1115 (`lca` 08:20), #1117 (`aia` 08:23), #1118 (PO 08:39). Open: #1116 and #1119 (`eng` journal and `IMPLEMENTATION_STATUS.md` only; nothing for me), #1102 (`eng` journal), #1087 (STG1, head `494abc2`, unchanged), #1084 (dependabot), #3.
+
+I read: `git diff efa5fbc 53972dd -- src supabase tests e2e` (only pgTAP 127 and `tests/e2e/durchgang-ambulant.spec.ts`, i.e. #1104 and #1109 as gated; no product code or migration); brief BD amendment 08:39 in full; brief ORD0 notes 05:39 and 08:39; `UX_REVIEW.md` 07:52 (OF-1 to OF-6, UXR-164); `NEXT_CAPABILITY.md` challenge rows 06:39 and 08:39; `aia` 08:23 (AUT-98, AUT-99); `lca` 08:24 (D-22, D-18 F-6c); brief PROD CGR-190 line; pgTAP 127 (S1, S3, N) and 128 (R1-R3, N) headers and steps; the BD spec (category lines 207, 281-286; negative block 453); `field-client.tsx:555-570`; the `on_the_way` readers in 0007:148-152, 0024:340-380, 0038:1-35, 0072:90-116, 0089:130-159, 0121:20-30; `PRODUCT_BLOCKS.md` §5 rows (a), (b), (e).
+
+**I did not run the NAVORA test suite**, did not touch the live project or `navora-staging`, and used no personal data. CI results are GitHub's check-runs as quoted by the PO; I did not re-read them.
+
+### Task adjustment (README rule 11)
+
+Requests to me (PO 06:39, 08:39): confirm the BD acceptance text against CGR-175 (iv); confirm OF-1 to OF-6; give clinical input on the two challenge rows (06:39 minutes, 08:39 departure tap). I answer all four. No PR head is waiting for my gate: #1104 and #1109 merged on the heads I cleared. My PR #1111 was merged, so I open this one; no other `gov/…` PR is open. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` v18.
+
+### BD acceptance text (brief BD 08:39) against CGR-175 (iv) and CGR-177 (d)
+
+**Met by the draft:** «BD ist keine klinische Freigabe» (CGR-145, CGR-146); QUAL1 mechanism with the PROPOSED cells v0.2, not the cells, and a non-simulation organisation still runs CR-007/CR-164 (CGR-177 (d)); the F3 «Testlauf» correction named; steps 6-7 and stop cases (a), (b), (e) «nicht nachgewiesen» with UNKNOWN expected behaviour; CGR-187 named as a known gap. Each negative's citation checks against the files: pgTAP 127 S1 `assessment_first` (127:108-113), S3 (127:118-161), N (127:163-179); pgTAP 128 R1 (128:139-149), R2 (128:151-171), R3, N (128:13); e2e negative block (spec:453) with the org A nurse (spec:54). Region «Basel-Stadt» matches the seed (seed.sql:787) and the spec (spec:194).
+
+**Two sentences to change before it is used (CGR-175 (iv) is met with them):**
+
+- **T-1 (billing, CGR-175 (2); PO 10:39 on CGR-177 (d): «proves mechanisms, not clinical or billing rules»).** The draft calls the case «abrechenbar» but nowhere says what that does not prove. The run carries **A and C minutes only** (spec:207, 286); a billable KLV-B visit with a valid order is not on the path (R2 shows only the negative). Add: «Der abrechenbare Fakt im Lauf enthält nur A- und C-Minuten; ein abrechenbarer B-Einsatz mit gültiger Verordnung ist nicht Teil des Laufs. Der Fakt weist den Mechanismus nach (signierter Bericht → Fakt ohne Grund), nicht einen Tarif, eine KLV-Einstufung oder eine Zahlerregel (FE-060); alle Werte sind synthetisch.»
+- **T-2 (stop case (a)).** The draft lists R3 «Start an der Tür … verweigert» as proven and then «(a) Start wegen Qualifikation verweigert» as not proven. Read together, this says the same thing is proven and not proven. `PRODUCT_BLOCKS.md` §5 (a) is about what happens **after** the refusal: the visit stays assigned and nobody is warned (CGR-154). Replace with: «(a) was nach einem an der Tür verweigerten Start geschieht (der Besuch bleibt zugeteilt, niemand wird gewarnt)».
+
+Not a condition: «UNVALIDATED» (D-43) next to «VORGESCHLAGENEN Zellen v0.2» would match the register wording, but the meaning is already there.
+
+### ORD0-C3 (a'), `uxa` OF-1 to OF-6: confirmed
+
+- **OF-1 (position after «Sicherheitshinweise», before every other section and the action row; never folded, never only in the move notice).** Clinically right. Safety alerts (allergy, infection, access) come first because they govern how she enters. The order fact governs what she does once inside, so it comes before the action. **Condition OF-1a:** the «Sicherheitshinweise» section is drawn only when the visit has a case (`field-client.tsx:563-565`). The e2e must also cover the order block's position on a card whose safety section shows «nicht erfasst», so "after the safety section" never becomes "not shown".
+- **OF-2 (`attention`, not red; 14 px; word plus «⚠»; no live role).** Acceptable. It is a planning fact and the visit is not refused (ORD0-C3 (c)). The one case where it is a harm signal (the doctor stopped a measure; my 05:29 note on D-22/11) is not something software can tell apart, and the Clinical Owner owns the lit. b start rule (D-22/11, UNKNOWN). If the Clinical Owner later sets a stricter rule, tone follows that rule, not the other way round.
+- **OF-3 to OF-5** confirmed: only the two order flags in the O-1/O-3 words; described at «Einsatz starten», which stays enabled; shown on `on_the_way`, started and paused visits too (she may learn of it mid-visit); no dismiss. «Missing first» when both flags apply is right (missing is the stronger fact). **OF-6** (14 px on `/team`) supported. **UXR-164** (P1 colour for the order count) supported: P1 red must stay reserved for safety signals, or it loses its meaning.
+
+### Challenge row 06:39 «minutes typed three times» (clinical input asked)
+
+The three entries are two different quantities. ASM1 holds assessed minutes **per period as entered** (ASM1-11: no list, no conversion), and the care-plan item and the visit plan hold minutes **per visit**. H-24 exists because comparing or carrying values across that boundary misleads (CGR-81, CGR-84 closed with ASM1-11; `aia` §12 forbids any agent a per-period conversion before a `cra`-reviewed brief).
+
+- **Record → item:** must stay typed. A pre-filled per-visit field with the per-period value would be a unit error, and an unchecked «confirm» would double or halve care time. That is the risk of confirming a carried value without looking: here it is a wrong number, not only an unchecked one. `aia` AUT-98 reaches the same result. → **CGR-192 (1)**.
+- **Item → visit plan:** same quantity (per visit), so carrying is acceptable, and it removes a re-typing error. Two conditions: the carried value shows its origin («aus Pflegeplan»), and it is copied **at planning time**; a later item change does not rewrite planned or done visits silently (it is a new plan, as with PLAN2 series today). → **CGR-192 (2)**.
+
+### Challenge row 08:39 «departure tap» (clinical input asked: does any safety check depend on it beyond CR-051?)
+
+Yes. `start_visit` already accepts `planned` directly (0007:152; 0089:153), so the tap is optional for starting. But four controls read `on_the_way`:
+
+1. **«Klient:in nicht erreicht» (DOOR1-5).** `record_no_show` returns `wrong_state` unless the visit is `on_the_way` (0072:104; 0024:374, «after arrival at the address»). A client who does not open the door may have fallen. Today, a nurse who skipped the departure tap must first tap «unterwegs» at the door to record it, and then the «an der Tür» fact. If the tap is removed or hidden, this path must not disappear (H-01, H-03).
+2. **`visit_stuck` (0038:13-15).** It is the only signal for a visit left `on_the_way`, i.e. a nurse who left and never arrived. `visit_overdue` covers the client side at the planned start. Whether NAVORA needs an en-route signal for the nurse's own safety is UNKNOWN (thresholds PROVISIONAL, D-28; `clinical`).
+3. **Release rules (CR-051; ADM1 0036:109, 0037:54-61; LEAVE1 0076).** A visit `on_the_way` keeps its member and is not released, so nobody else is sent while she is driving there. Without the tap, the visit is `planned` until she starts and can be released during the drive.
+4. **QUAL1-17 at start (0121:24).** It also runs at `started`, so nothing is lost.
+
+→ **CGR-191**. It is not a reason to keep the tap. It is the list a B4/B5 brief must carry if the tap goes.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-191** | `NEXT_CAPABILITY.md` challenge row 08:39 (departure tap; hypothesis for B4/B5); DOOR1-5; CSR1 `visit_stuck`; CR-051; H-01, H-03 | **advisory**; S2 (condition for any brief that removes, hides or derives the departure tap) | Removing the «unterwegs» tap is safe only if four controls that read `on_the_way` are kept: (1) `record_no_show` is refused unless the visit is `on_the_way`, so the «Klient:in nicht erreicht» record with the «an der Tür» fact is reachable only after the departure tap; (2) `visit_stuck` on `on_the_way` is the only en-route signal; (3) release and removal paths keep a visit `on_the_way` with its member, but release a `planned` one; (4) QUAL1-17 also runs at `started` (no loss). | 0072:104, :115; 0024:374; 0089:130-159; 0007:152; 0038:13-15; 0036:109; 0037:54-61; CR-051; 0121:24 | The brief that changes step 5 names (1)-(3): pgTAP: `record_no_show` with the «an der Tür» fact succeeds from `planned` on the visit day (refused for a later date, VIS1), or the app offers «nicht erreicht» from `planned`. e2e at 390 px: a nurse who never tapped «unterwegs» records «nicht erreicht» from the card. pgTAP: a visit the nurse is driving to is not released by an absence or removal (state per the brief's definition). Whether an en-route signal is needed for the nurse's safety: UNKNOWN; `clinical` with D-28. Placement: PO (B4/B5) |
+| **CGR-192** | `NEXT_CAPABILITY.md` challenge row 06:39 (minutes typed three times; hypothesis for B6/B7); `aia` AUT-98, AUT-91; ASM1-11; H-24 | **advisory**; S2 (condition for the brief that pre-fills any minutes field) | (1) The ASM1 record's minutes are per period as entered; the care-plan item's are per visit. Pre-filling the item from the record would carry a value of another quantity into a field the nurse may confirm unread: the H-24 unit error, now as a stored care-plan value. (2) The item → visit plan carry is the same quantity and acceptable if its origin is shown and it is copied at planning time only. | ASM1-11 (vitest `asm1-assessment` (1)-(3); pgTAP 100:114-121, :161-171); `aia` §12 (no per-period conversion by any agent); spec 272, 287, 305; H-24; CGR-81, CGR-84 | (1) unit or e2e in the brief's PR: the care-plan item's minutes field is empty when written against a record (no value from `assessment_records`); the record's minutes and period stay shown beside it (ASM1-11). (2) e2e: the visit plan opens with the item's per-visit minutes marked «aus Pflegeplan» and editable; pgTAP: changing the item afterwards does not change an already planned or completed visit's minutes. Placement: PO (B6/B7); wording of the marker `uxa` |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-175** | (i)-(iii) met and merged (#1093, #1096, #1104 `d938535`, #1109 `00432e9`; merge-commit CI green per PO 08:39). (iv): the draft in brief BD 08:39 meets it once T-1 and T-2 are in the acceptance text. Open until the BD acceptance uses that text | brief BD 08:39; pgTAP 127, 128; spec |
+| **CGR-177** | (d): the draft's QUAL1 sentence meets (d); the billing half («not … billing rules», PO 10:39) needs T-1. Closes with CGR-175 (iv) | brief BD 08:39 |
+| **CGR-185** | **closed**: merged on my gated head (#1104 `8b22b96`, merge `d938535`, merge-commit CI green per PO 06:39) | pgTAP 127 S3 on `recovery/main` |
+| **CGR-189** | placed as ORD0-C3 (a') with O-1/O-3 and OF-1 to OF-6 (confirmed above, with OF-1a); `lca` 08:24 legal point met by the same placement. Open until the B7 PR shows the e2e at 390 px | brief ORD0 05:39, 08:39; `UX_REVIEW.md` 07:52 |
+| **CGR-190** | placed in brief PROD (draft) as a criterion with the count test and the QUAL1 stop case (PO 05:39). Open until PROD3 is built | `briefs/PROD.md` line 42 |
+| **CGR-188** | `lca` 08:24 confirms «no name» on (F6c-a)-(c), taken into J5 08:39. (F6c-c) (whose visits `overlaps_own_visit` compares when the saver is not the performer) is UNKNOWN and with `eng`; I support it as a B8 pgTAP. Open | J5 08:39; `lca` D-18 08:24 |
+| **CGR-187** | unchanged; open (B7, ORD0-C3) | – |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** | open, unchanged | – |
+
+**Closed this run:** CGR-185. No product code or migration changed on `recovery/main` since my last section, and no open PR adds or changes a hard-coded rule, so no Clinical Rule Register row is added.
+
+### Gate status
+
+- No PR head waits for a `cra` gate. #1104 and #1109 merged on the heads I cleared (`8b22b96`, `b15aa72`).
+- **#1116**, **#1119**, **#1102** (`eng` docs only): not in scope; no gate needed.
+- **#1087** (STG1): unchanged; my 17:27 note stands.
+- **BD acceptance:** from the clinical side, BD can be accepted once the acceptance text carries T-1 and T-2. The `uxa` G-1 to G-6 gate and the `lca` step 9 gate are theirs.
+- **B7 ORD0-C3 PR** (not opened): CGR-189 with OF-1 to OF-6 and OF-1a. **B8 CGR-178 PR** (not opened): CGR-184, (c1), (c2), CGR-180 (2) with CGR-183, CGR-188 per F-6c with (F6c-a)-(c).
+
+### Decisions requested
+
+- **`po`:** merge this PR. Put T-1 and T-2 into the BD acceptance text; then CGR-175 (iv) is met from my side, with no new `cra` run needed (the words are given here). Add OF-1a to ORD0-C3 (a'). Record CGR-191 and CGR-192 in the two challenge rows as conditions for any later brief.
+- **`uxa`:** the marker words for a carried value («aus Pflegeplan» is my placeholder, not a wording) if CGR-192 (2) is ever built.
+- **`aia`:** none new; AUT-98 agrees with CGR-192 (1).
+- **`eng`:** none new; (F6c-c) as `lca` asked.
+- **Clinical Owner (D-43, escalated by the owner):** whether NAVORA needs an en-route signal for the nurse's own safety (CGR-191 (2), with D-28 thresholds); the lit. b start rule (D-22/11, unchanged). UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-12 05:29 CET: **#1104 (CGR-185, pgTAP 127 S3): `cra-gate: #1104 8b22b96 clear`**; CGR-185's remedy is met on the head and closes when #1104 merges. **#1109 (BD-2 steps 1b and 3-4 in the run): `cra-gate: #1109 b15aa72 clear`**; it meets CGR-175 (i) once merged, so only the BD acceptance text remains. New advisory **CGR-189**: ORD0-C3 (a) says the order flag is shown on `/field` «like `order_expired`», but `/field` shows planning flags only after the nurse moves a visit herself, so the nurse would not see the signal at the start. The `lca` D-22 verdict (option (i)) assumes she does. New advisory **CGR-190**: the PROD3 production test world does not say whether its organisations are simulation organisations; with the default (`false`) the QUAL1 matrix checks are off in production. `uxa` F-6c and O-1 to O-4 are confirmed; the `lca` D-22/11 analysis is supported from the clinical side
 
 **Scope:** `recovery/main` @ `efa5fbc`. **Trigger:** merged since my 01:31 section: #1093 (`836246f`, on my gated head `cc99cc4`), #1096 (`c9c83e8`, on `83a9fcb`), #1094 (my 21:27 and 01:31 sections), #1099, #1101, #1103, #1105 (`aia` 02:22), #1106 (PO 02:39), #1100 (owner-session record). Open and in scope: **#1104** (`eng`, head `8b22b96`), **#1109** (`eng`, new, head `b15aa72`), **#1107** (PO 03:39 + 04:39: `FOUNDER_DECISIONS.md` v18, FE-062 to FE-067, draft brief PROD), **#1108** (`uxa` 03:51: CGR-188 wording, ORD0-C3 texts), **#1110** (`lca` 04:27: D-22/11 on CGR-187, D-28 pointer, D-2). Docs only, nothing for me: #1102 (`eng` journals). Unchanged: #1087 (STG1, head `494abc2`; my 17:27 note stands), #1084 (dependabot), #3.
