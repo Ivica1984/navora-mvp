@@ -6,6 +6,50 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-12 03:51 CET · `uxa`: no screen code changed since 23:50; CGR-188 answered: the saved-through overlap marker names no qualification and does not use «Person» (F-6c, «… desselben Teammitglieds»); ORD0-C3 flag and the one team count worded as facts only (O-1 to O-4); benchmark: outstanding-order counts that open their list; no new finding
+
+**What changed since 23:50.** `recovery/main` moved from `c96bff9` to `e80516f`. Merged by the PO 01:39 and 02:39: #1093 and #1096 (BD-4 parts 1 and 2, pgTAP 127 and 128 only), #1094 (`cra` 21:27 + 01:31), #1099 (my 23:50 section), #1101 (`lca` 00:25), #1103 and #1106 (PO), #1105 (`aia` 02:22). **No screen code changed:** `git diff c96bff9..e80516f -- src` is empty. Open PRs #1107, #1104, #1102, #1100, #1087, #1084, #3: none touches `src/app`, `src/components`, styles or e2e (checked on the PR file lists). No `ux` issue updated since 23:50. **Asks to `uxa`:** `cra` 01:31 and PO 01:39 (J5 amendment 01:39): word the non-author marker per CGR-188; PO 01:39 (ORD0-C3 (c)): the flag text; PO 02:39 (ORD0-C3 (d)): one team-count wording for missing or expired orders. `cra` 01:31 confirmed C-2a to C-3a and F-2b.
+
+**Sources.** No new `ui-screenshots` artifact was needed (no screen change); earlier downloads were refused by this session's network proxy. **No screenshots were available.** Read: `CLAUDE.md`, README, COORDINATION, `FOUNDER_DECISIONS.md` v17, briefs J5 (amendment 01:39) and ORD0 (notes 01:39, 02:39); journals 2026-11-11 23:39 to 2026-11-12 02:39; the strings in `src/features/team/rules.ts:7-12`, `src/app/(protected)/team/auto-plan.tsx:46-50`, `field-client.tsx:1246`, `team-client.tsx:504-510`, `src/features/billing/rules.ts:7-17`, `src/features/field/report.ts` («ausführende Person»). CI: I read no CI result and claim none; I ran no test. Live project not touched.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v17 (FE-057 to FE-061: STG1 exception, staging Free, Phase B billing inputs OPEN, proof rule): nothing touches screens; no contradiction with my brief. Task as in my brief plus the three asks; no adjustment.
+
+### CGR-188: the saved-through overlap marker on non-author views — PROPOSED (replaces the overlap wording of F-6b 23:50; the assessment wording of F-6b and F-2b unchanged)
+
+| # | Proposal | Test (as J5 01:39) |
+|---|---|---|
+| F-6c | One stored wording on every view (timeline on `/field`, report review, `/abrechnung`): **«gespeichert trotz Hinweis: Überschneidung mit einem anderen Einsatz desselben Teammitglieds»**. Why this word: «Teammitglied» names no qualification and no person, is already NAVORA's word for a member (27 strings in `src`), and is not the client word «Person» of F-2/F-2b. «ausführende Person» (the report's word) is rejected because it contains «Person». No name, no time of the other visit, no client. The save-time warning F-3 («… mit deinem Einsatz …»), seen only by the person saving, is unchanged. | unit: the marker text for the overlap code contains none of «Pflegefachperson», «Pflegefachfrau», «Pflegefachmann», «FaGe», «Pflegehelfer», «Person», «eigen», «dein»; contains «Teammitglied». |
+| F-6c-1 | **Condition to re-check:** «desselben Teammitglieds» is only true while the performer is a member of the visit's team. Network cover (COVER1) is switched off today (`cover/rules.ts:8`, D-3). If it is ever switched on, `cra` and `lca` re-check this wording before that PR merges. | none now; a line in the COVER1 switch-on acceptance (PO). |
+
+`lca` checks «no name»; `cra` confirms. Until then the J5 01:39 rule stands: the B8 PR does not ship the marker on non-author views.
+
+### ORD0-C3: flag text and the one team count — PROPOSED (`cra` confirms; facts only, no rule; colour and position unchanged and `cra`'s)
+
+| # | Proposal | Test |
+|---|---|---|
+| O-1 | **Per-visit flag (ORD0-C3 (a))**, in the «Hinweise» list on `/field` and `/team` beside `order_expired`: **«B-Leistung: für diesen Tag liegt keine ärztliche Verordnung vor»**. States the fact for the visit date; no verb of duty («muss», «darf», «nicht erlaubt», «gesperrt»), no advice whom to call (that would be a D-22/D-28 rule). | unit: the label exists for the new flag code; contains «Verordnung» and none of «muss», «darf», «erlaubt», «gesperrt», «verboten», «D-». |
+| O-2 | **One team count (ORD0-C3 (d))** replaces the sentence at `auto-plan.tsx:49` («… B-Leistungen nach dem Ende der ärztlichen Verordnung»), which counts only expired orders: **«<n> Einsätze mit B-Leistungen ohne gültige ärztliche Verordnung am Einsatztag»**, singular «1 Einsatz mit B-Leistungen ohne gültige ärztliche Verordnung am Einsatztag». «ohne gültige» covers both missing and expired (the same word the billing reason uses, `billing/rules.ts:7`), so the team reads one number for one job. No «geplant» in the sentence: the count covers planned and started visits. | unit: n=1 and n=3 strings; pgTAP as ORD0-C3 (d) (count rises after the order is set back, falls when `present` again). |
+| O-3 | **Aligned expired label** (optional, rides the same PR): `order_expired` «nach Ablauf der Verordnung» → **«B-Leistung: Verordnung am Einsatztag abgelaufen»**, so the two order flags read as a pair and say which case it is. Substance unchanged. `cra` confirms (the string is in the plan-flag list `cra` reviewed for J3). | unit: label text; e2e strings that assert the old text updated in the same PR. |
+| O-4 | **The count opens its list** (benchmark below; low, optional): the count is a link or button (`min-h-11`) that scrolls to or filters the team's visits carrying either order flag. Shown to whoever sees the plan today; no new data. | e2e: click the count → the visible list contains only visits with an order flag. |
+
+### Benchmark 2026-11-12: outstanding physician orders in home care software
+
+Read 2026-11-12: Axxess hospice training manual «Orders Management» (https://www.axxess.com/help/training-manuals/hospice/adminclerical/orders-management/, no page date shown) and MatrixCare blog «Rethinking order management in home-based care» (https://www.matrixcare.com/blog/rethinking-order-management-in-home-based-care/, 10 March 2026). Pattern in my words: the agency sees outstanding orders as **a few counts by state** (not yet sent, waiting for signature) and **by age**; **each count is a link to the filtered list** of the orders behind it; the list sorts by order age. The MatrixCare post argues for one place where every role can read an order's status at any time. Neither page describes a signal on the clinician's visit. **What NAVORA should adopt:** one count with the states named only on the items (O-2, O-3), and the count as the way into its list (O-4), so a planner moves from "how many" to "which" in one tap. **What NAVORA does differently, rightly:** the flag also sits on the visit itself (ORD0-C3 (a)), where the nurse sees it; whether that changes what she may do stays D-22/D-28. Nothing copied.
+
+### Findings
+
+No new finding: no screen code changed.
+
+### Closed
+
+None. `cra` 01:31 confirmed C-2a to C-3a and F-2b (now in J5 for B8; open until built).
+
+**Open from earlier sections (unchanged):** UXR-156, UXR-157, UXR-159, UXR-160, UXR-161, UXR-162, UXR-163. Issues #508, #510, #944, #950 still open.
+
+**Waiting for the PO:** F-6c and O-1 to O-4 into the B8 and B7 acceptance once `cra` (and `lca` for F-6c) confirm; F-6c-1 as a line for the COVER1 switch-on.
+
+---
+
 ## 2026-11-11 23:50 CET · `uxa`: no screen code changed since 19:53; W-2 realigned to CGR-184 (a viewer with the right to plan sees the count only, a reader without it may see the lines: C-2a, C-3a); one stored wording «… derselben Pflegefachperson» for the saved-through warning on every view (F-6b, `lca` 20:22 note) and the F-2 sentence without time for (F2-a) (F-2b); UXR-159 words adopted by the PO; no new finding
 
 **What changed since 19:53.** `recovery/main` moved from `b87ffec` to `c96bff9`. Merged by the PO 21:39 to 22:39: #1069 (BD-2, merge `dcf7231`), #1090 (my 19:53 section), #1091 (`aia` 20:20), #1092 (`lca` 20:22), #1095 (PO 21:39/22:39). **No screen code changed:** `git diff b87ffec..c96bff9 -- src` is empty; #1069 adds e2e and unit files only (`tests/e2e/durchgang-ambulant.spec.ts`, `tests/e2e/support/*.ts`, `tests/unit/bd2-*.test.ts`). Open PRs: #1098 (PO), #1096 and #1093 (BD-4, pgTAP only), #1094 (`cra` 21:27), #1087 (STG1), #1084 (dependabot), #3; none touches `src/app`, `src/components`, styles or e2e screens. No new `ux` issue; #508 got a PO comment (UXR-163 placement). **Asks to `uxa`:** PO 21:39 and `cra` 21:27: align the W-2 design with CGR-184; `lca` 20:22: «eigenem Einsatz» is ambiguous for readers other than the author; `lca`: UXR-159 words.
