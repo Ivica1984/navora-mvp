@@ -1,5 +1,7 @@
 # NAVORA Vergleich der Abrechnungsmodelle
 
+> **Hinweis 2026-11-12 15:39 (`po`, FE-070):** Im Teamgeschäft zahlt das Team (bzw. seine Struktur) NAVORA eine **feste monatliche Plattformgebühr ohne Provision**; F1 und F2 sind damit ausgeschlossen, und «Käufer» in §1 ist für das Teamgeschäft das Team, nicht die Organisation mit Betriebsbewilligung. Ob F3 oder F5 gilt und welche Beträge, bleibt eine Preisfrage beim Founder (D-14). Überarbeitung mit FE-070 Lieferung 3; Abweichung in [`FE-070_LIEFERUNG_2.md`](FE-070_LIEFERUNG_2.md) §1.5.
+
 **Besitzer:** Product Owner (`po`) · **Stand:** 2026-11-06 (Europe/Zurich) · **Auftrag:** Founder-Schreiben 2026-11-06, Punkt 5 (FE-023) · **Status:** Vorbereitung für D-14. **Kein Preis ist gewählt** (F3 ist nur eine mögliche Kalkulationsbasis). Dieses Dokument nennt keine Frankenbeträge: Preise und Kosten sind UNKNOWN, bis Phase A die Kosten pro Nutzung misst. Alle Beispiele rechnen mit einer neutralen Einheit **P** (Gebühr pro Abrechnungseinheit), nicht mit Franken.
 
 **Rechtlicher Hinweis:** Ob und wie eine Plattformgebühr aus KVG-finanzierten Leistungen getragen werden darf, ist eine Rechtsfrage. `lca` hat sie in D-14 teilweise beantwortet; für Basel (BS, BL) und Pflegeheime ist sie neu zu prüfen (FE-019, FE-022). Dieses Dokument trifft dazu keine Aussage.
