@@ -16,6 +16,89 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-12 05:29 CET: **#1104 (CGR-185, pgTAP 127 S3): `cra-gate: #1104 8b22b96 clear`**; CGR-185's remedy is met on the head and closes when #1104 merges. **#1109 (BD-2 steps 1b and 3-4 in the run): `cra-gate: #1109 b15aa72 clear`**; it meets CGR-175 (i) once merged, so only the BD acceptance text remains. New advisory **CGR-189**: ORD0-C3 (a) says the order flag is shown on `/field` «like `order_expired`», but `/field` shows planning flags only after the nurse moves a visit herself, so the nurse would not see the signal at the start. The `lca` D-22 verdict (option (i)) assumes she does. New advisory **CGR-190**: the PROD3 production test world does not say whether its organisations are simulation organisations; with the default (`false`) the QUAL1 matrix checks are off in production. `uxa` F-6c and O-1 to O-4 are confirmed; the `lca` D-22/11 analysis is supported from the clinical side
+
+**Scope:** `recovery/main` @ `efa5fbc`. **Trigger:** merged since my 01:31 section: #1093 (`836246f`, on my gated head `cc99cc4`), #1096 (`c9c83e8`, on `83a9fcb`), #1094 (my 21:27 and 01:31 sections), #1099, #1101, #1103, #1105 (`aia` 02:22), #1106 (PO 02:39), #1100 (owner-session record). Open and in scope: **#1104** (`eng`, head `8b22b96`), **#1109** (`eng`, new, head `b15aa72`), **#1107** (PO 03:39 + 04:39: `FOUNDER_DECISIONS.md` v18, FE-062 to FE-067, draft brief PROD), **#1108** (`uxa` 03:51: CGR-188 wording, ORD0-C3 texts), **#1110** (`lca` 04:27: D-22/11 on CGR-187, D-28 pointer, D-2). Docs only, nothing for me: #1102 (`eng` journals). Unchanged: #1087 (STG1, head `494abc2`; my 17:27 note stands), #1084 (dependabot), #3.
+
+I read: `git diff 1bb09cb efa5fbc -- src supabase` (empty: no product code or migration changed); #1104 in full (pgTAP 127 S3 and its `plan_as` helper, `eng` journals 02:15 and 03:15, inventory row); #1109 in full (`tests/e2e/durchgang-ambulant.spec.ts`, inventory §6, `eng` journal 04:10); the codes behind the S3 regex (`rn_required`, 0014:246; `qualification_not_allowed` 42501, 0121:140-175); `private.visit_flags` (0024:420-432) and where flags are shown (`src/features/team/rules.ts:7-12`, `team-client.tsx:503-510`, `field-client.tsx:1221-1246`, `field/rules.ts:185-210`); `organizations.simulation` (0120:11-53, 238, 292); brief ORD0 notes 01:39 and 02:39; #1107 brief PROD and FE-062 to FE-067; #1108 `UX_REVIEW.md` 03:51; #1110 D-22 and D-28 sections 04:27/04:28; `aia` 02:22.
+
+**I did not run the NAVORA test suite**, did not touch the live project or `navora-staging`, and used no personal data. The CI results below are GitHub's check-runs, not mine.
+
+### Task adjustment (README rule 11)
+
+Requests to me: the PO (03:39, 04:39) asked for gate lines on #1104 and #1109; `uxa` 03:51 asked me to confirm F-6c and O-1 to O-4; `lca` 04:27 addressed the CGR-187 start rule to the Clinical Owner and gave the legal half. I answer all three. My PR #1094 was merged, so I open this one; no other `gov/…` PR is open. **Contradiction check:** none between my prompt and `FOUNDER_DECISIONS.md` (v17 on `recovery/main`; v18 on #1107). FE-062 (production now, synthetic data only, «keine Freigabe für echte Daten») and FE-066 (teams are the providers; «Spitex» and «Temporärbüro» are no role) change none of my open findings: CGR-146 and CGR-147 (cantonal licensing, Pflegedienstleitung, NH-EXT) stay open for Phase B as written.
+
+### #1104 (CGR-185): read, gate
+
+pgTAP 127 S3 now asserts both care-assistant refusals with `matches(…, '^(rn_required|42501 qualification_not_allowed)$')` instead of `isnt(…, 'ok')`. The helper returns the command's `reason` (`rn_required` from CR-007, 0014:246) or `sqlstate || ' ' || message` (`42501 qualification_not_allowed` from the QUAL1-10 backstop, 0121). An unrelated refusal (for example `order_required` or a 42501 with another message) now fails the step, which is what CGR-185 asked. Set membership is acceptable: both refusals are the qualification control, and which one fires first is an order of checks, not a rule. The "nothing stored" counts and the registered-nurse controls stay. The inventory row for CGR-187 states the gap as OPEN and adds no rule. Diff against `recovery/main` (three-dot, `src supabase tests e2e`): only pgTAP 127. CI on `8b22b96`: `app` 130925482585, `db` 130925482709, `e2e` 130925482267, `ui-screenshots` 130925482671, all `success`.
+
+**`cra-gate: #1104 8b22b96 clear`**.
+
+### #1109 (BD-2 steps 1b and 3-4): read, gate
+
+The BD run now (1b) records the ASM1 assessment on `/team` after the completed assessment visit, with the registered nurse naming herself (confirmed by her own entry, 0100), and writes the care-plan item against it (`assessment_id` asserted); (3) plans the care visit «Team (noch niemand)», switches the team's day proposal on (PLAN3-10) and asks for the day; (4) confirms the one line (AIG1), proposed to her with the reason «kennt Klient:in (1 Besuch)», nothing ticked in advance. Stored facts are read as the nurse through RLS: the visit's responsible member is she, `day_plan` has one confirmed `knows_client` line, one ASM1 record, the item's link. The Testorganisation A nurse reads no `assessment_records`, `care_plan_items` or `day_plan` line of the run.
+
+Clinically:
+- The spec comment says plainly that ASM1 is display only and that `assessment_first` reads the completed assessment **visit** (CGR-175 (i)). The hand-planning path is gone, so the run no longer shows a planning step that the product would not take. That meets CGR-175 (i).
+- No rule is added or interpreted; values are synthetic and the PLAN3 reason text is asserted as it is (0109). The proposal is rule-based; the spec states D-35 rule A.
+- Two notes, neither a finding: the self-confirmed ASM1 record (assessor = enterer) is today's ASM1 rule, not a four-eyes check; whether an assessment needs a second confirmation is a Clinical Owner question if it ever drives anything (it drives nothing today, ADR-123). And the run shows the visit reaching a responsible member only through the confirmed proposal; the "nobody confirms" path is covered by the `uncovered` flag and is not part of BD.
+
+CI on `b15aa72`: `app` 130959330900, `db` 130959330724, `e2e` 130959330946, `ui-screenshots` 130959331502, all `success` (earlier heads `64db823` and `67a15a7` failed in `e2e` on two test-side selectors, fixed as `eng` 04:10 describes; no product change).
+
+**`cra-gate: #1109 b15aa72 clear`**.
+
+### CGR-175 after #1104 and #1109
+
+With #1109, (i) is met on the PR head; with #1093, #1096 and #1104, (ii) and (iii) are met. CGR-175 stays open for (iv) only: the BD acceptance text must list (a), (b), (e) and steps 6-7 «nicht nachgewiesen» and say that BD is no clinical release.
+
+### ORD0-C3 and the D-22/11 analysis (#1110, #1108)
+
+**`lca` 04:27 (D-22/11): supported from the clinical side.** A hard refusal of the whole visit would also stop A and C care, and an order set back by mistake could leave out a needed treatment. Clinically there is a second case, which makes the signal more urgent, not a block: an order goes back because the doctor stopped a measure (for example a medicine stopped after an adverse effect). Then performing the B measure can harm. Both cases need the nurse to **see the fact before she acts**; neither can be told apart by software. So option (i) is the right default **only if the signal reaches the nurse at the start**. It does not today; see CGR-189. The start rule for the lit. b part stays with the Clinical Owner (D-43) and the legal adviser (D-22/11). UNKNOWN; `cra` sets none.
+
+**`uxa` 03:51: confirmed.**
+- **F-6c** «gespeichert trotz Hinweis: Überschneidung mit einem anderen Einsatz desselben Teammitglieds»: names no qualification, cannot be read as the client, and the unit test excludes the grade terms. It meets CGR-188. F-6c-1 (re-check if network cover is switched on) is the right condition.
+- **O-1** «B-Leistung: für diesen Tag liegt keine ärztliche Verordnung vor»: states the fact for the B part only, which is also `lca`'s wording point; no duty verb. **O-3** «B-Leistung: Verordnung am Einsatztag abgelaufen» is correct for `order_expired`, which compares the visit date with the order's end (0024:426-427). **O-2** one count «… ohne gültige ärztliche Verordnung am Einsatztag» and **O-4** (the count opens its list) are confirmed. Colour and position: as for `order_expired` on `/team`; on `/field` see CGR-189.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-189** | brief ORD0-C3 (a) (PO 01:39); `uxa` O-1 (#1108); `lca` D-22 option (i) (#1110); CGR-187; H-18 | **advisory**; S2 (due with ORD0-C3, before the first real data); condition for the B7 ORD0-C3 PR head | ORD0-C3 (a) says the flag is shown «on `/field` and `/team` like `order_expired`». On `/field`, planning flags (`order_expired` included) appear **only** in the notice after the nurse moves a visit herself (VIS1-3d); the visit card and the start do not show them. So a flag built "like `order_expired`" reaches the team planner, not the nurse at the start. `lca`'s verdict that option (i) is compliant rests on «a flag at planning and at the start». The same gap holds for `order_expired` today: a nurse can start a KLV-B visit after the order's end with nothing on her screen. | `field-client.tsx:1221-1246` (flags only in `moved.flags`); `field/rules.ts:185-210` (`hinweise=` from the move); `team-client.tsx:503-510`, `:1151` (flags on `/team` cards); `src/features/team/rules.ts:7-12`; brief ORD0 note 01:39 (a); D-22 `lca` 04:27 option (i) | ORD0-C3 (a) amended: both order flags (`order_expired` and the new one) are shown **on the performer's `/field` visit card, before the start control**, at 390 px, read from `visit_flags` at view time. e2e (390 px): for R2's case, the `/field` card shows the O-1 text before «Einsatz starten»; an A/C visit of the same case shows none; an order back to `present` removes it. Nothing is refused (ORD0-C3 (c) unchanged). Position and tone: `uxa` proposes, `cra` confirms. Placement: PO (B7 brief) |
+| **CGR-190** | draft brief PROD, PROD3 (#1107); FE-062, FE-066; `organizations.simulation` (0120); QUAL1; CGR-145 (e) | **advisory**; S2 (before PROD3 merges) | The PROD3 production test world creates new organisations, but the brief does not say whether they are simulation organisations, and it says «Keine … Qualifikationsregel». The flag decides which qualification rule runs: QUAL1 (the matrix, evidence and delegation checks, QAM-0.2 PROPOSED) runs only where `organizations.simulation = true`; it defaults to `false`, where only CR-007/CR-164 apply, and verified evidence cannot be written at all (0120:238). So with the default, production would run without the QUAL1 checks that staging and CI prove, while FE-062 asks for production «als würden echte Daten darauf laufen». The production evidence would then not show the control that H-04 relies on. | 0120:11-12 («active only in an organisation marked as a simulation»), :51 (`default false`), :238, :292; brief PROD «Rules and their input class»; FE-062, FE-066 | The PROD brief names the flag: every PROD3 organisation is a simulation organisation (Phase A, synthetic, D-29), set by the PROD3 seed only. Test in the PROD3 job: after seeding, the count of PROD3 organisations with `simulation = false` is 0, and a QUAL1 stop case (a care assistant made responsible for a KLV-B visit is refused) runs against production. A line for the real-data gate (B12): no organisation holding real data is a simulation organisation, and the qualification rule for real organisations is the one the Clinical Owner approved (D-43); UNKNOWN which today. Placement: PO (brief PROD) |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-185** | remedy met on #1104 `8b22b96` (pgTAP 127 S3 `matches` on the two refusal codes; CI `db` 130925482709 `success`). Closes when #1104 merges | `127_bd4_stop_cases_org_s.test.sql` S3 (#1104) |
+| **CGR-175** | (i) met on #1109 `b15aa72` (steps 1b, 3, 4 through ASM1, PLAN3, AIG1; CI green); (ii), (iii) met on `recovery/main` (#1093, #1096) and #1104. Only (iv), the BD acceptance text, remains. Open | #1109 spec; pgTAP 127, 128 |
+| **CGR-187** | placed as ORD0-C3 (a)-(d) in B7 (PO 01:39, 02:39); gap row in `DURCHGANG_INVENTORY.md` §2 (#1104); legal half analysed (`lca` D-22/11, #1110). The flag must reach the nurse at the start (CGR-189). Open | brief ORD0; #1104; #1110 |
+| **CGR-188** | words agreed: `uxa` F-6c (#1108), confirmed above; `lca` checks «no name». Open until the B8 PR ships the wording with its unit test | `UX_REVIEW.md` 03:51 |
+| **CGR-184** | `aia` aligned its support line (02:22, #1105). Remains blocking for the B8 CGR-178 PR head until the PR shows the e2e and pgTAP | `aia` journal 02:22 |
+| **CGR-186** | `aia` accepted the AUT-95 correction (02:22). Open (B2 follow-up) | – |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176** to **CGR-183** | open, unchanged | – |
+
+No finding closed in full this run. No product code or migration changed on `recovery/main` since my last section, and neither open PR adds or changes a hard-coded rule, so no Clinical Rule Register row is added. #1104 asserts CR-007 and QUAL1-10 as they are; #1109 asserts ASM1-7, PLAN3-3, PLAN3-8, PLAN3-9, PLAN3-10 and AIG1 as they are.
+
+### Gate status
+
+- **#1104** (CGR-185): **`cra-gate: #1104 8b22b96 clear`** (CI 4/4 green).
+- **#1109** (BD-2 steps 1b, 3-4): **`cra-gate: #1109 b15aa72 clear`** (CI 4/4 green).
+- **#1107** (PO; brief PROD draft): no gate asked; CGR-190 is a condition for the brief before PROD3 is built.
+- **#1108** (`uxa`), **#1110** (`lca`), **#1102** (`eng` journals): docs; answered above where they concern me.
+- **#1087** (STG1): unchanged; my 17:27 note stands.
+- **B7 ORD0-C3 PR** (not opened): my gate needs ORD0-C3 (a)-(d) with CGR-189 and O-1 to O-3. **B8 CGR-178 PR** (not opened): CGR-184, (c1), (c2), CGR-180 (2) with CGR-183, and CGR-188 per F-6c.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Amend ORD0-C3 (a) per CGR-189 (the flag on the performer's `/field` card before the start, e2e at 390 px; it also covers `order_expired`). Add the simulation-flag criterion and the B12 line to brief PROD per CGR-190. Take F-6c into J5 and O-1 to O-4 into ORD0-C3. Write the BD acceptance text per CGR-175 (iv) once #1104 and #1109 merge.
+- **`eng`:** none new before placement; with PROD3, the simulation count and the QUAL1 stop case in the job.
+- **`uxa`:** position and tone of the order flags on the `/field` card (CGR-189); `cra` confirms.
+- **`lca`:** note that option (i) needs the start signal on `/field` (CGR-189); check F-6c for «no name».
+- **Clinical Owner (D-43, owner escalated):** the lit. b start rule when the order is no longer present (CGR-187, with `lca` D-22/11); whether a self-confirmed ASM1 record needs a second confirmation if ASM1 ever drives planning; the qualification rule for real organisations (CGR-190 B12 line). UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-12 01:31 CET: **#1093 (BD-4 part 1) re-gated on its merge head: `cra-gate: #1093 cc99cc4 clear`** (pgTAP 127 unchanged; the rest is #1069's cleared tests). **#1096 (BD-4 part 2, pgTAP 128): `cra-gate: #1096 83a9fcb clear`**; R3 (start refused at the door after the evidence is no longer verified) meets the CGR-175 door item. New advisory **CGR-187**: R2 shows that a KLV-B visit whose medical order is withdrawn after planning carries no flag and no door signal. The team learns of it only from the billing fact. New advisory **CGR-188**: the F-6b marker wording «derselben Pflegefachperson» states a qualification the performer may not hold. CGR-184 is corrected in brief J5 (21:39). `uxa` C-2a to C-3a and F-2b are confirmed. COORD-7 point 4a: clinical input given, with a sharper carry-over test
 
 **Scope:** `recovery/main` @ `1bb09cb`. **Trigger:** merged since my 21:27 section (`dae2c6d`, PR #1094, still open: its CI runs were lost in the GitHub stall, PO 22:39): **#1069** (BD-2, merge `dcf7231`, on my gated head `2c5149a`), #1090 (`uxa` 19:53), #1091 (`aia` 20:20), #1092 (`lca` 20:22), #1095 and #1098 (PO 21:39 to 23:39: brief J5 and BD amendments 21:39). Open: **#1093** (`eng`, BD-4 part 1, merge head `cc99cc4`), **#1096** (`eng`, BD-4 part 2, new, head `83a9fcb`), **#1099** (`uxa` 23:50), **#1100** (owner answers 23:50 recorded by `eng`), **#1101** (`lca` 00:25, COORD-7), **#1102** (`eng` journal 00:25), **#1103** (PO 00:39: FE-057 to FE-061, `FOUNDER_DECISIONS.md` v17 on its branch), #1087 (STG1, no clinical content; my 17:27 note stands), #1084 (dependabot, out of scope), #3.
