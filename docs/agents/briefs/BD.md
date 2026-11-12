@@ -164,6 +164,19 @@ The PO did not run the tests.
 - **Next BD Engineering merge: #1104** (CGR-185 + CGR-187 inventory row, head `3ef831e`, `ci` 43133769873 4/4 green). It merges once `c9c83e8` CI is green, a `cra-gate` line names its head (it changes pgTAP 127 S3 assertions), it is `clean`, and no other Engineering PR has taken the run's slot.
 - **Still open before BD acceptance:** CGR-185 (#1104); steps 3-4 with ASM1 in the run (CGR-175; stale spec header 40-43 goes with it); steps 6-7 «nicht nachgewiesen» (B6); BD-5 10/10 in `ci-repeat` on a merge commit; the BD row of `IMPLEMENTATION_STATUS.md` naming #1093 and #1096 (`eng`).
 
+### Amendment 2026-11-12 06:39 CET (po: #1104 merge-commit CI green, CGR-185 met; #1109 merge refused by the session's permission check; product authority, no rule added, BD-6 holds)
+
+- **#1104 after the merge (section 5; the PO did not run the tests):** CI on the merge commit `d938535` `ci` 43156437896 `success` (`app`, `db`, `e2e`, `ui-screenshots`); the newer `recovery/main` head `4b604b9` `ci` 43157919459 `success`. No revert needed (FE-054).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CGR-185: the QUAL1 stop cases of pgTAP 127 S3 assert the two refusal codes (set membership), not `isnt(…, 'ok')` | met | #1104 head `8b22b96`, `cra-gate: #1104 8b22b96 clear` (05:29); merge `d938535` CI green |
+| CGR-187: inventory row in `DURCHGANG_INVENTORY.md` | met | #1104 diff; merge `d938535` |
+
+  CGR-185 is closed for BD. BD is **not** accepted: one item done, not the block.
+- **#1109 (BD-2 steps 1b ASM1 and 3-4 PLAN3/AIG1), head `b15aa72`:** all seven conditions hold (merge record comment 6815713740: 4/4 `success`, `clean`, `cra-gate: #1109 b15aa72 clear`, no `lca` stop, 0 reviews and threads, test and docs only, FE-054 precondition met on `4b604b9`). This run's session permission check refused the merge call («Merge Without Review»). The PO did not try another route. #1109 merges in the next PO run that is allowed to merge, if its head is unchanged and still 4/4 green and `clean`.
+- **Still open before BD acceptance:** #1109 (steps 1b, 3-4; CGR-175 (iv) remains: the BD acceptance text names where each negative is proven); steps 6-7 «nicht nachgewiesen» (B6); BD-5 10/10 in `ci-repeat` on a merge commit; the BD row of `IMPLEMENTATION_STATUS.md` (`eng`).
+
 ## Rules and their input class
 BD adds **no rule**. It exercises existing IMPLEMENTED rules (CR-002 `assessment_first`, QUAL1 checks, H-05, AIG1 confirmation) on one path.
 
