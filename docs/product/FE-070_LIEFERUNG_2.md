@@ -1,6 +1,6 @@
 # FE-070 Lieferung 2: Geschäftsmodell in eigenen Worten, kritische B1-Bewertung
 
-**Besitzer:** Product Owner (`po`) · **Stand:** 2026-11-12 15:39 (Europe/Zurich), geplanter PO-Lauf, einen Tag vor dem Termin aus Lieferung 1 §4 · **Grundlage:** FE-070 (1) und (5) (`FOUNDER_DECISIONS.md` v20); Lieferung 1 ([`FE-070_LIEFERUNG_1.md`](FE-070_LIEFERUNG_1.md)) · **Code-Stand:** `recovery/main` `80643af` (Code wie `4a543c0`, seither nur Dokumente) · **IST-Abgleich:** `eng` 14:22 ([`journal/2026-11-12-1422-eng.md`](../agents/journal/2026-11-12-1422-eng.md)), Stellen unten selbst nachgelesen, wo angegeben · **Kennzeichnung:** IMPLEMENTED / PLANNED / OPEN / UNKNOWN wie in `CLAUDE.md`. Der PO hat keinen Test ausgeführt.
+**Besitzer:** Product Owner (`po`) · **Stand:** 2026-11-12 15:39 (Europe/Zurich), geplanter PO-Lauf, veröffentlicht 16:05 nach der PO-Sitzung 15:45; vor dem Termin Freitag, 13. November 2026 (FE-071 (7)) · **Grundlage:** FE-070 (1) und (5), FE-071 (`FOUNDER_DECISIONS.md` v21); Lieferung 1 ([`FE-070_LIEFERUNG_1.md`](FE-070_LIEFERUNG_1.md)) und Lieferung 1b ([`FE-070_LIEFERUNG_1B.md`](FE-070_LIEFERUNG_1B.md), PO-Sitzung 15:45) · **Code-Stand:** `recovery/main` `80643af` (Code wie `4a543c0`, seither nur Dokumente) · **IST-Abgleich:** `eng` 14:22 ([`journal/2026-11-12-1422-eng.md`](../agents/journal/2026-11-12-1422-eng.md)), Stellen unten selbst nachgelesen, wo angegeben · **Kennzeichnung:** IMPLEMENTED / PLANNED / OPEN / UNKNOWN wie in `CLAUDE.md`. Der PO hat keinen Test ausgeführt.
 
 **Grenzen:** Diese Lieferung legt keine Rechtsform, keinen Preis, keine klinische Regel und keine Tarifregel fest. Rechtliche Aussagen sind Fragen an `lca`, klinische an `cra` und die Clinical Owner (D-27). Sie sind keine Feststellungen.
 
@@ -25,7 +25,7 @@ Daraus folgen **drei Geldflüsse, die nie in einer Zahl zusammenlaufen:**
 ### 1.2 Warum dieses Modell die Vision schützt
 
 - **Kein Anreiz gegen die Pflegenden.** Eine Provision würde NAVORA an mehr Stunden oder höheren Stufen verdienen lassen. Damit stünde NAVORA gegen «Einkommen folgt der Pflege, nicht der Einstufung» (D-14). Eine feste Gebühr hat diesen Anreiz nicht.
-- **Kein Vermittler, der sich dazwischenschiebt.** Wenn NAVORA am Auftrag nichts verdient, hat NAVORA kein Interesse daran, Aufträge über sich zu leiten. Das Produkt darf deshalb so gebaut werden, dass Auftraggeber und Team sich direkt finden und behalten (§2.1, Option C).
+- **Kein Vermittler, der sich dazwischenschiebt.** Wenn NAVORA am Auftrag nichts verdient, hat NAVORA kein Interesse daran, Aufträge über sich zu leiten. Das Produkt darf deshalb so gebaut werden, dass Auftraggeber und Team sich direkt finden und behalten (§2.1, Stammteam).
 - **Einnahmen, die man planen kann.** Die Gebühr ist für das Team planbar. Für NAVORA wächst sie mit der Zahl der Teams, nicht mit dem Pflegevolumen.
 
 ### 1.3 Was ich daraus für das Produkt ableite (PLANNED, als Akzeptanzkriterien künftiger Blöcke)
@@ -59,158 +59,96 @@ Wenn NAVORA Anfragen nach Regeln an Teams leitet, kann das rechtlich eine **Verm
 
 ## 2. Kritische B1-Bewertung
 
-B1 ist heute **IMPLEMENTED und läuft grün** als Schritte 1-2 des BD-Durchgangs. Die Bewertung fragt nicht, ob der Code tut, was er soll. Sie fragt, ob das, was er tut, das richtige Produkt ist. Jede Frage aus FE-070 (5) bekommt: IST, Problem, Optionen, Empfehlung, wer mitentscheidet.
+**Verhältnis zu Lieferung 1b:** Lieferung 1b (15:45) hat auf die Founder-Rückmeldung FE-071 schon entschieden:
+- SAFE-D11 als Sicherheitsausnahme zuerst;
+- B1.1 kleiner geschnitten (Regionsliste, Abschluss einer Anfrage, Statuszeile, Anfragende getrennt von Erfassenden);
+- B1.1b für die Bereitschaftsstufen und den Text der zuweisenden Stelle, nach `cra` und `lca`;
+- die Skizze der Übergänge (§4);
+- «Wir prüfen» als Signal ohne Sperre (§5).
 
-### 2.1 Zielmodell: direkte Anfragen ohne zentrale Vermittlung
+Diese Lieferung wiederholt das nicht. Sie bewertet B1 als Produkt, prüft die Empfehlungen gegen den Code und ergänzt, was in 1b fehlt. **Wo sich diese Lieferung und 1b widersprechen, gilt 1b.** Ein Widerspruch ist mir nicht bekannt.
 
-**IST (IMPLEMENTED):** Die einzige Eingangstür ist `/intake` für `admin` und `operations`. Operations erfasst, prüft, überführt und ergänzt (M1-M4). Das ist eine Aufnahmestelle, also genau die zentrale Vermittlung, die FE-070 nicht will. In Phase A ist sie als Platzhalter für den Auftraggeber zulässig.
+### 2.1 Gesamturteil
 
-**Problem:** Jede Anfrage braucht heute 23 von 61 gezählten Handlungen bei der Aufnahme (AUT-88). Skaliert NAVORA so, braucht jede Region eine Aufnahmestelle: eine Hierarchie, die mit jeder Region wächst.
+**B1 tut zuverlässig, was es tut, aber es bildet eine Spitex-Aufnahmestelle nach, nicht das Zielmodell.** Operations ist die einzige Eingangstür (`/intake`); jede Anfrage braucht 23 von 61 gezählten Handlungen bei der Aufnahme (AUT-88). Das Team entscheidet heute über ein Angebot, das nur Region und «hat eine diplomierte Pflegefachperson» prüft. Es sagt mit einem Klick zu, und der Auftraggeber erfährt nichts. Drei Dinge machen B1 zum richtigen Produkt, in dieser Reihenfolge:
 
-| Option | Inhalt | Wert | Risiko |
-|---|---|---|---|
-| A | Operations bleibt die Tür (IST) | nichts zu bauen | zentrale Vermittlung bleibt; Operations wächst mit dem Volumen |
-| B | Der **Auftraggeber erfasst selbst** in seiner Ansicht. Feste Regeln bestimmen die geeigneten Teams. Ein Mensch sieht nur Ausnahmen: unvollständig, Sicherheitshinweis, keine sichere Zuordnung | Aufnahmestelle entfällt (Wert 5); Team entscheidet (4) | die Ausnahmeliste wird zur neuen Vermittlung, wenn die Regeln zu grob sind |
-| C | wie B, dazu **Stammteam:** Ein Auftraggeber, der mit einem Team zufrieden ist, schickt neue Anfragen zuerst diesem Team; erst nach dessen Absage gehen sie an die anderen geeigneten Teams | Kontinuität (2); weniger Abstimmung; nutzt den bestehenden Vorrang (RET1) | Teams ohne Stammkunden kommen schwerer zu Aufträgen; Fairness messen |
+1. **Sicherheit:** SAFE-D11; eine ehrliche Zusage (1b §5); bei Dringlichkeit keine Wartezeit (§2.4 unten).
+2. **Eignung nach Tätigkeit statt nach Ort** (§2.3).
+3. **Der Auftraggeber kommt direkt zum Team**, und ein Mensch sieht nur noch Ausnahmen (1b §4; Ergänzung §2.2).
 
-**Empfehlung: C**, gebaut auf B. Den Vorrang für ein früheres Team gibt es schon (RET1, `private.set_first_refusal`, 0034:198). C weitet ihn vom Klienten auf den Auftraggeber aus. **Messgrösse:** Anteil der Anfragen, die ohne menschliche Bearbeitung ein zusagendes Team finden. Ziel: wächst von Block zu Block. Fällt er, wird die Ausnahmeliste zur Vermittlung, und der PO prüft die Regeln.
+### 2.2 Ergänzung zum Zielmodell: Stammteam und die Rolle von NAVORA
 
-**Mitentscheid:**
-- `lca` mit L-15 (§1.6), vor dem Bau von B oder C;
-- `cra` für die Ausnahmegründe;
-- `uxa` für die Auftraggeber-Ansicht (Lieferung 3).
+- **Stammteam (neu, Empfehlung):** Ein Auftraggeber, der mit einem Team zusammenarbeitet, schickt neue Anfragen zuerst diesem Team. Erst nach dessen Absage oder nach dem Vorrangfenster gehen sie gleichzeitig an alle geeigneten Teams.
+  - **IMPLEMENTED als Grundlage:** der RET1-Vorrang für das frühere Team einer Klientin (`private.set_first_refusal`, 0034:125-153). Der Vorrang würde vom Klienten auf den Auftraggeber ausgeweitet.
+  - **Wert:** Kontinuität (2), weniger Abstimmung (5), eine direkte Beziehung ohne Vermittler.
+  - **Risiko:** Teams ohne Stammkunden kommen schwerer zu Aufträgen. Gemessen wird der Anteil der Aufträge je Team, im Vergleich.
+  - **Einordnung:** mit der Auftraggeber-Ansicht (Lieferung 4); bei Dringlichkeit gilt §2.4.
+- **Messgrösse für «keine Vermittlung»** (ergänzt 1b §4): Anteil der Anfragen, die ohne eine menschliche Handlung bei NAVORA ein verbindlich zusagendes Team finden. Er soll von Block zu Block wachsen. Fällt er, wird die Ausnahmeliste zur Vermittlung, und der PO prüft die Regeln.
+- **L-15 an `lca`** (§1.6): Welche rechtliche Rolle hat NAVORA, wenn Regeln eine Anfrage an geeignete Teams leiten? Vor dem Bau der Auftraggeber-Ansicht.
 
-**Einordnung:** nicht in B1.1. Die Auftraggeber-Ansicht wird ein eigener Plattformteil (Lieferung 4). Bis dahin bleibt `/intake` die Tür, ausdrücklich als Simulation gekennzeichnet.
+### 2.3 Eignung nach Tätigkeit: Befund im Code
 
-### 2.2 Was «Fall übernehmen» bedeutet
+- **IST (IMPLEMENTED, vom PO nachgelesen):** `team_offers` zeigt dem Team die angefragten Leistungen (`required_services`, 0086:197). Keine Bedingung im Filter liest sie aber (0086:207-213). Geprüft werden nur Organisation, Region als exakter Text (0086:205), aktives Team, offener Fall ohne Team, «hat eine diplomierte Pflegefachperson» falls verlangt (0086:212) und das Vorrangfenster (0086:213).
+- **Folge:** Ein Team kann zusagen und erst bei der Einsatzplanung erfahren, dass ein Mitglied eine Tätigkeit nicht ausführen darf (QUAL1). Der Fall gilt dann als übernommen, ist aber nicht versorgbar.
+- **Empfehlung (bestätigt 1b §4 Punkt 3):** Ein Team ist geeignet, wenn für jede angefragte Tätigkeit mindestens ein Mitglied sie nach der geltenden Regel ausführen darf: eigenständig oder mit gültiger Delegation, mit gültigem Nachweis. Das Ergebnis trägt seine Begründung. Gebaut im B2-Kern und in B1.2. Die Regeln sind in Phase A Simulationsregeln (FE-069), gekennzeichnet und **PROPOSED**, bis die Clinical Owner sie freigibt (D-27). Ein Score gleicht nie eine fehlende Voraussetzung aus.
 
-**IST (IMPLEMENTED):** Ein Klick eines Teammitglieds auf «Zusage», und der erste Zusage-Entscheid gilt (J2). Dabei wird nicht geprüft, ob das Team die Tätigkeiten fachlich darf, ob es Kapazität hat und ob es die Sicherheitshinweise gelesen hat. Danach steht der Fall auf der Fallkarte mit dem nächsten Schritt Bedarfsabklärung.
+### 2.4 Dringlichkeit: neuer Befund im Code
 
-**Problem:** Für den Auftraggeber heisst «Zusage» heute «versorgt», für das Team eher «wir schauen es an». Diese Lücke ist ein **Sicherheitsrisiko**: Der Auftraggeber sucht nicht weiter, obwohl die Versorgung noch nicht gesichert ist.
+- **IST (IMPLEMENTED, vom PO nachgelesen):**
+  - `urgency` ordnet nur die Angebotsliste (0086:214).
+  - Die Antwortfrist hängt vom Auftragstyp ab, nicht von der Dringlichkeit (`private.response_due(organization, referral_type, now())`, 0034:195).
+  - Das RET1-Vorrangfenster hat für den Spitalaustritt eine eigene Dauer, prüft aber die Dringlichkeit nicht (0034:147-149). Bei einer rückkehrenden Klientin mit Dringlichkeit «hoch», die nicht aus dem Spital kommt, sehen die anderen Teams das Angebot also erst nach dem Fenster (0086:213).
+- **Widerspruch zum Grundsatz aus 1b §5** («Bei Dringlichkeit ‹hoch› und bei Spitalaustritt wirkt nie eine Reservierung»): Das bestehende Vorrangfenster ist eine solche Reservierung.
+- **Ich entscheide das nicht selbst**, weil Kontinuität und Schnelligkeit hier fachlich gegeneinander stehen. **Frage an `cra`:** Gilt das RET1-Vorrangfenster bei Dringlichkeit «hoch» weiter, wird es verkürzt, oder läuft das Angebot sofort parallel an alle geeigneten Teams, mit dem früheren Team an erster Stelle? Bis zur Antwort bleibt der Code unverändert (IST ist streng begrenzt: das Fenster endet spätestens mit der Antwortfrist, 0034:150-151).
+- **Einordnung:** B1.3 («dringliche Anfrage ohne Zusage»), zusammen mit der Ausnahme «dringlich, noch keine Zusage» aus 1b §5.
 
-| Option | Inhalt | Wert | Risiko |
-|---|---|---|---|
-| A | ein Klick, wie IST | schnell | Zusage ohne Prüfung; Auftraggeber verlässt sich darauf |
-| B | **zwei Stufen:** (a) «Wir prüfen»: unverbindlich, reserviert das Angebot für eine kurze Frist, andere Teams sehen «in Prüfung». (b) «Versorgung zugesagt»: verbindlich, erst nach bestandener Regelprüfung (Tätigkeiten, Qualifikation, Kapazität) | ehrliche Aussage; weniger Rückfragen | eine Frist mehr; Stufe (a) darf nicht zum Parkplatz werden |
-| C | wie B, aber Stufe (b) braucht **einen konkreten Termin** für die erste Bedarfsabklärung («Zusage mit Termin») | der Auftraggeber weiss, wann jemand kommt; Kontinuität beginnt mit einer Person | das Team muss beim Zusagen planen können; geht nur mit B3 |
+### 2.5 Freitext im Angebotstitel
 
-**Empfehlung: B jetzt (B1.2), C als Ausbau mit B3.** Wer im Namen des Teams verbindlich zusagen darf, legt das **Team selbst** in seinen Teamregeln fest, nicht eine Hierarchie. Bis der Qualifikationskern (B2) steht, ist jede Zusage in der Simulation mit «Qualifikation nicht geprüft» gekennzeichnet.
+- **IST (IMPLEMENTED, vom PO nachgelesen):** Der Angebotstitel ist «Teamsuche: » plus der Freitext `bedarf` des Falls (0034:193). Alle angefragten Teams der Region lesen ihn über `team_offers` (0086:197).
+- **Folge:** Was Operations in den Fallbedarf schreibt, lesen auch Teams, die nie zusagen. 1b §3.2 erfasst das als «Angebotstitel, den Operations aus dem Fallbedarf bildet» und legt die Lösung nach B1.1b.
+- **Ergänzung:** B1.1b bildet den Titel aus strukturierten Angaben (Leistungsart, Umfang, Beginn, Region). Negativtest (pgTAP): Ein angebotenes Team, das nicht zugesagt hat, liest keinen Freitext des Falls. Bis B1.1b gilt die bestehende Regel Δ4 («Titel ohne Personenangaben»), und die Statuszeile von B1.1 erinnert beim Eröffnen daran (Text: `uxa`).
 
-**Mitentscheid:**
-- `cra`: ab wann eine Versorgung als zugesagt gilt; was die Regelprüfung mindestens enthält (FE-070 (3); Auftrag an `cra` seit 14:39);
-- `lca`: Bindungswirkung der Zusage gegenüber dem Auftraggeber.
+### 2.6 Zusage: was in 1b noch fehlt
 
-**Frist für Stufe (a):** ein Betriebsparameter, kein klinischer Wert. Vorläufig nach D-28 und von `cra` zu bestätigen.
+1b §5 legt die zwei Stufen fest. Zwei Ergänzungen, beide für später:
 
-### 2.3 Tätigkeitsbezogener statt grober Filter
+- **«Zusage mit Termin»** (Idee, Ausbau mit B3): Die verbindliche Zusage nennt den Termin der ersten Bedarfsabklärung. Der Auftraggeber weiss dann, wann jemand kommt, und die Bezugsperson steht ab dem ersten Kontakt fest. Validierung in der Simulation: Wie oft kann ein Team beim Zusagen einen Termin nennen?
+- **Fall übergeben** (B1.3, bestätigt 1b §5 «Rücktritt ist Übergabe oder Ausnahme»):
+  - Kann ein Team den ganzen Fall nicht mehr tragen, gibt es ihn mit einer Übergabe zurück.
+  - Der Fall bleibt aktiv, eine neue Teamsuche öffnet sich, und bis zur Übernahme bleibt das alte Team verantwortlich.
+  - **IST:** kein Befehl dafür gefunden. Gesucht wurde in `supabase/migrations` nach den üblichen Namen. Ob ein anderer Weg existiert, ist UNKNOWN.
+  - Wer bis zur Übernahme verantwortlich bleibt, ist eine Frage an `cra`.
+  - Nach einer Bedarfsänderung (ASM1) prüft dieselbe Regel die geplanten Einsätze erneut. Ob das heute geschieht, ist UNKNOWN.
 
-**IST (IMPLEMENTED):** Das Angebot geht an jedes aktive Team derselben Region; geprüft wird die Region als exakter Text (0086:205, 0034:217) und, falls verlangt, ob das Team eine diplomierte Pflegefachperson hat (0086:205-212). Die Anfrage trägt zwar `required_services` (aus `care_needs`, 0034:194), und das Team sieht sie im Angebot (0086:197), aber keine Bedingung im Filter liest sie (0086:207-213, selbst nachgelesen). Die tätigkeitsbezogene Prüfung gibt es erst bei der Einsatzzuteilung (QUAL1).
+### 2.7 SAFE-D11: Produktantwort an `eng` (ADR-184)
 
-**Problem:** Ein Team kann einen Fall übernehmen und erst bei der Planung merken, dass es eine Tätigkeit nicht ausführen darf. Dann ist der Fall «übernommen» und doch nicht versorgbar, und das ist ein später Fehler beim schwächsten Glied.
+`eng` fragt in #1133, ob ein wiedereröffneter Fall die alte Antwortfrist erbt oder eine neue bekommt. **Antwort (Produktbefugnis):** eine **neue Frist ab der Wiedereröffnung**, nach der bestehenden Regel `private.response_due`; dazu das RET1-Vorrangfenster wie bei einer ersten Suche. Das entspricht dem SAFE-D11-Kriterium «response deadline and RET1 first refusal are derived exactly as for a first search» (Brief SAFE-D11). Begründung: Die alte Frist liegt in der Vergangenheit, und die Anfrage würde eskalieren, bevor ein Team sie gesehen hat. Es entsteht keine neue Fristregel.
 
-| Option | Inhalt | Wert | Risiko |
-|---|---|---|---|
-| A | grober Filter, Prüfung erst je Einsatz (IST) | nichts zu bauen | später Fehler, siehe oben |
-| B | Die Anfrage nennt **konkrete Tätigkeiten**. Ein Team ist geeignet, wenn es für jede Tätigkeit mindestens ein Mitglied hat, das sie nach der geltenden Regel ausführen darf (eigenständig oder mit gültiger Delegation). Die Begründung lautet «geeignet, weil …» oder «keine sichere Zuordnung, weil …» | Sicherheit; weniger Rückfragen; die KI kann erklären statt raten | hängt an der Matrix; in Phase A nur Simulationsregeln (FE-069), gekennzeichnet |
-| C | wie B, dazu Kapazität und Wegzeit aus der Planung | weniger Absagen | braucht B3; mehr Daten pro Anfrage |
+### 2.8 Einordnung in die Teilblöcke (nach FE-071)
 
-**Empfehlung: B im Block B1.2, nach dem B2-Kern; C mit B3.** Ein Match-Score gleicht nie eine fehlende Voraussetzung aus (FE-070 (3)). Die Regeln bleiben versioniert und **PROPOSED**, bis die Clinical Owner sie freigibt (D-27). Alle 115 Matrixzellen sind heute PROPOSED.
+| Ergänzung dieser Lieferung | Teilblock | Gate |
+|---|---|---|
+| §2.7 neue Frist bei Wiedereröffnung | SAFE-D11 | `cra`, `uxa` |
+| §2.5 Angebotstitel ohne Freitext, Negativtest | B1.1b | `lca` (Minimierung) |
+| §2.3 Eignung nach Tätigkeit mit Begründung | B2-Kern, B1.2 | `cra`, D-27 (Simulationsregeln FE-069) |
+| §2.4 Dringlichkeit und Vorrangfenster | B1.3 | `cra` (Frage oben) |
+| §2.6 Fall übergeben, Bedarfsänderung | B1.3 | `cra` |
+| §2.2 Stammteam; §2.6 «Zusage mit Termin» | Auftraggeber-Ansicht, B3; Einordnung in Lieferung 4 | `lca` L-15 |
 
-### 2.4 Pflichtfelder je Zweck
-
-**IST (IMPLEMENTED):** `private.case_readiness` (0013:159-170) verlangt für jeden Fall auch Versicherer und Versicherungsart, bevor die Teamsuche beginnt.
-
-**Problem:** Für einen Auftrag eines Heims (KON-1: Das Heim zahlt das Team) sind das Abrechnungsangaben, die das Team nie braucht. Für einen Spitalaustritt nach Hause braucht das Team sie erst für die Abrechnung, nicht für das Angebot. Die Sperre verzögert also die Versorgung wegen der Abrechnung.
-
-| Option | Inhalt |
-|---|---|
-| A | eine Liste für alle (IST) |
-| B | **drei Stufen mit drei Zeitpunkten:** für das Angebot (vor der Teamsuche), für die sichere Versorgung (vor dem ersten Kontakt), für die Abrechnung (vor der ersten Rechnung). Welche Stufe ein Feld hat, hängt von der Auftragskonstellation ab (KON-1 bis KON-4) |
-
-**Empfehlung: B in B1.1.** Die Feldliste je Stufe und Konstellation lege ich **nicht** selbst fest:
-- `cra`: welche Angaben die sichere Versorgung vor dem ersten Kontakt braucht (D-17-Kategorien);
-- `lca`: welche Angaben die Abrechnung wann braucht und was minimiert werden muss.
-
-Vorläufig (Simulation) gilt: Was heute Pflicht ist, bleibt Pflicht, bis die beiden Zeilen vorliegen. Nur der **Zeitpunkt** verschiebt sich, keine Angabe fällt weg.
-
-### 2.5 Sichtbarkeit von Freitext
-
-**IST (IMPLEMENTED):**
-- Der Titel des Angebots wird als «Teamsuche: » plus der Freitext `bedarf` des Falls gebildet (0034:193) und über `team_offers` (0086:184, 197) für alle angebotenen Teams der Region lesbar.
-- Der Text der zuweisenden Stelle (`need_summary`) erreicht den Fall nicht (CGR-193 (4b)).
-
-**Problem:** Das ist zweifach falsch. Teams, die nicht zusagen, lesen Freitext, der identifizierende oder gesundheitsbezogene Angaben enthalten kann. Das Team, das zusagt, liest dagegen nicht, was die zuweisende Stelle wirklich geschrieben hat.
-
-**Empfehlung:** umdrehen.
-- **Angebot:** nur strukturierte Angaben (Region, Tätigkeiten, Umfang, Beginn, Dringlichkeit), kein Freitext, kein Name. Der Titel wird aus diesen Angaben gebildet.
-- **Nach der verbindlichen Zusage:** Das zusagende Team liest den Text der zuweisenden Stelle unverändert, gekennzeichnet als «Text der zuweisenden Stelle».
-- **Bau:** der Angebotsteil in B1.1 (Δ4 erweitert), der Zusageteil nach der `lca`-Zeile zur Minimierung (seit 13:39 angefragt).
-
-### 2.6 Dringliche Anfrage ohne Zusage
-
-**IST (IMPLEMENTED):** Die Anfrage trägt eine Dringlichkeit (`urgency`, 0034:193), aber sie ordnet nur die Liste der Angebote (0086:214). Die Antwortfrist wird ohne sie berechnet (`private.response_due(organization, referral_type, now())`, 0034:195). Eine dringliche Anfrage wartet also gleich lange wie jede andere, auch das Vorrangfenster gilt unverändert (0086:213). Danach erscheint sie als Ausnahme bei Operations (M7). Der Auftraggeber erfährt nichts.
-
-**Problem:** Bei dringlichem Bedarf ist Warten das grösste Risiko, und gerade dann bleibt der Auftraggeber ohne Rückmeldung.
-
-| Option | Inhalt |
-|---|---|
-| A | wie IST |
-| B | Eine dringliche Anfrage geht **gleichzeitig** an alle geeigneten Teams, ohne Vorrangfenster |
-| C | Der Auftraggeber sieht laufend den Stand: «angeboten an n Teams, noch keine Zusage, Frist bis …». Läuft die Frist ab, erhält er die klare Meldung «keine Zusage, bitte andere Versorgung sicherstellen» |
-
-**Empfehlung: B und C in B1.3.** Was als dringlich gilt und welche Frist gilt, ist nicht meine Regel: `cra` mit den Fristen nach D-28, vorläufig. NAVORA sagt nie «versorgt», solange keine verbindliche Zusage besteht (§2.2).
-
-### 2.7 Δ11 zuerst
-
-**IST (IMPLEMENTED, Fehler):** Ein Fall, der vor einer Zusage abgeschlossen und später wiedereröffnet wird, findet nie wieder ein Team. Das bestätigen `eng` 14:22 und der rote Test in PR #1133 (pgTAP 129, Prüfungen 5, 8, 10, 11 rot). Er ist eine Sicherheitslücke ohne Signal.
-
-**Empfehlung:** bleibt die dokumentierte Sicherheitsausnahme vor B1.1 (Lieferung 1 §3), Merge nach Founder-Bestätigung. **Produktentscheid des PO zur Frage aus ADR-184:** Ein wiedereröffneter Fall bekommt eine **neue Antwortfrist**, berechnet ab dem Zeitpunkt der Wiedereröffnung nach derselben bestehenden Regel `private.response_due` wie ein neuer Fall. Auch das Vorrangfenster (RET1) wird wie bei einem neuen Fall gesetzt. Begründung: Die alte Frist liegt in der Vergangenheit, und die Anfrage würde sofort eskalieren, ohne dass ein Team sie gesehen hat. Es entsteht keine neue Fristregel. Ob ein bei Wiedereröffnung nicht bereiter Fall als Ausnahme bei Operations erscheint, bleibt `eng`/`cra` (ADR-184, Variante OPEN), mit `cra-gate`.
-
-### 2.8 Ausfall und veränderter Bedarf nach der Zusage
-
-**IST:**
-- Kein Befehl «Fall zurückgeben» gefunden (Suche in `supabase/migrations` nach den üblichen Namen; UNKNOWN, ob es einen anderen Weg gibt).
-- Ein Ausfall einzelner Einsätze ist gelöst (ABS1, COVER1, IMPLEMENTED).
-- Ein veränderter Bedarf läuft über eine neue Bedarfsabklärung (ASM1). Ob die Qualifikationsprüfung danach für die bestehenden Einsätze neu läuft: UNKNOWN.
-
-**Problem:** Kann das Team den Fall als Ganzes nicht mehr tragen (Kapazität, fehlende Qualifikation nach Bedarfsänderung), bleibt nur der Abschluss. Das ist falsch, weil die Klientin weiter Pflege braucht.
-
-**Empfehlung (B1.3):**
-- «Fall übergeben»: Das Team gibt den Fall mit einer Übergabe zurück. Der Fall bleibt aktiv, eine neue Teamsuche öffnet sich, die Einsätze bleiben bis zur Übernahme beim alten Team, und es gibt keine Lücke ohne Verantwortung.
-- Nach einer Bedarfsänderung prüft dieselbe Regel die geplanten Einsätze erneut und zeigt Konflikte.
-
-Wer bis zur Übernahme verantwortlich bleibt, ist eine klinische Frage an `cra`.
-
-### 2.9 Gesamturteil
-
-**B1 tut zuverlässig, was es tut. Aber es bildet eine Spitex-Aufnahmestelle nach, nicht das Zielmodell.** Drei Dinge machen es zum richtigen Produkt, in dieser Reihenfolge:
-
-1. Sicherheit vor Bequemlichkeit: Δ11, die ehrliche zweistufige Zusage, Dringlichkeit mit Rückmeldung.
-2. Der Filter prüft, was ein Team darf, nicht nur, wo es arbeitet: Tätigkeiten statt Region.
-3. Der Auftraggeber kommt direkt zum Team, und ein Mensch sieht nur noch Ausnahmen.
-
-Die Teilblockfolge aus Lieferung 1 §3 bleibt richtig. Diese Bewertung ordnet die Empfehlungen ein:
-
-| Empfehlung | Teilblock |
-|---|---|
-| §2.7 Δ11 (mit neuer Frist) | Sicherheitsausnahme vor B1.1 |
-| §2.4 Pflichtfelder in drei Stufen; §2.5 Angebot ohne Freitext | B1.1 |
-| §2.3 Tätigkeiten in der Anfrage, Regeln, Begründung | B2-Kern |
-| §2.2 zweistufige Zusage; §2.3 tätigkeitsbezogenes Angebot; §2.5 Text der zuweisenden Stelle nach Zusage | B1.2 |
-| §2.6 Dringlichkeit; §2.8 Fall übergeben, Bedarfsänderung | B1.3 |
-| §2.1 Auftraggeber-Ansicht und Stammteam; §2.2 C «Zusage mit Termin» | neue Plattformteile, Einordnung in Lieferung 4 |
-
-**Steckbrief B1.1, geändert gegenüber Lieferung 1:**
-- Umfang: zusätzlich «Angebotstitel aus strukturierten Angaben, ohne Freitext» (§2.5).
-- Akzeptanz: zusätzlich der Negativtest «ein angebotenes Team liest keinen Freitext des Falls» (pgTAP).
-- Alles andere bleibt.
+**B1.1 bleibt unverändert, wie in 1b §3.5 geschnitten.**
 
 ## 3. Was an dich geht (Founder) und was nicht
 
-- **An dich:** nur die Bestätigungen aus Lieferung 1 (Teilblockfolge, B1.1 als erster Block, Sicherheitsausnahme Δ11). Diese Lieferung braucht keinen neuen Entscheid von dir.
+- **An dich:** nichts Neues. Diese Lieferung braucht keinen Entscheid.
 - **Später an dich (Preis, FE-070 (1)):** ob die feste Gebühr eine Pauschale je Team oder ein fester Betrag je aktivem Mitglied ist (D-14). Ich bereite das mit Lieferung 3 vor. Es blockiert heute nichts.
-- **Nicht an dich:** Feldlisten (`cra`, `lca`), Fristen (`cra`, D-28), L-15 (`lca`), Freitext-Minimierung (`lca`). Die Antworten trage ich ein, sobald sie vorliegen.
+- **Nicht an dich:**
+  - die Feldlisten und Minimierung (`cra`, `lca`, schon in 1b);
+  - L-15 (`lca`);
+  - das Vorrangfenster bei Dringlichkeit (`cra`);
+  - die Verantwortung beim Übergeben (`cra`).
+
+  Die Antworten trage ich ein, sobald sie vorliegen.
 
 ## 4. Nächste Lieferungen
 
-Lieferung 3 (Plattform, Rollen, Geldflüsse, Matching-Entwurf) bis 2026-11-16 und Lieferung 4 (Blockplanung, Differenzierung, Prompt-Wortlaut) bis 2026-11-17 bleiben wie geplant.
+Lieferung 3 (Plattform, Rollen, Geldflüsse, Matching-Entwurf) am Montag, 16. November 2026, und Lieferung 4 (Blockplanung, Differenzierung, Prompt-Wortlaut) am Dienstag, 17. November 2026 (FE-071 (7)).
