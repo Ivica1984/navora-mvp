@@ -60,6 +60,8 @@ const OTHER_NURSE = "pflege.test@navora.test"; // org A, nurse of Testteam Nord 
 const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel (seed, ADR-180)
 const F3_REASON = "Testlauf: simulierte Einsatzdauer";
 const TITLE = "Durchgang Übergangspflege Basel";
+// The team search carries the referral title behind «Teamsuche: » (`private.open_matching_if_ready`, 0034).
+const OFFER_TITLE = `Teamsuche: ${TITLE}`;
 const FIRST = "Bea";
 const LAST = "Durchgangtest";
 
@@ -226,13 +228,13 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
     const own = await asPerson(NURSE);
     const { data: ownOffers, error: ownOfferError } = await own.rpc("team_offers");
     expect(ownOfferError).toBeNull();
-    expect((ownOffers as OfferRow[]).filter((o) => o.request_title === TITLE).map((o) => o.team_id), "the open offer reaches Testteam Basel")
+    expect((ownOffers as OfferRow[]).filter((o) => o.request_title === OFFER_TITLE).map((o) => o.team_id), "the open offer reaches Testteam Basel")
       .toEqual([TEAM_S]);
     await own.auth.signOut();
     const other = await asPerson(OTHER_NURSE);
     const { data: otherOffers, error: otherOfferError } = await other.rpc("team_offers");
     expect(otherOfferError, "team_offers as a nurse of another organisation").toBeNull();
-    expect((otherOffers as OfferRow[]).filter((o) => o.request_title === TITLE || o.team_id === TEAM_S),
+    expect((otherOffers as OfferRow[]).filter((o) => o.request_title === OFFER_TITLE || o.team_id === TEAM_S),
       "team_offers: no offer of the run for a nurse of another organisation").toEqual([]);
     await other.auth.signOut();
   }
@@ -510,7 +512,7 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   for (const [table, column, value] of [
     ["partner_requests", "request_title", TITLE],
     ["partner_requests", "converted_case_id", caseId],
-    ["matching_requests", "request_title", TITLE],
+    ["matching_requests", "request_title", OFFER_TITLE],
     ["matching_requests", "case_id", caseId],
   ] as const) {
     const { data, error } = await other.from(table).select("id").eq(column, value);
