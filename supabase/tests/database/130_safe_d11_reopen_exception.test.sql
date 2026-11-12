@@ -2,8 +2,9 @@
 -- two results: (A) an open, admissible team search (pgTAP 129, R1/R5/R6), or (B) a visible Operations exception that
 -- names why no search is open (R2). Never neither. This file: R2, R3, R4 and the negative cases.
 --
--- Written before the fix (red-first rule): on `recovery/main` `7442889` the R2 and R4 assertions fail (no such
--- exception type exists) and R3's "new search" assertion fails (Δ11: no new search after reopen).
+-- Written before the fix (red-first rule) and pushed without the migration to the probe branch (PR #1133, head
+-- `7e82331` = `recovery/main` `7442889` + tests): `ci` 43246886503, `db` job 131281827420: «Failed 6-10, 18, 22, 26-27,
+-- 34», exactly the R2, R3 and R4 assertions (no such exception type; no new search after reopen, Δ11). Migration 0125.
 --
 -- Users: operations …904, coach …901, nurse …902 (org A) · admin …905 (org A) · admin …903 (org B). Synthetic data only.
 begin;
