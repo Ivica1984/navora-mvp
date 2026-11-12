@@ -6,6 +6,45 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-12 07:52 CET · `uxa`: no screen code changed since 03:51; ORD0-C3 (a') answered: both order flags sit on the performer's `/field` card in one `attention` block directly after «Sicherheitshinweise» and before every other section and the start control, and describe «Einsatz starten» (OF-1 to OF-6); new UXR-164: the team's order count is drawn in the P1 colour
+
+**What changed since 03:51.** `recovery/main` moved from `f684d0d` to `00432e9`. Merged by the PO 05:39 and later: #1104 (pgTAP 127 S3), #1107 (PO), #1108 (my 03:51 section), #1109 (BD-2 steps 1b and 3-4: `tests/e2e/durchgang-ambulant.spec.ts` only), #1110 (`lca` 04:27), #1111 (`cra` 05:29). **No screen code changed:** `git diff f684d0d..00432e9 -- src` is empty; #1109 changes one e2e spec (selectors, no screen). Open PRs #1113, #1112, #1102, #1087, #1084, #3: none touches `src/app`, `src/components` or styles (titles and branches: docs, CI, dependabot). No `ux` issue updated. **Ask to `uxa`:** PO 05:39 (brief ORD0, note 05:39, ORD0-C3 (a'), from `cra` CGR-189): position and tone of both order flags on the performer's `/field` card before the start control; `cra` confirms.
+
+**Sources.** No screenshot artifact was needed (no screen change); earlier downloads were refused by this session's network proxy. **No screenshots were available**; the card order below is read from the code on `00432e9`: `src/app/(protected)/field/field-client.tsx:505-655` (card), `:1219-1249` (`MovedNoticeBlock`, flags only after a move), `src/app/(protected)/team/team-client.tsx:503-511` (`Flags`, 12 px), `src/app/(protected)/team/auto-plan.tsx:47-50` (order count), `src/features/team/rules.ts:7-12`. Read: brief ORD0 (note 05:39), journals `po` 05:39, `cra` 05:29, `lca` 04:27 (headers). CI: I read no CI result and claim none; I ran no test. Live project not touched.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v18 (`recovery/main`): nothing touches screens; no contradiction with my brief. Task as in my brief plus the PO's ask; no adjustment. No benchmark (made 03:51 today).
+
+### ORD0-C3 (a'): order flags on the performer's `/field` card — PROPOSED (`cra` confirms position and tone; wording O-1 and O-3 as confirmed 05:29)
+
+Card order today (planned visit, top to bottom): time, client, status badge → facts list (Ort … Verantwortlich) → «Sicherheitshinweise» (`safety-alerts`) → «Seit dem letzten Einsatz» → recorded times → timeline → observations → report → quality → lifecycle → error line → «Auf heute verschieben» → action row («Einsatz starten») → «Mehr». On a planned visit most sections after the safety alerts are empty, so on a 390 px phone the start control follows them closely; on a long card it is below the fold.
+
+| # | Proposal | Test |
+|---|---|---|
+| OF-1 | **Position.** One block, directly **after** the «Sicherheitshinweise» section and **before** «Seit dem letzten Einsatz», every later section and the action row. Never above the safety alerts (a safety signal is never moved below other content), never inside a `<details>`, never in «Mehr», never only in the moved notice (`MovedNoticeBlock`). Why not under the «Geplant» row: that would put it above the safety alerts. Why not only above the buttons: the nurse reads the card top to bottom at the door; a fact before the facts she checks next is read, a fact squeezed against the buttons competes with the primary action. | e2e 390 × 844, the ORD0 note's case: the block's top is below `safety-alerts`' bottom and above the «Einsatz starten» button's top; the block has no `details` ancestor. |
+| OF-2 | **Tone `attention`**, not `signal-p1`: amber-50 background, amber-800 border, amber-900 text, `text-sm` (14 px, never the 12 px of `/team`'s list: §7 type scale, a fact she acts on), «⚠» `aria-hidden` plus the words, so colour is never the only carrier. Not red: it is a planning fact, not a P1 safety signal (§3). No `role="alert"` or `role="status"`: it is present on load, not an event. | unit: the block's classes contain no `rose-`; text size class `text-sm`; e2e: visible text equals the O-1 string. |
+| OF-3 | **Content.** Only the two order flags, one line each, in the O-1 / O-3 words (missing: «B-Leistung: für diesen Tag liegt keine ärztliche Verordnung vor»; expired: «B-Leistung: Verordnung am Einsatztag abgelaufen»). No count, no advice whom to call, no duty verb (rule §4). The other planning flags (`reassessment_due`, `uncovered`, `not_primary`) stay where they are today: not in scope of (a'). | as the ORD0 note's e2e: an A/C visit of the same case shows no block. |
+| OF-4 | **Accessible description.** The block's id is part of the card's `aria-describedby` (same pattern as `movedCardDescribedBy`, UX2-19) **and** of «Einsatz starten»'s `aria-describedby`, so a screen-reader user hears the fact at the control. The button keeps its label, colour and enabled state: nothing is refused (ORD0-C3 (c)). | e2e: `getByRole('button', { name: 'Einsatz starten' })` has an accessible description containing «Verordnung»; it is enabled. |
+| OF-5 | **When shown.** On planned, `on_the_way`, started and paused visits that carry either flag, read at view time; no dismiss control (nothing a person clears, ORD0-C3 (d)); gone after reload when the order is `present` again. | as the ORD0 note's e2e (order back to `present` removes it). |
+| OF-6 | **`/team` (low, optional, same PR):** `Flags` from `text-xs` to `text-sm`, so the two order flags are not 12 px on the planning card either. | unit: class. |
+
+Open: whether one visit can carry both order flags at once is `eng`'s (derived from `private.visit_flags`); if yes, missing first. `cra` confirms OF-1 and OF-2 (position and tone near a safety block); no text leaves the app, so `lca` is not needed for this part.
+
+### Findings
+
+| # | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-164 | `/team` case card, «Automatische Planung» (team member planning, phone and desktop) | medium | The team's count of visits with B minutes after the order's end is drawn in the P1 colour family (`bg-rose-50 text-rose-900`), though it is a planning fact, not a P1 safety signal. Red on a planning card dilutes the one colour that must mean «safety signal now»; the same fact on the visit (`Flags`) is amber, so one fact has two colours. Built 2026-10-22 (PLAN2, `b7da0e0`), before the colour rule. | `00432e9`: `src/app/(protected)/team/auto-plan.tsx:47-50`; `team-client.tsx:506` (amber list) | §3 severity colours reserved; §7 `signal-p1` «never anything else» | Rides the O-2 PR (one team count, ORD0-C3 (d)): the count line uses `attention` (amber-50, amber-800 border, amber-900 text) with its words; unit: no `rose-` class in `auto-plan.tsx`. `cra` confirms the colour (order facts sit near safety logic). | — (medium) |
+
+### Closed
+
+None.
+
+**Open from earlier sections (unchanged):** UXR-156, UXR-157, UXR-159, UXR-160, UXR-161, UXR-162, UXR-163. Issues #508, #510, #944, #950 still open.
+
+**Waiting for the PO:** OF-1 to OF-6 and UXR-164 into ORD0-C3 (a') and (d) acceptance once `cra` confirms; F-6c, O-1 to O-4 as placed 05:39.
+
+---
+
 ## 2026-11-12 03:51 CET · `uxa`: no screen code changed since 23:50; CGR-188 answered: the saved-through overlap marker names no qualification and does not use «Person» (F-6c, «… desselben Teammitglieds»); ORD0-C3 flag and the one team count worded as facts only (O-1 to O-4); benchmark: outstanding-order counts that open their list; no new finding
 
 **What changed since 23:50.** `recovery/main` moved from `c96bff9` to `e80516f`. Merged by the PO 01:39 and 02:39: #1093 and #1096 (BD-4 parts 1 and 2, pgTAP 127 and 128 only), #1094 (`cra` 21:27 + 01:31), #1099 (my 23:50 section), #1101 (`lca` 00:25), #1103 and #1106 (PO), #1105 (`aia` 02:22). **No screen code changed:** `git diff c96bff9..e80516f -- src` is empty. Open PRs #1107, #1104, #1102, #1100, #1087, #1084, #3: none touches `src/app`, `src/components`, styles or e2e (checked on the PR file lists). No `ux` issue updated since 23:50. **Asks to `uxa`:** `cra` 01:31 and PO 01:39 (J5 amendment 01:39): word the non-author marker per CGR-188; PO 01:39 (ORD0-C3 (c)): the flag text; PO 02:39 (ORD0-C3 (d)): one team-count wording for missing or expired orders. `cra` 01:31 confirmed C-2a to C-3a and F-2b.
