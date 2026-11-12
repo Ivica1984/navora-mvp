@@ -16,6 +16,110 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-12 17:29 CET: **#1143 (SAFE-D11): `cra-gate: #1143 977880c clear`**. Outcome (A) or (B), never neither, holds in the code and in pgTAP 129, 130 and e2e `safe-d11.spec.ts`. Three advisory findings: **CGR-194** (R1 says the new search is «derived exactly as for a first search», but no test asserts the derived fields), **CGR-195** (R4: a reopened case of an inactive team has a visible exception and no way to resolve it in the app; responsibility during a hand-over is UNKNOWN), **CGR-196** (RET1 first-refusal window when urgency is «hoch», Lieferung 2 §2.4). **P1 or P2 for urgent or discharge reopened cases:** P2 is consistent with every team-search exception today; I set no P1 rule (D-28, Clinical Owner). UXR-170 safety-text fields named (provisional list). Lieferung 1b §3.1: I name no fact that newly blocks the first visit
+
+**Scope:** `recovery/main` @ `daa7360`; open PR heads #1143 `977880c`, #1133 `7e82331`, #1144 `aba8f07`, #1141 `4d22af0`, #1142 `0322e8c`. **Trigger:** merged since my 13:29 section (`353a9f7`): #1129, #1131, #1135, #1137 (docs only; `git diff 353a9f7 daa7360 -- src supabase tests` is empty). New: SAFE-D11 brief (approved 15:45, FE-071), PR #1143 (migration 0125, pgTAP 129 and 130, e2e, unit), #1133 (red probe, «DO NOT MERGE»), `specs/B1.md`, `FE-070_LIEFERUNG_1B.md`, `FE-070_LIEFERUNG_2.md`, `ABNAHMEAKTE.md`. Asks to me: PO 15:45 (SAFE-D11 gate; P1 or P2 for urgent and discharge cases; which safe-care facts block the first visit, 1b §3.1; P1 for an urgent gap without a commitment, 1b §5), PO 15:39 (RET1 window at urgency «hoch», L2 §2.4; responsibility during «Fall übergeben», L2 §2.6), PO 16:39 (gate on the e2e head; safety-text fields for UXR-170).
+
+I read: migration 0125 on `977880c` in full; pgTAP 129 and 130 in full; `tests/e2e/safe-d11.spec.ts` (setup, 1440 px assertions, nurse negative); the unit test titles; `private.open_matching_if_ready` (0034:171-202), `private.set_first_refusal` (0034:130-155), `close_case` (0031:42-43), `reopen_case` (0024:291, :300-323), `case_not_ready` (0024:468), `update_case_intake` (0018:90-110); every `matching_requests.status` writer (only `open`, `accepted`, `withdrawn`); every `exception_rules` insert (priorities of the J2 and visit rules); `intake/rules.ts:113-128`; the SAFE-D11 brief; PO journals 15:39, 15:45, 16:39 (#1144); Lieferung 1b §3.1 and §5; Lieferung 2 §2.4 and §2.6; `uxa` UXR-170 (#1141).
+
+**CI on `977880c`, read from GitHub's check runs and job logs** (I ran no NAVORA test): `app` 131319018011, `db` 131319017900 (`Files=130, Tests=4694`, `Result: PASS`; 129 and 130 `ok`), `e2e` 131319017309 (164 passed, `safe-d11.spec.ts:43` passed), `ui-screenshots` 131319018130: all `success`. The red probe for 130 is `db` job 131281827420 on #1133 (`7e82331`), as the PR body states; I did not re-read that log.
+
+### Task adjustment (README rule 11)
+
+None beyond answering the PO's asks. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` v21. FE-071 replaces parts of the PO and `eng` prompts only; my prompt is unchanged by it.
+
+### #1143 (SAFE-D11): `cra-gate: #1143 977880c clear`
+
+**«Never neither» holds.** For an active reopened case without a team, the code gives one of these:
+- **(A):** readiness empty → `reopen_case` calls `open_matching_if_ready`, whose guard now also passes when every earlier request is `withdrawn` → one new `open` row through the unchanged first-search insert (0125 §1, §2). pgTAP 129: one open search, the withdrawn row unchanged, a team of the region is offered it, duplicate key and a second cycle leave one open search.
+- **(B):** readiness not empty → no search, `case_reopened_no_team` (P2) with the missing items, not closable by hand (`cause_persists`), gone when the search opens (via `update_case_intake` → `open_matching_if_ready`, 0018:105) or when the case is closed again (pgTAP 130; e2e at 1440 px with the missing item, no «Schliessen», no assign button; nurse at `/field` sees nothing).
+- **After (A):** an open search keeps showing the normal J2 exceptions (`candidates_exhausted` asserted in pgTAP 130 R3). `matching_requests.status` has only `open`, `accepted`, `withdrawn` writers, so an open search does not silently end.
+- **Never ready before:** a case with `ready_for_matching_at is null` still shows `case_not_ready` (0024:468); 0125 excludes it from R2, so there is no double exception.
+- **R5:** no write of `assigned_team_id` in 0125; asserted in pgTAP 130 and the unit test.
+- **R4:** a reopened case whose team is not `active` shows `case_reopened_team_inactive` (P2) and gets no search. That is visible, so not «neither», but it has no resolution path (CGR-195).
+- **Visibility:** the new rows go through `operations_exceptions()` only (coordination roles of the organisation); team nurse, other organisation, `anon` and coach negatives in pgTAP 130. The detail carries item codes only, no health field. `lca` informed per the brief.
+
+**Not a clinical rule, but a change in what Operations sees:** the reopen exception is P2 with no time escalation. Today `case_not_ready` is P3 after 1 working day. A reopened case missing a fact is therefore louder than a new case missing the same fact. I find that acceptable: the reopened client was in care or in a search, so a gap is more likely to matter. It is the PO's choice; I record it in CR-208.
+
+### P1 or P2 for urgent or hospital-discharge reopened cases (brief R2; PO 15:45, 16:39)
+
+**I set no P1 rule.** What the code does today:
+- Every team-search exception is P2 or P3, whatever the urgency or referral type: `candidates_exhausted` P2, `offer_overdue` P2, `deadline_missing` P3, `case_not_ready` P3.
+- The platform does distinguish hospital discharge, but only at the visit level: `visit_uncovered_hospital` is P1, `visit_uncovered` is P2 (CR-073, PROVISIONAL, D-28).
+
+So **P2 for `case_reopened_no_team` is consistent with the first search**, and I accept it for the simulation. A P1 only for reopened cases would be stricter for a reopened client than for a new urgent discharge that nobody accepts, which makes no clinical sense on its own. **The question is one rule for all team-search gaps** (first search, reopen, and 1b §5 «dringlich, noch keine Zusage»): does urgency «hoch» or a hospital discharge make an unanswered or impossible team search P1, and from when? UNKNOWN; Clinical Owner under D-28 (D-43). Until then: P2 everywhere, as today. Test, once decided: one pgTAP per exception type with an urgent and a discharge case.
+
+### UXR-170: which texts are safety texts (PO 16:39)
+
+**Provisional list, a display recommendation and not a clinical rule; the Clinical Owner may extend it.** These texts must never be cut on a card or hidden behind «Mehr anzeigen»:
+1. safety alerts of the client (DOOR1 categories and their free text; intake safety alerts, D-17);
+2. `access_notes` («Zugang zur Wohnung») and `language_notes` (`intake/rules.ts:116`);
+3. the order block and its flags (OF-1 to OF-6, ORD0), including the end date;
+4. every exception label and next step on `/operations` and every team alert text (a cut next step can drop «Nie automatisch zuweisen»);
+5. the referrer's need text once it reaches the case (CGR-193 (4b));
+6. the «nicht erreicht» record with its door fact (CGR-191);
+7. handover notes shown before a visit (CR-023).
+
+UNKNOWN whether observation free text in a report counts: Clinical Owner. Test as `uxa` wrote (2000-character synthetic text at 390 px), once per field group 1-4.
+
+### Lieferung 1b §3.1: which safe-care facts block the first visit
+
+**I name no fact that should newly block the first visit.** Which of identity, address, access, contact person, GP, other services, language and safety alerts must exist before a first visit is a clinical rule I do not know. UNKNOWN; Clinical Owner (D-43). What blocks today stays: the medical order for B services (ORD), qualification at planning and at the start (QUAL1), and the six readiness items for the search. I agree with the PO's line «Bis zur Klärung bleibt alles wie heute». One point is not a rule but a safety condition for any later loosening: a fact that does not block must still be **shown** to the team before the first visit when it exists (a recorded safety alert is never only an Operations field). That is H-03 and CGR-193 (4b).
+
+### Lieferung 1b §5 and Lieferung 2 §2.4: urgency «hoch» and the RET1 first-refusal window → CGR-196
+
+The PO's finding is correct in the code:
+- `set_first_refusal` sets the window from `first_refusal_hours_discharge` or `first_refusal_hours_other`, counted in **working hours**, capped at the response deadline (0034:146-151);
+- it never reads `urgency`;
+- during the window only the previous team sees the offer (0086:213).
+
+So for a returning client with urgency «hoch» who does not come from hospital, other teams see the request only after up to the «other» window in working hours. That holds the request back exactly when speed matters. Whether continuity or speed wins is a clinical choice. **I do not decide it.** Options for the Clinical Owner, all without a new number:
+- (i) keep the window;
+- (ii) no window when urgency is «hoch», with the previous team first in the list;
+- (iii) the discharge window for urgency «hoch» too.
+
+What I can say: the 1b §5 principle («bei Dringlichkeit ‹hoch› … wirkt nie eine Reservierung») and the code disagree today. The PO must record which one applies until the Clinical Owner answers. If the code stays, 1b §5 must say so.
+
+### Lieferung 2 §2.6: responsibility during «Fall übergeben» → part of CGR-195
+
+**Safety condition, not a legal answer:** a case must never be between teams without a named responsible team. The PO's proposal is the safe default, and I support it: the old team stays responsible until a new team accepts, a new search opens, and an exception is raised if nobody accepts by the deadline. Whether the old team is responsible in law or by contract is UNKNOWN (`lca`, FE-040), and so is what it must still do (visits, P1 signals). The same gap exists today in R4: an inactive team still holds the case, and NAVORA cannot hand it over (0125 next-step text says so).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-194** | #1143 SAFE-D11 R1; CR-207 | **advisory**; S2 | Brief R1 requires that region, urgency, required qualification, response deadline and RET1 first refusal are «derived exactly as for a first search», with pgTAP. 0125 reuses the first-search insert unchanged, so the code meets it, but no test asserts any derived field of the new row. Only the count, the history and the offer to a team of the region are asserted. The required qualification is a safety field: it decides that only teams with a registered nurse get the offer (0086:212) | pgTAP 129:55-100 (no assertion on `required_qualification`, `urgency`, `referral_type`, `response_due_at`, `first_refusal_until`); 0125 §1 | pgTAP 129: on the new row, `region`, `urgency`, `referral_type`, `required_qualification` equal those of the withdrawn row (with a fixture whose case needs a registered nurse); `response_due_at` = `private.response_due(org, type, reopen time)` and is after the reopen; for a returning case with an eligible previous team `first_refusal_until` is set and not after `response_due_at`. May follow the merge as a test-only PR; the PO records it |
+| **CGR-195** | #1143 SAFE-D11 R4 (`case_reopened_team_inactive`); Lieferung 2 §2.6 «Fall übergeben» (B1.3); H-35 | **advisory**; S2 (before real data) | R4 makes the inactive-team case visible, but nothing in the app resolves it: there is no hand-over, no new search for a case with a team, and the exception has no time escalation. The client has a team in the data that no longer works, so nobody plans or sees her visits. This is acceptable in the simulation because it is visible and never auto-assigned. Before real data, a case must never be between teams without a named responsible team. Who is responsible during a hand-over is UNKNOWN | 0125 §3 (next step «eine Übergabe ist in der App noch nicht möglich»); 0035:469 (`deactivate_team` checks only cases not closed); pgTAP 130 R4; Lieferung 2 §2.6 («kein Befehl dafür gefunden») | B1.3 brief: (1) a hand-over by a team decision (never automatic) opens a new search and keeps the old team responsible until a team accepts (pgTAP: `assigned_team_id` unchanged until acceptance; an exception at the deadline); (2) the same path resolves `case_reopened_team_inactive` (pgTAP); (3) the responsibility wording is `lca`'s (FE-040). Until B1.3, the PO records R4 as a known gap in the Abnahmeakte |
+| **CGR-196** | RET1 first-refusal window (CR-024) with urgency «hoch»; Lieferung 1b §5; Lieferung 2 §2.4; H-19 | **advisory**; S2 | The window ignores urgency and counts working hours. For a returning client with urgency «hoch» outside a hospital discharge, other teams see the request only after the «other» window. That contradicts 1b §5 («nie eine Reservierung» when urgent). It is a choice between continuity and speed, which is clinical | 0034:146-151 (`set_first_refusal`, no `urgency` read; `add_working_time … 'working_hours'`); 0086:213; CR-024 | Clinical Owner chooses (i), (ii) or (iii) above (D-43); the PO records in 1b §5 which applies until then. Test for the chosen option: pgTAP with an urgency-«hoch» returning case, non-discharge: under (ii) a team other than the previous one sees the offer at once and the previous team is first in its list; under (i) the 1b text names the window |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-193** | (4b) moved to B1.1b by the PO (FE-071 (4)); open. (4) the referrer's need text named in the UXR-170 list | Lieferung 1b §3.5; PO 15:45 |
+| **CGR-191** | open, unchanged; (6) of the UXR-170 list refers to it | – |
+| **CGR-175**, **CGR-177** | the PO records BD as «Teilabnahme für die Simulation: Schritte 1, 1b, 2-5, 8, 9» (FE-071 (2)), with T-1 and T-2 in the text. Closed by the PO's acceptance record | `ABNAHMEAKTE.md`; brief BD 14:39 |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-190**, **CGR-192** | open, unchanged | – |
+
+**Closed this run:** CGR-175 and CGR-177 (the BD acceptance text carries T-1, T-2 and the CGR-177 (d) sentence; the acceptance is recorded as partial and for the simulation only).
+
+### Gate status
+
+- **#1143** (SAFE-D11): **`cra-gate: #1143 977880c clear`**. CGR-194 to CGR-196 are advisory, not merge conditions. `uxa` (texts) and the brief's `ci-repeat` 10/10 on the merge commit are still open.
+- **#1133** (red probe, «DO NOT MERGE»): nothing to gate; it is the red evidence for 129 and 130.
+- **#1144** (PO 16:39), **#1141** (`uxa`), **#1142** (`lca`), **#1102** (`eng` journal): docs only; nothing for my gate.
+- **#1087** (STG1): unchanged.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Place CGR-194 (test-only follow-up to SAFE-D11) and CGR-195 (B1.3; R4 as a known gap in the Abnahmeakte). Record in 1b §5 which applies to urgent returning clients until the Clinical Owner answers CGR-196. Use the UXR-170 list above as the provisional field list.
+- **`eng`:** CGR-194 assertions (may follow the merge).
+- **`uxa`:** the two SAFE-D11 texts; the UXR-170 test per field group.
+- **`lca`:** responsibility during a hand-over and for an inactive team's case (CGR-195 (3), FE-040).
+- **Clinical Owner (D-43, D-28):** P1 for urgent or discharge team-search gaps, one rule for all of them; CGR-196 option; which facts block the first visit (1b §3.1); whether report observation text is a safety text. UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-12 13:29 CET: **#1127 (BD-7, test only): `cra-gate: #1127 dd93afd clear`**. **CGR-191 follow-up answered:** the «Klient:in nicht erreicht» record must not be refused by a QUAL1 check (new condition CGR-191 (5)). **`uxa` NA-1 to NA-5 and M-1 to M-4 confirmed**, with two conditions (NA-4a, NA-3 default kept). **UXR-166 confirmed as a fact link**, with conditions U-1 to U-3. **Challenge row 12:39 «Fall eröffnen»:** I know no clinical rule that requires a person to open every referral (UNKNOWN, Clinical Owner and `lca`), but the step carries four controls that an automatic opening must replace (new advisory **CGR-193**); one of them shows a gap that exists today: the referrer's need text reaches only Operations and is not carried to the case
 
 **Scope:** `recovery/main` @ `4891ac3`; open PR heads #1127 `dd93afd`, #1129 `db76a24`, #1126 `76abe0c`, #1128 `c0bceb1`. **Trigger:** merged since my 09:26 section: #1120 (my PR), #1116, #1119, #1121, #1122, #1123, #1124, #1125 (docs only; `git diff bec0e58 4891ac3 -- src supabase tests` is empty). New PR #1127 (BD-7, `tests/e2e/durchgang-ambulant.spec.ts` plus an `eng` journal). Briefs changed: BD (amendments 09:39, 11:39, and 12:39 on #1129), ORD0 (09:39). Asks to me: PO 10:39, 11:39 (CGR-191 follow-up: QUAL1 at «nicht erreicht» from `planned`) and 12:39 (confirm UXR-166, NA-1 to NA-5, M-1 to M-4; name any rule that requires the manual «Fall eröffnen»).
