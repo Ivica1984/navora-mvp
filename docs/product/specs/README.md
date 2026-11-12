@@ -23,7 +23,7 @@ Widerspricht eine Spezifikation dem Code, gilt der Code, bis die SOLL-Änderung 
 | **SOLL Δn** | PLANNED: Änderung, die mit dem Block gebaut wird. Jede SOLL-Zeile hat ein Abnahmekriterium. Entschieden vom PO im Rahmen der Produktautorität, ohne neue klinische, rechtliche oder tarifliche Regel. |
 | **OFFEN** | Hängt an einem Entscheid (Nummer, wer entscheidet) oder an einer Prüfung durch `cra` / `lca`. Die Spezifikation nennt das Verhalten, das bis dahin gilt. |
 | **UNKNOWN** | Im Code nicht vorhanden und nicht entschieden. |
-| **SIM** | Regel läuft nur als Simulationsregel auf synthetischen Daten (FE-069, D-27): sichtbar als «vorläufig», nie als freigegeben. |
+| **SIM** | Regel läuft nur als Simulationsregel auf synthetischen Daten (FE-069, D-27): sichtbar als «Simulationsregel» (~~«vorläufig»~~, ersetzt PO 12.11.2026 17:39 nach `lca` 16:35: «vorläufig» bleibt für eine von einer Person befristet bestätigte Regel), nie als freigegeben. |
 
 ## Aufbau je Block
 
@@ -59,3 +59,12 @@ Ein Block ist «Ready for Design & Development», wenn:
 | 3 | B4, B5, B6 | Do 2026-11-19 | geplant |
 | 4 | B7, B8 (inkl. D-18 als SIM, FE-069) | Mo 2026-11-23 | geplant |
 | 5 | B9, B10 | Mi 2026-11-25 | geplant |
+
+## Eingaben für spätere Spezifikationen (PO 12.11.2026 17:39)
+
+**B8 (Abrechnung), aus `lca` D-18 16:35 (beratend, keine Rechtsberatung), in die B8-Spezifikation zu übernehmen, sobald sie geschrieben wird:**
+- **SIM-1** Das Label reist mit dem Wert: jede abrechenbare Tatsache, Schätzzeile, Exportzeile und jedes PDF speichert Version und Status des D-18-Regelsatzes und zeigt das Label aus dem gespeicherten Status; ein späterer Statuswechsel beschriftet alte Zahlen nicht um.
+- **SIM-2** Der Status sperrt, das Label informiert: ein Regelsatz im Status SIM erzeugt keine Tatsache für eine Organisation mit echten Daten (Phase B) und keine Rechnung oder Kostenträgerexport. pgTAP: SIM-Regelsatz + Organisation mit echten Daten → abgelehnt mit benanntem Code.
+- **SIM-3** Kein Agent und keine App-Rolle setzt einen D-18-Regelsatz auf einen bestätigten Status; die Bestätigung nennt Person und Quelle (Vertrag, Artikel, Version). `lca`-Lesarten heissen «Lesart lca (KI-Analyse, keine Rechtsberatung)».
+- **SIM-4** Screenshots und Demo zeigen die Langform mindestens einmal pro Ansicht.
+- Wortlaut (PROPOSED, `uxa` entscheidet den Bildschirmtext): D-18 «Simulationsregel – nicht mit Tarifvertrag und kantonalen Regeln abgeglichen. Nur synthetische Daten.»; D-43 «Simulationsregel – fachlich nicht freigegeben. Nur synthetische Daten.» Ob der Founder bei der Bestätigung der FE-069-Lesart ein einziges Label für beide will, bleibt seine Wahl (FE-069 nennt «bzw.»); bis dahin gilt die getrennte Form als Vorschlag, nicht als Ersatz von FE-069.

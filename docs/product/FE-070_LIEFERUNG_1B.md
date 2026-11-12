@@ -192,6 +192,8 @@ Die Auftraggeber-Ansicht ordne ich in Lieferung 4 als eigenen Block ein.
 
 Gebaut wird das in B1.2, nach dem B2-Kern.
 
+**Übergangsregel bis zum Entscheid der Clinical Owner zu CGR-196 (PO, 12.11.2026 17:39):** Das bestehende RET1-Erstrecht-Fenster (0034:146-151) bleibt unverändert; es berücksichtigt die Dringlichkeit heute nicht. Der Satz «bei Dringlichkeit ‹hoch› wirkt nie eine Reservierung» gilt für das neue Signal «Wir prüfen» (B1.2), nicht rückwirkend für RET1. Das ist eine bekannte Lücke der Simulation und steht so in der Abnahmeakte; die Wahl zwischen den drei Optionen von `cra` (CGR-196) trifft die Clinical Owner (D-43). Der PO setzt keine Zahl und keine klinische Regel.
+
 ## 6. Prompts und Agentensteuerung
 
 Siehe [`../agents/BLOCK_RULE_PROMPTS_2026-11-12.md`](../agents/BLOCK_RULE_PROMPTS_2026-11-12.md): genauer Wortlaut, geänderte Aufgaben und Konflikte mit bisherigen Anweisungen.
