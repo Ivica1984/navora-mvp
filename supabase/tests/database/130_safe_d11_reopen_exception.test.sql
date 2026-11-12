@@ -10,7 +10,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(34);
+select plan(37);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -79,9 +79,13 @@ select is((select x.priority || ' | ' || x.label || ' | ' || x.next_step from pu
            where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11N')),
   'P2 | Wiedereröffneter Fall ohne Team | Fehlende Angaben ergänzen; die Teamsuche öffnet sich dann selbst. Nie automatisch zuweisen.',
   'R2: priority P2, label and next step as in the brief');
-select ok((select x.detail like '%insurer%' and x.region = 'Bern West' and x.case_label like '%D11N%'
+select ok((select x.region = 'Bern West' and x.case_label like '%D11N%'
            from public.operations_exceptions() x where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11N')),
-  'R2: the exception lists the missing item and names case and region');
+  'R2: the exception names case and region');
+-- UXR-181: the detail is the stored reason of each missing readiness item (private.case_readiness), never the item code.
+select is((select x.detail from public.operations_exceptions() x
+           where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11N')),
+  'Krankenversicherer fehlt', 'R2 / UXR-181: the detail is the stored reason text of the missing item, not «insurer»');
 select is((select x.closable from public.operations_exceptions() x
            where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11N')), false,
   'R2: it is not closed by hand, it closes with its cause');
@@ -129,11 +133,18 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 select is(public.close_case(pg_temp.cid('D11M'), 'declined', null, 'd1300000-0000-4000-8000-000000000020'), 'ok', 'R2: D11M closed');
 reset role;
-update public.cases set requested_start = null where id = pg_temp.cid('D11M');   -- fixture: start no longer known
+update public.cases set requested_start = null, insurer_name = null where id = pg_temp.cid('D11M');   -- fixture: start and insurer no longer known
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 select is(public.reopen_case(pg_temp.cid('D11M'), 'Rückkehr', 'd1300000-0000-4000-8000-000000000021'), 'ok', 'R2: D11M reopened');
 select is(pg_temp.ex('case_reopened_no_team', 'D11M'), 1, 'R2: D11M shows the exception');
+select is((select x.detail from public.operations_exceptions() x
+           where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11M')),
+  'Krankenversicherer fehlt; Gewünschter Beginn fehlt',
+  'UXR-181: two missing items give their stored reasons in readiness order, joined by «; »');
+select is((select x.detail from public.operations_exceptions() x
+           where x.exception_type = 'case_not_ready' and x.case_id = pg_temp.cid('D11M')), null,
+  'UXR-181: a reopened case that had been ready is not also case_not_ready (one fact, one exception)');
 select is(public.close_case(pg_temp.cid('D11M'), 'other', 'Doch nicht', 'd1300000-0000-4000-8000-000000000022'), 'ok', 'R2: D11M closed again');
 select is(pg_temp.ex('case_reopened_no_team', 'D11M'), 0, 'R2: closing the case again ends the exception');
 reset role;

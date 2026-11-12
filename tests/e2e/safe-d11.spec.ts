@@ -99,7 +99,9 @@ test("a reopened case without a team and with a missing item shows Operations «
   await expect(exception).toHaveCount(1);
   await expect(exception).toContainText("P2");
   await expect(exception).toContainText(REGION);
-  await expect(exception).toContainText("insurance_type");
+  // UXR-181: the detail is the stored reason text of the readiness item, never its code.
+  await expect(exception).toContainText("Versicherungsart fehlt oder unbekannt");
+  await expect(exception).not.toContainText("insurance_type");
   await expect(exception).toContainText(`Nächster Schritt: ${NEXT}`);
   await expect(exception.getByTestId("exception-closes-with-cause")).toContainText("schliesst automatisch");
   await expect(exception.getByRole("button", { name: "Schliessen" })).toHaveCount(0);
