@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 71 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 72 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 **Companion build specification (2026-11-03, for M2 to M8, #832):** [`NAVORA_DESIGN_SYSTEM_V1.md`](NAVORA_DESIGN_SYSTEM_V1.md) (token values, CSS, components with states, phone and desktop systems, marketing extension), [`NAVORA_SCREEN_CATALOG.md`](NAVORA_SCREEN_CATALOG.md) (every screen), [`NAVORA_INFORMATION_ARCHITECTURE.md`](NAVORA_INFORMATION_ARCHITECTURE.md) (surfaces, roles, navigation, website sitemap). This file keeps the behaviour rules.
 
@@ -109,6 +109,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - **Phone first:** every protected screen and the sign-in page (`/login`, UXR-1: IMPLEMENTED, UX1-15, #558) work at **390 × 844** with no horizontal scroll (PLANNED: UX1-1, UX2-2). Desktop at 1440 px is the second layout, not the first.
 - The next visit on `/field` is inside the first viewport when there is no P1 signal (IMPLEMENTED: UX1-6, #554; the "Zu erledigen" row above it in the first viewport IMPLEMENTED: UX1-27, #574 merged as `93f7423`, `cra` CGR-80).
 - **Density:** at most one line of explanation under a heading; details behind "Details". A card shows at most four facts before its action.
+- **A safety text is never cut** (PROPOSED, `uxa` 2026-11-12 15:51, UXR-170, #1139; `cra` names the fields per block): the rule that cuts a free text on a card after four lines with «Mehr anzeigen» (spec `00_PLATTFORM.md` P-6) never applies to Sicherheitshinweise, order flags, the access note or any text `cra` marks safety-relevant; those are shown in full at 390 px without horizontal scroll.
 - One shell for every role: phone tab bar (Heute, Team, Arbeitstag, Mehr), desktop sidebar (IMPLEMENTED: UX2-1, #799 merged as `c8d2db7`, `AppShell.tsx` and `shell.ts`, rendered once by `(protected)/layout.tsx`; one `nav` "Hauptmenü" at a time; the first-MVP `Sidebar.tsx` removed). Page backgrounds still per page (`PageFrame`) until the UX2-3 tokens (PLANNED).
 - **One label per destination** in tab bar, sidebar and menu, short enough for one line in four columns at 390 px: "Heute", "Team", "Arbeitstag" (PLANNED: UX2-32, UXR-76; answer to ADR-131 deviation 1; until then `recovery/main` shows two label sets, `TAB_LABEL` and `PAGE_LABEL`). A page header does not repeat the label above its `h1`.
 - **A role's home is its first tab** (IMPLEMENTED: UX2-31 (1), po 2026-11-03 06:30; #799 merged as `c8d2db7`, "Ausnahmen" first for a person in no team whose home is `/operations`; UXR-75): the bar holds the role's core destinations (two to five, benchmark 2026-11-03); a bar with one real destination plus "Mehr" means the set is wrong for that role.
@@ -141,6 +142,8 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - **A control that starts a reload keeps focus in its block** (OPEN, UXR-82; first case `/admin` "Erneut laden", RLS4-C3, on `recovery/main` since #813 `3b44b14` without this rule): a retry or reload button stays rendered and `disabled` with "Wird geladen …" while it runs, or focus moves to the block's result line when the read returns; loading and result lines sit in one `role="status"` container, so the outcome is announced whether the read succeeded or failed.
 - **A dialog has a visible heading** (IMPLEMENTED: UX1-29, #588 merged as `566dc8b`; UXR-19) that repeats the label of the control that opened it and is its accessible name (`aria-labelledby`).
 - **Two cards are never named alike** (PLANNED: VIS2-3, `uxa` answer 2026-10-29 23:55): cards in one list that would share an accessible name (e.g. two visits of one client at overlapping times) add a stable ordinal "<i> von <n> zu dieser Zeit" to the name and one visible `info` line with the ordinal and the responsible member; the order is stable across reloads; nothing is reordered or hidden and safety alerts stay in place.
+
+- **A status line stays until the user acts** (PROPOSED, `uxa` 2026-11-12 15:51, UXR-172; WCAG 2.2 SC 2.2.1): a `role="status"` line that says what was handed on and who is next stays until the next command, a navigation or its «Schliessen» control (44 px); no timer removes it.
 
 ## 7. Tokens and components
 
@@ -187,6 +190,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 
 ## Change log
 
+- 2026-11-12 15:51 CET (`uxa`): version 72. §5 new PROPOSED rule "a safety text is never cut" (UXR-170, #1139). §6 new PROPOSED rule "a status line stays until the user acts" (UXR-172). Both from the review of `specs/00_PLATTFORM.md` and `specs/B1.md`; the spec's P-3 and P-6 conflict with them until amended. No token change.
 - 2026-11-12 11:51 CET (`uxa`): version 71. §2 three rules: "a finished step says what it handed on and where the next step is" (OPEN, UXR-165, UXR-166), "a value carried from another record is marked where it is entered" (PROPOSED, M-1 to M-4, CGR-192 (2)), "a safety record stays one tap from the card in every state where it can happen" (PROPOSED, NA-1 to NA-5, CGR-191 (1)). No token change.
 - 2026-11-12 07:52 CET (`uxa`): version 70. §3 new PROPOSED rule "a planning fact the performer needs before she acts sits on her card, before the action" (ORD0-C3 (a'), OF-1 to OF-6; UXR-164). No token change.
 - 2026-11-12 03:51 CET (`uxa`): version 69. §4 plausibility-warning rule: overlap marker wording per CGR-188 (F-6c, «desselben Teammitglieds»). §4 new PROPOSED rule "a missing-information signal states the fact, never the rule" (ORD0-C3, O-1 to O-4). No token change.
