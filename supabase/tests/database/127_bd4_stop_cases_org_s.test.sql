@@ -5,7 +5,9 @@
 --   S1 `assessment_first` (CR-002): no care visit before the completed assessment visit; nothing is stored.
 --   S2 the assessment visit is category A only.
 --   S3 QUAL1 (simulation organisation, matrix QAM-0.2 PROPOSED, D-43): a care assistant is not made responsible for the
---      assessment visit or a KLV-B visit; nothing is stored; the registered nurse is (control).
+--      assessment visit or a KLV-B visit; nothing is stored; the registered nurse is (control). The refusal is asserted as
+--      one of the two known refusals, `rn_required` (CR-007, plan_visit) or `42501 qualification_not_allowed` (QUAL1-10
+--      backstop, 0121), not merely as «not ok», so an unrelated error cannot pass the step (`cra` CGR-185).
 --   S4 a KLV-B visit without a present medical order is refused at planning (`order_required`).
 --   N  the BD negative: a nurse of another organisation, Operations (no dispatcher) and `anon` neither read nor plan the case.
 -- Not here: the billing stop cases (report not final, B minutes without a valid order at the fact, correction open) stay
@@ -114,9 +116,10 @@ select is(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today()
   'assessment_category_a_only', 'BD-4 S2: the assessment visit is category A only');
 
 -- S3 (assessment): the care assistant is not made responsible; the registered nurse is ------------------------------------------
-select isnt(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today(), '09:00', '10:00', 60, 0, 0, true,
-                            pg_temp.assist(), pg_temp.k(3)),
-  'ok', 'BD-4 S3: the assessment visit is refused with the care assistant responsible (QUAL1 A1 or CR-007)');
+select matches(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today(), '09:00', '10:00', 60, 0, 0, true,
+                               pg_temp.assist(), pg_temp.k(3)),
+  '^(rn_required|42501 qualification_not_allowed)$',
+  'BD-4 S3: the assessment visit is refused with the care assistant responsible (CR-007 rn_required or QUAL1 A1 42501, CGR-185)');
 select is((select count(*)::int from public.care_visits where case_id = (select id from bd4)), 0,
   'BD-4 S3: nothing is stored for the refused assessment visit');
 select is(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today(), '09:00', '10:00', 60, 0, 0, true,
@@ -147,9 +150,10 @@ select is(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today()
 -- S3 (KLV-B): with a present order (fixture, as pgTAP 014), the care assistant is still not made responsible ---------------------
 update public.cases set medical_order_status = 'present', medical_order_valid_until = pg_temp.today() + 30
 where id = (select id from bd4);
-select isnt(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today() + 3, '08:00', '08:45', 0, 15, 30, false,
-                            pg_temp.assist(), pg_temp.k(10)),
-  'ok', 'BD-4 S3: a KLV-B visit is refused with the care assistant responsible (QUAL1 B13 or CR-007)');
+select matches(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today() + 3, '08:00', '08:45', 0, 15, 30, false,
+                               pg_temp.assist(), pg_temp.k(10)),
+  '^(rn_required|42501 qualification_not_allowed)$',
+  'BD-4 S3: a KLV-B visit is refused with the care assistant responsible (CR-007 rn_required or QUAL1 B13 42501, CGR-185)');
 select is((select count(*)::int from public.care_visits where case_id = (select id from bd4) and visit_date = pg_temp.today() + 3), 0,
   'BD-4 S3: nothing is stored for the refused KLV-B visit');
 select is(pg_temp.plan_as(pg_temp.nurse(), (select id from bd4), pg_temp.today() + 3, '08:00', '08:45', 0, 15, 30, false,
