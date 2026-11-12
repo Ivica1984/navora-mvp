@@ -6,6 +6,45 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-11 23:50 CET · `uxa`: no screen code changed since 19:53; W-2 realigned to CGR-184 (a viewer with the right to plan sees the count only, a reader without it may see the lines: C-2a, C-3a); one stored wording «… derselben Pflegefachperson» for the saved-through warning on every view (F-6b, `lca` 20:22 note) and the F-2 sentence without time for (F2-a) (F-2b); UXR-159 words adopted by the PO; no new finding
+
+**What changed since 19:53.** `recovery/main` moved from `b87ffec` to `c96bff9`. Merged by the PO 21:39 to 22:39: #1069 (BD-2, merge `dcf7231`), #1090 (my 19:53 section), #1091 (`aia` 20:20), #1092 (`lca` 20:22), #1095 (PO 21:39/22:39). **No screen code changed:** `git diff b87ffec..c96bff9 -- src` is empty; #1069 adds e2e and unit files only (`tests/e2e/durchgang-ambulant.spec.ts`, `tests/e2e/support/*.ts`, `tests/unit/bd2-*.test.ts`). Open PRs: #1098 (PO), #1096 and #1093 (BD-4, pgTAP only), #1094 (`cra` 21:27), #1087 (STG1), #1084 (dependabot), #3; none touches `src/app`, `src/components`, styles or e2e screens. No new `ux` issue; #508 got a PO comment (UXR-163 placement). **Asks to `uxa`:** PO 21:39 and `cra` 21:27: align the W-2 design with CGR-184; `lca` 20:22: «eigenem Einsatz» is ambiguous for readers other than the author; `lca`: UXR-159 words.
+
+**Sources.** `ui-screenshots` artifact for `recovery/main` is still the one on `b87ffec` (id 13881505883; CI on later commits stalled, PO 22:39); the download was refused by this session's network proxy again. **No screenshots were available**; nothing on screen changed. Read: brief J5 amendment 21:39 (CGR-184, CGR-180 (2) acceptance, UXR-159, K-1); brief BD amendment 21:39 (UXR-163 placement); PO journals 21:39, 22:39; `cra` journal 21:27 (branch of #1094, not yet merged); `lca` journal 20:22. CI: I read no CI result and claim none; I ran no test. Live project not touched.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v16: no contradiction with my brief this run. Task as in my brief plus the asks above; no adjustment. No benchmark (done 03:52 today).
+
+### W-2 realigned to CGR-184 — PROPOSED (replaces C-2 and C-3 of 15:48 on who sees what; W-1, W-3 to W-5 unchanged)
+
+My 15:48 C-2 gave the per-visit lines to "coordination roles in scope" and the count to team members. CGR-184 switches on the right to plan, not on the role: whoever holds the right to plan for the visit's team is the (h1) hazard and sees the count only.
+
+| # | Proposal | Test (as brief J5 21:39) |
+|---|---|---|
+| C-2a | **Viewer with the right to plan for that team:** W-2 is one plain line «<n> Einsätze mit gemessener Pflegezeit unter 10 Minuten», W-1 once beside it. No `<details>`, no chevron, no link, no hover or focus style; no client name and no visit date of a short visit in the DOM (not hidden by CSS). No sentence explaining why the list is missing: any such line would be advice about short visits (W-4); if one is wanted, the words are `cra`'s. | e2e as a member with the planning right: one count, no visit line; e2e after her team gives her the right: the lines disappear. |
+| C-2b | **Viewer without that right** (a reader role, P-3, `lca` D-4): W-2 as at 11:48: the count as the `<summary>` of a closed `<details>`, inside «<Datum> · <Klient:in>» per visit, W-1 once above the list. | e2e as a reader without the right: the lines show. |
+| C-3a | **The switch is per team.** A coordinator who plans for team A but not team B sees team A's card as C-2a and team B's as C-2b. The card never says which state it is in. | pgTAP (brief): the per-visit W-2 query returns no rows for a caller holding the planning right for that team. |
+
+### Saved-through warning on views other than the author's — PROPOSED, `cra` and `lca` to confirm
+
+| # | Proposal | Test |
+|---|---|---|
+| F-6b | **One stored wording on every view of the marker** (timeline on `/field`, report review, `/abrechnung`): «gespeichert trotz Hinweis: Überschneidung mit einem anderen Einsatz derselben Pflegefachperson» and «gespeichert trotz Hinweis: Beginn vor Ende der Bedarfsabklärung». No viewer-dependent text: it is read from the stored warning code as `cra` asked, and it reads correctly for the author and for a colleague. «deinem Einsatz» stays only in the save-time warning F-3, which only the person saving sees. | unit: the marker text for the overlap code contains «derselben Pflegefachperson» and not «eigen» or «dein»; e2e as F-6 (`cra` condition: marker still shows after the overlap is gone). |
+| F-2b | **(F2-a) without the time:** when the caller may not read the assessment visit, F-2 reads «Mit dieser Zeit beginnt der Einsatz vor dem Ende der Bedarfsabklärung bei dieser Person.» (the same sentence, no bracket), and the warning still fires. | pgTAP (brief): assessment visit of another team → warning code, no time; unit: the no-time variant has no «()» and no digit. |
+
+### Findings
+
+No new finding: no screen code changed.
+
+### Closed
+
+None in full. Decisions that move open findings: **UXR-159** words adopted by the PO (21:39), bound to the `unvalidated` flag; open until built in B8. **UXR-163** placed by the PO (21:39): strings shown by a BD-4 negative step are fixed in that BD PR, the rest of UX1-C2 with the first `/field` block (B6); #508 stays open.
+
+**Open from earlier sections (unchanged):** UXR-156, UXR-157, UXR-159, UXR-160, UXR-161, UXR-162, UXR-163. Issues #508, #510, #944, #950 still open.
+
+**Waiting for the PO:** C-2a to C-3a and F-6b, F-2b into the B8 acceptance (CGR-184, CGR-180 (2)), once `cra` and `lca` confirm.
+
+---
+
 ## 2026-11-11 19:53 CET · `uxa`: #1072 merged: the billing preview no longer shows «D-11, D-18» (G-6 hit on `/team` closed on `recovery/main`); 26 code-bearing strings in `src/features/**` still reach pages, among them five on the nurse's `/field` (UX1-C2 still unmet, UXR-163, medium, #508); `cra` (f1) taken into F-1 and (f2) given a PROPOSED display on the timeline marker (F-6); UXR-162 remedy amended with `cra` (i)-(iii); `lca` «geschätzt» once per card taken into P-5
 
 **What changed since 15:48.** `recovery/main` moved from `b319597` to `b87ffec`. Merged by the PO: #1081 (my 15:48 section), #1082 (`lca` 16:25), #1088 (`cra` 17:27), #1086 and #1089 (`eng` journals), **#1072 (`eng`, BD / G-6 gap fix, merge `42fdccf`)**, #1085 (PO 16:39 to 18:39). Screen code changed only in #1072: `REFERENCE_NOT_VALIDATED` now reads «Tarife und Mindestdauer nicht validiert (kantonale Quelle, Pilotkanton offen)» and the element carries `data-ref="D-11 D-18"` (`rules.ts:20-25`, `billing-preview.tsx:61`), with a unit test that the text holds no code (`tests/unit/billing-rules.test.ts:19-25`). Open PRs: #1069 (BD-2; its `src` diff against `recovery/main` is now empty, e2e and unit only), #1087 (STG1, CI only), #1084 (dependabot), #3. No new `ux` issue. **Asks to `uxa`:** `cra` 17:27: (f1) in F-1 for `overlaps_own_visit`. Decisions that reach my sections: PO 16:39 K-3 dropped (no manual catch-up button), UXR-161 adopted (the K-1 group replaces the `not_generated` lines; label to `lca`); `cra` 17:27 UXR-162 acceptable with (i)-(iii), K-1 to K-5 no objection, CGR-182 (count only as the B8 default, PO to decide); `lca` 16:25 W-1/W-5 words confirmed and one «geschätzt» per card recommended (P-5).

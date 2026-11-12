@@ -46,8 +46,42 @@ IMPLEMENTED today:
 ## Clinical impact
 *(requested 2026-11-07 from `cra`, point 4a only)* Asked: does a gate per finished slice (one-day slices, WIP 1) keep everything that AUT-50 and condition 2 protect today? Specifically: no unreviewed code change in `src`, `supabase`, `tests` or `e2e` between the gated head and the merged head.
 
+**Clinical Architect 2026-11-12:** input on point 4a (advisory; an AI reviewer, not a licensed clinician; decides nothing; full text in `reports/CLINICAL_GOVERNANCE.md` 2026-11-12 01:31). **Yes, a gate per finished slice keeps what AUT-50 and condition 2 protect, on three conditions:**
+- **(4a-c1)** Every *merged* head is named in a `cra-gate` line, or its PR's own change is unchanged since a gated head. Intermediate heads need no line (as `lca` (4a-1)).
+- **(4a-c2)** The carry-over test compares the PR's own change: `git diff recovery/main...<head> -- src supabase tests e2e` is identical at the gated head and at the merged head. Today's raw `git diff <gated head> <merged head>` is not empty after a merge of `recovery/main` into the PR, although that content was gated in its own PR (case: #1093 `21a5c5b` → `cc99cc4`, PO 22:39). This is a stronger, mechanical check in place of a re-gate. It does not remove the gate. It can run in `agents-check` or in the merge comment.
+- **(4a-c3)** A slice that adds or changes a hard-coded clinical, billing or qualification rule is gated before merge, is never bundled with later work, and adds its Clinical Rule Register row in the same PR. A blocking finding holds the slice, whatever the cadence.
+
 ## Legal/compliance impact
 *(requested 2026-11-07 from `lca`, points 4 and 5: governance)* Asked: does any point weaken the audit trail of review and merge (`PO_MERGE_PROCESS.md` §6) or the traceability that FE-035 requires?
+
+**lca input 2026-11-12 00:25 on points 4 and 5 (advisory; an AI analyst, not a lawyer; not legal advice; no final determination).** Why now: the section was requested and empty, and the package touches governance (eligible, tier 4; nothing in tiers 1-3 was eligible this run). Read on `recovery/main` `1bb09cb`: this package, `PO_MERGE_PROCESS.md` §4 condition 2 and §6, Blueprint QG-2 (AUT-50), `FOUNDER_DECISIONS.md` v16 (FE-035, FE-050, FE-052, FE-053, FE-054), `proposals/2026-11-10-konflikte-qualitaet/` (V12). No `cra` input exists for point 4a yet (Clinical section still *requested*; no COORD-7 mention in `CLINICAL_GOVERNANCE.md`), so nothing below covers the clinical question.
+
+**Sources (read 2026-11-12 00:22-00:24, through a summarising fetch tool; article texts not read verbatim):**
+- [E1] EDÖB, *Leitfaden … Meldung von Datensicherheitsverletzungen … nach Art. 24 DSG*, v1.2 (6 Feb 2025, amended 23 Apr 2025), [edoeb.admin.ch](https://www.edoeb.admin.ch/dam/de/sd-web/T64CAUyvAMcF/1_2%20Leitfaden%20des%20ED%C3%96B%20betreffend%20die%20Meldung%20von%20Datensicherheitsverletzungen%20und%20Information%20der%20Betroffenen%20nach%20Art.%2024%20DSG_DE.pdf): the controller notifies the FDPIC «so rasch als möglich» (Art. 24 Abs. 1 DSG) and may not wait for lengthy investigations; a processor informs the controller of every breach; missing details may follow (Art. 15 Abs. 2 DSV). No fixed hour limit in the guide.
+- [E2] EDÖB, *Recommendation on logging under the DPO* v1.0 (15 Sep 2023), [edoeb.admin.ch](https://WWW.EDOEB.ADMIN.CH/dam/edoeb/en/dokumente/datenschutz/Empfehlung%20Protokollierung%20nach%20DSV_EN.pdf.download.pdf/Empfehlung%20Protokollierung%20nach%20DSV_EN.pdf): Art. 4 DSV logging concerns processing operations on personal data (storage, change, read, disclosure, deletion), kept at least one year; it says nothing about software-development or review records.
+
+**Settled (with sources):**
+- No source I read requires a particular review, gate or merge cadence for software development, or a version row per document change. The merge trail of §6 and FE-035 are **internal governance rules** (founder decisions), not legal duties. Art. 4 DSV logging [E2] is about processing personal data in the product (IMPLEMENTED or PLANNED elsewhere, not affected by this package). So points 4 and 5 are mainly governance choices for the owner; the legal view only checks that they do not remove evidence NAVORA may later need.
+- Phase A has synthetic data only (FE-031, D-1); staff test accounts carry e-mail addresses (personal, not health data; my D-2 and D-26 sections). A breach involving them would still fall under Art. 24 DSG if it is likely to cause a high risk [E1].
+
+**Verdicts:**
+- **4a (one `cra` gate line per finished slice head, within AUT-50): compliant under every plausible interpretation, with (4a-1):** every *merged* head is either named in a gate line or covered by an empty `git diff <cleared head> <merged head> -- src supabase tests e2e` recorded in the merge comment (§6, condition 2), as today. Intermediate, unmerged heads need no line. This keeps the §6 trail unchanged: one gate line per merged code state. Whether it keeps what AUT-50 protects clinically is `cra`'s question (still open).
+- **4b (`uxa`/`aia` daily): no legal or audit-trail effect.** Cadence is the owner's (scheduled tasks). Note: the owner has since set the cadence of the gate roles himself (V12, 2026-11-10 22:55: `lca` and `cra` every 4 h, PO :39, `eng` :09), so 4b is partly overtaken; that is for `po` to record, not for me.
+- **4c (Blueprint version row only on milestone change): not a legal question, but it would weaken FE-035,** which asks for a version row and traceable substantial changes; FE-035 is a newer founder decision than this proposal's evidence and governs (README rule 10). git history keeps every change either way, so no legal duty I know of is affected; the loss is in readable traceability. The PO's (c) "no" is the most protective option and **compliant under every plausible interpretation**; (c) "yes" needs the owner, as the package already says.
+- **5 (weekly 30-minute owner slot): compliant under every plausible interpretation, with (5-1) and (5-2):**
+  - (5-1) the slot never delays anything that must go to the owner at once: a suspected data-security breach (Art. 24 DSG «so rasch als möglich», [E1]; even in Phase A for staff accounts or keys), a stop case or a live-system incident. These keep the immediate path (`docs/engineering/OWNER_RUNBOOK.md`) outside the slot.
+  - (5-2) each owner answer from the slot is recorded by the PO as an FE row with source and time (FE-035, `FOUNDER_DECISIONS.md` rule), as already done. A fixed slot attended by the PO would also reduce answers that reach the PO second-hand (FE-050 «nicht vom PO selbst gehört»; open PR #1100 records answers given in an `eng` session), which helps traceability.
+- **No contradiction with FE-052/FE-054 found:** FE-054 (merge only with green CI on head and merge commit) adds conditions; 4a does not relax them.
+
+**UNKNOWN:**
+- Whether a medical-device or quality-management standard (e.g. software change control) would later require a per-change review record. It would matter only if NAVORA were a medical device, which is the owner's goal not to be (D-34, my 2026-11-04 section; not a confirmed classification). Not read today; no rule is assumed. If D-34 ever changed, the present §6 trail (gate per merged head, merge record, journal) is the evidence to keep.
+- Retention period for the governance records themselves (journals, merge comments): no source read; git and GitHub keep them for now. Not a question for the adviser catalogue unless Phase B makes them business records.
+
+No new adviser question; `ADVISER_CATALOGUE.md` unchanged.
+
+*Note to po:* (4a-1), (5-1) and (5-2) can go into the owner's sentence for points 4 and 5. The package still names MERGE1-2/MERGE1-9 risks about `JOURNAL.md`; FE-053 (owner, 2026-11-10) has replaced that mechanism, and V12 has partly overtaken 4b; both are yours to update. `cra` input for 4a is still missing.
+
+`lca 2026-11-12 00:25`
 
 ## Risks and mitigations
 | Risk | Mitigation |
