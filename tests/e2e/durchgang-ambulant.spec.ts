@@ -1,6 +1,8 @@
 import { expect, test, type Browser, type Locator, type Page } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { REFERENCE_NOT_VALIDATED, monthStart } from "@/features/billing/rules";
 import { TEAM_OFFERS_HEADING } from "@/features/field/todo";
+import type { Database } from "@/lib/supabase/database.types";
 import {
   ASSESSMENT_MINUTES,
   CARE_MINUTES,
@@ -45,6 +47,9 @@ import { ActLog } from "./support/act-count";
 //            proposal on (PLAN3-10, a team act), asks for today (`propose_day_plan`) and confirms the one line per value
 //            (AIG1, `confirm_suggestion`). The proposal is rule-based; no client data to any AI service (D-35 rule A).
 // Not in this run (BD-3: named, not faked): steps 6-7 dictation and AI draft — PLANNED (B6), «nicht nachgewiesen».
+// BD-7: row types of the two readers the run calls through the untyped API client (generated types, T14).
+type OfferRow = Database["public"]["Functions"]["team_offers"]["Returns"][number];
+type PreviewRow = Database["public"]["Functions"]["billing_preview"]["Returns"][number];
 const PASSWORD = "navora-local-only";
 const OPS = "opsbs.test@navora.test"; //         org S, operations (J1 intake)
 const NURSE = "pflegebs.test@navora.test"; //    org S, registered nurse, Testteam Basel
@@ -55,6 +60,8 @@ const OTHER_NURSE = "pflege.test@navora.test"; // org A, nurse of Testteam Nord 
 const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel (seed, ADR-180)
 const F3_REASON = "Testlauf: simulierte Einsatzdauer";
 const TITLE = "Durchgang Übergangspflege Basel";
+// The team search carries the referral title behind «Teamsuche: » (`private.open_matching_if_ready`, 0034).
+const OFFER_TITLE = `Teamsuche: ${TITLE}`;
 const FIRST = "Bea";
 const LAST = "Durchgangtest";
 
@@ -215,6 +222,23 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await noInternalCode(ops, "/intake");
   await ops.context().close();
 
+  // BD-7 (a)(ii) (`lca` L-1): while the offer is open, `team_offers()` (0086) gives it to the nurse of Testteam Basel and
+  // to nobody of another organisation. Read under RLS through the same RPC the screens use; no human act (AUT-88).
+  {
+    const own = await asPerson(NURSE);
+    const { data: ownOffers, error: ownOfferError } = await own.rpc("team_offers");
+    expect(ownOfferError).toBeNull();
+    expect((ownOffers as OfferRow[]).filter((o) => o.request_title === OFFER_TITLE).map((o) => o.team_id), "the open offer reaches Testteam Basel")
+      .toEqual([TEAM_S]);
+    await own.auth.signOut();
+    const other = await asPerson(OTHER_NURSE);
+    const { data: otherOffers, error: otherOfferError } = await other.rpc("team_offers");
+    expect(otherOfferError, "team_offers as a nurse of another organisation").toBeNull();
+    expect((otherOffers as OfferRow[]).filter((o) => o.request_title === OFFER_TITLE || o.team_id === TEAM_S),
+      "team_offers: no offer of the run for a nurse of another organisation").toEqual([]);
+    await other.auth.signOut();
+  }
+
   // ── Step 1 (J2): the nurse sees the offer first on /field (UXR-155), without the client's name, and takes it. ──────
   acts.step("1 Team übernimmt den Fall (Pflege)");
   const nurse = await person(browser, NURSE, true);
@@ -354,6 +378,10 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await expect(preview.getByTestId("estimate-label")).toContainText("Schätzung – keine Rechnung");
   await tap(preview.getByRole("button", { name: "Abrechnungsfakten erzeugen" }));
   await expect(preview.getByRole("status")).toContainText("2 neue Abrechnungsfakten erfasst");
+  // BD-7 (b) (`lca` L-2): no seeded rate is validated (0043, CGR-08), so the team's preview says so. If a seed ever marks
+  // a rate validated without a D-11 / D-18 decision, this line goes and BD turns red (FE-060: no tariff is proven).
+  await expect(preview.getByRole("article", { name: "Vorschau Testteam Basel" }).getByTestId("reference-not-validated"),
+    "the reference rates are shown as not validated").toHaveText(REFERENCE_NOT_VALIDATED);
   await noInternalCode(nurse, "/team (billing)");
   await nurse.context().close();
 
@@ -448,6 +476,13 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   for (const f of facts!) expect(f.report_id, `fact of ${f.visit_id} names its final report`).toBeTruthy();
   expect(facts!.find((f) => f.visit_id === aVisit.id)).toMatchObject({ billable: true, reasons: [], planned_minutes_a: ASSESSMENT_MINUTES });
   expect(facts!.find((f) => f.visit_id === cVisit.id)).toMatchObject({ billable: true, reasons: [], planned_minutes_c: CARE_MINUTES });
+  // BD-7: the month's preview row of Testteam Basel, read as the nurse (the reader the screen uses), is unvalidated and
+  // is the positive side of the negative read below.
+  const month = monthStart(today);
+  const { data: ownPreview, error: ownPreviewError } = await db.rpc("billing_preview", { p_month: month });
+  expect(ownPreviewError).toBeNull();
+  expect((ownPreview as PreviewRow[]).filter((r) => r.team_id === TEAM_S).map((r) => r.reference_validated), "Testteam Basel: one preview row, not validated")
+    .toEqual([false]);
   await db.auth.signOut();
 
   // ── Negative (BD brief): a nurse of another organisation reads none of the run's records. ──────────────────────────
@@ -467,5 +502,22 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   // PLAN3-8: the reader returns only lines of her own teams (0116 `day_plan`), so none of the run reaches her.
   expect(otherPlanError).toBeNull();
   expect(otherPlan, "day_plan: no line for a nurse of another organisation").toEqual([]);
+  // BD-7 (a)(i) (`lca` L-1): `billing_preview` (0043) lists only teams in her scope (`is_org_member`), so no Testteam Basel row.
+  const { data: otherPreview, error: otherPreviewError } = await other.rpc("billing_preview", { p_month: month });
+  expect(otherPreviewError, "billing_preview as a nurse of another organisation").toBeNull();
+  expect((otherPreview as PreviewRow[]).filter((r) => r.team_id === TEAM_S), "billing_preview: no Testteam Basel row for a nurse of another organisation")
+    .toEqual([]);
+  // BD-7 (a)(iii) (`lca` L-1): the referral and its team search are read only by coordinators of their own organisation
+  // (0015 `coordinators_read`); by title and by the run's case, no row reaches her.
+  for (const [table, column, value] of [
+    ["partner_requests", "request_title", TITLE],
+    ["partner_requests", "converted_case_id", caseId],
+    ["matching_requests", "request_title", OFFER_TITLE],
+    ["matching_requests", "case_id", caseId],
+  ] as const) {
+    const { data, error } = await other.from(table).select("id").eq(column, value);
+    expect(error, `${table} by ${column} as a nurse of another organisation`).toBeNull();
+    expect(data, `${table}: no row of the run for a nurse of another organisation (by ${column})`).toEqual([]);
+  }
   await other.auth.signOut();
 });
