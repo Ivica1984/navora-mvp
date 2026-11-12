@@ -1,11 +1,11 @@
 ---
 id: COORD-7
 title: Build efficiently toward M9 (merge mechanics, WIP limit, order, review cadence, owner slot)
-status: inputs-requested
+status: awaiting-approval: owner
 owner_in_row: po
 confidence: Medium
 approval_required: owner (points 4 and 5 only)
-updated: 2026-11-07
+updated: 2026-11-12
 ---
 
 # COORD-7 — Build efficiently toward M9
@@ -86,23 +86,36 @@ No new adviser question; `ADVISER_CATALOGUE.md` unchanged.
 ## Risks and mitigations
 | Risk | Mitigation |
 |---|---|
-| MERGE1 loses or rewrites a past journal entry | MERGE1-2 (text unchanged, tested), MERGE1-9 (transition window) |
-| Roles keep writing `JOURNAL.md` under old prompts | MERGE1-8: prompt list for the owner; MERGE1-9: two-week warning, PO moves stray entries |
+| ~~MERGE1 loses or rewrites a past journal entry~~ | ~~MERGE1-2, MERGE1-9~~ **Overtaken 2026-11-12 (po):** FE-053 (owner, 2026-11-10) made every journal entry its own file and `JOURNAL.md` an archive; the conflict mechanism is gone |
+| ~~Roles keep writing `JOURNAL.md` under old prompts~~ | ~~MERGE1-8, MERGE1-9~~ **Overtaken 2026-11-12 (po):** FE-053 |
+| A mechanical three-dot check is read as replacing the gate | (4a-c2) keeps the gate: the PR's own change still needs a `cra-gate` line; only the re-gate after a pure `recovery/main` merge-in falls away |
+| A fixed owner slot delays an urgent item | (5-1): breach, stop case and live incident keep the immediate path (`docs/engineering/OWNER_RUNBOOK.md`) |
 | WIP 1 stalls Engineering while a `cra` gate is pending | Engineering may prepare the next slice locally and push it once the open PR merges; docs work continues |
 | Holding back the NH-A work misses 2026-11-27 | the PO writes NH-A1 and NH-A2 briefs ahead of that date (Blueprint M9.0a), so Engineering can start right after QUAL1 part 2 |
+
+## PO consolidation 2026-11-12 02:39 CET (all inputs in)
+
+Inputs: Engineering (#960, 2026-11-07), `cra` point 4a (2026-11-12 01:31, three conditions), `lca` points 4 and 5 (2026-11-12 00:25, compliant with (4a-1), (5-1), (5-2)), `aia` support of (4a-c2) (review 47, 02:22; advisory, not a requested input). No input disagrees with another. Evidence since 2026-11-07: #1093 waited two PO runs (22:39, 23:39) for a re-gate whose only new diff was already-gated `recovery/main` content merged into the branch (`21a5c5b` → `cc99cc4`); the cleared head's own change was identical.
+
+- **Point 4a (gate per finished slice):** recommend **yes, with (4a-c1) to (4a-c3)** (`cra`) and (4a-1) (`lca`, same as (4a-c1)). In practice this changes one line of `PO_MERGE_PROCESS.md` §4 condition 2: the carry-over check becomes `git diff recovery/main...<head> -- src supabase tests e2e` identical at the gated head and at the merge head (three-dot, the PR's own change), recorded in the merge comment, in place of today's two-dot `git diff <cleared head> <head>`. The gate itself, FE-054 and (4a-c3) (a rule-changing slice is gated before merge, never bundled, register row in the same PR) stay. This tightens nothing away: a change in the PR's own diff still needs a new line.
+- **Point 4b (`uxa`/`aia` daily):** **overtaken** by the owner's cadence of 2026-11-10 22:55 (V12: `lca` and `cra` every 4 h, PO :39, `eng` :09). Nothing to ask; `uxa`/`aia` cadence stays as their tasks have it.
+- **Point 4c (Blueprint row only on milestone change):** recommend **no**; FE-035 stays (`lca`: the most protective option). Nothing to change.
+- **Point 5 (weekly 30-minute owner slot):** recommend **yes, with (5-1) and (5-2)**: finished packages only, one sentence each in `OWNER_AGENDA.md`; breach, stop case and live incident never wait for the slot; every answer becomes an FE row with source and time. Day and time are the owner's.
+- **Link to V1-V14 (FE-054):** V12 also covers cadence. If the owner prefers one rule-change package, 4a can be answered together with the V1-V14 consolidation (waiting for the `csa` file). Asked now because it is complete and costs a re-gate per merge-in.
 
 ## Recommended default for NAVORA
 - **Point 1:** MERGE1 before the next feature slice, after the four waiting PRs (`briefs/MERGE1.md`).
 - **Point 2:** at most one open Engineering code PR; one merge per PO run; docs-only Engineering PRs in the same queue.
 - **Point 3:** #837 → #961 → #815 → #907 → MERGE1 → QUAL1 part 2 (CGR-153; CGR-154 + UXR-134 + CGR-155; QUAL1-20; QUAL1-15) → UX2 remainder (M2, 2026-11-27) → NH-A1, NH-A2 → NH-A3, NH-A4 → BILL1 on synthetic data (option A, D-18/D-22 po-decided for Phase A) with NH-A5 → M6 offline → M9.0. M5 website, M7 and M8 v2 wait behind (owner: "the website yields"). PLANNED, Low confidence on dates.
-- **Point 4 (PROPOSED for the owner, after `cra`/`lca`):**
-  - (a) yes, within AUT-50: one gate line per finished slice head; any code change after it needs a new line.
-  - (b) owner's choice.
-  - (c) no: FE-035 stays. The PO keeps the version table, but writes one row per run (not per change), which already holds.
-- **Point 5 (PROPOSED for the owner):** a weekly 30-minute slot. The PO prepares a one-sentence ask per finished package in `OWNER_AGENDA.md`, in the order G-1 → D-2 → D-29 → D-18/D-22.
+- **Point 4 (for the owner; updated 2026-11-12 02:39 after all inputs):**
+  - (a) **yes, with (4a-c1) to (4a-c3)**: one gate line per merged slice head; carry-over by the three-dot diff of the PR's own change (§4 condition 2, one line); a rule-changing slice gated before merge and never bundled.
+  - (b) overtaken by the owner's V12 cadence (2026-11-10); no ask.
+  - (c) no: FE-035 stays.
+- **Point 5 (for the owner):** a weekly 30-minute slot with (5-1) and (5-2). The PO prepares a one-sentence ask per finished package in `OWNER_AGENDA.md`. ~~in the order G-1 → D-2 → D-29 → D-18/D-22~~ (G-1 replaced by D-43, 2026-11-10; order as `OWNER_AGENDA.md` stands at the time).
+- **Default in force until the owner answers:** today's §4 condition 2 (two-dot carry-over, re-gate when it is not empty), today's cadence, FE-035, no fixed slot.
 
 ## Recommendation confidence
-Medium. Points 1 to 3 rest on repository evidence (journal, PR history). Point 4a waits for `cra`, and points 4 and 5 for `lca`.
+**Medium** (2026-11-12): all inputs are in and agree; points 4a and 5 are governance choices, not legal duties (`lca`), and the clinical protection is kept by (4a-c1) to (4a-c3) (`cra`). Not High, because the inputs are advisory AI analyses and the cadence effect is estimated from two weeks of runs. ~~Point 4a waits for `cra`, and points 4 and 5 for `lca`.~~
 
 ## Owner approval required?
 - **Points 1-3: no.** The PO decides. None of the escalation criteria applies: no legal interpretation, no clinical rule, no commercial or pricing choice, no regulatory liability, no funding or partnership, and no production or live-database change. Order and merge sequence are product authority (README rule 1, FE-018).
@@ -111,3 +124,4 @@ Medium. Points 1 to 3 rest on repository evidence (journal, PR history). Point 4
   - 4c touches FE-035, and point 5 is the owner's time.
 
   Until the owner answers, today's cadence and FE-035 apply.
+- **Escalated 2026-11-12 02:39 (po): `awaiting-approval: owner`.** Ask: «COORD-7: 4a approved with (4a-c1) to (4a-c3); 5 approved with (5-1), (5-2)» (or either one alone). It blocks only the change of one line in `PO_MERGE_PROCESS.md` §4 condition 2 and the slot; no product item waits for it.
