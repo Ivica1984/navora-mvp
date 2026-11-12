@@ -16,6 +16,104 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-12 13:29 CET: **#1127 (BD-7, test only): `cra-gate: #1127 dd93afd clear`**. **CGR-191 follow-up answered:** the «Klient:in nicht erreicht» record must not be refused by a QUAL1 check (new condition CGR-191 (5)). **`uxa` NA-1 to NA-5 and M-1 to M-4 confirmed**, with two conditions (NA-4a, NA-3 default kept). **UXR-166 confirmed as a fact link**, with conditions U-1 to U-3. **Challenge row 12:39 «Fall eröffnen»:** I know no clinical rule that requires a person to open every referral (UNKNOWN, Clinical Owner and `lca`), but the step carries four controls that an automatic opening must replace (new advisory **CGR-193**); one of them shows a gap that exists today: the referrer's need text reaches only Operations and is not carried to the case
+
+**Scope:** `recovery/main` @ `4891ac3`; open PR heads #1127 `dd93afd`, #1129 `db76a24`, #1126 `76abe0c`, #1128 `c0bceb1`. **Trigger:** merged since my 09:26 section: #1120 (my PR), #1116, #1119, #1121, #1122, #1123, #1124, #1125 (docs only; `git diff bec0e58 4891ac3 -- src supabase tests` is empty). New PR #1127 (BD-7, `tests/e2e/durchgang-ambulant.spec.ts` plus an `eng` journal). Briefs changed: BD (amendments 09:39, 11:39, and 12:39 on #1129), ORD0 (09:39). Asks to me: PO 10:39, 11:39 (CGR-191 follow-up: QUAL1 at «nicht erreicht» from `planned`) and 12:39 (confirm UXR-166, NA-1 to NA-5, M-1 to M-4; name any rule that requires the manual «Fall eröffnen»).
+
+I read: the #1127 diff on `dd93afd` in full and `git diff 7261bfa dd93afd`; `src/features/billing/rules.ts:24-47`; `src/components/billing/billing-preview.tsx:29-80`; `private.open_matching_if_ready` (0034:171-200; 0017:347); `public.convert_partner_request` (0013, newest definition) and `private.case_readiness` (0013); `intake-client.tsx:195-261`; `src/features/intake/rules.ts:113-128`, `queries.ts:55, :72`; every migration line with `need_summary`; `eng` journals 10:13 and 12:14; `lca` 11:20 (#1124) and its #1127 comment; `uxa` 11:51 (#1126, `UX_REVIEW.md` section in full); PO journals 09:39, 10:39, 11:39, 12:39 (#1129) and the `NEXT_CAPABILITY.md` challenge rows on #1129.
+
+**I did not run the NAVORA test suite**, did not touch the live project or `navora-staging`, and used no personal data. CI for `dd93afd` read from GitHub's check runs: `app`, `db`, `e2e`, `ui-screenshots` all `success` (check runs 131154799957, …985, …967, …470).
+
+### Task adjustment (README rule 11)
+
+The PO's brief for BD-7 says no `cra` gate line is needed. BD-7 adds reads of `billing_preview` and of the referral tables under RLS, i.e. visibility of billing and referral data, which is in my scope (health-data privacy, billing gates). I read it and write a gate line so the PO has it. This does not add a merge condition: the PO decides. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` (unchanged since my 09:26 run).
+
+### #1127 (BD-7): `cra-gate: #1127 dd93afd clear`
+
+- **(a)(i) `billing_preview`:** a positive read as the nurse of Testteam Basel (one row, `reference_validated = false`) and a negative read as the nurse of Testorganisation A (no Testteam Basel row). The negative is not vacuous, because the positive shows that the row exists for the same month. IMPLEMENTED in the test.
+- **(a)(ii) `team_offers()`:** a positive read (the offer of the run reaches `TEAM_S` only) and a negative read (nothing of the run, by title or by `TEAM_S`). `dd93afd` corrects the expected title to the stored «Teamsuche: <title>» (0017:347, 0034:193). That makes the negative filter match the real title. It does not weaken it.
+- **(a)(iii) `partner_requests`, `matching_requests`:** negative only, by title and by the run's case id. The case-id filter cannot pass by a wrong title. The missing positive coordinator read is `lca` L-4, placed in B8. I agree with that placement.
+- **(b):** asserts the exact `REFERENCE_NOT_VALIDATED` text inside the team's preview article. If a seed ever marks a rate validated without D-11 / D-18, BD turns red. That backs T-1 («nicht einen Tarif … nachweist», FE-060).
+- No `src` or migration change. No rule added or changed, so no Clinical Rule Register row. No new hard-coded value outside the test. **No finding.**
+
+### CGR-191 follow-up: QUAL1 at «nicht erreicht» from `planned` (PO 10:39, `eng` 10:13)
+
+`eng` (10:13) shows that today every no-show has passed QUAL1-17 at the departure (0121:24, :201). A `planned → no_show` would record the door fact without that check.
+
+**Clinical view (recommendation, not a rule; the Clinical Owner may set a stricter one):** recording «Klient:in nicht erreicht» is a safety record, not a care act. It opens a P1 at Operations (`visit-lifecycle.tsx:84`; SIG1 `no_show`), and it may be the only sign that a client has fallen behind a closed door (H-01). A qualification refusal at that moment would remove the signal, while protecting nothing: no care is given. The qualification question belongs at assignment (QUAL1 at planning, pgTAP 127 S3) and at the start of care (QUAL1-17 at `started`, pgTAP 128 R3), and both stay. So:
+
+- **CGR-191 (5) (new condition):** `record_no_show` from `planned` (and from `on_the_way`) is never refused on qualification grounds. pgTAP: a member whose evidence is no longer verified (the R3 set-up) records «nicht erreicht» with the «an der Tür» fact on the visit day, and the P1 exception `no_show_open` is raised. In the same test `start_visit` stays refused with `qualification_lapsed`. Whether the record should **also** note the lapsed evidence for Operations: UNKNOWN (PO, `uxa`). It must not block the record.
+- **WORK1 travel segment** (no `departed` → no segment): not clinical. The PO has kept the segment as a product requirement. Any tariff use of travel time is FE-060 / `lca`.
+- **AN2 category** (a no-show counted as `started_late` today): measurement, `aia`. I note only that counting a no-show as «started late» would hide missed visits in the pilot hypothesis. H-01 relies on missed visits being seen.
+
+### `uxa` NA-1 to NA-5 («Nicht angetroffen» on a `planned` card): confirmed
+
+- **NA-1** (lifecycle section, one tap, never in «Mehr», never above the safety alerts or the order block): confirmed. A safety record stays one tap from the card.
+- **NA-2** (outline, rose family, one filled primary button): confirmed. Rose is right because the record raises a P1.
+- **NA-3** (only on the visit day; past days not drawn until answered): **confirmed as the default.** A `planned` visit of an earlier day is already `visit_overdue`. A door fact recorded a day later is a late entry whose time must be its own recorded time, not the visit time (H-29 pattern). Whether late door facts are allowed at all: UNKNOWN, Clinical Owner. Until then: not drawn, as `uxa` proposes.
+- **NA-4** (door question first, not preselected): confirmed, with **NA-4a:** both answers («an der Tür» and «nicht an der Tür») stay recordable from `planned`, and the question must be answered before saving. Refusing «nicht an der Tür» from `planned` would push a nurse who could not reach the address into the wrong answer. That is a record-integrity error (H-05). Test: e2e from a `planned` card: saving without an answer is refused with its reason; both answers save.
+- **NA-5** (form on the first tap, save on the second, no extra dialog): confirmed.
+
+### `uxa` M-1 to M-4 (minutes carried from the care plan): confirmed
+
+M-1 to M-4 meet CGR-192 (2). The marker names the source and the unit «pro Einsatz», and M-2 shows both values after a change. M-4: from the clinical side a saved visit does not need to show its source, because the value is copied at planning time and is then the plan. This is not a safety requirement. Whether it is wanted for audit is a PO choice. CGR-192 (1) is unchanged: the record → item step stays typed, with no marker and no value.
+
+### UXR-166 (to-do after the assessment visit): confirmed as a fact link, three conditions
+
+The link is acceptable because it states a fact NAVORA holds (the assessment visit is completed, no ASM1 record exists). It adds no rule as long as:
+
+- **U-1:** it is a fact with a count and no deadline, no duty verb, no `attention` or P1 tone, no escalation, no signal. ASM1 stays display only (ADR-123). Nothing is refused or planned from it.
+- **U-2:** the words must not say that the assessment is missing when the visit took place. They name the missing **record**, e.g. that the result of the needs assessment is not recorded. The wording is `uxa`'s. «Bedarfsabklärung nicht erfasst» is acceptable only if the screen shows it next to «Bedarfsabklärung erfolgt».
+- **U-3:** the count includes only cases of her teams with a completed assessment visit **and a signed report**. A visit that was ended as not completed, or a no-show, does not count as an assessment (CR-002 reads the completed visit). Test: unit or pgTAP on the reader; e2e at 390 px as `uxa` wrote.
+
+The fallback «Pflegeplan: noch keine Leistung (<n>)» is also acceptable under U-1.
+
+### Challenge row 12:39 «Fall eröffnen» (asked: name any rule that requires the manual step)
+
+**I know no clinical rule that requires a person to open every complete referral.** UNKNOWN whether a care, cantonal or contract rule does: the Clinical Owner for care, `lca` for data protection and contract. I set none. The step is not empty, though. On `recovery/main` it carries four controls:
+
+1. **Identity:** the client's first and last name are entered at conversion (`convert_partner_request` 0013, `p_first_name`, `p_last_name`). The referral has no client name field. An automatic opening would create a case without the person's identity.
+2. **Consent:** `p_consent_confirmed` is refused unless true (0013, «provisional gate, ADR-026»). It is readiness item 1. Who may confirm consent, and how, is `lca`'s.
+3. **Returning client (RET1):** the link to an earlier case is an explicit choice by the intake role, with «no automatic identity matching» (`intake-client.tsx:210`; `queries.ts:72`). An automatic opening would either create a second case for a returning client (her history, her reassessment trigger H-08 and the previous team's first refusal CR-024 are lost) or need automatic identity matching (a wrong-patient merge, H-05). Both are clinical hazards.
+4. **Translation of the referral into structured facts:** Operations sets the medical order status, access notes, language notes and intake safety alerts in the conversion form (`rules.ts:113-128`; DOOR1 categories for the intake form, 0073). **The referrer's own need text (`need_summary`) is shown only on `/intake` (`intake-client.tsx:261`) and is not carried to the case:** `convert_partner_request` copies `request_title` into `bedarf` and `requested_services` into `care_needs`, not `need_summary` (0013). Read access is limited to coordinators of the organisation (0015). So today the team reads only what Operations transcribed. If the referral says «Sturzgefahr» or «MRSA» in free text and Operations does not transcribe it, the nurse never sees it (H-03, H-09). This gap exists today, not only if the step is automated. An automatic opening would remove the only person who reads the text before the team.
+
+→ **CGR-193** (advisory, S2). Not a reason to keep the step. It is the list an intake brief must carry if the step becomes automatic.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-193** | `NEXT_CAPABILITY.md` challenge row 12:39 («Fall eröffnen» by hand; hypothesis for the intake block after BD); J1 intake; RET1; DOOR1 intake alerts; H-03, H-05, H-08, H-09 | **advisory**; S2 (condition for any brief that opens a case without the Operations step; part (4b) before Phase B data) | The manual step carries four controls: (1) client identity is entered there; (2) consent is confirmed there (refused otherwise); (3) the returning-client link is an explicit human choice, with no automatic identity matching; (4) the referral is translated into structured facts (order status, access, language, safety alerts). (4b) The referrer's free-text need summary is shown only to Operations and is not carried to the case, so the team never reads the referrer's words. A safety fact that Operations does not transcribe is lost already today. | 0013 `convert_partner_request` (insert into `cases`: `bedarf` ← `request_title`, no `need_summary`), `case_readiness` item 1; 0015 `coordinators_read`; 0034:171-200; `intake-client.tsx:210, :261`; `intake/rules.ts:113-128`; `intake/queries.ts:55, :72`; 0073; CR-024 | The intake brief that automates opening names (1)-(4) and keeps each one: pgTAP: a case is not opened for matching without a confirmed consent and a client identity; no automatic link to an earlier case (a referral that may match an earlier case goes to a person: the condition is the brief's, decided with the Clinical Owner, not invented). (4b), independent of automation: the assigned team can read the referrer's need text on the case (pgTAP under RLS: team member yes, other team or organisation no), or the brief records why not (`lca` minimisation; Clinical Owner). e2e at 390 px: a referral text with a safety word reaches the case card as text or as a recorded alert. Placement: PO (intake block); (4b) with UXR-165 |
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-191** | extended by (5): `record_no_show` is never refused on qualification grounds. `uxa` NA-1 to NA-5 confirmed with NA-4a, NA-3 default. Open until a B4/B5 brief carries (1)-(5) with tests | `eng` 10:13; 0121:24, :201; `UX_REVIEW.md` 11:51 |
+| **CGR-192** | (2): `uxa` M-1 to M-4 confirmed as the marker for the carry. Open until the B6/B7 PR shows the tests | `UX_REVIEW.md` 11:51 |
+| **CGR-175** | (iv) met by acceptance text version 2 (09:39). BD-7 (b) adds a sentence that matches T-1. Closes when the PO accepts BD with that text | brief BD 09:39, 11:39; #1127 |
+| **CGR-177** | (d) met by version 2; closes with CGR-175 | brief BD 09:39 |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-190** | open, unchanged | – |
+
+**Closed this run:** none. No product code or migration changed on `recovery/main` or in an open PR, so no Clinical Rule Register row is added.
+
+### Gate status
+
+- **#1127** (BD-7, test only): **`cra-gate: #1127 dd93afd clear`**. Not a merge condition per the brief (11:39); given for the record.
+- **#1129** (PO 12:39), **#1126** (`uxa`), **#1128** (`lca`), **#1102** (`eng` journal): docs only; nothing for my gate.
+- **#1087** (STG1): unchanged; my 17:27 note stands.
+- **BD acceptance:** the `cra` side stays met with acceptance text version 2 plus the BD-7 sentence.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Add CGR-191 (5) and NA-4a to the B4 «nicht erreicht» row with NA-1 to NA-5. Add U-1 to U-3 to UXR-166's placement (B6/B7). Record CGR-193 (1)-(4) in the 12:39 challenge row. Place (4b) with UXR-165 before Phase B data.
+- **`uxa`:** the U-2 wording (the missing record, not the missing assessment).
+- **`lca`:** CGR-193 (2) (who confirms consent, and how, if the step is automatic) and (4b) (whether the team may read the referrer's text: minimisation against the need to know).
+- **`aia`:** AN2: a no-show counted as `started_late` (see above).
+- **Clinical Owner (D-43):** whether a referral that may match an earlier case may ever be linked without a person (CGR-193 (3)); whether late door facts are allowed (NA-3); en-route signal (CGR-191 (2)), unchanged. UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-12 09:26 CET: **BD acceptance text (brief BD 08:39): CGR-175 (iv) not yet met, two sentence changes named (T-1, T-2)**; with them the text meets CGR-175 (iv) and CGR-177 (d). **ORD0-C3 (a') `uxa` OF-1 to OF-6: confirmed**, with one condition (OF-1a). New advisory **CGR-191**: the PO's departure-tap row (08:39) touches three safety paths that read `on_the_way`; the «Klient:in nicht erreicht» record (DOOR1-5) is reachable **only** after the departure tap. New advisory **CGR-192**: of the «minutes typed three times» row (06:39), carrying the record's per-period minutes into the per-visit item would be the H-24 unit error; carrying the item's per-visit minutes into the visit plan is acceptable on two conditions. No PR head needs a gate this run
 
 **Scope:** `recovery/main` @ `53972dd`. **Trigger:** merged since my 05:29 section: #1104 (`d938535`, on my gated head `8b22b96`), #1109 (`00432e9`, on my gated head `b15aa72`), #1107, #1108, #1110, #1111 (my PR), #1112, #1113 (`eng` status row), #1114 (`uxa` 07:52), #1115 (`lca` 08:20), #1117 (`aia` 08:23), #1118 (PO 08:39). Open: #1116 and #1119 (`eng` journal and `IMPLEMENTATION_STATUS.md` only; nothing for me), #1102 (`eng` journal), #1087 (STG1, head `494abc2`, unchanged), #1084 (dependabot), #3.
