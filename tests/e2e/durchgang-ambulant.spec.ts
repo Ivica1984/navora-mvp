@@ -2,6 +2,7 @@ import { expect, test, type Browser, type Locator, type Page } from "@playwright
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { REFERENCE_NOT_VALIDATED, monthStart } from "@/features/billing/rules";
 import { TEAM_OFFERS_HEADING } from "@/features/field/todo";
+import type { Database } from "@/lib/supabase/database.types";
 import {
   ASSESSMENT_MINUTES,
   CARE_MINUTES,
@@ -46,6 +47,9 @@ import { ActLog } from "./support/act-count";
 //            proposal on (PLAN3-10, a team act), asks for today (`propose_day_plan`) and confirms the one line per value
 //            (AIG1, `confirm_suggestion`). The proposal is rule-based; no client data to any AI service (D-35 rule A).
 // Not in this run (BD-3: named, not faked): steps 6-7 dictation and AI draft — PLANNED (B6), «nicht nachgewiesen».
+// BD-7: row types of the two readers the run calls through the untyped API client (generated types, T14).
+type OfferRow = Database["public"]["Functions"]["team_offers"]["Returns"][number];
+type PreviewRow = Database["public"]["Functions"]["billing_preview"]["Returns"][number];
 const PASSWORD = "navora-local-only";
 const OPS = "opsbs.test@navora.test"; //         org S, operations (J1 intake)
 const NURSE = "pflegebs.test@navora.test"; //    org S, registered nurse, Testteam Basel
@@ -222,13 +226,13 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
     const own = await asPerson(NURSE);
     const { data: ownOffers, error: ownOfferError } = await own.rpc("team_offers");
     expect(ownOfferError).toBeNull();
-    expect(ownOffers!.filter((o) => o.request_title === TITLE).map((o) => o.team_id), "the open offer reaches Testteam Basel")
+    expect((ownOffers as OfferRow[]).filter((o) => o.request_title === TITLE).map((o) => o.team_id), "the open offer reaches Testteam Basel")
       .toEqual([TEAM_S]);
     await own.auth.signOut();
     const other = await asPerson(OTHER_NURSE);
     const { data: otherOffers, error: otherOfferError } = await other.rpc("team_offers");
     expect(otherOfferError, "team_offers as a nurse of another organisation").toBeNull();
-    expect(otherOffers!.filter((o) => o.request_title === TITLE || o.team_id === TEAM_S),
+    expect((otherOffers as OfferRow[]).filter((o) => o.request_title === TITLE || o.team_id === TEAM_S),
       "team_offers: no offer of the run for a nurse of another organisation").toEqual([]);
     await other.auth.signOut();
   }
@@ -475,7 +479,7 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   const month = monthStart(today);
   const { data: ownPreview, error: ownPreviewError } = await db.rpc("billing_preview", { p_month: month });
   expect(ownPreviewError).toBeNull();
-  expect(ownPreview!.filter((r) => r.team_id === TEAM_S).map((r) => r.reference_validated), "Testteam Basel: one preview row, not validated")
+  expect((ownPreview as PreviewRow[]).filter((r) => r.team_id === TEAM_S).map((r) => r.reference_validated), "Testteam Basel: one preview row, not validated")
     .toEqual([false]);
   await db.auth.signOut();
 
@@ -499,7 +503,7 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   // BD-7 (a)(i) (`lca` L-1): `billing_preview` (0043) lists only teams in her scope (`is_org_member`), so no Testteam Basel row.
   const { data: otherPreview, error: otherPreviewError } = await other.rpc("billing_preview", { p_month: month });
   expect(otherPreviewError, "billing_preview as a nurse of another organisation").toBeNull();
-  expect(otherPreview!.filter((r) => r.team_id === TEAM_S), "billing_preview: no Testteam Basel row for a nurse of another organisation")
+  expect((otherPreview as PreviewRow[]).filter((r) => r.team_id === TEAM_S), "billing_preview: no Testteam Basel row for a nurse of another organisation")
     .toEqual([]);
   // BD-7 (a)(iii) (`lca` L-1): the referral and its team search are read only by coordinators of their own organisation
   // (0015 `coordinators_read`); by title and by the run's case, no row reaches her.
