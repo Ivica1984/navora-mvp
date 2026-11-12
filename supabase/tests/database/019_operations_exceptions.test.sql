@@ -95,8 +95,9 @@ select is((select count(*)::int from public.operations_exceptions() where except
   'an order expiring within 7 days is an exception');
 select is((select count(*)::int from public.operations_exceptions() where exception_type = 'care_plan_review_overdue' and case_id = '00000000-0000-4000-a000-000000000208'), 1,
   'an overdue care-plan review is an exception');
-select ok((select detail like '%insurer%' from public.operations_exceptions() where exception_type = 'case_not_ready' and case_label like '%OPS1U%'),
-  'a case not ready for matching after the threshold is an exception, with what is missing');
+select ok((select detail like '%Krankenversicherer fehlt%' and detail not like '%insurer%'
+           from public.operations_exceptions() where exception_type = 'case_not_ready' and case_label like '%OPS1U%'),
+  'a case not ready for matching after the threshold is an exception, with what is missing in the stored reason words (UXR-181)');
 select is((select count(*)::int from public.operations_exceptions() where exception_type = 'candidates_exhausted' and case_label like '%OPS1N%'), 1,
   'a team search without any eligible team is an exception');
 select is((select count(*)::int from public.operations_exceptions() where exception_type = 'report_not_final' and entity_id = '00000000-0000-4000-a000-000000000501'), 1,
