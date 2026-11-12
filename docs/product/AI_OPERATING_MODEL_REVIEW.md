@@ -478,6 +478,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control added: one entry for a value, every display derived from it** (AUT-95, OPEN): a care-plan item's frequency is entered once as structure and its text generated, so what the next nurse reads and what a planner (PLAN2, PLAN3, later A3) uses cannot differ. Any agent input must read the structure, never a parallel free text.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41, D-2 OPEN).
 
+**State 2026-11-12 02:22 (`aia` review 47; CGR-184 aligned, ORD0-C3):**
+- **Control added: a signal that an upstream fact changed after planning is derived at read time, in one family and one team count** (AUT-97, OPEN): ORD0-C3 joins `order_expired` in `visit_flags`; no stored task or exception to close by hand. Any later agent that reads visit signals (A3, A6) reads the derived flag, never a copy.
+- **Correction:** my review-46 support of the CGR-182 text is replaced by support of CGR-184 (whoever holds the right to plan sees the count only). The control "no per-person view" is unaffected.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41 OPEN; staging Free with synthetic data only, FE-059; Phase B billing inputs OPEN, FE-060).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -527,3 +532,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-11 08:20 | `aia` | §12: control "no agent input reads a billing parameter, deny-by-default on both sides" (D-18 (I1), pgTAP 125, AUT-87) and "measure acts before agent stages" (AUT-88, BD-2) added. No agent added or removed |
 | 2026-11-11 14:24 | `aia` | §12: controls "a consistency check runs where the person who knows the facts acts" (AUT-93) and "a failing background derivation has a monitor, not a catch-up act" (AUT-92) added; re-entry of care-graph values recorded as a rule gap (AUT-91, AUT-94); (I1) control IMPLEMENTED (AUT-87 closed). No agent added or removed |
 | 2026-11-11 20:20 | `aia` | §7 A6: first PLANNED instance (J5-S catch-up and team count, AUT-92) noted in the gate column; §12: measured act baseline IMPLEMENTED (AUT-88 closed), AUT-92/-93 adopted, control "one entry for a value, every display derived" (AUT-95) added. No agent added or removed |
+| 2026-11-12 02:22 | `aia` | §12: control "a changed upstream fact is a derived signal in one family and one count" (AUT-97, ORD0-C3) added; review-46 CGR-182 support corrected to CGR-184. No agent added or removed |
