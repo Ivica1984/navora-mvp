@@ -483,6 +483,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Correction:** my review-46 support of the CGR-182 text is replaced by support of CGR-184 (whoever holds the right to plan sees the count only). The control "no per-person view" is unaffected.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41 OPEN; staging Free with synthetic data only, FE-059; Phase B billing inputs OPEN, FE-060).
 
+**State 2026-11-12 08:23 (`aia` review 48; #1109 measured, PO challenge on minutes):**
+- **PLAN3 ledger exercised in the BD run (IMPLEMENTED in test, #1109):** one proposed line, one-tap confirmation, `day_plan` line with reason and state read back through RLS. Correction rate and stop rule are not exercised by a one-line run (B5 measure).
+- **Control added: a planning default may come from a confirmed care-graph value of the same unit; a clinical translation between units is never carried** (AUT-98, OPEN): visit minutes may default from the care-plan item (minutes per occurrence, AUT-91); the care-plan item never defaults from the assessment (minutes per period, ADR-123, CGR-84). Any later agent (A3, A10) follows the same line.
+- **Measurement before AI:** the act counter reports each act's scope (once, per day, per visit, per case) so a proposer's per-visit cost is read correctly (AUT-99, OPEN). Measured: 75 product acts (#1109) against the 61-act baseline.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41 OPEN; production on synthetic data only is an application host, not an AI host, FE-062 to FE-064).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -533,3 +539,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-11 14:24 | `aia` | §12: controls "a consistency check runs where the person who knows the facts acts" (AUT-93) and "a failing background derivation has a monitor, not a catch-up act" (AUT-92) added; re-entry of care-graph values recorded as a rule gap (AUT-91, AUT-94); (I1) control IMPLEMENTED (AUT-87 closed). No agent added or removed |
 | 2026-11-11 20:20 | `aia` | §7 A6: first PLANNED instance (J5-S catch-up and team count, AUT-92) noted in the gate column; §12: measured act baseline IMPLEMENTED (AUT-88 closed), AUT-92/-93 adopted, control "one entry for a value, every display derived" (AUT-95) added. No agent added or removed |
 | 2026-11-12 02:22 | `aia` | §12: control "a changed upstream fact is a derived signal in one family and one count" (AUT-97, ORD0-C3) added; review-46 CGR-182 support corrected to CGR-184. No agent added or removed |
+| 2026-11-12 08:23 | `aia` | §12: PLAN3 ledger exercised in the BD run (#1109); control "a planning default from a same-unit care-graph value, never a carried clinical translation" (AUT-98) and the scoped act counter (AUT-99) added. No agent added or removed |
