@@ -26,9 +26,14 @@ describe("SAFE-D11 migration 0125", () => {
   });
 
   it("R1: reopen goes through the first-search path (open_matching_if_ready), only for a case without a team", () => {
-    expect(code).toMatch(/if c\.assigned_team_id is null then\s+perform private\.open_matching_if_ready\(c\.id\);/);
-    expect(code).toMatch(/private\.response_due\(c\.organization_id, rtype, now\(\)\)/);
-    expect(code).toMatch(/perform private\.set_first_refusal\(rid\)/);
+    // both are patches of the current definitions, so the first-search insert (private.now(), RET1, 0086) is kept as is
+    expect(code).toContain("select private.safe_d11_patch('private.open_matching_if_ready(uuid)'");
+    expect(code).toContain("select private.safe_d11_patch('public.reopen_case(uuid, text, uuid)'");
+    expect(sql).toContain("|| E'  if c.assigned_team_id is null then\\n'\n  || E'    perform private.open_matching_if_ready(c.id);\\n'");
+    expect(sql).toContain("m.status <> ''withdrawn''");
+    // no function is replaced wholesale, and no body reads now() directly (ADR-081)
+    expect(code).not.toMatch(/create\s+or\s+replace\s+function\s+(public|private)\.(open_matching_if_ready|reopen_case)/i);
+    expect(code.replace(/private\.now\(\)/g, "")).not.toMatch(/\bnow\(\)/);
     // the withdrawn rows are never updated (history)
     expect(code).not.toMatch(/update\s+public\.matching_requests/i);
   });

@@ -31,8 +31,8 @@
 -- `team_visit_alerts` filters by type and does not include the two new types.
 -- Who decides the readiness tiers, P1 for urgent or hospital-discharge cases (`cra`), and the case hand-over to another
 -- team (not in the app): OPEN, out of scope.
--- Idempotent: `create or replace`; rule rows `on conflict do nothing`; patches carry the marker SAFE-D11 and are skipped
--- when present.
+-- Idempotent: every change is a patch of the current definition (pg_get_functiondef; each find must match exactly as
+-- often as stated) carrying the marker SAFE-D11, skipped when present; rule rows `on conflict do nothing`.
 
 -- 0. Patch helper (removed at the end) ------------------------------------------------------------------------------------
 create or replace function private.safe_d11_patch(p_fn text, p_pairs text[], p_marker text)
@@ -61,76 +61,28 @@ end;
 $$;
 revoke all on function private.safe_d11_patch(text, text[], text) from public, anon, authenticated;
 
--- 1. R1: a reopened case without a team is searched again (0034:171-202 with one more condition) -----------------------
-create or replace function private.open_matching_if_ready(p_case_id uuid)
-returns jsonb language plpgsql security definer set search_path = ''
-as $$
-declare
-  c public.cases%rowtype;
-  missing jsonb := private.case_readiness(p_case_id);
-  rtype text;
-  rid uuid;
-begin
-  if jsonb_array_length(missing) > 0 then
-    return missing;
-  end if;
-  select * into c from public.cases where id = p_case_id;
-  if c.ready_for_matching_at is null then
-    update public.cases set ready_for_matching_at = now(), next_step = 'Teamentscheid ausstehend' where id = c.id;
-  end if;
-  if not exists (select 1 from public.matching_requests m where m.case_id = c.id)
-     -- SAFE-D11 (ADR-184): an active case without a team whose every earlier search was withdrawn on close
-     or (c.lifecycle = 'active' and c.assigned_team_id is null
-         and not exists (select 1 from public.matching_requests m where m.case_id = c.id and m.status <> 'withdrawn')) then
-    rtype := private.referral_type_of((select p.partner_type from public.partner_requests p where p.id = c.source_partner_request_id));
-    insert into public.matching_requests
-      (organization_id, case_id, request_title, region, urgency, required_services, status,
-       referral_type, response_due_at, required_qualification)
-    values
-      (c.organization_id, c.id, 'Teamsuche: ' || coalesce(c.bedarf, 'Klientenfall'), c.region, c.urgency,
-       coalesce(c.care_needs, '{}'), 'open',
-       rtype, private.response_due(c.organization_id, rtype, now()),
-       private.required_qualification(c.id))
-    returning id into rid;
-    perform private.set_first_refusal(rid);   -- RET1: returning client
-  end if;
-  return '[]'::jsonb;
-end;
-$$;
+-- 1. R1: a reopened case without a team is searched again ---------------------------------------------------------------
+-- Patched from the current definition (0034:171-202 as rewritten by 0067 to private.now()), so every later change to the
+-- first-search insert stays: only the guard gets one more condition.
+select private.safe_d11_patch('private.open_matching_if_ready(uuid)', array[
+  E'  if not exists (select 1 from public.matching_requests m where m.case_id = c.id) then\n',
+  E'  if not exists (select 1 from public.matching_requests m where m.case_id = c.id)\n'
+  || E'     -- SAFE-D11 (ADR-184): an active case without a team whose every earlier search was withdrawn on close\n'
+  || E'     or (c.lifecycle = ''active'' and c.assigned_team_id is null\n'
+  || E'         and not exists (select 1 from public.matching_requests m where m.case_id = c.id and m.status <> ''withdrawn'')) then\n',
+  '1'], 'SAFE-D11');
 revoke all on function private.open_matching_if_ready(uuid) from public, anon, authenticated;
 
--- 2. R1/R6: reopen opens the search again for a case without a team (0024:300-323 plus one call) ------------------------
-create or replace function public.reopen_case(p_case_id uuid, p_reason text, p_idempotency_key uuid)
-returns text
-language plpgsql security definer set search_path = ''
-as $$
-declare
-  uid uuid := (select auth.uid());
-  c   public.cases%rowtype;
-  why text := private.check_text(p_reason, 3, 500, 'reason');
-begin
-  if uid is null then return 'rejected'; end if;
-  if private.begin_command('reopen_case', p_idempotency_key) then return private.end_command('duplicate'); end if;
-  select * into c from private.case_for_team_or_ops(p_case_id, true);
-  if c.id is null then return private.end_command('rejected'); end if;
-  if c.lifecycle <> 'closed' then return private.end_command('wrong_state'); end if;
-  insert into public.case_lifecycle_events (organization_id, case_id, kind, note, actor_id, idempotency_key)
-  values (c.organization_id, c.id, 'reopen', why, uid, p_idempotency_key);
-  update public.cases
-    set lifecycle = 'active', reopened_at = now(),
-        status = case when c.assigned_team_id is not null then 'laufend' else 'neu' end,
-        next_step = 'Wiedereröffnet: Angaben prüfen'
-    where id = c.id;
-  -- SAFE-D11 (ADR-184): a case without a team is in a team search again when it is ready; otherwise OPS1 shows
-  -- `case_reopened_no_team` with the missing items. Never assigns a team.
-  if c.assigned_team_id is null then
-    perform private.open_matching_if_ready(c.id);
-  end if;
-  return private.end_command('ok');
-end;
-$$;
-revoke all on function public.reopen_case(uuid, text, uuid) from public, anon;
-grant execute on function public.reopen_case(uuid, text, uuid) to authenticated;
+-- 2. R1/R6: reopen opens the search again for a case without a team (0024:300-323, current definition, plus one call) --
+select private.safe_d11_patch('public.reopen_case(uuid, text, uuid)', array[
+  E'        next_step = ''Wiedereröffnet: Angaben prüfen''\n    where id = c.id;\n',
+  E'        next_step = ''Wiedereröffnet: Angaben prüfen''\n    where id = c.id;\n'
+  || E'  -- SAFE-D11 (ADR-184): a case without a team is in a team search again when it is ready; otherwise OPS1 shows\n'
+  || E'  -- case_reopened_no_team with the missing items. Never assigns a team.\n'
+  || E'  if c.assigned_team_id is null then\n'
+  || E'    perform private.open_matching_if_ready(c.id);\n'
+  || E'  end if;\n',
+  '1'], 'SAFE-D11');
 
 -- 3. R2 / R4: two OPS1 exception types -------------------------------------------------------------------------------------
 insert into public.exception_rules (exception_type, priority, amount, unit, escalate_to_p1_after_hours, label, next_step) values
