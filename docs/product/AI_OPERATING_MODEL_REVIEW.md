@@ -495,6 +495,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Measurement before AI:** the act counter reports each act's scope (once, per day, per visit, per case) so a proposer's per-visit cost is read correctly (AUT-99, OPEN). Measured: 75 product acts (#1109) against the 61-act baseline.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged (D-41 OPEN; production on synthetic data only is an application host, not an AI host, FE-062 to FE-064).
 
+**Matching: rules decide eligibility, no score, no AI order among parallel offers (`aia` 2026-11-12 20:20, AUT-103 to AUT-105; input to FE-070 Lieferung 3):**
+- **Control:** team eligibility for an offer and for «Versorgung zugesagt» is a versioned deterministic rule; each criterion is shown as checked, not met or not checked, never as a number. No score among teams, also none that only explains. While every eligible team receives the offer at once, an AI order of teams has no reader and is not built; the only preference among teams is RET1 continuity (a rule, window set by the organisation, CGR-196).
+- **Control:** in a simulation organisation the offer and the commitment ask the same QUAL1 answer the planning paths ask, at team level, never a membership label alone (AUT-104, PLANNED for B1.2; activity mapping UNKNOWN, `cra`).
+- **Edge:** the only AI role in matching is upstream: structured facts and alert proposals from a referrer's text for a named confirmer (A8, H, stage 2 or later). It never decides eligibility, fills a missing qualification, ranks teams or commits.
+- **Measures:** team or organisation level only; the «Wir prüfen» signal is never read as a team's responsiveness (AUT-105).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -547,3 +553,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-12 02:22 | `aia` | §12: control "a changed upstream fact is a derived signal in one family and one count" (AUT-97, ORD0-C3) added; review-46 CGR-182 support corrected to CGR-184. No agent added or removed |
 | 2026-11-12 08:23 | `aia` | §12: PLAN3 ledger exercised in the BD run (#1109); control "a planning default from a same-unit care-graph value, never a carried clinical translation" (AUT-98) and the scoped act counter (AUT-99) added. No agent added or removed |
 | 2026-11-12 14:25 | `aia` | §12: controls «no derived fact the person did not record» (AUT-100) and «measures count what they say» (AUT-101); intake as rule plus monitor with the later-stage edge named (AUT-102). No agent added or removed |
+| 2026-11-12 20:20 | `aia` | §12: matching controls «rules decide eligibility, no score, no AI order among parallel offers», «QUAL1 answer at offer and commitment» and «signal never read as responsiveness» (AUT-103 to AUT-105, input to FE-070 Lieferung 3). No agent added or removed |
