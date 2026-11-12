@@ -3,7 +3,7 @@ id: PROD
 title: Produktivbetrieb mit synthetischen Daten (PROD1-PROD3)
 author: po
 status: draft
-updated: 2026-11-12
+updated: 2026-11-12 04:39
 ---
 
 # PROD — Produktivbetrieb mit synthetischen Daten (PROD1-PROD3)
@@ -40,7 +40,14 @@ Auf `navora-prod` (Supabase Zürich, Free, FE-063) und Infomaniak Jelastic Cloud
 - [ ] Nur synthetische Daten; keine echte Person, Adresse oder Versicherungsnummer.
 - [ ] Konten werden von CI oder vom Owner angelegt (FE-067).
 
-**Für alle drei:** automatisierte Tests für jedes geänderte Verhalten und grüne CI auf PR-Kopf und Merge-Commit (FE-054); `lca`-Prüfung der Secrets-Handhabung; kein Zugriff der Agenten auf `navora-prod` ausserhalb der CI.
+**`lca`-Bedingungen (P-a) bis (P-d)** (`lca` 2026-11-12 04:27, PR #1110, D-2: «compliant under every plausible interpretation» für Produktion nur mit synthetischen Daten; beratend, keine Rechtsberatung). Als Kriterien übernommen (PO 2026-11-12 04:39):
+- [ ] **(P-a)** Jeder Klientendatensatz ist erfunden; nichts aus `jwmfxrmougneeceldhsa` wird geladen (negativer Test: kein Workflow, Skript oder Seed nennt diese Projekt-ID oder deren URL).
+- [ ] **(P-b)** Konten tragen keine echten Namen; wer eine echte E-Mail-Adresse nutzt (Owner, Testperson), wird informiert, was wo gespeichert ist (Nachweis: kurzer Hinweistext im PR und im `OWNER_RUNBOOK`).
+- [ ] **(P-c)** Keine echten Personendaten «für einen schnellen Test»: sichtbarer Hinweis «Nur synthetische Daten» auf der Anmeldeseite der Produktion (Test: e2e-Prüfung auf den Hinweis in der Produktions-Konfiguration).
+- [ ] **(P-d)** Die Infomaniak-AVV (DPA) wird mit dem Konto akzeptiert und eine datierte Kopie abgelegt (Owner; `eng` nennt im PR Datum und Ablageort, ohne Inhalt).
+- [ ] `eng` meldet die Unterauftragsverarbeiter-Liste von Infomaniak für Jelastic Cloud und ob Zugriff von ausserhalb der Schweiz besteht (Eingabe für die Echtdaten-Prüfung; kein Abnahmehindernis für synthetische Daten).
+
+**Für alle drei:** automatisierte Tests für jedes geänderte Verhalten und grüne CI auf PR-Kopf und Merge-Commit (FE-054); Secrets nur als GitHub-Secrets (Sicherheitsfrage, laut `lca` 04:27 keine Rechtsfrage, solange alles synthetisch ist); kein Zugriff der Agenten auf `navora-prod` ausserhalb der CI.
 
 ## Rules and their input class
 Keine Pflege-, Abrechnungs- oder Qualifikationsregel. Betriebsregeln (CI-Bedingungen, Secret-Handhabung) sind technische Regeln, keine Klasse nach D-34.
