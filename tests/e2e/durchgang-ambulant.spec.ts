@@ -387,8 +387,10 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   expect(dayPlan, "one day-plan line: the care visit").toHaveLength(1);
   expect(dayPlan![0]).toMatchObject({ visit_id: cVisit.id, member_id: NURSE_ID, reason: "knows_client", decision: "confirmed" });
 
-  // Step 1b (ASM1): one record of the case, the org-S instrument and the synthetic reference, confirmed (she named
-  // herself); the care-plan item points at it (ASM1-7, set by trigger on insert).
+  // Step 1b (ASM1): one record of the case, the org-S instrument and the synthetic reference; the care-plan item points
+  // at it (ASM1-7, set by trigger on insert). She named herself, so the record is confirmed by its own entry
+  // (`private.assessment_confirmed`: entered_by = assessor, 0100) and no separate confirmation act exists; the screen
+  // showed «Status: bestätigt» above.
   const { data: records, error: recordError } = await db
     .from("assessment_records").select("id, instrument_id, document_ref, minutes_c, assessment_date").eq("case_id", caseId);
   expect(recordError).toBeNull();
@@ -397,7 +399,7 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   const { data: confirmations, error: confirmationError } = await db
     .from("assessment_confirmations").select("record_id").eq("record_id", records![0].id);
   expect(confirmationError).toBeNull();
-  expect(confirmations, "the record is confirmed").toHaveLength(1);
+  expect(confirmations, "confirmed by her own entry: no separate confirmation row").toEqual([]);
   const { data: items, error: itemError } = await db.from("care_plan_items").select("id, assessment_id").eq("case_id", caseId);
   expect(itemError).toBeNull();
   expect(items, "one care-plan item of the run").toHaveLength(1);
