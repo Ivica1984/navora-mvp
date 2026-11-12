@@ -46,6 +46,11 @@ IMPLEMENTED today:
 ## Clinical impact
 *(requested 2026-11-07 from `cra`, point 4a only)* Asked: does a gate per finished slice (one-day slices, WIP 1) keep everything that AUT-50 and condition 2 protect today? Specifically: no unreviewed code change in `src`, `supabase`, `tests` or `e2e` between the gated head and the merged head.
 
+**Clinical Architect 2026-11-12:** input on point 4a (advisory; an AI reviewer, not a licensed clinician; decides nothing; full text in `reports/CLINICAL_GOVERNANCE.md` 2026-11-12 01:31). **Yes, a gate per finished slice keeps what AUT-50 and condition 2 protect, on three conditions:**
+- **(4a-c1)** Every *merged* head is named in a `cra-gate` line, or its PR's own change is unchanged since a gated head. Intermediate heads need no line (as `lca` (4a-1)).
+- **(4a-c2)** The carry-over test compares the PR's own change: `git diff recovery/main...<head> -- src supabase tests e2e` is identical at the gated head and at the merged head. Today's raw `git diff <gated head> <merged head>` is not empty after a merge of `recovery/main` into the PR, although that content was gated in its own PR (case: #1093 `21a5c5b` → `cc99cc4`, PO 22:39). This is a stronger, mechanical check in place of a re-gate. It does not remove the gate. It can run in `agents-check` or in the merge comment.
+- **(4a-c3)** A slice that adds or changes a hard-coded clinical, billing or qualification rule is gated before merge, is never bundled with later work, and adds its Clinical Rule Register row in the same PR. A blocking finding holds the slice, whatever the cadence.
+
 ## Legal/compliance impact
 *(requested 2026-11-07 from `lca`, points 4 and 5: governance)* Asked: does any point weaken the audit trail of review and merge (`PO_MERGE_PROCESS.md` §6) or the traceability that FE-035 requires?
 
