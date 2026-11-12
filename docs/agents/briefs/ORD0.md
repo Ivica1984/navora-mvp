@@ -151,3 +151,15 @@ ORD0 stays `accepted`; ORD0-C3 is due before the first real data (Phase B) and i
 - **(d)** The ORD0-C3 flag is derived at read time in the same family as `order_expired` (`private.visit_flags`): no stored row, no task, no exception, nothing a person sets or clears. It is counted together with `order_expired` in the team's one plan-status count of visits whose order is missing or expired (words `uxa`'s). pgTAP, with (b): after the order is set back, the team count rises by the number of affected B visits; when the order is `present` again it falls back, with no command by a person.
 - (c) is unchanged: nothing is refused or blocked; the start rule stays D-22/D-28 (Clinical Owner, `legal`).
 
+
+## PO note — 2026-11-12 05:39 CET: ORD0-C3 (a) amended (`cra` CGR-189, advisory, S2); O-1 to O-4 taken in (`uxa` 03:51, `cra` 05:29 confirmed)
+
+**Why:** a flag built «like `order_expired`» reaches the team planner, not the nurse at the door: on `/field` planning flags appear only in the notice after the nurse moves a visit herself (`cra` CGR-189, `field-client.tsx:1221-1246`). `lca`'s D-22 option (i) (#1110) is compliant only if the signal reaches the nurse before she acts. The same gap holds for `order_expired` today.
+
+- ~~(a) … shown on `/field` and `/team` like `order_expired` (name `eng`'s).~~ **Replaced 2026-11-12 05:39 by (a'):**
+- **(a')** Every planned or started visit with B minutes whose case order is not `present` on the visit date carries a visit flag, read from `private.visit_flags` at view time. **Both order flags (the new one and `order_expired`) are shown on the performer's `/field` visit card, before the start control**, and on `/team` cards as today. Position and tone `uxa`'s; `cra` confirms.
+- **Wording (O-1 to O-4, `uxa` 03:51, `cra` 05:29 confirmed):** O-1 «B-Leistung: für diesen Tag liegt keine ärztliche Verordnung vor»; O-3 «B-Leistung: Verordnung am Einsatztag abgelaufen» (`order_expired`); O-2 one team count «… ohne gültige ärztliche Verordnung am Einsatztag» (with (d)); O-4 the count opens its list. Facts only, no duty verb.
+- **e2e (390 px):** for pgTAP 128 R2's case the `/field` card shows the O-1 text before «Einsatz starten»; an A/C visit of the same case shows none; the order back to `present` removes it; a KLV-B visit after the order's end shows the O-3 text before «Einsatz starten».
+- (c) unchanged: nothing is refused; the lit. b start rule stays with the Clinical Owner (D-43) and the legal adviser (D-22/11).
+
+Placement: B7 (FE-054 order), due before the first real data. The `order_expired` part is not pulled forward into BD: Phase A holds only synthetic data (D-1), so no nurse acts on it before B7; this is a S2 advisory, not a blocking finding.
