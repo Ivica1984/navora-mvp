@@ -173,3 +173,10 @@ Placement: B7 (FE-054 order), due before the first real data. The `order_expired
 - **UXR-164 (medium):** the team's order count on `/team` «Automatische Planung» uses the P1 colour (`auto-plan.tsx:47-50`); its remedy rides the O-2 PR (with (d)): the count uses the `attention` tone, not P1. Vitest on the tone class.
 - Placement unchanged: B7. Until `cra` confirms OF-1 to OF-6, they are the default for the B7 PR, not yet its acceptance.
 
+## PO note — 2026-11-12 09:39 CET: ORD0-C3 (a') OF-1 to OF-6 confirmed by `cra` 09:26, condition OF-1a (product authority, no rule added)
+
+- **`cra` 09:26 (#1120):** OF-1 to OF-6 **confirmed**; UXR-164 supported. OF-1 to OF-6 are now part of the B7 PR's acceptance, no longer only its default.
+- **OF-1a (new acceptance criterion for the B7 PR):** the «Sicherheitshinweise» section is drawn only when the visit has a case (`field-client.tsx:563-565`). e2e (390 px) also on a card whose safety section shows «nicht erfasst»: the order block is present, after that section and before «Einsatz starten», so "after the safety section" never becomes "not shown".
+- **OF-2 tone:** if the Clinical Owner later sets a stricter lit. b start rule (D-22/11, UNKNOWN), the tone follows that rule. Recorded; nothing changes for B7 until then.
+- Placement unchanged: B7.
+
