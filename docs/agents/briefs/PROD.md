@@ -39,6 +39,7 @@ Auf `navora-prod` (Supabase Zürich, Free, FE-063) und Infomaniak Jelastic Cloud
 - [ ] Anbieter sind selbstorganisierte Teams in Basel (BS/BL, FE-019); erster Kunde ein simuliertes Pflegeheim; **keine Rolle, kein Kunde und keine Organisationsart «Spitex» oder «Temporärbüro»** (FE-066; negativer Test).
 - [ ] Nur synthetische Daten; keine echte Person, Adresse oder Versicherungsnummer.
 - [ ] Konten werden von CI oder vom Owner angelegt (FE-067).
+- [ ] **Simulationsorganisationen (`cra` CGR-190, PO 2026-11-12 05:39):** jede PROD3-Organisation ist eine Simulationsorganisation (`organizations.simulation = true`, Phase A, synthetisch, D-29), gesetzt nur durch den PROD3-Seed, damit dieselben QUAL1-Prüfungen laufen wie in CI und Staging. Test im PROD3-Job: nach dem Seed ist die Zahl der PROD3-Organisationen mit `simulation = false` gleich 0, und ein QUAL1-Stoppfall (eine Pflegehilfe als verantwortliche Person eines KLV-B-Einsatzes wird abgewiesen) läuft gegen die Produktion.
 
 **`lca`-Bedingungen (P-a) bis (P-d)** (`lca` 2026-11-12 04:27, PR #1110, D-2: «compliant under every plausible interpretation» für Produktion nur mit synthetischen Daten; beratend, keine Rechtsberatung). Als Kriterien übernommen (PO 2026-11-12 04:39):
 - [ ] **(P-a)** Jeder Klientendatensatz ist erfunden; nichts aus `jwmfxrmougneeceldhsa` wird geladen (negativer Test: kein Workflow, Skript oder Seed nennt diese Projekt-ID oder deren URL).
@@ -50,7 +51,7 @@ Auf `navora-prod` (Supabase Zürich, Free, FE-063) und Infomaniak Jelastic Cloud
 **Für alle drei:** automatisierte Tests für jedes geänderte Verhalten und grüne CI auf PR-Kopf und Merge-Commit (FE-054); Secrets nur als GitHub-Secrets (Sicherheitsfrage, laut `lca` 04:27 keine Rechtsfrage, solange alles synthetisch ist); kein Zugriff der Agenten auf `navora-prod` ausserhalb der CI.
 
 ## Rules and their input class
-Keine Pflege-, Abrechnungs- oder Qualifikationsregel. Betriebsregeln (CI-Bedingungen, Secret-Handhabung) sind technische Regeln, keine Klasse nach D-34.
+Keine neue Pflege-, Abrechnungs- oder Qualifikationsregel; PROD3 nutzt die bestehende QUAL1-Matrix (QAM-0.2 PROPOSED) nur über das Simulationsmerkmal (CGR-190). **Linie für das Echtdaten-Tor (B12):** keine Organisation mit echten Daten ist eine Simulationsorganisation, und für echte Organisationen gilt die vom Clinical Owner genehmigte Qualifikationsregel (D-43; heute UNKNOWN welche). Betriebsregeln (CI-Bedingungen, Secret-Handhabung) sind technische Regeln, keine Klasse nach D-34.
 
 ## AI leverage
 Keine KI-Hebelwirkung: Betriebsinfrastruktur. Entfernt wird Handarbeit beim Deployment (Migrationen und Build nur aus der CI, kein Dashboard-Klick). D-35 Regel A gilt: keine Klienten- oder Personaldaten an einen KI-Dienst.
