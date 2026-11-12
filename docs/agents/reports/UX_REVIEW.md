@@ -6,6 +6,44 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-12 23:49 CET · `uxa`: #1151 `aba49e8` carries the UXR-181 remedy as specified (reason words, «; », both types, e2e and pgTAP assert the words and the absence of the code); UXR-181 stays open until merged; answer to the PO's two B1.3 challenge rows (22:27, 22:39) on form, words and place; no new finding
+
+**What changed since 19:48.** `recovery/main` moved from `78cf9e4` to `75d4d9a`: #1143 (SAFE-D11) and the role and PO PRs merged. **No file under `src/app` or `src/components` changed** (`git diff 78cf9e4 75d4d9a -- src` is empty; the diff is migration 0125, pgTAP 129 and 130, `tests/e2e/safe-d11.spec.ts`, all read at 19:48). Open PR **#1151** (SAFE-D11 follow-up, head `aba49e8`) adds migration `20261021000126_safe_d11_uxr181_exception_detail_reason.sql`, pgTAP 131 and adjustments to 019 and 130, and one e2e change. No new `ux` issue, no new UX brief.
+
+**Ask to `uxa`.** Brief SAFE-D11 §PO 20:39 (2): `uxa` informed on the follow-up (gate is `cra-gate`). NEXT_CAPABILITY challenge rows 22:27 and 22:39 (FE-072 (7)): questions to `uxa` on words, form and place before any spec.
+
+**Sources.** No screenshots were available for #1151: it changes no screen file, so its `ui-screenshots` job ran without screen changes; I read the code. Read on `aba49e8`: migration 0126 in full; `supabase/tests/database/019_operations_exceptions.test.sql` diff; `tests/e2e/safe-d11.spec.ts:99-105`; `private.case_readiness` (`20261021000013…sql:160-172`, the six stored reasons); `src/app/(protected)/operations/exception-center.tsx:85` (detail after « — »); `src/app/(protected)/intake/intake-client.tsx:433-445` (`MissingList`). `ci` on `aba49e8`: `app`, `db`, `e2e`, `ui-screenshots` `success` (check runs read 23:49). I ran no test.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v21; FE-071, FE-072 fit. No contradiction. Task: as in my brief; no adjustment. No benchmark (made 03:51 today; next one due on 13 November).
+
+### UXR-181 on #1151 `aba49e8`: remedy as specified
+
+| Check | Verdict | Evidence |
+|---|---|---|
+| Words instead of codes | fits | 0126 replaces `m ->> 'item'` by `m.value ->> 'reason'` in `private.derived_exceptions`, exactly twice (`case_not_ready` and `case_reopened_no_team`), so one fact keeps one wording (DESIGN_SYSTEM §4 rule of 19:48). |
+| No new wording | fits | The six reason texts stay in 0013 and are not copied; the migration only reads them. |
+| Order and separator | fits | `order by m.ord` keeps readiness order; «; » as the rule says. On the card it reads «… — Versicherungsart fehlt oder unbekannt; Pflegebedarf fehlt» (`exception-center.tsx:85`). |
+| Test of the visible text | fits | e2e asserts «Versicherungsart fehlt oder unbekannt» and `not.toContainText("insurance_type")`; pgTAP 019 asserts «Krankenversicherer fehlt» and not `insurer` for `case_not_ready`. |
+| Nothing else on the card moves | fits | No `src` change; label, priority word, next step and position are those cleared at 19:48. |
+
+**UXR-181 stays open** (§8 step 5: closed only with a test on `recovery/main`). I close it in the first run after #1151 is merged with green merge-commit CI. No `uxa` merge condition on #1151.
+
+### Answer to the B1.3 challenge rows (22:27 and 22:39): form, words, place
+
+Both rows are hypotheses without a brief; this is UX input for a later spec, not a proposal to build now (README rule 12). What already exists: `/intake` lists the missing items of a case «in Aufnahme» in the stored reason words (`MissingList`, `intake-client.tsx:433-445`, IMPLEMENTED), and «unbekannt» is a selectable insurance type (`:366`, IMPLEMENTED).
+
+1. **Live readiness list in the referral form (22:39).** One «Noch offen» panel next to the send button (at 390 px: directly above it, in the flow, not a floating layer), listing the same stored reasons as `MissingList` and as the Operations card, so one fact has one wording on all three screens. Each line links to its field (focus moves there). The panel changes as fields are filled, announced with `aria-live="polite"`, never assertively and never as an error: a gap is allowed, so no red, no blocking, no asterisk unless a rule source makes a field mandatory (UNKNOWN; `cra`). «unbekannt» stays a first-class answer and removes nothing from the list (the stored reason already says «fehlt oder unbekannt»). Send stays the one primary action; with gaps the button keeps its words and the confirmation then names what is still open.
+2. **After sending with a gap (22:39) and the referrer's own view (22:27).** The confirmation and the referral's status line show the state first, then the missing reasons in the same words, then who can add them. Who that is, and whether the referrer may complete them herself, is UNKNOWN (`cra`, `lca`). Place: on the referral itself, not in a notification; anything sent outside the app (e-mail, push) is privacy-relevant (`lca`). Whether «Noch kein Team in Ihrer Region» is a safety text for the referrer is `cra`'s (UXR-170 list); if it is, it is never cut and it stands above the missing items.
+3. **Tests to specify then:** the panel lists the same text as `case_readiness` (one assertion per reason); no field code in the referrer's view; the panel is reachable by keyboard and each line moves focus to its field; no horizontal scroll at 390 px; sending with a gap succeeds and the confirmation names the open reasons.
+
+The measures the PO names (exceptions per 100 referrals, median time to ready, share closed without an Operations call) need no screen beyond the existing counts; no UX remark.
+
+### Findings
+
+No new finding. **Closed:** none (#1151 not merged).
+
+---
+
 ## 2026-11-12 19:48 CET · `uxa`: SAFE-D11 gate on #1143 `7e191ec`: `uxa: #1143 7e191ec clear` for both labels and next steps; three findings for later (UXR-181 medium: the exception detail shows field codes such as `insurance_type`, advice: fix before SAFE-D11 acceptance; UXR-182, UXR-183 low); `cra`'s safety-text list taken into the UXR-170 rule
 
 **What changed since 15:51.** `recovery/main` moved from `80643af` to `78cf9e4` (PO merges #1102, #1141, #1142, #1144, #1145; docs only). **No screen code changed** (`git diff 80643af 78cf9e4 -- src tests/e2e` is empty). Open PR **#1143 (SAFE-D11)**, head `7e191ec`, changes no file under `src`. It adds migration `20261021000125_safe_d11_reopened_case_search_or_exception.sql` (0125: two new rows in `exception_rules` and the derived exceptions), pgTAP 129 and 130, a unit test and `tests/e2e/safe-d11.spec.ts`. The new texts reach the screen through the existing exception card (`src/app/(protected)/operations/exception-center.tsx:70-95`). Other open PRs (#1133, #1087, #1084, #3) do not touch screens or e2e. #1138 and #1139 got the PO's placement comments (16:44); no other `ux` issue changed.
