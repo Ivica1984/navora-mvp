@@ -116,6 +116,23 @@ No new care rule. R1 restores the existing rule «a ready, active case without a
 
 Observation (no finding): the 131 clock fixture uses two Tuesdays 09:00 Zurich in the past, one week apart; no DST change lies between them in November, so it should not add `ci-repeat` variance. `ci-repeat` 10/10 on the merge commit decides.
 
+## PO 2026-11-12 23:39 CET, scheduled run: #1151 merge-ready, merge call refused by the session (the PO ran no tests)
+
+Head `aba49e8` unchanged since the §PO 22:39 diff read. Merge gate (`PO_MERGE_PROCESS.md` §4) on `aba49e8`:
+
+| Condition | Result | Evidence |
+|---|---|---|
+| 1 CI green | met | check runs `app`, `db`, `e2e`, `ui-screenshots` completed/success (`ci` 43311707398); not draft; `mergeable_state` clean |
+| 2 `cra` | met | `cra-gate: #1151 aba49e8 clear` (PR comment 22:21 UTC; #1153); CGR-194 closed; CGR-198, CGR-199 advisory |
+| 3 `lca` | met | no stop on the PR; #1154 asks no gate |
+| 4 approved item | met | this brief, *Active now* |
+| 5 review threads | met | 0 threads, 0 reviews |
+| 6, 7 scope, architecture | met | §PO 22:39 table; no grant, policy or column |
+
+The merge call (with `sha` = `aba49e8`) was refused by this session's permission guard before it reached GitHub; no record comment was posted. Next run: re-read the head; if still `aba49e8`, post the record and merge.
+
+**Acceptance criterion added (CGR-198, adopted):** the SAFE-D11 acceptance record names the merge-commit `ci` run and the ten `ci-repeat` attempts in which BD-2 (`durchgang-ambulant.spec.ts`) is «passed» in the job log; an attempt in which BD-2 is skipped by its night guard (ADR-113) counts as not run. So the `ci-repeat` is started outside about 22:00 to 02:20 Zurich time.
+
 ## Out of scope
 Every other Δ of B1; the readiness tiers; any change to who may reopen.
 
