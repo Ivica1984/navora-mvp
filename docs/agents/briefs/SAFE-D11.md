@@ -98,6 +98,24 @@ No new care rule. R1 restores the existing rule «a ready, active case without a
 - **UXR-181 gate condition (`cra`):** the visibility of `case_reopened_no_team` and `case_not_ready` stays as it is (coordination roles only); the pgTAP 130 negatives stay unchanged and pass.
 - Everything else of §PO 20:39 stands. `cra-gate` on the follow-up head checks CGR-194 with (b).
 
+## PO 2026-11-12 22:39 CET, scheduled run: pre-review of #1151 by reading the diff (not a merge, not an acceptance; the PO ran no tests)
+
+#1151 is still a **draft** at head `aba49e8` (docs commit after the fix `11816af`); `e2e` on `aba49e8` was `in_progress` at 22:45, `app`, `db`, `ui-screenshots` `success`; no `cra-gate` comment on any head. Merge waits for: ready for review, `ci` 4/4 `success` on the then current head, `cra-gate` on that head (`PO_MERGE_PROCESS.md` §4). The table records what the diff shows against §PO 20:39 and §PO 21:39 so the merge run need not re-read it; the PO re-checks it if the head changes in `src`, `supabase` or `tests`.
+
+| Criterion | Result (diff read, not run) | Evidence |
+|---|---|---|
+| CGR-194: R1 row's region, urgency, referral type, required qualification equal the withdrawn row's; fixture needs a registered nurse | covered | pgTAP `131_safe_d11_r1_derived_fields.test.sql` (plan 14); fixture RET1, hospital referral, needs assessment not done (J3) |
+| CGR-194: `response_due_at` = `private.response_due(org, type, reopen time)` | covered | 131, assertion against the reopen time `t1` |
+| CGR-194 (b): `first_refusal_until` and `response_due_at` after the reopen time, `response_due_at` differs from the withdrawn row's | covered | 131: first search at `t0`, reopen at `t0` + 7 days; the withdrawn row's windows end before `t1`, so a copied row fails |
+| UXR-181: both details from the stored reason (`m ->> 'reason'`, «; », readiness order), never the item code | covered | migration `0126`: patch of `private.derived_exceptions`, find must match exactly twice, marker UXR-181; reason texts not copied |
+| UXR-181: e2e asserts «Versicherungsart fehlt oder unbekannt» and not `insurance_type` | covered | `tests/e2e/safe-d11.spec.ts` (2 lines changed) |
+| UXR-181: pgTAP 130 asserts detail equals reason; existing `case_not_ready` tests adjusted, not removed | covered | 130 plan 34 → 37 (exact detail for one and two missing items; no double exception for D11M); 019 #15 adjusted to the reason words |
+| No grant, policy or column; visibility unchanged; 130 negatives unchanged (`cra` 21:39) | covered by reading | `0126` revokes the temporary patch function and `derived_exceptions` from `public`, `anon`, `authenticated`; the changed lines in 130 are positive assertions only |
+| Red first for UXR-181 | stated in the PR | `ci` 43308442526 on `e64990d`: `app`, `db`, `e2e` failure on the new assertions; green `ci` 43310111560 on `11816af` (PR body; job conclusions to be read by the merge run) |
+| `cra-gate` on the head | open | none yet |
+
+Observation (no finding): the 131 clock fixture uses two Tuesdays 09:00 Zurich in the past, one week apart; no DST change lies between them in November, so it should not add `ci-repeat` variance. `ci-repeat` 10/10 on the merge commit decides.
+
 ## Out of scope
 Every other Δ of B1; the readiness tiers; any change to who may reopen.
 
