@@ -425,7 +425,7 @@ jobs:
         if: always() && steps.ui.outputs.run == 'true'
         run: supabase stop --no-backup
 
-  # STG1 (ADR-185; owner 2026-11-11, exception to FE-054): the repository's migrations go to the Supabase project
+  # STG1 (ADR-186; owner 2026-11-11, exception to FE-054): the repository's migrations go to the Supabase project
   # `navora-staging` (Zurich eu-central-2, Free plan, synthetic data only) ONLY from CI, ONLY after all four required jobs
   # are green, and ONLY on a push to recovery/main (a merge commit). A same-repository pull request that changes a
   # migration or this file gets a dry run (lists the pending migrations, writes nothing). Never the seed: it holds

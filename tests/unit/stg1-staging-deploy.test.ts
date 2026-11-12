@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * STG1 (ADR-185; owner 2026-11-11: Supabase project `navora-staging` in Zurich, Free plan, built now as an exception to
+ * STG1 (ADR-186; owner 2026-11-11: Supabase project `navora-staging` in Zurich, Free plan, built now as an exception to
  * FE-054): the `staging` job of ci.yml applies the repository's migrations to `navora-staging` only after all four
  * required jobs are green on a push to recovery/main, and only as a dry run on a pull request. Never the seed (it holds
  * sign-in accounts with a password that is public in this repository). Reads the workflow file only.

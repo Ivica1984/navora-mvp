@@ -66,3 +66,19 @@
 ## 5. Not changed
 
 Founder decisions FE-001 to FE-069, D-27 (clinical release only by the named person), D-35 (no client or staff data to any AI service), the `cra` and `lca` gates, the seven merge conditions (`PO_MERGE_PROCESS.md` §4).
+
+## 6. Update 2026-11-12 22:20 (FE-072)
+
+The founder asked for Rule 12 in the remaining five role tasks as well. Each prompt got one new paragraph «BLOCK RULE (owner, FE-054 …, FE-070, FE-071 and FE-072 …; binding; README rule 12)» after its JOURNAL paragraph. It has the same core as §2 and one role-specific sentence:
+
+> exactly one implementation block or sub-block is active at a time, named in *Active now* of `docs/agents/NEXT_CAPABILITY.md`; no feature PR is merged outside it, except a documented safety fix named there. A block is accepted only on a named integrated commit with `ci` green and `ci-repeat` 10/10 read from the job logs, with the required reviews and a documented decision in `docs/product/ABNAHMEAKTE.md`; a merged PR, a CI status that was only read, a run still in progress, or a cancelled or contradictory safety test is not enough, and no total test count replaces the block record. Every acceptance names its gate («Simulation, synthetic data» or «released for real persons and data»). [role sentence] Never relax a [role gate], a founder decision or D-35 so that a block can be accepted.
+
+| Task | Status | Role sentence |
+|---|---|---|
+| NAVORA Clinical & Regulatory Architect | **updated** 22:13 | gate lines and reviews first for the active block and the named safety fix; later blocks may be prepared |
+| NAVORA UX/UI Design Architect | **updated** 22:16 | the same; preparation = specification reviews, design system, benchmarks |
+| NAVORA AI & Automation Architect | **updated** 22:16 | review the active block first; preparation = bottleneck map, automation proposals, AI controls |
+| NAVORA Chief Strategy Architect | **updated** 22:16 | the vision check of each active block (FE-070 (7)) belongs in the review |
+| NAVORA Legal & Compliance Agent | **not changed:** the session's permission check refused the change («Cowork Scheduled Task Write») | planned: the same as `cra`, with «a legal or data-protection gate» |
+
+Nothing else in the prompts was changed. Until the `lca` task is updated, README Rule 12 binds `lca` too, because its prompt makes the newest founder decision override it.

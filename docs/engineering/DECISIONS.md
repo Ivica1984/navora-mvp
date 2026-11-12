@@ -3842,7 +3842,18 @@ A fresh database runs them in number order; a database that had already applied 
 - **Rollback:** a new migration restoring the 0034 and 0024 bodies and removing the two rule rows; no data to migrate (derived exceptions).
 - **No clinical rule:** P1 for urgent or hospital-discharge reopened cases stays `cra`'s (brief R2); until then P2.
 
-### ADR-185 — STG1: migrations to the Supabase project `navora-staging` only from CI, after four green jobs; never the seed
+### ADR-185 — SAFE-D11 follow-up: the R1 row is derived at the reopen time (CGR-194 with (b)); exception detail from the stored reason text (UXR-181)
+
+**Date:** 2026-11-12 22:10 Europe/Zurich · **Status:** IMPLEMENTED on branch `feature/hourly-update-2026-11-12-2210-safe-d11-followup` (PR #1151), in review; not accepted (acceptance on the merge commit: `ci` green, `ci-repeat` 10/10, BD flow, `ABNAHMEAKTE.md`). · **Block:** SAFE-D11 (documented safety exception, FE-071; brief §PO 20:39 and §PO 21:39). · **Base:** `recovery/main` `617b4c0`.
+
+**CGR-194 with (b): test only, no code change.** The R1 insert is the unchanged first-search insert of 0034 (patched by 0125 at its guard only), so every field is derived when the row is written. New pgTAP 131 (14 assertions) proves it on a fixture that can tell a fresh derivation from a copy: a returning client (RET1) of Testteam Nord …101 with a hospital referral and no needs assessment (so a registered nurse is needed), first search at a pinned clock one week before the reopen (`navora.test_now`, DST1 / ADR-081; local and CI only), closed while in the search, reopened one week later. The fixture asserts that the withdrawn row's deadline and first-refusal window both end before the reopen time. Then: exactly one new open row; `region`, `urgency`, `referral_type`, `required_qualification` equal the withdrawn row's and are the case's facts (`registered_nurse`); `response_due_at = private.response_due(org, type, reopened_at)`, after the reopen time and different from the withdrawn row's; `first_refusal_until` set, after the reopen time and ≤ `response_due_at`; first refusal again for the returning team. Written after 0125, so there is no red run (the brief does not require one for a test-only assertion).
+
+**UXR-181: detail = stored reason text.** Migration `20261021000126_safe_d11_uxr181_exception_detail_reason.sql` patches `private.derived_exceptions` from its current definition (find must match exactly twice: `case_not_ready`, 0024:465, and `case_reopened_no_team`, 0125): `string_agg(m ->> 'item', ', ')` becomes `string_agg(m.value ->> 'reason', '; ' order by m.ord)` over `jsonb_array_elements(private.case_readiness(c.id)) with ordinality`. The reason texts are the existing words of `private.case_readiness` (0013:166-171), not changed and not copied; readiness order is kept explicitly. No grant, policy, column, rule row or wording; `operations_exceptions`, `team_visit_alerts` and `exception_closes_with_cause` are not touched, so visibility (coordination roles only) and the pgTAP 130 negatives stay as they are (`cra` gate condition, §PO 21:39). Red first: the tests (pgTAP 019 and 130, e2e `safe-d11.spec.ts`, unit guard `tests/unit/safe-d11-uxr181-detail-migration.test.ts`) were pushed before the migration on the same PR; their CI run is quoted in the PR.
+
+- **Rollback:** a new migration that restores the two `item` aggregations; no data (derived exceptions).
+- **No clinical rule** and no new text. UXR-182, UXR-183 and CGR-195 stay where the PO placed them (B1.1b, B1.3).
+
+### ADR-186 — STG1: migrations to the Supabase project `navora-staging` only from CI, after four green jobs; never the seed
 
 **Date:** 2026-11-11 17:08 Europe/Zurich · **Status:** PLANNED until CI is green on the PR head and the first push to `recovery/main` has applied the migrations · **Base:** `recovery/main` `51dc964` · **Block:** none. **Owner exception to FE-054**, live in the `eng` session on 2026-11-11 («jetzt als Ausnahme»): infrastructure for D-2 staging, built while BD stays the active block.
 
@@ -3880,7 +3891,7 @@ The real proof is the dry run on this PR's own CI run (`ci.yml` changes), and th
 **No data:** synthetic only, and no rows beyond the migrations. The live project no longer exists.
 **Rollback:** remove the job. The staging project can be emptied by the owner in the Supabase dashboard.
 
-**ADR-185 amendment 2026-11-11 23:10 (`eng`, after the first CI runs of #1087).**
+**ADR-186 amendment 2026-11-11 23:10 (`eng`, after the first CI runs of #1087).**
 - Run 43055658103, first attempt: both secrets missing. The owner then added them.
 - Second attempt: `supabase link` was refused with `Missing required permission(s): api_gateway_keys_read`. The owner's Supabase account token is scoped and cannot read the API keys.
 
@@ -3892,3 +3903,5 @@ The real proof is the dry run on this PR's own CI run (`ci.yml` changes), and th
 The unit test was changed first: exactly one secret line, no account token and no `supabase link`, and the project-name check comes before the first `db push`.
 
 **Renumbered 2026-11-12 21:20 (`eng`, merge of `recovery/main` into #1087):** this ADR was written as ADR-184 on the PR branch; `recovery/main` assigned ADR-184 to SAFE-D11 (Δ11) first, so STG1 is ADR-185. The journal file `2026-11-11-1710-eng.md` still says ADR-184 (journal files are never edited).
+
+**Renumbered again 2026-11-13 00:20 (`eng`, merge of `recovery/main` `a2b7d69` into #1087):** `recovery/main` assigned ADR-185 to the SAFE-D11 follow-up (#1151) first, so STG1 is now ADR-186. The journal files `2026-11-11-1710-eng.md` (ADR-184) and `2026-11-12-2111-eng.md` (ADR-185) keep the older numbers (journal files are never edited). No content of this ADR changed.

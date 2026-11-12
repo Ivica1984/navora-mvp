@@ -16,6 +16,172 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-12 23:20 CET: **#1151 (SAFE-D11 follow-up): `cra-gate: #1151 aba49e8 clear`.** **CGR-194 closed** with evidence (pgTAP 131, CGR-194 (b) included). UXR-181 meets my gate condition (visibility and pgTAP 130 negatives unchanged). **New advisory CGR-198:** on both #1151 heads the BD flow test BD-2 was **skipped** (night window, ADR-113), so «BD green» for the SAFE-D11 acceptance is not shown yet. **New advisory CGR-199:** safety conditions for the PO's two B1.3 challenge rows (referrer sees and fixes readiness gaps), answering the PO's question on guessed values
+
+**Scope:** `recovery/main` @ `75d4d9a`; open PR heads #1151 `aba49e8`, #1087 `f0eb3ae`, #1084 `34f1f4d`, #3. **Trigger:** merged since my 21:35 section: #1149 (my 21:35 PR, `1774a78`), #1150 (PO 21:39, 22:20 FE-072 session, 22:27), #1152 (PO 22:39). New: PR #1151 (SAFE-D11 follow-up; red commit `e64990d`, fix `11816af`, docs `aba49e8`; no longer a draft). FE-072 (`FOUNDER_DECISIONS.md` v22). Asks to me: `eng` (#1151: `cra-gate` on the head), PO 22:27 and 22:39 challenge rows (safety text for a referrer view; risk of guessed values, e.g. a wrong insurer).
+
+I read: `git diff recovery/main...pr1151` in full (migration 0126, pgTAP 019, 130, 131, e2e `safe-d11.spec.ts`, unit guard); `git show --stat aba49e8` (only `IMPLEMENTATION_STATUS.md` and an `eng` journal); `private.case_readiness` (0013, the only definition; six fixed reason literals, none null); the two find sites of the patch (0024:465 and 0125); FE-072; PO journals 21:39, 22:20, 22:27, 22:39; ABNAHMEAKTE §1 («Übersprungen: 0»).
+
+**CI on `aba49e8`, read from GitHub's check runs and job logs** (I ran no NAVORA test): `ci` 43311707398: `app` 131509161093 (112 files, 1212 tests passed, `safe-d11-uxr181-detail-migration.test.ts` 4 tests), `db` 131509160943 (`Files=131, Tests=4711`, `Result: PASS`; 019, 130, 131 `ok`), `e2e` 131509160633 (163 passed, **1 skipped**; `safe-d11.spec.ts:43` passed; the skipped test is BD-2 `durchgang-ambulant.spec.ts:185`), `ui-screenshots` 131509160899: all `success`. The red run on `e64990d` (`ci` 43308442526) is as the PR body states; I did not re-read its logs.
+
+### Task adjustment (README rule 11)
+
+None. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` v22. FE-072 (5) puts Rule 12 into my task; my prompt already carries it.
+
+### #1151 (SAFE-D11 follow-up): `cra-gate: #1151 aba49e8 clear`
+
+**CGR-194 with (b) (IMPLEMENTED, test only).** pgTAP 131 pins a first search one week before the reopen (`navora.test_now`, local and CI only). Its fixture assertion (131:74) shows the withdrawn row's `response_due_at` and `first_refusal_until` both end before the reopen time, so a copied row fails. The new R1 row:
+- region, urgency, referral type and required qualification equal the withdrawn row's (131:99) and are the case's facts with `registered_nurse` (needs assessment not done) (131:102);
+- `response_due_at = private.response_due(org, 'hospital_discharge', reopen time)` (131:107), after the reopen (131:109) and different from the withdrawn row's (131:111);
+- `first_refusal_until` set and after the reopen (131:113), not after `response_due_at` (131:115); the returning team is preferred again (131:117).
+
+There is no red run for 131: the R1 insert was already in 0125, and the PR body says so. For a regression guard on correct code that is acceptable; (b) is what makes it able to fail.
+
+**UXR-181 (IMPLEMENTED, migration 0126).** The patch replaces exactly two occurrences (it raises otherwise) of the item-code aggregate in `private.derived_exceptions` with `string_agg(m.value ->> 'reason', '; ' order by m.ord)`. Checked:
+- **No fact can drop out of the detail.** `string_agg` skips nulls; every `reason` in `private.case_readiness` is a non-null literal (0013), so each missing item still appears. Order is the readiness order.
+- **No health data.** The six texts are fixed words; no client value enters the detail.
+- **Visibility unchanged** (my gate condition): no grant, policy or column; `derived_exceptions` revoked from `public`, `anon`, `authenticated` again; pgTAP 130 negatives (nurse 130:101, other organisation 130:108, `anon` 130:110, coach 130:116) not changed by the diff and passing.
+- Tests adjusted, none removed: 019 asserts «Krankenversicherer fehlt» and not «insurer»; 130 asserts the exact detail for one and two missing items (130:88, 130:144); e2e asserts «Versicherungsart fehlt oder unbekannt» and not `insurance_type`.
+- Note, no finding: 130:145-147 («not also `case_not_ready`») compares the detail with `null`, which also passes when no row exists. That is the intended meaning here, because a `case_not_ready` row always has a non-null detail.
+
+No new or changed hard-coded clinical rule. CR-207 and CR-208 notes updated.
+
+### CGR-198: BD-2 was skipped on both #1151 heads
+
+`durchgang-ambulant.spec.ts:188` skips BD-2 when the run is too close to midnight in Zurich (ADR-113). Both #1151 runs started after 22:00 and the e2e logs show «1 skipped» (on `aba49e8`: BD-2, log line 1422). The job is still `success`. So:
+- the green `e2e` on #1151 does **not** show that the end-to-end flow (referral → … → billable fact) still holds with 0125 and 0126;
+- the SAFE-D11 acceptance needs «BD green» (FE-072 (2), SAFE-D11 brief) and ABNAHMEAKTE §1 demands «Übersprungen: 0» from the logs.
+
+This blocks nothing today: the merge rule reads check runs, and I find no clinical risk in the diff. But the acceptance must not rest on a run where BD-2 was skipped. Remedy: the acceptance record names a `ci` run on the merge commit and a `ci-repeat` in which BD-2 shows «passed» in every attempt (10/10), read from the job logs; an attempt with BD-2 skipped counts as not run. The guard skips BD-2 when the e2e step starts before 02:20 or after about 22:00 Zurich time (`support/durchgang-time.ts:96-97, :104-111`: the care visit must end by 23:40); a run started in daytime does not trigger it.
+
+### PO challenge rows for B1.3 (22:27, 22:39): CGR-199
+
+Both rows are hypotheses (PLANNED, no brief). My answer to «risk of guessed values»:
+- **Wrong insurer or insurance type:** a wrong payer reaches the billing gate and the KVG claim; the readiness check already counts `insurance_type = 'unknown'` as missing (0013), so «unbekannt» is safe today. If a referrer can only clear a gap by typing a value, she will guess.
+- **Wrong residence:** wrong canton for the Restfinanzierung. **Guessed requested start:** a wrong team-search deadline and urgency.
+- **Consent:** «Einwilligung nicht bestätigt» must not become a checkbox the referrer ticks to make the referral ready. Who may confirm consent is `lca`'s (UNKNOWN).
+
+Conditions (testable, none a clinical rule):
+1. «unbekannt» stays a valid answer for every readiness fact; no new mandatory field without a named rule source.
+2. Who entered or changed each fact is stored (referrer or Operations); a referrer's value is never shown as checked.
+3. The `case_not_ready` / `case_reopened_no_team` exceptions stay as the safety net; the referrer view does not close them.
+4. A referrer view never reads as a care commitment: only «Versorgung zugesagt» is binding (FE-072 (4)). It says where to turn for urgent need while no team has committed (wording `uxa`).
+5. Which facts a referrer may see and enter, and whether she may confirm consent: `lca` (UNKNOWN).
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-194** | **closed** | pgTAP 131:74, :99-117 on #1151 `aba49e8`; `db` job 131509160943 (`131_… ok`, `Result: PASS`). Closed on the PR head; it stays closed if #1151 is merged unchanged in code and tests |
+| **CGR-195**, **CGR-196**, **CGR-197** | open, unchanged | – |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-193** | open, unchanged | – |
+
+**Closed this run:** CGR-194.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-198** | SAFE-D11 acceptance; BD flow; G-11, G-12 | **advisory**; S2 | BD-2 (the end-to-end flow) was skipped on both #1151 heads by its night guard (no run between about 22:00 and 02:20 Zurich); the `e2e` job is still `success`. «BD green» for the SAFE-D11 acceptance is therefore not shown by these runs | `durchgang-ambulant.spec.ts:188`; `support/durchgang-time.ts:96-111`; e2e job 131509160633 («1 skipped», BD-2 at log line 1422); PR #1151 body (`11816af`: «163 passed, 1 skipped»); ABNAHMEAKTE §1 | The SAFE-D11 record in `ABNAHMEAKTE.md` names a `ci` run on the merge commit and a `ci-repeat` (10/10) in which BD-2 is «passed» in every attempt, read from the logs; an attempt with BD-2 skipped counts as not run |
+| **CGR-199** | PO challenge rows 22:27 and 22:39 (B1.3 hypotheses: referrer sees and fixes readiness gaps) | **advisory**; S2 | Letting the referrer clear readiness gaps invites guessed values (insurer, insurance type, residence, start) that feed the billing gate, the Restfinanzierung canton and the search deadline, and could turn consent into a tick box | 0013 (`case_readiness`, «unbekannt» counts as missing); PO journals 22:27, 22:39; FE-072 (4) | If a brief follows: conditions (1) to (5) above in its acceptance, each with a pgTAP or e2e test (unknown accepted and still missing; author of each fact stored; exceptions not closed by the referrer view; no commitment wording; `lca` answers on visibility and consent) |
+
+### Gate status
+
+- **#1151** (SAFE-D11 follow-up): **`cra-gate: #1151 aba49e8 clear`**. SAFE-D11 is accepted only on the merge commit with `ci` green, `ci-repeat` 10/10 and BD-2 passed (CGR-198), plus the `ABNAHMEAKTE.md` record. Gate «Simulation, synthetic data».
+- **#1087** (STG1, `f0eb3ae`): unchanged since 21:35; no clinical content.
+- **#1084** (dependabot, base `main`), **#3** (D-8): out of my scope, unchanged.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Review #1151 under §4; in the SAFE-D11 acceptance, read BD-2 as passed in the logs (CGR-198). Carry CGR-199 into any B1.3 brief that comes from the two challenge rows.
+- **`uxa`:** wording for condition (4) of CGR-199, if a brief follows.
+- **`lca`:** CGR-199 (5) (what a referrer may see and enter; who may confirm consent); CGR-195 (3), unchanged.
+- **Clinical Owner (D-43):** carried over: activity mapping at offer time (CGR-197), CGR-196 option, P1 for urgent team-search gaps (D-28), 1b §3.1. UNKNOWN; `cra` sets none.
+
+---
+
+## 2026-11-12 21:35 CET: **#1143 (SAFE-D11) merged on the code I cleared** (`c6b0ff8`; `git diff 977880c 7e191ec` touches only `IMPLEMENTATION_STATUS.md` and an `eng` journal). **New advisory CGR-197 (AUT-104):** the offer and «Fall übernehmen» check a membership label, not QUAL1; for B1.2 I name the one activity known at offer time without a new rule (A1 when no needs assessment exists) and five safety conditions; any other case-need → activity mapping is UNKNOWN (Clinical Owner, D-43). **SAFE-D11 follow-up brief (PO 20:39) meets CGR-194**, with one sharpening (CGR-194 (b)). **UXR-181 supported** (the reason texts are fixed words, no health data). **UXR-183:** a condition for the wording, no responsibility claim until `lca` answers. CGR-196 interim rule recorded by the PO in Lieferung 1b §5
+
+**Scope:** `recovery/main` @ `617b4c0`; open PR heads #1087 `f0eb3ae`, #1084 `34f1f4d`, #3. **Trigger:** merged since my 17:29 section (#1145, `029aea2`): #1143 SAFE-D11 (merge `c6b0ff8`, head `7e191ec`), #1144 (PO 16:39, 17:39), #1146 (`uxa` 19:48), #1147 (`aia` 20:20), #1148 (PO 20:39). Briefs changed: SAFE-D11 (§PO 17:39, §PO 20:39: follow-up scope), B1 (step 3: AUT-103 to AUT-105; step 4: CGR-195, CGR-196). Lieferung 1b §5 (interim rule for CGR-196). #1087 (STG1) re-merged `recovery/main`. Asks to me: PO 20:39 (`cra-gate` on the follow-up head; UXR-183 wording is «`cra`'s exception wording»), B1 brief AUT-104 («which activities are known at offer time is UNKNOWN (`cra`, mapping)»).
+
+I read: `git diff 977880c 7e191ec` and `git diff 029aea2 617b4c0 -- src supabase tests` (only the SAFE-D11 files I gated); `private.required_qualification` and `private.team_has_registered_nurse` (0017:301-310); the take path (0017:470-485); `team_offers()` (0086:200-216); `private.request_offered_to_team` (0034:210-221); QUAL1 header and `private.qual_visit_activities` (0120:1-40, :604-625); `private.case_readiness` (0013, the only definition); the exception card (`exception-center.tsx:85`, the detail is display only); the 0125 `exception_rules` texts (0125:91-92); SAFE-D11 brief §PO 17:39 and §PO 20:39; B1 brief step 3 and 4; Lieferung 1b §5 diff; PO journals 17:39 and 20:39, `aia` 20:20 (AUT-103 to AUT-105), `uxa` 19:48 (UXR-181 to UXR-183); #1087 `git diff 494abc2 f0eb3ae -- .github tests/unit` (ADR-184 → ADR-185 in two comments, nothing else).
+
+**I ran no NAVORA test**, did not touch the live project or `navora-staging`, and used no personal data. CI on the merge commit `c6b0ff8` is as the PO read it (push run 43292630799, four jobs `success`); I did not re-read those logs this run.
+
+### Task adjustment (README rule 11)
+
+None. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` v21.
+
+### #1143 (SAFE-D11): merged, not accepted
+
+The merged code is the code of my gate `977880c`: the only commit after it (`7e191ec`) changes `docs/agents/IMPLEMENTATION_STATUS.md` and `docs/agents/journal/2026-11-12-1718-eng.md`. CR-207 to CR-209 are now IMPLEMENTED on `recovery/main`. My 17:29 analysis stands. Acceptance waits for the follow-up PR (CGR-194, UXR-181), `ci-repeat` 10/10 on its merge commit, BD green and the Abnahmeakte record.
+
+### SAFE-D11 follow-up brief (PO 20:39): checked against CGR-194
+
+The brief's criteria cover my remedy: `region`, `urgency`, `referral_type` and `required_qualification` equal the withdrawn row's, with a fixture needing a registered nurse; `response_due_at` from `private.response_due(org, type, reopen time)`; `first_refusal_until` set and not after `response_due_at`. **One sharpening, CGR-194 (b):** «set and ≤ `response_due_at`» also passes if the new row copied a stale window from the withdrawn row. Add: `first_refusal_until` is **after the reopen time**, and `response_due_at` is **after the reopen time** and differs from the withdrawn row's when the fixture's first search lies in the past. Without that, the test cannot tell a fresh derivation from a copy. I gate the follow-up head with (b) as part of CGR-194.
+
+### UXR-181 (detail in words): supported
+
+`private.case_readiness` (0013) returns six fixed German reason texts per item («Einwilligung nicht bestätigt» … «Gewünschter Beginn fehlt»). They hold no client value and no health field. The detail is shown only (`exception-center.tsx:85`). No code reads the item codes out of the detail. So the change is safe for privacy and does not break a reader. Condition for my gate: the visibility of both types stays as it is (coordination roles only; pgTAP 130 negatives unchanged and still passing).
+
+### UXR-183 (inactive-team next step): wording condition
+
+The wording is `uxa`'s. My safety condition for it: **the text states only what the data show; it does not say who is responsible.** A sentence such as «Das bisherige Team bleibt eingetragen, bis ein anderes Team übernimmt.» is a fact of the code (R5: nothing writes `assigned_team_id`). A sentence such as «Das bisherige Team bleibt verantwortlich» is a responsibility claim that the app does not enforce for a team that no longer works, and whose legal meaning is UNKNOWN (`lca`, FE-040). It stays out until `lca` answers CGR-195 (3). The honest «eine Übergabe ist in der App noch nicht möglich» must stay until B1.3 builds the path. One ending for «nie automatisch zuweisen» is fine.
+
+### AUT-104: QUAL1 at team level (B1.2) → CGR-197
+
+`aia`'s finding is correct in the code:
+- `private.required_qualification` (0017:301-306) asks for `registered_nurse` when no needs assessment exists or the order is `present` (CR-008), else nothing.
+- The offer (`team_offers`, 0086:212), the RET1 checks (0034:143, :218), the candidate count (0017:542-545) and «Fall übernehmen» (0017:485) all use `private.team_has_registered_nurse` (0017:308-310): any membership row with the label `registered_nurse`.
+- That label is not QUAL1. It ignores evidence state (missing, `self_confirmed`, `expired`, `contradictory`), access end and the matrix. In a simulation organisation the binding check is `private.qual_may_perform` at planning and at the start (0120 to 0122; CR-191 to CR-195).
+
+**Patient-safety effect today:** no unqualified visit follows from it, because QUAL1 refuses at planning and at the door. The effect is a **delay**: a team can accept a client nobody in it may serve, the case is no longer offered to others (`assigned_team_id` set), and the gap shows only at planning. Also, the offer card's «✓ Qualifikation» (B1 spec) can be read as «our nurse may do this» while it means «a membership label exists».
+
+**The mapping question (B1 brief: «which activities are known at offer time»).** I do not set a mapping from care need to activities. What I can say without a new rule:
+- **Known:** A1, when the case has no completed needs assessment. The needs assessment is an A1 activity in QUAL1 (0120 §5: «a needs assessment counts as A1»; `qual_visit_activities` 0120:614). Its first visit is the needs assessment (CR-002).
+- **Not known:** everything else. `medical_order_status = 'present'` says that B services are ordered, not which. 0120 maps KLV-B **minutes** to B13 only on a visit with minutes and no listed activity. At offer time there are no minutes. Reading «order present» as B13, or reading `care_needs` as any activity code, would be a new mapping. UNKNOWN; Clinical Owner (D-43, QUALIFICATION_MATRIX v0.2).
+
+**Safety conditions for B1.2 (testable; none is a clinical rule):**
+1. **Pre-filter only.** The team-level answer never replaces the visit-level check. pgTAP: a team that passes the team check is still refused at planning and at the start for an activity its member may not perform.
+2. **One decision function.** The team-level answer calls `private.qual_check` / `private.qual_may_perform` with the same matrix version and evidence instant rules (CR-202, CR-203). It is not a second implementation. Unit test or pgTAP: no other function reads `member_qualification_evidence` for this purpose.
+3. **○ is never ✓.** A «nicht geprüft» activity is shown as ○, never counted as suitable, and never as the green label (CR-183). Whether ○ also **hides** the offer is a product choice with a safety trade-off: hiding can leave no eligible team (more `candidates_exhausted`, a later start). I advise that ○ does not hide the offer. With (1), nothing becomes less safe than today.
+4. **Checked again at the commitment.** Evidence can lapse between offer and «Versorgung zugesagt». The check runs at the commitment instant as well (pgTAP: evidence expires between offer and commitment → commitment refused with a named code, nothing written).
+5. **Outside a simulation organisation**, the team-level answer uses the same fallback as the visit (`private.may_perform_visit`, CR-007/CR-164), never the label alone.
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-194** | open; placed by the PO as a SAFE-D11 acceptance condition in the follow-up PR; (b) added this run | SAFE-D11 brief §PO 20:39 (1) |
+| **CGR-195** | open; accepted by the PO as a known gap «sichtbar, nicht lösbar in Phase A», resolution placed in B1.3; UXR-183 wording condition added above | SAFE-D11 brief §PO 17:39; B1 brief step 4 |
+| **CGR-196** | open; the PO's interim rule is in Lieferung 1b §5 (RET1 window unchanged, «nie eine Reservierung» applies to «Wir prüfen» only, known gap in the Abnahmeakte). That meets the PO part of my remedy. The Clinical Owner's choice and its pgTAP remain | `FE-070_LIEFERUNG_1B.md` (PO 17:39 paragraph) |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-193** | open, unchanged | – |
+
+**Closed this run:** none.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-197** | AUT-104; B1.2 offer and «Versorgung zugesagt»; CR-008; H-04, H-35 | **advisory**; S2 | The offer, the RET1 check and «Fall übernehmen» test only whether any membership carries the label `registered_nurse`, not QUAL1 evidence or activities. A team can accept a client nobody in it may serve; the case leaves the search, and the gap shows only at planning (delay, not an unqualified visit: QUAL1 refuses at planning and start). The only activity known at offer time without a new rule is A1 when no needs assessment exists; any other case-need → activity mapping is UNKNOWN (Clinical Owner, D-43) | 0017:301-310, :483-484; 0086:212; 0034:218; 0120 §5 and :611; B1 brief step 3 (AUT-104) | B1.2 acceptance: conditions (1) to (5) above, each with its pgTAP or unit test; the team-level activity set at offer time is A1 (no needs assessment) plus ○ for the rest until the Clinical Owner names a mapping; the spec's «✓ Qualifikation» says what it checks (`uxa`, placed) |
+
+### Gate status
+
+- **#1143** (SAFE-D11): merged as `c6b0ff8` on the code of `cra-gate: #1143 977880c clear`. Not accepted. The follow-up PR needs `cra-gate` on its head (CGR-194 with (b); UXR-181 visibility unchanged).
+- **#1087** (STG1, `f0eb3ae`): a merge of `recovery/main` and ADR-184 → ADR-185 in two comments; no clinical content. My 17:27 note stands (staging stays synthetic, FE-059).
+- **#1084** (dependabot, base `main`), **#3** (D-8): out of my scope, unchanged.
+- No new gate line this run: no new code head in scope.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Add CGR-194 (b) to the follow-up's criteria. Place CGR-197 conditions (1) to (5) in the B1.2 «Ready» criterion with AUT-104.
+- **`eng`:** the SAFE-D11 follow-up with CGR-194 (b).
+- **`uxa`:** UXR-183 wording within the condition above (B1.3).
+- **`lca`:** CGR-195 (3), unchanged; whether a next step may name a responsible team.
+- **Clinical Owner (D-43):** which QUAL1 activities a case's need implies at offer time (beyond A1 for a missing needs assessment); carried over: CGR-196 option, P1 for urgent team-search gaps (D-28), 1b §3.1. UNKNOWN; `cra` sets none.
+
+---
+
 ## 2026-11-12 17:29 CET: **#1143 (SAFE-D11): `cra-gate: #1143 977880c clear`**. Outcome (A) or (B), never neither, holds in the code and in pgTAP 129, 130 and e2e `safe-d11.spec.ts`. Three advisory findings: **CGR-194** (R1 says the new search is «derived exactly as for a first search», but no test asserts the derived fields), **CGR-195** (R4: a reopened case of an inactive team has a visible exception and no way to resolve it in the app; responsibility during a hand-over is UNKNOWN), **CGR-196** (RET1 first-refusal window when urgency is «hoch», Lieferung 2 §2.4). **P1 or P2 for urgent or discharge reopened cases:** P2 is consistent with every team-search exception today; I set no P1 rule (D-28, Clinical Owner). UXR-170 safety-text fields named (provisional list). Lieferung 1b §3.1: I name no fact that newly blocks the first visit
 
 **Scope:** `recovery/main` @ `daa7360`; open PR heads #1143 `977880c`, #1133 `7e82331`, #1144 `aba8f07`, #1141 `4d22af0`, #1142 `0322e8c`. **Trigger:** merged since my 13:29 section (`353a9f7`): #1129, #1131, #1135, #1137 (docs only; `git diff 353a9f7 daa7360 -- src supabase tests` is empty). New: SAFE-D11 brief (approved 15:45, FE-071), PR #1143 (migration 0125, pgTAP 129 and 130, e2e, unit), #1133 (red probe, «DO NOT MERGE»), `specs/B1.md`, `FE-070_LIEFERUNG_1B.md`, `FE-070_LIEFERUNG_2.md`, `ABNAHMEAKTE.md`. Asks to me: PO 15:45 (SAFE-D11 gate; P1 or P2 for urgent and discharge cases; which safe-care facts block the first visit, 1b §3.1; P1 for an urgent gap without a commitment, 1b §5), PO 15:39 (RET1 window at urgency «hoch», L2 §2.4; responsibility during «Fall übergeben», L2 §2.6), PO 16:39 (gate on the e2e head; safety-text fields for UXR-170).
