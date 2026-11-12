@@ -31,6 +31,53 @@
 
 ---
 
+## 2026-11-12 02:22 CET · aia review 47: my review-46 support line for CGR-182 corrected to CGR-184 (whoever holds the right to plan sees the count only); `cra`'s CGR-186 correction to AUT-95 accepted (the assessment summary shows text and structure side by side, unmarked); ORD0-C3 (CGR-187) supported as a derived signal with one condition, new AUT-97 (low); BD-4 part 1 (#1093) and part 2 (#1096), FE-057 to FE-061 and COORD-7 (4a-c2) read; no `high` finding, no issue
+
+**Read:** `recovery/main` at `89f160e` (since review 46 at `b87ffec`): journal files 2026-11-11-2022-lca to 2026-11-12-0139-po; brief J5 amendments 21:39 and 01:39, brief BD amendments 21:39 and 01:39, brief ORD0 note 01:39; `FOUNDER_DECISIONS.md` v17 (FE-057 to FE-061); merged #1069 (BD-2), #1091 (my review 46), #1093 (BD-4 part 1), #1094, #1099, #1101, #1103. Open PRs on their heads: #1096 (BD-4 part 2, pgTAP 128, `83a9fcb`), #1104 (CGR-185 assertions, `3ef831e`), #1100, #1102 (`eng` docs), #1087 (STG1), #1084 (dependabot). Code read: `private.visit_flags` (migrations 0024 line 427, 0030 line 248), `src/features/team/rules.ts` line 8. Open `automation` issues: #912, #940, #1030 (unchanged).
+
+**Measured versus estimated:** no new measurement this run; the 61-act baseline of review 46 §2 stands (measured by `eng`, CI run 43037240509). I ran no tests and read no database. **Contradiction check (README rule 10):** none with `FOUNDER_DECISIONS.md` v17. **Documentation versus code (CLAUDE.md):** none new. **Task adjustment (README rule 11):** the PO (21:39) and `cra` (21:27, 01:31) asked `aia` to align with CGR-184; done first in §2. The bottleneck map is not due (2026-11-17).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-97 | Planning and visit start after an order change (steps 3-5, ORD0-C3 in B7): the team of the case | **IMPLEMENTED:** `order_expired` is a derived visit flag (`private.visit_flags`, 0024 line 427), counted in the team's plan status (0030 line 248) and shown on `/team` («nach Ablauf der Verordnung», `team/rules.ts` 8); nobody sets or clears it. **PLANNED (ORD0-C3, PO 01:39):** a second flag for B minutes whose order is not `present` on the visit date. **OPEN:** whether it joins the same derived family and the same team count, or becomes a separate exception or task. ORD0-4 already raises a P3 exception that ends by itself; ORD0 exists because a task that no command can close taught teams to ignore tasks (CGR-36) | **Rule (one derived order signal):** ORD0-C3 is computed in `visit_flags` like `order_expired` (no stored row, no task, nothing to close by hand); it is counted with `order_expired` in the team's one plan-status count of visits needing an order («Verordnung fehlt oder abgelaufen», words `uxa`'s); it clears when the order is `present` again (ORD0-C3 (b) already tests this). No new rule about care: whether the start is refused stays D-22/D-28 (Clinical Owner, `legal`). Test (pgTAP, with ORD0-C3 (b)): after the order is set back, the team count rises by the number of affected B visits and falls back when it is `present` again, with no command by a person | L (signal only) | stage 0; `eng` how, `uxa` (words, one count), `cra` confirms the flag text (ORD0-C3 (c)) | manual acts to raise or clear the order signal per affected visit (target 0); order counts the team must read on `/team` (target one, not two) | low | report only |
+
+### 2 Correction of review 46 (CGR-184) and of AUT-95 (CGR-186)
+
+- **CGR-184:** review 46 §3 supported the 17:39 text as written, which gave the per-visit short-visit lines to members **with** the right to plan. That was the reverse of (c3); my proposed B8 test («a member given the right by her team sees the lines») was wrong in the same way. **Corrected:** I support CGR-184 as adopted (J5 21:39): whoever holds the right to plan for the visit's team sees the W-2 count only; a reader without that right may see the lines; e2e «a member given the right by her team: the lines disappear». My condition stands unchanged and is in the J5 21:39 text: C-3 is a right the team gives its own members, not a role above the team. From the automation side the count is enough for a planner: no planning act needs the per-visit lines, so the correction removes no step and adds none. Lesson for my own reviews: I quote the `cra` remedy's test sentence when I support a PO paraphrase (the PO's 21:39 process proposal), instead of checking only the challenge side.
+- **AUT-95 / CGR-186:** `cra` 21:27 is right; the assessment summary shows the frequency text and the PLAN2 structure side by side (`assessment/rules.ts` 309-312), but unmarked; only the handover shows the text alone. AUT-95's proposal and measure are unchanged; the PO placed it on the B2 follow-up list with `cra`'s interim (structure in the handover, a mismatch marked on both views).
+
+### 3 Review of the items placed since review 46 (automation and challenge duty)
+
+- **ORD0-C3 (CGR-187, PO 01:39):** supported. It replaces a late discovery at billing (`b_without_valid_order` on the fact, after the visit) with a signal before the visit, at no act for the team; the condition is AUT-97 (one derived family, one count, nothing to close by hand).
+- **CGR-188 (J5 01:39, grade-neutral marker):** no act added; no finding. The test is a string check, cheap and kept.
+- **BD-4 part 1 (#1093, merged) and part 2 (#1096, open; #1104 CGR-185):** test only; they prove existing refusals on the BD case shape. No act added; no finding.
+- **FE-058 ((G-b) A, owner):** the PLAN3 day proposal is switched on by a synthetic administrator and counted as its own row. **Note for reading the measure (no finding, the decision stands):** the row is a one-off organisation setting, not a per-case act; the BD act table should keep it apart from the per-run product acts so later runs stay comparable with the 61-act baseline. H-BD-1 (the team's own switch, review 45) is unchanged: the team still owns whether it plans with the proposal.
+- **FE-061 (lost merge-commit run: `ci` plus `ci-repeat` 10/10):** engineering governance, no care workflow; no finding.
+- **COORD-7 (4a-c2), three-dot carry-over diff (`cra` 01:31):** supported from the automation side: it removes the re-gate of a head whose new diff is only already-cleared `recovery/main` code (#1093 waited two PO runs for that), with equal safety because the PR's own change still needs a gate line. A coordination step removed, no control removed. Advisory to the PO's COORD-7 consolidation.
+- **Challenge check:** no item placed since review 46 adds a step, approval, role or field without a care benefit.
+
+### 4 Status of open findings changed by this run
+
+| AUT | Status | Evidence |
+|---|---|---|
+| AUT-95 | open; placed on the B2 follow-up list with `cra`'s interim (CGR-186); evidence corrected (§2) | brief J5 amendment 21:39 |
+| AUT-96 | open; placed on the B2 follow-up list with `cra`'s condition (no KLV category or minutes preselected) | brief J5 amendment 21:39 |
+| AUT-97 | new, open | §1 |
+| AUT-54, AUT-61, AUT-74, AUT-76, AUT-78 to AUT-86, AUT-91, AUT-94 | open, unchanged | – |
+
+### 5 AI readiness and stage tracking
+
+- No delivered item proposes, drafts or ranks since review 46 (#1069, #1093: tests). The PLAN3 ledger, register and stop rule are unchanged.
+- **Stage 0** stays the only stage in force (D-35). Stage 1 entry conditions unchanged: D-41 model path OPEN (owner); D-2 hosting: staging stays on Free with synthetic data only until Phase B (FE-059), which is a CI target, not an AI host; AIG1 register IMPLEMENTED for rule agents only. FE-060 confirms the Phase B billing inputs (D-18, D-22, D-44, BS/BL residual financing) are OPEN, so no billing-preparation agent beyond the deterministic J5 path can be specified yet.
+
+### 6 Top bottlenecks (estimates from map v3 with the measured act counts of review 46; not time measurements)
+
+Unchanged from review 46 §6: 1. documentation per visit and per shift (not yet in the measured run); 2. intake (23 of 61 measured acts); 3. planning and cover (21 of 61 on the hand path); 4. order and assessment chasing (AUT-76; AUT-97 keeps ORD0-C3 at zero acts); 5. qualification and delegation upkeep; 6. billing preparation (2 measured acts, removed by J5-S, PLANNED). Map v4 on 2026-11-17.
+
+---
+
 ## 2026-11-11 20:20 CET · aia review 46: measured AUT-88 baseline (#1069, 61 product acts) compared with the static count of review 45 (they agree up to the two sign-ins); AUT-88, AUT-92, AUT-93 closed (measured, adopted); CGR-182 count-only default and K-3 (no catch-up button) supported; new AUT-95 (medium: a care-plan item's frequency is entered twice, once as free text the next nurse reads and once as the structure the series planner uses, and the two can differ), AUT-96 (low: the service named in the referral is typed again for the care-plan item); the act distribution of the measured run as the first measured input to map v4
 
 **Read:** `recovery/main` at `b87ffec` (since review 45 at `1548e20`): journal files 2026-11-11-1439-po to 1839-po (`uxa` 15:48, `lca` 16:25, `eng` 17:05 and 18:13, `cra` 17:27); brief J5 amendments 14:39, 16:39, 17:39; brief BD amendments 17:39, 18:39; merged #1071, #1072, #1077 to #1082, #1085, #1086, #1088, #1089. Open PRs on their heads: #1069 (`eng`, BD-2, head `2c5149a`, merge of `recovery/main`; the AUT-88 table comment of 17:12 UTC read in full), #1087 (STG1, waits for the owner record FE-057), #1090 (`uxa` 19:53, UXR-163), #1084 (dependabot). Code read: `src/app/(protected)/team/team-client.tsx` (346, 889-913), `src/app/(protected)/team/auto-plan.tsx` (119-157), `src/features/handover/rules.ts` (195), `src/features/assessment/rules.ts` (308-312), `tests/e2e/durchgang-ambulant.spec.ts` on `2c5149a` (act counter 60-95, step 1 178-210). Open `automation` issues: #912, #940, #1030 (unchanged).

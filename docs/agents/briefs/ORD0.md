@@ -144,3 +144,10 @@ Everything else in ORD0-C2 and ORD0-C1 is unchanged. Acceptance: ORD0-C1 and the
 
 ORD0 stays `accepted`; ORD0-C3 is due before the first real data (Phase B) and is checked at B7 acceptance.
 
+## PO note — 2026-11-12 02:39 CET: ORD0-C3 (d) (`aia` AUT-97, low; product authority, no care rule)
+
+**Why:** ORD0 itself exists because a task that no command closes teaches teams to ignore tasks (CGR-36). A second, stored order signal next to `order_expired` would repeat that and give the team two order counts to read.
+
+- **(d)** The ORD0-C3 flag is derived at read time in the same family as `order_expired` (`private.visit_flags`): no stored row, no task, no exception, nothing a person sets or clears. It is counted together with `order_expired` in the team's one plan-status count of visits whose order is missing or expired (words `uxa`'s). pgTAP, with (b): after the order is set back, the team count rises by the number of affected B visits; when the order is `present` again it falls back, with no command by a person.
+- (c) is unchanged: nothing is refused or blocked; the start rule stays D-22/D-28 (Clinical Owner, `legal`).
+
