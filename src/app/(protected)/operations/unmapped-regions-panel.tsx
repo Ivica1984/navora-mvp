@@ -69,7 +69,7 @@ function UnmappedRow({ data, row, onDone }: {
     >
       <p className="break-words">
         <span className="font-semibold">{row.legacy_value}</span>
-        <span className="block text-secondary">{regionCountLine(row)}</span>
+        <span data-testid="region-counts" className="block text-secondary">{regionCountLine(row)}</span>
       </p>
       <label className="grid gap-1 text-xs font-semibold">
         Region aus der Liste

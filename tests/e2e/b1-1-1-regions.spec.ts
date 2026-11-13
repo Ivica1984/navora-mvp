@@ -30,8 +30,10 @@ for (const width of [390, 1440]) {
     await expect(section).toBeVisible();
     const pilot = section.getByRole("form", { name: "Region zuordnen: Basel Pilot" });
     await expect(pilot).toBeVisible();
-    await expect(pilot).toContainText(/\d+ Teams?\b/);
-    await expect(pilot).not.toContainText(/\b0 /);
+    // UXR-185: the count line of the seed's one «Basel Pilot» team (no zero counts, singular/plural).
+    const counts = pilot.getByTestId("region-counts");
+    await expect(counts).toHaveText(/\d+ Teams?$/);
+    await expect(counts).not.toHaveText(/(^|\s)0 /);
     await expect(pilot.getByLabel("Region aus der Liste").locator("option:not([disabled])")).toHaveText(["Basel-Stadt", "Basel-Landschaft"]);
     expect(await section.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
 
