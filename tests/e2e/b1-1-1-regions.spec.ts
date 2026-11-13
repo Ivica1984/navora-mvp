@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { addLegacyTeamOrgA, mapLegacyRegionOrgA, removeLegacyTeamOrgA } from "./support/regions";
+import { addLegacyTeamOrgA, addStrayTeamOrgA, mapLegacyRegionOrgA, removeLegacyTeamOrgA } from "./support/regions";
 
 // B1.1-1 (Δ1, ADR-186): the region is chosen from the list; legacy values are listed for Operations as «Region nicht
 // zugeordnet». Synthetic local-only accounts (supabase/seed.sql). B1.1-1c (FE-073): the seed has no legacy value any
@@ -67,6 +67,56 @@ for (const width of [390, 1440]) {
     // (was: toHaveCount(0), when the container was mounted together with its text).
     await expect(page.getByTestId("region-mapped")).toHaveCount(1);
     await expect(page.getByTestId("region-mapped")).toBeEmpty();
+  });
+}
+
+// UXR-189 (uxa 11:55 and 16:20, PO order #1222): the stray rows of a value already mapped (CGR-201 safety net,
+// ADR-187) at 390 and 1440 px. One fixture value per width, so each test maps its own value once in the UI, then a
+// second fixture team keeps the old text (triggers off for that one insert, support/regions.ts `addStrayTeamOrgA`).
+for (const width of [390, 1440]) {
+  const STRAY = {
+    first: `Testteam Altregion Rest ${width} A`,
+    second: `Testteam Altregion Rest ${width} B`,
+    value: `Altregion Rest ${width}`,
+  };
+  test(`at ${width} px a mapped value with stray rows shows the region as text and «Zuordnen» clears them`, async ({ page }) => {
+    addLegacyTeamOrgA(STRAY.first, STRAY.value);
+    try {
+      await page.setViewportSize({ width, height: 900 });
+      await signIn(page, OPS, /\/operations$/);
+      await mapLegacyRegionOrgA(page, STRAY.value, "Basel-Stadt");
+      addStrayTeamOrgA(STRAY.second, STRAY.value);
+
+      await page.goto("/operations");
+      const section = page.getByRole("region", { name: "Region nicht zugeordnet" });
+      const row = section.getByRole("form", { name: `Region zuordnen: ${STRAY.value}` });
+      await expect(row).toBeVisible();
+      await expect(row.getByTestId("region-mapped-note")).toHaveText("Bereits «Basel-Stadt» zugeordnet. Seither neu mit dem alten Wert:");
+      await expect(row.getByTestId("region-mapped-target")).toHaveText("Region: Basel-Stadt");
+      // Only the region already chosen is accepted by the database, so the row offers no choice.
+      await expect(row.getByLabel("Region aus der Liste")).toHaveCount(0);
+      await expect(row.locator("select")).toHaveCount(0);
+      await expect(row.getByTestId("region-counts")).toHaveText("1 Team");
+      expect(await section.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+
+      await row.getByRole("button", { name: "Zuordnen" }).click();
+      const step = row.getByTestId("region-map-confirm");
+      await expect(step).toBeVisible();
+      // The step names the stray count (one team still on the old text).
+      await expect(step.getByTestId("region-map-confirm-sentence"))
+        .toContainText(`Bei 1 Team wird «${STRAY.value}» durch «Basel-Stadt» ersetzt.`);
+      expect(await section.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+      await step.getByRole("button", { name: "Zuordnen" }).click();
+
+      await expect(page.getByTestId("region-mapped")).toContainText(`Region zugeordnet: ${STRAY.value} → Basel-Stadt`);
+      await expect(row).toHaveCount(0);
+      expect(await section.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+      await page.reload();
+      await expect(section.getByRole("form", { name: `Region zuordnen: ${STRAY.value}` })).toHaveCount(0);
+    } finally {
+      removeLegacyTeamOrgA(STRAY.second, STRAY.value);
+      removeLegacyTeamOrgA(STRAY.first, STRAY.value);
+    }
   });
 }
 
