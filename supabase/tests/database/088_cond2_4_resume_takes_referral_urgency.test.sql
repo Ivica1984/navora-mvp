@@ -10,11 +10,8 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(35);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
-insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90)
-  on conflict (organization_id, name) do nothing;
+-- B1.1-1c (FE-073): the seed names list regions only, so this file needs no extra list entry (before B1.1-1c it put the
+-- seed's legacy value on the list here).
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today.
 select set_config('navora.test_now',
@@ -31,7 +28,7 @@ create function pg_temp.today() returns date language sql stable as $$ select (p
 create function pg_temp.c208() returns uuid language sql immutable as $$ select '00000000-0000-4000-a000-000000000208'::uuid $$;
 create function pg_temp.rec(p_title text, p_urgency text, p_source text, p_start date, p_key integer) returns text
 language sql as $$
-  select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital COND2', 'Spital', 'Bern West', null,
+  select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital COND2', 'Spital', 'Basel-Stadt', null,
     p_urgency, null, p_title, 'Synthetischer Bedarf', array['Grundpflege'], pg_temp.k(p_key), p_source, p_start)
 $$;
 create function pg_temp.req(p_title text) returns uuid language sql stable as $$
@@ -174,7 +171,7 @@ select pg_temp.age_link('COND2 R2');
 select pg_temp.pause();
 -- As the table owner: a request as 0010 stored it (urgency_source takes the 0086 default 'unknown').
 insert into public.partner_requests (organization_id, partner_name, partner_type, region, urgency, request_title, need_summary, requested_services, status)
-values ('00000000-0000-4000-b000-000000000011', 'Spital COND2', 'Spital', 'Bern West', 'niedrig', 'COND2 R3', 'Synthetisch', array['Grundpflege'], 'open');
+values ('00000000-0000-4000-b000-000000000011', 'Spital COND2', 'Spital', 'Basel-Stadt', 'niedrig', 'COND2 R3', 'Synthetisch', array['Grundpflege'], 'open');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 select is(pg_temp.link('COND2 R3', 31) ->> 'kind', 'resume', 'an older referral resumes the case');

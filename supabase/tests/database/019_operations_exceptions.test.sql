@@ -6,10 +6,10 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(34);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The extra regions this file enters are put on
+-- org A's list for this test only (rolled back). B1.1-1c (FE-073): the seed's legacy value is no longer
+-- among them, the seed uses Basel-Stadt.
 insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90),
   ('00000000-0000-4000-b000-000000000011', 'Region ohne Team OPS1', 91)
   on conflict (organization_id, name) do nothing;
 
@@ -42,7 +42,7 @@ values ('00000000-0000-4000-b000-000000000011', 'a9000000-0000-4000-8000-0000000
         '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', 'process', 'critical', 'Frisches Ereignis', 'open');
 -- case 208 came as a hospital discharge; an uncovered visit in 3 hours
 insert into public.matching_requests (organization_id, case_id, request_title, region, urgency, status, referral_type, selected_team_id)
-values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'Teamsuche alt', 'Bern West', 'mittel',
+values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'Teamsuche alt', 'Basel-Stadt', 'mittel',
         'accepted', 'hospital_discharge', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', 'a9000000-0000-4000-8000-000000000601', '00000000-0000-4000-a000-000000000208',
@@ -61,7 +61,7 @@ update public.exception_rules set amount = 0 where exception_type in ('case_not_
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$ begin
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital OPS1', 'Spital', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital OPS1', 'Spital', 'Basel-Stadt', null,
     'mittel', null, 'OPS1 unvollständig', 'Bedarf', array['Grundpflege'], 'a9000000-0000-4000-8000-000000000001', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'OPS1 unvollständig'),
     'Klient', 'OPS1U', true, '{}'::jsonb, 'a9000000-0000-4000-8000-000000000002');

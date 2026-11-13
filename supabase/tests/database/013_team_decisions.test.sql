@@ -1,16 +1,13 @@
 -- J2: team decision (team pull) on open matching requests.
--- Users: coach …901 · nurse …902 (Testteam Nord, Bern West) · foreign admin …903 · operations …904
--- Bern West, org A: Testteam Nord …101 (active), Testteam Mitte …102 (active, no members in the seed)
+-- Users: coach …901 · nurse …902 (Testteam Nord, Basel-Stadt) · foreign admin …903 · operations …904
+-- Basel-Stadt, org A: Testteam Nord …101 (active), Testteam Mitte …102 (active, no members in the seed)
 begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(21);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
-insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90)
-  on conflict (organization_id, name) do nothing;
+-- B1.1-1c (FE-073): the seed names list regions only, so this file needs no extra list entry (before B1.1-1c it put the
+-- seed's legacy value on the list here).
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -25,14 +22,14 @@ select is(
    where a in ('first_name', 'last_name', 'client_name', 'name', 'address', 'phone')),
   null, 'offers carry no client identity (data minimisation before acceptance)');
 
--- Two referrals in Bern West, converted by operations (J1)
+-- Two referrals in Basel-Stadt, converted by operations (J1)
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$
 begin
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2', 'Spital', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2', 'Spital', 'Basel-Stadt', null,
     'hoch', null, 'J2 Anfrage A', 'Bedarf A', array['Grundpflege'], 'a2000000-0000-4000-8000-000000000001', 'referrer_stated');
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2', 'Spital', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2', 'Spital', 'Basel-Stadt', null,
     'mittel', null, 'J2 Anfrage B', 'Bedarf B', array['Begleitung'], 'a2000000-0000-4000-8000-000000000002', 'referrer_stated');
   -- J1 (PO brief): complete facts so the cases are ready and the matching requests exist.
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2 Anfrage A'),
@@ -59,13 +56,13 @@ set local role authenticated;
 select is(
   (select count(*)::int from public.team_offers() o join req r on r.id = o.matching_request_id
    where o.team_id = '00000000-0000-4000-a000-000000000101'),
-  2, 'both Bern West requests are offered to the nurse''s active team');
+  2, 'both Basel-Stadt requests are offered to the nurse''s active team');
 select is(
   (select team_name from public.team_offers() where matching_request_id = (select id from req where last_name = 'J2A')),
   'Testteam Nord', 'the offer names the team it is for');
 select is(
   (select count(*)::int from public.team_offers() where matching_request_id = '00000000-0000-4000-a000-000000000401'),
-  0, 'a request of another region (Zürich Pilot) is not offered');
+  0, 'a request of another region (Basel-Landschaft) is not offered');
 
 select is(public.decide_matching_request((select id from req where last_name = 'J2A'),
           '00000000-0000-4000-a000-000000000102', 'accept', null, 'a2000000-0000-4000-8000-000000000010'),

@@ -55,7 +55,11 @@ describe("B1.1-1 «Zuordnen»: confirming step (UXR-184)", () => {
     const withSearch = m.mapRegionConfirmSentence!("Bern West", "Basel-Stadt", row(1, 0, 0, 2));
     expect(withSearch).toContain("können danach Teams in «Basel-Stadt» angeboten werden");
     const without = m.mapRegionConfirmSentence!("Bern West", "Basel-Stadt", row(1, 1, 1, 0));
-    expect(without).not.toContain("angeboten");
+    // B1.1-1b (ADR-187): the team side (CGR-202 (b)) now says «angeboten» for the team; the search sentence stays absent.
+    expect(without).not.toContain("Offene Teamsuchen können danach");
+    expect(without).not.toContain("Teams in «Basel-Stadt» angeboten");
+    const noTeamNoSearch = m.mapRegionConfirmSentence!("Bern West", "Basel-Stadt", row(0, 1, 1, 0));
+    expect(noTeamNoSearch).not.toContain("angeboten");
   });
 
   it("uses singular and plural in the dative", () => {

@@ -92,7 +92,7 @@ select e.organization_id, e.visit_id, e.team_id, e.id, e.occurred_at - interval 
 from public.visit_events e where e.visit_id in (pg_temp.v(1), pg_temp.v(2), pg_temp.v(3)) and e.event_type = 'departed';
 
 insert into public.matching_requests (id, organization_id, case_id, request_title, region, urgency, status) values
-  (pg_temp.v(10), '00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000201', 'RLS2 Anfrage', 'Bern West', 'mittel', 'open');
+  (pg_temp.v(10), '00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000201', 'RLS2 Anfrage', 'Basel-Stadt', 'mittel', 'open');
 insert into public.team_decisions (organization_id, matching_request_id, case_id, team_id, decision, reason, reason_code, actor_id, idempotency_key) values
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(10), '00000000-0000-4000-a000-000000000201', '00000000-0000-4000-a000-000000000101',
    'decline', 'Synthetisch: RLS2 Ablehnungsgrund Nord', 'capacity', pg_temp.u('rn'), pg_temp.k(101)),

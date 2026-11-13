@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1010" width="1440" height="1010" font-family="Inter, Arial, sans-serif">
+<rect width="1440" height="1010" fill="#ffffff"/>
+<text x="20" y="30" font-size="22" font-weight="700" fill="#022c22" text-anchor="start">NAVORA Plattform-Grundriss</text>
+<text x="20" y="52" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Sechs Portale · fünf Engines · eine Sicherheitsgrenze · drei getrennte Ledger. Status am 13.11.2026 auf recovery/main; Phase A, nur synthetische Daten.</text>
+<rect x="1030" y="38" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="1074.5" y="51" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="1140" y="38" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="1177.5" y="51" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="1232" y="38" width="61.0" height="18" rx="9" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="1262.5" y="51" font-size="10.5" font-weight="600" fill="#92400e" text-anchor="middle">PLANNED</text>
+<rect x="20" y="70" width="1400" height="190" rx="14" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="36" y="94" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">1  Menschen und Portale</text>
+<text x="36" y="112" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Jede Rolle sieht nur ihre eigenen Daten. Eine Hauptaktion je Karte.</text>
+<rect x="36" y="124" width="222" height="124" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="48" y="146" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">/order</text>
+<text x="48" y="166" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Auftraggeber</text>
+<text x="48" y="184" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Heim, Spital, Privatperson</text>
+<text x="48" y="206" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Bedarf per Diktat oder Text,</text>
+<text x="48" y="222" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Felder bestätigen, Stand «gedeckt»</text>
+<rect x="158" y="133" width="61.0" height="18" rx="9" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="188.5" y="146" font-size="10.5" font-weight="600" fill="#92400e" text-anchor="middle">PLANNED</text>
+<rect x="266" y="124" width="222" height="124" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="278" y="146" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">/team</text>
+<text x="278" y="166" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Team-Dashboard</text>
+<text x="278" y="184" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">selbstorganisiertes Team</text>
+<text x="278" y="206" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Angebot mit Begründung,</text>
+<text x="278" y="222" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Übernehmen mit einem Klick</text>
+<rect x="388" y="133" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="425.5" y="146" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="496" y="124" width="222" height="124" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="508" y="146" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">/field</text>
+<text x="508" y="166" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Pflegekraft mobil</text>
+<text x="508" y="184" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">390 px, offline-first (offen)</text>
+<text x="508" y="206" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">1-Tap Check-in, Diktat,</text>
+<text x="508" y="222" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Bericht prüfen und signieren</text>
+<rect x="618" y="133" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="655.5" y="146" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="726" y="124" width="222" height="124" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="738" y="146" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">/b2b-institution</text>
+<text x="738" y="166" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">B2B-Heimsuite</text>
+<text x="738" y="184" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Heim für eigenes Personal</text>
+<text x="738" y="206" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Schichtplan, Ausfälle,</text>
+<text x="738" y="222" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Module 1 bis 3</text>
+<rect x="848" y="133" width="61.0" height="18" rx="9" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="878.5" y="146" font-size="10.5" font-weight="600" fill="#92400e" text-anchor="middle">PLANNED</text>
+<rect x="956" y="124" width="222" height="124" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="968" y="146" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">/family</text>
+<text x="968" y="166" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Angehörige</text>
+<text x="968" y="184" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">nur mit Berechtigung</text>
+<text x="968" y="206" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">freigegebene Updates,</text>
+<text x="968" y="222" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">kein Chat, keine Akte</text>
+<rect x="1078" y="133" width="61.0" height="18" rx="9" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="1108.5" y="146" font-size="10.5" font-weight="600" fill="#92400e" text-anchor="middle">PLANNED</text>
+<rect x="1186" y="124" width="222" height="124" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="1198" y="146" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">/platform</text>
+<text x="1198" y="166" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Betrieb und Coach</text>
+<text x="1198" y="184" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">NAVORA, ohne Akteneinsicht</text>
+<text x="1198" y="206" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Abos, Ausnahmen,</text>
+<text x="1198" y="222" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Vermittlung ohne Aufsicht</text>
+<rect x="1308" y="133" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="1345.5" y="146" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="20" y="272" width="1400" height="84" rx="14" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="36" y="296" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">2  Next.js-App: Server Components und Befehle</text>
+<text x="36" y="314" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Keine Geschäftslogik im Browser. Jede Schreibaktion ist ein Datenbank-Befehl mit Rechteprüfung und Audit.</text>
+<rect x="735" y="288" width="220" height="52" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="745" y="309" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">Server Components · Server Actions</text>
+<rect x="745" y="316" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="789.5" y="329" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="963" y="288" width="220" height="52" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="973" y="309" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">Web Push /api/push/dispatch</text>
+<rect x="973" y="316" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="1017.5" y="329" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="1191" y="288" width="220" height="52" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="1201" y="309" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">/api/ai/* nur Muster 4</text>
+<rect x="1201" y="316" width="61.0" height="18" rx="9" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="1231.5" y="329" font-size="10.5" font-weight="600" fill="#92400e" text-anchor="middle">PLANNED</text>
+<rect x="20" y="368" width="1400" height="214" rx="14" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="36" y="392" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">3  Fünf Engines</text>
+<text x="36" y="410" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Zuerst deterministisch, dann KI, immer der Mensch. Ein KI-Score überspielt nie eine fehlende Qualifikation.</text>
+<rect x="36" y="420" width="270" height="150" rx="10" fill="#ffffff" stroke="#065f46" stroke-width="1.6"/>
+<text x="48" y="442" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Engine 1</text>
+<text x="48" y="462" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Matching</text>
+<text x="48" y="484" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">PLZ-Distanz, Qualifikation</text>
+<text x="48" y="501" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">nach Matrix, Verfügbarkeit,</text>
+<text x="48" y="518" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">bestätigte Merkmale</text>
+<text x="48" y="535" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">→ nur Geeignete</text>
+<text x="48" y="561" font-size="11" font-weight="600" fill="#44403c" text-anchor="start">deterministisch, SQL</text>
+<rect x="214" y="430" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="251.5" y="443" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="313" y="420" width="270" height="150" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="325" y="442" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Engine 2</text>
+<text x="325" y="462" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">KI-Orchestrierung</text>
+<text x="325" y="484" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">erkennt Felder,</text>
+<text x="325" y="501" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">ordnet nur Geeignete,</text>
+<text x="325" y="518" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">begründet in Worten</text>
+<text x="325" y="535" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">→ schlägt vor</text>
+<text x="325" y="561" font-size="11" font-weight="600" fill="#44403c" text-anchor="start">Vorschlagsbuch AIG1</text>
+<rect x="491" y="430" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="528.5" y="443" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="590" y="420" width="270" height="150" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="602" y="442" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Engine 3</text>
+<text x="602" y="462" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Voice-to-Report</text>
+<text x="602" y="484" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">30 s Diktat →</text>
+<text x="602" y="501" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Entwurf mit Quelle</text>
+<text x="602" y="518" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">je Satz →</text>
+<text x="602" y="535" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Mensch signiert</text>
+<text x="602" y="561" font-size="11" font-weight="600" fill="#44403c" text-anchor="start">Signatur IMPLEMENTED</text>
+<rect x="768" y="430" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="805.5" y="443" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="867" y="420" width="270" height="150" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="879" y="442" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Engine 4</text>
+<text x="879" y="462" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Finanzen</text>
+<text x="879" y="484" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Stunden × Preis,</text>
+<text x="879" y="501" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Doppelabrechnung blockiert,</text>
+<text x="879" y="518" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Rechnung des Teams</text>
+<text x="879" y="535" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">ohne Provision</text>
+<text x="879" y="561" font-size="11" font-weight="600" fill="#44403c" text-anchor="start">Fakten IMPLEMENTED</text>
+<rect x="1045" y="430" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="1082.5" y="443" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="1144" y="420" width="270" height="150" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="1156" y="442" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Engine 5</text>
+<text x="1156" y="462" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Signale</text>
+<text x="1156" y="484" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">nicht gedeckt, überfällig,</text>
+<text x="1156" y="501" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Sicherheitssignal,</text>
+<text x="1156" y="518" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Eskalation</text>
+<text x="1156" y="535" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">→ nie still verfallen</text>
+<text x="1156" y="561" font-size="11" font-weight="600" fill="#44403c" text-anchor="start">SIG1 SIG2 OPS1</text>
+<rect x="1322" y="430" width="75.0" height="18" rx="9" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="1359.5" y="443" font-size="10.5" font-weight="600" fill="#075985" text-anchor="middle">TEILWEISE</text>
+<rect x="20" y="594" width="1400" height="170" rx="14" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="36" y="618" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">4  Sicherheitsgrenze: Supabase Postgres (RLS auf jeder Tabelle, Befehle mit search_path='', Audit)</text>
+<text x="36" y="636" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Datenbank entscheidet Sicherheit, Qualifikation, Fristen und Beträge. Migrationen nur anhängend. Phase A: nur synthetische Daten.</text>
+<rect x="36" y="646" width="226" height="104" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="48" y="670" font-size="13.5" font-weight="700" fill="#022c22" text-anchor="start">Aufträge und Fälle</text>
+<text x="48" y="692" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">partner_requests, cases,</text>
+<text x="48" y="709" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">matching_requests</text>
+<rect x="48" y="722" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="92.5" y="735" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="267" y="646" width="226" height="104" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="279" y="670" font-size="13.5" font-weight="700" fill="#022c22" text-anchor="start">Teams und Qualifikation</text>
+<text x="279" y="692" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">teams, Nachweise,</text>
+<text x="279" y="709" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Matrix v0.2 PROPOSED</text>
+<rect x="279" y="722" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="323.5" y="735" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="498" y="646" width="226" height="104" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="510" y="670" font-size="13.5" font-weight="700" fill="#022c22" text-anchor="start">Einsätze und Berichte</text>
+<text x="510" y="692" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">care_visits, visit_reports</text>
+<text x="510" y="709" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">(Versionen, Signatur)</text>
+<rect x="510" y="722" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="554.5" y="735" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="729" y="646" width="226" height="104" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="741" y="670" font-size="13.5" font-weight="700" fill="#022c22" text-anchor="start">KI-Vorschlagsbuch</text>
+<text x="741" y="692" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">ai_suggestions,</text>
+<text x="741" y="709" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Bestätigung je Wert</text>
+<rect x="741" y="722" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="785.5" y="735" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="960" y="646" width="226" height="104" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="972" y="670" font-size="13.5" font-weight="700" fill="#022c22" text-anchor="start">Audit</text>
+<text x="972" y="692" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">audit_events,</text>
+<text x="972" y="709" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">audit_read_log</text>
+<rect x="972" y="722" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="1016.5" y="735" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="1191" y="646" width="226" height="104" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="1203" y="670" font-size="13.5" font-weight="700" fill="#022c22" text-anchor="start">Signale</text>
+<text x="1203" y="692" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">safety_signals,</text>
+<text x="1203" y="709" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">exception_events</text>
+<rect x="1203" y="722" width="89.0" height="18" rx="9" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="1247.5" y="735" font-size="10.5" font-weight="600" fill="#065f46" text-anchor="middle">IMPLEMENTED</text>
+<rect x="20" y="776" width="1400" height="150" rx="14" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.2"/>
+<text x="36" y="800" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">5  Drei getrennte Erlösströme (GMSEP, PLANNED)</text>
+<text x="36" y="818" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Kein Fremdschlüssel und keine Ansicht verbindet die Ledger. Eine Pflegerechnung enthält nie eine NAVORA-Position.</text>
+<rect x="36" y="828" width="440" height="84" rx="10" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
+<text x="50" y="852" font-size="15" font-weight="700" fill="#065f46" text-anchor="start">Team-Ledger</text>
+<text x="50" y="874" font-size="12.5" font-weight="600" fill="#022c22" text-anchor="start">Pflegeerlös gehört dem Team</text>
+<text x="50" y="893" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Rechnung Team → Auftraggeber</text>
+<line x1="489" y1="832" x2="489" y2="908" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="502" y="828" width="440" height="84" rx="10" fill="#f0f9ff" stroke="#075985" stroke-width="1.5"/>
+<text x="516" y="852" font-size="15" font-weight="700" fill="#075985" text-anchor="start">NAVORA-Ledger A</text>
+<text x="516" y="874" font-size="12.5" font-weight="600" fill="#022c22" text-anchor="start">feste Monatsgebühr je Mitglied</text>
+<text x="516" y="893" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">nie Provision, nie je Stunde</text>
+<line x1="955" y1="832" x2="955" y2="908" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="968" y="828" width="440" height="84" rx="10" fill="#f0f9ff" stroke="#075985" stroke-width="1.5"/>
+<text x="982" y="852" font-size="15" font-weight="700" fill="#075985" text-anchor="start">NAVORA-Ledger B</text>
+<text x="982" y="874" font-size="12.5" font-weight="600" fill="#022c22" text-anchor="start">B2B-Lizenzen je Modul</text>
+<text x="982" y="893" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Heim oder Spital als Softwarekunde</text>
+<rect x="20" y="940" width="700" height="56" rx="10" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="36" y="962" font-size="13" font-weight="700" fill="#92400e" text-anchor="start">KI im eigenen Schweizer Rechenzentrum (Muster 4) · PLANNED</text>
+<text x="36" y="982" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">D-35 Regel A: keine Klienten- oder Personaldaten an einen externen KI-Dienst. Phase A nur synthetisch.</text>
+<rect x="730" y="940" width="690" height="56" rx="10" fill="#ecfdf5" stroke="#065f46" stroke-width="1.2"/>
+<text x="746" y="962" font-size="13" font-weight="700" fill="#065f46" text-anchor="start">Der Mensch entscheidet und signiert</text>
+<text x="746" y="982" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Auftraggeber bestätigt · Team übernimmt · Pflegekraft signiert · keine zentrale Disposition</text>
+<path d="M360 260 L360 272" stroke="#065f46" stroke-width="2"/>
+<path d="M720 260 L720 272" stroke="#065f46" stroke-width="2"/>
+<path d="M1080 260 L1080 272" stroke="#065f46" stroke-width="2"/>
+<path d="M360 356 L360 368" stroke="#065f46" stroke-width="2"/>
+<path d="M720 356 L720 368" stroke="#065f46" stroke-width="2"/>
+<path d="M1080 356 L1080 368" stroke="#065f46" stroke-width="2"/>
+<path d="M360 582 L360 594" stroke="#065f46" stroke-width="2"/>
+<path d="M720 582 L720 594" stroke="#065f46" stroke-width="2"/>
+<path d="M1080 582 L1080 594" stroke="#065f46" stroke-width="2"/>
+<path d="M360 764 L360 776" stroke="#065f46" stroke-width="2"/>
+<path d="M720 764 L720 776" stroke="#065f46" stroke-width="2"/>
+<path d="M1080 764 L1080 776" stroke="#065f46" stroke-width="2"/>
+</svg>

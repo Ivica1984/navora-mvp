@@ -1,5 +1,5 @@
 -- COVER1: cross-team cover without a dispatcher (PO brief docs/agents/briefs/COVER1.md).
--- Testteam Nord (…101) and Testteam Mitte (…102) are both in region "Bern West".
+-- Testteam Nord (…101) and Testteam Mitte (…102) are both in region "Basel-Stadt".
 -- Here: coach …901 joins Mitte as care assistant, operations …904 joins Mitte as registered nurse.
 -- Nurse …902 is in Nord (the visits' own team). Foreign admin …903 is in org B.
 -- Visits of Nord, case …208, uncovered: X (A, in 10 h), Y (B, in 10 h), Z (A, in 30 h), W (A, in 2 h).

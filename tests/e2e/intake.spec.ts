@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { ORG_A_TEAM_REGION, mapSeedRegionOrgA } from "./support/regions";
+import { ORG_A_TEAM_REGION } from "./support/regions";
 
 // J1 — referral intake → case + open matching request. Synthetic local-only accounts (supabase/seed.sql).
 const OPS = "ops.test@navora.test"; //    org A, role operations
@@ -17,7 +17,7 @@ async function signIn(page: Page, email: string, landing: RegExp) {
 test.describe("referral intake (J1)", () => {
   test("operations records a referral, converts it after review, and the case surfaces in Operations", async ({ page }) => {
     await signIn(page, OPS, /\/operations$/);
-    await mapSeedRegionOrgA(page); // B1.1-1: the referral names a list region that reaches the Bern West teams
+    // B1.1-1c: the seed teams of org A are on Basel-Stadt, so no «Zuordnen» first (was mapSeedRegionOrgA).
     await page.goto("/intake");
 
     const form = page.getByRole("form", { name: "Neue Anfrage" });
@@ -74,7 +74,7 @@ test.describe("referral intake (J1)", () => {
   test("at 390 px the urgency has no preset and the team's offer shows level and source (IPA1-7, IPA1-8)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, OPS, /\/operations$/);
-    await mapSeedRegionOrgA(page); // B1.1-1: the referral names a list region that reaches the Bern West teams
+    // B1.1-1c: the seed teams of org A are on Basel-Stadt, so no «Zuordnen» first (was mapSeedRegionOrgA).
     await page.goto("/intake");
 
     const form = page.getByRole("form", { name: "Neue Anfrage" });
@@ -147,7 +147,7 @@ test.describe("referral intake (J1)", () => {
 
     // Operations records the returning referral (hoch, stated by the referrer, with a date) and links it.
     await signIn(page, OPS, /\/operations$/);
-    await mapSeedRegionOrgA(page); // B1.1-1: the referral names a list region that reaches the Bern West teams
+    // B1.1-1c: the seed teams of org A are on Basel-Stadt, so no «Zuordnen» first (was mapSeedRegionOrgA).
     await page.goto("/intake");
     const form = page.getByRole("form", { name: "Neue Anfrage" });
     await form.getByLabel("Zuweisende Stelle").fill("Testspital COND2");

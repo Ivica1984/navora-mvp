@@ -84,7 +84,23 @@ export function mapRegionConfirmSentence(from: string, to: string, row: RegionUs
     ? `«${from}» wird durch «${to}» ersetzt.`
     : `${where}wird «${from}» durch «${to}» ersetzt.`;
   const search = row.open_searches > 0 ? ` Offene Teamsuchen können danach Teams in «${to}» angeboten werden.` : "";
-  return `${first}${search} Die Zuordnung lässt sich hier nicht rückgängig machen.`;
+  // CGR-202 (b) (ADR-187, wording uxa 07:52): the team side of the same act; «können» as on the search side.
+  const team = row.teams === 0
+    ? ""
+    : row.teams === 1
+      ? ` Das Team mit «${from}» gehört danach zu «${to}»; ihm können dann offene Teamsuchen aus «${to}» angeboten werden.`
+      : ` Die ${row.teams} Teams mit «${from}» gehören danach zu «${to}»; ihnen können dann offene Teamsuchen aus «${to}» angeboten werden.`;
+  return `${first}${search}${team} Die Zuordnung lässt sich hier nicht rückgängig machen.`;
+}
+
+// CGR-201 safety net (ADR-187, PO 06:39 point 2, texts uxa 07:52): a value already mapped whose rows still carry the old
+// text. Only the region already chosen is accepted by the database, so it is shown as text, not as a choice.
+export function mappedRegionNote(to: string): string {
+  return `Bereits «${to}» zugeordnet. Seither neu mit dem alten Wert:`;
+}
+
+export function mappedRegionLabel(to: string): string {
+  return `Region: ${to}`;
 }
 
 export function mapRegionDoneText(from: string, to: string): string {

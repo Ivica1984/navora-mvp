@@ -6,8 +6,9 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(67);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The extra regions this file enters are put on
+-- org A's list for this test only (rolled back). B1.1-1c (FE-073): the seed's legacy value is no longer
+-- among them, the seed uses Basel-Stadt.
 insert into public.regions (organization_id, name, sort_order) values
   ('00000000-0000-4000-b000-000000000011', 'Zürich Süd', 90),
   ('00000000-0000-4000-b000-000000000011', 'Zürich West', 91)

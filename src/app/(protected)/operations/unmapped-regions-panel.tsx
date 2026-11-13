@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import ConfirmStep from "@/app/(protected)/admin/confirm-step";
 import { mapLegacyRegion } from "@/features/regions/commands";
 import type { UnmappedRegionPanel } from "@/features/regions/queries";
@@ -11,6 +11,8 @@ import {
   UNMAPPED_REGIONS_INTRO,
   mapRegionConfirmSentence,
   mapRegionDoneText,
+  mappedRegionLabel,
+  mappedRegionNote,
   regionCountLine,
 } from "@/features/regions/rules";
 
@@ -21,23 +23,29 @@ const field = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-whi
  * the database writes the audit row (who, when, from, to). Until then the old text keeps matching as before.
  * Amendment 04:30 (uxa UXR-184): «Zuordnen» first opens an in-place confirming step whose sentence comes from the row
  * counts; «Abbrechen» runs nothing. After success the result line stays, also when no row is left.
+ * B1.1-1b (ADR-187): a value already mapped whose rows still carry the old text (CGR-201 safety net) is shown with the
+ * region as text, no select (only that region is accepted). UXR-187: the status container is mounted, empty, before
+ * the act; after success focus moves to the heading (the row with the focused button disappears), not to the live
+ * region (UXR-41).
  */
 export default function UnmappedRegionsPanel({ data }: { data: UnmappedRegionPanel }) {
   const [done, setDone] = useState<string[]>([]);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   if (data.rows.length === 0 && done.length === 0) return null;
   return (
     <section aria-label={UNMAPPED_REGIONS_HEADING} className="grid gap-2 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-      <h2 className="text-lg font-bold">{UNMAPPED_REGIONS_HEADING} ({data.rows.length})</h2>
-      {done.length > 0 && (
-        <div role="status" data-testid="region-mapped" className="grid gap-1 text-sm font-semibold text-emerald-900">
-          {done.map((d) => <p key={d}>{d}</p>)}
-        </div>
-      )}
+      <h2 ref={headingRef} tabIndex={-1} className="text-lg font-bold">{UNMAPPED_REGIONS_HEADING} ({data.rows.length})</h2>
+      <div role="status" data-testid="region-mapped" className="grid gap-1 text-sm font-semibold text-emerald-900">
+        {done.map((d) => <p key={d}>{d}</p>)}
+      </div>
       {data.rows.length > 0 && <p className="text-sm text-secondary">{UNMAPPED_REGIONS_INTRO}</p>}
       <ul className="grid gap-2">
         {data.rows.map((r) => (
           <li key={r.legacy_value}>
-            <UnmappedRow data={data} row={r} onDone={(text) => setDone((d) => (d.includes(text) ? d : [...d, text]))} />
+            <UnmappedRow data={data} row={r} onDone={(text) => {
+              setDone((d) => (d.includes(text) ? d : [...d, text]));
+              headingRef.current?.focus();
+            }} />
           </li>
         ))}
       </ul>
@@ -53,10 +61,15 @@ function UnmappedRow({ data, row, onDone }: {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [regionId, setRegionId] = useState("");
+  // CGR-201 safety net: a mapped value accepts only the region already chosen (the database refuses another one).
+  const mappedId = row.mapped_region_id ?? null;
+  const mappedName = row.mapped_region_name ?? null;
+  const [regionId, setRegionId] = useState(mappedId ?? "");
   // One key per opened confirming step: a repeated tap on the action is a duplicate, never a second mapping.
   const [confirm, setConfirm] = useState<{ regionId: string; key: string } | null>(null);
-  const target = data.regions.find((g) => g.id === (confirm?.regionId ?? regionId));
+  const chosen = confirm?.regionId ?? regionId;
+  const target = data.regions.find((g) => g.id === chosen)
+    ?? (mappedId && mappedName && chosen === mappedId ? { id: mappedId, name: mappedName } : undefined);
   return (
     <form
       aria-label={`Region zuordnen: ${row.legacy_value}`}
@@ -69,16 +82,21 @@ function UnmappedRow({ data, row, onDone }: {
     >
       <p className="break-words">
         <span className="font-semibold">{row.legacy_value}</span>
+        {mappedName && <span data-testid="region-mapped-note" className="block text-secondary">{mappedRegionNote(mappedName)}</span>}
         <span data-testid="region-counts" className="block text-secondary">{regionCountLine(row)}</span>
       </p>
-      <label className="grid gap-1 text-xs font-semibold">
-        Region aus der Liste
-        <select name="regionId" required value={regionId} disabled={confirm !== null}
-          onChange={(e) => setRegionId(e.target.value)} className={field}>
-          <option value="" disabled>bitte wählen</option>
-          {data.regions.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-        </select>
-      </label>
+      {mappedId && mappedName ? (
+        <p data-testid="region-mapped-target" className="text-sm font-semibold md:self-center">{mappedRegionLabel(mappedName)}</p>
+      ) : (
+        <label className="grid gap-1 text-xs font-semibold">
+          Region aus der Liste
+          <select name="regionId" required value={regionId} disabled={confirm !== null}
+            onChange={(e) => setRegionId(e.target.value)} className={field}>
+            <option value="" disabled>bitte wählen</option>
+            {data.regions.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+          </select>
+        </label>
+      )}
       {confirm === null && (
         <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 px-4 font-semibold text-white disabled:opacity-60">
           {MAP_REGION_CONFIRM_LABEL}

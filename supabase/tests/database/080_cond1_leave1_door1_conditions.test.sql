@@ -303,9 +303,9 @@ select is((select count(*)::int from public.cases where private.looks_like_code(
 
 -- DOOR1-13: one access record, not two ----------------------------------------------------------------------------------
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, assigned_team, assigned_team_id, access_notes) values
-  ('00000000-0000-4000-b000-000000000011', pg_temp.c(8101), private.now() - interval '10 days', 'Synthetisch K1', 'Synthetisch', 'K1', 'Bern West',
+  ('00000000-0000-4000-b000-000000000011', pg_temp.c(8101), private.now() - interval '10 days', 'Synthetisch K1', 'Synthetisch', 'K1', 'Basel-Stadt',
    'laufend', 'mittel', 'Testteam Nord', '00000000-0000-4000-a000-000000000101', 'Synthetisch: Schlüssel im Briefkasten der Nachbarin'),
-  ('00000000-0000-4000-b000-000000000011', pg_temp.c(8102), private.now() - interval '10 days', 'Synthetisch K2', 'Synthetisch', 'K2', 'Bern West',
+  ('00000000-0000-4000-b000-000000000011', pg_temp.c(8102), private.now() - interval '10 days', 'Synthetisch K2', 'Synthetisch', 'K2', 'Basel-Stadt',
    'laufend', 'mittel', 'Testteam Nord', '00000000-0000-4000-a000-000000000101', null);
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 values ('00000000-0000-4000-b000-000000000011', pg_temp.v(81), pg_temp.c(8101), '00000000-0000-4000-a000-000000000101', pg_temp.today() + 3, '08:00', '08:30', false, 'planned'),

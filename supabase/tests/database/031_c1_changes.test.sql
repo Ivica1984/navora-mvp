@@ -1,6 +1,6 @@
 -- C1 changes requested by the PO (review 2026-10-22 14:30). Migration 0031.
--- Case …208 (Testteam Nord …101, nurse …902). Case …206 (no team, open matching request …401, region "Zürich Pilot").
--- Here: coach …901 joins Testteam Mitte …102 (another team, same organisation) and Testteam West …104 (Zürich Pilot).
+-- Case …208 (Testteam Nord …101, nurse …902). Case …206 (no team, open matching request …401, region "Basel-Landschaft").
+-- Here: coach …901 joins Testteam Mitte …102 (another team, same organisation) and Testteam West …104 (Basel-Landschaft).
 -- Operations …904 (coordinator), foreign admin …903 (org B).
 begin;
 create extension if not exists pgtap with schema extensions;

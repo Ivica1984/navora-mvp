@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1520 900" width="1520" height="900" font-family="Inter, Arial, sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#022c22"/></marker></defs>
+<rect width="1520" height="900" fill="#ffffff"/>
+<text x="20.0" y="34.0" font-size="23" font-weight="700" fill="#022c22" text-anchor="start">Engines und Tabellen: wer liest, wer schreibt, wo der Mensch bestätigt</text>
+<text x="20.0" y="60.0" font-size="13.5" font-weight="400" fill="#44403c" text-anchor="start">Prüfung eng 13.11.2026 auf recovery/main 227e742. Namen mit PLAN sind Vorschläge von eng (OPEN bis zur ADR). Keine Engine schreibt team_decisions: keine zentrale Disposition (FE-039).</text>
+<rect x="20.0" y="92.0" width="199.4" height="120.0" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1.4"/>
+<text x="30.0" y="114.0" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Mensch</text>
+<text x="30.0" y="134.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">Auftraggeber bestätigt</text>
+<text x="30.0" y="151.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">jedes Feld →</text>
+<text x="30.0" y="168.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">partner_requests</text>
+<text x="30.0" y="185.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">(Befehl)</text>
+<path d="M119.7 250.0 L119.7 216.0" stroke="#065f46" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="20.0" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="38.0" cy="270.0" r="12" fill="#075985"/>
+<text x="38.0" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<text x="56.0" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 2</text>
+<text x="30.0" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Erfassung</text>
+<text x="30.0" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">PLAN, regelbasiert zuerst</text>
+<path d="M219.4 310.0 L232.4 310.0" stroke="#022c22" stroke-width="2" marker-end="url(#ah)"/>
+<text x="20.0" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="20.0" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="30.0" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">ai_suggestions</text>
+<rect x="233.4" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="251.4" cy="270.0" r="12" fill="#075985"/>
+<text x="251.4" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+<text x="269.4" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 1</text>
+<text x="243.4" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Harte Filter</text>
+<text x="243.4" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">IMPL Region + HF; PLAN</text>
+<text x="243.4" y="341.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">PLZ, Matrix, Slot,</text>
+<text x="243.4" y="356.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Merkmal</text>
+<path d="M432.9 310.0 L445.9 310.0" stroke="#022c22" stroke-width="2" marker-end="url(#ah)"/>
+<text x="233.4" y="390.0" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">liest</text>
+<ellipse cx="245.4" cy="413.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="233.4" y="400.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="243.4" y="417.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">partner_requests</text>
+<ellipse cx="245.4" cy="445.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="233.4" y="432.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="243.4" y="449.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">postcodes (PLAN)</text>
+<ellipse cx="245.4" cy="477.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="233.4" y="464.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="243.4" y="481.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">member_attributes (PLAN)</text>
+<ellipse cx="245.4" cy="509.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="233.4" y="496.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="243.4" y="513.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">qual_matrix_cells</text>
+<ellipse cx="245.4" cy="541.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="233.4" y="528.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="243.4" y="545.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">member_absences</text>
+<ellipse cx="245.4" cy="573.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="233.4" y="560.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="243.4" y="577.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">care_visits</text>
+<path d="M333.1 396.0 L333.1 374.0" stroke="#44403c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="233.4" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="233.4" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="243.4" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">matching_requests</text>
+<rect x="233.4" y="652.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="243.4" y="669.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">Ausschlussgründe</text>
+<rect x="446.9" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="464.9" cy="270.0" r="12" fill="#075985"/>
+<text x="464.9" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+<text x="482.9" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 2</text>
+<text x="456.9" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Rangfolge</text>
+<text x="456.9" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">PLAN, nur unter</text>
+<text x="456.9" y="341.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Geeigneten</text>
+<path d="M646.3 310.0 L659.3 310.0" stroke="#022c22" stroke-width="2" marker-end="url(#ah)"/>
+<text x="446.9" y="390.0" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">liest</text>
+<ellipse cx="458.9" cy="413.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="446.9" y="400.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="456.9" y="417.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">matching_requests</text>
+<path d="M546.6 396.0 L546.6 374.0" stroke="#44403c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="446.9" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="446.9" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="456.9" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">ai_suggestions (Reihenfolge)</text>
+<rect x="660.3" y="92.0" width="199.4" height="120.0" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1.4"/>
+<text x="670.3" y="114.0" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Mensch</text>
+<text x="670.3" y="134.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">Team übernimmt →</text>
+<text x="670.3" y="151.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">team_decisions</text>
+<text x="670.3" y="168.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">(decide_matching_request)</text>
+<path d="M760.0 250.0 L760.0 216.0" stroke="#065f46" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="660.3" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="678.3" cy="270.0" r="12" fill="#075985"/>
+<text x="678.3" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+<text x="696.3" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 1</text>
+<text x="670.3" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Kaskade</text>
+<text x="670.3" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">PLAN; heute RET1</text>
+<text x="670.3" y="341.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Erstzugriff IMPL</text>
+<path d="M859.7 310.0 L872.7 310.0" stroke="#022c22" stroke-width="2" marker-end="url(#ah)"/>
+<text x="660.3" y="390.0" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">liest</text>
+<ellipse cx="672.3" cy="413.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="660.3" y="400.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="670.3" y="417.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Reihenfolge</text>
+<path d="M760.0 396.0 L760.0 374.0" stroke="#44403c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="660.3" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="660.3" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="670.3" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">matching_offer_steps (PLAN)</text>
+<rect x="873.7" y="92.0" width="199.4" height="120.0" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1.4"/>
+<text x="883.7" y="114.0" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Mensch</text>
+<text x="883.7" y="134.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">Operations behandelt</text>
+<text x="883.7" y="151.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">nur Ausnahmen</text>
+<path d="M973.4 250.0 L973.4 216.0" stroke="#065f46" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="873.7" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="891.7" cy="270.0" r="12" fill="#075985"/>
+<text x="891.7" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+<text x="909.7" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 5</text>
+<text x="883.7" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Deckung, Signale</text>
+<text x="883.7" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">SIG1 SIG2 OPS1 IMPL;</text>
+<text x="883.7" y="341.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Deckungsstand PLAN</text>
+<path d="M1073.1 310.0 L1086.1 310.0" stroke="#022c22" stroke-width="2" marker-end="url(#ah)"/>
+<text x="873.7" y="390.0" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">liest</text>
+<ellipse cx="885.7" cy="413.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="873.7" y="400.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="883.7" y="417.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">matching_offer_steps</text>
+<ellipse cx="885.7" cy="445.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="873.7" y="432.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="883.7" y="449.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">care_visits</text>
+<path d="M973.4 396.0 L973.4 374.0" stroke="#44403c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="873.7" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="873.7" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="883.7" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">exception_events</text>
+<rect x="873.7" y="652.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="883.7" y="669.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">signal_deliveries</text>
+<rect x="1087.1" y="92.0" width="199.4" height="120.0" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1.4"/>
+<text x="1097.1" y="114.0" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Mensch</text>
+<text x="1097.1" y="134.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">Pflegekraft prüft und</text>
+<text x="1097.1" y="151.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">signiert →</text>
+<text x="1097.1" y="168.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">visit_reports final</text>
+<text x="1097.1" y="185.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">(sign_report)</text>
+<path d="M1186.9 250.0 L1186.9 216.0" stroke="#065f46" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="1087.1" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="1105.1" cy="270.0" r="12" fill="#075985"/>
+<text x="1105.1" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+<text x="1123.1" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 3</text>
+<text x="1097.1" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Bericht</text>
+<text x="1097.1" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Entwurf getippt IMPL;</text>
+<text x="1097.1" y="341.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Diktat PLAN</text>
+<path d="M1286.6 310.0 L1299.6 310.0" stroke="#022c22" stroke-width="2" marker-end="url(#ah)"/>
+<text x="1087.1" y="390.0" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">liest</text>
+<ellipse cx="1099.1" cy="413.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="1087.1" y="400.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1097.1" y="417.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">care_visits</text>
+<ellipse cx="1099.1" cy="445.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="1087.1" y="432.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1097.1" y="449.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">Eingabe der Pflegekraft</text>
+<path d="M1186.9 396.0 L1186.9 374.0" stroke="#44403c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="1087.1" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="1087.1" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="1097.1" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">visit_reports (Entwurf)</text>
+<rect x="1300.6" y="92.0" width="199.4" height="120.0" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1.4"/>
+<text x="1310.6" y="114.0" font-size="12" font-weight="700" fill="#065f46" text-anchor="start">Mensch</text>
+<text x="1310.6" y="134.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">Team gibt die Rechnung</text>
+<text x="1310.6" y="151.0" font-size="12.5" font-weight="400" fill="#022c22" text-anchor="start">frei</text>
+<path d="M1400.3 250.0 L1400.3 216.0" stroke="#065f46" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="1300.6" y="250.0" width="199.4" height="120.0" rx="8" fill="#f0f9ff" stroke="#075985" stroke-width="1.8"/>
+<circle cx="1318.6" cy="270.0" r="12" fill="#075985"/>
+<text x="1318.6" y="274.5" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">7</text>
+<text x="1336.6" y="275.0" font-size="13" font-weight="700" fill="#075985" text-anchor="start">Engine 4</text>
+<text x="1310.6" y="302.0" font-size="17" font-weight="700" fill="#022c22" text-anchor="start">Billing</text>
+<text x="1310.6" y="326.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">Fakten IMPL; Rechnung</text>
+<text x="1310.6" y="341.0" font-size="11.5" font-weight="400" fill="#44403c" text-anchor="start">PLAN</text>
+<text x="1300.6" y="390.0" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">liest</text>
+<ellipse cx="1312.6" cy="413.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="1300.6" y="400.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1310.6" y="417.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">visit_reports (final)</text>
+<ellipse cx="1312.6" cy="445.0" rx="7" ry="4" fill="#f5f5f4" stroke="#44403c"/>
+<rect x="1300.6" y="432.0" width="199.4" height="26.0" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1310.6" y="449.5" font-size="12" font-weight="400" fill="#022c22" text-anchor="start">working_time_facts</text>
+<path d="M1400.3 396.0 L1400.3 374.0" stroke="#44403c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="1300.6" y="610.0" font-size="12" font-weight="700" fill="#92400e" text-anchor="start">schreibt</text>
+<rect x="1300.6" y="620.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="1310.6" y="637.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">billable_facts</text>
+<rect x="1300.6" y="652.0" width="199.4" height="26.0" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.2"/>
+<text x="1310.6" y="669.5" font-size="12" font-weight="600" fill="#022c22" text-anchor="start">invoices, invoice_lines (PLAN)</text>
+<rect x="20.0" y="760.0" width="1480.0" height="112.0" rx="12" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.4"/>
+<text x="40.0" y="790.0" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Invarianten (eng)</text>
+<text x="40.0" y="816.0" font-size="13" font-weight="400" fill="#022c22" text-anchor="start">· Engine 2 schreibt nur in das Vorschlagsbuch und ordnet nur, was Engine 1 als geeignet geschrieben hat.</text>
+<text x="40.0" y="835.0" font-size="13" font-weight="400" fill="#022c22" text-anchor="start">· Jede verbindliche Zeile (bestätigter Auftrag, Teamentscheid, signierter Bericht, Rechnung) entsteht durch eine menschliche Handlung über eine Befehlsfunktion.</text>
+<text x="40.0" y="854.0" font-size="13" font-weight="400" fill="#022c22" text-anchor="start">· Beträge rechnet nie die KI. Ein Team, das eine harte Prüfung nicht besteht, erhält nie eine Angebotszeile; der Test prüft die Zeilen, nicht die Oberfläche.</text>
+</svg>

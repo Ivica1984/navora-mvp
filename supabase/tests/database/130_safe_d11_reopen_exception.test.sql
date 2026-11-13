@@ -12,10 +12,10 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(37);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The extra regions this file enters are put on
+-- org A's list for this test only (rolled back). B1.1-1c (FE-073): the seed's legacy value is no longer
+-- among them, the seed uses Basel-Stadt.
 insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90),
   ('00000000-0000-4000-b000-000000000011', 'Region ohne Team D11', 91),
   ('00000000-0000-4000-b000-000000000011', 'Region D11 Team', 92)
   on conflict (organization_id, name) do nothing;
@@ -26,7 +26,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
 $$;
 
 -- Fixtures: four referrals converted by Operations with complete synthetic facts (J1) --------------------------------
---   D11N, D11M: Bern West (R2, a fact is missing at reopen) · D11R: a region without a team (R3) · D11T: R4 team case
+--   D11N, D11M: Basel-Stadt (R2, a fact is missing at reopen) · D11R: a region without a team (R3) · D11T: R4 team case
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$
@@ -34,8 +34,8 @@ declare
   r record;
 begin
   for r in select * from (values
-      ('D11N', 'Bern West', 'd1300000-0000-4000-8000-000000000001'::uuid, 'd1300000-0000-4000-8000-000000000002'::uuid),
-      ('D11M', 'Bern West', 'd1300000-0000-4000-8000-000000000003'::uuid, 'd1300000-0000-4000-8000-000000000004'::uuid),
+      ('D11N', 'Basel-Stadt', 'd1300000-0000-4000-8000-000000000001'::uuid, 'd1300000-0000-4000-8000-000000000002'::uuid),
+      ('D11M', 'Basel-Stadt', 'd1300000-0000-4000-8000-000000000003'::uuid, 'd1300000-0000-4000-8000-000000000004'::uuid),
       ('D11R', 'Region ohne Team D11', 'd1300000-0000-4000-8000-000000000005'::uuid, 'd1300000-0000-4000-8000-000000000006'::uuid),
       ('D11T', 'Region D11 Team', 'd1300000-0000-4000-8000-000000000007'::uuid, 'd1300000-0000-4000-8000-000000000008'::uuid)
     ) as v(last_name, region, k1, k2)
@@ -87,7 +87,7 @@ select is((select x.priority || ' | ' || x.label || ' | ' || x.next_step from pu
            where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11N')),
   'P2 | Wiedereröffneter Fall ohne Team | Fehlende Angaben ergänzen; die Teamsuche öffnet sich dann selbst. Nie automatisch zuweisen.',
   'R2: priority P2, label and next step as in the brief');
-select ok((select x.region = 'Bern West' and x.case_label like '%D11N%'
+select ok((select x.region = 'Basel-Stadt' and x.case_label like '%D11N%'
            from public.operations_exceptions() x where x.exception_type = 'case_reopened_no_team' and x.case_id = pg_temp.cid('D11N')),
   'R2: the exception names case and region');
 -- UXR-181: the detail is the stored reason of each missing readiness item (private.case_readiness), never the item code.

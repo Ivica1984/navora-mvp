@@ -3139,7 +3139,7 @@ isOneToOne: false
                            },
 "unmapped_regions":
 { Args: { "p_organization_id": string }; Returns: {
-              "cases": number,"legacy_value": string,"open_searches": number,"referrals": number,"teams": number
+              "cases": number,"legacy_value": string,"mapped_region_id": string,"mapped_region_name": string,"open_searches": number,"referrals": number,"teams": number
             }[]
                            },
 "unregister_push_subscription":
