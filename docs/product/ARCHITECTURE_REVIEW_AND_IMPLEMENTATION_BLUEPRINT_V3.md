@@ -460,6 +460,11 @@ Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard sc
 | Ein Entwurf wird nur von der Pflegekraft der Schicht signiert; ohne Signatur keine Rechnung | Schritt 7–9 | BK-8n |
 | Ein wiedereröffneter Fall ohne Team geht nie verloren | ∞ | SAFE-D11 (abgenommen) |
 | Qualifikationsregeln sind nur Simulationsregeln, bis der Clinical Owner sie freigibt | Schritt 2 | Matrix v0.2 PROPOSED (D-27, D-43) |
+| «Gedeckt» erst, wenn beim «Übernehmen» eine benannte, geprüfte Pflegeperson feststeht; vorher «Pflegekraft noch nicht benannt» (PLANNED; V3.2.2, `cra` CGR-213 (a), CGR-204 (c), UXR-191) | Schritt 5–6 | BK-5n, BK-6 |
+| «Nicht gedeckt» erreicht den Auftraggeber **vor** dem Schichtbeginn, spätestens zu einer festen Deckungsfrist (PLANNED; V3.2.2, CGR-207 (a); Frist: Clinical Owner, K-8) | Schritt 6 | BK-6 |
+| Kein diktierter Inhalt geht still verloren: jedes nicht übernommene Eingabesegment wird vor dem Signieren gelistet und behandelt (PLANNED; V3.2.2, CGR-208 (a)) | Schritt 7–8 | BK-8n |
+| Dauern werden aus Zeitstempeln in Europe/Zurich berechnet; eine Nacht über Mitternacht und die Umstellungsnacht ergeben eine Schicht mit richtiger Dauer (PLANNED; V3.2.2, CGR-206, CGR-200) | Schritt 1 | BK-1c |
+| Übergabe und Eskalation am Ort der Pflege sind in Phase A **nicht modelliert**; das steht im BK-Abnahmeprotokoll (PLANNED als Vermerk; V3.2.2, CGR-209 (b)) | Schritt 7 | BK-Abnahme |
 
 ---
 
@@ -613,14 +618,14 @@ Alle Werte gelten je Team und nie je Person. In Phase A sind es synthetische Wer
 
 | Rolle | Was in dieser Fassung von ihr stammt (Quelle) | Auftrag für V3.2 | Unterschrift |
 |---|---|---|---|
-| `csa` | Buurtzorg-Massstab und Schritt darüber hinaus (`STRATEGY.md`); Gebührenhypothesen BM-1, BM-2, BM-11, BM-12; Konstellationen | Marktdisruption und Modellrechnung (Kap. 1, 2) als marktführendes Modell ausarbeiten | **eingereicht 13:59 (Anhang A)**; Bestätigung im nächsten Lauf (#1208) |
-| `uxa` | Designsystem v77 (Farben, Schrift, 390 px); Angebotskarte, Deckungsstand, Zusammenfassung «Bestätigen & Absenden» (`UX_REVIEW.md`, UXR-188) | die sechs Wireframes (Kap. 5) prüfen und in den Screenkatalog übernehmen | **eingereicht 13:59** (zweiter Satz Wireframes mit Zuständen und Texten in `blueprint-v3/wireframes/`); Bestätigung #1209 |
-| `cra` | Qualifikationsmatrix v0.2 (PROPOSED); Befund CGR-200 (Schicht über Mitternacht); die Garantien BK-2n, BK-6, BK-8n stammen aus dem PO-Brief BK und sind `cra` zur Prüfung vorgelegt (BK-Gate) | Matrix und Sicherheitsgarantien in den BK-Ablauf einarbeiten | **eingereicht 13:59 (Anhang B)**: 18 Garantien, Barrieren je Schritt, Matrix-Entscheid, Fall 4052; Bestätigung #1210 |
-| `lca` | PLZ-Quelle und Regeln PLZ-a bis PLZ-c; Datenminimierung M-a bis M-d; Merkmale A-a bis A-d; Rechnungsentwurf I-a bis I-c; AVG-Einordnung und D-44 (12:20) | AVG-Abgrenzung je Konstellation und datenschutzkonforme PLZ-Zuordnung ausformulieren | **eingereicht 13:59 (Anhang C)**: Leitplanken, rote Linien R-1 bis R-10, PLZ P-1 bis P-8, Q-44e; Bestätigung #1211 |
-| `eng` | Code-Inventar; ADR-186, ADR-187; offene Fragen T-1 bis T-9; Kaskade als Betriebsparameter | Machbarkeit der fünf Engines und des Datenmodells prüfen und unterzeichnen | **eingereicht 13:59**: 90 Aussagen geprüft, K1 bis K21 im Handbook §4-§6 und Anhang §11 eingearbeitet; unterzeichnet «machbar unter ADR-Vorbehalten»; Bestätigung #1212 |
-| `aia` | – | KI-Verträge für Erfassung (BK-1a), Rangfolge (BK-3, BK-4), Berichtsentwurf (BK-8) | ausstehend |
+| `csa` | Buurtzorg-Massstab und Schritt darüber hinaus (`STRATEGY.md`); Gebührenhypothesen BM-1, BM-2, BM-11, BM-12; Konstellationen | Marktdisruption und Modellrechnung (Kap. 1, 2) als marktführendes Modell ausarbeiten | **eingereicht 13:59 (Anhang A)**; Bestätigung ausstehend (#1212) |
+| `uxa` | Designsystem v77 (Farben, Schrift, 390 px); Angebotskarte, Deckungsstand, Zusammenfassung «Bestätigen & Absenden» (`UX_REVIEW.md`, UXR-188) | die sechs Wireframes (Kap. 5) prüfen und in den Screenkatalog übernehmen | **eingereicht 13:59** (zweiter Satz Wireframes mit Zuständen und Texten in `blueprint-v3/wireframes/`); Bestätigung #1208; erste Prüfung 16:20 mit UXR-191 bis UXR-194 (UXR-191, UXR-192 in V3.2.1 eingearbeitet); Unterschrift ausstehend |
+| `cra` | Qualifikationsmatrix v0.2 (PROPOSED); Befund CGR-200 (Schicht über Mitternacht); die Garantien BK-2n, BK-6, BK-8n stammen aus dem PO-Brief BK und sind `cra` zur Prüfung vorgelegt (BK-Gate) | Matrix und Sicherheitsgarantien in den BK-Ablauf einarbeiten | **eingereicht 13:59 (Anhang B)**: 18 Garantien, Barrieren je Schritt, Matrix-Entscheid, Fall 4052. **Unterschrieben** (#1209): «`cra` 2026-11-13 17:40: Annex B confirmed with the corrections of `CLINICAL_GOVERNANCE.md` 17:40 (CGR-213); no clinical approval (D-27, D-43, G-1); every matrix cell PROPOSED.» Korrekturen CGR-213 (a) in V3.2.2 eingetragen; P3-Korrektur CGR-213 (b) bei `uxa` |
+| `lca` | PLZ-Quelle und Regeln PLZ-a bis PLZ-c; Datenminimierung M-a bis M-d; Merkmale A-a bis A-d; Rechnungsentwurf I-a bis I-c; AVG-Einordnung und D-44 (12:20) | AVG-Abgrenzung je Konstellation und datenschutzkonforme PLZ-Zuordnung ausformulieren | **eingereicht 13:59 (Anhang C)**: Leitplanken, rote Linien R-1 bis R-10, PLZ P-1 bis P-8, Q-44e. **Unterschrieben** (#1210): «`lca`, 2026-11-13 16:40: Annex C and §4.4 confirmed with corrections C-1 to C-7; §7 confirmed with V-1 to V-7; §2 wording W-1 to W-7. AVG per constellation and Q-44e, Q-44f signed in D-44 (16:40), catalogue v7. Phase A: compliant under every plausible interpretation. Real use: unresolved, needs legal adviser (Q-44a, Q-44e, Q-44f) and owner (L-11, «no payment through NAVORA», swisstopo confirmation). Advisory, not legal advice.» Korrekturen C-1 bis C-7, V-1 bis V-7, W-1 bis W-7: **noch nicht eingetragen** (nächster PO-Lauf) |
+| `eng` | Code-Inventar; ADR-186, ADR-187; offene Fragen T-1 bis T-9; Kaskade als Betriebsparameter | Machbarkeit der fünf Engines und des Datenmodells prüfen und unterzeichnen | **eingereicht 13:59**: 90 Aussagen geprüft, K1 bis K21 im Handbook §4-§6 und Anhang §11 eingearbeitet; unterzeichnet «machbar unter ADR-Vorbehalten»; Bestätigung #1211 |
+| `aia` | – | KI-Verträge für Erfassung (BK-1a), Rangfolge (BK-3, BK-4), Berichtsentwurf (BK-8) | **Unterschrieben** (#1202): «`aia` 2026-11-13 16:00: KI-Verträge K-1 Erfassung, K-2 Rangfolge, K-3 Berichtsentwurf in `AUTOMATION_REVIEW.md` review 53 §2 und `AI_OPERATING_MODEL_REVIEW.md` §12. Unterzeichnet für BK mit Gate «Simulation, synthetische Daten», unter den Vorbehalten AUT-112 (Ledger-Bereich des Auftraggebers, ADR `eng`), AUT-113 (Kriterienfolge PO, Kontinuität `cra`), AUT-114 (Stufe des Berichtsentwurfs, `cra` und Regulatory Adviser). Alle drei als `kind = 'rule'`; keine KI-Sperre wird für BK gelockert (AUT-115).» |
 
-Aufträge V3.2 (eigene Bestätigung je Rolle): `csa` #1208 · `uxa` #1209 · `cra` #1210 · `lca` #1211 · `eng` #1212. Frühere Aufträge aus der 13:14-Sitzung (`csa` #1195, `uxa` #1199, `cra` #1200, `lca` #1201, `aia` #1202, `eng` #1194) bleiben für die Vertiefung bestehen.
+Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa` 16:20, `lca` 16:40, `cra` 17:40): `uxa` #1208 · `cra` #1209 · `lca` #1210 · `eng` #1211 · `csa` #1212. Frühere Aufträge aus der 13:14-Sitzung (`csa` #1195, `uxa` #1199, `cra` #1200, `lca` #1201, `aia` #1202, `eng` #1194) bleiben für die Vertiefung bestehen.
 
 **Vollständige Beiträge als Anhänge:** A `csa` (Modell und Markt) · B `cra` (Patientensicherheit) · C `lca` (Recht). Die `eng`-Prüfung steht im Handbook V2.2 §11. Die Wireframes von `uxa` sind als SVG in `blueprint-v3/wireframes/`.
 
@@ -641,6 +646,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle): `csa` #1208 · `uxa` #1209 · `cr
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-13 | 3.2.2 Nachtrag | §6.4 und Anhang B §1/§2: fünf Sicherheitsbedingungen aus dem BK-Brief (Nachtrag 13:40) als Garantien mit Status PLANNED und Test nachgetragen (Garantien 5, 9, 14 ergänzt; 19, 20 neu; Schritt 7). Kapitel 13: Unterschriften `cra`, `lca`, `aia` wörtlich eingetragen; Issue-Nummern korrigiert. Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid | `cra` CGR-213 (a) und Antwort auf #1209 (`CLINICAL_GOVERNANCE.md` 17:40); `lca` 16:40 §6; `aia` review 53 §2; `uxa` 16:20 Widerspruch (2) |
 | 2026-11-13 | 3.2.1 Korrektur | Bild P2 und Wireframes `team.svg`, `order.svg`, `b2b.svg` sowie Swimlane-Beschriftung korrigiert; §5.2 Teamautonomie je benannter Person; §5.4 keine Abwesenheitsgründe in Beispielen. Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid; der Text von FE-073 bleibt unverändert | `uxa` UXR-191 (#1217) und UXR-192 (#1218); `cra` CGR-204; BK-Brief Nachtrag 13:40 Punkt 1. Widerspruch zwischen freigegebenem Bild und verbindlicher Sicherheitsbedingung, vom PO 16:39 behoben und dem Founder gemeldet |
 | 2026-11-13 | 3.2 freigegeben | Founder-Freigabe; einzige fachliche Quelle; ältere Stände archiviert | FE-077 |
 | 2026-11-13 | 3.2 Entwurf | Zwei PO-Sitzungen zu FE-076 zusammengeführt: vollständige Rollenbeiträge `csa`/`cra`/`lca` als Anhänge A-C, `eng`-Prüfung (K1-K21) im Handbook; Plattform-Grundriss, Auftragsfluss als Swimlane, Geldfluss je Schicht als zusätzliche Bilder | FE-076; beide PO-Sitzungen |
@@ -955,6 +961,7 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
    - **IMPLEMENTED beim Start** (Simulation): `qualification_lapsed` (`M/121:212`), CR-194; pgTAP 121, 128 (R3).
    - **Bei der Zusage («Übernehmen») PLANNED** (BK-5a, CGR-197 (4)).
    - Ein Entzug nach der Zuweisung und vor dem Start wird erst an der Tür bemerkt. Die Freigabe an das Team ist **PLANNED** (CR-204, CGR-164).
+   - **Ergänzt V3.2.2 (`cra` 17:40):** und die Pflegeperson wird beim «Übernehmen» benannt; «gedeckt» erst danach (**PLANNED**, CGR-204 (c)).
 6. **Keine KI vergibt, verlängert oder erschliesst eine Delegation. Keine KI fügt ein Team hinzu, entfernt einen Filter, bestätigt einen Auftrag, signiert oder setzt einen Preis.**
    - **IMPLEMENTED für Delegation und Nachweis:** Beide Tabellen sind gesperrte AIG1-Ziele der Klasse `qualification` (`M/120`, Kopf §4). `set_agent_state` verweigert `kind = 'ai'` (`M/097`).
    - **Übrige Punkte PLANNED** (BK, «AI leverage», Gate). Heute ruft kein Code einen KI-Dienst auf (Blueprint V3 §2.2, **IMPLEMENTED**-Fakt).
@@ -966,6 +973,7 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 9. **Kein Auftrag verfällt still.**
    - **Teilweise IMPLEMENTED für die Teamsuche:** `deadline_passed` und `candidates_exhausted` als Operations-Ausnahme P2 (`M/017:517-556`, `M/019:40, 124`). Diese Ausnahmen sind nur abrufbar und werden niemandem zugestellt (CGR-160, PS-144).
    - **Deckungsstand je Auftrag für den Auftraggeber PLANNED** (BK-6; Handbook V2, Engine 5).
+   - **Ergänzt V3.2.2 (`cra` 17:40):** vor dem Start, zu einer spätesten Deckungsfrist (**PLANNED**, CGR-207 (a)).
 10. **Kein Auftrag wird ohne Bestätigung des Auftraggebers verbindlich. Kein Pflichtfeld wird still geraten oder vorbelegt.**
     - **PLANNED:** BK-1b, BK-1d.
 11. **Ein Auftrag ohne vollständige Einsatzvereinbarung in einem Heim (NH-EXT) ist nicht anbietbar.** Für jede Tätigkeit einer Bewohnerin gibt es genau eine Delegationsquelle und genau einen Eskalationsadressaten.
@@ -979,6 +987,7 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
     - **KI-Entwurf PLANNED** (BK-8, BK-8n).
 14. **Kein Satz im Berichtsentwurf ohne Quelle in der Eingabe.** Was nicht diktiert wurde, steht nicht im Bericht.
     - **PLANNED:** BK-8; Handbook V2, Engine 3.
+    - **Ergänzt V3.2.2 (`cra` 17:40):** und nichts Diktiertes fällt weg: jedes nicht verwendete Eingabesegment wird vor dem Signieren gelistet und behandelt (**PLANNED**, BK-8, CGR-208).
 15. **Keine Rechnung ohne finalen, signierten Bericht. Beträge rechnet nie die KI.**
     - **IMPLEMENTED für abrechenbare Fakten:** nur aus dem signierten Snapshot (`M/043`, `M/049:414`; pgTAP 043, 049).
     - **Rechnung, Doppelrechnung und Zeitkonflikt PLANNED** (BK-9, BK-9n).
@@ -992,6 +1001,10 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 18. **Keine klinische Regel wird ohne den Clinical Owner verbindlich.**
     - **IMPLEMENTED als Governance:** D-27. Jede Matrixzelle ist PROPOSED, jede Regelzeile UNVALIDATED.
     - **Freigabefunktion OPEN:** D-43, G-1.
+19. **Dauern stimmen auch über Mitternacht und in der Umstellungsnacht.** Sie werden aus Zeitstempeln in Europe/Zurich berechnet. (Ergänzt V3.2.2, `cra` 17:40.)
+    - **PLANNED:** BK-1c (CGR-206, H-36); Abhängigkeit CGR-200 für BK-7.
+20. **Übergabe und Eskalation am Ort der Pflege sind in Phase A nicht modelliert, und das wird gesagt.** (Ergänzt V3.2.2, `cra` 17:40.)
+    - **PLANNED als Vermerk** im BK-Abnahmeprotokoll (CGR-209 (b)); Modellierung OPEN (D-17).
 
 ---
 
@@ -1013,7 +1026,7 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 | 5 Angebot (Kaskade) | Angebot wartet still bei einem Team, während der Schichtbeginn naht (**neu** für BK; verwandt: H-01, H-19, PS-144) | Exklusives Fenster, kürzer bei nahem Beginn; Deckungsstand immer sichtbar; «nicht gedeckt» als Operations-Ausnahme (BK-5, BK-6) | deterministisch | Weiter zum nächsten Team; am Ende «nicht gedeckt» beim Auftraggeber und in OPS1 | PLANNED; die Fensterlänge ist kein klinischer Wert |
 | 6 Zusage | Nachweis oder Delegation läuft zwischen Angebot und Tipp ab (H-04, CGR-197 (4)) | Erneute harte Prüfung im Moment des Tipps (BK-5a) | deterministisch | Zusage verweigert mit Grund; Kaskade läuft weiter (BK-5n) | PLANNED |
 | 7 `/field` Einsatz | Start durch eine Person, deren Nachweis seit der Planung abgelaufen ist (H-04) | Prüfung beim Start und bei der Wiederaufnahme (CR-194) | deterministisch | Start verweigert (`qualification_lapsed`). Der Besuch **bleibt zugewiesen, und niemand wird alarmiert** (CGR-154) | IMPLEMENTED (Simulation); Freigabe PLANNED |
-| 7 `/field` Einsatz | Pflegeperson kommt ohne Kontext und Sicherheitsinformation der Bewohnenden (H-03, H-09) | Sicherheitsinformationen im Auftrag beziehungsweise in der Einsatzvereinbarung (CGR-173 (4)) | Mensch (Heim) | – | OPEN (D-17) |
+| 7 `/field` Einsatz | Pflegeperson kommt ohne Kontext und Sicherheitsinformation der Bewohnenden (H-03, H-09) | Sicherheitsinformationen im Auftrag beziehungsweise in der Einsatzvereinbarung (CGR-173 (4)) | Mensch (Heim) | – | OPEN (D-17); Phase A: nicht modelliert, im BK-Abnahmeprotokoll genannt (V3.2.2, CGR-209 (b)) |
 | 7 `/field` Einsatz | Auf der Heimstation greifen die Signale nicht, weil sie nur für geplante Besuche feuern (H-32, H-34) | Je NH-Brief eine Tabelle «Auslöser auf der Station ja / nein / UNKNOWN» (CGR-142) | – | – | PLANNED / OPEN |
 | 7 `/field` Einsatz | Zeit über Mitternacht am falschen Tag erfasst oder korrigiert (H-36, CGR-200) | Tag gewählt oder abgeleitet, nicht aus dem Tipp-Datum | deterministisch | – | OPEN |
 | 8 Diktat | Medikamentenname, Dosis oder Wert falsch transkribiert; Eingabe offline geht verloren (H-20, H-26, H-29) | Transkript sichtbar neben dem Entwurf; Audio nur im CH-Rechenzentrum (Muster 4); offline: «noch nicht beim Team» | KI + Mensch | – | PLANNED |
