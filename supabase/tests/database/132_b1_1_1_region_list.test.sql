@@ -20,7 +20,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(31);
+select plan(35);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -95,6 +95,23 @@ select is(public.update_team('00000000-0000-4000-a000-000000000101', 'Testteam N
   'ok', 'renaming a team that keeps its unchanged legacy region works');
 select throws_ok($$ select public.update_team('00000000-0000-4000-a000-000000000101', 'Testteam Nord B111', 'Bern Mitte', pg_temp.k(7)) $$,
   '22023', 'region_not_in_list', 'changing a team region to a value outside the list is refused');
+reset role;
+
+-- 13a-13d Write path (service key; PO 03:39 merge condition 7, ADR-186 amendment 04:30): `service_role` is an
+-- application role (src/features/push/dispatch.ts signs in with it), not a migration or seed, so it is refused a
+-- non-listed region in each of the four tables like a signed-in user (BYPASSRLS does not skip a trigger).
+set local role service_role;
+select throws_ok($$ update public.teams set region = 'Zürich Süd' where id = '00000000-0000-4000-a000-000000000101' $$,
+  '22023', 'region_not_in_list', 'service_role cannot write a non-listed team region');
+select throws_ok($$ update public.cases set region = 'Zürich Süd'
+       where id = (select id from public.cases where organization_id = '00000000-0000-4000-b000-000000000011' order by id limit 1) $$,
+  '22023', 'region_not_in_list', 'service_role cannot write a non-listed case region');
+select throws_ok($$ update public.partner_requests set region = 'Zürich Süd'
+       where id = (select id from public.partner_requests where organization_id = '00000000-0000-4000-b000-000000000011' order by id limit 1) $$,
+  '22023', 'region_not_in_list', 'service_role cannot write a non-listed referral region');
+select throws_ok($$ update public.matching_requests set region = 'Zürich Süd'
+       where id = (select id from public.matching_requests where organization_id = '00000000-0000-4000-b000-000000000011' order by id limit 1) $$,
+  '22023', 'region_not_in_list', 'service_role cannot write a non-listed team-search region');
 reset role;
 
 -- 14-18 «Region nicht zugeordnet» --------------------------------------------------------------------------------
