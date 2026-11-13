@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { TEAM_OFFERS_HEADING } from "@/features/field/todo";
+import { ORG_A_TEAM_REGION, mapSeedRegionOrgA } from "./support/regions";
 
 // Care journey front half: referral (J1) → team decision (J2). Synthetic local-only accounts.
 const OPS = "ops.test@navora.test"; //    org A, operations
@@ -31,15 +32,17 @@ async function signOut(page: Page) {
 }
 
 test("referral → case → team takes it over → team plans a visit → it is in the nurse's day (J1–J3)", async ({ page }) => {
-  // Operations records and converts a referral in Bern West.
+  // Operations records and converts a referral in the region of Testteam Nord (B1.1-1: chosen from the list, after
+  // the seed's legacy «Bern West» is mapped to Basel-Stadt on /operations).
   await signIn(page, OPS, /\/operations$/);
+  await mapSeedRegionOrgA(page);
   await page.goto("/intake");
   const form = page.getByRole("form", { name: "Neue Anfrage" });
   await form.getByLabel("Zuweisende Stelle").fill("Testheim Journey");
   // IPA1-7: no preset urgency; the level is chosen with its source.
   await form.getByLabel(/^Dringlichkeit/).selectOption("mittel");
   await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
-  await form.getByLabel("Region").fill("Bern West");
+  await form.getByLabel("Region").selectOption(ORG_A_TEAM_REGION);
   await form.getByLabel("Titel").fill("Journey Übergangspflege");
   await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, Journey-Test.");
   await form.getByLabel("Leistungen (mit Komma getrennt)").fill("Grundpflege");

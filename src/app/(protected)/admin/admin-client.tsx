@@ -4,6 +4,8 @@ import { useState, useTransition, type ReactNode } from "react";
 import { PageFrame } from "@/components/layout/PageFrame";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
+import { teamRegionOptions } from "@/features/regions/rules";
+import type { RegionOption } from "@/features/regions/rules";
 import {
   addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, prepareMemberAccessEnd, readMemberOpenReports, removeTeamMember,
   resetExceptionRule, restoreMemberAccess, revokeInvitation, setDisplayName, setExceptionRule, setMemberQualification, setMemberRole,
@@ -418,18 +420,29 @@ function Teams({ data }: { data: AdminData }) {
         run(() => createTeam({ organizationId: data.organizationId, name: text(f, "name"), region: text(f, "region"), idempotencyKey: newKey() }), () => form.reset());
       }}>
         <label className="grid gap-1 text-xs font-semibold">Teamname<input name="name" required minLength={2} maxLength={80} className={field} /></label>
-        <label className="grid gap-1 text-xs font-semibold">Region<input name="region" required minLength={2} maxLength={80} className={field} /></label>
+        <label className="grid gap-1 text-xs font-semibold">Region<RegionSelect options={data.regions ?? []} /></label>
         <button type="submit" disabled={pending} className={button}>Team erstellen</button>
       </form>
       <Feedback error={error} notice={notice} />
       <ul className="grid gap-2">
-        {data.teams.map((t) => <TeamRow key={t.id} team={t} />)}
+        {data.teams.map((t) => <TeamRow key={t.id} team={t} regions={data.regions ?? []} />)}
       </ul>
     </Section>
   );
 }
 
-function TeamRow({ team }: { team: AdminTeam }) {
+// B1.1-1 (ADR-186): the region is chosen from the list; a team's unchanged legacy region stays selectable.
+function RegionSelect({ options, current }: { options: RegionOption[]; current?: string | null }) {
+  const choices = teamRegionOptions(options, current ?? null);
+  return (
+    <select name="region" required defaultValue={current ?? ""} className={field}>
+      <option value="" disabled>bitte wählen</option>
+      {choices.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  );
+}
+
+function TeamRow({ team, regions }: { team: AdminTeam; regions: RegionOption[] }) {
   const { run, pending, error } = useCommand();
   const [mode, setMode] = useState<"idle" | "edit" | "deactivate">("idle");
   const closed = team.status === "closed";
@@ -453,7 +466,7 @@ function TeamRow({ team }: { team: AdminTeam }) {
           {mode === "edit" ? (
             <>
               <label className="grid gap-1 text-xs font-semibold">Teamname<input name="name" required defaultValue={team.name} className={field} /></label>
-              <label className="grid gap-1 text-xs font-semibold">Region<input name="region" required defaultValue={team.region ?? ""} className={field} /></label>
+              <label className="grid gap-1 text-xs font-semibold">Region<RegionSelect options={regions} current={team.region} /></label>
             </>
           ) : (
             <label className="grid gap-1 text-xs font-semibold">Begründung<input name="reason" required minLength={3} maxLength={300} className={field} /></label>

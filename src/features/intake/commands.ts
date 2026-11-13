@@ -11,6 +11,7 @@ import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import { CODE_REFUSED, looksLikeCode } from "@/features/door/rules";
+import { REGION_NOT_IN_LIST_MESSAGE } from "@/features/regions/rules";
 import {
   CANTONS,
   INSURANCE_TYPES,
@@ -84,9 +85,11 @@ export type IntakeResult = { ok: true; ready: boolean; missing: ReadinessItem[] 
 
 const REJECTED = "Nicht gespeichert: fehlende Berechtigung (Aufnahme: Admin/Operations) oder Anfrage bereits überführt.";
 
-function done(data: unknown, error: { code?: string } | null, op: string, invalid: string): CommandResult {
+function done(data: unknown, error: { code?: string; message?: string } | null, op: string, invalid: string): CommandResult {
   if (error) {
     logEvent("warn", "command.failed", { op, ...errorFields(error) });
+    // B1.1-1 (ADR-186): a region outside the list is named as such, not as a generic input problem.
+    if (error.code === "22023" && error.message === "region_not_in_list") return { ok: false, error: REGION_NOT_IN_LIST_MESSAGE };
     return { ok: false, error: error.code === "22023" ? invalid : "Speichern fehlgeschlagen." };
   }
   if (data === "rejected") return { ok: false, error: REJECTED };

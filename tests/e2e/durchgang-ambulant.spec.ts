@@ -198,7 +198,9 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
   await fill(form.getByLabel("Zuweisende Stelle"), "Testspital Durchgang");
   await choose(form.getByLabel(/^Dringlichkeit/), "mittel");
   await choose(form.getByLabel("Quelle der Dringlichkeit"), { label: "vom Zuweiser angegeben" });
-  await fill(form.getByLabel("Region"), "Basel-Stadt");
+  // B1.1-1 (Δ1): the region is chosen from the list, never typed.
+  await expect(form.getByLabel("Region").locator("option:not([disabled])")).toHaveText(["Basel-Stadt", "Basel-Landschaft"]);
+  await choose(form.getByLabel("Region"), "Basel-Stadt");
   await fill(form.getByLabel("Titel"), TITLE);
   await fill(form.getByLabel("Bedarf (Zusammenfassung)"), "Synthetischer Bedarf, Durchgang BD.");
   await fill(form.getByLabel("Leistungen (mit Komma getrennt)"), "Grundpflege");

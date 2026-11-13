@@ -4,6 +4,8 @@ import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import type { Database } from "@/lib/supabase/database.types";
 import { intakeOrganization, type Membership } from "./rules";
+import { getRegionOptions } from "@/features/regions/queries";
+import type { RegionOption } from "@/features/regions/rules";
 
 export type IntakeCase = Database["public"]["Functions"]["intake_cases"]["Returns"][number];
 
@@ -35,6 +37,8 @@ export async function getIntakeData(): Promise<{
   requests: OpenPartnerRequest[];
   cases: IntakeCase[];
   linkable: Record<string, LinkableCase[]>;
+  /** B1.1-1: the organisation's region list (select field). */
+  regions: RegionOption[];
 }> {
   const { supabase } = await requireUser();
 
@@ -47,7 +51,7 @@ export async function getIntakeData(): Promise<{
   }
 
   const organizationId = intakeOrganization((memberships ?? []) as Membership[]);
-  if (!organizationId) return { organizationId: null, requests: [], cases: [], linkable: {} };
+  if (!organizationId) return { organizationId: null, requests: [], cases: [], linkable: {}, regions: [] };
 
   const { data, error } = await supabase
     .from("partner_requests")
@@ -83,5 +87,7 @@ export async function getIntakeData(): Promise<{
     }),
   );
 
-  return { organizationId, requests, cases: cases ?? [], linkable };
+  const { options: regions } = await getRegionOptions(supabase, organizationId);
+
+  return { organizationId, requests, cases: cases ?? [], linkable, regions };
 }

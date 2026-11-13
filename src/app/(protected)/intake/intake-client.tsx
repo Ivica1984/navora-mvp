@@ -1,5 +1,6 @@
 "use client";
 
+import type { RegionOption } from "@/features/regions/rules";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { convertPartnerRequest, linkReturningReferral, recordPartnerRequest, updateCaseIntake } from "@/features/intake/commands";
@@ -31,12 +32,15 @@ const field = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-whi
 
 export default function IntakeClient({
   organizationId,
+  regions = [],
   requests,
   cases,
   linkable,
   alertCategories = [],
 }: {
   organizationId: string;
+  /** B1.1-1 (ADR-186): the organisation's region list; the region is chosen, never typed. */
+  regions?: RegionOption[];
   requests: OpenPartnerRequest[];
   cases: IntakeCase[];
   linkable: Record<string, LinkableCase[]>;
@@ -45,7 +49,7 @@ export default function IntakeClient({
 }) {
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <NewRequestForm organizationId={organizationId} />
+      <NewRequestForm organizationId={organizationId} regions={regions} />
       <div className="grid content-start gap-6">
       <section aria-label="Fälle in Aufnahme" className="grid content-start gap-3">
         <h2 className="text-lg font-bold">Fälle in Aufnahme ({cases.length})</h2>
@@ -87,7 +91,7 @@ function ErrorBox({ message }: { message: string | null }) {
   );
 }
 
-function NewRequestForm({ organizationId }: { organizationId: string }) {
+function NewRequestForm({ organizationId, regions }: { organizationId: string; regions: RegionOption[] }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -165,7 +169,14 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
         </label>
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Region</span>
-          <input name="region" required minLength={2} maxLength={80} className={field} />
+          <select name="region" required className={field} defaultValue="">
+            <option value="" disabled>
+              bitte wählen
+            </option>
+            {regions.map((r) => (
+              <option key={r.value} value={r.value}>{r.label}</option>
+            ))}
+          </select>
         </label>
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Ort</span>

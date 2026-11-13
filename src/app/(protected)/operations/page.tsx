@@ -7,13 +7,14 @@ import { getBillingPreview } from "@/features/billing/queries";
 import { monthStart } from "@/features/billing/rules";
 import { getOpsCaseLifecycle } from "@/features/lifecycle/queries";
 import { getMySignals, getSignalEvaluatorHealth } from "@/features/signals/queries";
+import { getUnmappedRegionPanel } from "@/features/regions/queries";
 import OperationsClient from "./operations-client";
 
 export default async function OperationsPage() {
   // Care data is never prerendered or cached (ADR-010, SR-05).
   await connection();
   const month = monthStart(todayInZurich());
-  const [dashboard, holds, continuity, billing, lifecycle, signals, evaluator] = await Promise.all([
+  const [dashboard, holds, continuity, billing, lifecycle, signals, evaluator, unmappedRegions] = await Promise.all([
     getOperationsDashboard(),
     getOpenHolds(),
     getContinuity(month),
@@ -21,7 +22,8 @@ export default async function OperationsPage() {
     getOpsCaseLifecycle(),
     getMySignals(),
     getSignalEvaluatorHealth(),
+    getUnmappedRegionPanel(),
   ]);
 
-  return <OperationsClient dashboard={dashboard} holds={holds} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} signals={signals} evaluator={evaluator} />;
+  return <OperationsClient dashboard={dashboard} holds={holds} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} signals={signals} evaluator={evaluator} unmappedRegions={unmappedRegions} />;
 }

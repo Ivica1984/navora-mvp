@@ -1717,6 +1717,30 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"region_legacy_values": {
+                  Row: {
+                    "first_seen_at": string,"id": string,"legacy_value": string,"mapped_at": string | null,"mapped_by": string | null,"mapping_kind": string | null,"organization_id": string,"region_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "first_seen_at"?: string,"id"?: string,"legacy_value": string,"mapped_at"?: string | null,"mapped_by"?: string | null,"mapping_kind"?: string | null,"organization_id": string,"region_id"?: string | null
+                  }
+                  Update: {
+                    "first_seen_at"?: string,"id"?: string,"legacy_value"?: string,"mapped_at"?: string | null,"mapped_by"?: string | null,"mapping_kind"?: string | null,"organization_id"?: string,"region_id"?: string | null
+                  }
+                  Relationships: []
+                },"regions": {
+                  Row: {
+                    "active": boolean,"created_at": string,"id": string,"name": string,"organization_id": string,"sort_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"name": string,"organization_id": string,"sort_order"?: number
+                  }
+                  Update: {
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"name"?: string,"organization_id"?: string,"sort_order"?: number
+                  }
+                  Relationships: []
                 },"response_deadlines": {
                   Row: {
                     "amount": number,"id": string,"organization_id": string | null,"referral_type": string,"unit": string,"updated_at": string,"updated_by": string | null
@@ -2716,6 +2740,9 @@ isOneToOne: false
               "case_id": string,"client_name": string,"lifecycle": string,"reason_code": string,"since": string,"team_name": string
             }[]
                            },
+"map_legacy_region":
+{ Args: { "p_idempotency_key": string,"p_legacy_value": string,"p_organization_id": string,"p_region_id": string }; Returns: string
+                           },
 "matching_escalations":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"declines": Json,"eligible_teams": number,"matching_request_id": string,"reason": string,"referral_type": string,"region": string,"request_title": string,"response_due_at": string,"urgency": string
@@ -3093,6 +3120,11 @@ isOneToOne: false
                            },
 "update_case_intake":
 { Args: { "p_case_id": string,"p_facts": Json,"p_idempotency_key": string,"p_reason"?: string }; Returns: Json
+                           },
+"unmapped_regions":
+{ Args: { "p_organization_id": string }; Returns: {
+              "cases": number,"legacy_value": string,"open_searches": number,"referrals": number,"teams": number
+            }[]
                            },
 "update_report_draft":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json

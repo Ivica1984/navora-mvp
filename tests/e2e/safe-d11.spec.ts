@@ -16,7 +16,9 @@ const OPS = "ops.test@navora.test";
 const NURSE = "pflege.test@navora.test";
 const PASSWORD = "navora-local-only";
 const ORG_A = "00000000-0000-4000-b000-000000000011";
-const REGION = "Region ohne Team SAFE-D11";
+// B1.1-1 (ADR-186): a list region; org A has no team in Basel-Landschaft (seed, and admin.spec.ts creates its team in
+// Basel-Stadt), so the region is still without any team.
+const REGION = "Basel-Landschaft";
 const LAST = `SafeD11 ${Date.now().toString(36)}`;
 const CLIENT = `Klient ${LAST}`;
 const LABEL = "Wiedereröffneter Fall ohne Team";

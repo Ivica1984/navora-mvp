@@ -36,7 +36,7 @@ test("an administrator names a member, invites a person and creates a team (ADM1
   const teams = page.getByRole("region", { name: "Teams" });
   const create = teams.getByRole("form", { name: "Team erstellen" });
   await create.getByLabel("Teamname").fill("E2E Team Ost");
-  await create.getByLabel("Region").fill("Ost");
+  await create.getByLabel("Region").selectOption("Basel-Stadt"); // B1.1-1: chosen from the list (Basel-Landschaft stays without an org-A team, safe-d11.spec.ts)
   await create.getByRole("button", { name: "Team erstellen" }).click();
   await expect(teams.getByRole("listitem", { name: "Team E2E Team Ost" }).getByTestId("team-status")).toHaveText("aktiv");
 
