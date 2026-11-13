@@ -1743,6 +1743,18 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"postcodes": {
+                  Row: {
+                    "place_name": string,"postcode": string,"region_name": string,"source": string,"source_version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "place_name": string,"postcode": string,"region_name": string,"source": string,"source_version": string
+                  }
+                  Update: {
+                    "place_name"?: string,"postcode"?: string,"region_name"?: string,"source"?: string,"source_version"?: string
+                  }
+                  Relationships: []
                 },"regions": {
                   Row: {
                     "active": boolean,"created_at": string,"id": string,"name": string,"organization_id": string,"sort_order": number
@@ -2585,6 +2597,11 @@ isOneToOne: false
 "change_absence":
 { Args: { "p_absence_id": string,"p_idempotency_key": string,"p_until": string,"p_until_time": string,"p_withdraw": boolean }; Returns: Json
                            },
+"client_orders":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "activity_tags": string[],"client_account_id": string,"confirmed_at": string,"cover_state": string,"duration_minutes": number,"ends_at": string,"grade": string,"id": string,"place_name": string,"postcode": string,"radius_km": number,"required_tags": string[],"sentence": string,"shift_label": string,"starts_at": string
+            }[]
+                           },
 "client_visit_overlap":
 { Args: { "p_case_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
@@ -2596,6 +2613,9 @@ isOneToOne: false
                            },
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"confirm_client_order":
+{ Args: { "p_activity_tags": string[],"p_client_account_id": string,"p_end_time": string,"p_grade": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": string[],"p_start_date": string,"p_start_time": string,"p_idempotency_key": string }; Returns: Json
                            },
 "confirm_assessment":
 { Args: { "p_idempotency_key": string,"p_record_id": string }; Returns: Json
@@ -2783,6 +2803,11 @@ isOneToOne: false
                            },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"my_client_accounts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "client_kind": string,"display_name": string,"id": string
+            }[]
                            },
 "my_contract_end":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -3136,6 +3161,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
+                           },
+"preview_client_order":
+{ Args: { "p_activity_tags": string[],"p_client_account_id": string,"p_end_time": string,"p_grade": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": string[],"p_start_date": string,"p_start_time": string }; Returns: Json
                            },
 "unmapped_regions":
 { Args: { "p_organization_id": string }; Returns: {
