@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.3 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.4 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -157,13 +157,15 @@ Buurtzorg hat gezeigt, dass selbstorganisierte Teams ohne Hierarchie funktionier
 
 Referenzfall des Founders (FE-073 (5)): Spätschicht 16:30–21:30 (5 Stunden) auf einer Demenzabteilung in 4052 Basel, Qualifikation AGS / SRK-Pflegehelfer:in.
 
-### 2.1 Was das Heim zahlt und was das Team erhält
+### 2.1 Modellrechnung mit Beispielwerten (kein Tarif, kein Einkommensversprechen)
 
-| Je Schicht (5 Std.) | Temporärbüro | NAVORA | Unterschied |
+| Je Schicht (5 Std.) | Temporärbüro | Mit NAVORA (Beispielpreis Team) | Unterschied |
 |---|---|---|---|
 | Heim zahlt | 75 CHF/Std. × 5 = **375 CHF** | 52 CHF/Std. × 5 = **260 CHF** | **Heim spart 115 CHF** |
-| Bei der Pflege kommt an | 28 CHF/Std. × 5 = **140 CHF** (Lohn der Pflegekraft) | **260 CHF** an das Team | **+120 CHF für die Pflege** |
-| Zwischen Heim und Pflege | 235 CHF (Arbeitgeberkosten und Marge des Büros) | **0 CHF** NAVORA-Anteil | kein Zwischenanteil |
+| Bei der Pflege kommt an | 28 CHF/Std. × 5 = **140 CHF** (Lohn der Pflegekraft) | **260 CHF** an das Team | **+120 CHF Umsatz des Teams (vor Teamkosten)** |
+| Zwischen Heim und Pflege | 235 CHF beim Temporärbüro (Beispielwert; enthält dessen Arbeitgeberkosten und Marge) | **0 CHF** NAVORA-Anteil; Arbeitgeberkosten trägt das Team (2.2) | kein Zwischenanteil |
+
+75, 28 und 52 CHF/Std. sind Beispielwerte aus der Founder-Fallsimulation (FE-073), keine Markt-, Lohn- oder Tarifangaben; den Preis vereinbaren Auftraggeber und Team, nie NAVORA (R-10). 260 CHF (Umsatz des Teams) und 140 CHF (Lohn) sind nicht dieselbe Grösse; vergleichbar ist «+46 CHF brutto» in 2.2. **Keine Verwendung ausserhalb des Projekts** (Website, Gespräch mit einem Heim, Rekrutierung) der Zeilen «Heim spart 115 CHF» oder «+33 %», solange die Zahlen nicht aus realen Daten stammen (Phase B, D-42) oder nicht direkt daneben so beschriftet sind wie hier (`lca` W-1, W-2, W-7; UWG Art. 3 Abs. 1 lit. b, e).
 
 <div class="landscape" markdown="1">
 
@@ -184,7 +186,7 @@ T = Temporärbüro, N = NAVORA. Heim T/N: was das Heim zahlt. Pflege T: Lohn der
 
 ### 2.2 Was davon als Lohn bleibt
 
-Das Team ist Unternehmerin: Aus den 260 CHF bezahlt es die Arbeitgeberkosten (Sozialversicherungen, BVG, UVG), seine eigenen Kosten (Versicherung, Material, Buchhaltung) und das NAVORA-Abo. Mit den Modellannahmen aus `ECONOMICS_COMPARISON.md` (Arbeitgeberkosten 20 %, Teamkosten 10 %, Abo umgerechnet 4 %):
+Das Team ist Unternehmerin: Aus den 260 CHF bezahlt es die Arbeitgeberkosten (Sozialversicherungen, BVG, UVG), sofern das Team Arbeitgeber seiner Mitglieder ist (Rechtsform und AHV-Statut **OPEN**, D-44 L-7, L-11), seine eigenen Kosten (Versicherung, Material, Buchhaltung) und das NAVORA-Abo. Mit den Modellannahmen aus `ECONOMICS_COMPARISON.md` (Arbeitgeberkosten 20 %, Teamkosten 10 %, Abo umgerechnet 4 %):
 
 | | Rechnung | Ergebnis |
 |---|---|---|
@@ -192,7 +194,7 @@ Das Team ist Unternehmerin: Aus den 260 CHF bezahlt es die Arbeitgeberkosten (So
 | je Schicht | 37.27 × 5 | **186 CHF** |
 | gegenüber Temporärlohn | 186 − 140 | **+46 CHF brutto je Schicht (+33 %)** |
 
-**Lesart:** Im Modell spart das Heim 115 CHF je Schicht, und bei der Pflege kommen 120 CHF mehr an; als Bruttolohn bleiben nach allen Teamkosten rund 46 CHF mehr (+33 %). Das ist die Zielrechnung von NAVORA, bei voller Auslastung gerechnet. Ob sie in der Praxis aufgeht, hängt vor allem von der Auslastung ab: Bei 70 % Auslastung fällt der Vorteil im Modell unter einen festen Lohn (`ECONOMICS_COMPARISON.md` §2.3). Der Einkommensvorteil ist deshalb zu belegen, nicht zu versprechen (FE-070 (1)); der Pilot in Phase B liefert die realen Werte.
+**Lesart:** Im Modell spart das Heim 115 CHF je Schicht, und das Team setzt 120 CHF mehr um (vor Teamkosten); als Bruttolohn bleiben nach allen Teamkosten rund 46 CHF mehr (+33 %). Das ist die Zielrechnung von NAVORA, bei voller Auslastung gerechnet. Ob sie in der Praxis aufgeht, hängt vor allem von der Auslastung ab: Bei 70 % Auslastung fällt der Vorteil im Modell unter einen festen Lohn (`ECONOMICS_COMPARISON.md` §2.3). Der Einkommensvorteil ist deshalb zu belegen, nicht zu versprechen (FE-070 (1)); der Pilot in Phase B liefert die realen Werte.
 
 **Grundlage der Zahlen:** 75 und 28 CHF/Std. sind die Beispielwerte aus der Founder-Fallsimulation (FE-073, Brief BK in der Fassung vom 13.11. 11:25: «founder figures, illustrative»), 52 CHF/Std. ist der Beispielpreis des Referenzfalls; die 28 CHF/Std. sind als Bruttolohn gelesen, die Arbeitgeberkosten des Büros stecken in den 235 CHF; die Kostenannahmen sind die Modellannahmen A1 bis A3 aus `ECONOMICS_COMPARISON.md`. Die Rechnung ist ein Modell der Phase A; reale Werte liefert der Pilot in Phase B (D-42). Der grösste Hebel auf das Einkommen ist die Auslastung des Teams (`csa` BM-11). Die Modellrechnung vertieft `csa` (Kapitel 13).
 
@@ -295,7 +297,7 @@ flowchart LR
 
 ### 4.4 Rechtliche Leitplanken des Modells (`lca`, beratend)
 
-- **Arbeitsvermittlung (AVG):** Laut SECO ist eine Internetplattform «immer auch Arbeitsvermittlung im Sinne des AVG» (`decisions/D-44.md`); das betrifft die Vermittlung von Anstellungen. Ob ein Dienstleistungsauftrag an ein Team darunter fällt, ist **UNKNOWN** (D-44 L-10). Nach `lca` ist eine Gebühr auf den gelesenen Quellen konform, wenn sie nicht an Aufträge gebunden ist, keine Zahlungsflüsse über NAVORA laufen und NAVORA nicht gegen Entgelt Einrichtungen und Teams zusammenführt. Weil NAVORA Aufträge und Teams zusammenbringt, ist die Gestaltung der Gebühr (L-10) dem Founder vorgelegt (wartet auf Freigabe). Ob die Schicht eines externen Teams in einem Heim (KON-1) Personalverleih oder Auftrag ist, ist **OPEN** und braucht ein Rechtsgutachten (Q-44a, FE-050).
+- **Arbeitsvermittlung (AVG):** Laut den SECO-Weisungen (Stand unklar) ist eine Internetplattform «immer auch Arbeitsvermittlung im Sinne des AVG» (`decisions/D-44.md`); das betrifft die Vermittlung von Anstellungen. Ob ein Dienstleistungsauftrag an ein Team darunter fällt, ist **UNKNOWN** (D-44 L-10). Nach `lca` ist eine Gebühr auf den gelesenen Quellen konform, wenn sie nicht an Aufträge gebunden ist, keine Zahlungsflüsse über NAVORA laufen und NAVORA nicht gegen Entgelt Einrichtungen und Teams zusammenführt. Weil NAVORA Aufträge und Teams zusammenbringt, ist die Gestaltung der Gebühr (L-10) dem Founder vorgelegt (wartet auf Freigabe). Ob die Schicht eines externen Teams in einem Heim (KON-1) Personalverleih oder Auftrag ist, ist **OPEN** und braucht ein Rechtsgutachten (Q-44a und Q-44e (Rangfolge und Kaskade), FE-050).
 - **Sprache:** NAVORA spricht von «Auftrag» und «Schichtauftrag», nie von «Vermittlung» oder «Personalverleih».
 - **Rechnungsentwurf in Phase A:** Titel «Rechnungsentwurf (Simulation) – keine gültige Rechnung»; keine KVG/KLV-Position, keine ZSR/GLN, keine MWST-Zeile, keine Provision.
 - **KVG-Abrechnung (Tiers payant, Tiers garant):** **OPEN** (D-18, D-22, D-44); in BK nicht gebaut.
@@ -474,15 +476,19 @@ Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard sc
 |---|---|---|---|---|---|---|---|
 | Eigener Auftrag und Stand | ja | – | – | – | – | Zählwert | – |
 | Angebot (Schicht, Ort, PLZ, Qualifikation) | ja | ja | ja | ja | – | Zählwert | – |
-| Strassenadresse | ja | **nein** | ja | ja | – | – | – |
-| Name der betreuten Person | ja (eigene) | **nein** | nach Bedarf | ja | eigene Angehörige | – | – |
-| Bestätigte Merkmale des Teams | «im Team bestätigt» | eigene | eigene | eigene | – | – | – |
-| Bericht | nach Vereinbarung (OPEN) | – | ja | ja | **nur freigegebene Updates** | – | – |
+| Strassenadresse | ja | **nein** | nur Mitglieder auf diesem Auftrag | nur Mitglieder auf diesem Auftrag | – | – | – |
+| Name der betreuten Person | ja (eigene; beim Heim die eigene Bewohnerin) | **nein** | nach Bedarf | nur Mitglieder auf diesem Auftrag | eigene Angehörige | – | – |
+| Bestätigte Merkmale des Teams | «im Team bestätigt» | eigene | eigene | eigene, einsehbar und bestreitbar (A-c) | – | – | – |
+| Bericht | nach Vereinbarung (OPEN; siehe unten) | – | ja | ja | **nur Updates, die die betreute Person oder ihre Vertretung freigegeben hat** (D-9 OPEN) | – | – |
 | Pflegerechnung | eigene | – | ja | – | – | nur Anzahl | – |
-| Abo- und B2B-Rechnungen | eigene Lizenz (B2B) | – | eigene Gebühr | – | – | ja | – |
+| Abo- und B2B-Rechnungen | eigene Lizenz (B2B) | Mitglieder mit Abrechnungsrecht: eigene Gebühr, unabhängig von Übernahmen (R-1) | (wie links) | – | – | ja | – |
 | Konflikte und Engpässe | – | – | ja | – | – | aggregiert | nur vom Team freigegeben |
+| Ausschlussgründe je Team | – | – | – | – | – | nur interne Prüfspur | – |
+| KI-Dienst | nur synthetische Daten (D-35 Regel A), für alle Spalten | | | | | | |
 
-**Status: Vorschlag des PO (PLANNED).** Quelle: `lca` 12:20 (M-a bis M-d, A-a bis A-d), FE-070 (2). Die verbindliche Berechtigungsmatrix je Rolle ist **OPEN** (D-3, Freigabe durch den Clinical Owner); technische Umsetzung im Handbook §6.
+**Bericht an den Auftraggeber (V-3):** in KON-1 behält das Heim die Fachaufsicht und die Pflegedokumentation seiner Bewohnerinnen (D-43, Bewilligungsrecht) und braucht den Bericht wahrscheinlich in der eigenen Dokumentation; wer die Akte führt und unter welchem Berufsgeheimnis (StGB 321) die Weitergabe läuft, ist **UNKNOWN** (D-42 Q-42a). Beim Privathaushalt ist der Auftraggeber die Person oder ihre Vertretung. Strassenadresse: eine Regel für alle Auftragsarten, nur PLZ vor Übernahme (P-2, P-3).
+
+**Status: Vorschlag des PO (PLANNED).** Quelle: `lca` 12:20 (M-a bis M-d, A-a bis A-d), FE-070 (2); von `lca` 16:40 bestätigt mit V-1 bis V-7 (in V3.2.4 eingetragen). Die verbindliche Berechtigungsmatrix je Rolle ist **OPEN** (D-3, Freigabe durch den Clinical Owner); technische Umsetzung im Handbook §6.
 
 ---
 
@@ -586,13 +592,13 @@ Alle Werte gelten je Team und nie je Person. In Phase A sind es synthetische Wer
 | # | Frage | Wirkt auf |
 |---|---|---|
 | D-14 | Höhe der Plattformgebühr (Variante F3/F6 nach VZE) | Kap. 2.3, 4, Abo-Ledger |
-| D-44 | Rechtsform und Vertragsweg je Auftragskonstellation (Genossenschaft? Personalverleih oder Auftrag, AVG); Gebührengestaltung L-10 wartet auf Freigabe | GM-1, BK-Rechnung, Phase B |
+| D-44 | Rechtsform und Vertragsweg je Auftragskonstellation (Genossenschaft? Personalverleih oder Auftrag, AVG); Gebührengestaltung L-10 wartet auf Freigabe; **offener Satz an den Founder:** «Über NAVORA laufen keine Zahlungsflüsse zwischen Auftraggeber und Team» (von FE-055 nicht ausdrücklich gedeckt, `lca` 16:40) | GM-1, BK-Rechnung, Phase B |
 | D-41 | KI-Pfad für reale Daten (Muster 4: Rechenzentrum, Gutachten, DSFA) | E2, E3 |
 | D-2 | Hosting: App-Host Infomaniak und `navora-prod` entschieden (FE-063, FE-064); offen sind der Auftragsverarbeitungsvertrag und das Upgrade vor realen Daten | B11 |
 | STG1 | Owner-Secret `STAGING_DB_URL` für das Staging | B11 |
 | B0-6 | Repository-Schutz (Ruleset) | B12 |
 | G-1 / D-43 | Ernennung des Clinical Owners | Matrix, klinische Regeln, D-3, Phase B |
-| PLZ-Quelle | synthetische Tabelle (konform) oder swisstopo-Verzeichnis (schriftliche Bestätigung von swisstopo nötig, `lca`) | BK-b |
+| PLZ-Quelle | Phase A: synthetische Tabelle (konform, ADR-193); später swisstopo-Verzeichnis: schriftliche Bestätigung von swisstopo nötig, Inhalt in sieben Punkten (`lca` 16:40 §3), vom Founder selbst anzufragen | BK-b, Produktion |
 | GM-2 | Preis und Reihenfolge der B2B-Module; Angehörigenportal-Brief | Kap. 4.2 |
 
 ---
@@ -621,7 +627,7 @@ Alle Werte gelten je Team und nie je Person. In Phase A sind es synthetische Wer
 | `csa` | Buurtzorg-Massstab und Schritt darüber hinaus (`STRATEGY.md`); Gebührenhypothesen BM-1, BM-2, BM-11, BM-12; Konstellationen | Marktdisruption und Modellrechnung (Kap. 1, 2) als marktführendes Modell ausarbeiten | **eingereicht 13:59 (Anhang A)**; Bestätigung ausstehend (#1212) |
 | `uxa` | Designsystem v77 (Farben, Schrift, 390 px); Angebotskarte, Deckungsstand, Zusammenfassung «Bestätigen & Absenden» (`UX_REVIEW.md`, UXR-188) | die sechs Wireframes (Kap. 5) prüfen und in den Screenkatalog übernehmen | **eingereicht 13:59** (zweiter Satz Wireframes mit Zuständen und Texten in `blueprint-v3/wireframes/`); Bestätigung #1208; erste Prüfung 16:20 mit UXR-191 bis UXR-194 (UXR-191, UXR-192 in V3.2.1 eingearbeitet); Unterschrift ausstehend |
 | `cra` | Qualifikationsmatrix v0.2 (PROPOSED); Befund CGR-200 (Schicht über Mitternacht); die Garantien BK-2n, BK-6, BK-8n stammen aus dem PO-Brief BK und sind `cra` zur Prüfung vorgelegt (BK-Gate) | Matrix und Sicherheitsgarantien in den BK-Ablauf einarbeiten | **eingereicht 13:59 (Anhang B)**: 18 Garantien, Barrieren je Schritt, Matrix-Entscheid, Fall 4052. **Unterschrieben** (#1209): «`cra` 2026-11-13 17:40: Annex B confirmed with the corrections of `CLINICAL_GOVERNANCE.md` 17:40 (CGR-213); no clinical approval (D-27, D-43, G-1); every matrix cell PROPOSED.» Korrekturen CGR-213 (a) in V3.2.2 eingetragen; P3-Korrektur CGR-213 (b) bei `uxa` |
-| `lca` | PLZ-Quelle und Regeln PLZ-a bis PLZ-c; Datenminimierung M-a bis M-d; Merkmale A-a bis A-d; Rechnungsentwurf I-a bis I-c; AVG-Einordnung und D-44 (12:20) | AVG-Abgrenzung je Konstellation und datenschutzkonforme PLZ-Zuordnung ausformulieren | **eingereicht 13:59 (Anhang C)**: Leitplanken, rote Linien R-1 bis R-10, PLZ P-1 bis P-8, Q-44e. **Unterschrieben** (#1210): «`lca`, 2026-11-13 16:40: Annex C and §4.4 confirmed with corrections C-1 to C-7; §7 confirmed with V-1 to V-7; §2 wording W-1 to W-7. AVG per constellation and Q-44e, Q-44f signed in D-44 (16:40), catalogue v7. Phase A: compliant under every plausible interpretation. Real use: unresolved, needs legal adviser (Q-44a, Q-44e, Q-44f) and owner (L-11, «no payment through NAVORA», swisstopo confirmation). Advisory, not legal advice.» Korrekturen C-1 bis C-7, V-1 bis V-7, W-1 bis W-7: **noch nicht eingetragen** (nächster PO-Lauf) |
+| `lca` | PLZ-Quelle und Regeln PLZ-a bis PLZ-c; Datenminimierung M-a bis M-d; Merkmale A-a bis A-d; Rechnungsentwurf I-a bis I-c; AVG-Einordnung und D-44 (12:20) | AVG-Abgrenzung je Konstellation und datenschutzkonforme PLZ-Zuordnung ausformulieren | **eingereicht 13:59 (Anhang C)**: Leitplanken, rote Linien R-1 bis R-10, PLZ P-1 bis P-8, Q-44e. **Unterschrieben** (#1210): «`lca`, 2026-11-13 16:40: Annex C and §4.4 confirmed with corrections C-1 to C-7; §7 confirmed with V-1 to V-7; §2 wording W-1 to W-7. AVG per constellation and Q-44e, Q-44f signed in D-44 (16:40), catalogue v7. Phase A: compliant under every plausible interpretation. Real use: unresolved, needs legal adviser (Q-44a, Q-44e, Q-44f) and owner (L-11, «no payment through NAVORA», swisstopo confirmation). Advisory, not legal advice.» Korrekturen C-1 bis C-7 (Anhang C, §4.4), V-1 bis V-7 (§7) und W-1 bis W-6 (§2) **in V3.2.4 eingetragen**; W-7 als Nutzungsregel in §2.1; Anhang A (Text `csa`) unverändert, Beschriftung dort bei `csa` |
 | `eng` | Code-Inventar; ADR-186, ADR-187; offene Fragen T-1 bis T-9; Kaskade als Betriebsparameter | Machbarkeit der fünf Engines und des Datenmodells prüfen und unterzeichnen | **eingereicht 13:59**: 90 Aussagen geprüft, K1 bis K21 im Handbook §4-§6 und Anhang §11 eingearbeitet; unterzeichnet «machbar unter ADR-Vorbehalten»; Bestätigung #1211 |
 | `aia` | – | KI-Verträge für Erfassung (BK-1a), Rangfolge (BK-3, BK-4), Berichtsentwurf (BK-8) | **Unterschrieben** (#1202): «`aia` 2026-11-13 16:00: KI-Verträge K-1 Erfassung, K-2 Rangfolge, K-3 Berichtsentwurf in `AUTOMATION_REVIEW.md` review 53 §2 und `AI_OPERATING_MODEL_REVIEW.md` §12. Unterzeichnet für BK mit Gate «Simulation, synthetische Daten», unter den Vorbehalten AUT-112 (Ledger-Bereich des Auftraggebers, ADR `eng`), AUT-113 (Kriterienfolge PO, Kontinuität `cra`), AUT-114 (Stufe des Berichtsentwurfs, `cra` und Regulatory Adviser). Alle drei als `kind = 'rule'`; keine KI-Sperre wird für BK gelockert (AUT-115).» |
 
@@ -646,6 +652,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-13 | 3.2.4 Korrektur | `lca`-Korrekturen vom 16:40 eingetragen: §2.1 Titel, Spalte «Mit NAVORA (Beispielpreis Team)», «+120 CHF Umsatz des Teams», Beispielwert-Zeile und Nutzungsregel (W-1 bis W-5, W-7); §2.2 Vorbehalt Arbeitgeberrolle (W-6); §4.4 SECO-Weisungen und Q-44e (C-7); §7 Adresse und Name nur für Mitglieder auf diesem Auftrag, Freigabe der Angehörigen-Updates durch die betreute Person oder Vertretung, Gebühr unabhängig von Übernahmen, zwei neue Zeilen, Merkmale bestreitbar, Bericht-Vorbehalt (V-1 bis V-7); Anhang C mit «[C-n]» markiert (C-1 bis C-6; Q-44e und Q-44f im Katalog v7); Issue-Nummer in Anhang C (#1210). Kap. 11: Satz «keine Zahlungsflüsse über NAVORA» als offene Founder-Frage; PLZ-Quelle präzisiert. Hinweis PO über Anhang A (Text `csa` unverändert). Kap. 13: `lca`-Zeile. Keine Änderung an Umfang, Blockfolge, Zahlen oder Founder-Entscheid; keine neue Rechtsregel (alle Texte von `lca`, beratend) | `lca`-Journal 2026-11-13 16:40 §2, §3, §4, §5; D-44 `lca` 16:40; `ADVISER_CATALOGUE.md` v7 |
 | 2026-11-13 | 3.2.3 Status | §8: B1.1 (verkürzt) für die Simulation abgenommen auf `33523a5`, BK aktiv (Bild und Tabelle). Zwei operative PO-Antworten für BK ohne klinische oder rechtliche Regel: Fahrdistanz bestimmt das Team (Höchstdistanz zu seinen Einsatz-PLZ), der Auftraggeber kann sie je Auftrag nur verengen, keine NAVORA-Vorgabe; Schichtnamen kommen aus dem Schichtplan des Auftraggebers und steuern weder Prüfung noch Preis. Anhang B (Text `cra`, «PLZ-Distanz und Radius») bleibt wörtlich; die Lesart steht im BK-Brief. **Noch offen (nächster PO-Lauf):** `lca`-Korrekturen C-1 bis C-7, V-1 bis V-7, W-1 bis W-7 (16:40). Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid | B1.1-Abnahme (`briefs/B1.1.md` §PO 18:40); BK-Brief Nachtrag 18:40; ADR-191, ADR-193 (#1228) |
 | 2026-11-13 | 3.2.2 Nachtrag | §6.4 und Anhang B §1/§2: fünf Sicherheitsbedingungen aus dem BK-Brief (Nachtrag 13:40) als Garantien mit Status PLANNED und Test nachgetragen (Garantien 5, 9, 14 ergänzt; 19, 20 neu; Schritt 7). Kapitel 13: Unterschriften `cra`, `lca`, `aia` wörtlich eingetragen; Issue-Nummern korrigiert. Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid | `cra` CGR-213 (a) und Antwort auf #1209 (`CLINICAL_GOVERNANCE.md` 17:40); `lca` 16:40 §6; `aia` review 53 §2; `uxa` 16:20 Widerspruch (2) |
 | 2026-11-13 | 3.2.1 Korrektur | Bild P2 und Wireframes `team.svg`, `order.svg`, `b2b.svg` sowie Swimlane-Beschriftung korrigiert; §5.2 Teamautonomie je benannter Person; §5.4 keine Abwesenheitsgründe in Beispielen. Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid; der Text von FE-073 bleibt unverändert | `uxa` UXR-191 (#1217) und UXR-192 (#1218); `cra` CGR-204; BK-Brief Nachtrag 13:40 Punkt 1. Widerspruch zwischen freigegebenem Bild und verbindlicher Sicherheitsbedingung, vom PO 16:39 behoben und dem Founder gemeldet |
@@ -657,6 +664,8 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 ---
 
 ## Anhang A · Beitrag `csa`: Geschäftsmodell, Disruption und Schichtrechnung
+
+> **Hinweis PO (V3.2.4, `lca` W-1 bis W-7):** Alle Beträge in diesem Anhang sind Beispielwerte der Founder-Fallsimulation (FE-073), kein Tarif, keine Lohnangabe und kein Einkommensversprechen; den Preis vereinbaren Auftraggeber und Team, nie NAVORA (R-10). Keine Verwendung ausserhalb des Projekts ohne diese Beschriftung direkt daneben. Den Anhangstext passt `csa` selbst an.
 
 *Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `csa`, nur gelesen, keine Tests. Bestätigung im nächsten regulären `csa`-Lauf (#1208). Die Zahlen bleiben ein Rechenmodell mit Herkunft (FE-040 (1), FE-070 (1)).*
 
@@ -1184,7 +1193,7 @@ Status der Knoten: Die Kette von «Stufe nachgewiesen» bis «geeignet mit Deleg
 
 ## Anhang C · Beitrag `lca`: Rechtliche Leitplanken des Kernablaufs
 
-*Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `lca`, nur gelesen, keine Tests. **Keine Rechtsauskunft**; die rechtliche Einordnung bestätigt erst das Rechtsgutachten Q1 2027 (FE-050). Bestätigung im nächsten regulären `lca`-Lauf (#1211).*
+*Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `lca`, nur gelesen, keine Tests. **Keine Rechtsauskunft**; die rechtliche Einordnung bestätigt erst das Rechtsgutachten Q1 2027 (FE-050). Bestätigung im nächsten regulären `lca`-Lauf (#1210; Nummer in V3.2.4 korrigiert).* *Korrekturen `lca` 16:40 C-1 bis C-7 in V3.2.4 eingetragen, jeweils mit «[C-n]» markiert.*
 
 **Rolle:** `lca` (Legal & Compliance Agent) · **Anlass:** Founder-Auftrag vom 13.11.2026 (in dieser Sitzung FE-076 genannt) · **Gelesen auf:** `recovery/main` `227e742` (13.11.2026 13:29), nur gelesen, nichts geändert · **Bezug:** Brief [BK](../agents/briefs/BK.md), FE-040, FE-050, FE-055, FE-066, FE-073, FE-074, D-1, D-4, D-9, D-23, D-34, D-35, D-41, D-44, `BUSINESS_MODELS_AND_CONSTELLATIONS.md` v1.2, Blueprint V3 (Entwurf) Kap. 3 und 7, Architecture Handbook V2 §4 (Engine 1, 4), §5.2, §6, §9, `lca`-Journal 13.11. 12:20
 
@@ -1192,9 +1201,9 @@ Status der Knoten: Die Kette von «Stufe nachgewiesen» bis «geeignet mit Deleg
 
 **Kennzeichnung:** IMPLEMENTED (im Code auf `recovery/main`), PLANNED (Brief, Paket oder Entscheid vorhanden, nicht gebaut), OPEN (Entscheid oder Antwort fehlt), UNKNOWN (nicht belegt oder nicht gelesen). Eine Einordnung, die nicht entschieden ist, trägt den Zusatz **«Arbeitsthese `lca`, zu bestätigen im Rechtsgutachten Q1 2027 (FE-050)»**, kurz **[AT]**.
 
-**Rechtsgrundlagen, die ich nenne:** AVG (SR 823.11), AVV (SR 823.111), revDSG (SR 235.1), KVG/KLV, OR Art. 328b, jeweils nur so weit, wie sie im Repo bereits zitiert sind (D-44 [A1], [A2]; Journal 12:20 [S1]-[S4]; D-3, D-9, D-13 für DSG Art. 5 lit. c und Art. 6). Keine Bewilligungsdetails, Fristen oder Gebühren: die Bewilligungsbedingungen (Kaution, GAV Personalverleih, Schwelle der Gewerbsmässigkeit) waren in D-44 **nicht lesbar** und bleiben **UNKNOWN**.
+**Rechtsgrundlagen, die ich nenne:** AVG (SR 823.11), AVV (SR 823.111), revDSG (SR 235.1), KVG/KLV, OR Art. 328b, jeweils nur so weit, wie sie im Repo bereits zitiert sind (D-44 [A1], [A2]; Journal 12:20 [S1]-[S4]; D-3, D-9, D-13 für DSG Art. 5 lit. c und Art. 6). Keine Bewilligungsdetails, Fristen oder Gebühren. **[C-2]** Die Schwelle der Gewerbsmässigkeit ist nicht mehr UNKNOWN: regelmässiger Verleih mit Gewinnabsicht **oder** ein jährlicher Verleihumsatz von CHF 100 000 (Art. 29 Abs. 1 AVV, Stand der gelesenen Fassung 1.10.2021, neuere Fassung möglich). Kaution und GAV Personalverleih bleiben **UNKNOWN**.
 
-**Abweichung Dokumentation/Repo (CLAUDE.md-Regel):** FE-076 ist in `docs/product/FOUNDER_DECISIONS.md` noch **nicht** eingetragen (letzter Eintrag FE-075; Versionskopf weiterhin «22», bereits am 13.11. 12:20 an `po` gemeldet). Keine automatische Änderung; Vorschlag: der PO trägt FE-076 mit diesem Auftrag ein.
+~~**Abweichung Dokumentation/Repo (CLAUDE.md-Regel):** FE-076 ist in `docs/product/FOUNDER_DECISIONS.md` noch nicht eingetragen.~~ **[C-6] Erledigt:** FE-076 steht seit Fassung v26 (13.11. 13:08) in `FOUNDER_DECISIONS.md`.
 
 ---
 
@@ -1219,11 +1228,11 @@ Das Zielmodell (FE-040, FE-055 (1), FE-066, Blueprint V3 §1.1 und §1.5) lautet
 Auf den in D-44 gelesenen Quellen spricht das aus folgenden Gründen für eine Einordnung als Softwareanbieter **[AT]**:
 
 1. **Kein Verleih durch NAVORA.** Verleiher ist, wer eigene Arbeitnehmende überlässt und dem Einsatzbetrieb die wesentlichen Weisungsbefugnisse abtritt (D-44 [A1], Kommentar zu Art. 26 AVV, Sekundärquelle). NAVORA hat keine Arbeitsverhältnisse mit Pflegenden und kein Weisungsrecht, das es abtreten könnte.
-2. **Keine Vermittlung «gegen Entgelt» für die Vermittlung.** Die SECO-Weisungen knüpfen die Bewilligungspflicht an Vermittlung, die «regelmässig und gegen Entgelt» erfolgt (D-44 [A2] S. 13-15). Die NAVORA-Gebühr ist eine **feste Softwaregebühr** des Teams (bzw. eine Lizenz der Einrichtung), unabhängig davon, ob, wie viele und welche Aufträge zustande kommen (FE-055 (3): F1 je Stunde und F2 Umsatzprozent **verboten**). `lca` hat diese Gebührengestaltung in D-44 (L-10) als **vereinbar unter jeder plausiblen Auslegung** eingestuft, **sofern** keine Zuführung gegen Entgelt und keine Zahlungsflüsse über NAVORA stattfinden.
+2. **Keine Vermittlung «gegen Entgelt» für die Vermittlung.** Die Bewilligungspflicht knüpft an Vermittlung, die «regelmässig und gegen Entgelt» erfolgt; **[C-1]** das steht in Art. 2 Abs. 1 AVG selbst, nicht nur in den SECO-Weisungen (D-44 [A2] S. 13-15). Die NAVORA-Gebühr ist eine **feste Softwaregebühr** des Teams (bzw. eine Lizenz der Einrichtung), unabhängig davon, ob, wie viele und welche Aufträge zustande kommen (FE-055 (3): F1 je Stunde und F2 Umsatzprozent **verboten**). `lca` hat diese Gebührengestaltung in D-44 (L-10) als **vereinbar unter jeder plausiblen Auslegung** eingestuft, **sofern** keine Zuführung gegen Entgelt und keine Zahlungsflüsse über NAVORA stattfinden.
 3. **Kein Arbeitsverhältnis als Gegenstand.** Die SECO-Aussage, eine Internetplattform, die Parteien zusammenführt, sei «immer auch Arbeitsvermittlung im Sinne des AVG», betrifft die Vermittlung von **Anstellungen** (D-44 L-10). Im Zielmodell wird kein Arbeitsvertrag vermittelt, sondern ein Auftrag an eine Trägerstruktur. Ob das hält, hängt aber an Frage (c): ist der Teameinsatz in Wahrheit Verleih oder eine verdeckte Anstellung, kann auch die Plattform näher an die Vermittlung rücken. **Darum bleibt Frage (a) OPEN, bis Q-44a und Q-44c beantwortet sind.**
 4. **Entscheid beim Team, nicht bei NAVORA.** Kein «für das Team zuteilen» (Produkt-Invariante FE-039, BK-5n); die KI ordnet nur unter den Geeigneten und fügt nie ein Team hinzu (BK-3, Blueprint §2.1). Wer Auftrag und Annahme verantwortet, sind Auftraggeber und Team.
 
-**Wichtige Einschränkung (neu in diesem Beitrag).** Mein D-44-Verdikt «vereinbar» stand unter der Bedingung «**kein Matching von Einrichtungen und Teams gegen Entgelt**». BK führt ein Matching ein: harte Filter, eine **Rangfolge durch die Software** und eine **Angebotskaskade**, in der das bestplatzierte Team das Angebot zuerst und exklusiv erhält (BK-2 bis BK-5). Die Gebühr ist zwar nicht an das Matching gebunden, aber die Software **wählt die Reihenfolge**, in der Teams angefragt werden. Ob eine solche Rangfolge mit Kaskade unter einer festen Abogebühr noch «keine Auswahl durch NAVORA» ist oder bereits eine Vermittlungstätigkeit im Sinne von Art. 2 AVG, ist auf den gelesenen Quellen **UNKNOWN**. Für Phase A (Simulation, synthetische Parteien, kein realer Auftrag) ist das **unkritisch**. Vor dem ersten realen Auftrag braucht es dazu eine Antwort; ich schlage dafür eine Präzisierung des Beraterkatalogs vor (Q-44e, Abschnitt 5).
+**Wichtige Einschränkung (neu in diesem Beitrag).** Mein D-44-Verdikt «vereinbar» stand unter der Bedingung «**kein Matching von Einrichtungen und Teams gegen Entgelt**». BK führt ein Matching ein: harte Filter, eine **Rangfolge durch die Software** und eine **Angebotskaskade**, in der das bestplatzierte Team das Angebot zuerst und exklusiv erhält (BK-2 bis BK-5). Die Gebühr ist zwar nicht an das Matching gebunden, aber die Software **wählt die Reihenfolge**, in der Teams angefragt werden. Ob eine solche Rangfolge mit Kaskade unter einer festen Abogebühr noch «keine Auswahl durch NAVORA» ist oder bereits eine Vermittlungstätigkeit im Sinne von Art. 2 AVG, ist auf den gelesenen Quellen **UNKNOWN**. **[C-3]** Das ist eine echte Frage, weil Art. 1 lit. a AVV auch ein «Auswahlverfahren» als Vermittlung zählt; die Rangfolge und die Kaskade von BK ähneln einem solchen. Für Phase A (Simulation, synthetische Parteien, kein realer Auftrag) ist das **unkritisch**. Vor dem ersten realen Auftrag braucht es dazu eine Antwort; ich schlage dafür eine Präzisierung des Beraterkatalogs vor (Q-44e, Abschnitt 5).
 
 #### 1.3 Design-Leitplanken, die die Abgrenzung tragen
 
@@ -1262,13 +1271,13 @@ Jede rote Linie gilt, bis eine Antwort aus dem Rechtsgutachten vorliegt und der 
 
 | Konstellation | AVG-Frage | Stand | Paket / Frage |
 |---|---|---|---|
-| **KON-1** Heim beauftragt externes Team (BK-Hauptszenario) | Verleih (V-1, AVG-Bewilligung) oder Auftrag (V-2)? Indizien für Verleih: Heim-PDL führt die Fachaufsicht (R3-c), Team in den Schichtplan des Heims eingebunden, Material des Heims, **Preis je Stunde**. Zusätzlich muss das Heim die fachliche Organisation und Aufsicht behalten (BS/BL-Bewilligungsrecht, D-43/D-44). | **OPEN**, ungelöst, braucht Rechtsberatung. Phase A: nur Simulation | D-44 L-7, L-8, **Q-44a**; Q-43b |
+| **KON-1** Heim beauftragt externes Team (BK-Hauptszenario) | Verleih (V-1, AVG-Bewilligung) oder Auftrag (V-2)? Indizien für Verleih: Heim-PDL führt die Fachaufsicht (R3-c), Team in den Schichtplan des Heims eingebunden, Material des Heims, **Preis je Stunde**. Zusätzlich muss das Heim die fachliche Organisation und Aufsicht behalten (BS/BL-Bewilligungsrecht, D-43/D-44). **[C-4]** Das Heim riskiert eine Busse nach Art. 39 Abs. 2 AVG, wenn es wissentlich einen Verleiher ohne Bewilligung einsetzt; Texte für Heime nennen KON-1 nie «risikofrei» für das Heim. | **OPEN**, ungelöst, braucht Rechtsberatung. Phase A: nur Simulation | D-44 L-7, L-8, **Q-44a**; Q-43b |
 | **KON-2** Heim nutzt NAVORA mit eigenem Personal | keine AVG-Frage (keine Drittleistung) [AT]. Achtung: Demand-Pooling in einem B2B-Heim ist **immer** ein eigener KON-1-Auftrag (FE-055 (4)) und trägt dessen offene Fragen | **OPEN** nur für Lizenz und Auftragsbearbeitung | D-42, D-41 |
 | **KON-3a** Spital beauftragt Team für Einsatz im Spital | wie KON-1 | **OPEN** | D-44 L-7, L-8, Q-44a |
 | **KON-3b** Versorgungsübergang nach Hause | primär keine Verleihfrage, sondern Zulassung als ambulanter Leistungserbringer (Art. 49/51 KVV) oder Partner (D-12) [AT] | **OPEN** | D-44 L-9, **Q-44b**; D-12, D-18, D-22 |
 | **KON-4** Privatperson beauftragt Team | Zulassung (wie KON-3b) und Status der Mitglieder (selbständig/angestellt); bei KON-4b Mindestlöhne Betreuung im Haushalt **UNKNOWN** | **OPEN** | D-44 L-9, L-11, Q-44b; D-9 |
 | **KON-5** Heim oder Spital kauft nur Software | keine AVG-Frage [AT]; NAVORA ist Auftragsbearbeiterin | Phase A **vereinbar** (D-44 Option E); real über D-41, D-34 | D-41, D-34, D-42 |
-| **alle Teamkonstellationen** | Ist die Plattform mit Rangfolge und Kaskade unter fester Gebühr Arbeitsvermittlung? | **OPEN** (neu präzisiert) | Q-44c, **Q-44e (Vorschlag)** |
+| **alle Teamkonstellationen** | Ist die Plattform mit Rangfolge und Kaskade unter fester Gebühr Arbeitsvermittlung? | **OPEN** (neu präzisiert) | Q-44c, **Q-44e (im Katalog v7)** |
 
 **Offener Owner-Punkt (D-44, eskaliert 2026-11-07, Punkt 1):** «L-10-Gebührengestaltung als verbindlich für GM-1 und GM-2 genehmigen (Softwaregebühr, nie an Pflegeerlös oder Vermittlungen gebunden, keine Zahlungsflüsse über NAVORA)». FE-055 (1) und (3) decken inhaltlich den Teil «keine Provision, kein Betrag je Stunde» ab. **Nicht ausdrücklich gedeckt** ist «keine Zahlungsflüsse über NAVORA». Vorschlag an `po`: diesen Rest als einen Satz dem Owner vorlegen; damit wäre die Gebührenseite der Abgrenzung durch den Owner verbindlich (die rechtliche Bestätigung bleibt beim Gutachten).
 
@@ -1281,7 +1290,7 @@ Jede rote Linie gilt, bis eine Antwort aus dem Rechtsgutachten vorliegt und der 
 | Kein Geldfluss über NAVORA | keine Zahlungsvermittlung, keine GwG-Frage [AT] | R-3 | **PLANNED** als Ausschluss (BK ausser Umfang); Suche nach Zahlungs-SDK in `package.json`, `src/`, `supabase/` ohne Treffer (13.11., nur Suche, kein Test); Owner-Bestätigung **OPEN** |
 | Team entscheidet, kein Zuteilen | keine Auswahl durch NAVORA | R-4 | Teamentscheid **IMPLEMENTED** (J2, `decide_matching_request`); Invariante entschieden (FE-039); Kaskade und BK-5n **PLANNED** |
 | KI ordnet nur unter den Geeigneten | KI ersetzt keinen Entscheid | R-4 | Governance **IMPLEMENTED** (AIG1, nur synthetisch); Rangfolge **PLANNED** (BK-3) |
-| Rangfolge und exklusive Kaskade durch die Software | stützt die Abgrenzung nur, wenn sie als Werkzeug des Auftraggebers und der Teams gilt | – | **UNKNOWN** rechtlich (Q-44e Vorschlag); **PLANNED** technisch (BK-5) |
+| Rangfolge und exklusive Kaskade durch die Software | stützt die Abgrenzung nur, wenn sie als Werkzeug des Auftraggebers und der Teams gilt | – | **UNKNOWN** rechtlich (Q-44e, im Katalog v7); **PLANNED** technisch (BK-5) |
 | Kein Weisungsrecht von NAVORA | kein Verleih durch NAVORA | R-8 | Richtung **entschieden** (FE-039, Blueprint §1.5); Operations nur Ausnahmestelle **PLANNED** als Ziel (M-12) |
 | Vertrag zwischen Auftraggeber und Team | NAVORA nicht Vertragspartei | R-7 | **OPEN** (D-44: Vertragsform, Rechtsform); Phase A ohne Vertrag |
 | Angebot an das Team, keine Personenauswahl | Leistung statt Person spricht eher für Auftrag (V-2) [AT] | R-5 | **PLANNED** ((A-b), BK-4) |
@@ -1427,7 +1436,7 @@ Bestehende Fragen aus `docs/agents/decisions/ADVISER_CATALOGUE.md`, soweit sie d
 | **Q-44a** | D-44 | Kann eine Team-Trägerstruktur Bewohnenden eines bewilligten BS/BL-Heims Pflege im Auftrag erbringen (eigene verantwortliche Pflegefachperson, eigene Planung, eigenes Risiko, Pauschale), wenn die Heim-PDL Organisation und Aufsicht behalten muss, und welche Vertrags- und Praxismerkmale verhindern Personalverleih (Art. 12 AVG, Art. 26 AVV)? | KON-1, KON-3a, BK-Hauptszenario; Preis je Stunde | **OPEN** |
 | **Q-44b** | D-44 | Begrenzen BS und BL OKP-Zulassungen (Art. 49/51 KVV), und gilt die Restfinanzierung für neue private Anbieter gleich? | KON-3b, KON-4 | **OPEN** |
 | **Q-44c** | D-44 (mit D-14) | Ist eine Plattform, die Heimen das Finden von Teams ermöglicht und einen Prozentsatz oder einen Betrag je Auftrag verlangt, Arbeitsvermittlerin nach Art. 2 AVG, und macht ein Zahlungsfluss über sie sie zur Finanzintermediärin (GwG)? | Gebührengestaltung, Zahlungsweg | **OPEN** (durch FE-055 zum Teil gegenstandslos: Prozent und je Stunde verboten; der GwG-Teil bleibt relevant, falls je Zahlungen über NAVORA geplant werden) |
-| **Q-44e** (Vorschlag `lca`, noch nicht im Katalog) | D-44 | «Ist eine Pflege-Software, die ausschliesslich eine feste, auftragsunabhängige Abogebühr der Teams erhält, aber für den Auftrag einer Einrichtung oder Privatperson die geeigneten Teams nach festen Kriterien ordnet und das Angebot in einer Kaskade mit exklusivem Zeitfenster zuerst dem bestplatzierten Team zeigt, eine Arbeitsvermittlerin im Sinne von Art. 2 AVG, (i) wenn das Verhältnis Auftraggeber–Team ein Auftrag ist, (ii) wenn es Personalverleih ist? Welche Produktmerkmale (Personenauswahl, Bewertungen, Bindungsklauseln, Deckungsgarantie) würden die Einordnung ändern?» | BK-3 bis BK-5 (Rangfolge, Kaskade) | **Vorschlag** an `po` zur Aufnahme in den Katalog |
+| **Q-44e** (**[C-5]** in D-44 16:40 unterschrieben, Beraterkatalog v7) | D-44 | «Ist eine Pflege-Software, die ausschliesslich eine feste, auftragsunabhängige Abogebühr der Teams erhält, aber für den Auftrag einer Einrichtung oder Privatperson die geeigneten Teams nach festen Kriterien ordnet und das Angebot in einer Kaskade mit exklusivem Zeitfenster zuerst dem bestplatzierten Team zeigt, eine Arbeitsvermittlerin im Sinne von Art. 2 AVG, (i) wenn das Verhältnis Auftraggeber–Team ein Auftrag ist, (ii) wenn es Personalverleih ist? Welche Produktmerkmale (Personenauswahl, Bewertungen, Bindungsklauseln, Deckungsgarantie) würden die Einordnung ändern?» | BK-3 bis BK-5 (Rangfolge, Kaskade) | **im Katalog** (v7) |
 | **Q-44d** | D-44 | Ist die Weitergabe der Kontaktdaten eines Teams an einen registrierten Versicherungsbroker Versicherungsvermittlung (Art. 40 VAG, Art. 182a AVO), mit und ohne Entgelt? | Teambildung (ONB1), nicht BK | **OPEN** |
 | **L-11** | D-44 | AHV-Statut freiberuflicher Mitglieder («Die Kasse entscheidet») | KON-1, KON-3, KON-4 | **OPEN** (Schritt je Person bei der Ausgleichskasse, keine Beraterfrage) |
 | **Q-43b** | D-43 | Erfüllt die Pflegeleitung eines Partners mit Matrix, Delegation und Widerruf die «fachliche Organisation und Aufsicht»? | R3 im Heim; Indiz Verleih (R3-c) | **OPEN** |
@@ -1435,7 +1444,7 @@ Bestehende Fragen aus `docs/agents/decisions/ADVISER_CATALOGUE.md`, soweit sie d
 | **D-9/1, D-9/2** | D-9 | Rechtsgrundlage für Klientendaten bei Aufnahme; darf ein Spital oder Hausarzt Zuweisungsdaten an einen noch nicht beauftragten Anbieter weitergeben? | Privathaushalt (KON-4), Spitalaustritt (KON-3b); Tags mit Gesundheitsbezug | **OPEN** |
 | **D-4/1 bis D-4/3** | D-4 | Aufbewahrung von Audit, Abrechnungsbelegen und operativen Zeilen | Auftrag, Adresse, Ausschlussgründe, Rohinput | **OPEN** |
 | **Q-42a, Q-42b** | D-42 | Hilfspersonen-Einbindung des Softwareanbieters (StGB Art. 321, § 26 GesG BS); Aufbewahrung und Löschung nach Export | erster realer Heimpilot | **OPEN** |
-| **MWST** (Vorschlag, noch nicht im Katalog) | D-44 | Wie ist eine Schicht eines Teams in einem Heim mehrwertsteuerlich zu behandeln, und was muss die Team-Rechnung dazu enthalten? | BK-9 real | **UNKNOWN**, Aufnahme vorgeschlagen |
+| **Q-44f** MWST (**[C-5]** Beraterkatalog v7) | D-44 | Wie ist eine Schicht eines Teams in einem Heim mehrwertsteuerlich zu behandeln, und was muss die Team-Rechnung dazu enthalten? | BK-9 real | **UNKNOWN**, im Katalog (v7) |
 | **swisstopo-Bestätigung** | – (T-2) | Gelten die OGD-Bedingungen für das PLZ-Verzeichnis trotz der Kategorie auf opendata.swiss? | PLZ-Tabelle in Produktion | **OPEN**, Owner-Schritt, keine Beraterfrage |
 
 ---
