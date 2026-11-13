@@ -6,6 +6,48 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-13 11:55 CET · `uxa`: gate line `uxa: #1181 c0b3728 clear` (CGR-202 (b), stray-row texts and UXR-187 built as specified; stray-row e2e is a B1.1 acceptance condition in B1.1-1c); UXR-184, UXR-185 closed (#1164 merged); first `uxa` read of BK for the card and the cover state (UXR-188 medium); no benchmark
+
+**State.** `recovery/main` at `b44d352` (PO 11:25, FE-073, BK approved). My PR of 07:52 was merged; no `uxa` PR open. Open PRs that change screens: #1181 (B1.1-1b, head `c0b3728`, `ci` 43394904578 4/4 `success` read from the check runs) and #1184 (test only, stacked). #1188 and #1189 are PO docs; #1189 rewrites `briefs/BK.md` for FE-074 (open, not merged).
+
+**Ask to `uxa`.** PO 10:39 and 11:25: the gate line on #1181 (team sentence, stray-row texts, UXR-187); BK texts (no percentage on the card), BK-1, BK-4 to BK-6, BK-8 and 390 px.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v23 (FE-073) on `recovery/main`; FE-074 is in open #1189 only, so I treat it as PLANNED and give BK input that holds for both versions. No contradiction with this run's work. No benchmark (made 03:48 today).
+
+**Screenshots.** The `ui-screenshots` artifact 14022491620 exists for `c0b3728`; the download was refused by the session's proxy (blob host). Review from code.
+
+### Gate #1181 (`c0b3728`)
+
+| Item | Result | Evidence |
+|---|---|---|
+| CGR-202 (b) team sentence | as specified | `src/features/regions/rules.ts` (branch): singular and plural word for word as 07:52, after the search sentence, before the undo sentence, absent at `teams = 0`; unit test `b1-1-1b-region-mapping.test.ts` asserts text, order and absence. Substance: `cra`. |
+| Stray rows of a mapped value | as specified | `unmapped-regions-panel.tsx`: note «Bereits «…» zugeordnet. Seither neu mit dem alten Wert:» above the count line; «Region: …» as text, no `select`; same confirming step and result line; target falls back to the mapped region so the step sentence is built. |
+| UXR-187 | as specified | `role="status"` container mounted empty; focus to the `h2` (`tabIndex={-1}`) after success, live region never focused (UXR-41); e2e asserts the empty container before the act and the focused heading after. |
+| Stray-row e2e (07:52 tests) | not built; accepted as deviation | Needs a legacy fixture; by PO 11:25 point 2 tests insert their own. **Condition of the B1.1 acceptance, not of this merge:** in B1.1-1c, e2e at 390 and 1440 px: row shows «Bereits «…» zugeordnet», no `select`, the step names the stray count, after confirming the row is gone and the result line shows, no horizontal scroll. |
+
+Gate line posted on #1181: `uxa: #1181 c0b3728 clear`. A new head voids it.
+
+### BK: card and cover state (preparation; BK starts after B1.1, README rule 12)
+
+Holds for the brief on `recovery/main` and for the FE-074 rewrite in #1189.
+
+- **Offer card (BK-4), team view at 390 px.** Line 1, the shift as a fact: «Spätschicht · Fr 13.11. 16:30–21:30 · 5 Std.» Line 2, the place: «Demenzabteilung · 4052 Basel · 2,1 km». Then «Passt, weil:» with one short item per hard fact met (Qualifikation «AGS», «Demenzerfahrung bestätigt», «frei im ganzen Zeitraum», later «kennt diese Einrichtung»), each from the filter row, never from the ranking text alone. One primary action «Übernehmen» (FE-074 wording; the main version says «Schicht übernehmen»; one of them, `po` picks), one outline «Ablehnen». No percentage, no stars, no rank number on the card (BK-4). The window end (FE-074) as «Angebot für euer Team bis 14:45» in the card head, as text, never only a countdown ring. A member's name on the card (main version «(Sara M.)») only on the team's own card; it never reaches the client before the team has taken the shift (`lca`).
+- **Reasons from AI (BK-4 with `aia`).** If a sentence comes from the ranking assistant, it carries «vorgeschlagen von <Agent>» (§2 proposals rule) and stands below the fact items; the fact items are rule output and are never AI text. Stop rule: no source fact, no sentence.
+- **Cover state for the client (BK-6).** One status line at the top of the order, `role="status"`, never colour alone: «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.», then «Gedeckt durch Team Basel Ost», at shift start without a team «Nicht gedeckt». How it is shown (position, colour, wording) is `cra`'s (safety signal); this is a proposal. See UXR-188 for the cascade line.
+- **Summary and confirm (BK-1d, #1189).** One read-only list of all fields, each with «Ändern»; a recognised field carries «erkannt aus: «Sonntag»» (§2 carried-value rule), a relative date always shown as a date («So 15.11.2026»); one primary «Bestätigen & Absenden». Data-minimisation wording (BK-1e) is `lca`'s.
+
+- **PO challenge row 11:39 (pre-filled order from the home's uncovered shift; hypothesis, no build).** Fits the §2 carried-value rule: the draft opens on the same summary as BK-1d, each carried field with «aus Dienstplan: …» in a neutral line, nothing sent before «Bestätigen & Absenden»; the absence reason and the absent person's name never appear in the draft or on the card (`lca`). It removes typing, not the confirmation, so it keeps the home's one action (BK-11).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-188 | BK client order view, cover state (BK-6, #1189 version), client (home, private person) | medium | The proposed line «Angebot bei Team 1 von 4» reads as a rank or as «one of four teams has it» and does not answer what the client needs (is the shift covered, by when will I know). «Beginn in 2 h 10» mixes a unit sign with a bare number. | #1189 `9f98306` `briefs/BK.md:46` (open PR, not merged); no screen yet | §1 three questions; §4 plain Swiss German | Lead with the cover state, put the cascade second and plain: «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.» and below «Ein passendes Team prüft das Angebot (weitere 3 folgen, falls nötig).»; at zero left «Kein passendes Team mehr frei» before «Nicht gedeckt». Unit test on the label function for each state; e2e at 390 px reads the status line text. Wording `cra` (safety signal); whether the count of eligible teams may be shown to a private household is `lca`'s. | — (spec review; no screen built) |
+
+**Closed:** UXR-184 (#1166, closed) and UXR-185: #1164 merged as `31bca54`; merge-commit `ci` 4/4 `success` (check runs 131759186928, 131759187025, 131759187047, 131759186674; a second, cancelled run on the same commit does not void it); remedies as read at 07:52. UXR-187 closes when #1181 merges (merge-commit `ci` green). Open from earlier and unchanged: UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+---
+
 ## 2026-11-13 07:52 CET · `uxa`: gate line `uxa: #1164 3467d7a clear` (UXR-184 and UXR-185 remedies built as specified; both close when #1164 merges); CGR-202 (b) wording proposed for the CGR-201 fix PR (B1.1-1b), not a #1164 condition; texts for stray rows of a mapped value; answer to the postcode and per-team-preview rows; UXR-187 low
 
 **What changed since 03:48.** `recovery/main` moved from `7331e7f` to `2392c33` (role and PO PRs, #1172 CGR-201 analysis, #1174 seed count; docs only): `git diff 7331e7f 2392c33 -- src tests/e2e` is empty. Open PR **#1164** (B1.1-1) moved from `3793552` to **`3467d7a`**: `unmapped-regions-panel.tsx` (confirming step, result line), `features/regions/rules.ts` (count line, confirming sentence, result text), migration 0127 (10 lines), pgTAP 132, e2e `b1-1-1-regions.spec.ts` and `support/regions.ts`, new unit test `tests/unit/b1-1-1-region-mapping-confirm.test.ts`. No other open PR touches `src` or e2e (#1175 PO docs, #1087 STG1, #1084 dependabot, #3). No new UX brief; #1166 is the only `ux` issue changed since 03:48 (claimed by the PO 04:39).
