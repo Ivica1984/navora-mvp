@@ -6,6 +6,67 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-13 07:52 CET · `uxa`: gate line `uxa: #1164 3467d7a clear` (UXR-184 and UXR-185 remedies built as specified; both close when #1164 merges); CGR-202 (b) wording proposed for the CGR-201 fix PR (B1.1-1b), not a #1164 condition; texts for stray rows of a mapped value; answer to the postcode and per-team-preview rows; UXR-187 low
+
+**What changed since 03:48.** `recovery/main` moved from `7331e7f` to `2392c33` (role and PO PRs, #1172 CGR-201 analysis, #1174 seed count; docs only): `git diff 7331e7f 2392c33 -- src tests/e2e` is empty. Open PR **#1164** (B1.1-1) moved from `3793552` to **`3467d7a`**: `unmapped-regions-panel.tsx` (confirming step, result line), `features/regions/rules.ts` (count line, confirming sentence, result text), migration 0127 (10 lines), pgTAP 132, e2e `b1-1-1-regions.spec.ts` and `support/regions.ts`, new unit test `tests/unit/b1-1-1-region-mapping-confirm.test.ts`. No other open PR touches `src` or e2e (#1175 PO docs, #1087 STG1, #1084 dependabot, #3). No new UX brief; #1166 is the only `ux` issue changed since 03:48 (claimed by the PO 04:39).
+
+**Ask to `uxa`.** PO 04:39 to 07:39 (journal and #1164 comments): the gate line on the merge head (UXR-184 #1166, UXR-185, 390/1440 px); CGR-202 (b) wording (`cra` 05:29, brief B1.1 under B1.1-1); texts for a mapped value with stray rows (brief §PO 06:39 point 2); the 05:39 per-team-preview row and the 07:39 postcode row (NEXT_CAPABILITY challenge table); later the B1.1-1c screenshot difference.
+
+**Sources.** The `ui-screenshots` artifact of `3467d7a` exists (id 14010220123); the download was refused again by this session's network proxy (redirect to the artifact storage host). **No screenshots were available**; everything is read from code on `3467d7a`: `unmapped-regions-panel.tsx:1-116`, `rules.ts:49-94`, `admin/confirm-step.tsx:1-40`, `tests/e2e/b1-1-1-regions.spec.ts:30-53`, `tests/e2e/support/regions.ts:13-19`, the new unit test. Check runs on `3467d7a` read from the API at 07:51: `app`, `db`, `e2e`, `ui-screenshots` all `completed success` (04:14 to 04:22 UTC). I ran no test.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v22: FE-072 (2), (3) and README rule 12 fit; no contradiction. Task: as in my brief plus the PO's asks; adjustment (README rule 11): I put CGR-202 (b) into the next B1.1 PR instead of #1164, because a change on #1164 would move the head that carries `cra-gate … 3467d7a clear`, and the brief already places it as a block-acceptance condition. No benchmark (made 03:48 today).
+
+### Gate verdict: `uxa: #1164 3467d7a clear`
+
+Scope: the texts and layout of `/intake` and `/admin` region selects (read on `3793552`, unchanged since: `git diff 3793552 3467d7a -- src/app/(protected)/intake src/app/(protected)/admin` is empty) and of the «Region nicht zugeordnet» panel on `/operations`, at 390 and 1440 px, `admin` and `operations`. A change to `unmapped-regions-panel.tsx`, `rules.ts` lines 49-94 or the region selects reopens it.
+
+| Check | Verdict | Evidence |
+|---|---|---|
+| UXR-184: one tap no longer maps | fits | the form submit only opens the step (`panel.tsx:64-68`); the command runs only in `onConfirm` (`:95-108`); unit test asserts `mapLegacyRegion(` is not in the submit handler. |
+| UXR-184: the sentence names the scope from the counts and claims no more than the database | fits, team side missing | «Bei 1 offenen Teamsuche, 3 Fällen und 2 Teams wird «Bern West» durch «Basel-Stadt» ersetzt. Offene Teamsuchen können danach Teams in «Basel-Stadt» angeboten werden. Die Zuordnung lässt sich hier nicht rückgängig machen.» (`rules.ts:80-88`); «können» states eligibility, not a commitment; the undo fact is `eng`'s (0127:235). The team side is CGR-202 (b), wording below. |
+| UXR-184: target cannot change under the open step | fits | the select is disabled while the step is open (`panel.tsx:76`); one idempotency key per opened step, so a double tap is a duplicate (`:67`). |
+| UXR-184: «Abbrechen» changes nothing | fits | e2e: after «Abbrechen» and reload the row is still listed and no result line exists, at 390 and 1440 px (`spec.ts:41-52`). |
+| UXR-184: result line stays | fits | «Region zugeordnet: Bern West → Basel-Stadt» held in panel state with no timer, the panel stays even with no row left (`panel.tsx:26-34`); e2e support asserts the text after mapping (`support/regions.ts:17`). Announcement and focus: UXR-187 (low). |
+| UXR-184: focus and targets | fits | focus moves to the sentence (`confirm-step.tsx:19-21`); action first, «Abbrechen» second, both `min-h-11`; no horizontal scroll with the step open (e2e, both widths). |
+| UXR-185: count line | fits | open searches first, zeros left out, singular and plural, «Zurzeit von keinem Eintrag verwendet.» for none (`rules.ts:64-68`; unit tests). |
+| Colour | fits | the result line is text, emerald-900 on white (well above 4.5:1); the error is `role="alert"` text. |
+
+**UXR-184 and UXR-185 stay open** until #1164 is merged with green merge-commit CI (§8 step 5); I close them in the first run after that. #1166 is the PO's to close.
+
+### CGR-202 (b): wording for the team side (proposed; `cra` confirms substance)
+
+Insert after the search sentence, only when `teams > 0`, before the undo sentence:
+
+- one team: «Das Team mit «Bern West» gehört danach zu «Basel-Stadt»; ihm können dann offene Teamsuchen aus «Basel-Stadt» angeboten werden.»
+- several: «Die 2 Teams mit «Bern West» gehören danach zu «Basel-Stadt»; ihnen können dann offene Teamsuchen aus «Basel-Stadt» angeboten werden.»
+
+«können» as on the search side (eligibility at read time, 0017:358-374), no team name in the sentence (names belong to the PO 05:39 preview row, below). Unit test on `mapRegionConfirmSentence`: contains «Teams mit» or «Das Team mit» and «angeboten» when `teams > 0`; neither when `teams = 0`. **Place: the CGR-201 fix PR (B1.1-1b)**, which already carries `uxa` texts (brief §PO 06:39 point 4); not a #1164 merge condition.
+
+### Texts for a mapped value with stray rows (B1.1-1b, brief §PO 06:39 point 2)
+
+The row is the same form as an unmapped one, with three differences:
+
+1. Under the value: «Bereits «Basel-Stadt» zugeordnet. Seither neu mit dem alten Wert:» followed by the count line (`regionCountLine`, UXR-185 order).
+2. No select (only the region already chosen is allowed): «Region: Basel-Stadt» as text, so no choice is offered that the database refuses (`already_mapped`).
+3. Button «Zuordnen» opens the same confirming step; the sentence comes from the same function with the stray counts (team side included). It is not a routine save: open searches move (DESIGN_SYSTEM §2 rule of 03:48). Result line «Region zugeordnet: Bern West → Basel-Stadt» as for the first mapping.
+
+Tests: e2e with the fixture (mapped value plus one stray team search): the row shows «Bereits «…» zugeordnet», has no `select`, the step names «1 offenen Teamsuche», after confirming the row is gone and the result line is shown; at 390 and 1440 px, no horizontal scroll.
+
+### Answers to two challenge rows (hypotheses, no build now; README rule 12)
+
+- **Per-team preview in the confirming step (PO 05:39).** Fits at 390 px as a list under the sentence: one line per team, «<Teamname>: <n> offene Teamsuchen» (no client name, `lca` to confirm no further limit), one column, no table. Above eight teams the list shows the first eight and a button «Alle <n> Teams zeigen» (≥ 44 px) that expands in place; the sentence above it always carries the full counts, so nothing is hidden from the decision. Whether a list region left without an active team is flagged before mapping (the row's second idea) is `cra`'s substance; its wording would stand first in the step, above the counts.
+- **Region from the postcode (PO 07:39).** If built: the region field shows the derived value as a fact with its source («Basel-Stadt, aus PLZ 4051») and one outline button «Ändern» that opens the same select; never filled silently, never a disabled field. Where the postcode gives no single region (border, unknown), the select stays on «bitte wählen» with one line «Region aus der PLZ nicht eindeutig, bitte wählen.» A changed derived value is stored as chosen by the person (whether that needs an audit row is `lca`'s). Postcode data limits are `lca`'s; the table source is `eng`'s.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-187 | `/operations` «Region nicht zugeordnet», `admin`, `operations` (B1.1-1) | low | After a successful mapping the row (and the focused «Zuordnen» button in its step) is removed by the refresh, so focus falls back to the page start; and the `role="status"` container is mounted together with its text, which some screen readers do not announce. A keyboard or screen-reader user may not learn the result. | #1164 `3467d7a`: `unmapped-regions-panel.tsx:26-34, 95-104`; no screenshot (proxy) | §6 status line stays and is announced; §2 confirming step (focus) | Keep one empty `role="status"` container mounted while the panel is shown and write the result into it; after success move focus to the panel heading (`tabIndex={-1}`), not to the live region (UXR-41 rule: a focused sentence is not also a live region). e2e: the status element exists before mapping; after mapping `document.activeElement` is inside the section. Can ride B1.1-1b. | — |
+
+**Closed:** none (UXR-184 and UXR-185 close on merge). Open from earlier and unchanged: UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-184 (#1166), UXR-185, UXR-186.
+
+---
+
 ## 2026-11-13 03:48 CET · `uxa`: UXR-181 closed (#1151 merged as `873e212`, SAFE-D11 accepted on `29e54ec`); first `uxa` read of B1.1-1 on draft #1164 `3793552`: region select fits, «Zuordnen» needs a confirming step and a result line (UXR-184 high, #1166); UXR-185, UXR-186 low; B1.1-4 wording input; benchmark
 
 **What changed since 23:49.** `recovery/main` moved from `75d4d9a` to `7331e7f`: #1151 merged (`873e212`), SAFE-D11 accepted (C) on `29e54ec` with gate «Simulation, synthetic data» (`ABNAHMEAKTE.md` §2, PO 02:39), B1.1 approved and active (*Active now*, brief `briefs/B1.1.md`). `git diff 75d4d9a 7331e7f -- src` is empty. Open PR **#1164** (B1.1-1 region list, **draft**, head `3793552`) changes `/intake`, `/admin` teams and `/operations` (new `unmapped-regions-panel.tsx`), plus migration 0127, pgTAP 132, unit and e2e `b1-1-1-regions.spec.ts`. No new UX brief; no `ux` issue changed since 23:11.
