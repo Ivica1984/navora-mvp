@@ -83,11 +83,25 @@ Was die Protokolle zeigen:
 - **Nicht Teil der Abnahme:** Übergabe eines Falls eines inaktiven Teams an ein neues Team (CGR-195, CGR-196, B1.3); Freigabe für reale Personen und Daten.
 - **Korrektur:** Die Bedingung «Anzahl übersprungen = Tageswert 1» vom 13.11. 00:39 beruhte auf einem Abendlauf (23:21, UX2-Verschiebetest übersprungen ab 23:15). Der volle Tageswert ist 0. Ab jetzt gilt: jeder tageszeitabhängige Test bestanden.
 
+### B1.1 Sichere Anfrage (verkürzt nach FE-073)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»). Entscheid 2026-11-13 18:40 auf dem benannten Commit `33523a5` (`recovery/main` nach #1226; gegenüber dem letzten B1.1-Code-Merge `925946b` von #1224 nur Dokumente von `cra`).
+- **Umfang (FE-073):** B1.1-1 Regionsliste (#1164), B1.1-1b gleichzeitiges Zuordnen (#1181), CGR-203 Zuordnen gegen «Fall eröffnen» (#1184), B1.1-1c Seed nur BS/BL mit PLZ (#1196), UXR-189 Streuzeilen-e2e (#1224).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 43466084913 auf `925946b` und `ci` 43466127449 auf `33523a5`: je 4/4 `success`.
+  - `ci-repeat` 43466210984 auf `33523a5`: **20/20 `success`**; jeder `db`-Versuch 134 Dateien / 4775 Tests «Result: PASS»; jeder `e2e`-Versuch 170 bestanden, 0 übersprungen, 0 instabil, keine Wiederholung.
+  - In allen zehn `db`-Protokollen: CGR-201 (map-first, insert-first) «ok» und «CGR-203 region-map-convert-race: 29 ok, 0 not ok».
+  - In allen zehn `e2e`-Protokollen: beide UXR-189-Tests (390 und 1440 px) «✓».
+  - Lauf 17:47 bis 18:01 Zürich, also im Tagesfenster; die tageszeitabhängigen Tests bestanden.
+- **Abgenommen:** Regionen nur aus der Liste (Basel-Stadt, Basel-Landschaft); Altwerte werden zugeordnet oder unter «Region nicht zugeordnet» gelistet, mit Audit; kein Fall und keine offene Teamsuche geht verloren, auch nicht bei gleichzeitigem Zuordnen und Erfassen oder «Fall eröffnen».
+- **Nicht Teil der Abnahme:** B1.1-2 bis B1.1-5 (nach BK, FE-073 (4)); Korrekturbefehl für eine falsche Zuordnung (CGR-202 (a), Gate «freigegeben für reale Personen und Daten»); Freigabe für reale Personen und Daten.
+- **Folge:** BK ist ab jetzt der aktive Block.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
 |---|---|---|
-| B1 | kein e2e für B1-UX-2 (390 px, Doppeltipp), B1-UX-3 (Ablehnung), B1-UX-6 (Sicherheitshinweise, Negativfall CGR-162); ~~Δ11 ohne Test~~ (SAFE-D11 abgenommen 13.11. 02:39, §2) | B1.1 aktiv (`briefs/B1.1.md`); die drei e2e-Tests in B1.2 und B1.3 |
+| B1 | kein e2e für B1-UX-2 (390 px, Doppeltipp), B1-UX-3 (Ablehnung), B1-UX-6 (Sicherheitshinweise, Negativfall CGR-162); ~~Δ11 ohne Test~~ (SAFE-D11 abgenommen 13.11. 02:39, §2); B1.1-2 bis B1.1-5 nicht gebaut | B1.1 (verkürzt) abgenommen 13.11. 18:40 (§2); B1.1-2 bis -5 nach BK; die drei e2e-Tests in B1.2 und B1.3 |
 | B2 | B2-T7 (CGR-154) und B2-T8 (CGR-155) beschrieben, nicht geschrieben, nach heutigem Code erwartet rot; B2-T4 und B2-T9 neu; alle 115 Matrixzellen PROPOSED | QUAL1 Teil 2 und die Tests; Matrix bleibt Simulationsregel (FE-069) |
 | B3 | B3-UX-3, B3-UX-4 (braucht UXR-146), B3-UX-5, B3-UX-8; QUAL1-Anbindung an PLAN3 | Tests schreiben; Prüfung auf jedem Zuteilungsweg (FE-070 (3)) |
 | B4 | kein e2e für B4-UX-1 (390 px) und B4-UX-2 (verweigerter Start); frühere e2e-Instabilität VIS1, F1 | Tests; die F1-Ursache. Auf `4a543c0` lief e2e 10/10 ohne Wiederholung, die Ursache ist trotzdem nicht belegt |
@@ -103,3 +117,4 @@ Was die Protokolle zeigen:
 
 - 2026-11-12 15:45 (`po`): angelegt nach FE-071 (Founder-Rückmeldung auf Lieferung 1).
 - 2026-11-13 02:39 (`po`): Blockakte SAFE-D11 (für die Simulation abgenommen auf `29e54ec`); B1-Zeile in §3 nachgeführt.
+- 2026-11-13 18:40 (`po`): Blockakte B1.1 (verkürzt nach FE-073, für die Simulation abgenommen auf `33523a5`, `ci-repeat` 43466210984 20/20); B1-Zeile in §3 nachgeführt.

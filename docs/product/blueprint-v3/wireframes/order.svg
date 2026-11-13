@@ -22,7 +22,7 @@
 <text x="272" y="174" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Diktat oder Text</text>
 <rect x="272" y="192" width="364" height="168" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
 <rect x="272" y="192" width="364" height="168" rx="8" fill="none" stroke="#047857" stroke-width="2"/>
-<text x="288" y="226" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">Krankmeldung Spätschicht heute</text>
+<text x="288" y="226" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">Ausfall Spätschicht heute</text>
 <text x="288" y="254" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">16:30–21:30, Demenzabteilung,</text>
 <text x="288" y="282" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">4052 Basel</text>
 <text x="288" y="342" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Diktat übernommen · 0:09</text>
@@ -91,8 +91,8 @@
 <text x="1104" y="140" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Meine Aufträge</text>
 <rect x="1104" y="156" width="304" height="196" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
 <rect x="1120" y="172" width="272" height="60" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
-<text x="1132" y="196" font-size="15" font-weight="700" fill="#065f46" text-anchor="start">Gedeckt durch Team Gundeli</text>
-<text x="1132" y="218" font-size="13" font-weight="400" fill="#065f46" text-anchor="start">übernommen um 14:31</text>
+<text x="1132" y="196" font-size="15" font-weight="700" fill="#065f46" text-anchor="start">Gedeckt · Pflegekraft benannt</text>
+<text x="1132" y="218" font-size="13" font-weight="400" fill="#065f46" text-anchor="start">Team Gundeli · übernommen um 14:31</text>
 <text x="1120" y="258" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Nachtdienst So, 15.11.2026</text>
 <text x="1120" y="280" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">22:00 – Mo 07:00 (9 Std.)</text>
 <text x="1120" y="304" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Angebot bei Team 1 von 3 passenden</text>
