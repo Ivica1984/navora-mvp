@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" font-family="Inter, Arial, sans-serif" role="img" aria-label="Wireframe Auftraggeber-Portal /order">
+<title>Wireframe Auftraggeber-Portal /order</title>
+<rect x="0" y="0" width="1440" height="900" rx="0" fill="#f5f5f4"/>
+<rect x="0" y="0" width="1440" height="28" rx="0" fill="#e7e5e4"/>
+<text x="16" y="19" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Wireframe · /order · Phase A, synthetische Daten</text>
+<rect x="0" y="28" width="220" height="872" rx="0" fill="#022c22"/>
+<text x="24" y="68" font-size="18" font-weight="800" fill="#ffffff" text-anchor="start">NAVORA</text>
+<text x="24" y="92" font-size="13" font-weight="400" fill="#d1fae5" text-anchor="start">Pflegeheim Rheinblick</text>
+<text x="24" y="110" font-size="13" font-weight="400" fill="#d1fae5" text-anchor="start">(synthetisch)</text>
+<rect x="0" y="142" width="220" height="44" rx="0" fill="#064e3b"/>
+<rect x="0" y="142" width="4" height="44" rx="0" fill="#ffffff"/>
+<text x="24" y="169" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start">Neuer Auftrag</text>
+<text x="24" y="217" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Meine Aufträge</text>
+<text x="24" y="265" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Rechnungen</text>
+<text x="24" y="313" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Meine Einstellungen</text>
+<text x="24" y="876" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Abmelden</text>
+<text x="252" y="76" font-size="24" font-weight="700" fill="#022c22" text-anchor="start">Neuer Auftrag</text>
+<text x="252" y="100" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Sagen oder schreiben Sie, was Sie brauchen. Sie prüfen alles, bevor etwas an Teams geht.</text>
+<rect x="252" y="120" width="404" height="448" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="152" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Ihr Bedarf</text>
+<text x="272" y="174" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Diktat oder Text</text>
+<rect x="272" y="192" width="364" height="168" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<rect x="272" y="192" width="364" height="168" rx="8" fill="none" stroke="#047857" stroke-width="2"/>
+<text x="288" y="226" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">Krankmeldung Spätschicht heute</text>
+<text x="288" y="254" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">16:30–21:30, Demenzabteilung,</text>
+<text x="288" y="282" font-size="18" font-weight="400" fill="#022c22" text-anchor="start">4052 Basel</text>
+<text x="288" y="342" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Diktat übernommen · 0:09</text>
+<circle cx="308" cy="412" r="32" fill="#065f46"/>
+<rect x="302" y="398" width="12" height="18" rx="6" fill="#ffffff"/>
+<path d="M298,410 a10,10 0 0 0 20,0" fill="none" stroke="#ffffff" stroke-width="2.2"/>
+<line x1="308" y1="420" x2="308" y2="426" stroke="#ffffff" stroke-width="2.2"/>
+<text x="356" y="408" font-size="16" font-weight="700" fill="#022c22" text-anchor="start">Diktieren</text>
+<text x="356" y="428" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Tippen, sprechen, nochmals tippen</text>
+<rect x="272" y="460" width="364" height="44" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="454.0" y="487.4" font-size="15" font-weight="600" fill="#022c22" text-anchor="middle">Felder neu erkennen</text>
+<rect x="272" y="516" width="364" height="40" rx="8" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="284" y="534" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Bitte keine Namen oder Gesundheitsangaben.</text>
+<text x="284" y="550" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Text ohne Feld wird nicht gespeichert.</text>
+<rect x="676" y="120" width="404" height="448" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="152" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Erkannte Felder</text>
+<text x="696" y="174" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">vorgeschlagen von Erfassungs-Assistent</text>
+<line x1="696" y1="192" x2="1060" y2="192" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="212" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Datum</text>
+<rect x="888.0528" y="197" width="171.94719999999998" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="896.0528" y="212.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">erkannt – bitte prüfen</text>
+<text x="696" y="234" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">Fr, 13.11.2026 (aus «heute»)</text>
+<line x1="696" y1="245" x2="1060" y2="245" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="265" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Zeit</text>
+<rect x="888.0528" y="250" width="171.94719999999998" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="896.0528" y="265.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">erkannt – bitte prüfen</text>
+<text x="696" y="287" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">16:30–21:30 · 5 Std.</text>
+<line x1="696" y1="298" x2="1060" y2="298" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="318" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Schicht</text>
+<rect x="888.0528" y="303" width="171.94719999999998" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="896.0528" y="318.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">erkannt – bitte prüfen</text>
+<text x="696" y="340" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">Spätdienst (aus den Zeiten)</text>
+<line x1="696" y1="351" x2="1060" y2="351" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="371" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Ort (PLZ)</text>
+<rect x="888.0528" y="356" width="171.94719999999998" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="896.0528" y="371.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">erkannt – bitte prüfen</text>
+<text x="696" y="393" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">4052 Basel</text>
+<line x1="696" y1="404" x2="1060" y2="404" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="424" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Abteilung</text>
+<rect x="888.0528" y="409" width="171.94719999999998" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="896.0528" y="424.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">erkannt – bitte prüfen</text>
+<text x="696" y="446" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">Demenzabteilung</text>
+<line x1="696" y1="457" x2="1060" y2="457" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="477" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Qualifikation</text>
+<rect x="921.6336" y="462" width="138.3664" height="22" rx="11.0" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="929.6336" y="477.32" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">von Ihnen gewählt</text>
+<text x="696" y="499" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">FaGe (nicht im Text gefunden)</text>
+<line x1="696" y1="510" x2="1060" y2="510" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696" y="530" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Merkmal</text>
+<rect x="888.0528" y="515" width="171.94719999999998" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="896.0528" y="530.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">erkannt – bitte prüfen</text>
+<text x="696" y="552" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">Demenz-Erfahrung · verlangt</text>
+<rect x="252" y="592" width="828" height="268" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="624" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Zusammenfassung</text>
+<text x="272" y="646" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Prüfen Sie diese Angaben. Erst mit dem Bestätigen wird der Auftrag verbindlich.</text>
+<rect x="272" y="664" width="788" height="100" rx="8" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="288" y="692" font-size="16" font-weight="700" fill="#022c22" text-anchor="start">Spätdienst · Fr, 13.11.2026 · 16:30–21:30 (5 Std.)</text>
+<text x="288" y="718" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">Pflegeheim Rheinblick (synthetisch) · Demenzabteilung · 4052 Basel</text>
+<text x="288" y="742" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">FaGe · Demenz-Erfahrung verlangt</text>
+<rect x="272" y="784" width="260" height="52" rx="8" fill="#065f46"/>
+<text x="402.0" y="816.12" font-size="17" font-weight="600" fill="#ffffff" text-anchor="middle">Auftrag bestätigen</text>
+<rect x="548" y="784" width="180" height="52" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="638.0" y="815.4" font-size="15" font-weight="600" fill="#022c22" text-anchor="middle">Felder ändern</text>
+<text x="748" y="806" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Noch ist nichts an Teams gegangen.</text>
+<text x="748" y="826" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Danach sucht NAVORA passende Teams.</text>
+<text x="1104" y="140" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Meine Aufträge</text>
+<rect x="1104" y="156" width="304" height="196" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<rect x="1120" y="172" width="272" height="60" rx="8" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="1132" y="196" font-size="15" font-weight="700" fill="#065f46" text-anchor="start">Gedeckt durch Team Gundeli</text>
+<text x="1132" y="218" font-size="13" font-weight="400" fill="#065f46" text-anchor="start">übernommen um 14:31</text>
+<text x="1120" y="258" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Nachtdienst So, 15.11.2026</text>
+<text x="1120" y="280" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">22:00 – Mo 07:00 (9 Std.)</text>
+<text x="1120" y="304" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Angebot bei Team 1 von 3 passenden</text>
+<text x="1120" y="322" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Teams · gedeckt um 14:31</text>
+<rect x="1104" y="368" width="304" height="196" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<rect x="1120" y="384" width="272" height="60" rx="8" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="1132" y="408" font-size="15" font-weight="700" fill="#92400e" text-anchor="start">Noch nicht gedeckt</text>
+<text x="1132" y="430" font-size="13" font-weight="400" fill="#92400e" text-anchor="start">Beginn in 17 Std. 05 Min.</text>
+<text x="1120" y="470" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Frühdienst Sa, 14.11.2026</text>
+<text x="1120" y="492" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">07:00–15:30 · Wohnbereich 2</text>
+<text x="1120" y="516" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Das 1. Team hat abgelehnt. Jetzt beim</text>
+<text x="1120" y="534" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">2. von 3 Teams, exklusiv bis 15:10.</text>
+<text x="1104" y="594" font-size="15" font-weight="600" fill="#065f46" text-anchor="start">Alle Aufträge (4)</text>
+<line x1="1104" y1="598" x2="1222.69032" y2="598" stroke="#065f46" stroke-width="1"/>
+<rect x="1104" y="620" width="304" height="104" rx="6" fill="#ffffff" stroke="#78716c" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="1114" y="637" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">Wireframe-Notiz</text>
+<text x="1114" y="654" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Stand zuerst, Weg der Anfrage darunter in</text>
+<text x="1114" y="670" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Worten. «Team 1 von 3» bleibt als</text>
+<text x="1114" y="686" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Founder-Text; Wortlaut prüft cra (UXR-188).</text>
+</svg>

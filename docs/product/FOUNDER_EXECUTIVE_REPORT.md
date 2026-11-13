@@ -1,8 +1,8 @@
 # NAVORA Founder Executive Report
 
-**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 15:00 (Europe/Zurich), nachgeführt nach Ihren Freigaben vom 6. November (Prompts, Merge-Test, SR-26, Arbeitsbuch, M9) und dem ersten geplanten PO-Lauf danach (14:45) · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
+**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 46, Stand Freitag, 13. November 2026, 12:40 (Europe/Zurich), geplanter PO-Lauf 12:39 · **Vorausgabe:** KW 45 (6.11.2026, in der Git-Historie) · **Nächste Ausgabe:** Freitag, 20. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben.
 
-**Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Es zeigt nur, was fertig ist, was gebaut wird und was Sie entscheiden müssen. Detailquellen: [Blueprint V2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md) (Meilensteine, Gates, Kennzahlen), [Owner-Agenda](../agents/decisions/OWNER_AGENDA.md) (jede Frage mit Paket). Der PO hat für diesen Bericht keine Tests ausgeführt; CI-Ergebnisse sind über die GitHub-API gelesen.
+**Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Es zeigt, was nachweislich fertig ist, was gebaut wird und was Sie entscheiden oder tun müssen. Quellen: [Blueprint V2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md) §10.3 Woche 46 (Kennzahlen), [`PRODUCT_BLOCKS.md`](PRODUCT_BLOCKS.md) (Blockstände; sie führen seit FE-052 vor den Meilenstein-Prozenten), [`ABNAHMEAKTE.md`](ABNAHMEAKTE.md), [Owner-Agenda](../agents/decisions/OWNER_AGENDA.md), [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md). Der PO hat für diesen Bericht **keine Tests ausgeführt**; CI-Ergebnisse sind aus den GitHub-Check-Runs gelesen. Werte, die der PO nicht aus Repository oder GitHub lesen kann, stehen als UNKNOWN da.
 
 ---
 
@@ -11,188 +11,162 @@
 | | |
 |---|---|
 | **Gesamtstatus** | 🟡 At Risk |
-| **Lieferung** | 🔴 Blockiert in geplanten Läufen: Merge-Testlauf in Ihrer Sitzung bestanden (#800 gemergt, CI grün). **Im ersten geplanten Lauf (14:45) hat die Berechtigungsprüfung der Aufgabe den Merge erneut verweigert** ("Merge Without Review"), obwohl der Prompt den Merge-Schritt jetzt enthält. Rund 11 fertige PRs warten |
-| **Pilot M9 (12.03.2027) auf Kurs?** | **NEIN, aber deutlich näher:** M9 ist neu gefasst (Phase A bestanden + Bereitschaftsakte Phase B) und bestätigt; der Merge-Pfad läuft. Grösstes Risiko bleibt die neue Pflegeheim-Abteilung |
-| **Wichtigste Antwort diese Woche** | Weg für die Löschung der `orders`-Tabelle wählen (FD-27): das alte Live-Projekt ist pausiert |
-| **Wie viele Entscheide warten auf Sie?** | 11 (0 kritisch, 6 hoch, 4 mittel, 1 niedrig) |
+| **Lieferung** | 🟢 läuft: der Merge-Pfad funktioniert in den geplanten Läufen (178 PO-Merges seit Montag, Engineering und Doku), Block für Block nach FE-054/FE-071 |
+| **Nachweislich fertig (abgenommen)** | B0 Technische Basis «für die Simulation abgenommen, ohne B0-6» (11.11.); BD Durchgang ambulant «Teilabnahme für die Simulation, Schritte 1, 1b, 2-5, 8, 9» (12.11.). **Keine Freigabe für reale Personen oder Daten.** |
+| **Aktiver Block** | B1.1 (Regionen, Altdaten) im Zuschnitt FE-073; heute #1181 gemergt; Abnahme auf dem Merge-Commit von B1.1-1c. Danach **BK «Schichtauftrag Heim»** (der durchgehende Kern) |
+| **Pilot M9 (12.03.2027) auf Kurs?** | **Nein, weiterhin gefährdet:** der Kern (Auftrag → Team → Besuch → Bericht → Rechnungsentwurf) läuft noch nicht durchgehend; BK ist der Hebel. M1 (Ziel heute) ist nicht erreicht (75 %) |
+| **Wichtigste Antwort diese Woche** | **Blueprint V3.0 und Architecture Handbook V2.0 freigeben oder korrigieren** (FE-075; PDFs liegen Ihnen vor) |
+| **Was wartet auf Sie?** | 4 Handlungen jetzt (§7), 7 offene Entscheide (§3) |
 
-**In einem Satz:** Das fachliche Fundament steht, Engineering baut schneller als geplant, und Ihre Richtung vom 6.11. nimmt Partner, Rechtsberater und D-1 vom kritischen Pfad. Neu ist die grösste Bauaufgabe: das simulierte Pflegeheim für Phase A.
+**In einem Satz:** Diese Woche wurde aus «viel gebaut» zum ersten Mal «nachweislich abgenommen» (B0, BD teilweise); Ihre Entscheide FE-073 bis FE-075 lenken die Arbeit jetzt vom Detail (Altdaten) auf den durchgehenden Kern BK und auf zwei neue Meisterdokumente.
 
 ---
 
 ## 1. Abgeschlossene Lieferungen
 
-### 1.1 Meilensteinfortschritt
+### 1.1 Produktblöcke (führend seit FE-052)
 
-Gezählt wird nur Arbeit auf `recovery/main`. „Gebaut“ meint offene PRs mit grüner CI; sie zählen nicht.
+| Block | Stand 13.11.2026 | Gate |
+|---|---|---|
+| B0 Technische Basis, DB-Sicherheit | **für die Simulation abgenommen 11.11., ohne B0-6** (Repository-Schutz liegt bei Ihnen) | Simulation, synthetische Daten |
+| BD Durchgang ambulant | **Teilabnahme 12.11.: Schritte 1, 1b, 2-5, 8, 9;** 6-7 nicht nachgewiesen; Beleg `ci-repeat` 20/20 auf `4a543c0` | Simulation, synthetische Daten |
+| SAFE-D11 Sicherheitsfix | gemergt 12.11. (#1143): ein wiedereröffneter Fall ohne Team geht nie verloren | Simulation |
+| B1.1 Regionen (aktiv) | B1.1-1 (#1164) und B1.1-1b (#1181, heute) gemergt; offen: #1184 (Wettlauf-Test), B1.1-1c (#1196, Seed nur BS/BL mit PLZ) | Abnahme auf B1.1-1c |
+| BK Kern generisch | Brief neu geschrieben (FE-074), Teile BK-a bis BK-g; noch nicht aktiv | – |
+| B2 bis B12 | unverändert: in Arbeit, implementiert-nicht-ausreichend-getestet oder nicht begonnen | – |
 
-| Meilenstein | Ziel | Abgeschlossen | Gebaut | Status |
-|---|---|---|---|---|
-| M1 Liefergrundlage | 13.11.2026 | 50 % | 90 % | 🟡 |
-| M2 Eine Web-App | 27.11.2026 | 20 % | 75 % | 🟡 |
-| M3 Owner-Entscheide | 11.12.2026 | 10 % | – | 🔴 |
-| M4 KI-Fundament I (Tagesvorschlag) | 18.12.2026 | 0 % | 70 % | 🟡 |
-| M5 Website | 15.01.2027 | 15 % | – | 🟡 |
-| M6 Pflege-App | 29.01.2027 | 10 % | – | 🟡 |
-| M7 Angehörigenansicht | 05.02.2027 | 35 % | 45 % | 🟢 |
-| M8 Operations v2 + KI II | 19.02.2027 | 5 % | 10 % | 🟢 |
-| M9 Pilotreife | 12.03.2027 | 8 % (2 von 25 Gates) | – | 🔴 |
-| M10 Produktionsreife | 30.06.2027 | 0 % | – | 🔴 |
+### 1.2 Meilensteine (Blueprint §4; nachrangig zu den Blöcken)
 
-### 1.2 Lieferungen
-
-| Abgeschlossen | Wirkung | Meilenstein | Abnahmestatus |
+| Meilenstein | Ziel | Abgeschlossen | Status |
 |---|---|---|---|
-| **47 Fähigkeiten über die ganze Versorgungskette** (bis 31.10.): Zuweisung, Fall, Matching, Teamentscheid, Selbstplanung, Einsatz, Dokumentation und Signatur, Qualität, Abrechnungsfakten, Auswertung; dazu Sicherheitssignale aufs Telefon, Abwesenheit ohne Telefonkette, Teamvertretung ohne Disponent:in, Übergabe ohne Teamsitzung, Zugriffsrechte, Audit, Austritt, KI-Vorschlagsprotokoll | Das Betriebsmodell für selbstorganisierte Teams ist auf synthetischen Daten vollständig nachgebaut. Disponent:in, Übergaberapport und Stundenzettel sind im Modell ersetzt. | Fundament für M9 | **abgenommen** (je mit klinischem Gate) |
-| Eine App-Shell für alle Rollen, Startseite je Rolle (#799) | Erster Schritt zu einer App auf Telefon und Desktop | M2 | gemergt; UX2 als Ganzes noch nicht abgenommen |
-| Design-Baseline: 57 Screens, Navigation, Designsystem (#834) | Design für Website, Web-App, Pflege-App und Operations-App steht, 17 Tage zu früh | M1 | **abgenommen** |
-| Implementierungsreihenfolge M2–M8 (#833) | Bauabfolge und Aufwand je Meilenstein | M1 | gemergt |
-| Entscheidungsgrundlage Hosting D-2 (#838) | Sie können D-2 auf belastbarer Basis entscheiden | M3 | gemergt |
-| Delivery Program M1–M10 (#832) und Blueprint V2 (#898) | Messbarer Ausführungsplan mit Abnahmekriterien, kritischem Pfad und Wochenkennzahlen | alle | gemergt |
-| Ihre Entscheide D-39 (keine Sensoren im Pilot) und D-40 (nur lesende Angehörigenansicht) | Pilotumfang geklärt; FAM1 kann gebaut werden | M7 | umgesetzt in Planung |
+| M1 Liefergrundlage | 13.11.2026 | 75 % | 🔴 Ziel heute verfehlt |
+| M2 Eine Web-App | 27.11.2026 | 21 % | 🟡 |
+| M3 Owner-Entscheide | 11.12.2026 | 30 % | 🟡 |
+| M4 KI-Fundament I | 18.12.2026 | 87 % | 🟢 |
+| M5 Website | 15.01.2027 | 15 % | 🟡 |
+| M6 Pflege-App | 29.01.2027 | 10 % | 🟡 |
+| M7 Angehörigenansicht | 05.02.2027 | 35 % | 🟢 |
+| M8 Operations v2 + KI II | 19.02.2027 | 5 % | 🟡 |
+| M9 Pilotreife | 12.03.2027 | 8 % (2 von 25 Gates; diese Woche nicht neu gezählt) | 🔴 |
+| M10 Produktionsreife | 30.06.2027 | 0 % | 🔴 |
 
-### 1.3 Abgeschlossene Prüfungen (diese Woche)
+Die Prozentwerte sind seit FE-052 nicht mehr nachgeführt worden, wo ein Block statt eines Meilensteins abgenommen wurde. Der Blueprint V3-Entwurf ersetzt sie durch Blockfortschritt.
+
+### 1.3 Ihre Entscheide diese Woche (FE-053 bis FE-075, 23 Einträge)
+
+| Thema | Entscheide | Wirkung |
+|---|---|---|
+| Arbeitsweise | FE-053 (Journal je Datei), FE-054 (Block für Block), FE-056 (Tests in GitHub Actions), FE-061 (verlorener CI-Lauf), FE-070 bis FE-072 (Produktführung, Abnahmeakte, Statusnamen) | Merge-Konflikte durch das Journal beendet; «abgenommen» heisst jetzt Nachweis, nicht Merge |
+| Produktion und Hosting | FE-057 (STG1-Ausnahme), FE-059, FE-062 bis FE-067 (Produktion jetzt, Supabase Zürich Free, Infomaniak Jelastic, Standard-Subdomain, Basler Testwelt, Konten von Hand) | D-2 beantwortet; Produktion wird gebaut, als liefen echte Daten |
+| Geschäftsmodell | FE-055 (Leitplanken GM-1/GM-2, Gebühr nach Pensum), FE-060 (Abrechnung Phase B offen) | keine Provision bleibt eisern; Tarifwege bleiben OPEN |
+| Kern und Reihenfolge | FE-068 (Spezifikation je Block), FE-069 (D-43, D-18 werden mitgebaut), FE-073 (Kern zuerst, Altdaten beendet), FE-074 (BK generisch), FE-075 (neue Meisterdokumente) | weniger Detailarbeit, schneller zum durchgehenden Ablauf |
+
+### 1.4 Prüfungen diese Woche
 
 | Prüfung | Ergebnis |
 |---|---|
-| Klinisches Gate (Clinical & Regulatory) auf dem gesamten Tagesvorschlag-Stapel und den UX2-Teilen | frei, kein blockierender Befund |
-| Legal & Compliance zu Einwilligung von Angehörigen (D-40) und Planungssichtbarkeit (D-35) | konform unter jeder plausiblen Auslegung (beratend); eine Frage an den Rechtsberater offen |
-| KI-Architektur-Review 32 | KI-Kontrollen der Stufe 0 auf dem Tagesvorschlag erfüllt |
-| PO-Entscheide zum Tagesvorschlag (PLAN3-15 bis -17) | entschieden; Engineering setzt um |
+| Clinical & Regulatory (`cra`) auf B0, BD, SAFE-D11, B1.1-1, B1.1-1b | frei; CGR-203 (Wettlauf auf dem echten Umwandlungspfad) beratend offen, wird mit #1184 erledigt |
+| Legal & Compliance (`lca`) auf B1.1-1b und BK-Rechtsnotizen | frei (beratend, keine Rechtsberatung) |
+| UX (`uxa`) auf B1.1-1b; Designsystem v77 | frei; Streuzeilen-e2e ist Abnahmebedingung von B1.1-1c |
 
 ---
 
 ## 2. Laufende Arbeit
 
-| Fähigkeit | Verantwortlich | Status | Geschätzter Abschluss |
+| Fähigkeit | Verantwortlich | Status | Erwarteter Abschluss |
 |---|---|---|---|
-| **Tagesvorschlag für Teams (PLAN3):** das Team bestätigt Zeile für Zeile, wer welchen Einsatz übernimmt, mit Kontinuität vor freier Kapazität | Engineering | gebaut in 11 PRs (#876 bis #895), grün, klinisch frei; nicht gemergt | Merge bis 27.11., Rest bis 04.12. (Merge läuft seit FE-033) |
-| **Eine App auf Telefon und Desktop (UX2)** | Engineering | 4 Teile gebaut und grün, 2 gemergt (#799, #800) | 27.11.2026 (Merge läuft; D-7/D-8 offen) |
-| KI-Sicherungen AIG1-C4/-C5 (abgelaufene Vorschläge, Stopp-Nachverfolgung) | Engineering | gebaut, grün | 20.11.2026 |
-| Auswertung „Wohin geht die Nicht-Pflegezeit?“ (AN3) | Engineering | gebaut, grün | 11.12.2026 |
-| Aufwandsschätzung und Lieferpläne Website/App (#835, #837) | Engineering | gebaut | 13.11.2026 |
-| Konfliktfreie Zusammenarbeit (ein Journal-Eintrag pro Datei, Merge-Gate-Skript) | Engineering | geplant | 13.11.2026 |
-| Briefs Website (WEB1) und KI-Orchestrator (AIO1) | Product Owner | geplant | 20.11.2026 |
-| Brief Pflege-App (MOB1) | Product Owner | geplant | 27.11.2026 |
-| Briefs Operations v2 (OPS2) und Übergabe (HAND2) | Product Owner | geplant | 04.12.2026 |
-| Angehörigenansicht (FAM1) | Product Owner, dann Engineering | Brief-Entwurf; Legal- und Clinical-Inputs liegen vor | Brief-Freigabe nach Merge der Inputs (Nov.) |
-| Texte für Tagesvorschlag und Website-Seitendesign | UX/UI Design Architect | laufend | 04.12.2026 |
-| Basel-Prüfung der kantonalen Rechtsfragen (D-18, D-25, D-9, D-4, D-29) | Legal & Compliance | angefragt am 6.11. (D-11 entschieden) | ca. 20.11.2026 |
-| Optionen für einen geprüften KI-Pfad mit realen Daten (D-41) | PO mit Legal, Clinical, Engineering | Inputs angefragt; D-35 Regel A bleibt | Paket bis 04.12.2026 |
-| Vergleich der Abrechnungsmodelle | Product Owner | erstellt (`PRICING_MODEL_COMPARISON.md`) | Preisentscheid nach Phase A |
+| **B1.1 Rest:** #1184 (Wettlauf «Zuordnen» gegen «Fall eröffnen», nur Test), #1196 (B1.1-1c Seed nur Basel-Stadt/Basel-Landschaft mit PLZ) | Engineering, `cra` | gebaut, Gates offen | Abnahme B1.1 bis ca. 17.11. (PLANNED) |
+| **BK «Schichtauftrag Heim», generisch:** Auftraggeber erfasst per Sprache/Text, KI extrahiert, Auftraggeber bestätigt → harte Filter (PLZ-Distanz, Qualifikation, Verfügbarkeit) → KI-Rangfolge → Angebot an das beste Team mit exklusivem Fenster → `/field` → Diktatentwurf → Unterschrift → Rechnungsentwurf ohne Provision | Engineering (BK-a ADR und rote Tests auf Branch), `cra`, `lca`, `uxa`, `aia` | Brief fertig, Block nach B1.1 | BK-a ab B1.1-Abnahme (PLANNED) |
+| **Blueprint V3.0 und Architecture Handbook V2.0** | PO, `csa` (V3 Kap. 1-3), `eng` (Handbook per ADR) | Entwürfe an Sie (PDF) | nach Ihrer Freigabe |
+| **STG1 Staging-Migrationen** (#1087) | Engineering, Sie (Secret) | wartet auf das Secret `STAGING_DB_URL`; nicht im aktiven Block | nach Secret und Blockfenster |
+| Basel-Rechtsfragen, KI-Pfad D-41, Clinical-Mandat D-43 | `lca`, `cra`, PO | Pakete vorbereitet | vor Phase B |
 
 ---
 
 ## 3. Owner Decision Board
 
-Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr gefragt: D-1 (keine echten Personendaten), D-11 (Basel-Stadt und Basel-Landschaft), D-24 (Pflegeheim im Umfang), Pilotphasen A/B, Umfang Phase A (ambulant + Pflegeheim) ([Entscheidungsliste](FOUNDER_DECISIONS.md)). Nicht jetzt gefragt: Partner, Rechtsberater, Preis (D-14), D-29, D-38. Herleitung jeder Frage: [Bestätigung vom 6.11.](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
+Nur Entscheide, die **Sie** treffen. Beantwortet seit der letzten Ausgabe und nicht mehr gefragt: FD-07 (D-7, FE-045), FD-08 (D-8, FE-047), FD-27 (SR-26-Weg, FE-046), FD-09 (D-2, FE-048/FE-064), D-26 vorläufig (FE-067).
 
 ### Critical
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
+| FE-075 | **Blueprint V3.0 und Architecture Handbook V2.0 freigeben** (oder Korrekturen nennen) | Neue «Single Source of Truth»; bis zur Freigabe bleiben V2 und `ARCHITECTURE.md` führend. Die Entwürfe weichen an 7 Stellen bewusst von Ihrem Wortlaut ab (z. B. B1.1 vor BK, «Tiers payant» OPEN, `ci-repeat` ist kein Lasttest, 52 vs. 75 CHF/h ist Hypothese) | 20.11.2026 | einheitliche Steuerung von BK; ADR-Arbeit von `eng` (T-1 bis T-9) | freigeben mit den 7 Abweichungen; Korrekturen als FE-Eintrag | zwei Meisterdokumente parallel; Doppelarbeit |
 
 ### High
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
-| FD-27 | **Weg für die Löschung der Tabelle `orders` (SR-26)** | Sie haben die Löschung angeordnet; das alte Live-Projekt ist pausiert, SQL ist nicht möglich | 13.11.2026 | Ihre SR-26-Anweisung | (b) das ganze alte Projekt löschen: NAVORA nutzt es nicht, Tabelle **und** Backups verschwinden sicher; oder (a) Projekt für eine datierte Sitzung wiederherstellen, ich lösche die Tabelle, danach wieder pausieren (Kopien in Backups bis Ablauf der Aufbewahrung) | E-Mail-Adressen bleiben im pausierten Projekt liegen |
-| FD-22 | KI-Anbieter nur für synthetische Daten in Phase A | **Neu gefasst 6.11. 15:00 (AUT-54):** Der strukturierte Bericht und die Abrechnungsprüfung sollen regelbasiert sein, nicht KI-basiert; ein Anbieter testet nur noch, wie aus der eigenen Notiz der Pflegekraft Beobachtungsvorschläge werden (D-35 Regel A bleibt) | 27.11.2026 | DOC-AI, Abrechnungsprüfung | einen CH/EU-Anbieter mit Vertrag nur für synthetische Daten | Phase A testet nur Regel-Ersatz |
-| FD-02 | Clinical Owner (Phase B) und klinische Fachprüfung des simulierten Pflegeheims (Phase A) | Nur sie gibt klinische Regeln frei; ein Pflegeheim ohne Fachblick wird falsch modelliert | 15.01.2027 | Phase B; Plausibilität von M9.0 | jetzt eine Fachperson für die Simulation, Clinical Owner bis Phase B | Phase B startet ohne freigegebene Regeln |
-| FD-07 | D-7 Repository-Schutz | Schutz vor Fehl-Pushes; Sichtbarkeit ist nach D-1 Ihre freie Wahl | 20.11.2026 | D-8, M2 | Ruleset und Secret Scanning genehmigen | M2 nicht abnahmefähig |
-| FD-08 | D-8 Hauptlinie nach `main` | `main` ist veraltet | nach FD-07 | M2 | Option B | Projekt sieht alten Stand |
-| FD-09 | D-2 Hosting | Staging, Restore-Test, Simulationsumgebung | 11.12.2026 | M9 Technik | genehmigen | M9 verschiebt sich |
+| PROD | **PROD1-PROD3 unter FE-054 einordnen** (gefragt 12.11.) | Sie wollen Produktion jetzt (FE-062), haben aber nicht gesagt, ob das eine Ausnahme zum Ein-Block-Prinzip ist | 20.11.2026 | Produktionsaufbau | (B) als eigener Block nach BK; Ausnahme nur wie STG1 | Produktion wartet ohne Datum |
+| FD-22 | KI-Anbieter nur für synthetische Daten | BK nutzt KI-Extraktion beim Auftraggeber; ohne Anbieter läuft sie nur mit eigenem Modell (Muster 4) oder regelbasiert | 27.11.2026 | KI-Teile von BK und A7 | ein CH/EU-Anbieter mit Vertrag nur für synthetische Daten; D-35 Regel A bleibt | BK-Extraktion nur als Platzhalter |
+| D-44 (1) | L-10-Gebührendesign verbindlich für GM-1/GM-2 | Schreibt «Abo statt Provision» vertraglich fest | vor Phase B | KON-1, KON-3, KON-4 | genehmigen | Geschäftsmodell nur als Prinzip, nicht als Vertrag |
+| D-43 | Mandat für klinische Regelfreigabe (Option B + D) | Ohne benannte Stelle bleibt jede klinische Regel provisorisch | 15.01.2027 | Phase B; Qualifikationsmatrix QAM | genehmigen, Mitglieder benennen | Phase B startet ohne freigegebene Regeln |
 
 ### Medium
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
-| FD-24 | Was „Privatpersonen“ heisst | Mehrere Bedeutungen möglich | 11.12.2026 | Sektorschicht Privatpersonen | Selbstzahlende Klient:innen und Angehörige als Anfragende zuerst | keine (nicht in Phase A) |
-| FD-25 | Teameigener Anbieter auch im Pflegeheim? | D-12-Ziel war ein Spitex-Modell | vor Phase B | D-38, Partnervertrag | Pflegeheim behält Bewilligung, Abteilungen selbstorganisiert; teameigener Anbieter bleibt Ziel in der ambulanten Pflege | Vertragsentwurf ohne Zielbild |
-| FD-14 | Website: Domain, Hosting, Demo-Empfänger | M5 | 11.12.2026 | M5 | mit D-2 | M5 rutscht |
-| FD-16 | interRAI-Lizenzbedingungen an Legal geben (Fakt) | Legal kann sonst nicht prüfen, was aus interRAI verwendet werden darf | 11.12.2026 | Assessment-Inhalte, D-37 | Bedingungen liefern | kein interRAI-Inhalt |
-
-### Low
-
-| ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
-|---|---|---|---|---|---|---|
-| FD-15 | D-26 kein Service-Key auf dem App-Server | Sicherheit in Produktion | vor Phase B | Einladungen in Produktion | genehmigen | gering |
-
-**Sicherheitshandlungen (kein Entscheid, nur Sie können sie ausführen):** Schlüssel im Live-Projekt rotieren; Leaked-Password-Schutz einschalten (bis 20.11.2026).
+| COORD-7 | Punkte 4a (mechanischer Diff statt `cra`-Neugate nach reinem Merge-in) und 5 (wöchentlicher 30-Minuten-Slot) | Gate-Wartezeit ist diese Woche der Engpass | 20.11.2026 | Durchlaufzeit | beide genehmigen mit den Bedingungen im Paket | Stunden Wartezeit je PR |
+| FD-24 | Was «Privatpersonen» heisst | BK hat die Privatperson als Auftraggeber | 11.12.2026 | Sektorschicht Privatpersonen | Selbstzahlende und Angehörige als Anfragende zuerst | BK-Privatperson nur synthetisch |
+| FD-29 | B2B-Modulpreise | erst nach Kostenbasis | vor dem ersten B2B-Angebot | GM-2 | nicht jetzt | keines |
 
 ---
 
 ## 4. Kritischer Pfad
 
-| Rang | Entscheid oder Handlung | Wirkung auf M9 (Phase A bestanden) | Wirkung auf M10 / Phase B | Spätestens |
+| Rang | Punkt | Wirkung auf M9 (Phase A) | Wirkung auf Phase B | Spätestens |
 |---|---|---|---|---|
-| 1 | **Clinical Owner und Fachprüfung (FD-02)** | Plausibilität der simulierten Pflegeheim-Abteilung | ohne sie kein realer Pilot | Fachprüfung 15.01.2027 |
-| 2 | **Merge-Aufruf in den Einstellungen der PO-Aufgabe erlauben** (FE-033 genügt der Berechtigungsprüfung nicht) | ohne ihn mergt nur Ihre begleitete Sitzung; M2, M4 und M6 rutschen Tag für Tag | Puffer schrumpft | sofort |
-| 3 | **Pflegeheim-Abteilung bauen (NH-A1 bis NH-A5)** | grösste neue Bauaufgabe für Phase A | Grundlage für Phase B | Briefs 27.11.2026 |
-| 4 | **Hosting D-2 (FD-09)** | Simulationsumgebung, Restore-Test | Produktion, Monitoring, Sicherheitstest | 11.12.2026 |
-| 5 | **KI-Anbieter für synthetische Daten (FD-22, neu gefasst)** | echter Test der Notiz-zu-Beobachtung-Funktion (A7); Bericht und Abrechnungsprüfung laufen regelbasiert auch ohne Anbieter | Grundlage für D-41 (reale Daten) | 27.11.2026 |
+| 1 | **B1.1 abnehmen, BK bauen** (der durchgehende Kern) | ohne BK kein Phase-A-Gesamttest (B11) | Grundlage jedes Pilots | BK-Start ca. 17.11. |
+| 2 | **Gate-Latenz** (`cra`, `lca`, `uxa` je PR mehrere Stunden) | jeder Block dauert Tage länger | – | COORD-7 bis 20.11. |
+| 3 | **Repository-Schutz B0-6 (D-7 Stufe 1)** | B0 bleibt ohne B0-6 | Gate vor B12 | 20.11.2026 |
+| 4 | **Clinical-Mandat D-43** | simuliertes Pflegeheim ohne Fachblick | ohne Mandat kein realer Pilot | 15.01.2027 |
+| 5 | **Staging-Secret für STG1** | Restore- und Staging-Test (B11) | Produktion | vor B11 |
 
 ---
 
-## 5. Die nächsten 14 Tage (6.–20. November 2026)
-
-Der Merge-Schritt steht im Prompt (FE-033); der PO mergt höchstens ein Engineering-PR pro stündlichem Lauf, **sobald die Berechtigungsprüfung den Merge-Aufruf zulässt** (am 6.11. um 14:45 verweigert).
+## 5. Die nächsten 7 Tage (14.–20. November 2026)
 
 | Art | Erwartet | Datum |
 |---|---|---|
-| **Meilenstein** | M1 Liefergrundlage abgeschlossen (Schätzung und Lieferpläne gemergt) | 13.11.2026 |
-| **Meilenstein** | Delivery-Daten neu berechnet aus der Engineering-Schätzung | 17.11.2026 |
-| **Meilenstein (Teil)** | M2: UX2-Teile, RLS4-C3 und Testsicherheit CGR-110 gemergt | 13.–20.11.2026 |
-| **Meilenstein (Teil)** | M4: KI-Sicherungen AIG1-C4/-C5 und Tagesvorschlag Teil (a) gemergt | 20.11.2026 |
-| **Prüfung** | PO-Abnahme der gemergten UX2-Teile und des Tagesvorschlag-Stapels (mit klinischem Gate) | laufend ab Merge |
-| **Prüfung** | Clinical Gate auf den neuesten Tagesvorschlag-PRs; Liste aller offenen S1/S2-Befunde für die Pilotakte | 13.11.2026 |
-| **Prüfung** | Freigabe Brief FAM1, sobald Legal- und Clinical-Inputs gemergt sind | bis 20.11.2026 |
-| **Umsetzung** | Konfliktfreie Zusammenarbeit (ein Journal-Eintrag pro Datei, Merge-Gate-Skript) | 13.11.2026 |
-| **Umsetzung** | Tagesvorschlag: neue Anfrage schliesst alte Zeilen (PLAN3-15) | 20.11.2026 |
-| **Umsetzung** | Briefs WEB1 und AIO1 | 20.11.2026 |
-| **Umsetzung (neu)** | Pflegeheim-Briefs NH-A1 bis NH-A5 (Phase A ambulant + Pflegeheim) und KI-Arbeitsablauf-Briefs DOC-AI, PLAN4, QUAL1, BILL1 als Entwürfe | 20.–27.11.2026 |
-| **Ihre Fristen in diesem Zeitraum** | FD-27 bis 13.11.; FD-07 (D-7) bis 20.11. | – |
+| Merge | #1184 nach `cra`-Gate; danach #1196 (B1.1-1c) | ab 13.11. |
+| Abnahme | B1.1 auf dem Merge-Commit von B1.1-1c (`ci` grün, `ci-repeat` 10/10), Gate «Simulation, synthetische Daten» | ca. 17.11. (PLANNED) |
+| Blockwechsel | BK wird aktiv; BK-a (ADR, rote Tests) zuerst | nach B1.1-Abnahme |
+| Prüfung | `csa` prüft V3 Kap. 1-3; `eng` bestätigt das Handbook per ADR | 20.11. (PLANNED) |
+| Ihre Fristen | FE-075-Freigabe, PROD-Einordnung, COORD-7, D-7 Stufe 1 | 20.11. |
 
 ---
 
 ## 6. Risiken
 
-| Art | Risiko | Owner | Gegenmassnahme | Aktueller Status |
+| Art | Risiko | Owner | Gegenmassnahme | Status |
 |---|---|---|---|---|
-| Lieferung | Fertige Arbeit bleibt ungemergt; jeder Merge erzeugt Konflikte in allen anderen PRs | PO (stündlich), Engineering, Owner (Berechtigung) | Merge-Schritt im Prompt (FE-033); Merge-Aufruf in den Aufgaben-Einstellungen erlauben; ein Journal-Eintrag pro Datei | 🔴 geplanter Merge am 6.11. 14:45 verweigert, rund 11 PRs warten |
-| Lieferung | Der 11-teilige Tagesvorschlag-Stapel wird beim Mergen inkonsistent | PO, Engineering | in Reihenfolge mergen; klinisches Gate je Kopf | 🟡 alle Köpfe grün und frei |
-| Lieferung | Briefs für Website, Pflege-App und Operations kommen zu spät | PO | feste Termine 20.11., 27.11., 4.12. | 🟢 im Plan |
-| Governance | Kein Clinical Owner; simuliertes Pflegeheim ohne Fachprüfung | Owner | FD-02 | 🟡 nicht mehr Vorbedingung für Phase A, aber Qualitätsrisiko |
-| Governance | M3-Entscheide nach dem 11.12. verschieben M9 und M10 Tag für Tag | Owner | ein Entscheid-Termin für die Agenda-Gruppe 2 | 🟡 30 % entschieden; Partner und Rechtsberater nicht mehr nötig für Phase A |
-| Governance | Strategie-Rolle seit 3.11. ohne Eintrag | Owner (prüft die geplante Aufgabe) | Aufgabe prüfen | 🟡 unbekannt |
-| Regulatorisch | Zielbild „kein Medizinprodukt“ vs. Assessment und KI-Dokumentation | `lca`, PO | Zweckbestimmung für Pflegeheime und DOC-AI prüfen; klinisches Modul getrennt | 🟡 neu |
-| Regulatorisch | Medizinprodukt-Einstufung offen, sobald KI Inhalte vorbereitet | Owner, Legal | Regulierungsberater; KI bleibt regelbasiert | 🟡 kein Risiko im Pilot, solange KI regelbasiert bleibt |
-| Regulatorisch | Zwei Kantone (BS, BL) verdoppeln Rechts- und Tarifarbeit | Legal | Basel-Prüfung je Paket | 🟡 entschieden, Prüfung läuft |
-| Betrieb | Kein Staging, kein Restore-Test | Owner (D-2), Engineering | FD-09; Restore-Test vor M9 | 🔴 blockiert |
-| Betrieb | Pflegeheim-Abrechnung (pro Tag und Pflegestufe) ist anders als Spitex; Regeln UNKNOWN | Legal, Clinical, PO | Regeln als versionierte Daten, erst synthetisch, dann Shadow Mode | 🟡 neu |
+| Lieferung | Gate-Latenz statt Engineering ist der Engpass (#1181: grün seit 9:49, letztes Gate 12:22) | `cra`, `lca`, `uxa`, Owner (COORD-7) | Gates gebündelt anfragen; COORD-7 4a | 🟡 |
+| Lieferung | BK ist gross (7 Teile) und berührt KI, Abrechnung und Pflegeheim zugleich | PO, Engineering | strikt in BK-a bis BK-g schneiden; klinische Fragen verkleinern statt erfinden | 🟡 |
+| Steuerung | Zwei Meisterdokumente (V2 und V3-Entwurf) parallel | Owner, PO | FE-075 freigeben | 🟡 |
+| Sicherheit | Repository ohne Ruleset und Secret Scanning (B0-6) | Owner | D-7 Stufe 1 klicken | 🔴 offen seit 7.11. |
+| Sicherheit | Altes Live-Projekt: Löschung (FD-27 (b)) von Ihnen auszuführen; Stand UNKNOWN | Owner | «erledigt» melden | 🟡 UNKNOWN |
+| Klinisch | Kein Clinical Owner; QAM v0.1/v0.2 nur PROPOSED für die Simulation | Owner | D-43 | 🟡 kein Risiko in Phase A, solange nur synthetisch |
+| Regulatorisch | KI-Extraktion beim Auftraggeber (BK) nähert sich der Medizinprodukt-Frage | `lca`, `cra` | Zweckbestimmung D-34; deterministische Filter zuerst, KI nur Rangfolge und Erklärung | 🟡 |
+| Betrieb | Staging-Migrationen warten auf ein Secret | Owner | `STAGING_DB_URL` setzen | 🟡 |
 
 ---
 
 ## 7. Founder Actions
 
-**Diese Woche (bis 13.11.2026):**
+**Jetzt (bis 20.11.2026):**
 
-1. **Merge-Aufruf für die geplante PO-Aufgabe erlauben** (Berechtigungseinstellungen der Aufgabe; `PO_MERGE_PROCESS.md` §3 (2)). Die genaue Einstellungsseite kenne ich nicht (UNKNOWN). Ohne diese Freigabe mergt nur eine von Ihnen begleitete Sitzung.
-2. **Weg für die Löschung von `orders` wählen (FD-27):** altes Projekt ganz löschen (empfohlen) oder für eine Sitzung wiederherstellen.
-3. **Repository-Schutz D-7 genehmigen (FD-07).**
-4. **Konnektoren prüfen:** Den Agenten-Aufgaben sind Supabase und Render noch angehängt. Ich kann das nicht ändern; Sie können sie in den Aufgaben-Einstellungen entfernen.
+1. **Blueprint V3.0 und Handbook V2.0 lesen und freigeben** oder Korrekturen in einem Satz nennen (FE-075).
+2. **D-7 Stufe 1 klicken:** Ruleset auf `recovery/main` mit den vier Pflicht-Checks, Secret Scanning, Push Protection (schliesst B0-6).
+3. **PROD1-PROD3 einordnen:** «PROD: B» (eigener Block nach BK) oder «PROD: A» (Ausnahme).
+4. **COORD-7:** «4a und 5 genehmigt» oder einzeln.
 
-**Diesen Monat (bis 30.11.2026):**
-
-1. **KI-Anbieter für synthetische Daten entscheiden (FD-22).**
-2. **D-8 genehmigen** (nach D-7) und **Hosting D-2 (FD-09)**.
-3. **Fachperson für das simulierte Pflegeheim benennen (FD-02)**.
+**Wenn Sie Zeit haben:** das Secret `STAGING_DB_URL` für STG1 setzen; «erledigt» zur Löschung des alten Projekts (FD-27) melden.
 
 ---
 
 ## Pflege dieses Berichts
 
-- Der PO schreibt diesen Bericht jeden Freitag bis 17:00 neu, aus den Kennzahlen in Blueprint V2 §10. Die Vorwoche bleibt in der Git-Historie.
+- Der PO schreibt diesen Bericht jeden Freitag bis 17:00 neu, aus Blueprint V2 §10.3 (Woche 46 ist die Quelle dieser Ausgabe). Die Vorwoche bleibt in der Git-Historie.
 - Ein beantworteter Entscheid verschwindet aus §3 und erscheint in §1 der nächsten Ausgabe.
-- Unbekannte Werte stehen als UNKNOWN da und werden nie geschätzt, ohne dass es dasteht.
+- Unbekannte Werte stehen als UNKNOWN da und werden nie stillschweigend geschätzt.
 - Keine Personen- oder Gesundheitsdaten in diesem Dokument.

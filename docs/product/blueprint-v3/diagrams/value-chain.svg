@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 560" width="1400" height="560" font-family="Inter, Arial, sans-serif">
+<rect width="1400" height="560" fill="#ffffff"/>
+<text x="30" y="40" font-size="26" font-weight="700" fill="#022c22" text-anchor="start">Wohin das Geld einer Spätschicht fliesst</text>
+<text x="30" y="68" font-size="15" font-weight="400" fill="#44403c" text-anchor="start">Founder-Referenzfall: Pflegeheim 4052 Basel, Spätschicht 16:30–21:30 (5 Stunden). Brutto, vor Abgaben des Teams; kein Tarif.</text>
+<text x="30" y="152" font-size="20" font-weight="700" fill="#022c22" text-anchor="start">Heute</text>
+<text x="30" y="176" font-size="15" font-weight="400" fill="#44403c" text-anchor="start">Temporärbüro</text>
+<rect x="230" y="120" width="329.0" height="74" fill="#065f46" stroke="#065f46" stroke-width="1.5"/>
+<text x="244" y="152" font-size="18" font-weight="700" fill="#ffffff" text-anchor="start">Pflegekraft 140 CHF</text>
+<text x="244" y="176" font-size="14" font-weight="400" fill="#ffffff" text-anchor="start">Bruttolohn, 28 CHF/h</text>
+<rect x="559.0" y="120" width="552.25" height="74" fill="#b91c1c" stroke="#b91c1c" stroke-width="1.5"/>
+<text x="573.0" y="152" font-size="18" font-weight="700" fill="#ffffff" text-anchor="start">Zwischenhandel 235 CHF</text>
+<text x="573.0" y="176" font-size="14" font-weight="400" fill="#ffffff" text-anchor="start">Abgaben, Verwaltung, Marge (Aufteilung UNKNOWN)</text>
+<text x="1125.25" y="166" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Heim zahlt 375 CHF</text>
+<text x="30" y="292" font-size="20" font-weight="700" fill="#022c22" text-anchor="start">NAVORA</text>
+<text x="30" y="316" font-size="15" font-weight="400" fill="#44403c" text-anchor="start">Team direkt</text>
+<rect x="230" y="260" width="611.0" height="74" fill="#065f46" stroke="#065f46" stroke-width="1.5"/>
+<text x="244" y="292" font-size="18" font-weight="700" fill="#ffffff" text-anchor="start">Team 260 CHF</text>
+<text x="244" y="316" font-size="14" font-weight="400" fill="#ffffff" text-anchor="start">voller Erlös, 52 CHF/h, 0 % Provision</text>
+<text x="855.0" y="306" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Heim zahlt 260 CHF</text>
+<line x1="559.0" y1="200" x2="559.0" y2="254" stroke="#065f46" stroke-dasharray="5 4" stroke-width="2"/>
+<line x1="841.0" y1="200" x2="841.0" y2="254" stroke="#92400e" stroke-dasharray="5 4" stroke-width="2"/>
+<line x1="1111.25" y1="200" x2="1111.25" y2="334" stroke="#92400e" stroke-dasharray="5 4" stroke-width="2"/>
+<rect x="841.0" y="260" width="270.25" height="74" fill="#fffbeb" stroke="#92400e" stroke-dasharray="6 4" stroke-width="1.5"/>
+<text x="855.0" y="292" font-size="18" font-weight="700" fill="#92400e" text-anchor="start">Heim spart 115 CHF</text>
+<text x="855.0" y="316" font-size="14" font-weight="400" fill="#92400e" text-anchor="start">−30,7 % je Schicht</text>
+<rect x="230" y="380" width="70.5" height="44" fill="#f0f9ff" stroke="#075985" stroke-width="1.5"/>
+<text x="314.5" y="400" font-size="15" font-weight="600" fill="#075985" text-anchor="start">NAVORA-Abo: feste Monatsgebühr, eigene Rechnung an das Team, nie je Schicht.</text>
+<text x="314.5" y="420" font-size="13.5" font-weight="400" fill="#44403c" text-anchor="start">Rechnerisch 7.50 CHF je Schicht bei 120 CHF/Monat und 16 Schichten (Founder-Beispiel, D-14 OPEN). Massstab 4-fach vergrössert.</text>
+<rect x="30" y="460" width="1340" height="76" rx="12" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
+<text x="54" y="492" font-size="21" font-weight="700" fill="#065f46" text-anchor="start">Pflegende +120 CHF je Schicht · Heim −115 CHF je Schicht · Zwischenhandel −235 CHF</text>
+<text x="54" y="518" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">Beide gewinnen, weil die Marge des Zwischenhandels wegfällt. Vom Brutto zum Netto des Teams: Rechenmodell in Kap. 3.2.</text>
+</svg>

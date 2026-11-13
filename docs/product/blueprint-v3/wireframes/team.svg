@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" font-family="Inter, Arial, sans-serif" role="img" aria-label="Wireframe Team-Dashboard /team">
+<title>Wireframe Team-Dashboard /team</title>
+<rect x="0" y="0" width="1440" height="900" rx="0" fill="#f5f5f4"/>
+<rect x="0" y="0" width="1440" height="28" rx="0" fill="#e7e5e4"/>
+<text x="16" y="19" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Wireframe · /team · Phase A, synthetische Daten</text>
+<rect x="0" y="28" width="220" height="872" rx="0" fill="#022c22"/>
+<text x="24" y="68" font-size="18" font-weight="800" fill="#ffffff" text-anchor="start">NAVORA</text>
+<text x="24" y="92" font-size="13" font-weight="400" fill="#d1fae5" text-anchor="start">Team Gundeli</text>
+<text x="24" y="151" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Heute</text>
+<rect x="0" y="172" width="220" height="44" rx="0" fill="#064e3b"/>
+<rect x="0" y="172" width="4" height="44" rx="0" fill="#ffffff"/>
+<text x="24" y="199" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start">Team</text>
+<text x="24" y="247" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Arbeitstag</text>
+<text x="24" y="295" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Kennzahlen</text>
+<text x="24" y="343" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Abrechnung</text>
+<text x="24" y="391" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Meine Einstellungen</text>
+<text x="24" y="876" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Abmelden</text>
+<text x="252" y="72" font-size="24" font-weight="700" fill="#022c22" text-anchor="start">Team</text>
+<text x="252" y="94" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Team Gundeli · Fr, 13.11.2026</text>
+<text x="252" y="124" font-size="13" font-weight="700" fill="#44403c" text-anchor="start">Jetzt</text>
+<rect x="252" y="134" width="1156" height="60" rx="12" fill="#fff1f2" stroke="#be123c" stroke-width="1.5"/>
+<rect x="252" y="134" width="6" height="60" rx="3" fill="#be123c"/>
+<text x="274" y="160" font-size="15" font-weight="700" fill="#881337" text-anchor="start">Sicherheitssignal: Einsatz 13:30 bei Klientin B. (synthetisch) ist noch nicht gestartet.</text>
+<text x="274" y="181" font-size="13" font-weight="400" fill="#881337" text-anchor="start">Beginn vor 32 Min. · verantwortlich: Teammitglied 2 (ohne Namen)</text>
+<rect x="1232" y="144" width="160" height="40" rx="8" fill="#9f1239"/>
+<text x="1312.0" y="169.4" font-size="15" font-weight="600" fill="#ffffff" text-anchor="middle">Signal öffnen</text>
+<rect x="252" y="202" width="1156" height="36" rx="8" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="268" y="225" font-size="13" font-weight="600" fill="#92400e" text-anchor="start">1 Mitglied erhält Sicherheitssignale nicht ausserhalb der App.</text>
+<text x="1392" y="225" font-size="13" font-weight="600" fill="#92400e" text-anchor="end">Einstellung öffnen</text>
+<rect x="252" y="256" width="724" height="620" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<rect x="272" y="274" width="212.39679999999996" height="22" rx="11.0" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="280" y="289.32" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Neues Angebot · Als Nächstes</text>
+<text x="272" y="326" font-size="20" font-weight="700" fill="#022c22" text-anchor="start">Empfohlen für euch: 4052 Basel, Demenz-Erfahrung bestätigt</text>
+<text x="272" y="354" font-size="16" font-weight="400" fill="#022c22" text-anchor="start">Spätdienst Fr, 13.11.2026 · 16:30–21:30 (5 Std.)</text>
+<text x="272" y="378" font-size="16" font-weight="400" fill="#44403c" text-anchor="start">Pflegeheim Rheinblick (synthetisch) · Demenzabteilung · 2,1 km</text>
+<rect x="272" y="396" width="684" height="72" rx="10" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="288" y="424" font-size="16" font-weight="700" fill="#92400e" text-anchor="start">Exklusiv für euch bis 14:45</text>
+<text x="288" y="448" font-size="13" font-weight="400" fill="#92400e" text-anchor="start">noch 11 Min. · danach geht das Angebot an das nächste passende Team</text>
+<rect x="776" y="426" width="148" height="10" rx="5" fill="#ffffff" stroke="#92400e" stroke-width="1"/>
+<rect x="776" y="426" width="52" height="10" rx="5" fill="#92400e"/>
+<text x="924" y="452" font-size="14" font-weight="700" fill="#92400e" text-anchor="end">11:52</text>
+<text x="272" y="500" font-size="16" font-weight="700" fill="#022c22" text-anchor="start">Passt, weil:</text>
+<circle cx="284" cy="525" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
+<path d="M279,525 L282.5,529 L289.5,521" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="306" y="530" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Ort:</text>
+<text x="428" y="530" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">4052 Basel, 2,1 km – im Umkreis des Auftrags</text>
+<circle cx="284" cy="555" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
+<path d="M279,555 L282.5,559 L289.5,551" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="306" y="560" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Qualifikation:</text>
+<text x="428" y="560" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">FaGe verlangt – 3 Mitglieder mit FaGe</text>
+<circle cx="284" cy="585" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
+<path d="M279,585 L282.5,589 L289.5,581" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="306" y="590" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Verfügbarkeit:</text>
+<text x="428" y="590" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">2 Mitglieder frei für die ganze Schicht 16:30–21:30</text>
+<circle cx="284" cy="615" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
+<path d="M279,615 L282.5,619 L289.5,611" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="306" y="620" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Merkmal:</text>
+<text x="428" y="620" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">Demenz-Erfahrung – bei 2 Mitgliedern bestätigt</text>
+<rect x="272" y="654" width="684" height="106" rx="10" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="288" y="680" font-size="14" font-weight="700" fill="#0c4a6e" text-anchor="start">Warum zuerst euch</text>
+<text x="288" y="704" font-size="15" font-weight="400" fill="#0c4a6e" text-anchor="start">Ihr habt in dieser Abteilung in den letzten 3 Monaten 4 Schichten</text>
+<text x="288" y="726" font-size="15" font-weight="400" fill="#0c4a6e" text-anchor="start">übernommen und seid das nächstgelegene passende Team.</text>
+<text x="288" y="748" font-size="12" font-weight="400" fill="#0c4a6e" text-anchor="start">vorgeschlagen von Empfehlungs-Assistent · aus Planungsfakten, ohne Punktzahl</text>
+<rect x="272" y="778" width="220" height="52" rx="8" fill="#065f46"/>
+<text x="382.0" y="810.12" font-size="17" font-weight="600" fill="#ffffff" text-anchor="middle">Übernehmen</text>
+<rect x="508" y="778" width="220" height="52" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="618.0" y="809.4" font-size="15" font-weight="600" fill="#022c22" text-anchor="middle">Ablehnen mit Grund</text>
+<text x="272" y="848" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Beim Übernehmen prüft NAVORA alle Bedingungen erneut;</text>
+<text x="272" y="866" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">der Auftraggeber sieht dann «Gedeckt durch Team Gundeli».</text>
+<rect x="1000" y="256" width="408" height="300" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1020" y="288" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Wochenplan</text>
+<text x="1020" y="310" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">KW 46 · 9.–15.11.2026 · Mitglieder je Schicht</text>
+<text x="1098.0" y="344" font-size="12" font-weight="600" fill="#44403c" text-anchor="middle">Mo</text>
+<text x="1142.0" y="344" font-size="12" font-weight="600" fill="#44403c" text-anchor="middle">Di</text>
+<text x="1186.0" y="344" font-size="12" font-weight="600" fill="#44403c" text-anchor="middle">Mi</text>
+<text x="1230.0" y="344" font-size="12" font-weight="600" fill="#44403c" text-anchor="middle">Do</text>
+<rect x="1252" y="328" width="44" height="168" rx="6" fill="#ecfdf5"/>
+<text x="1274.0" y="344" font-size="12" font-weight="700" fill="#44403c" text-anchor="middle">Fr</text>
+<text x="1318.0" y="344" font-size="12" font-weight="600" fill="#44403c" text-anchor="middle">Sa</text>
+<text x="1362.0" y="344" font-size="12" font-weight="600" fill="#44403c" text-anchor="middle">So</text>
+<text x="1020" y="382" font-size="13" font-weight="600" fill="#022c22" text-anchor="start">Früh</text>
+<rect x="1079" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1098.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">3</text>
+<rect x="1123" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1142.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">3</text>
+<rect x="1167" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1186.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">3</text>
+<rect x="1211" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1230.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<rect x="1255" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1274.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">3</text>
+<rect x="1299" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1318.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<rect x="1343" y="360" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1362.0" y="384" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<text x="1020" y="428" font-size="13" font-weight="600" fill="#022c22" text-anchor="start">Spät</text>
+<rect x="1079" y="406" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1098.0" y="430" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<rect x="1123" y="406" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1142.0" y="430" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<rect x="1167" y="406" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1186.0" y="430" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<rect x="1211" y="406" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1230.0" y="430" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<rect x="1255" y="406" width="38" height="38" rx="6" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="1274.0" y="430" font-size="12" font-weight="700" fill="#0c4a6e" text-anchor="middle">2+1</text>
+<rect x="1299" y="406" width="38" height="38" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="1318.0" y="430" font-size="12" font-weight="600" fill="#92400e" text-anchor="middle">offen</text>
+<rect x="1343" y="406" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1362.0" y="430" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">2</text>
+<text x="1020" y="474" font-size="13" font-weight="600" fill="#022c22" text-anchor="start">Nacht</text>
+<rect x="1079" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1098.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<rect x="1123" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1142.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<rect x="1167" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1186.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<rect x="1211" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1230.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<rect x="1255" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1274.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<rect x="1299" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1318.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<rect x="1343" y="452" width="38" height="38" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1362.0" y="476" font-size="13" font-weight="600" fill="#022c22" text-anchor="middle">1</text>
+<text x="1020" y="518" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">2+1 = mit dem Angebot · offen = niemand eingeteilt</text>
+<text x="1020" y="540" font-size="14" font-weight="600" fill="#065f46" text-anchor="start">Zum Tagesplan</text>
+<line x1="1020" y1="544" x2="1116.738992" y2="544" stroke="#065f46" stroke-width="1"/>
+<rect x="1000" y="572" width="408" height="304" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1020" y="604" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Team-Finanzen</text>
+<text x="1020" y="626" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">November 2026 · Schätzung, synthetisch</text>
+<text x="1020" y="660" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Pflegeerlös des Teams</text>
+<text x="1388" y="660" font-size="15" font-weight="700" fill="#022c22" text-anchor="end">CHF 18 420</text>
+<text x="1020" y="686" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">davon verrechnet</text>
+<text x="1388" y="686" font-size="14" font-weight="400" fill="#022c22" text-anchor="end">CHF 12 960</text>
+<text x="1020" y="712" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">signiert, noch nicht verrechnet</text>
+<text x="1388" y="712" font-size="14" font-weight="400" fill="#022c22" text-anchor="end">CHF 5 460</text>
+<line x1="1020" y1="730" x2="1388" y2="730" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1020" y="754" font-size="14" font-weight="600" fill="#022c22" text-anchor="start">NAVORA-Abo (eigene Rechnung)</text>
+<text x="1388" y="754" font-size="14" font-weight="600" fill="#022c22" text-anchor="end">CHF 600 / Monat</text>
+<text x="1020" y="776" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">5 Mitglieder · nie Teil der Pflegerechnung</text>
+<rect x="1020" y="792" width="368" height="62" rx="6" fill="#ffffff" stroke="#78716c" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="1030" y="809" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">Wireframe-Notiz</text>
+<text x="1030" y="826" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Heute zeigt nur /abrechnung Abrechnungszahlen (DS §3,</text>
+<text x="1030" y="842" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">cra c2). Platz hier: Entscheid PO mit cra.</text>
+</svg>
