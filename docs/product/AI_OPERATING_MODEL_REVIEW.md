@@ -501,6 +501,14 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Edge:** the only AI role in matching is upstream: structured facts and alert proposals from a referrer's text for a named confirmer (A8, H, stage 2 or later). It never decides eligibility, fills a missing qualification, ranks teams or commits.
 - **Measures:** team or organisation level only; the «Wir prüfen» signal is never read as a team's responsiveness (AUT-105).
 
+
+**Lieferung 4 input: prediction as projection, dictation staged, relatives by rule (`aia` 2026-11-13 02:20, AUT-106 to AUT-109; FE-072 (7)):**
+- **Control:** in Phase A «predictive planning» is a projection of recorded facts (series, ABS1, QUAL1, ORD0, review dates), kind `rule`, stage 0; it names gaps and offers existing acts and plans nothing itself. A learned forecast is not built on synthetic history, because its accuracy would measure the seed generator; it needs real approved history and a later stage (AUT-107). Never a per-person sickness or availability prediction.
+- **Control (OPEN, `lca`):** text entered through a phone's own keyboard dictation reaches an AI service outside NAVORA's ledger; before any gate «released for real persons and data» `lca` states whether that is allowed in client fields and how it is enforced (AUT-108 (1)). A7 is prepared only on synthetic dictated notes with the §8 controls and the act counter (AUT-108 (2)).
+- **Control:** a time typed without a date gets its day from a rule over the visit's effective neighbouring events and now; the person chooses the day only when the rule finds none or two (AUT-106). The general form: an automation fills a value only when the recorded facts admit exactly one, otherwise it asks.
+- **Edge:** relatives' status is a rule-derived view of recorded facts (AUT-109); no AI-drafted message in Phase A.
+- No agent added or removed (A3 gains the gap forecast as its stage-0 rule part; A7 gains the synthetic evaluation step). Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -554,3 +562,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-12 08:23 | `aia` | §12: PLAN3 ledger exercised in the BD run (#1109); control "a planning default from a same-unit care-graph value, never a carried clinical translation" (AUT-98) and the scoped act counter (AUT-99) added. No agent added or removed |
 | 2026-11-12 14:25 | `aia` | §12: controls «no derived fact the person did not record» (AUT-100) and «measures count what they say» (AUT-101); intake as rule plus monitor with the later-stage edge named (AUT-102). No agent added or removed |
 | 2026-11-12 20:20 | `aia` | §12: matching controls «rules decide eligibility, no score, no AI order among parallel offers», «QUAL1 answer at offer and commitment» and «signal never read as responsiveness» (AUT-103 to AUT-105, input to FE-070 Lieferung 3). No agent added or removed |
+| 2026-11-13 02:20 | `aia` | §12: controls «prediction as projection of recorded facts, no learned forecast on synthetic history» (AUT-107), «keyboard dictation is an AI service outside the ledger, `lca` before real data» (AUT-108), «a value is filled only when the facts admit exactly one» (AUT-106); relatives by rule (AUT-109); input to FE-072 (7) Lieferung 4. No agent added or removed |
