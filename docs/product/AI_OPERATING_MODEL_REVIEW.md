@@ -526,6 +526,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «no `kind = 'ai'` in a BK slice» (AUT-115):** a model on synthetic data is its own item after T-6, with the lock opened only for simulation organisations.
 - Agents added: A14, A15 (§7). Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK design drafts: the team owns its reach and its price, no dictation cap (`aia` 2026-11-13 20:21, review 54, AUT-117 to AUT-120):**
+- **Control «the team sets what the team carries» (AUT-117, AUT-119):** a team's service postcodes, maximum distance and standing price are set by an active member of that team with audit (admin only for the seed and teams without active members); the client may only narrow (optional radius, optional price ceiling); a filter excludes with a reason, never by a central act. No approval step.
+- **Control «no step between take and cover» (AUT-119):** the price in force at «Übernehmen» is copied onto the accepted offer; the client confirms nothing after the take.
+- **Control «no time cap on a carer's input; no audio in BK» (AUT-118):** BK-8 at stage 0 is a rule over text segments; every segment is placed verbatim or listed as «nicht übernommen» before signing; speech-to-text inside NAVORA stays A7 (G, D-41), a later item.
+- **Control «a relative date is filled only when it admits exactly one» (AUT-120)** applies to the order preview (AUT-106 form).
+- AUT-112 narrowed: ledger scope `client_account_id` (ADR-192) at `confirm_client_order`, or closed if BK-1a has no recognised values. No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -582,3 +589,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-13 02:20 | `aia` | §12: controls «prediction as projection of recorded facts, no learned forecast on synthetic history» (AUT-107), «keyboard dictation is an AI service outside the ledger, `lca` before real data» (AUT-108), «a value is filled only when the facts admit exactly one» (AUT-106); relatives by rule (AUT-109); input to FE-072 (7) Lieferung 4. No agent added or removed |
 | 2026-11-13 08:19 | `aia` | §12: controls «consistency of facts already held before a new datum» (AUT-110) and «no free-text duplicate detector, measure first» (AUT-111); (V-a) scope note for A7 (AUT-108). No agent added or removed |
 | 2026-11-13 16:00 | `aia` | §7: A14 order capture and A15 offer ranking added (BK contracts K-1, K-2); §12: BK AI contracts and controls «ledger follows the confirmer», «confirmation by risk», «published order, fallback, no ranking of people», «draft places her own words», «no `kind = 'ai'` in BK» (AUT-112 to AUT-116); AUT-103 (4), (5) superseded by FE-073/FE-074 |
+| 2026-11-13 20:21 | `aia` | §12: controls «the team sets what the team carries» (AUT-117, AUT-119), «no step between take and cover» (AUT-119), «no time cap, no audio in BK» (AUT-118), relative date «exactly one» (AUT-120); AUT-112 narrowed. No agent added or removed |
