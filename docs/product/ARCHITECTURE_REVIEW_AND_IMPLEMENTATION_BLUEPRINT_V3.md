@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)** |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.3 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -492,7 +492,7 @@ Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard sc
 
 ```mermaid
 flowchart TB
-  S0["0 · SAFE-D11<br/>abgenommen"]:::done --> S0b["0b · B1.1 verkürzt<br/>aktiv"]:::active --> BK["1 · BK<br/>Schicht- und Auftragsdurchstich"]:::next --> B2["2 · B2-Kern<br/>Qualifikationsmatrix"] --> B3["3 · B3<br/>Planung"] --> B6["4 · B6<br/>Diktat"] --> B8["5 · B8<br/>Finanzen"] --> V["danach: B5, B9, B10,<br/>B4-Rest, B1.1-2 bis -5"] --> B11["B11<br/>Staging, Gesamttest"] --> B12["B12<br/>Tor zu Phase B"]
+  S0["0 · SAFE-D11<br/>abgenommen"]:::done --> S0b["0b · B1.1 verkürzt<br/>abgenommen"]:::done --> BK["1 · BK<br/>Schicht- und Auftragsdurchstich<br/>aktiv"]:::active --> B2["2 · B2-Kern<br/>Qualifikationsmatrix"] --> B3["3 · B3<br/>Planung"] --> B6["4 · B6<br/>Diktat"] --> B8["5 · B8<br/>Finanzen"] --> V["danach: B5, B9, B10,<br/>B4-Rest, B1.1-2 bis -5"] --> B11["B11<br/>Staging, Gesamttest"] --> B12["B12<br/>Tor zu Phase B"]
   classDef done fill:#ecfdf5,stroke:#065f46,color:#065f46
   classDef active fill:#fffbeb,stroke:#92400e,color:#92400e
   classDef next fill:#f0f9ff,stroke:#075985,color:#0c4a6e
@@ -501,8 +501,8 @@ flowchart TB
 | Schritt | Block | Inhalt | Status am 2026-11-13 |
 |---|---|---|---|
 | 0 | **SAFE-D11** | ein wiedereröffneter Fall ohne Team geht nie verloren | **abgenommen** für Simulation, synthetische Daten (`29e54ec`, 20/20) |
-| 0b | **B1.1 (verkürzt)** | Regionsliste, Altwert-Absicherung (#1181, #1184), Seed nur BS/BL mit PLZ | **aktiv**; #1181 gemergt; #1184 und B1.1-1c (#1196) offen; Abnahme auf dem Merge-Commit von B1.1-1c |
-| 1 | **BK** | universeller Auftragsdurchstich: Erfassung → Prüfung → Empfehlung → Teamentscheid → `/field` → Bericht → Rechnung; Szenario-Matrix | **genehmigt**, startet nach B1.1 |
+| 0b | **B1.1 (verkürzt)** | Regionsliste, Altwert-Absicherung (#1181, #1184), Seed nur BS/BL mit PLZ | **für die Simulation abgenommen** 13.11. 18:40 auf `33523a5` (#1164, #1181, #1184, #1196, #1224; `ci-repeat` 20/20; `ABNAHMEAKTE.md` §2) (V3.2.3) |
+| 1 | **BK** | universeller Auftragsdurchstich: Erfassung → Prüfung → Empfehlung → Teamentscheid → `/field` → Bericht → Rechnung; Szenario-Matrix | **aktiv** seit 13.11. 18:40, Teilstück BK-a zuerst (V3.2.3) |
 | 2 | **B2-Kern** | Qualifikationsmatrix auf jedem Zuteilungsweg, Nachweise, Delegation | QUAL1 Teil 1-2 **IMPLEMENTED** (nur Simulation); Matrix **PROPOSED** |
 | 3 | **B3** | Team- und KI-Planung, Ausfallkoordination, Kontinuität | **IMPLEMENTED**, nicht als Block abgenommen |
 | 4 | **B6** | Diktat, KI-Dokumentationsentwurf, menschliche Freigabe | Signatur **IMPLEMENTED**; Diktat und Entwurf **PLANNED** |
@@ -646,6 +646,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-13 | 3.2.3 Status | §8: B1.1 (verkürzt) für die Simulation abgenommen auf `33523a5`, BK aktiv (Bild und Tabelle). Zwei operative PO-Antworten für BK ohne klinische oder rechtliche Regel: Fahrdistanz bestimmt das Team (Höchstdistanz zu seinen Einsatz-PLZ), der Auftraggeber kann sie je Auftrag nur verengen, keine NAVORA-Vorgabe; Schichtnamen kommen aus dem Schichtplan des Auftraggebers und steuern weder Prüfung noch Preis. Anhang B (Text `cra`, «PLZ-Distanz und Radius») bleibt wörtlich; die Lesart steht im BK-Brief. **Noch offen (nächster PO-Lauf):** `lca`-Korrekturen C-1 bis C-7, V-1 bis V-7, W-1 bis W-7 (16:40). Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid | B1.1-Abnahme (`briefs/B1.1.md` §PO 18:40); BK-Brief Nachtrag 18:40; ADR-191, ADR-193 (#1228) |
 | 2026-11-13 | 3.2.2 Nachtrag | §6.4 und Anhang B §1/§2: fünf Sicherheitsbedingungen aus dem BK-Brief (Nachtrag 13:40) als Garantien mit Status PLANNED und Test nachgetragen (Garantien 5, 9, 14 ergänzt; 19, 20 neu; Schritt 7). Kapitel 13: Unterschriften `cra`, `lca`, `aia` wörtlich eingetragen; Issue-Nummern korrigiert. Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid | `cra` CGR-213 (a) und Antwort auf #1209 (`CLINICAL_GOVERNANCE.md` 17:40); `lca` 16:40 §6; `aia` review 53 §2; `uxa` 16:20 Widerspruch (2) |
 | 2026-11-13 | 3.2.1 Korrektur | Bild P2 und Wireframes `team.svg`, `order.svg`, `b2b.svg` sowie Swimlane-Beschriftung korrigiert; §5.2 Teamautonomie je benannter Person; §5.4 keine Abwesenheitsgründe in Beispielen. Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid; der Text von FE-073 bleibt unverändert | `uxa` UXR-191 (#1217) und UXR-192 (#1218); `cra` CGR-204; BK-Brief Nachtrag 13:40 Punkt 1. Widerspruch zwischen freigegebenem Bild und verbindlicher Sicherheitsbedingung, vom PO 16:39 behoben und dem Founder gemeldet |
 | 2026-11-13 | 3.2 freigegeben | Founder-Freigabe; einzige fachliche Quelle; ältere Stände archiviert | FE-077 |

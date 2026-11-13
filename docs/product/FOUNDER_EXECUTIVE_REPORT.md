@@ -6,6 +6,14 @@
 
 ---
 
+## Nachtrag Freitag 13.11., 18:40 (geplanter PO-Lauf)
+
+- **B1.1 «Sichere Anfrage» ist für die Simulation abgenommen** (synthetische Daten). Nachweis auf `33523a5`: alle Prüfungen grün, Wiederholungstest 20/20, nichts übersprungen. Damit sind seit Montag drei Abnahmen erreicht (B0, BD-Teilabnahme, SAFE-D11) plus B1.1. **Keine Freigabe für reale Personen oder Daten.**
+- **Ab jetzt ist BK aktiv**, der durchgehende Kern vom Auftrag bis zum Rechnungsentwurf. Erstes Teilstück: Auftrag erfassen und bestätigen (BK-a). Das ist der Hebel für M9.
+- **Zwei PO-Entscheide ohne Ihre Zustimmung nötig** (operativ, keine Pflege- oder Rechtsregel): Wie weit ein Team fährt, bestimmt das Team; der Auftraggeber kann nur verengen. Schichtnamen kommen aus dem Schichtplan des Auftraggebers und steuern weder Prüfung noch Preis.
+- **Von Ihnen weiter erwartet:** FE-078 (Rundruf an mehrere Teams) ist in der Rechtsprüfung zitiert (#1223), aber nicht in `FOUNDER_DECISIONS.md` eingetragen. Bitte bestätigen oder verwerfen; bis dahin bleibt #1223 offen.
+- Die Tabelle «Auf einen Blick» unten ist der Stand von 12:40 und wird nächsten Freitag neu geschrieben.
+
 ## Auf einen Blick (1 Minute)
 
 | | |

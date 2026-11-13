@@ -2,7 +2,7 @@
 id: BK
 title: Durchgehender Kern — vom Auftrag bis zur Abrechnung (generisch für Heim, Spital, Privatperson)
 author: po
-status: approved   # starts as active block when B1.1 (cut to B1.1-1 … B1.1-1c) is accepted
+status: approved   # ACTIVE block since 2026-11-13 18:40 CET (B1.1 accepted on 33523a5)
 updated: 2026-11-13
 ---
 
@@ -34,7 +34,7 @@ A home, a hospital ward or a private household that needs care at short notice p
 - [ ] BK-1n A team member cannot create or confirm an order for a client; a client sees only its own orders.
 
 ### Step 2: deterministic check, then AI ranking (the heart)
-- [ ] BK-2 **Hard filters**, deterministic, in the database, before any AI: PLZ distance within the order's radius; qualification level allowed for every tag (`QUALIFICATION_MATRIX`, PROPOSED, simulation only); availability for the **whole** slot (including night and weekend); every tag marked «required» held as a **confirmed** attribute. Each excluded team carries its reason.
+- [ ] BK-2 **Hard filters**, deterministic, in the database, before any AI: PLZ distance within the team's maximum travel distance and, if the client set one, within the order's radius (PO amendment 18:40); qualification level allowed for every tag (`QUALIFICATION_MATRIX`, PROPOSED, simulation only); availability for the **whole** slot (including night and weekend); every tag marked «required» held as a **confirmed** attribute. Each excluded team carries its reason.
 - [ ] BK-2n A team failing any hard filter is **never** offered, whatever the ranking says (test asserts on offer rows).
 - [ ] BK-3 **Ranking** among the eligible only: practice experience, prior knowledge, language (ranking only, not a filter; PO 13:40, FE-073 (3)), continuity with this client, distance. The ranking can reorder, never add. AI ranking runs on synthetic data only (D-35 rule A; FE-051 Muster 1/4).
 - [ ] BK-4 The **offer card** gives reasons built from the facts used («Nachtdienst So 22:00–Mo 07:00, 4102 Binningen, 3,4 km · passt: FaGe, Demenzerfahrung bestätigt, frei, kennt diese Einrichtung»). No percentage score. Wording `uxa`.
@@ -132,3 +132,22 @@ Source: `uxa` review 16:20 (`UX_REVIEW.md`, merged with #1219), issues #1217 and
   2. Component test: the planner's absence row renders no reason field. Unit test: a «Krankmeldung» segment in a capture is listed as unused («nicht übernommen», CGR-208) and is not written to the order.
 
 Owners: `eng` (tests), `uxa` (wording, gate), `lca` (member name to client). PO status of BK: approved, not active (B1.1 acceptance first).
+
+## PO amendment 2026-11-13 18:40 (scheduled PO run): BK active; answers to the two `po` OPEN items in ADR-191 and ADR-193 (#1228)
+
+**BK is the active block from now** (B1.1 accepted on `33523a5`, `briefs/B1.1.md` §PO 18:40). Feature PRs merge in slice order BK-a, b, c, e, f, d, g; BK-a first. This amendment decides two operational WHAT questions that `eng` left to the PO; it sets no clinical, legal or tariff rule.
+
+1. **Radius (ADR-191 decision 1, ADR-193 decision 4): no NAVORA-wide default.** Phase A, simulation only:
+   - (a) The **team** sets its own maximum travel distance (km) together with its service postcodes (`team_service_postcodes`, ADR-193 (3)); it is set and changed by the team (or an organisation `admin` in the seed), with audit. Reason: value 4 (team autonomy); the team carries the travel time; a central default would be dispatching in disguise (challenge row 18:40).
+   - (b) The client **may** narrow the distance per order (optional field, empty by default); the client is never asked for a radius to send an order.
+   - (c) The hard filter (BK-2) uses the **smaller** of the team's maximum and the order's optional radius; an order without radius uses the team's maximum. A team without service postcode or without maximum distance is excluded with its reason (`no_service_area`), never included by default. **BK-2 now reads:** «PLZ distance within the team's maximum travel distance and, if the client set one, within the order's radius».
+   - (d) Red tests (BK-b): an order without radius reaches a team whose maximum covers the distance; the same order does not reach a team whose maximum is 1 km short; a client radius smaller than the team's maximum excludes the team; a team without maximum gets no offer row and carries its reason.
+   - (e) Not decided here: whether distance is a safety concern for timely arrival in an urgent order (`cra`, advisory), and P-5 wording (`lca`). Synthetic values only.
+2. **Shift-type boundaries (ADR-191 decision 4): NAVORA sets no clock definition.**
+   - (a) The binding facts of an order are its exact start and end (Europe/Zurich, CGR-206). Hard filters, availability, the cascade and the invoice use these, **never** the shift-type label.
+   - (b) The label (früh, spät, nacht, Wochenende, as a set) comes from the **client's own shift plan** (start/end per label, per client account). In Phase A the seed holds one synthetic shift plan per synthetic client, marked `synthetic`; the extraction (BK-1a, BK-d) may propose a label only by matching the stated times to that plan, and shows it as «erkannt».
+   - (c) A time that matches no label of the client's plan shows no label and asks nothing extra; the order is still valid. Weekend = start or end on Saturday or Sunday (calendar fact, not a rule).
+   - (d) Red tests (BK-a/BK-d): an order 22:00–07:00 is valid and one row whether or not a label matches; changing a client's shift plan never changes any team's eligibility for an existing order.
+   - (e) OPEN for `lca` (BK-f, before any invoice line uses it): whether night and Sunday surcharges and the ArG night-work definition apply to a team's invoice in the chosen legal structure (D-44). Until answered, the invoice draft shows no surcharge.
+
+Owners: `eng` (ADR-191, ADR-193 text to follow these answers; schema HOW), `uxa` (radius field wording, label display), `cra` (1 (e), advisory), `lca` (1 (e), 2 (e)). PO status of BK: **active**.
