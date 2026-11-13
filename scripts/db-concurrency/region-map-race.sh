@@ -55,17 +55,37 @@ commit;
 SQL
 }
 
+# The insert runs as service_role (an application role for the trigger, PO 03:39 condition 7). The case insert guard
+# private.guard_case_access_notes() (not security definer) calls private.looks_like_code(), which service_role may not
+# use; a missing grant is made and revoked inside the same transaction, so no other session ever sees it and the
+# privileges after commit are the ones before (checked at the end of this script).
 insert_session() {  # $1 case id, $2 value
   psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 <<SQL
 begin;
+do \$\$ begin
+  if not has_schema_privilege('service_role', 'private', 'usage') then
+    grant usage on schema private to service_role; perform set_config('race.revoke_usage', '1', true);
+  end if;
+  if not has_function_privilege('service_role', 'private.looks_like_code(text)', 'execute') then
+    grant execute on function private.looks_like_code(text) to service_role; perform set_config('race.revoke_exec', '1', true);
+  end if;
+end \$\$;
 set local role service_role;
 $(copy_case "$1" "$2")
 select pg_sleep(2);
+reset role;
+do \$\$ begin
+  if current_setting('race.revoke_exec', true) = '1' then revoke execute on function private.looks_like_code(text) from service_role; end if;
+  if current_setting('race.revoke_usage', true) = '1' then revoke usage on schema private from service_role; end if;
+end \$\$;
 commit;
 select 'insert=done';
 SQL
 }
 
+PRIVS_SQL="select has_schema_privilege('service_role', 'private', 'usage')::text || '/'
+  || has_function_privilege('service_role', 'private.looks_like_code(text)', 'execute')::text"
+privs_before=$(psql "$DB_URL" -X -At -c "$PRIVS_SQL")
 fail=0
 for order in map-first insert-first; do
   if [ "$order" = map-first ]; then tag=0a; else tag=0b; fi
@@ -99,4 +119,10 @@ for order in map-first insert-first; do
     fail=1
   fi
 done
+privs=$(psql "$DB_URL" -X -At -c "$PRIVS_SQL")
+if [ "$privs" = "$privs_before" ]; then
+  echo "ok - service_role privileges on schema private unchanged (usage/execute $privs)"
+else
+  echo "not ok - service_role privileges changed: usage/execute $privs_before -> $privs"; fail=1
+fi
 exit $fail
