@@ -148,6 +148,24 @@ The owner merged #1151 in the GitHub UI at 23:54 (merge commit `873e212`, head `
 
 Asked of `eng` (first run after 02:30): push `repeat/…` on the then-current `recovery/main` head (if it is docs-only on top of `873e212`), and report the ten attempts with the BD-2, F3 and F7 lines read from the log.
 
+### PO 2026-11-13 02:39 · acceptance on `29e54ec` (gate «Simulation, synthetic data»)
+
+**Decision: SAFE-D11 accepted for the simulation with synthetic data** on the integrated commit `29e54ec` (`recovery/main` after #1159; `873e212..29e54ec` adds documents only on top of the #1151 merge). Not released for real persons and data. The PO ran no tests; everything below is read from the GitHub API and the raw job logs.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Push `ci` on `29e54ec` | met | run 43341179263 attempt 2 (re-run started 02:29:43 Zurich, after the night guards): `app` 131623251412, `db` 131623251336, `e2e` 131623251429, `ui-screenshots` 131623250911, all `success`. Attempt 1 (01:57) is not used |
+| e2e content of that `ci` | met | job 131623251429 log: **164 passed, 0 skipped**; BD-2 (`durchgang-ambulant.spec.ts:185`), F3 (`field.spec.ts:154`), F7/F6R (`field.spec.ts:328`) «✓»; `safe-d11.spec.ts:43` «✓»; run-day guard «unchanged: 2026-11-13» |
+| `db` content of that `ci` | met | 131 files, 4711 tests, «All tests successful», 0 `# SKIP`/`# TODO`; pgTAP 129 (Δ11 reproduction), 130, 131 (SAFE-D11) «ok»; migrations 0125, 0126 applied from scratch |
+| `ci-repeat` 10/10 `db` | met | run 43345332342 on `repeat/safe-d11-accept-29e54ec` (head `29e54ec`, conclusion `success`): each of the 10 `db` logs 131 files / 4711 tests «Result: PASS»; B0-4 «080 waited for the lock, then passed 59/59» and B0-3 «identical catalogue (640 role:object rows)» 10/10; the expected-red probe «before #922» shows its red as designed |
+| `ci-repeat` 10/10 `e2e` | met | same run, all 10 `e2e` logs read: **164 passed, 0 skipped, 0 failed, 0 flaky** each (Playwright `retries: 0`, one worker); BD-2, F3 and F7 «✓» in all ten |
+| Skipped, cancelled, flaky | none | no skipped test, no cancelled job, no retried test in the eleven e2e logs |
+| Gates | met | `cra-gate` on both PRs (#1143, #1151), `uxa` on the labels (FE-072 (2) sequence: red test → fix → `cra` → merge → 10/10) |
+
+**Correction to §PO 00:39 (no rule change):** the condition said «skip count equals the daytime baseline of 1». That baseline came from the PR-head run of #1151 at about 23:21 Zurich, where `ux2-move-flow.spec.ts:63` skips after 23:15. A run started inside 02:30-21:30 skips nothing, so the true full baseline is **0 skipped of 164**; the evidence above meets the stricter reading. From now on the acceptance condition is written as «every time-of-day-guarded test passed» (BD-2, F3, F7, UX2 move flow), not as a skip count.
+
+**Next:** B1.1 is the active sub-block (brief [`B1.1.md`](B1.1.md), approved this run). Δ11 is closed for the simulation; CGR-195, CGR-196 (hand-over of `case_reopened_team_inactive`) stay in B1.3.
+
 ## Out of scope
 Every other Δ of B1; the readiness tiers; any change to who may reopen.
 
