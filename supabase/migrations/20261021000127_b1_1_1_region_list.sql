@@ -5,9 +5,10 @@
 -- 2. `public.region_legacy_values`: every region text in use that is not on the list, per organisation; mapped
 --    automatically only for a normalised exact match, otherwise by hand by Operations.
 -- 3. `private.region_from_list()`: one trigger on teams, cases, partner_requests and matching_requests. A request of a
---    signed-in user (database role `authenticated`) can only write a listed region; an unchanged legacy value stays;
---    a legacy value copied into a case or a team search is kept (no loss). Database roles (migration, seed, fixtures)
---    register a non-listed value as legacy.
+--    signed-in user (database role `authenticated`) or of the service key (`service_role`, an application role, PO
+--    03:39 merge condition 7) can only write a listed region; an unchanged legacy value stays; a legacy value copied
+--    into a case or a team search is kept (no loss). Only the table owner (migration, seed, fixtures) registers a
+--    non-listed value as legacy.
 -- 4. `public.unmapped_regions()` and `public.map_legacy_region()` for «Region nicht zugeordnet» on /operations.
 -- The region columns stay text and the eligibility comparison is unchanged (no new rule).
 -- Idempotent: `if not exists`, `create or replace`, `on conflict do nothing`.
@@ -111,7 +112,8 @@ create or replace function private.region_from_list()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
 declare
-  user_request boolean := coalesce(current_setting('role', true), 'none') in ('authenticated', 'anon');
+  -- Every API role is an application write (PostgREST sets the role); only the table owner is a migration or seed.
+  user_request boolean := coalesce(current_setting('role', true), 'none') in ('authenticated', 'anon', 'service_role');
   mapped       text;
 begin
   if new.region is null then return new; end if;

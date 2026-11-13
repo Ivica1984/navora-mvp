@@ -30,9 +30,24 @@ for (const width of [390, 1440]) {
     await expect(section).toBeVisible();
     const pilot = section.getByRole("form", { name: "Region zuordnen: Basel Pilot" });
     await expect(pilot).toBeVisible();
-    await expect(pilot).toContainText("Teams");
+    await expect(pilot).toContainText(/\d+ Teams?\b/);
+    await expect(pilot).not.toContainText(/\b0 /);
     await expect(pilot.getByLabel("Region aus der Liste").locator("option:not([disabled])")).toHaveText(["Basel-Stadt", "Basel-Landschaft"]);
     expect(await section.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+
+    // uxa UXR-184 (ADR-186 amendment 04:30): «Zuordnen» opens a confirming step; «Abbrechen» changes nothing.
+    await pilot.getByLabel("Region aus der Liste").selectOption({ label: "Basel-Landschaft" });
+    await pilot.getByRole("button", { name: "Zuordnen" }).click();
+    const step = pilot.getByTestId("region-map-confirm");
+    await expect(step).toBeVisible();
+    await expect(step.getByTestId("region-map-confirm-sentence")).toContainText("«Basel Pilot» durch «Basel-Landschaft» ersetzt");
+    await expect(step.getByTestId("region-map-confirm-sentence")).toContainText("nicht rückgängig");
+    expect(await section.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+    await step.getByRole("button", { name: "Abbrechen" }).click();
+    await expect(step).toHaveCount(0);
+    await page.reload();
+    await expect(section.getByRole("form", { name: "Region zuordnen: Basel Pilot" })).toBeVisible();
+    await expect(page.getByTestId("region-mapped")).toHaveCount(0);
   });
 }
 

@@ -13,6 +13,9 @@ export async function mapSeedRegionOrgA(page: Page): Promise<void> {
   if ((await form.count()) === 0) return;
   await form.getByLabel("Region aus der Liste").selectOption({ label: "Basel-Stadt" });
   await form.getByRole("button", { name: "Zuordnen" }).click();
+  // ADR-186 amendment 04:30 (uxa UXR-184): the tap opens the confirming step; the action there maps.
+  await form.getByTestId("region-map-confirm").getByRole("button", { name: "Zuordnen" }).click();
+  await expect(page.getByTestId("region-mapped")).toContainText("Region zugeordnet: Bern West → Basel-Stadt");
   await expect(form).toHaveCount(0);
 }
 
