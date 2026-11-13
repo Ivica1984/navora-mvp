@@ -218,6 +218,8 @@ The order follows value and risk: **L first**, because L agents need no clinical
 | A11 | Evidence link suggester (NH2′) | observations | suggested item links | primary nurse | coordinator's project | 1 | **H** | D-24, licence, D-34 module |
 | A12 | Transfer drafter | the graph | transfer draft | sending nurse | transfer letter | 2 | **H** (prefer a scoped view, L) | D-9, D-3, D-34 |
 | A13 | Demand pooling matcher (POOL1, PLANNED; added 2026-11-11 by `aia`, AUT-84) | team idle intervals from existing facts (plan, ABS1), QUAL1 state in context NH-EXT, released demand | matches shown to the named member, fixed published order | the named member, within the team's pooling mandate (AUT-83) | phone and agency chains for short-term cover | 1, 4 | L (a deterministic rule, kind `rule`, stage 0) | `po`, `cra` CGR-173, `lca` L-7 before real use |
+| A14 | Order capture (BK-1a/b, PLANNED; added 2026-11-13 by `aia`, contract K-1, AUT-112) | the client's own words for one order, PLZ, level and tag lists | order fields «erkannt» with source span; shift type derived by rule | the client (per line for recognised slot, level and required-tag values) | retyping the need, the agency phone call | 5, 1 | L (`kind = 'rule'` parser in BK, stage 0) | `po`, `cra`, `lca`, `eng` (ledger scope ADR); model only after T-6 (AUT-115) |
+| A15 | Offer ranking and reason (BK-3/BK-4, PLANNED; added 2026-11-13 by `aia`, contract K-2, AUT-113) | eligible teams from Engine 1 with their facts, the order's preferred tags and language, history with the client or institution, distance | order of eligible teams, reason line per team; never a record value | none for the order; the team decides on its own offer | a dispatcher choosing who to call | 1, 4 | L (published lexicographic rule, `kind = 'rule'`, stage 0) | `po` (criterion order), `cra` (continuity vs distance), `lca` (attributes) |
 
 **Agents not to build:**
 - **Signal triage:** P1 signals stay deterministic and rule-based (D-28). An AI that re-ranks safety signals is H and less auditable than the rule.
@@ -515,6 +517,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Scope note:** `lca` (V-a) «no dictation invitation in free-text fields» holds until A7 is released at its own stage; A7's controlled entry then replaces the OS keyboard (AUT-108).
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK AI contracts (`aia` 2026-11-13 16:00, review 53, answer to #1202; AUT-112 to AUT-116):**
+- **K-1 capture (A14), K-2 ranking (A15), K-3 report draft (A7 pattern):** full contracts in [`AUTOMATION_REVIEW.md`](../agents/reports/AUTOMATION_REVIEW.md) review 53 §2. PLANNED; all three as `kind = 'rule'` at stage 0 for BK.
+- **Control «the ledger follows the confirmer» (AUT-112):** an agent whose confirmer is not a team member (the client) is registered with a ledger scope of the confirmer's account; no proposer writes «erkannt» flags outside the register. IMPLEMENTED today: the ledger and confirmations require a team (0097:187, 213, 714).
+- **Control «confirmation by risk, not by count» (AUT-112):** typed or picked values need no extra act; recognised slot, level and required-tag values are confirmed per line with their source words; the rest in one named-count summary act. AIG1-5 unchanged.
+- **Control «a ranking is a published order, never a weighted score; a failed ranking falls back, it never delays cover; teams are ranked, people never» (AUT-113, AUT-116).** Supersedes for BK the «no AI order among parallel offers» part of the matching controls above (AUT-103 (4), (5), closed by FE-073/FE-074); «rules decide eligibility, no score» stays.
+- **Control «a report draft places the carer's own words; rewording is A9 (H)» (AUT-114):** verbatim placement makes «nothing dropped» (CGR-208) hold by construction; unplaced segments default into the report, removal is an audited act.
+- **Control «no `kind = 'ai'` in a BK slice» (AUT-115):** a model on synthetic data is its own item after T-6, with the lock opened only for simulation organisations.
+- Agents added: A14, A15 (§7). Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -570,3 +581,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-12 20:20 | `aia` | §12: matching controls «rules decide eligibility, no score, no AI order among parallel offers», «QUAL1 answer at offer and commitment» and «signal never read as responsiveness» (AUT-103 to AUT-105, input to FE-070 Lieferung 3). No agent added or removed |
 | 2026-11-13 02:20 | `aia` | §12: controls «prediction as projection of recorded facts, no learned forecast on synthetic history» (AUT-107), «keyboard dictation is an AI service outside the ledger, `lca` before real data» (AUT-108), «a value is filled only when the facts admit exactly one» (AUT-106); relatives by rule (AUT-109); input to FE-072 (7) Lieferung 4. No agent added or removed |
 | 2026-11-13 08:19 | `aia` | §12: controls «consistency of facts already held before a new datum» (AUT-110) and «no free-text duplicate detector, measure first» (AUT-111); (V-a) scope note for A7 (AUT-108). No agent added or removed |
+| 2026-11-13 16:00 | `aia` | §7: A14 order capture and A15 offer ranking added (BK contracts K-1, K-2); §12: BK AI contracts and controls «ledger follows the confirmer», «confirmation by risk», «published order, fallback, no ranking of people», «draft places her own words», «no `kind = 'ai'` in BK» (AUT-112 to AUT-116); AUT-103 (4), (5) superseded by FE-073/FE-074 |
