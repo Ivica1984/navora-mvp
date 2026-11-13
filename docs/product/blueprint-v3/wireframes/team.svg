@@ -47,27 +47,27 @@
 <text x="428" y="530" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">4052 Basel, 2,1 km – im Umkreis des Auftrags</text>
 <circle cx="284" cy="555" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
 <path d="M279,555 L282.5,559 L289.5,551" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="306" y="560" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Qualifikation:</text>
-<text x="428" y="560" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">FaGe verlangt – 3 Mitglieder mit FaGe</text>
+<text x="306" y="560" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Wer passt:</text>
+<text x="428" y="560" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">2 Mitglieder erfüllen jede Bedingung (je dieselbe Person):</text>
 <circle cx="284" cy="585" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
 <path d="M279,585 L282.5,589 L289.5,581" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="306" y="590" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Verfügbarkeit:</text>
-<text x="428" y="590" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">2 Mitglieder frei für die ganze Schicht 16:30–21:30</text>
+<text x="306" y="590" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Bedingungen:</text>
+<text x="428" y="590" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">FaGe · Demenz-Erfahrung bestätigt · frei 16:30–21:30</text>
 <circle cx="284" cy="615" r="11" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5"/>
 <path d="M279,615 L282.5,619 L289.5,611" fill="none" stroke="#065f46" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="306" y="620" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Merkmal:</text>
-<text x="428" y="620" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">Demenz-Erfahrung – bei 2 Mitgliedern bestätigt</text>
+<text x="306" y="620" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Wer geht:</text>
+<text x="428" y="620" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">ihr wählt beim Übernehmen, nur unter diesen 2</text>
 <rect x="272" y="654" width="684" height="106" rx="10" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
 <text x="288" y="680" font-size="14" font-weight="700" fill="#0c4a6e" text-anchor="start">Warum zuerst euch</text>
 <text x="288" y="704" font-size="15" font-weight="400" fill="#0c4a6e" text-anchor="start">Ihr habt in dieser Abteilung in den letzten 3 Monaten 4 Schichten</text>
 <text x="288" y="726" font-size="15" font-weight="400" fill="#0c4a6e" text-anchor="start">übernommen und seid das nächstgelegene passende Team.</text>
 <text x="288" y="748" font-size="12" font-weight="400" fill="#0c4a6e" text-anchor="start">vorgeschlagen von Empfehlungs-Assistent · aus Planungsfakten, ohne Punktzahl</text>
 <rect x="272" y="778" width="220" height="52" rx="8" fill="#065f46"/>
-<text x="382.0" y="810.12" font-size="17" font-weight="600" fill="#ffffff" text-anchor="middle">Übernehmen</text>
+<text x="382.0" y="810.12" font-size="17" font-weight="600" fill="#ffffff" text-anchor="middle">Übernehmen mit …</text>
 <rect x="508" y="778" width="220" height="52" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
 <text x="618.0" y="809.4" font-size="15" font-weight="600" fill="#022c22" text-anchor="middle">Ablehnen mit Grund</text>
-<text x="272" y="848" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Beim Übernehmen prüft NAVORA alle Bedingungen erneut;</text>
-<text x="272" y="866" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">der Auftraggeber sieht dann «Gedeckt durch Team Gundeli».</text>
+<text x="272" y="848" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut;</text>
+<text x="272" y="866" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">«Gedeckt» sieht der Auftraggeber erst mit einer benannten, geprüften Person.</text>
 <rect x="1000" y="256" width="408" height="300" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
 <text x="1020" y="288" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Wochenplan</text>
 <text x="1020" y="310" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">KW 46 · 9.–15.11.2026 · Mitglieder je Schicht</text>

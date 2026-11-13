@@ -102,7 +102,7 @@ os.makedirs(out, exist_ok=True)
 
 render(os.path.join(out, "e2e-a-auftrag.svg"),
        "Teil A · Vom Bedarf zur Zusage in Minuten statt Telefonketten",
-       "Referenzfall FE-073 (5): Pflegeheim 4052 Basel, Krankmeldung 14:15, Spätschicht 16:30–21:30, Demenzabteilung. Phase A, synthetische Daten.",
+       "Referenzfall FE-073 (5): Pflegeheim 4052 Basel, Ausfall gemeldet 14:15, Spätschicht 16:30–21:30, Demenzabteilung. Phase A, synthetische Daten.",
        [("Auftraggeber", "/order"), ("KI und Engines", "Regeln zuerst"), ("Team", "/team")], 7,
        [("bed", 0, 0, 1, "Bedarf sagen", ["Diktat oder ein Satz:", "«Spätschicht heute,", "Demenz, 4052»"], "human", "PLAN"),
         ("ext", 1, 1, 2, "KI-Extraktion", ["Engine 2 erkennt Datum,", "Zeit, PLZ, Stufe,", "Merkmal: «bitte prüfen»"], "engine", "PLAN"),
