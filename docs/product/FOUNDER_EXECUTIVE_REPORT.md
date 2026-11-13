@@ -6,6 +6,11 @@
 
 ---
 
+## Nachtrag Freitag 13.11., 22:39 (geplanter PO-Lauf)
+
+- **BK-a (#1238):** nachgebessert; das Protokoll erfasst Herkunft der Dringlichkeit und gewünschten Beginn wieder, die Zeitumstellungstests sind ergänzt. Alle vier Prüfungen grün. **Noch nicht gemergt:** es fehlt die klinische Freigabezeile für den neuen Stand (nächster `cra`-Lauf).
+- Kein neuer Entscheid, keine Frage an Sie.
+
 ## Nachtrag Freitag 13.11., 21:39 (geplanter PO-Lauf)
 
 - **Erster Bau-PR für BK liegt vor** (#1238: Auftraggeber erfasst einen Auftrag und bestätigt ihn). **Noch nicht gemergt:** Die klinische Prüfung hat einen blockierenden Fehler gefunden: Die Änderung hätte im Protokoll still verloren, wer die Dringlichkeit einer Anfrage gesetzt hat. Engineering hat nachgebessert; Tests und erneute Prüfung laufen. Gemergt wird erst, wenn alles grün ist und kein Prüfschutz gelockert wurde.
