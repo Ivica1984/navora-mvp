@@ -70,7 +70,9 @@ create trigger organization_memberships_not_client before insert or update of us
 
 drop trigger if exists audit_client_accounts on public.client_accounts;
 create trigger audit_client_accounts after insert or update on public.client_accounts
-  for each row execute function private.write_audit_event('display_name', 'client_kind');
+  for each row execute function private.write_audit_event('client_kind');
+-- display_name is not an audited key: no command renames an account in BK-a (seed only), and the AUD1 free-text
+-- inventory (pgTAP 077, READ_PATHS.md) stays at ten keys. A rename command adds it with `lca` (ADR-194).
 
 -- 2. The client's own shift plan (labels only) -------------------------------------------------------------------------
 create table if not exists public.client_shift_plans (
@@ -159,7 +161,7 @@ insert into private.audit_value_classes (table_name, key, class) values
   ('partner_requests', 'starts_at', 'code'), ('partner_requests', 'ends_at', 'code'),
   ('partner_requests', 'postcode', 'code'), ('partner_requests', 'grade', 'code'),
   ('partner_requests', 'confirmed_at', 'code'),
-  ('client_accounts', 'display_name', 'free_text'), ('client_accounts', 'client_kind', 'code')
+  ('client_accounts', 'client_kind', 'code')
 on conflict do nothing;
 
 -- 5. Commands and reads -----------------------------------------------------------------------------------------------
