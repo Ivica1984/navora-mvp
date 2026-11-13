@@ -71,11 +71,23 @@ Was die Protokolle zeigen:
   - bekannte Lücke CGR-187.
 - **Keine klinische Freigabe, kein Tarifnachweis, keine Freigabe für reale Daten.**
 
+### SAFE-D11 Sicherheitsausnahme Δ11 (wiedereröffneter Fall ohne Team)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»). Entscheid 2026-11-13 02:39 auf dem benannten Commit `29e54ec` (`recovery/main` nach #1159; gegenüber dem Merge-Commit `873e212` von #1151 nur Dokumente).
+- **Nachweis (aus den Job-Protokollen):**
+  - `ci` 43341179263, Versuch 2 (gestartet 02:29 Zürich): 4/4 `success`; `e2e` 164 bestanden, 0 übersprungen; `db` 131 Dateien, 4711 Tests.
+  - `ci-repeat` 43345332342: **20/20 `success`**; jeder `db`-Versuch 131 Dateien / 4711 Tests «All tests successful»; jeder `e2e`-Versuch 164 bestanden, 0 übersprungen, 0 instabil.
+  - Die tageszeitabhängigen Tests BD-2, F3 und F7/F6R liefen in allen elf e2e-Protokollen und bestanden. Der Nachtlauf auf `873e212` (3 übersprungen) zählt nicht.
+  - SAFE-D11-Tests: pgTAP 129 (Reproduktion), 130, 131 «ok»; e2e `safe-d11.spec.ts` bestanden.
+- **Abgenommen:** Ein wiedereröffneter Fall ohne Team erhält eine neue zulässige Teamsuche oder eine sichtbare, Operations zugewiesene Ausnahme, nie keines von beiden (FE-072 (2)).
+- **Nicht Teil der Abnahme:** Übergabe eines Falls eines inaktiven Teams an ein neues Team (CGR-195, CGR-196, B1.3); Freigabe für reale Personen und Daten.
+- **Korrektur:** Die Bedingung «Anzahl übersprungen = Tageswert 1» vom 13.11. 00:39 beruhte auf einem Abendlauf (23:21, UX2-Verschiebetest übersprungen ab 23:15). Der volle Tageswert ist 0. Ab jetzt gilt: jeder tageszeitabhängige Test bestanden.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
 |---|---|---|
-| B1 | kein e2e für B1-UX-2 (390 px, Doppeltipp), B1-UX-3 (Ablehnung), B1-UX-6 (Sicherheitshinweise, Negativfall CGR-162); **Δ11 ohne Test** | Δ11 als Sicherheitsausnahme zuerst (`briefs/SAFE-D11.md`); die drei e2e-Tests in B1.2 und B1.3 |
+| B1 | kein e2e für B1-UX-2 (390 px, Doppeltipp), B1-UX-3 (Ablehnung), B1-UX-6 (Sicherheitshinweise, Negativfall CGR-162); ~~Δ11 ohne Test~~ (SAFE-D11 abgenommen 13.11. 02:39, §2) | B1.1 aktiv (`briefs/B1.1.md`); die drei e2e-Tests in B1.2 und B1.3 |
 | B2 | B2-T7 (CGR-154) und B2-T8 (CGR-155) beschrieben, nicht geschrieben, nach heutigem Code erwartet rot; B2-T4 und B2-T9 neu; alle 115 Matrixzellen PROPOSED | QUAL1 Teil 2 und die Tests; Matrix bleibt Simulationsregel (FE-069) |
 | B3 | B3-UX-3, B3-UX-4 (braucht UXR-146), B3-UX-5, B3-UX-8; QUAL1-Anbindung an PLAN3 | Tests schreiben; Prüfung auf jedem Zuteilungsweg (FE-070 (3)) |
 | B4 | kein e2e für B4-UX-1 (390 px) und B4-UX-2 (verweigerter Start); frühere e2e-Instabilität VIS1, F1 | Tests; die F1-Ursache. Auf `4a543c0` lief e2e 10/10 ohne Wiederholung, die Ursache ist trotzdem nicht belegt |
@@ -90,3 +102,4 @@ Was die Protokolle zeigen:
 ## Änderungsprotokoll
 
 - 2026-11-12 15:45 (`po`): angelegt nach FE-071 (Founder-Rückmeldung auf Lieferung 1).
+- 2026-11-13 02:39 (`po`): Blockakte SAFE-D11 (für die Simulation abgenommen auf `29e54ec`); B1-Zeile in §3 nachgeführt.
