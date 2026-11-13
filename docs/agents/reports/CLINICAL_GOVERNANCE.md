@@ -16,6 +16,243 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-13 09:33 CET: **#1181 (B1.1-1b, CGR-201 fix): `cra-gate: #1181 6238f56 clear`, conditional on `e2e` finishing `success` on that head.** The share lock serialises «Zuordnen» and a case insert in both orders in two real sessions (step `concurrency-region-map`, `db` job 131778763185: «ok - map-first», «ok - insert-first», privileges unchanged); «Region nicht zugeordnet» now lists every non-listed text in use (pgTAP 133). **CGR-201 remedied on the PR** (closes when this code merges unchanged); **CGR-202 (b) remedied on the PR**; CGR-202 (a) stays open (real-data gate). The first head `0894f26` was **not** clear: its race step was red because the insert session never reached the trigger. **New advisory CGR-203:** the race is proven on a raw `service_role` insert with a test-only grant, not on the app's write path (`convert_partner_request` as Operations), and the deadlock residue that ADR-187 names on that path is untested. Answers: `lca` R-c (residence canton ≠ place of care **is** a hazard, conditions for AUT-110); PO 08:39 challenge row (region reference)
+
+**Scope:** `recovery/main` @ `5518c1d`; PR #1181 heads `0894f26` and `6238f56` (`recovery/main...pr1181`, 14 files); #1177 `b544e20` (docs probe); open PRs #1087 `b2dc470`, #1084 `34f1f4d`, #3. **Trigger:** since my 05:29 section: #1164 merged on the head I cleared (`3467d7a` → merge `31bca54`; `git diff 3467d7a 5518c1d` outside `docs/` touches only `ROADMAP.md`); `eng` #1172 (CGR-201 race analysis, docs), #1174 (seed legacy count, docs); PO decisions 06:39 (CGR-201 fix order, stray-row rule, race test as `db` step), 07:39 (seed Option B as B1.1-1c), 08:39 (B1.1-1b scope, AUT-110 placed for B1.1b after my answer to `lca` R-c, region-reference challenge row); `uxa` 07:52, `aia` 08:19, `lca` 08:20 (docs). Asks to me: PO 08:39 (gate on B1.1-1b; `lca` R-c; challenge row), `lca` 08:20 (R-c).
+
+I read: migration `20261021000128_b1_1_1b_cgr201_region_race.sql` (whole file); 0127:95-140 (old trigger and `register_legacy_region`), 0127 `rewrite_region` and `unmapped_regions`; pgTAP `133_b1_1_1b_cgr201_region_race.test.sql` (assertions); `scripts/db-concurrency/region-map-race.sh` on both heads; diff of `src/features/regions/rules.ts`; ADR-187 (`DECISIONS.md`); brief `B1.1.md` §PO 06:39, §PO 08:39; PO journals 06:39, 07:39, 08:39; `lca` 08:20; `aia` 08:19 (AUT-110). CI read from the API and job logs: head `0894f26`: `app` 131775193964, `e2e` 131775194005, `ui-screenshots` 131775193867 `success`, **`db` 131775193753 `failure`** (pgTAP 133 files, 4767 tests «Result: PASS»; step `concurrency-region-map`: «not ok - map-first», «not ok - insert-first», insert session «ERROR: permission denied for schema private … private.guard_case_access_notes()», raced case «<missing>»). Head `6238f56`: `app` 131778763273 `success`, **`db` 131778763185 `success`** (133 files, 4767 tests «Result: PASS», file 133 «ok»; race: «map-first: registered=1, map=ok, insert=done, raced case region=Basel-Stadt», «insert-first: … Basel-Stadt», «ok - service_role privileges on schema private unchanged (usage/execute false/false)»); `ui-screenshots` 131778763228 `success`; `e2e` 131778762930 **in progress** when this section was written. I ran no NAVORA test.
+
+### Task adjustment (README rule 11)
+
+None. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` (no founder change since FE-072).
+
+### #1181 B1.1-1b (heads `0894f26`, `6238f56`)
+
+What the code does (IMPLEMENTED on the PR head, read; tested by CI as listed):
+
+- **Lock (0128 §1):** the API insert path of `private.region_from_list()` for cases and team searches, and the owner path `private.register_legacy_region()`, first take `for share` on the legacy row, then read the mapping in a **separate** statement. `map_legacy_region` keeps `for update` on the same row and rewrites in later statements. Under READ COMMITTED each later statement takes a new snapshot, so: map first → the insert waits and takes the list name; insert first → the mapping waits for the insert's commit and its rewrite sees the new row. This is what the race step shows in both orders on `6238f56`.
+- **Safety net (0128 §2):** `unmapped_regions()` lists every region text in use on the four tables that is not an active list name, whatever its legacy row says, plus unmapped legacy values not in use; new columns `mapped_region_id`, `mapped_region_name`. pgTAP 133: a mapped value with a stray team and case is listed with counts and its mapped region; a text without a legacy row is listed and mappable; a coach sees nothing.
+- **«Zuordnen» on a stray row (0128 §3):** accepts only the region already chosen; rewrites the rows and writes one more audit row (`from`, `to`; who and when are the audit row's own columns); another region stays `already_mapped` (pgTAP 133). This is the PO 06:39 rule; it adds no routing beyond the mapping already confirmed.
+- **Eligibility unchanged:** no change to `request_offered_to_team` (0017:358-374); no RLS or grant change in the migration.
+- **CGR-202 (b):** `mapRegionConfirmSentence` now names the team side («… gehört danach zu «to»; ihm können dann offene Teamsuchen aus «to» angeboten werden»), unit `b1-1-1-region-mapping-confirm` and `b1-1-1b-region-mapping` (in `app`, green). Wording is `uxa`'s.
+
+**Safety reading.** CGR-201's failure (a new search on an old text that no team matches and no list shows) is now closed twice: the lock prevents it, and the listing would show it if a row is ever written outside the trigger. Neither adds a care rule. The first head was not clear: a red race step means the lock was not shown to work, whatever pgTAP says (pgTAP 133 tests 1-2 only match `for share` in the function source).
+
+`cra-gate: #1181 6238f56 clear`, **conditional on `e2e` finishing `success` on `6238f56`** (the PO reads them; a failure or a new head voids this line). Scope: migration 0128, pgTAP 133, `region-map-race.sh`, `regions/rules.ts`. A head change in any of these reopens my reading; a change elsewhere does not. Advisory CGR-203.
+
+### CGR-203: the race is proven on a test-only path, not on the app's write path
+
+- On `6238f56` the insert session is a raw `insert into public.cases` as `service_role`, with `usage` on `private` and `execute` on `private.looks_like_code` granted and revoked inside its transaction (`region-map-race.sh` `insert_session`). The app never inserts a case that way: a case and its team search are written by security-definer commands as `authenticated` (e.g. `convert_partner_request`; 0013, 0017, 0034). The lock is in the trigger, so the same lock runs on the real path; but the real path takes other locks first.
+- ADR-187 names exactly that residue: `convert_partner_request` locks its referral (which carries the legacy text) and then inserts the case; a mapping that rewrites the referral can then deadlock with it; PostgreSQL aborts one transaction (40P01). ADR-187 says the user sees «Speichern fehlgeschlagen» and the referral stays. That is the safe outcome (nothing silent), but it is a statement, not a test (UNKNOWN beyond the ADR).
+- Phase A: one synthetic Operations user; frequency UNKNOWN. Before real data, a failed conversion that is not visible would be a lost referral, so S2.
+
+### Answer to `lca` R-c and PO 08:39 (AUT-110): residence canton ≠ place of care
+
+**Yes, a mismatch is a patient-safety hazard, in one direction above all:** if the team search is routed by the residence canton while care is given elsewhere (for example after discharge to a relative in the other canton), the search is offered to teams that cannot reach the client; the outcome is a refusal round or «kein Team», i.e. a delayed first visit (H-38, new). The other direction (residence canton overwritten to match the place of care) is a **billing and financing** error (residual financing follows the residence, 0022), not a care gap; `lca` R-c already forbids it. Conditions for any AUT-110 brief (B1.1b), none a care rule:
+
+1. The region that routes a team search is the **place of care**, never derived silently from `residence_canton`. A proposal from facts already held is shown with both values and a one-tap correction (`lca` R-c).
+2. A mismatch is **visible** to the person who starts the search, naming both values, before the search opens.
+3. Whether a mismatch **blocks** the search or only warns is OPEN for the PO, and any rule that holds an urgent or discharge case is the Clinical Owner's (D-28, UNKNOWN). Safety condition either way: a blocked case stays visible as an exception or readiness gap with its reason (no state in which nobody sees it), and the resolution is available to that person in the same view.
+4. «Care given elsewhere» is recorded as the place-of-care region plus who and when, no address or reason text with health content (`lca`); the residence canton is never changed by a routing override.
+5. A temporary place of care ends: when care moves back, the team responsibility question is the H-35 hand-over question (UNKNOWN, Clinical Owner). No AUT-110 rule may move a client to another team automatically.
+6. Ward (simulated nursing home): the routing region is the home's; residence canton plays no routing role.
+7. Test: pgTAP and e2e with one injected mismatch on the seed (as `aia` proposes): the mismatch is shown, and no search is opened on a region the user did not confirm.
+
+### Answer to the PO 08:39 challenge row (region reference instead of copied text)
+
+ADR-187's reading holds from the safety side: a `region_id` reference on four tables changes the eligibility comparison (0017:372) from text to id, which is a matching-rule change needing its own pairs test (as pgTAP 132:180-184); it does not remove the need for legacy text during migration. The lock closes CGR-201 on today's schema (race step, both orders). It does **not** make the listing (b) redundant: the listing catches rows written with triggers off (seed, migration, restore). Keep both. A reference stays a Phase B candidate with CGR-202 (a); from scratch it would be the cleaner design, and then a correction is one pointer change with an audit row.
+
+### #1177 (`eng` 08:12 postcode probe, docs only)
+
+No clinical content beyond the postcode row answered at 05:29 and AUT-110 above; no gate asked.
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-201** | **remedied on PR #1181** (`6238f56`); closes when merged unchanged with green CI | 0128 §1 (lock in both functions), §2 (listing); `db` 131778763185: race «ok - map-first», «ok - insert-first»; pgTAP 133 (listing, stray row, same region only) |
+| **CGR-202** | (b) **remedied on PR #1181** (`rules.ts` team sentence, unit tests in `app` 131778763273); (a) open, unchanged (real-data gate) | – |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-197**, **CGR-199**, **CGR-200** | open, unchanged | – |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-203** | #1181 race test and ADR-187 deadlock residue | **advisory**; S2 (before real clients); not a condition of the #1181 merge | The race is proven on a raw `service_role` case insert with a transaction-local grant, which the app never uses; the real path (`convert_partner_request` as Operations, referral locked first) and its stated deadlock outcome (40P01, conversion rolled back, referral stays open, error shown) are untested | `region-map-race.sh` `insert_session` (`6238f56`); ADR-187 «Known residue»; 0128 §1 | HOW is `eng`'s. Add one order to the race script in which Operations runs the real conversion of a referral carrying the legacy value while the value is mapped; assert one of exactly two outcomes: the case and its team search carry the list region, **or** the conversion failed with an error, the referral is still open and the value is still listed; never a case or team search on the old text, never neither. A unit or e2e check that the conversion form shows the failure (wording `uxa`) |
+
+### Gate status
+
+- **#1181** (B1.1-1b): `0894f26` **not clear** (race step red); **`cra-gate: #1181 6238f56 clear`**, conditional on `e2e` 131778762930 `success` (advisory CGR-203). `lca` and `uxa` lines are theirs.
+- **#1164** (B1.1-1): merged on `3467d7a`, the head I cleared; merge-commit CI (`31bca54`, run 131759186928 …): `app`, `db`, `e2e`, `ui-screenshots` `success` (one duplicate run cancelled), read from the check runs.
+- **B1.1:** not accepted; CGR-201 closes with the #1181 merge; CGR-203 and CGR-202 (a) are real-data conditions, not B1.1 simulation conditions, unless the PO places them otherwise.
+- **#1177**, **#1087** (STG1), **#1084** (dependabot, base `main`), **#3** (D-8): nothing asked of me; unchanged.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Read `e2e` on `6238f56` before using my gate line. Place CGR-203 with CGR-202 (a) before the real-data gate (or in B1.1 if the PO prefers). Carry conditions (1)-(7) above into the AUT-110 brief (B1.1b); decide block vs warn (3).
+- **`eng`:** CGR-203 race order on the real conversion path.
+- **`uxa`:** the failed-conversion message (CGR-203); the mismatch display for AUT-110 (2).
+- **Clinical Owner (after G-1):** whether a residence/place-of-care mismatch may hold an urgent or discharge search (AUT-110 (3)); hand-over when a temporary place of care ends (H-35).
+
+---
+
+## 2026-11-13 05:29 CET: **#1164 (B1.1-1 region list): `cra-gate: #1164 3467d7a clear`.** The write path refuses a non-listed region for `authenticated`, `anon` and `service_role` on all four tables; no (open search, team) pair is lost by a mapping (pgTAP 132). **CGR-198 closed** with evidence (`ABNAHMEAKTE.md` §2 SAFE-D11; I re-read one `ci-repeat` e2e log). **Two new advisory findings:** **CGR-201** (a mapping that commits while a case or team search with the same legacy value is being inserted can leave that row on the old text, no longer listed and no longer matching any team: the silent loss B1.1-1 closes, through a race); **CGR-202** (a mapping cannot be undone or corrected, and the confirming sentence does not say that the mapped teams will be offered the new region's searches). Answers: the PO's unmapped-team question; conditions for the B1.1-3 exception wording
+
+**Scope:** `recovery/main` @ `8d47e4c`; PR #1164 head `3467d7a` (`recovery/main...pr1164`, 42 files); open PRs #1087 `b2dc470`, #1084 `34f1f4d`, #3. **Trigger:** since my 01:29 section: SAFE-D11 accepted (#1162, PO 02:39, gate «Simulation, synthetic data»), B1.1 approved and active, #1164 opened and ready; role and PO PRs #1158 to #1169 merged (docs only). Asks to me: PO 04:39 (gate line for #1164; unmapped team region and continuity; UXR-184 confirming sentence), PO 03:39 (gate on the merge head; postal-code row), PO 02:39 (B1.1-3 exception wording, UXR-170).
+
+I read: migration `20261021000127_b1_1_1_region_list.sql` (whole file, PR head); pgTAP `132_b1_1_1_region_list.test.sql` (whole file); `src/features/regions/rules.ts`; `tests/e2e/support/regions.ts`; the diffs of `durchgang-ambulant.spec.ts` and `safe-d11.spec.ts`; 0017:358-374 (`request_offered_to_team`); seed team regions (`seed.sql:28-35`); brief `B1.1.md` (whole, §PO 03:39, §PO 04:39); PO journals 02:39, 03:39, 04:39; `lca` journal 04:23; `ABNAHMEAKTE.md` §2 SAFE-D11. CI read from the API and logs: #1164 head `3467d7a` check runs `app` 131684144486, `db` 131684144271 (132 files, 4751 tests, «Result: PASS», file 132 «ok»), `e2e` 131684144625 (167 passed; `b1-1-1-regions.spec.ts` and BD-2 «✓»), `ui-screenshots` 131684144570, all `success`; `ci-repeat` 43345332342 on `29e54ec`: 20/20 jobs `success`, one `e2e` log read (164 passed; BD-2, F3 `field.spec.ts:154`, F7/F6R `:328` «✓»). I ran no NAVORA test.
+
+### Task adjustment (README rule 11)
+
+None. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md`.
+
+### #1164 B1.1-1 region list (head `3467d7a`)
+
+What the code does (IMPLEMENTED on the PR head, read, tested by CI as listed above):
+
+- **List:** `public.regions` per organisation, seeded with Basel-Stadt and Basel-Landschaft (FE-019; 0127:39-46), written only by migration and the new-organisation trigger. Not a clinical rule; an administrative routing list (new CR-210).
+- **Write path:** `private.region_from_list()` (0127:111-139) on teams, cases, referrals and team searches. API roles, `service_role` included (the PO 03:39 condition), can write only a listed region; an unchanged legacy value stays; a case or team search **inserted** with a registered legacy value keeps it, or takes the mapped name (0127:129-137). pgTAP 132 tests 8-13d (refusals, a near miss «Basel Stadt» refused, not corrected), 19-23 (case insert keeps an unmapped legacy text and stays listed).
+- **No loss by a mapping:** pgTAP 132 compares the (open search, active team) pairs before and after a mapping by the unchanged text comparison (132:180-184): none lost. Counts of cases and open searches unchanged; another organisation's identical legacy text untouched.
+- **Eligibility unchanged:** `request_offered_to_team` still compares `t.region = m.region` (0017:372). No new eligibility rule, as the brief requires.
+- **Audit:** one row per mapping with who, when, from, to only (132 audit key-set test); the team region is now audited (`audit_teams` lists `region`).
+- **BD-2** chooses Basel-Stadt from the list and does not call the run-time mapping (`durchgang-ambulant.spec.ts:201-203`), as the PO 03:39 condition requires. `safe-d11.spec.ts` now uses Basel-Landschaft as «region without a team»; that holds while no org A team is in Basel-Landschaft (seed and `admin.spec.ts`).
+
+**Safety reading.** The change removes the silent-loss path Δ1 for new entries (a typo can no longer end a search) and keeps every existing match. A mapping **widens** routing: an open search moved to «to» is offered to that region's teams, and a team moved to «to» is offered that region's searches. Both stay Operations' deliberate act with a confirming step and an audit row. Two gaps remain (CGR-201, CGR-202); neither is S1 for Phase A (synthetic data, one Operations user), so they do not block this PR.
+
+`cra-gate: #1164 3467d7a clear`. Scope: migration 0127, pgTAP 132, `regions/rules.ts`, the e2e changes above. If the head changes in migration 0127 sections 3 or 4 or in pgTAP 132, I re-read; other changes do not reopen this line.
+
+### CGR-201: a mapping racing an insert leaves an orphaned legacy text
+
+`map_legacy_region` locks the legacy row (`for update`, 0127:231), sets `region_id` and rewrites all rows that carry the text (0127:240, `rewrite_region` 0127:173-180). The insert trigger reads the same legacy row **without a lock** (0127:130-133). Under READ COMMITTED, if a case or team search is inserted (for example by «Fall eröffnen» on an old referral that still carries the legacy text) while a mapping of that text is in progress:
+
+1. the trigger still sees `region_id` null and keeps the legacy text;
+2. the mapping's `update` does not see the uncommitted new row;
+3. both commit. The new row keeps the old text; every team that carried it now carries «to»; the legacy row is mapped, so `unmapped_regions()` (which lists only `region_id is null`, 0127:205) no longer shows the value.
+
+Result (code read, not tested; I ran nothing): a team search that matches no team and appears nowhere as «Region nicht zugeordnet». It ends as the existing «kein Team mehr verfügbar» outcome with the cause hidden: exactly Δ1. The window is narrow (concurrent mapping and conversion of the same value), so it is advisory, but the B1.1-1 criterion «every legacy value is either mapped or listed» is then false.
+
+### CGR-202: a mapping cannot be corrected, and the confirming sentence omits half its effect
+
+- `map_legacy_region` returns `already_mapped` for a mapped value (0127:235); there is no reverse or re-map command. A wrong choice (e.g. a value meant for Basel-Landschaft mapped to Basel-Stadt) moves every open search of that value to the wrong region's teams and every team of that value into the wrong region. The rows can be changed one by one only where a form exists (team edit); a case's or a team search's region has no correction path that I found (UNKNOWN beyond the files read). The confirming sentence says so honestly («lässt sich hier nicht rückgängig machen», `rules.ts:87`).
+- The sentence names only the search side: «Offene Teamsuchen können danach Teams in «to» angeboten werden» (`rules.ts:86`). When teams carry the value, those teams will also be offered every open search of «to»; the sentence does not say it. This is a scope statement, not a wording preference (UXR-184 asks that the sentence claim no more and no less than the database does).
+- Phase A: one synthetic Operations user, no client. Before real data a wrong mapping is a routing error for real clients, so S2.
+
+### Answers to the PO
+
+- **Unmapped team region (PO 04:39):** an unmapped team keeps its text and matches exactly the searches it matched before (0017:372; pgTAP 132:180-184). **But** a new referral can carry only a list region, so a team left on a legacy value receives **no new** team searches, and a new search in a list region with no active team of that region ends as «kein Team» while capable teams sit on legacy values. That is not a lost client (the search is visible), but the cause is visible only on the «Region nicht zugeordnet» list (team counts, IMPLEMENTED). Condition for B1.1 acceptance, not for this PR: the list stays on `/operations` beside the exceptions, and the PO 04:39 `/team` row (the team sees its own unmapped region) is supported from the safety side. No care rule.
+- **UXR-184 confirming sentence:** meets my condition except for the team side (CGR-202 (b)). Gate is `uxa`'s for the wording.
+- **B1.1-3 exception wording (PO 02:39, UXR-170):** wording is `uxa`'s. Safety content it must carry, testable on the text (none a care rule): (1) that the referral's response deadline has passed and since when, with the deadline of its type as stored (`public.response_deadlines`, no new number); (2) the referral type and the requesting body, no client name or health text in the exception title; (3) the next step limited to what Operations may do: open a case or reject with a reason (B1.1-2), never «Team zuweisen»; (4) no claim of clinical urgency beyond the referral's recorded urgency and its source; (5) shown in full, never cut or behind «mehr» (UXR-170).
+- **Postal-code row (PO 03:39):** no new clinical condition beyond `lca` (P-a) to (P-e); from the safety side, the derivation must use the place of care, not the home address, and an unknown code must never route silently (as the row says). Hypothesis only; no gate.
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-198** | **closed** | `ABNAHMEAKTE.md` §2 SAFE-D11 (lines 77-84): push `ci` 43341179263 attempt 2 and `ci-repeat` 43345332342 named, BD-2, F3, F7/F6R «passed» in all eleven e2e logs (PO read); I re-read the `ci-repeat` jobs (20/20 `success`) and one `e2e` log (164 passed; BD-2, `field.spec.ts:154`, `:328` «✓») |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-197**, **CGR-199**, **CGR-200** | open, unchanged | – |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-201** | #1164 B1.1-1 write path and `map_legacy_region` | **advisory**; S2 (before real clients); to be resolved before the **B1.1 block acceptance** | A case or team search inserted with a legacy value while that value is being mapped keeps the old text; the mapping does not rewrite it, and «Region nicht zugeordnet» no longer lists it. The search matches no team and its cause is hidden (Δ1 through a race) | 0127:130-133 (unlocked read), :205 (`region_id is null`), :231, :240 | HOW is `eng`'s. Either (a) the trigger reads the legacy row with a lock that conflicts with the mapping's (`for share`), so the insert waits and takes the mapped name; and/or (b) «Region nicht zugeordnet» lists every region text **in use** that is not on the list, whatever the state of its legacy row. pgTAP for (b): a row carrying a mapped legacy text (fixture with the trigger disabled inside the rolled-back test) is listed with its count |
+| **CGR-202** | #1164 «Zuordnen» on `/operations` | **advisory**; (a) S2, (b) S3 | (a) A mapping cannot be undone or corrected; a wrong mapping routes every open search and every team of that value to the wrong region. (b) The confirming sentence names only that open searches may be offered to «to» teams, not that the mapped teams will be offered «to» searches | 0127:235 (`already_mapped`), no reverse command; `rules.ts:80-88` | (a) Before real data: a correction (re-map to the other list region) by `admin`/`operations` with its own audit row (from, to, who, when), and pgTAP that a correction moves the same rows and keeps the pairs rule; PO places it (B1.1 or later). (b) When `teams > 0` the sentence also states that those teams are then offered team searches of «to» (unit test on `mapRegionConfirmSentence`; wording `uxa`) |
+
+### Gate status
+
+- **#1164** (B1.1-1, `3467d7a`): **`cra-gate: #1164 3467d7a clear`** (advisory CGR-201, CGR-202). `lca-gate … 6c8a3ce clear` and the `uxa` line are theirs.
+- **SAFE-D11:** accepted on `29e54ec` (simulation); CGR-198 closed.
+- **#1087** (STG1), **#1084** (dependabot, base `main`), **#3** (D-8): no clinical content asked of me; unchanged.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Place CGR-201 as a condition of the B1.1 acceptance (not of the #1164 merge); place CGR-202 (a) before the real-data gate and (b) with UXR-184.
+- **`eng`:** CGR-201 remedy (a) or (b) with its pgTAP; CGR-202 (b) unit test.
+- **`uxa`:** CGR-202 (b) wording; B1.1-3 exception text against conditions (1)-(5) above.
+- **Clinical Owner (after G-1):** none new.
+
+---
+
+## 2026-11-13 01:29 CET: **No feature code changed since my 23:20 section** (#1151 merged on the head I cleared, `aba49e8` → `873e212`). **CGR-198 remedy adopted and sharpened by the PO** (BD-2, F3 and F7 must be «passed»; brief §PO 00:39); stays open until the `ABNAHMEAKTE.md` record. **New advisory CGR-200:** an F3 time correction across midnight is put on the wrong day by the app (it uses the Zurich date of the recorded tap), so it is refused, or, for the first or last event of a visit, can be stored 24 h off and reach the measured billable minutes. Answers to the PO's two challenge rows (team-to-team hand-over, H-35; visits and shifts across midnight): conditions only, no care rule
+
+**Scope:** `recovery/main` @ `a3ef7fc`; open PR heads #1087 `b2dc470`, #1084 `34f1f4d`, #3. **Trigger:** merged since my 23:20 section: #1151 (`873e212`, owner, head `aba49e8`), #1153 (my 23:20 PR), #1154 (`lca` 23:18), #1156 (`uxa` 23:49), #1157 (`lca` 00:21), #1155 (PO 23:39, 00:12 founder triage, 00:39). Asks to me: PO 23:39 challenge row (what the outgoing team must still do until an incoming team accepts, H-35); PO 00:39 challenge row (night hand-over on the ward: which facts the morning team must see). `lca` answered CGR-195 (3) (23:23) and CGR-199 (5) (00:21).
+
+I read: `git diff aba49e8 873e212^2` (empty: the merged head is the head I cleared); `git log c36c5d6..a3ef7fc` (no change in `supabase/`, `src/`, `tests/` other than #1151); SAFE-D11 brief §PO 23:39 and §PO 00:39; `NEXT_CAPABILITY.md` *Active now* 00:39 and the challenge rows 23:39 and 00:39; PO journals 23:39, 00:12, 00:39; `lca` journals 23:23, 00:21; `tests/e2e/field.spec.ts:154-160, :395-403`; `src/app/(protected)/field/field-client.tsx:881-900`; `src/features/field/time.ts:156-190`; migration 0008 (`correct_visit_time`, lines 88-126); 0023:30-40 (measured billable minutes use the corrected time); ADR-111 (VIS1). I ran no NAVORA test and read no new CI log this run.
+
+### Task adjustment (README rule 11)
+
+None. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` (unchanged since v22).
+
+### SAFE-D11 after the merge
+
+- **#1151 merged unchanged** (IMPLEMENTED): head `aba49e8` = the head of `cra-gate: #1151 aba49e8 clear`. My gate holds for `873e212`. CGR-194 stays closed.
+- **CGR-198:** the PO adopted the remedy (§PO 23:39) and widened it (§PO 00:39): an attempt counts only if BD-2, F3 (`field.spec.ts:154`) and F7/F6R (`field.spec.ts:328`) are «passed», skip count = daytime baseline 1. **Supported**; this is stricter than my remedy and right: F3 and F7 test time corrections, a documentation-integrity control. The PO read on `873e212` («161 passed, 3 skipped») is the PO's; I did not re-read that log. Status: **open until the `ABNAHMEAKTE.md` record** names the runs. SAFE-D11 stays **merged, not accepted** (gate «Simulation, synthetic data»).
+
+### CGR-200: F3 time correction across midnight lands on the wrong day
+
+The correction form takes only «HH:MM». The app builds the instant from the **Zurich date of the event's recorded tap** (`field-client.tsx:885`: `zurichLocalToIso(zurichDate(event.recorded_at ?? event.at), time)`); the e2e test states the same rule («on the day the event was recorded», `field.spec.ts:155`) and skips itself before 00:30 (`:159`, `:402`). The database checks only «not more than 1 minute in the future» and order with the neighbouring events (0008:94-120; CR-206). Code-read cases (IMPLEMENTED behaviour, not tested; I ran nothing):
+
+1. **True time before midnight, tap after it** (she taps «Angekommen» at 00:05, she arrived at 23:35): the app sends 23:35 of the **next** day. Refused as future (0008:94) the same night, or as out of order (0008:119) later. She cannot record the true time in the app; to get past the refusal she may type a time that is accepted but wrong.
+2. **Tap before midnight, true time after it, first event of the visit** (she taps «Losgefahren» or «Begonnen» at 23:58, it was 00:05): the app sends 00:05 of the **tap's** day, 24 h early. There is no earlier neighbour, the later neighbour is after it, it is not in the future: **accepted**. The visit is now about 24 h long.
+3. **Last event of the visit tapped after midnight, true time before it, corrected late the next evening:** the app sends the next day's evening; there is no later neighbour and it is no longer in the future: **accepted**, 24 h late.
+
+The measured billable minutes read the corrected time (0023:33-36). So cases 2 and 3 can carry a wrong duration into the billable fact. I did not check whether signing, countersigning or a review step shows a 24-hour visit before it is billed: UNKNOWN. A night visit on the ward or a late home-care visit is where this happens; the test guards keep CI away from exactly that hour, so no test shows the behaviour either way.
+
+Not a care rule and not a tariff rule: which day a visit across midnight is billed on stays UNKNOWN (`lca`, PO row 00:39). The remedy is about **entering the time the nurse means**.
+
+### PO challenge row 23:39 (team-to-team hand-over, B1.3 hypothesis): what the outgoing team must still do (H-35)
+
+The row is PLANNED, no brief. `lca` 23:23 holds in law that the mandate ends by notice, agreement or the client's acceptance of a new team, not by a NAVORA status. **What the outgoing team must do clinically until acceptance (e.g. the content of a hand-over report) is UNKNOWN: Clinical Owner (D-43), with `lca` for responsibility (D-44, D-9).** I set no rule. System conditions so that the client is never between two teams (testable, none a care rule):
+
+1. A hand-over request changes nothing that carries care today: the outgoing team's planned visits stay planned and assigned; no visit is cancelled or unassigned by the request (`lca` (H-a) for `assigned_team_id`). pgTAP.
+2. Every existing safety signal keeps reaching the outgoing team while it is the current team: overdue/stuck (C1), `no_show` (SIG1), uncovered visit (J3), report not final. A request must not mute them. pgTAP or e2e.
+3. The outgoing team's open reports, returned reports and time corrections stay its own to finish; the incoming team's acceptance does not close or move them. pgTAP.
+4. A withdrawn or expired hand-over request leaves the outgoing team as it was, with a visible exception (as CR-209); never «no team». pgTAP.
+5. If the incoming team receives documentation, it is a recorded step (`lca` (H-c)); what it must contain is the Clinical Owner's (UNKNOWN).
+
+### PO challenge row 00:39 (visit or shift across midnight): what the morning team must see
+
+The row is PLANNED (B4, B9), no brief. **Which facts a night hand-over on the ward must contain is a clinical content standard: UNKNOWN, Clinical Owner (D-43; with NH-A4 for the ward).** I name no list. System conditions (testable):
+
+1. No fact recorded after midnight for a visit or shift that began before midnight drops out of the next hand-over, the day view or the open-work view because of its date: observations marked for hand-over, safety alerts, a «not completed» end, an open or returned report. A pinned-clock pgTAP or e2e test, e.g. a visit 23:30-00:30 with an observation at 00:15.
+2. A visit across midnight stays one unit: one start, one end, one report, one billable fact; the app does not split or refuse it (PO hypothesis; ADR-111 already allows `complete_visit` after the visit's date). Test as in (1).
+3. Its correction after midnight follows the same reason rule (F3) and lands on the day the nurse means (CGR-200).
+4. The test guards (ADR-113, `field.spec.ts:159`, `:402`) stay for CI stability, but the cross-midnight behaviour gets its own pinned-clock tests, so acceptance evidence no longer depends on the hour a run starts. Whether a guard can then go is `eng`'s.
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-198** | open; **remedy adopted** (SAFE-D11 brief §PO 23:39, widened §PO 00:39 to F3, F7) | closes with the `ABNAHMEAKTE.md` SAFE-D11 record naming a push `ci` and ten `ci-repeat` attempts with BD-2, F3, F7 «passed» from the logs |
+| **CGR-199** | open; (5) **answered by `lca`** (00:21: a referrer's statement may be recorded as information but must not close the consent gap; visibility (C-a), (C-b) 23:23) | (1) to (4) wait for a B1.3 brief |
+| **CGR-195** | open; (3) **answered by `lca`** (23:23: data-only wording compliant; real responsibility during a hand-over unresolved, legal adviser and owner, D-44, D-9) | (1), (2) unchanged; the 23:39 conditions above extend it for B1.3 |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-193**, **CGR-196**, **CGR-197** | open, unchanged | – |
+
+**Closed this run:** none.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-200** | F3 time correction (`correct_visit_time`, /field and /work correction form); measured billable minutes; CR-206 | **advisory**; S2 (before real clients; Phase A synthetic only) | The correction form combines the typed «HH:MM» with the Zurich date of the event's recorded tap. Across midnight the nurse cannot enter the true time (refused), or, for the first or last event of a visit, the time is stored 24 h off and accepted; the measured billable minutes use it | `field-client.tsx:885`; `time.ts:156-159, :179`; 0008:94-120; 0023:33-36; `field.spec.ts:155, :159, :402` (tests skip that hour) | (a) The form lets her choose the day (at least the visit's date and the next day), or derives it from the neighbouring events, and shows the full date and time she saves. (b) pgTAP or a unit test with a pinned clock: a visit 23:30-00:30, correcting «Angekommen» tapped 00:05 to 23:35 is stored on the visit's date; a correction that would make the visit longer than its planned slot by many hours is shown before it is saved (a warning, not a refusal: late documentation stays possible, CR-206; any length bound is UNKNOWN, Clinical Owner). (c) An e2e for the same case that does not depend on the hour of the run |
+
+### Gate status
+
+- **SAFE-D11** (`873e212`): merged, not accepted; `cra` gate held on `aba49e8` = merged head. Acceptance per CGR-198 as adopted.
+- **#1087** (STG1, `b2dc470`): no clinical content; I did not review the new head beyond its title (deploy of migrations to staging, never the seed). No gate asked of me.
+- **#1084** (dependabot, base `main`), **#3** (D-8): out of my scope, unchanged.
+- No open Engineering feature PR; no `cra-gate` line this run.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Place CGR-200 (F3 across midnight) with the B4/B9 cross-midnight hypothesis or as a safety fix, your call; it is not an S1 for Phase A. Carry the 23:39 conditions (1)-(5) and the 00:39 conditions (1)-(4) into any brief that comes from those rows.
+- **`eng`:** for the 00:39 row, the evidence test you were asked for (a visit 23:30-00:30, pinned clock) also covers CGR-200 (b).
+- **`uxa`:** how the correction form shows the day it saves (CGR-200 (a)).
+- **`lca`:** which day a visit across midnight is billed on (UNKNOWN; no tariff rule from me).
+- **Clinical Owner (after G-1):** content of a team-to-team hand-over and of a night hand-over on the ward; any plausibility bound on a visit's length (CGR-200 (b)); late documentation and night visits across midnight (CGR-87 (3), (4), still open).
+
+---
+
 ## 2026-11-12 23:20 CET: **#1151 (SAFE-D11 follow-up): `cra-gate: #1151 aba49e8 clear`.** **CGR-194 closed** with evidence (pgTAP 131, CGR-194 (b) included). UXR-181 meets my gate condition (visibility and pgTAP 130 negatives unchanged). **New advisory CGR-198:** on both #1151 heads the BD flow test BD-2 was **skipped** (night window, ADR-113), so «BD green» for the SAFE-D11 acceptance is not shown yet. **New advisory CGR-199:** safety conditions for the PO's two B1.3 challenge rows (referrer sees and fixes readiness gaps), answering the PO's question on guessed values
 
 **Scope:** `recovery/main` @ `75d4d9a`; open PR heads #1151 `aba49e8`, #1087 `f0eb3ae`, #1084 `34f1f4d`, #3. **Trigger:** merged since my 21:35 section: #1149 (my 21:35 PR, `1774a78`), #1150 (PO 21:39, 22:20 FE-072 session, 22:27), #1152 (PO 22:39). New: PR #1151 (SAFE-D11 follow-up; red commit `e64990d`, fix `11816af`, docs `aba49e8`; no longer a draft). FE-072 (`FOUNDER_DECISIONS.md` v22). Asks to me: `eng` (#1151: `cra-gate` on the head), PO 22:27 and 22:39 challenge rows (safety text for a referrer view; risk of guessed values, e.g. a wrong insurer).

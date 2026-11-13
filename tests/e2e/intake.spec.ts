@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { ORG_A_TEAM_REGION, mapSeedRegionOrgA } from "./support/regions";
 
 // J1 — referral intake → case + open matching request. Synthetic local-only accounts (supabase/seed.sql).
 const OPS = "ops.test@navora.test"; //    org A, role operations
@@ -16,13 +17,14 @@ async function signIn(page: Page, email: string, landing: RegExp) {
 test.describe("referral intake (J1)", () => {
   test("operations records a referral, converts it after review, and the case surfaces in Operations", async ({ page }) => {
     await signIn(page, OPS, /\/operations$/);
+    await mapSeedRegionOrgA(page); // B1.1-1: the referral names a list region that reaches the Bern West teams
     await page.goto("/intake");
 
     const form = page.getByRole("form", { name: "Neue Anfrage" });
     await form.getByLabel("Zuweisende Stelle").fill("Testspital Intake");
     await form.getByLabel(/^Dringlichkeit/).selectOption("hoch");
     await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
-    await form.getByLabel("Region").fill("Bern West");
+    await form.getByLabel("Region").selectOption(ORG_A_TEAM_REGION);
     await form.getByLabel("Titel").fill("Austritt E2E Intake");
     await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf für den E2E-Test.");
     await form.getByLabel("Leistungen (mit Komma getrennt)").fill("Grundpflege, Wundversorgung");
@@ -72,6 +74,7 @@ test.describe("referral intake (J1)", () => {
   test("at 390 px the urgency has no preset and the team's offer shows level and source (IPA1-7, IPA1-8)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, OPS, /\/operations$/);
+    await mapSeedRegionOrgA(page); // B1.1-1: the referral names a list region that reaches the Bern West teams
     await page.goto("/intake");
 
     const form = page.getByRole("form", { name: "Neue Anfrage" });
@@ -82,7 +85,7 @@ test.describe("referral intake (J1)", () => {
     await expect(urgency).toHaveValue("");
     await expect(source).toHaveValue("");
     await form.getByLabel("Zuweisende Stelle").fill("Testspital IPA1");
-    await form.getByLabel("Region").fill("Bern West");
+    await form.getByLabel("Region").selectOption(ORG_A_TEAM_REGION);
     await form.getByLabel("Titel").fill("IPA1 Quelle E2E");
     await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, IPA1-Test.");
     // Services are the case's care need (readiness item 5), so the case can reach the team.
@@ -144,12 +147,13 @@ test.describe("referral intake (J1)", () => {
 
     // Operations records the returning referral (hoch, stated by the referrer, with a date) and links it.
     await signIn(page, OPS, /\/operations$/);
+    await mapSeedRegionOrgA(page); // B1.1-1: the referral names a list region that reaches the Bern West teams
     await page.goto("/intake");
     const form = page.getByRole("form", { name: "Neue Anfrage" });
     await form.getByLabel("Zuweisende Stelle").fill("Testspital COND2");
     await form.getByLabel(/^Dringlichkeit/).selectOption("hoch");
     await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
-    await form.getByLabel("Region").fill("Bern West");
+    await form.getByLabel("Region").selectOption(ORG_A_TEAM_REGION);
     await form.getByLabel("Titel").fill("COND2 Rückkehr E2E");
     await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, COND2-Test.");
     await form.getByLabel("Leistungen (mit Komma getrennt)").fill("Grundpflege");

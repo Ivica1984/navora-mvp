@@ -12,6 +12,8 @@ import type { OperationsDashboard } from "@/features/operations/types";
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
 import HoldsPanel from "./holds-panel";
+import UnmappedRegionsPanel from "./unmapped-regions-panel";
+import type { UnmappedRegionPanel } from "@/features/regions/queries";
 import ContinuityPanel from "./continuity-panel";
 import CaseLifecyclePanel from "./case-lifecycle-panel";
 import type { CaseLifecycle } from "@/features/lifecycle/queries";
@@ -35,6 +37,8 @@ type OperationsClientProps = {
   signals?: SignalRow[];
   /** SIG2-11: the scheduled evaluator's health ("Signalprüfung läuft nicht"). */
   evaluator?: EvaluatorHealth[];
+  /** B1.1-1 (ADR-186): «Region nicht zugeordnet» (null without an admin or Operations role). */
+  unmappedRegions?: UnmappedRegionPanel | null;
 };
 
 function getAverageUtilization(teams: TeamRow[]) {
@@ -44,7 +48,7 @@ function getAverageUtilization(teams: TeamRow[]) {
   return Math.round(total / teams.length);
 }
 
-export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [], evaluator = [] }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [], evaluator = [], unmappedRegions = null }: OperationsClientProps) {
   const { cases, teams } = dashboard;
 
   const [selectedEntity, setSelectedEntity] = useState<SelectedEntity | null>(null);
@@ -90,6 +94,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
 
         <ExceptionCenter exceptions={dashboard.exceptions} />
 
+        {unmappedRegions && <UnmappedRegionsPanel data={unmappedRegions} />}
         <HoldsPanel holds={holds} />
 
         <ContinuityPanel rows={continuity} />

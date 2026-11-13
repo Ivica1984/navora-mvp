@@ -6,6 +6,13 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(34);
 
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
+-- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+insert into public.regions (organization_id, name, sort_order) values
+  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90),
+  ('00000000-0000-4000-b000-000000000011', 'Region ohne Team OPS1', 91)
+  on conflict (organization_id, name) do nothing;
+
 -- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
 create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
   select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
