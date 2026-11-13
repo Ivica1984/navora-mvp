@@ -20,7 +20,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(35);
+select plan(40);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -198,6 +198,32 @@ select ok(exists (select 1 from public.audit_events a
                     and a.actor_id = '00000000-0000-4000-a000-000000000904'
                     and a.changed ->> 'from' = 'Bern West' and a.changed ->> 'to' = 'Basel-Stadt' and a.occurred_at is not null),
           'the mapping wrote one audit row with who, when, from and to');
+
+-- 19-23 PO 04:39 question on #1164 and `lca` optional key set (ADR-186, answer 05:10): an API insert of a case with a
+-- registered but still unmapped legacy value keeps the legacy text (no loss) and the value stays visible under
+-- «Region nicht zugeordnet»; the mapping's audit row holds only `from` and `to`. Runs last: it adds a case.
+select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
+select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital B111', 'Spital',
+       'Altregion B111', null, 'mittel', null, 'B1.1-1 Altwert', 'Synthetisch', array['Grundpflege'], pg_temp.k(30),
+       'referrer_stated', null),
+  'ok', 'fixture: a referral with a non-listed region written as a database role (registered as a legacy value)');
+set local role authenticated;
+select is(public.convert_partner_request(
+            (select id from public.partner_requests where request_title = 'B1.1-1 Altwert'),
+            'Test', 'Person B111', true, '{}'::jsonb, pg_temp.k(31)) ->> 'result',
+  'ok', 'a signed-in user converts the legacy referral into a case');
+select is((select c.region from public.cases c
+           join public.partner_requests p on p.converted_case_id = c.id
+           where p.request_title = 'B1.1-1 Altwert'),
+  'Altregion B111', 'the new case keeps the unmapped legacy region text (left join + coalesce, no loss)');
+select ok(exists (select 1 from public.unmapped_regions('00000000-0000-4000-b000-000000000011') u
+                  where u.legacy_value = 'Altregion B111' and u.cases >= 1),
+  'the legacy value of that case stays visible under «Region nicht zugeordnet»');
+reset role;
+select is((select array_agg(k order by k) from public.audit_events a, jsonb_object_keys(a.changed) k
+           where a.organization_id = '00000000-0000-4000-b000-000000000011' and a.table_name = 'region_legacy_values'
+             and a.changed ->> 'from' = 'Bern West'),
+  array['from', 'to'], 'the mapping audit row holds only from and to');
 
 select * from finish();
 rollback;
