@@ -11,12 +11,16 @@ export async function mapSeedRegionOrgA(page: Page): Promise<void> {
   await page.goto("/operations");
   const form = page.getByRole("form", { name: "Region zuordnen: Bern West" });
   if ((await form.count()) === 0) return;
+  // B1.1-1b UXR-187 (ADR-187): the live region exists, empty, before the act.
+  await expect(page.getByTestId("region-mapped")).toHaveCount(1);
   await form.getByLabel("Region aus der Liste").selectOption({ label: "Basel-Stadt" });
   await form.getByRole("button", { name: "Zuordnen" }).click();
   // ADR-186 amendment 04:30 (uxa UXR-184): the tap opens the confirming step; the action there maps.
   await form.getByTestId("region-map-confirm").getByRole("button", { name: "Zuordnen" }).click();
   await expect(page.getByTestId("region-mapped")).toContainText("Region zugeordnet: Bern West → Basel-Stadt");
   await expect(form).toHaveCount(0);
+  // UXR-187: the row with the focused button is gone; focus is on the section heading, not on the live region.
+  await expect(page.getByRole("heading", { name: /^Region nicht zugeordnet/ })).toBeFocused();
 }
 
 /** The region of a new org-A referral that should reach Testteam Nord after the mapping above. */

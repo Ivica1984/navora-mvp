@@ -163,6 +163,8 @@ jobs:
           scripts/ci-step.sh concurrency-take scripts/db-concurrency/open-visit-take.sh
           # CGR-110 (ADR-137): a concurrent SIG1 evaluation lock makes evaluate_signals skip; 062 now waits for it.
           scripts/ci-step.sh concurrency-sig1-lock scripts/db-concurrency/sig1-evaluation-lock.sh
+          # CGR-201 (ADR-187, PO 06:39 point 3): «Zuordnen» racing a new case with the same legacy region, both orders.
+          scripts/ci-step.sh concurrency-region-map scripts/db-concurrency/region-map-race.sh
       # B0-3 part 2 (#603, ADR-170): one committed scheduler run between pgTAP 079's two WORK1-5 catalogues, in two real
       # sessions. Red at READ COMMITTED (079 before #761) and green at REPEATABLE READ (079 now), or this step fails.
       - name: pgTAP 079 snapshot race reproduced (B0-3)

@@ -49,7 +49,10 @@ for (const width of [390, 1440]) {
     await expect(step).toHaveCount(0);
     await page.reload();
     await expect(section.getByRole("form", { name: "Region zuordnen: Basel Pilot" })).toBeVisible();
-    await expect(page.getByTestId("region-mapped")).toHaveCount(0);
+    // B1.1-1b UXR-187 (ADR-187): the status container is mounted before any mapping and stays empty after «Abbrechen»
+    // (was: toHaveCount(0), when the container was mounted together with its text).
+    await expect(page.getByTestId("region-mapped")).toHaveCount(1);
+    await expect(page.getByTestId("region-mapped")).toBeEmpty();
   });
 }
 

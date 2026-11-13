@@ -8,7 +8,15 @@ import { regionOptions, type RegionOption, type RegionRow } from "./rules";
 
 type Client = Awaited<ReturnType<typeof requireUser>>["supabase"];
 
-export type UnmappedRegion = Database["public"]["Functions"]["unmapped_regions"]["Returns"][number];
+type UnmappedRegionRow = Database["public"]["Functions"]["unmapped_regions"]["Returns"][number];
+/**
+ * B1.1-1b (ADR-187): the generated type marks every returned column as present; `mapped_region_*` is null for a value
+ * that is not mapped yet (left join in unmapped_regions), set for a mapped value whose rows still carry the old text.
+ */
+export type UnmappedRegion = Omit<UnmappedRegionRow, "mapped_region_id" | "mapped_region_name"> & {
+  mapped_region_id: string | null;
+  mapped_region_name: string | null;
+};
 
 /** B1.1-1 (ADR-186): the organisation's region list for a select field. */
 export async function getRegionOptions(supabase: Client, organizationId: string): Promise<{
@@ -35,7 +43,7 @@ export async function getUnmappedRegions(supabase: Client, organizationId: strin
     logEvent("error", "regions.unmapped_failed", errorFields(error));
     throw new Error("Nicht zugeordnete Regionen konnten nicht geladen werden.");
   }
-  return data ?? [];
+  return (data ?? []) as UnmappedRegion[];
 }
 
 export type UnmappedRegionPanel = { organizationId: string; rows: UnmappedRegion[]; regions: RegionRow[] };
