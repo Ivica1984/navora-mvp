@@ -20,17 +20,20 @@ die der Workflow agents-coordination aus den drei Dateien erzeugt. Vor der Arbei
 Schreibe nur die Abschnitte deiner Rolle, halte die Dateien bei jeder Änderung aktuell
 und prüfe sie mit `npm run agents:check` (läuft auch in CI).
 
-Lies vor jeder Architektur- oder Codeänderung:
+ZWEI QUELLEN (Founder-Direktive FE-077, 2026-11-13, verbindlich)
 
-MASTER_CONTEXT.md
-ARCHITECTURE.md
-DOMAIN_RULES.md
-TECHNICAL_DECISIONS.md
-CURRENT_IMPLEMENTATION_STATUS.md
+Lies vor jeder Architektur- oder Codeänderung ausschliesslich:
+
+docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md  (Blueprint V3.2: einzige fachliche Quelle, WAS, WARUM, Block-Reihenfolge)
+docs/architecture/ARCHITECTURE_HANDBOOK_V2.md                       (Handbook V2.2: einzige technische Quelle, WIE)
+
+ARCHIVIERT und nicht mehr massgeblich: ARCHITECTURE.md, MASTER_CONTEXT.md, DOMAIN_RULES.md, TECHNICAL_DECISIONS.md,
+CURRENT_IMPLEMENTATION_STATUS.md und die übrigen Übergabedokumente der Wurzel, Blueprint V1.x bis V3.1, alte Entwürfe.
+Kein Agent leitet aus ihnen Vorgaben ab (docs/agents/README.md Regel 13).
 
 WICHTIG
 
-Diese Dokumente sind eine Übergabedokumentation.
+Auch die zwei Quellen beschreiben den Code nur.
 
 Der tatsächliche Repository-Code hat Vorrang.
 

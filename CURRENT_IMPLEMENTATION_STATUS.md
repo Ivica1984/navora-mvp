@@ -1,5 +1,7 @@
 # NAVORA — Current Implementation Status
 
+> **ARCHIVIERT (FE-077, 2026-11-13):** Historisches Übergabedokument (Stand Oktober 2026). Massgeblich sind allein [Blueprint V3.2](docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md) (fachlich) und [Architecture Handbook V2.2](docs/architecture/ARCHITECTURE_HANDBOOK_V2.md) (technisch). Kein Agent leitet aus diesem Dokument Vorgaben ab.
+
 **Wichtig:** „Current“ bedeutet zuletzt im Gespräch nachweisbarer Stand, **nicht Live-Audit am 9. Oktober 2026**. Code-Stand **VERIFY AGAINST REPOSITORY**, DB-Stand **VERIFY AGAINST DATABASE**. `src.zip` ist älter als Codespace-Patches.
 
 | Bereich | Status | Beleg / Einschränkung |
