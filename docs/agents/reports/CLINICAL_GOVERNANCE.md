@@ -16,6 +16,86 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-13 01:29 CET: **No feature code changed since my 23:20 section** (#1151 merged on the head I cleared, `aba49e8` → `873e212`). **CGR-198 remedy adopted and sharpened by the PO** (BD-2, F3 and F7 must be «passed»; brief §PO 00:39); stays open until the `ABNAHMEAKTE.md` record. **New advisory CGR-200:** an F3 time correction across midnight is put on the wrong day by the app (it uses the Zurich date of the recorded tap), so it is refused, or, for the first or last event of a visit, can be stored 24 h off and reach the measured billable minutes. Answers to the PO's two challenge rows (team-to-team hand-over, H-35; visits and shifts across midnight): conditions only, no care rule
+
+**Scope:** `recovery/main` @ `a3ef7fc`; open PR heads #1087 `b2dc470`, #1084 `34f1f4d`, #3. **Trigger:** merged since my 23:20 section: #1151 (`873e212`, owner, head `aba49e8`), #1153 (my 23:20 PR), #1154 (`lca` 23:18), #1156 (`uxa` 23:49), #1157 (`lca` 00:21), #1155 (PO 23:39, 00:12 founder triage, 00:39). Asks to me: PO 23:39 challenge row (what the outgoing team must still do until an incoming team accepts, H-35); PO 00:39 challenge row (night hand-over on the ward: which facts the morning team must see). `lca` answered CGR-195 (3) (23:23) and CGR-199 (5) (00:21).
+
+I read: `git diff aba49e8 873e212^2` (empty: the merged head is the head I cleared); `git log c36c5d6..a3ef7fc` (no change in `supabase/`, `src/`, `tests/` other than #1151); SAFE-D11 brief §PO 23:39 and §PO 00:39; `NEXT_CAPABILITY.md` *Active now* 00:39 and the challenge rows 23:39 and 00:39; PO journals 23:39, 00:12, 00:39; `lca` journals 23:23, 00:21; `tests/e2e/field.spec.ts:154-160, :395-403`; `src/app/(protected)/field/field-client.tsx:881-900`; `src/features/field/time.ts:156-190`; migration 0008 (`correct_visit_time`, lines 88-126); 0023:30-40 (measured billable minutes use the corrected time); ADR-111 (VIS1). I ran no NAVORA test and read no new CI log this run.
+
+### Task adjustment (README rule 11)
+
+None. **Contradiction check:** none between my prompt or my files and `FOUNDER_DECISIONS.md` (unchanged since v22).
+
+### SAFE-D11 after the merge
+
+- **#1151 merged unchanged** (IMPLEMENTED): head `aba49e8` = the head of `cra-gate: #1151 aba49e8 clear`. My gate holds for `873e212`. CGR-194 stays closed.
+- **CGR-198:** the PO adopted the remedy (§PO 23:39) and widened it (§PO 00:39): an attempt counts only if BD-2, F3 (`field.spec.ts:154`) and F7/F6R (`field.spec.ts:328`) are «passed», skip count = daytime baseline 1. **Supported**; this is stricter than my remedy and right: F3 and F7 test time corrections, a documentation-integrity control. The PO read on `873e212` («161 passed, 3 skipped») is the PO's; I did not re-read that log. Status: **open until the `ABNAHMEAKTE.md` record** names the runs. SAFE-D11 stays **merged, not accepted** (gate «Simulation, synthetic data»).
+
+### CGR-200: F3 time correction across midnight lands on the wrong day
+
+The correction form takes only «HH:MM». The app builds the instant from the **Zurich date of the event's recorded tap** (`field-client.tsx:885`: `zurichLocalToIso(zurichDate(event.recorded_at ?? event.at), time)`); the e2e test states the same rule («on the day the event was recorded», `field.spec.ts:155`) and skips itself before 00:30 (`:159`, `:402`). The database checks only «not more than 1 minute in the future» and order with the neighbouring events (0008:94-120; CR-206). Code-read cases (IMPLEMENTED behaviour, not tested; I ran nothing):
+
+1. **True time before midnight, tap after it** (she taps «Angekommen» at 00:05, she arrived at 23:35): the app sends 23:35 of the **next** day. Refused as future (0008:94) the same night, or as out of order (0008:119) later. She cannot record the true time in the app; to get past the refusal she may type a time that is accepted but wrong.
+2. **Tap before midnight, true time after it, first event of the visit** (she taps «Losgefahren» or «Begonnen» at 23:58, it was 00:05): the app sends 00:05 of the **tap's** day, 24 h early. There is no earlier neighbour, the later neighbour is after it, it is not in the future: **accepted**. The visit is now about 24 h long.
+3. **Last event of the visit tapped after midnight, true time before it, corrected late the next evening:** the app sends the next day's evening; there is no later neighbour and it is no longer in the future: **accepted**, 24 h late.
+
+The measured billable minutes read the corrected time (0023:33-36). So cases 2 and 3 can carry a wrong duration into the billable fact. I did not check whether signing, countersigning or a review step shows a 24-hour visit before it is billed: UNKNOWN. A night visit on the ward or a late home-care visit is where this happens; the test guards keep CI away from exactly that hour, so no test shows the behaviour either way.
+
+Not a care rule and not a tariff rule: which day a visit across midnight is billed on stays UNKNOWN (`lca`, PO row 00:39). The remedy is about **entering the time the nurse means**.
+
+### PO challenge row 23:39 (team-to-team hand-over, B1.3 hypothesis): what the outgoing team must still do (H-35)
+
+The row is PLANNED, no brief. `lca` 23:23 holds in law that the mandate ends by notice, agreement or the client's acceptance of a new team, not by a NAVORA status. **What the outgoing team must do clinically until acceptance (e.g. the content of a hand-over report) is UNKNOWN: Clinical Owner (D-43), with `lca` for responsibility (D-44, D-9).** I set no rule. System conditions so that the client is never between two teams (testable, none a care rule):
+
+1. A hand-over request changes nothing that carries care today: the outgoing team's planned visits stay planned and assigned; no visit is cancelled or unassigned by the request (`lca` (H-a) for `assigned_team_id`). pgTAP.
+2. Every existing safety signal keeps reaching the outgoing team while it is the current team: overdue/stuck (C1), `no_show` (SIG1), uncovered visit (J3), report not final. A request must not mute them. pgTAP or e2e.
+3. The outgoing team's open reports, returned reports and time corrections stay its own to finish; the incoming team's acceptance does not close or move them. pgTAP.
+4. A withdrawn or expired hand-over request leaves the outgoing team as it was, with a visible exception (as CR-209); never «no team». pgTAP.
+5. If the incoming team receives documentation, it is a recorded step (`lca` (H-c)); what it must contain is the Clinical Owner's (UNKNOWN).
+
+### PO challenge row 00:39 (visit or shift across midnight): what the morning team must see
+
+The row is PLANNED (B4, B9), no brief. **Which facts a night hand-over on the ward must contain is a clinical content standard: UNKNOWN, Clinical Owner (D-43; with NH-A4 for the ward).** I name no list. System conditions (testable):
+
+1. No fact recorded after midnight for a visit or shift that began before midnight drops out of the next hand-over, the day view or the open-work view because of its date: observations marked for hand-over, safety alerts, a «not completed» end, an open or returned report. A pinned-clock pgTAP or e2e test, e.g. a visit 23:30-00:30 with an observation at 00:15.
+2. A visit across midnight stays one unit: one start, one end, one report, one billable fact; the app does not split or refuse it (PO hypothesis; ADR-111 already allows `complete_visit` after the visit's date). Test as in (1).
+3. Its correction after midnight follows the same reason rule (F3) and lands on the day the nurse means (CGR-200).
+4. The test guards (ADR-113, `field.spec.ts:159`, `:402`) stay for CI stability, but the cross-midnight behaviour gets its own pinned-clock tests, so acceptance evidence no longer depends on the hour a run starts. Whether a guard can then go is `eng`'s.
+
+### Status of open findings changed by this run
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-198** | open; **remedy adopted** (SAFE-D11 brief §PO 23:39, widened §PO 00:39 to F3, F7) | closes with the `ABNAHMEAKTE.md` SAFE-D11 record naming a push `ci` and ten `ci-repeat` attempts with BD-2, F3, F7 «passed» from the logs |
+| **CGR-199** | open; (5) **answered by `lca`** (00:21: a referrer's statement may be recorded as information but must not close the consent gap; visibility (C-a), (C-b) 23:23) | (1) to (4) wait for a B1.3 brief |
+| **CGR-195** | open; (3) **answered by `lca`** (23:23: data-only wording compliant; real responsibility during a hand-over unresolved, legal adviser and owner, D-44, D-9) | (1), (2) unchanged; the 23:39 conditions above extend it for B1.3 |
+| **CGR-31**, **CGR-110**, **CGR-146**, **CGR-147**, **CGR-154**, **CGR-155**, **CGR-160**, **CGR-163**, **CGR-165** to **CGR-174**, **CGR-176**, **CGR-178** to **CGR-184**, **CGR-186** to **CGR-193**, **CGR-196**, **CGR-197** | open, unchanged | – |
+
+**Closed this run:** none.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-200** | F3 time correction (`correct_visit_time`, /field and /work correction form); measured billable minutes; CR-206 | **advisory**; S2 (before real clients; Phase A synthetic only) | The correction form combines the typed «HH:MM» with the Zurich date of the event's recorded tap. Across midnight the nurse cannot enter the true time (refused), or, for the first or last event of a visit, the time is stored 24 h off and accepted; the measured billable minutes use it | `field-client.tsx:885`; `time.ts:156-159, :179`; 0008:94-120; 0023:33-36; `field.spec.ts:155, :159, :402` (tests skip that hour) | (a) The form lets her choose the day (at least the visit's date and the next day), or derives it from the neighbouring events, and shows the full date and time she saves. (b) pgTAP or a unit test with a pinned clock: a visit 23:30-00:30, correcting «Angekommen» tapped 00:05 to 23:35 is stored on the visit's date; a correction that would make the visit longer than its planned slot by many hours is shown before it is saved (a warning, not a refusal: late documentation stays possible, CR-206; any length bound is UNKNOWN, Clinical Owner). (c) An e2e for the same case that does not depend on the hour of the run |
+
+### Gate status
+
+- **SAFE-D11** (`873e212`): merged, not accepted; `cra` gate held on `aba49e8` = merged head. Acceptance per CGR-198 as adopted.
+- **#1087** (STG1, `b2dc470`): no clinical content; I did not review the new head beyond its title (deploy of migrations to staging, never the seed). No gate asked of me.
+- **#1084** (dependabot, base `main`), **#3** (D-8): out of my scope, unchanged.
+- No open Engineering feature PR; no `cra-gate` line this run.
+
+### Decisions requested
+
+- **`po`:** merge this PR. Place CGR-200 (F3 across midnight) with the B4/B9 cross-midnight hypothesis or as a safety fix, your call; it is not an S1 for Phase A. Carry the 23:39 conditions (1)-(5) and the 00:39 conditions (1)-(4) into any brief that comes from those rows.
+- **`eng`:** for the 00:39 row, the evidence test you were asked for (a visit 23:30-00:30, pinned clock) also covers CGR-200 (b).
+- **`uxa`:** how the correction form shows the day it saves (CGR-200 (a)).
+- **`lca`:** which day a visit across midnight is billed on (UNKNOWN; no tariff rule from me).
+- **Clinical Owner (after G-1):** content of a team-to-team hand-over and of a night hand-over on the ward; any plausibility bound on a visit's length (CGR-200 (b)); late documentation and night visits across midnight (CGR-87 (3), (4), still open).
+
+---
+
 ## 2026-11-12 23:20 CET: **#1151 (SAFE-D11 follow-up): `cra-gate: #1151 aba49e8 clear`.** **CGR-194 closed** with evidence (pgTAP 131, CGR-194 (b) included). UXR-181 meets my gate condition (visibility and pgTAP 130 negatives unchanged). **New advisory CGR-198:** on both #1151 heads the BD flow test BD-2 was **skipped** (night window, ADR-113), so «BD green» for the SAFE-D11 acceptance is not shown yet. **New advisory CGR-199:** safety conditions for the PO's two B1.3 challenge rows (referrer sees and fixes readiness gaps), answering the PO's question on guessed values
 
 **Scope:** `recovery/main` @ `75d4d9a`; open PR heads #1151 `aba49e8`, #1087 `f0eb3ae`, #1084 `34f1f4d`, #3. **Trigger:** merged since my 21:35 section: #1149 (my 21:35 PR, `1774a78`), #1150 (PO 21:39, 22:20 FE-072 session, 22:27), #1152 (PO 22:39). New: PR #1151 (SAFE-D11 follow-up; red commit `e64990d`, fix `11816af`, docs `aba49e8`; no longer a draft). FE-072 (`FOUNDER_DECISIONS.md` v22). Asks to me: `eng` (#1151: `cra-gate` on the head), PO 22:27 and 22:39 challenge rows (safety text for a referrer view; risk of guessed values, e.g. a wrong insurer).
