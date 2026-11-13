@@ -6,11 +6,8 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(30);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
-insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90)
-  on conflict (organization_id, name) do nothing;
+-- B1.1-1c (FE-073): the seed names list regions only, so this file needs no extra list entry (before B1.1-1c it put the
+-- seed's legacy value on the list here).
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -31,16 +28,16 @@ select ok(has_column_privilege('authenticated', 'public.cases', 'residence_canto
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 
-select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital J1', 'Spital', 'Bern West',
+select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital J1', 'Spital', 'Basel-Stadt',
           'Teststadt', 'hoch', 'ab morgen', 'Austritt J1', 'Synthetischer Bedarf J1', array['Grundpflege', ' Wundversorgung '],
           'a1000000-0000-4000-8000-000000000001', 'referrer_stated'),
   'ok', 'operations records a partner request');
-select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital J1', 'Spital', 'Bern West',
+select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital J1', 'Spital', 'Basel-Stadt',
           'Teststadt', 'hoch', 'ab morgen', 'Austritt J1', 'Synthetischer Bedarf J1', array['Grundpflege'],
           'a1000000-0000-4000-8000-000000000001', 'referrer_stated'),
   'duplicate', 'the same key again is a duplicate');
 select throws_ok(
-  $$ select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital', null, 'Bern West',
+  $$ select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital', null, 'Basel-Stadt',
        null, 'sehr hoch', null, 'Titel', 'Bedarf', null, 'a1000000-0000-4000-8000-000000000002', 'referrer_stated') $$,
   '22023', null, 'an urgency outside niedrig/mittel/hoch is refused');
 
@@ -100,7 +97,7 @@ select is((select (res ->> 'ready')::boolean from r2), true, 'with all blocking 
 select is(
   (select m.status || '/' || m.region from public.matching_requests m
    join public.cases c on c.id = m.case_id where c.last_name = 'Person J1'),
-  'open/Bern West', 'the server opens the matching request once the case is ready');
+  'open/Basel-Stadt', 'the server opens the matching request once the case is ready');
 select ok((select ready_for_matching_at is not null from public.cases where last_name = 'Person J1'), 'readiness time recorded');
 reset role; -- RLS2 (0066): as the table owner (see above)
 select is(
@@ -130,7 +127,7 @@ set local role authenticated;
 select is(
   (select count(*)::int from public.case_funding_facts((select id from j1case))),
   0, 'a nurse of a team not assigned to the case cannot read its insurer or order data');
-select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital N', null, 'Bern West',
+select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital N', null, 'Basel-Stadt',
           null, 'mittel', null, 'Titel N', 'Bedarf N', null, 'a1000000-0000-4000-8000-000000000021', 'referrer_stated'),
   'rejected', 'a nurse cannot record partner requests');
 reset role;

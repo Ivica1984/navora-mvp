@@ -26,6 +26,24 @@ create function pg_temp.k(n integer) returns uuid language sql as $$
 $$;
 grant execute on function pg_temp.k(integer) to authenticated, anon;
 
+-- B1.1-1c (founder decision FE-073): the seed writes no legacy region value any more. This file needs the legacy value
+-- «Bern West» that the seed wrote before B1.1-1c, so it writes it back here, inside its own transaction (rolled back
+-- at the end): the rows of org A and org B that say Basel-Stadt are exactly the former «Bern West» rows of the seed.
+-- Triggers are off for these fixture writes only (no audit row, no mapping); the value is then registered per
+-- organisation the way the backfill of migration 0127 did.
+set local session_replication_role = replica;
+update public.teams set region = 'Bern West'
+  where organization_id in ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-b000-000000000012') and region = 'Basel-Stadt';
+update public.cases set region = 'Bern West'
+  where organization_id in ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-b000-000000000012') and region = 'Basel-Stadt';
+update public.partner_requests set region = 'Bern West'
+  where organization_id in ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-b000-000000000012') and region = 'Basel-Stadt';
+update public.matching_requests set region = 'Bern West'
+  where organization_id in ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-b000-000000000012') and region = 'Basel-Stadt';
+set local session_replication_role = origin;
+select private.register_legacy_region('00000000-0000-4000-b000-000000000011', 'Bern West');
+select private.register_legacy_region('00000000-0000-4000-b000-000000000012', 'Bern West');
+
 create temp table ids as
   select (select id from public.regions where organization_id = '00000000-0000-4000-b000-000000000011' and name = 'Basel-Stadt') as bs,
          (select id from public.regions where organization_id = '00000000-0000-4000-b000-000000000011' and name = 'Basel-Landschaft') as bl,

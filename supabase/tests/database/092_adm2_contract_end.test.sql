@@ -78,7 +78,7 @@ insert into public.team_memberships (team_id, user_id, qualification) values
 -- Case X = 208 (Nord): L is primary nurse. Case Y (Nord, synthetic): L is deputy, pflege primary.
 insert into public.cases (organization_id, id, name, first_name, last_name, region, status, urgency, assigned_team, assigned_team_id)
 values ('00000000-0000-4000-b000-000000000011', 'a0920000-0000-4000-8000-0000000002f1', 'Testfall Y', 'Testfall', 'Y',
-        'Bern West', 'laufend', 'mittel', 'Testteam Nord', '00000000-0000-4000-a000-000000000101');
+        'Basel-Stadt', 'laufend', 'mittel', 'Testteam Nord', '00000000-0000-4000-a000-000000000101');
 update public.cases set primary_nurse_id = pg_temp.u('l') where id = '00000000-0000-4000-a000-000000000208';
 update public.cases set primary_nurse_id = pg_temp.u('p'), deputy_nurse_id = pg_temp.u('l') where id = 'a0920000-0000-4000-8000-0000000002f1';
 -- L's planned visits: v1 on E (stays hers), v2 on E + 1 (released when the end date is recorded).

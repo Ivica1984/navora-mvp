@@ -1,4 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
+import { addLegacyTeamOrgA, removeLegacyTeamOrgA } from "./support/regions";
+
+const TD13 = { team: "Testteam Drittregion", value: "Drittregion TD-13" };
 
 // Synthetic local-only accounts from supabase/seed.sql (T9 roles are placeholders).
 const COACH = "coach.test@navora.test"; //  org A, role coach, no team
@@ -147,9 +150,17 @@ test.describe("with a session", () => {
     await page.goto("/teams");
     await expect(page.getByText("Testteam Nord").first()).toBeVisible();
     await expect(page.getByText("Fremdteam B")).toHaveCount(0);
-    // TD-13: every region in the data is shown, not only two hard-coded ones.
-    await expect(page.getByRole("heading", { name: "Basel Pilot" })).toBeVisible();
+    // TD-13: every region in the data is shown, not only two hard-coded ones. B1.1-1c (FE-073): the seed holds only the
+    // two list regions now, so a third region comes from a fixture team (was the seed's «Basel Pilot», Testteam Ost).
     await expect(page.getByText("Testteam Ost").first()).toBeVisible();
+    addLegacyTeamOrgA(TD13.team, TD13.value);
+    try {
+      await page.reload();
+      await expect(page.getByRole("heading", { name: TD13.value })).toBeVisible();
+      await expect(page.getByText(TD13.team).first()).toBeVisible();
+    } finally {
+      removeLegacyTeamOrgA(TD13.team, TD13.value);
+    }
     await page.goto("/operations");
     await expect(page.getByText("Testfall B1")).toHaveCount(0);
     await page.getByRole("button", { name: "Abmelden" }).click();

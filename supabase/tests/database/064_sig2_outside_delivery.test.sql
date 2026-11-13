@@ -257,7 +257,7 @@ select ok((select outside_none_at is not null and escalated_at is not null from 
 
 -- SIG2-5: the CGR-41 pgTAP: uncovered hospital-discharge visit, nobody has a planned visit outside the app -------------
 insert into public.matching_requests (organization_id, case_id, request_title, region, urgency, status, referral_type, selected_team_id)
-values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'Teamsuche SIG2', 'Bern West', 'mittel',
+values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'Teamsuche SIG2', 'Basel-Stadt', 'mittel',
         'accepted', 'hospital_discharge', '00000000-0000-4000-a000-000000000101');
 select pg_temp.visit(4, interval '20 hours', null, '00000000-0000-4000-a000-000000000208');
 -- 902's planned visits today are her span; for this case nobody of the team is in a span: move 902's fixtures away.

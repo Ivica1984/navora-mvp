@@ -10,7 +10,7 @@
 -- assertions 9 to 13 fail for a copied row. Test-only: no migration is needed (the first-search insert of 0034, patched
 -- by 0125, already derives every field); written after 0125, so there is no red run to quote.
 --
--- Users: Operations …904 (org A) · Testteam Nord …101 (Bern West, the previous team of seed case …208). Synthetic data only.
+-- Users: Operations …904 (org A) · Testteam Nord …101 (Basel-Stadt, the previous team of seed case …208). Synthetic data only.
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -39,7 +39,7 @@ update public.cases set lifecycle = 'closed', status = 'abgeschlossen', primary_
 
 insert into public.partner_requests (organization_id, id, partner_name, partner_type, region, urgency, request_title, need_summary,
                                      requested_services, status)
-values ('00000000-0000-4000-b000-000000000011', 'd1940000-0000-4000-8000-000000000001', 'Synthetisches Spital', 'Spital', 'Bern West',
+values ('00000000-0000-4000-b000-000000000011', 'd1940000-0000-4000-8000-000000000001', 'Synthetisches Spital', 'Spital', 'Basel-Stadt',
         'mittel', 'Synthetisch: Austritt D194', 'Synthetisch', array['Grundpflege'], 'open');
 
 create temp table facts as select '{"residence_municipality": "Teststadt", "residence_canton": "BE", "insurer_name": "Synthetische Kasse",
@@ -98,7 +98,7 @@ select is((select n.region || ' | ' || coalesce(n.urgency, '-') || ' | ' || n.re
            from d194_old o),
   'CGR-194: region, urgency, referral type and required qualification equal the withdrawn search''s');
 select is((select n.region || ' | ' || n.referral_type || ' | ' || n.required_qualification from d194_new n),
-  'Bern West | hospital_discharge | registered_nurse',
+  'Basel-Stadt | hospital_discharge | registered_nurse',
   'CGR-194: and they are the case''s facts (a registered nurse is needed: needs assessment not done)');
 
 -- Derived at the reopen time, never copied: CGR-194 (b) ----------------------------------------------------------------------

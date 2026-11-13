@@ -65,19 +65,19 @@ select pg_temp.visit('w1', 't2', '2025-06-10', 'q1', 15), pg_temp.visit('w2', 't
 --   → median 6.0, base 5. A sixth case ready in July and a case without a partner request are not counted.
 insert into public.partner_requests (organization_id, id, partner_name, partner_type, region, urgency, request_title,
                                      need_summary, requested_services, status, created_at)
-select '00000000-0000-4000-b000-000000000012', pg_temp.id('r' || n), 'Synthetisches Spital', 'Spital', 'Bern West', 'mittel',
+select '00000000-0000-4000-b000-000000000012', pg_temp.id('r' || n), 'Synthetisches Spital', 'Spital', 'Basel-Stadt', 'mittel',
        'Synthetisch AN3 ' || n, 'Synthetisch', array['Grundpflege'], 'open', pg_temp.at('2025-06-05', '08:00')
 from generate_series(1, 6) n;
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency,
                           assigned_team_id, source_partner_request_id, ready_for_matching_at)
 select '00000000-0000-4000-b000-000000000012', pg_temp.id('c' || n), pg_temp.at('2025-06-05', '09:00'), 'AN3 Fall ' || n,
-       'AN3', 'Fall ' || n, 'Bern West', 'laufend', 'mittel', pg_temp.id('t3'), pg_temp.id('r' || n),
+       'AN3', 'Fall ' || n, 'Basel-Stadt', 'laufend', 'mittel', pg_temp.id('t3'), pg_temp.id('r' || n),
        case when n = 6 then pg_temp.at('2025-07-02', '08:00') else pg_temp.at('2025-06-05', '08:00') + make_interval(hours => 2 * n) end
 from generate_series(1, 6) n;
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency,
                           assigned_team_id, ready_for_matching_at)
 values ('00000000-0000-4000-b000-000000000012', pg_temp.id('c7'), pg_temp.at('2025-06-05', '09:00'), 'AN3 Fall 7', 'AN3',
-        'Fall 7', 'Bern West', 'laufend', 'mittel', pg_temp.id('t3'), pg_temp.at('2025-06-05', '09:30'));
+        'Fall 7', 'Basel-Stadt', 'laufend', 'mittel', pg_temp.id('t3'), pg_temp.at('2025-06-05', '09:30'));
 
 -- AN3-1 (d): inform_gp tasks of T3's cases.
 --   Five recorded done in June after 24, 48, 72, 96, 120 h (case c1) → median 72.0, base 5.

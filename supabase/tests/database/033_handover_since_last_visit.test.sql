@@ -92,7 +92,7 @@ insert into public.quality_events (organization_id, id, created_at, case_id, vis
 -- A different case of the same client (same name), with an observation after the window start.
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, assigned_team_id) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-000000000208', private.now() - interval '30 days', 'Testfall 08', 'Testfall', '08',
-   'Bern West', 'laufend', 'mittel', '00000000-0000-4000-a000-000000000101');
+   'Basel-Stadt', 'laufend', 'mittel', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-0000000000f1', 'c3000000-0000-4000-8000-000000000208',
    '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date - 2, '14:00', '15:00', false, 'completed'),
@@ -101,7 +101,7 @@ insert into public.care_visits (organization_id, id, case_id, team_id, visit_dat
 -- A case without any history, with a card today.
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, assigned_team_id) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-000000000210', private.now(), 'Testfall 99', 'Testfall', '99',
-   'Bern West', 'laufend', 'mittel', '00000000-0000-4000-a000-000000000101');
+   'Basel-Stadt', 'laufend', 'mittel', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-0000000000f3', 'c3000000-0000-4000-8000-000000000210',
    '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, '20:00', '20:30', false, 'planned');
