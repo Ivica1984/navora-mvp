@@ -1,5 +1,7 @@
 # NAVORA — Architecture
 
+> **ARCHIVIERT: Dieses Dokument ist historisch. Die alleinige und verbindliche Quelle ist [`docs/architecture/ARCHITECTURE_HANDBOOK_V2.md`](docs/architecture/ARCHITECTURE_HANDBOOK_V2.md) (Version 2.2).** Fachliche Quelle: [Blueprint V3.2](docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md). Founder-Direktive FE-077 vom 2026-11-13. Kein Agent leitet aus diesem Dokument Vorgaben ab.
+
 **Status:** Zielarchitektur **DECIDED/PLANNED**, nicht mit dem aktuellen Produktionsstand gleichsetzen. **VERIFY AGAINST REPOSITORY**. Siehe `MASTER_CONTEXT.md` für Statuskonvention.
 
 **Aktualisierung 2026-11-03 (Owner-Direktive „AI-first“, po):** KI ist eine Kernsäule der Architektur. Details: [`docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md`](docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md), [`AI_OPPORTUNITY_MAP.md`](docs/product/AI_OPPORTUNITY_MAP.md), [`AI_CAPABILITY_ROADMAP.md`](docs/product/AI_CAPABILITY_ROADMAP.md). Hinweis: Mehrere Kontexte unten sind inzwischen weiter umgesetzt, als hier steht (Stand je Item: `docs/agents/IMPLEMENTATION_STATUS.md`); eine vollständige Statusrevision dieses Handbuchs ist **OPEN**.

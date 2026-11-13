@@ -118,7 +118,7 @@ def build(md_path: pathlib.Path, pdf_path: pathlib.Path, title: str, subtitle: s
     htmlf = tmp / "doc.html"
     htmlf.write_text(doc)
     footer = ('<div style="font-size:7.5pt;color:#78716c;width:100%;padding:0 12mm;display:flex;justify-content:space-between;'
-              f'font-family:Inter,Arial,sans-serif"><span>{html.escape(title)} · Entwurf zur Founder-Freigabe</span>'
+              f'font-family:Inter,Arial,sans-serif"><span>{html.escape(title)} · {html.escape(stamp)}</span>'
               '<span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>')
     with sync_playwright() as p:
         b = p.chromium.launch()

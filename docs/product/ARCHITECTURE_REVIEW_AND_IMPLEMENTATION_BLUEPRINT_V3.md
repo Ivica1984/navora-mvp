@@ -4,11 +4,11 @@
 
 | | |
 |---|---|
-| **Version** | 3.2 (Entwurf zur Founder-Freigabe), 2026-11-13 |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)** |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
-| **Geltung** | Bis zur Freigabe durch den Founder gilt Blueprint V2.x weiter. Nach der Freigabe ist V3 das führende Arbeitsbuch und V2 wird Archiv. Bei einem Widerspruch gilt die neueste Founder-Entscheidung (README Regel 10). |
+| **Geltung** | **Einzige fachliche Quelle des Projekts (FE-077).** Blueprint V1.x, V2.x, V3.0 und V3.1 sind archiviert. Bei einem Widerspruch gilt eine neuere Founder-Entscheidung (README Regel 10); Änderungen nur über die Versionstabelle. Fakten über den Code: der Repository-Code hat Vorrang (CLAUDE.md). |
 | **Schwesterdokument** | [Architecture Handbook V2.2](../architecture/ARCHITECTURE_HANDBOOK_V2.md): WIE gebaut wird, mit dem technischen End-to-End-Fluss |
 
 **Kennzeichnung.** Jede Zustandsaussage trägt eine der vier Marken:
@@ -641,6 +641,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle): `csa` #1208 · `uxa` #1209 · `cr
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-13 | 3.2 freigegeben | Founder-Freigabe; einzige fachliche Quelle; ältere Stände archiviert | FE-077 |
 | 2026-11-13 | 3.2 Entwurf | Zwei PO-Sitzungen zu FE-076 zusammengeführt: vollständige Rollenbeiträge `csa`/`cra`/`lca` als Anhänge A-C, `eng`-Prüfung (K1-K21) im Handbook; Plattform-Grundriss, Auftragsfluss als Swimlane, Geldfluss je Schicht als zusätzliche Bilder | FE-076; beide PO-Sitzungen |
 | 2026-11-13 | 3.1 Entwurf | Zielbild in vier Sätzen; Modellrechnung der Referenzschicht (Heim −115 CHF, Pflege +120 CHF, Bruttolohn +46 CHF); Plattform auf einer Seite; sechs Wireframes; Ablauf als Sequenz- und Zustandsdiagramm; Sicherheitsgarantien; Sichtbarkeitsmatrix; Lieferkette als Diagramm; AVG-Leitplanken; Kapitel 13 mit Beiträgen und Unterschriften aller Rollen; «Founder-Beispiel 120 CHF/Monat» aus V3.0 entfernt (keine Quelle gefunden) | Founder-Feedback FE-076 |
 

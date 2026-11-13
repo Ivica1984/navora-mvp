@@ -4,10 +4,10 @@
 
 | | |
 |---|---|
-| **Version** | 2.2 (Entwurf zur Founder-Freigabe), 2026-11-13; von `eng` gegen `recovery/main` `227e742b` geprüft |
+| **Version** | 2.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; von `eng` gegen `recovery/main` `227e742b` geprüft |
 | **Verantwortlich** | Engineering (`eng`) entscheidet das WIE. Diesen Entwurf hat der PO aus einem Code-Inventar von `recovery/main` (2026-11-13) geschrieben. `eng` bestätigt oder korrigiert jede Aussage per ADR. |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (End-to-End-Fluss, Machbarkeit und Unterschrift durch `eng`) |
-| **Geltung** | Bis zur Freigabe gilt `ARCHITECTURE.md` (Wurzel) weiter. Nach der Freigabe ersetzt dieses Handbuch `ARCHITECTURE.md`, und Abweichungen (§10) werden dort vermerkt. **Der Repository-Code hat immer Vorrang** (CLAUDE.md). |
+| **Geltung** | **Einzige technische Quelle des Projekts (FE-077).** `ARCHITECTURE.md` (Handbook V1.x) ist archiviert. **Der Repository-Code hat immer Vorrang** (CLAUDE.md); eine Abweichung wird dokumentiert und per ADR in diesem Handbuch nachgeführt. |
 | **Schwesterdokument** | [Blueprint V3.2](../product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md): WAS, WARUM, WANN |
 
 **Kennzeichnung:**
@@ -767,5 +767,6 @@ Empfehlung zur Pflege: Fundstellen im Handbook immer als «geltend `M/NNN:Z`» a
 | Datum | Version | Änderung |
 |---|---|---|
 | 2026-11-13 | 2.0 Entwurf | Neufassung aus dem Code-Inventar; fünf Engines, Datenmodell, Sicherheit, Tests, Staging; `eng` bestätigt per ADR |
+| 2026-11-13 | 2.2 freigegeben | Founder-Freigabe; einzige technische Quelle; `ARCHITECTURE.md` archiviert | FE-077 |
 | 2026-11-13 | 2.2 Entwurf | `eng`-Prüfung von 90 Aussagen gegen den Code, Korrekturen K1-K21 eingearbeitet, Engine-Tabellen-Bild, §11 mit Unterschrift je Engine und vollem Prüfprotokoll | FE-076; `eng`-Beitrag |
 | 2026-11-13 | 2.1 Entwurf | End-to-End-Fluss des Auftrags durch alle fünf Engines (Gesamtbild und technische Sequenz), Schnittstellen der Engines, Sichtbarkeitsbild der Mandantentrennung, Deployment-Bild, Kapitel 11 Machbarkeitsprüfung mit Unterschrift durch `eng`; axe-Aussage korrigiert |
