@@ -60,6 +60,8 @@ export async function getIntakeData(): Promise<{
     )
     .eq("organization_id", organizationId)
     .in("status", ["open", "ready_to_convert"])
+    // BK-a (ADR-194): a client order (order_kind set, status client_confirmed) is never an intake row.
+    .is("order_kind", null)
     .order("created_at", { ascending: false });
   if (error) {
     logEvent("error", "intake.load_failed", errorFields(error));
@@ -74,7 +76,9 @@ export async function getIntakeData(): Promise<{
   }
 
   // RET1: cases each referral may be linked to (explicit choice at intake; no automatic identity matching).
-  const requests = data ?? [];
+  // An intake row always carries an urgency (check partner_requests_order_shape, migration 0129); only a client order
+  // may have none, and the query above excludes those.
+  const requests = (data ?? []).filter((r): r is typeof r & { urgency: string } => r.urgency !== null);
   const linkable: Record<string, LinkableCase[]> = {};
   await Promise.all(
     requests.map(async (r) => {
