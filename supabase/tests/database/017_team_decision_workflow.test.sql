@@ -7,6 +7,13 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(46);
 
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
+-- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+insert into public.regions (organization_id, name, sort_order) values
+  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90),
+  ('00000000-0000-4000-b000-000000000011', 'Testregion ohne Team', 91)
+  on conflict (organization_id, name) do nothing;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);

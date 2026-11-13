@@ -4,6 +4,8 @@ import type { Database } from "@/lib/supabase/database.types";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { accessStateByUser, lastEventAtByUser, type AccessEvent, type AccessState } from "./rules";
+import { getRegionOptions } from "@/features/regions/queries";
+import type { RegionOption } from "@/features/regions/rules";
 
 type Fn = Database["public"]["Functions"];
 export type AdminMember = Fn["admin_members"]["Returns"][number];
@@ -33,6 +35,8 @@ export type AdminData = {
   access: Record<string, AccessState>;
   /** ADM2-13 (0092): the time of her newest access event (a contract end is restored by an event after it). */
   lastAccessEventAt: Record<string, string>;
+  /** B1.1-1 (ADR-186): the organisation's region list for the team forms. */
+  regions?: RegionOption[];
 };
 
 function fail(event: string, error: unknown): never {
@@ -72,8 +76,10 @@ export async function getAdminData(): Promise<AdminData | null> {
   // the access-end step for her (readMemberOpenReports in ./commands), as COND1-5a does for her unexported-days count
   // (prepareMemberAccessEnd, COND2-1). The leavers of the next 14 days (ADM2-12) are read by the page through
   // getLeaverOpenReports (features/contract-end), for those leavers only.
+  const { options: regions } = await getRegionOptions(supabase, organizationId);
   return {
     organizationId,
+    regions,
     members: memberRows,
     invitations: (invitations.data ?? []) as AdminInvitation[],
     teams: (teams.data ?? []) as AdminTeam[],

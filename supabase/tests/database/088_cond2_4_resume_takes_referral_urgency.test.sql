@@ -10,6 +10,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(35);
 
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
+-- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+insert into public.regions (organization_id, name, sort_order) values
+  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90)
+  on conflict (organization_id, name) do nothing;
+
 -- Pinned clock (DST1 pattern): 10:00 Zurich today.
 select set_config('navora.test_now',
   (((private.now() at time zone 'Europe/Zurich')::date + time '10:00') at time zone 'Europe/Zurich')::text, true);
