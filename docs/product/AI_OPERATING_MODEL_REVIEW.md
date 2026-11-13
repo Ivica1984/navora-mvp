@@ -509,6 +509,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Edge:** relatives' status is a rule-derived view of recorded facts (AUT-109); no AI-drafted message in Phase A.
 - No agent added or removed (A3 gains the gap forecast as its stage-0 rule part; A7 gains the synthetic evaluation step). Stage 0 only; stage 1 entry conditions unchanged.
 
+**Referral region: consistency of facts already held before any new datum (`aia` 2026-11-13 08:19, AUT-110, AUT-111; B1.1 review):**
+- **Control:** where two recorded facts describe the same thing (the referral's region and the case's residence canton), a rule checks that they agree and proposes one from the other for confirmation before a new field or an external reference table is added (AUT-110). A mismatch blocks the search as a named readiness item; nothing is rejected or rewritten by rule.
+- **Control:** no duplicate detector on free text; duplicates are measured first and prevented later only by a rule over structured facts the referrer records (AUT-111).
+- **Scope note:** `lca` (V-a) «no dictation invitation in free-text fields» holds until A7 is released at its own stage; A7's controlled entry then replaces the OS keyboard (AUT-108).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -563,3 +569,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-12 14:25 | `aia` | §12: controls «no derived fact the person did not record» (AUT-100) and «measures count what they say» (AUT-101); intake as rule plus monitor with the later-stage edge named (AUT-102). No agent added or removed |
 | 2026-11-12 20:20 | `aia` | §12: matching controls «rules decide eligibility, no score, no AI order among parallel offers», «QUAL1 answer at offer and commitment» and «signal never read as responsiveness» (AUT-103 to AUT-105, input to FE-070 Lieferung 3). No agent added or removed |
 | 2026-11-13 02:20 | `aia` | §12: controls «prediction as projection of recorded facts, no learned forecast on synthetic history» (AUT-107), «keyboard dictation is an AI service outside the ledger, `lca` before real data» (AUT-108), «a value is filled only when the facts admit exactly one» (AUT-106); relatives by rule (AUT-109); input to FE-072 (7) Lieferung 4. No agent added or removed |
+| 2026-11-13 08:19 | `aia` | §12: controls «consistency of facts already held before a new datum» (AUT-110) and «no free-text duplicate detector, measure first» (AUT-111); (V-a) scope note for A7 (AUT-108). No agent added or removed |
