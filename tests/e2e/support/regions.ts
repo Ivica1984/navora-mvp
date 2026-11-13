@@ -35,6 +35,22 @@ export function addLegacyTeamOrgA(team: string, legacyValue: string): void {
   expect(registered, `«${legacyValue}» is an unmapped legacy value of org A`).toBe("1");
 }
 
+/**
+ * UXR-189: a second building team of org A that still carries `legacyValue` after that value was mapped (the stray
+ * row of a lost race, CGR-201 safety net, ADR-187). An owner insert with the trigger on would take the mapped name
+ * (register_legacy_region), so this one fixture insert runs with triggers off, as pgTAP 133 section 3 does. The caller
+ * has mapped `legacyValue` already. Removed with `removeLegacyTeamOrgA(team, legacyValue)`.
+ */
+export function addStrayTeamOrgA(team: string, legacyValue: string): void {
+  const mapped = psql(`select count(*) from public.region_legacy_values
+        where organization_id = '${ORG_A}' and legacy_value = ${literal(legacyValue)} and region_id is not null`);
+  expect(mapped, `«${legacyValue}» is a mapped legacy value of org A before the stray team is added`).toBe("1");
+  psql(`set session_replication_role = replica;
+        insert into public.teams (organization_id, name, region, care_focus, status, open_slots, utilization)
+        values ('${ORG_A}', ${literal(team)}, ${literal(legacyValue)}, 'Ambulante Pflege', 'building', 0, 0);
+        set session_replication_role = origin;`);
+}
+
 /** Removes the fixture team, its legacy row and the audit rows of a mapping of that value. Idempotent. */
 export function removeLegacyTeamOrgA(team: string, legacyValue: string): void {
   // Audit rows are append-only for every application path; the fixture cleanup removes its own rows as the table
