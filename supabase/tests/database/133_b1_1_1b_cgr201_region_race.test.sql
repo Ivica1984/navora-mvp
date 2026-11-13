@@ -39,7 +39,7 @@ select ok((select prosrc from pg_proc where oid = 'private.region_from_list()'::
 select ok((select prosrc from pg_proc where oid = 'private.register_legacy_region(uuid, text)'::regprocedure) ~* 'for share',
           'register_legacy_region takes the same share lock before reading the mapping');
 
--- Fixture: map «Bern West» as Operations, then leave one team and one case on the old text (a lost race), and one case
+-- 3 Fixture: map «Bern West» as Operations, then leave one team and one case on the old text (a lost race), and one case
 -- on a text that has no legacy row at all. Triggers are off only for these three fixture writes.
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -52,7 +52,7 @@ update public.cases set region = 'Bern West' where id = (select case1 from ids);
 update public.cases set region = 'Ohne Eintrag B133' where id = (select case2 from ids);
 set local session_replication_role = origin;
 
--- 4-7 Listed with counts and the mapped region ---------------------------------------------------------------------
+-- 4-6 Listed with counts and the mapped region ---------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 select ok(exists (select 1 from public.unmapped_regions('00000000-0000-4000-b000-000000000011') u
@@ -87,7 +87,7 @@ select is((select count(*)::int from public.audit_events a
              and (select array_agg(k order by k) from jsonb_object_keys(a.changed) k) = array['from', 'to']),
           2, 'the first mapping and the rewrite of the stray rows each wrote one audit row with from and to only');
 
--- 13-14 A text without a legacy row --------------------------------------------------------------------------------
+-- 13-15 A text without a legacy row --------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 select is(public.map_legacy_region('00000000-0000-4000-b000-000000000011', 'Ohne Eintrag B133', (select bl from ids), pg_temp.k(5)),
