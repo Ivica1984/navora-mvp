@@ -19,7 +19,7 @@ create table if not exists public.regions (
   name            text not null check (char_length(btrim(name)) between 2 and 80),
   sort_order      integer not null default 0,
   active          boolean not null default true,
-  created_at      timestamptz not null default now(),
+  created_at      timestamptz not null default private.now(),
   unique (organization_id, name),
   unique (id, organization_id)
 );
@@ -66,7 +66,7 @@ create table if not exists public.region_legacy_values (
   mapping_kind    text check (mapping_kind in ('auto', 'manual')),
   mapped_by       uuid,
   mapped_at       timestamptz,
-  first_seen_at   timestamptz not null default now(),
+  first_seen_at   timestamptz not null default private.now(),
   unique (organization_id, legacy_value),
   foreign key (region_id, organization_id) references public.regions (id, organization_id),
   check ((region_id is null) = (mapping_kind is null))
@@ -203,6 +203,7 @@ as $$
   where l.organization_id = p_organization_id and l.region_id is null
     and (select auth.uid()) is not null
     and private.has_org_role(p_organization_id, array['admin', 'operations'])
+    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   order by l.legacy_value;
 $$;
 revoke all on function public.unmapped_regions(uuid) from public, anon;
