@@ -1728,7 +1728,21 @@ isOneToOne: true
                   Update: {
                     "first_seen_at"?: string,"id"?: string,"legacy_value"?: string,"mapped_at"?: string | null,"mapped_by"?: string | null,"mapping_kind"?: string | null,"organization_id"?: string,"region_id"?: string | null
                   }
-                  Relationships: []
+                  Relationships: [
+                    {
+      foreignKeyName: "region_legacy_values_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "region_legacy_values_region_id_organization_id_fkey"
+      columns: ["region_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "regions"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"regions": {
                   Row: {
                     "active": boolean,"created_at": string,"id": string,"name": string,"organization_id": string,"sort_order": number
@@ -1740,7 +1754,15 @@ isOneToOne: true
                   Update: {
                     "active"?: boolean,"created_at"?: string,"id"?: string,"name"?: string,"organization_id"?: string,"sort_order"?: number
                   }
-                  Relationships: []
+                  Relationships: [
+                    {
+      foreignKeyName: "regions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"response_deadlines": {
                   Row: {
                     "amount": number,"id": string,"organization_id": string | null,"referral_type": string,"unit": string,"updated_at": string,"updated_by": string | null
@@ -3115,16 +3137,16 @@ isOneToOne: false
               "team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
+"unmapped_regions":
+{ Args: { "p_organization_id": string }; Returns: {
+              "cases": number,"legacy_value": string,"open_searches": number,"referrals": number,"teams": number
+            }[]
+                           },
 "unregister_push_subscription":
 { Args: { "p_endpoint": string,"p_idempotency_key": string }; Returns: string
                            },
 "update_case_intake":
 { Args: { "p_case_id": string,"p_facts": Json,"p_idempotency_key": string,"p_reason"?: string }; Returns: Json
-                           },
-"unmapped_regions":
-{ Args: { "p_organization_id": string }; Returns: {
-              "cases": number,"legacy_value": string,"open_searches": number,"referrals": number,"teams": number
-            }[]
                            },
 "update_report_draft":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json
