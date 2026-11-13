@@ -2,7 +2,7 @@
 <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs>
 <rect width="1520" height="588" fill="#ffffff"/>
 <text x="20.0" y="34.0" font-size="23" font-weight="700" fill="#022c22" text-anchor="start">Teil A · Vom Bedarf zur Zusage in Minuten statt Telefonketten</text>
-<text x="20.0" y="60.0" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Referenzfall FE-073 (5): Pflegeheim 4052 Basel, Krankmeldung 14:15, Spätschicht 16:30–21:30, Demenzabteilung. Phase A, synthetische Daten.</text>
+<text x="20.0" y="60.0" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Referenzfall FE-073 (5): Pflegeheim 4052 Basel, Ausfall gemeldet 14:15, Spätschicht 16:30–21:30, Demenzabteilung. Phase A, synthetische Daten.</text>
 <rect x="20" y="92" width="1480" height="144" rx="10" fill="#fafaf9" stroke="#d6d3d1"/>
 <text x="34.0" y="161.0" font-size="16" font-weight="700" fill="#022c22" text-anchor="start">Auftraggeber</text>
 <text x="34.0" y="181.0" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">/order</text>
