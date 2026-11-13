@@ -3681,7 +3681,7 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 **Clinical review gate:** none (no clinical assertion, no product behaviour). **No data:** no row read or written; the live project is not touched. **Rollback:** a new migration re-granting the removed privileges (each is listed above); not expected to be needed.
 ### ADR-177 — B0-8: one script checks that migrations run in the same order on an empty and on an existing database
 
-**Date:** 2026-11-10 18:30 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** `recovery/main` `818c8e8` · **Block:** B0 (issue #987), criterion B0-8 (`docs/product/PRODUCT_BLOCKS.md` §4: "Ein Prüfskript stellt fest, dass Migrationen auf leerer und auf bestehender Datenbank in derselben Reihenfolge laufen (z. B. 0106 nach 0122 gemergt)"; + script green / − a late-inserted low number is reported; script in CI). Opened under the COORD-7 exception (PO 15:39 and 16:39) while #1020 (B0-7) waits only for the `lca` gate. ADR-175 is on the open B0-4 branch and ADR-176 on #1020, so this is ADR-177. CI configuration, one script and one unit test only: no product code, no migration, no test assertion changed.
+**Date:** 2026-11-10 18:16 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** `recovery/main` `818c8e8` · **Block:** B0 (issue #987), criterion B0-8 (`docs/product/PRODUCT_BLOCKS.md` §4: "Ein Prüfskript stellt fest, dass Migrationen auf leerer und auf bestehender Datenbank in derselben Reihenfolge laufen (z. B. 0106 nach 0122 gemergt)"; + script green / − a late-inserted low number is reported; script in CI). Opened under the COORD-7 exception (PO 15:39 and 16:39) while #1020 (B0-7) waits only for the `lca` gate. ADR-175 is on the open B0-4 branch and ADR-176 on #1020, so this is ADR-177. CI configuration, one script and one unit test only: no product code, no migration, no test assertion changed.
 
 **Rule (deterministic, no AI).** An empty database (`supabase db reset`) applies every file in `supabase/migrations` in version order. An existing database applies only the versions it has not recorded, after the ones it has. The two orders are equal exactly when a change **only appends**. `scripts/migration-order.mjs` therefore reports, comparing HEAD with a base revision:
 1. an added migration whose 14-digit version is **not above the base's highest version** (the B0-8 case: 0106 merged after 0122);
@@ -3939,7 +3939,7 @@ The trigger, not each command, is the guard, so no other write path can bypass i
 
 ### ADR-191 — BK T-1 (draft): the order is a `partner_requests` row with shift fields; no table `orders`; the search runs without a case
 
-**Date:** 2026-11-13 18:30 Europe/Zurich · **Block:** BK, preparation only (README rule 12; FE-077 issue #1213 item 1). BK is not active; nothing here is built or merged as code. · **Status:** PROPOSED (draft for `cra`, `lca`, `uxa`, `aia` and the PO; becomes the BK-a design once BK is active). ADR-190 is taken by STG1 on the open PR #1087; numbering continues at 191.
+**Date:** 2026-11-13 18:16 Europe/Zurich · **Block:** BK, preparation only (README rule 12; FE-077 issue #1213 item 1). BK is not active; nothing here is built or merged as code. · **Status:** PROPOSED (draft for `cra`, `lca`, `uxa`, `aia` and the PO; becomes the BK-a design once BK is active). ADR-190 is taken by STG1 on the open PR #1087; numbering continues at 191.
 
 - **Context (read from `recovery/main` `9ad2fb0`, IMPLEMENTED unless marked):**
   1. The word «order» is taken in the code by the medical order (Verordnung): `order_basis`, `order_expired`, `order_validity_missing`, `private.order_open_end_episodes`, ORD0. The live database has a `public.orders` of UNKNOWN purpose that was deliberately not reconstructed (`M/001:9`, backlog O4); a later schema pull (O1) would collide with a new `orders`.
@@ -3963,7 +3963,7 @@ The trigger, not each command, is the guard, so no other write path can bypass i
 
 ### ADR-192 — BK T-5 (draft): the client is a separate account, never an organisation member; it reads and writes only through its own functions
 
-**Date:** 2026-11-13 18:30 Europe/Zurich · **Block:** BK, preparation only · **Status:** PROPOSED (draft; BK-a design once BK is active)
+**Date:** 2026-11-13 18:16 Europe/Zurich · **Block:** BK, preparation only · **Status:** PROPOSED (draft; BK-a design once BK is active)
 
 - **Context (IMPLEMENTED):** `organization_memberships.role` allows `admin`, `coach`, `operations`, `nurse` (`M/003:36`, `M/035:112`). Most read policies and helpers grant by organisation membership (`private.is_org_member`, `has_org_role`, `is_team_member`, `is_coordinator`; `M/003:113-150`, `M/015:19`). A client role inside `organization_memberships` would therefore inherit every policy that tests `is_org_member`: one forgotten policy and a client reads team data. No client role exists today (Handbook V2.2 §6).
 - **Decision (PROPOSED):**
@@ -3979,7 +3979,7 @@ The trigger, not each command, is the guard, so no other write path can bypass i
 
 ### ADR-193 — BK T-2 (draft): a synthetic BS/BL postcode table with precomputed distances; distance from the team's service area, never from a person
 
-**Date:** 2026-11-13 18:30 Europe/Zurich · **Block:** BK, preparation only (BK-b) · **Status:** PROPOSED (draft)
+**Date:** 2026-11-13 18:16 Europe/Zurich · **Block:** BK, preparation only (BK-b) · **Status:** PROPOSED (draft)
 
 - **Context:** PostGIS was deliberately not reconstructed (`M/001:10`). `cases.plz` exists (`M/001:50`); `teams` has no postcode column (ADR-189, OPEN). Regions are a list per organisation, matched by text (ADR-186, ADR-187). `lca` (Blueprint V3.2 Annex C §2): P-1 matching only on postcode and distance; P-4 no location tracking; P-5 distance from the team's service area, never a member's home or GPS; P-8 the distance table holds only places and distances; PLZ-a source, version and «©swisstopo» on a real table; PLZ-b load a file, never query a service per order. The swisstopo terms for production are OPEN (owner step).
 - **Decision (PROPOSED):**
