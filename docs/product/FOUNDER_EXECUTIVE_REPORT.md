@@ -6,6 +6,21 @@
 
 ---
 
+## Nachtrag Freitag 13.11., 19:40 (geplanter PO-Lauf)
+
+- **BK-Vorarbeit gemergt** (#1228, nur Dokumentation): drei technische Entwürfe für den Bau. Der Auftrag eines Heims wird erst bei «Bestätigen & Absenden» gespeichert und enthält keinen Freitext; der Auftraggeber hat ein eigenes Konto ohne jeden Einblick in Teamdaten; die Distanz zählt nur ab dem Einsatzgebiet des Teams, nie ab einer Privatadresse oder per GPS. Als Nächstes baut Engineering BK-a.
+- **Blueprint V3.2.4:** die Korrekturen der Rechtsprüfung (`lca`) sind eingetragen. Wichtig für Sie: Die Beispielrechnung (Heim spart 115 CHF, +33 % Lohn) ist **ein Modell mit Beispielwerten, kein Tarif und kein Einkommensversprechen**. Bitte diese Zahlen nach aussen (Website, Gespräch mit einem Heim, Rekrutierung) nur mit dieser Beschriftung direkt daneben verwenden (Lauterkeitsrecht, UWG).
+- **Neue Frage an Sie (ein Satz, Ja oder Nein):** «Über NAVORA laufen keine Zahlungen zwischen Auftraggeber und Team.» FE-055 deckt «keine Provision» ab, diesen Satz aber nicht ausdrücklich. Ihr Ja macht die Gebührenseite der AVG-Abgrenzung verbindlich (die rechtliche Bestätigung bleibt beim Gutachten).
+- **Für später (vor realen Daten, kein Handlungsbedarf jetzt):** eine schriftliche Bestätigung von swisstopo für das offizielle PLZ-Verzeichnis, von Ihrer Adresse aus; die sieben Punkte dafür hat `lca` formuliert (Journal 13.11. 16:40 §3). Für die Simulation genügt die synthetische Tabelle.
+
+## Nachtrag Freitag 13.11., 18:40 (geplanter PO-Lauf)
+
+- **B1.1 «Sichere Anfrage» ist für die Simulation abgenommen** (synthetische Daten). Nachweis auf `33523a5`: alle Prüfungen grün, Wiederholungstest 20/20, nichts übersprungen. Damit sind seit Montag drei Abnahmen erreicht (B0, BD-Teilabnahme, SAFE-D11) plus B1.1. **Keine Freigabe für reale Personen oder Daten.**
+- **Ab jetzt ist BK aktiv**, der durchgehende Kern vom Auftrag bis zum Rechnungsentwurf. Erstes Teilstück: Auftrag erfassen und bestätigen (BK-a). Das ist der Hebel für M9.
+- **Zwei PO-Entscheide ohne Ihre Zustimmung nötig** (operativ, keine Pflege- oder Rechtsregel): Wie weit ein Team fährt, bestimmt das Team; der Auftraggeber kann nur verengen. Schichtnamen kommen aus dem Schichtplan des Auftraggebers und steuern weder Prüfung noch Preis.
+- **Von Ihnen weiter erwartet:** FE-078 (Rundruf an mehrere Teams) ist in der Rechtsprüfung zitiert (#1223), aber nicht in `FOUNDER_DECISIONS.md` eingetragen. Bitte bestätigen oder verwerfen; bis dahin bleibt #1223 offen.
+- Die Tabelle «Auf einen Blick» unten ist der Stand von 12:40 und wird nächsten Freitag neu geschrieben.
+
 ## Auf einen Blick (1 Minute)
 
 | | |
