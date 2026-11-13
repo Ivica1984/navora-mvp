@@ -1,14 +1,14 @@
-# NAVORA Architecture Handbook V2.0
+# NAVORA Architecture Handbook V2.1
 
 **Die technische Verfassung: wie NAVORA gebaut wird**
 
 | | |
 |---|---|
-| **Version** | 2.0 (Entwurf zur Founder-Freigabe und Bestätigung durch Engineering), 2026-11-13 |
+| **Version** | 2.1 (Entwurf zur Founder-Freigabe und Unterschrift durch Engineering), 2026-11-13 |
 | **Verantwortlich** | Engineering (`eng`) entscheidet das WIE. Diesen Entwurf hat der PO aus einem Code-Inventar von `recovery/main` (2026-11-13) geschrieben. `eng` bestätigt oder korrigiert jede Aussage per ADR. |
-| **Auftrag** | Founder-Anweisung vom 2026-11-13 (FE-075) |
+| **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (End-to-End-Fluss, Machbarkeit und Unterschrift durch `eng`) |
 | **Geltung** | Bis zur Freigabe gilt `ARCHITECTURE.md` (Wurzel) weiter. Nach der Freigabe ersetzt dieses Handbuch `ARCHITECTURE.md`, und Abweichungen (§10) werden dort vermerkt. **Der Repository-Code hat immer Vorrang** (CLAUDE.md). |
-| **Schwesterdokument** | [Blueprint V3.0](../product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md): WAS, WARUM, WANN |
+| **Schwesterdokument** | [Blueprint V3.1](../product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md): WAS, WARUM, WANN |
 
 **Kennzeichnung:**
 
@@ -123,12 +123,79 @@ flowchart TB
 - Eine App für Telefon und Desktop (UX2).
 - Je Karte eine Hauptaktion (UX1).
 - Sicherheitssignale stehen immer oben.
-- Jede Route wird mit `ui-screenshots` (390 und 1440, jede Rolle) und axe-core geprüft.
+- Jede Route wird mit `ui-screenshots` (390 und 1440, jede Rolle) aufgenommen; axe prüft dabei heute nur die Regel `color-contrast` (`tests/screenshots/capture.spec.ts`).
 - Texte schreibt `uxa`; es gibt keine Matrixcodes in Benutzertexten.
 
 ---
 
 ## 4. Die fünf Backend-Engines
+
+### 4.0 End-to-End: wie ein Auftrag durch das System fliesst (FE-076)
+
+**Gesamtfluss.** Durchgezogene Kästen sind heute im Code vorhanden (IMPLEMENTED), gestrichelte sind geplant (PLANNED). Jede KI-Stufe arbeitet in Phase A nur mit synthetischen Daten (D-35 Regel A).
+
+```mermaid
+flowchart TD
+  A["Auftraggeber /order<br/>Diktat oder Text"]:::planned --> X["KI-Extraktion<br/>Felder mit Quelle, Bestätigung durch den Auftraggeber"]:::planned
+  X --> E1["Engine 1 · Deterministische Kriterien<br/>PLZ-Distanz · Qualifikation (Matrix) · Verfügbarkeit · bestätigte Merkmale<br/>heute: Region + Pflichtqualifikation"]:::partial
+  E1 -->|"nur zulässige Teams"| E2["Engine 2 · KI-Matching<br/>Rangfolge unter den Zulässigen, Begründung in Worten"]:::planned
+  E1 -.->|"ausgeschlossen, mit Grund"| R["Ausschlussgründe<br/>sichtbar, testbar"]:::planned
+  E2 --> PUSH["Push an das Team-Dashboard /team<br/>Kaskade mit Zeitfenster"]:::partial
+  PUSH --> Z["1-Klick-Zusage<br/>atomar (heute); erneute Prüfung aller BK-Filter geplant"]:::partial
+  Z --> F["Mobile Schichtausführung /field<br/>Start, Zeit, Aufgaben"]:::impl
+  F --> AU["Audio-Diktat"]:::planned
+  AU --> E3["Engine 3 · Voice-to-Report<br/>Spracherkennung, Entwurf mit Quelle je Satz"]:::planned
+  E3 --> SIG["Menschliche Signatur<br/>heute F6/F7; «nur die Pflegekraft der Schicht» als Test BK-8n geplant"]:::partial
+  SIG --> E4["Engine 4 · Rechnungsstellung ohne Provision<br/>abrechenbare Fakten heute, Rechnungsentwurf geplant"]:::partial
+  E5["Engine 5 · Sicherheit und Signale<br/>nicht gedeckt · überfällig · P1"]:::partial
+  PUSH -.-> E5
+  F -.-> E5
+  E5 -.-> A
+  classDef impl fill:#ecfdf5,stroke:#065f46,color:#022c22
+  classDef partial fill:#fffbeb,stroke:#92400e,color:#022c22
+  classDef planned fill:#f0f9ff,stroke:#075985,color:#0c4a6e,stroke-dasharray: 5 4
+```
+
+Legende: grün = IMPLEMENTED, gelb = teilweise, blau gestrichelt = PLANNED.
+
+**Technische Sequenz** (Arbeitsnamen für geplante Funktionen und Tabellen; die Namen legt `eng` per ADR fest, T-1 bis T-7):
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant UI as Next.js Portal (Server Action)
+  participant AI as /api/ai/* (Muster 4, PLANNED)
+  participant DB as Postgres (RLS, private.*)
+  participant CR as pg_cron / Push
+  UI->>AI: Freitext oder Audio (nur synthetisch)
+  AI-->>UI: Feldvorschlag + Quelle je Feld (ai_suggestions)
+  UI->>DB: Auftrag bestätigen (Befehlsfunktion, idempotent)
+  DB->>DB: Engine 1: harte Filter je Team, Grund je Ausschluss
+  DB-->>UI: zulässige Teams (Kennungen + bestätigte Fakten)
+  UI->>AI: Rangfolge anfragen (nur zulässige Teams)
+  AI-->>UI: Rangfolge + Begründung (nie neue Teams)
+  UI->>DB: Rangfolge als Vorschlag speichern (ai_suggestions), Kaskade starten
+  DB->>CR: Angebot an Team 1, Zeitfenster startet
+  CR-->>UI: Push an /team
+  UI->>DB: Schicht übernehmen (Zeilensperre, Regeln erneut)
+  DB-->>UI: «gedeckt» für /order (Realtime oder Polling, T-4)
+  UI->>DB: Einsatz starten, Zeit, Aufgaben (F1-F4)
+  UI->>AI: Diktat
+  AI-->>UI: Berichtsentwurf (Entwurf, unsigniert)
+  UI->>DB: Freigeben & Signieren
+  DB->>DB: billable_facts → Rechnungsentwurf (Team-Ledger), Prüfungen
+```
+
+**Schnittstellen der Engines**
+
+| Engine | Eingabe | Ausgabe | Läuft in | Status |
+|---|---|---|---|---|
+| E1 Matching | bestätigter Auftrag, Teams, Qualifikationen, Kalender, PLZ-Tabelle | zulässige Teams; Ausschlussgrund je Team | Postgres (`private.*`) | teilweise IMPLEMENTED |
+| E2 Routing | zulässige Teams + bestätigte Fakten | Rangfolge, Begründungssatz, Vorschlag im AIG1-Buch | `/api/ai/*` oder Regel (Art `rule`) | PLANNED |
+| E3 Voice-to-Report | Audio, Auftrag, Aufgaben | Entwurf mit Quelle je Satz | `/api/ai/*` (Muster 4) | PLANNED |
+| E4 Billing | signierte Berichte, `billable_facts`, Preis des Auftrags | Rechnungsentwurf im Team-Ledger; Abo- und Lizenzrechnungen in den NAVORA-Ledgern | Postgres | Fakten IMPLEMENTED, Rechnung PLANNED |
+| E5 Signale | Ereignisse, Fristen, Zustände | Ausnahme mit Priorität, Push, Eskalation | Postgres + pg_cron + Push | IMPLEMENTED (BK-6 PLANNED) |
+
 
 ### Engine 1: On-Platform-Matching (PostgreSQL, deterministisch)
 
@@ -320,6 +387,23 @@ Es gibt keinen Fremdschlüssel und keine Ansicht, die Pflegeerlös und NAVORA-Er
 
 ## 6. Sicherheit, RLS und Mandantentrennung
 
+```mermaid
+flowchart LR
+  subgraph ORG_T["Organisation der Teams"]
+    T1["Team Basel Ost<br/>Fälle, Einsätze, Berichte, Rechnungen"]
+    T2["Team Riehen<br/>Fälle, Einsätze, Berichte, Rechnungen"]
+  end
+  AG["Auftraggeber (PLANNED)<br/>eigene Aufträge, Stand, eigene Rechnungen"]
+  FAM["Angehörige (PLANNED)<br/>nur freigegebene Updates"]
+  OPS["Betrieb / Coach<br/>Zählwerte, Ausnahmen, keine Pflegeinhalte"]
+  T1 x--x T2
+  AG -. "Stand, Teamname, eigene Rechnungen (Blueprint §7)" .-> T1
+  FAM -. "nur Freigegebenes" .-> T1
+  OPS -. "aggregiert" .-> ORG_T
+```
+
+Pfeile mit x: keine Sicht. Gestrichelt: eingeschränkte Sicht über eigene Funktionen, nie direkte Tabellenrechte.
+
 | Regel | Status | Fundstelle |
 |---|---|---|
 | RLS auf jeder `public`-Tabelle | **IMPLEMENTED** | 66 direkte Anweisungen plus Schleifen (`M/079`, `M/091`, `M/097`, `M/120`); pgTAP 001 |
@@ -367,7 +451,7 @@ Es gibt keinen Fremdschlüssel und keine Ansicht, die Pflegeerlös und NAVORA-Er
 | `ci.yml` | Läuft bei Push und PR. Jobs:<br>`app`: lint, typecheck, unit, audit, build<br>`db`: Migrationen, Seed, pgTAP, Nebenläufigkeit<br>`e2e`<br>`ui-screenshots`<br>Docs-only-PRs laufen verkürzt (CI2, ADR-167). |
 | `ci-repeat.yml` | wird aus `ci.yml` erzeugt; Push auf `repeat/**` |
 | `db-types-sync.yml`, `lockfile-sync.yml` | Abgleich |
-| `agents-coordination.yml` | stündliche Koordinations-Issues |
+| `agents-coordination.yml` | Koordinations-Issues: stündlich, bei Push von Agentendateien und manuell |
 
 **Gesetze für Tests:**
 
@@ -379,9 +463,22 @@ Es gibt keinen Fremdschlüssel und keine Ansicht, die Pflegeerlös und NAVORA-Er
 
 ## 8. Staging, Deployment, Backup und Wiederherstellung
 
+```mermaid
+flowchart LR
+  DEV["Agenten-Branches"] --> GH["GitHub: PR"]
+  GH --> CI["GitHub Actions ci<br/>app · db · e2e · ui-screenshots"]
+  CI -->|"4/4 grün, Merge durch po"| MAIN["recovery/main"]
+  MAIN --> CIM["ci auf dem Merge-Commit"]
+  MAIN --> REP["ci-repeat 10/10<br/>Abnahme auf benanntem Commit"]
+  CIM -->|"STG1, PLANNED"| STG[("navora-staging<br/>Supabase Zürich<br/>nur Migrationen, nie Seed")]
+  MAIN -->|"PLANNED"| APP["App-Host Infomaniak (CH)<br/>Next.js"]
+  APP --> PROD[("navora-prod (PLANNED)<br/>Supabase Zürich, Free<br/>nur synthetische Daten")]
+  BK[("Sicherung")] -. "Restore-Test in leere DB (PLANNED, B11)" .-> STG
+```
+
 | Thema | Status |
 |---|---|
-| Staging `navora-staging` (Zürich): Migrationen nur aus der CI nach vier grünen Jobs, nie der Seed | **PLANNED**: PR #1087 (STG1) wartet auf das Owner-Secret `STAGING_DB_URL`; Hosting-Wahl D-2 OPEN |
+| Staging `navora-staging` (Zürich): Migrationen nur aus der CI nach vier grünen Jobs, nie der Seed | **PLANNED**: PR #1087 (STG1) wartet auf das Owner-Secret `STAGING_DB_URL`; App-Host und Produktionsprojekt entschieden (FE-063, FE-064), Auftragsverarbeitungsvertrag OPEN |
 | Produktion | **PLANNED**: auf Produktionsniveau gebaut, nur synthetische Daten bis zu den Toren (FE-062) |
 | Backup und Wiederherstellung mit belegtem Restore-Test | **PLANNED** (B11); keine Skripte im Repository |
 | Red-Team-Tests gegen das Staging (nur Kunstdaten), externer Test vor Phase B | **PLANNED** (FE-049) |
@@ -412,10 +509,29 @@ Es gibt keinen Fremdschlüssel und keine Ansicht, die Pflegeerlös und NAVORA-Er
 | RLS je Organisation, Team und Fall sowie Audit sind PLANNED | IMPLEMENTED (§6) | mit diesem Handbuch korrigieren |
 | CI «VERIFY AGAINST REPOSITORY» | IMPLEMENTED (§7) | korrigieren |
 | Routing und Radius (Geodaten) PLANNED | weiterhin PLANNED; PostGIS bewusst nicht rekonstruiert | BK-b per ADR |
-| keine Versionsnummer; Vollrevision OPEN | – | dieses Handbuch ist V2.0 |
+| keine Versionsnummer; Vollrevision OPEN | – | dieses Handbuch ist V2.1 |
+
+## 11. Machbarkeitsprüfung und Unterschrift durch Engineering (FE-076)
+
+Der Founder verlangt, dass `eng` die fünf Engines und das Datenmodell auf Machbarkeit prüft und unterzeichnet. Bis dahin ist dieses Handbuch ein PO-Entwurf aus dem Code-Inventar.
+
+| # | Prüfpunkt | Frage an `eng` | Ergebnis |
+|---|---|---|---|
+| S-1 | Engine 1 | Harte Filter (PLZ-Distanz, Matrix, Verfügbarkeit, Merkmale) in Postgres mit Grund je Ausschluss, testbar per pgTAP? | ausstehend |
+| S-2 | Engine 2 | Rangfolge zuerst als Regel (Art `rule`, Stufe L), KI später über das AIG1-Buch? | ausstehend |
+| S-3 | Engine 3 | Spracherkennung und Entwurf nach Muster 4 im CH-Rechenzentrum; was ist in Phase A mit synthetischem Audio machbar (T-6)? | ausstehend |
+| S-4 | Engine 4 | Ledger-Schema mit drei getrennten Strömen, ohne Fremdschlüssel zwischen Team- und NAVORA-Ledger (T-7)? | ausstehend |
+| S-5 | Engine 5 | «nicht gedeckt» je Auftrag und Kaskade mit bestehenden `exception_rules` und pg_cron (T-3)? | ausstehend |
+| S-6 | ERD | Auftragstyp (T-1), Auftraggeber-Rolle und RLS (T-5), Realtime oder Polling (T-4) | ausstehend |
+| S-7 | Tests | jede Garantie aus Blueprint §6.4 als pgTAP- oder e2e-Test im BK-Zuschnitt | ausstehend |
+
+**Unterschrift:** `eng` trägt hier «geprüft, machbar» oder «machbar mit Änderung» je Prüfpunkt ein, mit ADR-Nummer. Auftrag: Issue #1194.
+
+---
 
 ### Versionen
 
 | Datum | Version | Änderung |
 |---|---|---|
 | 2026-11-13 | 2.0 Entwurf | Neufassung aus dem Code-Inventar; fünf Engines, Datenmodell, Sicherheit, Tests, Staging; `eng` bestätigt per ADR |
+| 2026-11-13 | 2.1 Entwurf | End-to-End-Fluss des Auftrags durch alle fünf Engines (Gesamtbild und technische Sequenz), Schnittstellen der Engines, Sichtbarkeitsbild der Mandantentrennung, Deployment-Bild, Kapitel 11 Machbarkeitsprüfung mit Unterschrift durch `eng`; axe-Aussage korrigiert |
