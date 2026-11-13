@@ -6,6 +6,13 @@
 
 ---
 
+## Nachtrag Freitag 13.11., 20:40 (geplanter PO-Lauf)
+
+- **Drei Prüfberichte gemergt** (UX, Automatisierung, Recht; nur Dokumentation). Kein Engineering-PR offen; als Nächstes baut Engineering BK-a (Auftrag erfassen und bestätigen).
+- **FE-078 ist im Repository nicht eingetragen.** `lca` meldet eine Founder-Nachricht von etwa 16:30 (keine Pflegegelder über NAVORA; Angebot gleichzeitig an alle passenden Teams statt nacheinander). Der PO kann sie nicht prüfen und trägt sie darum nicht ein. **Falls Sie das so entschieden haben:** bitte als FE-078 in `FOUNDER_DECISIONS.md` erfassen lassen; das beantwortet auch die Ein-Satz-Frage von 19:40 zu den Zahlungen. Bis dahin gilt im Bau das Angebot nacheinander (Kaskade); die Alternative ist rechtlich vorbereitet (bedingt, D-44).
+- **Drei PO-Entscheide für BK** (operativ, keine Pflege-, Rechts- oder Tarifregel): Das **Team** legt sein Einsatzgebiet selbst fest, ohne Freigabe durch eine Verwaltung. Der **Preis** gehört dem Team: Der Auftraggeber setzt keinen Stundenpreis, er kann höchstens eine Obergrenze angeben; gebaut wird das erst im Rechnungsteil. Beim **Bericht** gibt es keine 30-Sekunden-Grenze und in BK keine Tonaufnahme; nichts, was die Pflegekraft eingibt, fällt still weg.
+- **Sicherheitshinweis aus der UX-Prüfung:** Die Einsatzkarte zeigt eine fehlende Strasse nicht an, wenn eine PLZ vorhanden ist. Kein Risiko für Personen jetzt (nur synthetische Daten); wird im BK-Teilstück für die Einsatzkarte zuerst behoben und ist Bedingung für jede Freigabe mit realen Daten.
+
 ## Nachtrag Freitag 13.11., 19:40 (geplanter PO-Lauf)
 
 - **BK-Vorarbeit gemergt** (#1228, nur Dokumentation): drei technische Entwürfe für den Bau. Der Auftrag eines Heims wird erst bei «Bestätigen & Absenden» gespeichert und enthält keinen Freitext; der Auftraggeber hat ein eigenes Konto ohne jeden Einblick in Teamdaten; die Distanz zählt nur ab dem Einsatzgebiet des Teams, nie ab einer Privatadresse oder per GPS. Als Nächstes baut Engineering BK-a.
