@@ -194,3 +194,25 @@ Sources: `cra` review 21:40 (#1239, merged `eb46681`), PR #1238 (BK-a, heads `3d
 6. **Not decided here:** whether reference data (the BS/BL postcode list) may stay readable after access ends (LEAVE1, `lca`); `eng` chose the tighter guard on `f6fdcaf`, which the PO accepts as the default until `lca` answers. Street-less home visits and a distance threshold: UNKNOWN, Clinical Owner (`cra` 21:40 answers 2 and 3); no NAVORA default.
 
 Owners: `eng` (1, 2, 3 (d), 4), `cra` (gate line on the new #1238 head), `uxa` (5 wording, #1233), `aia` (5 (iii)), `lca` (6). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 00:39 (scheduled PO run): UXR-198 to UXR-203 and `lca` G-1 to G-6 placed
+
+Sources: `uxa` review 23:48 (#1243, merged `aab0d48`), `lca` D-44 section 00:20 (#1244, merged `e9acb2a`), PR #1238 head `45e07db` (`uxa` gate clear, `lca` advisory gate clear; the `cra` gate line is still missing, CGR-214). BK stays the only active block, slice order unchanged (a, b, c, e, f, d, g). This amendment decides operational WHAT only; it sets no clinical, legal or tariff rule (D-27), and the matrix stays PROPOSED. Everything below is PLANNED unless marked otherwise. None of it is a merge condition of #1238.
+
+1. **BK-a acceptance criteria (next BK-a PR after #1238, before the BK-a acceptance record):**
+   - (a) **UXR-199:** after «Bestätigen & Absenden» the form is cleared and focus moves to a confirmation block naming the order; a second press on the same filled form never creates a second order. Test (e2e or unit, red first): send, then send again without new input → exactly one order. Reason (value order 2, continuity): a duplicate order would ask two teams for one shift.
+   - (b) **UXR-198:** the client's menu has a destination for `/order` (`nav.ts` `menuItemsFor`); test: a client-only user sees the entry, a team member without client account does not.
+   - (c) **UXR-200:** each problem is also shown at its field (`aria-describedby`), not only on the summary.
+   - (d) **UXR-201 (low):** «Datum nicht erkannt» is announced on leaving the field, not while typing; in the same PR if small, otherwise BK-g.
+2. **UXR-202 waits for `cra`:** whether «Dringlichkeit fehlt» needs its own colour (not the grey of «niedrig») is a safety-signal question; `cra` confirms or rejects, then it goes into the next BK-a PR. OPEN.
+3. **BK-b criteria:** `lca` G-4 (a)-(c): the team reach is stored as the team's area (postcodes or a base postcode plus km), never a member's address, never GPS; setter recorded as actor. UXR-203: the radius hint appears in the client form; wording as proposed in G-4, `uxa` owns the words.
+4. **BK-c criteria (from `lca` G-2, G-3, G-6):**
+   - (a) G-2 (i), (ii): for a household order no street, contact or `activity_tags` key is an audited key of class `code`; catalogue assertion in pgTAP 077.
+   - (b) G-3 (2): the offer read model for a household order returns no `partner_name` before «Übernehmen»; test.
+   - (c) G-3 (1): any command that changes start, end, level or postcode rebuilds the order sentence in the same transaction; test (change → sentence equals a fresh build). Applies to whichever slice first adds such a command.
+   - (d) G-6 role separation: a person who is client in one network and team member in another sees, as client, none of the other network's team-side data, and the reverse; test.
+   - (e) G-5: in the simulation the client line may show the named member's first name and surname under `lca` (a)-(e) (only after «Übernehmen», only that order, no other personal fields). **Real use: unresolved, needs the owner (L-11 legal form, privacy notice text).** OPEN.
+5. **LEAVE1 (amendment 21:39 (6)) closed:** `lca` G-1 recommends keeping the uniform guard; the PO keeps it (074 not loosened).
+6. **Least privilege on global configuration rows (`lca` G-6 first point):** product choice, not a legal blocker. PO direction: before Phase B (real external clients), a client-only user reads no tariff, billing or exception configuration rows; `eng` proposes the change in an ADR at BK-f at the latest. PLANNED.
+
+Owners: `eng` (1, 3, 4, 6), `cra` (2, gate line on #1238), `uxa` (1 and 3 wording), `lca` (4 (e) real use with the owner). PO status of BK: **active**.
