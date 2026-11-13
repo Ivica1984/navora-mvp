@@ -1,18 +1,15 @@
 -- IPA1-7, IPA1-8 (migration 0086, ADR-100; brief `docs/agents/briefs/IPA1.md`, PO addendum 18:10; `cra` CGR-69):
 -- the intake urgency has no preset and a recorded source; the referrer's requested first-visit date is recorded.
 -- Neither changes the order of public.team_offers (G3).
--- Users: nurse …902 (Testteam Nord, Bern West) · operations …904 (org A …011). All data synthetic; every step goes
+-- Users: nurse …902 (Testteam Nord, Basel-Stadt) · operations …904 (org A …011). All data synthetic; every step goes
 -- through the real commands, except the step marked "as the table owner".
 begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(29);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
-insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90)
-  on conflict (organization_id, name) do nothing;
+-- B1.1-1c (FE-073): the seed names list regions only, so this file needs no extra list entry (before B1.1-1c it put the
+-- seed's legacy value on the list here).
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today, so no step depends on the hour CI runs.
 select set_config('navora.test_now',
@@ -26,10 +23,10 @@ create function pg_temp.k(n integer) returns uuid language sql immutable as $$
   select ('a0860000-0000-4000-8000-' || lpad(n::text, 12, '0'))::uuid
 $$;
 create function pg_temp.today() returns date language sql stable as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
--- One request in Bern West (org A) through the real command.
+-- One request in Basel-Stadt (org A) through the real command.
 create function pg_temp.rec(p_title text, p_urgency text, p_source text, p_start date, p_key integer) returns text
 language sql as $$
-  select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital IPA1', 'Spital', 'Bern West', null,
+  select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital IPA1', 'Spital', 'Basel-Stadt', null,
     p_urgency, null, p_title, 'Synthetischer Bedarf', array['Grundpflege'], pg_temp.k(p_key), p_source, p_start)
 $$;
 -- Convert it with complete facts so the case is ready and the matching request opens.
@@ -68,7 +65,7 @@ select throws_ok($$ select pg_temp.rec('IPA1 ohne Quelle', 'mittel', null, null,
 select throws_ok($$ select pg_temp.rec('IPA1 Quelle unbekannt', 'mittel', 'unknown', null, 4) $$,
   '22023', 'urgency_source_required', '"unknown" cannot be recorded as a new source');
 select throws_ok(
-  $$ select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital IPA1', 'Spital', 'Bern West',
+  $$ select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital IPA1', 'Spital', 'Basel-Stadt',
        null, 'mittel', null, 'IPA1 alte Signatur', 'Bedarf', null, pg_temp.k(5)) $$,
   '22023', 'urgency_source_required', 'a call in the old form (no source argument) is refused');
 select throws_ok($$ select pg_temp.rec('IPA1 Datum gestern', 'mittel', 'referrer_stated', pg_temp.today() - 1, 6) $$,

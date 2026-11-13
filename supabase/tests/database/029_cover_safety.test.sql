@@ -1,5 +1,5 @@
 -- COVER1 changes requested by the PO (2026-10-22 14:30, patient safety). Migration 0029.
--- Teams Nord (…101) and Mitte (…102), region "Bern West". Coach …901 joins Mitte (care assistant).
+-- Teams Nord (…101) and Mitte (…102), region "Basel-Stadt". Coach …901 joins Mitte (care assistant).
 -- Visits of Nord, case …208: X (A, in 10 h), V (A, in 5 h), Z (A, in 30 h). Ops …904 coordinator, foreign admin …903.
 begin;
 create extension if not exists pgtap with schema extensions;
@@ -113,7 +113,7 @@ insert into public.organization_memberships (organization_id, user_id, role)
 values ('00000000-0000-4000-b000-000000000011', 'ad900000-0000-4000-8000-0000000000f9', 'nurse');
 insert into public.team_memberships (team_id, user_id, qualification)
 values ('00000000-0000-4000-a000-000000000102', 'ad900000-0000-4000-8000-0000000000f9', 'care_assistant');
-update public.teams set region = 'Bern West' where id in ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000102');
+update public.teams set region = 'Basel-Stadt' where id in ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000102');
 select pg_temp.act_as('ad900000-0000-4000-8000-0000000000f9');
 set local role authenticated;
 select is(public.accept_cover('ad900000-0000-4000-8000-00000000000a', 'ad900000-0000-4000-8000-000000000020'), 'ok', 'a nurse of Mitte covers X');

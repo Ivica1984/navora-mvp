@@ -1,8 +1,22 @@
 import { expect, test, type Page } from "@playwright/test";
+import { addLegacyTeamOrgA, mapLegacyRegionOrgA, removeLegacyTeamOrgA } from "./support/regions";
 
 // B1.1-1 (Δ1, ADR-186): the region is chosen from the list; legacy values are listed for Operations as «Region nicht
-// zugeordnet». Synthetic local-only accounts (supabase/seed.sql). «Basel Pilot» (org A seed, FE-066) is never mapped by
-// any spec, so the section is present whatever ran before (workers: 1).
+// zugeordnet». Synthetic local-only accounts (supabase/seed.sql). B1.1-1c (FE-073): the seed has no legacy value any
+// more, so this file writes its own: «Basel Pilot» (one team, never mapped here; was the org A seed value before
+// B1.1-1c) and «Altregion E2E» (mapped by the last test; before B1.1-1c intake.spec and journey.spec mapped the seed's
+// «Bern West» through support/regions.ts). Both are removed after the file (workers: 1).
+const PILOT = { team: "Testteam Altregion Pilot", value: "Basel Pilot" };
+const MAPPED = { team: "Testteam Altregion Zuordnen", value: "Altregion E2E" };
+
+test.beforeAll(() => {
+  addLegacyTeamOrgA(PILOT.team, PILOT.value);
+  addLegacyTeamOrgA(MAPPED.team, MAPPED.value);
+});
+test.afterAll(() => {
+  removeLegacyTeamOrgA(PILOT.team, PILOT.value);
+  removeLegacyTeamOrgA(MAPPED.team, MAPPED.value);
+});
 const OPS = "ops.test@navora.test"; //     org A, operations
 const COACH = "coach.test@navora.test"; // org A, coach
 const PASSWORD = "navora-local-only";
@@ -30,7 +44,7 @@ for (const width of [390, 1440]) {
     await expect(section).toBeVisible();
     const pilot = section.getByRole("form", { name: "Region zuordnen: Basel Pilot" });
     await expect(pilot).toBeVisible();
-    // UXR-185: the count line of the seed's one «Basel Pilot» team (no zero counts, singular/plural).
+    // UXR-185: the count line of the fixture's one «Basel Pilot» team (no zero counts, singular/plural).
     const counts = pilot.getByTestId("region-counts");
     await expect(counts).toHaveText(/\d+ Teams?$/);
     await expect(counts).not.toHaveText(/(^|\s)0 /);
@@ -60,4 +74,15 @@ test("a coach does not see «Region nicht zugeordnet»", async ({ page }) => {
   await signIn(page, COACH, /\/(operations|coach|team)/);
   await page.goto("/operations");
   await expect(page.getByRole("region", { name: "Region nicht zugeordnet" })).toHaveCount(0);
+});
+
+test("Operations maps a legacy value through the confirming step and it leaves «Region nicht zugeordnet»", async ({ page }) => {
+  // B1.1-1c: this coverage moved here from support/regions.ts `mapSeedRegionOrgA` (seed «Bern West», called by
+  // intake.spec and journey.spec before B1.1-1c); the assertions are the same, on the fixture value.
+  await signIn(page, OPS, /\/operations$/);
+  await mapLegacyRegionOrgA(page, MAPPED.value, "Basel-Stadt");
+  await page.reload();
+  const section = page.getByRole("region", { name: "Region nicht zugeordnet" });
+  await expect(section.getByRole("form", { name: `Region zuordnen: ${MAPPED.value}` })).toHaveCount(0);
+  await expect(section.getByRole("form", { name: `Region zuordnen: ${PILOT.value}` })).toBeVisible();
 });

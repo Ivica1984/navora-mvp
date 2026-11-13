@@ -1,16 +1,16 @@
 -- J2 changes (PO brief docs/agents/briefs/J2.md) + F0 criterion 4 (offer fields).
 -- Users: ops …904 (org A; promoted to admin here to configure deadlines) · nurse …902 (Testteam Nord, registered nurse)
 --        coach …901 (joins Testteam Mitte as care assistant here) · foreign admin …903 (org B)
--- Bern West, org A: Testteam Nord …101 (active, has a registered nurse), Testteam Mitte …102 (active, no registered nurse)
+-- Basel-Stadt, org A: Testteam Nord …101 (active, has a registered nurse), Testteam Mitte …102 (active, no registered nurse)
 begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(46);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
+-- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The extra regions this file enters are put on
+-- org A's list for this test only (rolled back). B1.1-1c (FE-073): the seed's legacy value is no longer
+-- among them, the seed uses Basel-Stadt.
 insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90),
   ('00000000-0000-4000-b000-000000000011', 'Testregion ohne Team', 91)
   on conflict (organization_id, name) do nothing;
 
@@ -43,21 +43,21 @@ select is(private.add_working_time('2026-10-23 16:00 Europe/Zurich', 2, 'working
 select is((select count(*)::int from public.response_deadlines where organization_id is null), 3,
   'the PO pilot defaults ship (Q8): hospital discharge, nursing home, private');
 
--- Intake: two referrals (hospital, nursing home) in Bern West ---------------------------------------
+-- Intake: two referrals (hospital, nursing home) in Basel-Stadt ---------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$
 begin
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2v2', 'Spital', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2v2', 'Spital', 'Basel-Stadt', null,
     'hoch', null, 'J2v2 Spital', 'Bedarf Spital', array['Grundpflege'], 'a7000000-0000-4000-8000-000000000001', 'referrer_stated');
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Heim J2v2', 'Pflegeheim', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Heim J2v2', 'Pflegeheim', 'Basel-Stadt', null,
     'mittel', null, 'J2v2 Heim', 'Bedarf Heim', array['Begleitung'], 'a7000000-0000-4000-8000-000000000002', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Spital'),
     'Klient', 'J2S', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 2, 'expected_hours_per_week', 6),
     'a7000000-0000-4000-8000-000000000003');
   -- A GP referral (referral type "other": no default deadline)
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Praxis J2v2', 'Hausarzt', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Praxis J2v2', 'Hausarzt', 'Basel-Stadt', null,
     'mittel', null, 'J2v2 Praxis', 'Bedarf Praxis', array['Begleitung'], 'a7000000-0000-4000-8000-000000000008', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Praxis'),
     'Klient', 'J2O', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',

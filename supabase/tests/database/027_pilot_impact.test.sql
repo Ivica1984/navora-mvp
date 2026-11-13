@@ -44,7 +44,7 @@ reset role;
 -- A second team of org B whose visits were performed by two persons (AN2 part 2: the fixture's first team now has
 -- three performers, so the small team is added here).
 insert into public.teams (organization_id, id, name, region, status) values
-  ('00000000-0000-4000-b000-000000000012', 'ab000000-0000-4000-8000-0000000000b2', 'Fremdteam B2', 'Bern West', 'active');
+  ('00000000-0000-4000-b000-000000000012', 'ab000000-0000-4000-8000-0000000000b2', 'Fremdteam B2', 'Basel-Stadt', 'active');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000012', ('ab000000-0000-4000-8000-0000000000d' || g)::uuid, '00000000-0000-4000-a000-000000000251',
        'ab000000-0000-4000-8000-0000000000b2', date_trunc('month', (private.now() at time zone 'Europe/Zurich')::date)::date, '11:00', '12:00', false, 'completed'

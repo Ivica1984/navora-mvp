@@ -7,29 +7,26 @@
 -- The other assertions guard the fix (history kept as a new row, reopen audited, duplicate key, a case that has its
 -- team gets no new search). R2, R3, R4 and the negative cases: pgTAP 130.
 --
--- Users: nurse …902 (Testteam Nord …101, Bern West) · operations …904 (org A). Synthetic data only.
+-- Users: nurse …902 (Testteam Nord …101, Basel-Stadt) · operations …904 (org A). Synthetic data only.
 begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(14);
 
--- B1.1-1 (ADR-186): a signed-in user can only enter a listed region. The regions this file enters are put on org A's
--- list for this test only (rolled back); the seed and its legacy values stay as they are (FE-066).
-insert into public.regions (organization_id, name, sort_order) values
-  ('00000000-0000-4000-b000-000000000011', 'Bern West', 90)
-  on conflict (organization_id, name) do nothing;
+-- B1.1-1c (FE-073): the seed names list regions only, so this file needs no extra list entry (before B1.1-1c it put the
+-- seed's legacy value on the list here).
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 
--- A referral in Bern West, converted by Operations with complete facts (J1), so the case is ready and searched (J2).
+-- A referral in Basel-Stadt, converted by Operations with complete facts (J1), so the case is ready and searched (J2).
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$
 begin
-  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital D11', 'Spital', 'Bern West', null,
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital D11', 'Spital', 'Basel-Stadt', null,
     'mittel', null, 'D11 Anfrage', 'Bedarf D11', array['Grundpflege'], 'd1100000-0000-4000-8000-000000000001', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'D11 Anfrage'),
     'Klient', 'D11A', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',

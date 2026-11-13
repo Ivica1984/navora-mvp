@@ -42,11 +42,11 @@ values ('00000000-0000-4000-b000-000000000011', 'c4000000-0000-4000-8000-0000000
         '00000000-0000-4000-a000-000000000102', (private.now() at time zone 'Europe/Zurich')::date + 3, '09:00', '09:30', false, 'planned', private.now() - interval '3 days');
 update public.cases set lifecycle = 'paused' where id in ('00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000251');
 
--- Two more hospital referrals (Bern West).
+-- Two more hospital referrals (Basel-Stadt).
 insert into public.partner_requests (organization_id, id, partner_name, partner_type, region, urgency, request_title, need_summary, requested_services, status)
 select '00000000-0000-4000-b000-000000000011', x.id, 'Synthetisches Spital', 'Spital', x.region, 'mittel', 'Synthetisch: Austritt', 'Synthetisch', array['Grundpflege'], 'open'
-from (values ('c4000000-0000-4000-8000-000000000301'::uuid, 'Bern West'), ('c4000000-0000-4000-8000-000000000302'::uuid, 'Bern West'),
-             ('c4000000-0000-4000-8000-000000000303'::uuid, 'Zürich Pilot')) x(id, region);
+from (values ('c4000000-0000-4000-8000-000000000301'::uuid, 'Basel-Stadt'), ('c4000000-0000-4000-8000-000000000302'::uuid, 'Basel-Stadt'),
+             ('c4000000-0000-4000-8000-000000000303'::uuid, 'Basel-Landschaft')) x(id, region);
 
 -- DST1-4: the requested start is relative to the Zurich day (it was the fixed date 2026-11-02, outside the accepted
 -- window of today - 30 to today + 366 days from 2026-12-03 on).

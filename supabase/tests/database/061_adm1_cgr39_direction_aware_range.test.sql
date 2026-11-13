@@ -37,7 +37,7 @@ select ok((select count(*) = 23 from private.effective_exception_rules('00000000
 -- ADM1-R4: behaviour with the default (before any override) --------------------------------------------------------
 -- Case 208 came as a hospital discharge; an unassigned planned visit starts in 36 h.
 insert into public.matching_requests (organization_id, case_id, request_title, region, urgency, status, referral_type, selected_team_id)
-values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'Teamsuche CGR-39', 'Bern West', 'mittel',
+values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'Teamsuche CGR-39', 'Basel-Stadt', 'mittel',
         'accepted', 'hospital_discharge', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', 'a6100000-0000-4000-8000-000000000601', '00000000-0000-4000-a000-000000000208',

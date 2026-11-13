@@ -3,13 +3,21 @@
 -- =============================================================================
 -- Every person, case and partner here is invented. Names follow obvious test
 -- patterns ("Testfall NN", "Testpartner X", "Pflegekraft Test N").
--- No date of birth, address, phone, diagnosis or insurance is seeded: the app
+-- No date of birth, street address, phone, diagnosis or insurance is seeded: the app
 -- does not display them and the seed should not model them (data minimisation).
 --
 -- Coverage goal (T5): every legacy attention rule in
 -- src/features/operations/queries.ts fires at least once, plus one entity of
--- each kind that does NOT fire. Region names match the two regions hard-coded
--- in the Teams page (TD-13), otherwise teams would not render there.
+-- each kind that does NOT fire.
+--
+-- Regions (B1.1-1c, founder decision FE-073; FE-019): every team, case, referral
+-- and team search names a region from the list, Basel-Stadt or Basel-Landschaft;
+-- the seed writes no legacy region value. (The old header said the names had to
+-- match two regions hard-coded in the Teams page; TD-13 removed that.) Tests
+-- that need a legacy value write and remove their own fixture. Each synthetic
+-- case carries a postcode of its region (4052 Basel for Basel-Stadt, 4410
+-- Liestal for Basel-Landschaft) and nothing else of an address. Teams have no
+-- postcode column yet (OPEN, BK-a).
 -- =============================================================================
 
 -- Test clock (DST1 / ADR-081) — LOCAL / CI ONLY ----------------------------------
@@ -26,35 +34,35 @@ insert into public.organizations (id, name) values
 
 -- Teams ----------------------------------------------------------------------
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101', private.now() - interval '90 days', 'Testteam Nord',  'Bern West',    'Ambulante Pflege', 'active',   0, 95, 'Leitung Test A', 'Kapazität klären',     true,  'Coach Test 1'), -- P1 overload
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000102', private.now() - interval '80 days', 'Testteam Mitte', 'Bern West',    'Ambulante Pflege', 'active',   2, 84, 'Leitung Test B', 'Einsatzplan prüfen',   false, null),           -- P2 utilization >= 80
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000103', private.now() - interval '70 days', 'Testteam Süd',   'Zürich Pilot', 'Übergangspflege',  'building', 1, 55, 'Leitung Test C', 'Onboarding',           false, 'Coach Test 2'), -- P2 open_slots <= 1
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000104', private.now() - interval '60 days', 'Testteam West',  'Zürich Pilot', 'Ambulante Pflege', 'active',   4, 60, 'Leitung Test D', 'Keine Massnahme',      false, 'Coach Test 2'), -- no attention
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000105', private.now() - interval '50 days', 'Testteam Ost',   'Basel Pilot',  'Übergangspflege',  'active',   5, 40, 'Leitung Test E', 'Keine Massnahme',      false, null);           -- third region (TD-13), no attention
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101', private.now() - interval '90 days', 'Testteam Nord',  'Basel-Stadt',  'Ambulante Pflege', 'active',   0, 95, 'Leitung Test A', 'Kapazität klären',     true,  'Coach Test 1'), -- P1 overload
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000102', private.now() - interval '80 days', 'Testteam Mitte', 'Basel-Stadt',  'Ambulante Pflege', 'active',   2, 84, 'Leitung Test B', 'Einsatzplan prüfen',   false, null),           -- P2 utilization >= 80
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000103', private.now() - interval '70 days', 'Testteam Süd',   'Basel-Landschaft', 'Übergangspflege',  'building', 1, 55, 'Leitung Test C', 'Onboarding',           false, 'Coach Test 2'), -- P2 open_slots <= 1
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000104', private.now() - interval '60 days', 'Testteam West',  'Basel-Landschaft', 'Ambulante Pflege', 'active',   4, 60, 'Leitung Test D', 'Keine Massnahme',      false, 'Coach Test 2'), -- no attention
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000105', private.now() - interval '50 days', 'Testteam Ost',   'Basel-Landschaft', 'Übergangspflege',  'active',   5, 40, 'Leitung Test E', 'Keine Massnahme',      false, null);           -- no attention (was the third region «Basel Pilot», TD-13; B1.1-1c)
 
 -- Cases ----------------------------------------------------------------------
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id) values
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000201', private.now() - interval '2 hours',  'Testfall 01', 'Testfall', '01', 'Bern West',    'neu',          'hoch',    'Grundpflege',     array['Grundpflege'],                'Team anfragen',       null, null),                                     -- P1: no team, urgency hoch
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000202', private.now() - interval '3 hours',  'Testfall 02', 'Testfall', '02', 'Zürich Pilot', 'neu',          'mittel',  'Medikamentengabe', array['Medikamentengabe'],          'Team anfragen',       null, null),                                     -- P2: no team, fresh
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000203', private.now() - interval '30 hours', 'Testfall 03', 'Testfall', '03', 'Bern West',    'neu',          'niedrig', 'Hauswirtschaft',  array['Hauswirtschaft'],             'Team anfragen',       null, null),                                     -- P1: no team >= 24 h; SLA risk
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000204', private.now() - interval '60 hours', 'Testfall 04', 'Testfall', '04', 'Zürich Pilot', 'neu',          'mittel',  'Wundversorgung',  array['Wundversorgung'],             'Team anfragen',       null, null),                                     -- P1: no team; SLA violated (>48 h)
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000205', private.now() - interval '30 hours', 'Testfall 05', 'Testfall', '05', 'Bern West',    'teampruefung', 'mittel',  'Grundpflege',     array['Grundpflege', 'Mobilisation'], 'Teamentscheid',       'Testteam Mitte', '00000000-0000-4000-a000-000000000102'), -- P1: Teamentscheid >= 24 h
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000206', private.now() - interval '4 hours',  'Testfall 06', 'Testfall', '06', 'Zürich Pilot', 'teampruefung', 'niedrig', 'Begleitung',      array['Begleitung'],                 'Teamentscheid',       'Testteam Süd',   '00000000-0000-4000-a000-000000000103'), -- P2: Teamentscheid fresh
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000207', private.now() - interval '5 hours',  'Testfall 07', 'Testfall', '07', 'Bern West',    'teampruefung', 'mittel',  'Grundpflege',     array['Grundpflege'],                'Teamentscheid',       null, null),                                     -- duplicate pair: no team AND teampruefung (TD-09)
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', private.now() - interval '20 days',  'Testfall 08', 'Testfall', '08', 'Bern West',    'laufend',      'mittel',  'Grundpflege',     array['Grundpflege'],                'Laufende Versorgung', 'Testteam Nord',  '00000000-0000-4000-a000-000000000101'), -- no attention
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000209', private.now() - interval '15 days',  'Testfall 09', 'Testfall', '09', 'Zürich Pilot', 'laufend',      'niedrig', 'Medikamentengabe', array['Medikamentengabe'],          'Laufende Versorgung', 'Testteam West',  '00000000-0000-4000-a000-000000000104'), -- no attention
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000210', private.now() - interval '10 days',  'Testfall 10', 'Testfall', '10', 'Bern West',    'laufend',      'hoch',    'Wundversorgung',  array['Wundversorgung'],             'Laufende Versorgung', 'Testteam Mitte', '00000000-0000-4000-a000-000000000102'); -- no attention
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000201', private.now() - interval '2 hours',  'Testfall 01', 'Testfall', '01', 'Basel-Stadt', '4052',  'neu',          'hoch',    'Grundpflege',     array['Grundpflege'],                'Team anfragen',       null, null),                                     -- P1: no team, urgency hoch
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000202', private.now() - interval '3 hours',  'Testfall 02', 'Testfall', '02', 'Basel-Landschaft', '4410', 'neu',          'mittel',  'Medikamentengabe', array['Medikamentengabe'],          'Team anfragen',       null, null),                                     -- P2: no team, fresh
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000203', private.now() - interval '30 hours', 'Testfall 03', 'Testfall', '03', 'Basel-Stadt', '4052',  'neu',          'niedrig', 'Hauswirtschaft',  array['Hauswirtschaft'],             'Team anfragen',       null, null),                                     -- P1: no team >= 24 h; SLA risk
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000204', private.now() - interval '60 hours', 'Testfall 04', 'Testfall', '04', 'Basel-Landschaft', '4410', 'neu',          'mittel',  'Wundversorgung',  array['Wundversorgung'],             'Team anfragen',       null, null),                                     -- P1: no team; SLA violated (>48 h)
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000205', private.now() - interval '30 hours', 'Testfall 05', 'Testfall', '05', 'Basel-Stadt', '4052',  'teampruefung', 'mittel',  'Grundpflege',     array['Grundpflege', 'Mobilisation'], 'Teamentscheid',       'Testteam Mitte', '00000000-0000-4000-a000-000000000102'), -- P1: Teamentscheid >= 24 h
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000206', private.now() - interval '4 hours',  'Testfall 06', 'Testfall', '06', 'Basel-Landschaft', '4410', 'teampruefung', 'niedrig', 'Begleitung',      array['Begleitung'],                 'Teamentscheid',       'Testteam Süd',   '00000000-0000-4000-a000-000000000103'), -- P2: Teamentscheid fresh
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000207', private.now() - interval '5 hours',  'Testfall 07', 'Testfall', '07', 'Basel-Stadt', '4052',  'teampruefung', 'mittel',  'Grundpflege',     array['Grundpflege'],                'Teamentscheid',       null, null),                                     -- duplicate pair: no team AND teampruefung (TD-09)
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', private.now() - interval '20 days',  'Testfall 08', 'Testfall', '08', 'Basel-Stadt', '4052',  'laufend',      'mittel',  'Grundpflege',     array['Grundpflege'],                'Laufende Versorgung', 'Testteam Nord',  '00000000-0000-4000-a000-000000000101'), -- no attention
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000209', private.now() - interval '15 days',  'Testfall 09', 'Testfall', '09', 'Basel-Landschaft', '4410', 'laufend',      'niedrig', 'Medikamentengabe', array['Medikamentengabe'],          'Laufende Versorgung', 'Testteam West',  '00000000-0000-4000-a000-000000000104'), -- no attention
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000210', private.now() - interval '10 days',  'Testfall 10', 'Testfall', '10', 'Basel-Stadt', '4052',  'laufend',      'hoch',    'Wundversorgung',  array['Wundversorgung'],             'Laufende Versorgung', 'Testteam Mitte', '00000000-0000-4000-a000-000000000102'); -- no attention
 
 -- Partner requests -----------------------------------------------------------
 insert into public.partner_requests (organization_id, id, created_at, partner_name, partner_type, region, city, urgency, time_info, request_title, need_summary, requested_services, status, converted_case_id) values
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000301', private.now() - interval '1 hour',   'Testpartner A', 'Spital',       'Bern West',    'Teststadt', 'hoch',    'Heute', 'Austritt Testfall', 'Synthetischer Bedarf A', array['Grundpflege'], 'open',             null), -- P1 urgent
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000302', private.now() - interval '2 hours',  'Testpartner B', 'Pflegeheim',   'Zürich Pilot', 'Teststadt', 'mittel',  '48h',   'Übergang Test',     'Synthetischer Bedarf B', array['Begleitung'],  'ready_to_convert', null), -- P2 fresh
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000303', private.now() - interval '36 hours', 'Testpartner C', 'Hausarzt',     'Bern West',    'Teststadt', 'niedrig', 'Woche', 'Abklärung Test',    'Synthetischer Bedarf C', null,                 'open',             null), -- P1 >= 24 h
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000304', private.now() - interval '5 days',   'Testpartner D', 'Spital',       'Bern West',    'Teststadt', 'mittel',  null,    'Erledigt Test',     'Synthetischer Bedarf D', null,                 'converted',        '00000000-0000-4000-a000-000000000208'); -- no attention
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000301', private.now() - interval '1 hour',   'Testpartner A', 'Spital',       'Basel-Stadt',  'Teststadt', 'hoch',    'Heute', 'Austritt Testfall', 'Synthetischer Bedarf A', array['Grundpflege'], 'open',             null), -- P1 urgent
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000302', private.now() - interval '2 hours',  'Testpartner B', 'Pflegeheim',   'Basel-Landschaft', 'Teststadt', 'mittel',  '48h',   'Übergang Test',     'Synthetischer Bedarf B', array['Begleitung'],  'ready_to_convert', null), -- P2 fresh
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000303', private.now() - interval '36 hours', 'Testpartner C', 'Hausarzt',     'Basel-Stadt',  'Teststadt', 'niedrig', 'Woche', 'Abklärung Test',    'Synthetischer Bedarf C', null,                 'open',             null), -- P1 >= 24 h
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000304', private.now() - interval '5 days',   'Testpartner D', 'Spital',       'Basel-Stadt',  'Teststadt', 'mittel',  null,    'Erledigt Test',     'Synthetischer Bedarf D', null,                 'converted',        '00000000-0000-4000-a000-000000000208'); -- no attention
 
 -- Matching request (read by Operations, not acted on) -----------------------
 insert into public.matching_requests (organization_id, id, created_at, case_id, request_title, region, urgency, required_services, status, selected_team_id) values
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000401', private.now() - interval '4 hours', '00000000-0000-4000-a000-000000000206', 'Teamsuche Testfall 06', 'Zürich Pilot', 'niedrig', array['Begleitung'], 'open', null);
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000401', private.now() - interval '4 hours', '00000000-0000-4000-a000-000000000206', 'Teamsuche Testfall 06', 'Basel-Landschaft', 'niedrig', array['Begleitung'], 'open', null);
 
 -- Care visits ----------------------------------------------------------------
 insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end, team_member_name, services_provided, notes, billable, status) values
@@ -126,10 +134,10 @@ insert into auth.identities (id, user_id, provider_id, identity_data, provider, 
 -- Same region name as org A on purpose: isolation must come from the
 -- organisation, not from a different region filter.
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000151', private.now() - interval '30 days', 'Fremdteam B', 'Bern West', 'Ambulante Pflege', 'active', 3, 70, 'Leitung Fremd', 'Keine Massnahme', false, 'Coach Fremd');
+  ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000151', private.now() - interval '30 days', 'Fremdteam B', 'Basel-Stadt', 'Ambulante Pflege', 'active', 3, 70, 'Leitung Fremd', 'Keine Massnahme', false, 'Coach Fremd');
 
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id) values
-  ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000251', private.now() - interval '3 days', 'Testfall B1', 'Testfall', 'B1', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Fremdteam B', '00000000-0000-4000-a000-000000000151');
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id) values
+  ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000251', private.now() - interval '3 days', 'Testfall B1', 'Testfall', 'B1', 'Basel-Stadt', '4052', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Fremdteam B', '00000000-0000-4000-a000-000000000151');
 
 insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end, team_member_name, services_provided, notes, billable, status) values
   ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000551', private.now() - interval '1 day', '00000000-0000-4000-a000-000000000251', '00000000-0000-4000-a000-000000000151', (private.now() at time zone 'Europe/Zurich')::date, '09:00', '09:30', 'Pflegekraft Fremd', array['Grundpflege'], null, false, 'planned');
@@ -224,9 +232,9 @@ insert into public.member_access_events (organization_id, user_id, kind, reason_
 -- UUID, as for a system row; the organisation has no administrator).
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000013', 'Testorganisation C');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000161', private.now() - interval '200 days', 'Testteam C', 'Bern West', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test C3', 'Keine Massnahme', false, null);
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000261', private.now() - interval '100 days', 'Testfall C1', 'Testfall', 'C1', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam C', '00000000-0000-4000-a000-000000000161', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000161', private.now() - interval '200 days', 'Testteam C', 'Basel-Stadt', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test C3', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000261', private.now() - interval '100 days', 'Testfall C1', 'Testfall', 'C1', 'Basel-Stadt', '4052', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam C', '00000000-0000-4000-a000-000000000161', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -349,9 +357,9 @@ insert into public.assessment_instruments (id, organization_id, name, version, v
 -- Written as the table owner, in the order the commands would write it.
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000014', 'Testorganisation D');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000014', '00000000-0000-4000-a000-000000000171', private.now() - interval '200 days', 'Testteam D', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test D', 'Keine Massnahme', false, null);
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000014', '00000000-0000-4000-a000-000000000271', private.now() - interval '100 days', 'Testfall D1', 'Testfall', 'D1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam D', '00000000-0000-4000-a000-000000000171', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000014', '00000000-0000-4000-a000-000000000171', private.now() - interval '200 days', 'Testteam D', 'Basel-Landschaft', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test D', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000014', '00000000-0000-4000-a000-000000000271', private.now() - interval '100 days', 'Testfall D1', 'Testfall', 'D1', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam D', '00000000-0000-4000-a000-000000000171', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -412,11 +420,11 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
 --                not_qualified and keeps the reason on its line (AIG1-C3 (2), UXR-66).
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000015', 'Testorganisation E');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000181', private.now() - interval '200 days', 'Testteam E', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test E', 'Keine Massnahme', false, null);
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000281', private.now() - interval '100 days', 'Testfall E1', 'Testfall', 'E1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days'),
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000282', private.now() - interval '100 days', 'Testfall E2', 'Testfall', 'E2', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days'),
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000283', private.now() - interval '100 days', 'Testfall E3', 'Testfall', 'E3', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000181', private.now() - interval '200 days', 'Testteam E', 'Basel-Landschaft', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test E', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000281', private.now() - interval '100 days', 'Testfall E1', 'Testfall', 'E1', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000282', private.now() - interval '100 days', 'Testfall E2', 'Testfall', 'E2', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000283', private.now() - interval '100 days', 'Testfall E3', 'Testfall', 'E3', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -503,10 +511,10 @@ order by v.time_start;
 --                     care assistant after the stop (so she may no longer perform …5b3's category B minutes).
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000016', 'Testorganisation F');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000191', private.now() - interval '200 days', 'Testteam F', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test F', 'Keine Massnahme', false, null);
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000291', private.now() - interval '100 days', 'Testfall F1', 'Testfall', 'F1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days'),
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000292', private.now() - interval '100 days', 'Testfall F2', 'Testfall', 'F2', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000191', private.now() - interval '200 days', 'Testteam F', 'Basel-Landschaft', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test F', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000291', private.now() - interval '100 days', 'Testfall F1', 'Testfall', 'F1', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000292', private.now() - interval '100 days', 'Testfall F2', 'Testfall', 'F2', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -637,9 +645,9 @@ where v.id = '00000000-0000-4000-a000-0000000005b7' and d.key = 'aig1_test_prima
 --                     Never signs in.
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000017', 'Testorganisation G');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '200 days', 'Testteam G', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test G', 'Keine Massnahme', false, null);
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000002a1', private.now() - interval '100 days', 'Testfall G1', 'Testfall', 'G1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam G', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '200 days', 'Testteam G', 'Basel-Landschaft', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test G', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000002a1', private.now() - interval '100 days', 'Testfall G1', 'Testfall', 'G1', 'Basel-Landschaft', '4410', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam G', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -708,10 +716,10 @@ from public.ai_agent_definitions d where d.key = 'aig1_test_primary_nurse';
 --   confirmed is refused `overlap`, PLAN3-14 (2)); …5d5 12:00 (Testfall H2, category B minutes: registered nurse only).
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000018', 'Testorganisation H');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '200 days', 'Testteam H', 'Bern West', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test H', 'Keine Massnahme', false, null);
-insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000002a8', private.now() - interval '100 days', 'Testfall H1', 'Testfall', 'H1', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam H', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '99 days'),
-  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000002a9', private.now() - interval '100 days', 'Testfall H2', 'Testfall', 'H2', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam H', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '200 days', 'Testteam H', 'Basel-Stadt', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test H', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000002a8', private.now() - interval '100 days', 'Testfall H1', 'Testfall', 'H1', 'Basel-Stadt', '4052', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam H', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000002a9', private.now() - interval '100 days', 'Testfall H2', 'Testfall', 'H2', 'Basel-Stadt', '4052', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam H', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,

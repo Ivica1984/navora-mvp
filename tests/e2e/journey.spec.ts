@@ -1,10 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 import { TEAM_OFFERS_HEADING } from "@/features/field/todo";
-import { ORG_A_TEAM_REGION, mapSeedRegionOrgA } from "./support/regions";
+import { ORG_A_TEAM_REGION } from "./support/regions";
 
 // Care journey front half: referral (J1) → team decision (J2). Synthetic local-only accounts.
 const OPS = "ops.test@navora.test"; //    org A, operations
-const NURSE = "pflege.test@navora.test"; // org A, nurse, Testteam Nord (Bern West, active)
+const NURSE = "pflege.test@navora.test"; // org A, nurse, Testteam Nord (Basel-Stadt, active)
 const PASSWORD = "navora-local-only";
 
 async function signIn(page: Page, email: string, landing: RegExp) {
@@ -32,10 +32,9 @@ async function signOut(page: Page) {
 }
 
 test("referral → case → team takes it over → team plans a visit → it is in the nurse's day (J1–J3)", async ({ page }) => {
-  // Operations records and converts a referral in the region of Testteam Nord (B1.1-1: chosen from the list, after
-  // the seed's legacy «Bern West» is mapped to Basel-Stadt on /operations).
+  // Operations records and converts a referral in the region of Testteam Nord (B1.1-1: chosen from the list; since
+  // B1.1-1c the seed team is on Basel-Stadt, so no «Zuordnen» first, was mapSeedRegionOrgA).
   await signIn(page, OPS, /\/operations$/);
-  await mapSeedRegionOrgA(page);
   await page.goto("/intake");
   const form = page.getByRole("form", { name: "Neue Anfrage" });
   await form.getByLabel("Zuweisende Stelle").fill("Testheim Journey");
