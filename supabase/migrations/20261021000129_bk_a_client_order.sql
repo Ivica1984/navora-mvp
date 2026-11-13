@@ -104,6 +104,9 @@ revoke all on public.postcodes from public, anon, authenticated;
 grant select on public.postcodes to authenticated;
 drop policy if exists postcodes_read on public.postcodes;
 create policy postcodes_read on public.postcodes for select to authenticated using (true);
+drop policy if exists leave1_access_open on public.postcodes;
+create policy leave1_access_open on public.postcodes as restrictive for all to authenticated
+  using (not (select private.access_ended((select auth.uid()))));  -- LEAVE1-3
 
 -- 4. The order on partner_requests (ADR-191 (1); no price column, AUT-119 (a)) ------------------------------------------
 alter table public.partner_requests
@@ -148,7 +151,16 @@ drop trigger if exists audit_partner_requests on public.partner_requests;
 create trigger audit_partner_requests
   after insert or update on public.partner_requests
   for each row execute function private.write_audit_event('status', 'urgency', 'region', 'converted_case_id',
+                                                          'urgency_source', 'referrer_requested_start',
                                                           'starts_at', 'ends_at', 'postcode', 'grade', 'confirmed_at');
+
+-- AUD1-1: every audited column is classified (0086 list kept above, five order columns added).
+insert into private.audit_value_classes (table_name, key, class) values
+  ('partner_requests', 'starts_at', 'code'), ('partner_requests', 'ends_at', 'code'),
+  ('partner_requests', 'postcode', 'code'), ('partner_requests', 'grade', 'code'),
+  ('partner_requests', 'confirmed_at', 'code'),
+  ('client_accounts', 'display_name', 'free_text'), ('client_accounts', 'client_kind', 'code')
+on conflict do nothing;
 
 -- 5. Commands and reads -----------------------------------------------------------------------------------------------
 create or replace function private.is_client_member(p_client_account_id uuid)
@@ -169,8 +181,8 @@ revoke all on function private.order_grade_label(text) from public, anon, authen
 create or replace function private.order_local_text(p_at timestamptz)
 returns text language sql stable set search_path = ''
 as $$
-  select (array['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'])[extract(isodow from (p_at at time zone 'Europe/Zurich'))::int]
-         || ' ' || to_char(p_at at time zone 'Europe/Zurich', 'DD.MM.YYYY HH24:MI')
+  select (array['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'])[extract(isodow from private.at_zurich(p_at))::int]
+         || ' ' || to_char(private.at_zurich(p_at), 'DD.MM.YYYY HH24:MI')
 $$;
 revoke all on function private.order_local_text(timestamptz) from public, anon, authenticated;
 
@@ -257,8 +269,8 @@ begin
     'region_name', pc.region_name,
     'shift_label', lbl,
     'weekend', case when s is null then null
-                    else extract(isodow from (s at time zone 'Europe/Zurich')) in (6, 7)
-                      or extract(isodow from (e at time zone 'Europe/Zurich')) in (6, 7) end,
+                    else extract(isodow from private.at_zurich(s)) in (6, 7)
+                      or extract(isodow from private.at_zurich(e)) in (6, 7) end,
     'sentence', case when cardinality(problems) = 0 then
                   'Schichtauftrag · ' || private.order_grade_label(p_grade) || ' · ' || private.order_local_text(s)
                   || ' – ' || private.order_local_text(e) || ' ' || private.order_duration_text(minutes)
@@ -298,10 +310,7 @@ begin
   end if;
   if private.begin_command('confirm_client_order', p_idempotency_key) then
     perform private.end_command('duplicate');
-    return jsonb_build_object('result', 'duplicate',
-      'order_id', (select a.entity_id from public.audit_events a
-                   where a.actor_id = uid and a.idempotency_key = p_idempotency_key and a.table_name = 'partner_requests'
-                   limit 1));
+    return jsonb_build_object('result', 'duplicate');
   end if;
   chk := private.client_order_check(p_client_account_id, p_start_date, p_start_time, p_end_time, p_postcode, p_grade,
                                     p_activity_tags, p_required_tags, p_radius_km);
@@ -338,7 +347,9 @@ returns table (id uuid, display_name text, client_kind text)
 language sql stable security definer set search_path = ''
 as $$
   select a.id, a.display_name, a.client_kind from public.client_accounts a
-  where private.is_client_member(a.id) order by a.display_name
+  where private.is_client_member(a.id)
+    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
+  order by a.display_name
 $$;
 revoke all on function public.my_client_accounts() from public, anon;
 grant execute on function public.my_client_accounts() to authenticated;
@@ -356,6 +367,7 @@ as $$
          p.required_tags, p.radius_km, p.shift_label, p.confirmed_at, 'not_covered'::text
   from public.partner_requests p
   where p.order_kind is not null and private.is_client_member(p.client_account_id)
+    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   order by p.starts_at
 $$;
 revoke all on function public.client_orders() from public, anon;

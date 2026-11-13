@@ -28,11 +28,11 @@ for (const width of [390, 1440]) {
     const day = zurichDay(Date.now(), 10);
     await form.getByLabel(/^Datum/).fill(deDate(day));
     await expect(form.getByTestId("order-date")).toContainText(deDate(day));
-    await form.getByLabel("Beginn").fill("22:00");
-    await form.getByLabel("Ende").fill("07:00");
+    await form.getByLabel("Beginn", { exact: true }).fill("22:00");
+    await form.getByLabel("Ende", { exact: true }).fill("07:00");
     await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4102");
-    await form.getByRole("radio", { name: "FaGe" }).check();
-    await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht" }).check();
+    await form.getByRole("radio", { name: "FaGe", exact: true }).check();
+    await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht", exact: true }).check();
     await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
 
     const summary = page.getByTestId("order-summary");
@@ -62,11 +62,11 @@ test("a time that matches no plan entry shows no label line and stays confirmabl
   await signIn(page, CLIENT, /\/order$/);
   const form = page.getByRole("form", { name: "Auftrag" });
   await form.getByLabel(/^Datum/).fill(deDate(zurichDay(Date.now(), 11)));
-  await form.getByLabel("Beginn").fill("09:10");
-  await form.getByLabel("Ende").fill("13:20");
+  await form.getByLabel("Beginn", { exact: true }).fill("09:10");
+  await form.getByLabel("Ende", { exact: true }).fill("13:20");
   await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4051");
-  await form.getByRole("radio", { name: "AGS" }).check();
-  await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht" }).check();
+  await form.getByRole("radio", { name: "AGS", exact: true }).check();
+  await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht", exact: true }).check();
   await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
   const summary = page.getByTestId("order-summary");
   await expect(summary.getByTestId("order-sentence")).toContainText("(4 Std. 10 Min.)");
