@@ -6,6 +6,57 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-13 03:48 CET · `uxa`: UXR-181 closed (#1151 merged as `873e212`, SAFE-D11 accepted on `29e54ec`); first `uxa` read of B1.1-1 on draft #1164 `3793552`: region select fits, «Zuordnen» needs a confirming step and a result line (UXR-184 high, #1166); UXR-185, UXR-186 low; B1.1-4 wording input; benchmark
+
+**What changed since 23:49.** `recovery/main` moved from `75d4d9a` to `7331e7f`: #1151 merged (`873e212`), SAFE-D11 accepted (C) on `29e54ec` with gate «Simulation, synthetic data» (`ABNAHMEAKTE.md` §2, PO 02:39), B1.1 approved and active (*Active now*, brief `briefs/B1.1.md`). `git diff 75d4d9a 7331e7f -- src` is empty. Open PR **#1164** (B1.1-1 region list, **draft**, head `3793552`) changes `/intake`, `/admin` teams and `/operations` (new `unmapped-regions-panel.tsx`), plus migration 0127, pgTAP 132, unit and e2e `b1-1-1-regions.spec.ts`. No new UX brief; no `ux` issue changed since 23:11.
+
+**Ask to `uxa`.** PO 02:39: B1.1-4 texts and 390/1440 px; the referrer-view row. Brief B1.1 §Owner: `uxa` gate per PR (texts, 390 and 1440 px).
+
+**Sources.** The `ui-screenshots` artifacts of `3793552` (id 14004868686) and of `7331e7f` exist; the download was refused by this session's network proxy (CONNECT 403 to the artifact storage host). **No screenshots were available**; everything below is read from code on `3793552`: `intake-client.tsx:94-180`, `admin-client.tsx:420-470`, `operations-client.tsx:94-98`, `unmapped-regions-panel.tsx:1-72`, `features/regions/rules.ts`, `features/regions/queries.ts`, `features/intake/commands.ts:88-93`, migration 0127 `:36-60, 110-243`, `tests/e2e/b1-1-1-regions.spec.ts`. Check runs on `3793552` read 03:55: `app`, `db`, `ui-screenshots` success, `e2e` in progress. I ran no test.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` v22; FE-072 (2), (3) fit. No contradiction. Task: as in my brief plus the PO's ask; no adjustment.
+
+### UXR-181 closed
+
+#1151 merged as `873e212`; SAFE-D11 accepted on `29e54ec`, where push `e2e` and all ten `ci-repeat` `e2e` runs passed `safe-d11.spec.ts` (PO 02:39, read from the raw job logs), which asserts «Versicherungsart fehlt oder unbekannt» and `not.toContainText("insurance_type")`; pgTAP 019 asserts the words for `case_not_ready`. Closed with evidence (§8 step 5).
+
+### B1.1-1 on #1164 `3793552` (draft): first read, no gate line yet
+
+Not a gate verdict: the PR is a draft and `e2e` had not finished. What fits already:
+
+| Check | Verdict | Evidence |
+|---|---|---|
+| Region chosen, never typed | fits | `/intake` «Neue Anfrage» and `/admin` team forms use a `select` with «bitte wählen» first and disabled (`intake-client.tsx:172-180`, `admin-client.tsx:435-443`); the e2e asserts `SELECT` and the two options at 390 and 1440 px. |
+| A near miss is refused in words | fits | `region_not_in_list` → «Bitte eine Region aus der Liste wählen.» (`commands.ts:92`), not the generic input error. |
+| Legacy value of a team stays visible | fits | the edit form keeps it as «<Wert> (bisheriger Wert, nicht zugeordnet)» (`rules.ts:24-29`), so nothing is silently changed. |
+| Panel place and access | fits | «Region nicht zugeordnet (n)» sits below the exception centre (`operations-client.tsx:95-97`), so it never moves a safety signal down; hidden for a coach (e2e). No horizontal scroll at 390 and 1440 px (e2e). |
+| A failed read | fits | `getRegionOptions` and `getUnmappedRegions` throw (`queries.ts:23-26, 35-38`): the page shows the error state, never an empty list as «keine» (§1 failed-read rule). |
+| Mapping act | **does not fit** | UXR-184 below. |
+
+### B1.1-4 wording input (status line after «Fall eröffnen»)
+
+The spec (`specs/B1.md:225-227`, M3 SOLL Δ7) already carries `uxa`'s UXR-165 wording. Two amendments for the PO to take into the spec before B1.1-4 is built (UXR-186):
+1. Separator «; », not a comma: the stored reasons contain «oder» clauses and the Operations card uses «; » since #1151 (DESIGN_SYSTEM §4, «a missing fact is named in words»). One fact, one wording, one separator on all screens.
+2. The line is a polite status region (`role="status"`), stays until the user acts or leaves (§6, UXR-172; the brief's 10 s e2e), and its jump link «Ergänzen unter «Fälle in Aufnahme»» is an `action-outline` link of at least 44 px that moves focus to the case card. «bereit» keeps «Die Teams der Region entscheiden selbst, wer ihn übernimmt.»: it names no team and no commitment (brief negative test). No name in the line (spec).
+
+The referrer-view row (PO 02:39: age, deadline and state live for the referrer) is a hypothesis without a brief; my 23:49 answer (state first, then missing reasons in the same words, then who acts) applies. Whether the deadline is shown to a referrer is `lca`'s (outside the organisation) and its wording `cra`'s if it is a safety text. No proposal to build now (README rule 12).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-184 | `/operations` «Region nicht zugeordnet», `admin`, `operations` (B1.1-1) | high | One tap on «Zuordnen» rewrites the region of every team, case, referral and open team search of that value, and a second mapping is refused (`already_mapped`): a slip in the select moves a team and its waiting clients into the other region, with no confirming step, no undo on the screen and, after success, no result line (the row just disappears; «Region zugeordnet.» exists in `rules.ts` but is not shown). | #1164 `3793552`: `unmapped-regions-panel.tsx:37-48, 65-67`; migration 0127 `:169-178, 230-238`; no screenshot (proxy) | §2 planning-changing act with a confirming step naming the consequence; §6 status line stays (UXR-172) | «Zuordnen» opens the in-place confirming step (`admin/confirm-step.tsx` pattern) with one sentence from the row's counts («Basel Pilot wird zu Basel-Stadt: 1 Team, 3 Fälle, 2 offene Teamsuchen.») and, if `eng` confirms the fact, whether it can be undone; «Abbrechen» changes nothing (e2e: row still listed); after confirming, «Region zugeordnet: <alt> → <neu>» still visible 10 s later (e2e, 390 and 1440 px); focus on the sentence; buttons `min-h-11`. Whether a moved open search changes its list of asked teams is UNKNOWN (`eng`). | #1166 |
+| UXR-185 | same panel | low | The count line shows every count including zeros and plural only («1 Teams · 0 Fälle · 0 Anfragen · 0 offene Teamsuchen»), with the open team searches (clients waiting) last. | `unmapped-regions-panel.tsx:56-58` | §1 what needs attention first; §4 plain German | Open searches first; zero counts left out; singular and plural («1 Team», «2 Teams»); unit test on the line. | — |
+| UXR-186 | `/intake` status line after «Fall eröffnen» (B1.1-4 spec) | low | The spec SOLL joins missing reasons «durch Komma getrennt», while the Operations card joins the same stored reasons with «; » (#1151); reasons contain «oder» clauses, so a comma list reads ambiguously. | `specs/B1.md:227`; migration 0126 (`; `) | §4 one fact, one wording | Spec M3 uses «; »; B1.1-4 e2e asserts the separator and the stored reason words (no field code). | — |
+
+**Closed:** UXR-181 (above). Open from earlier and unchanged: UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183.
+
+### Benchmark: confirming a hard-to-undo act (2026-11-13)
+
+Read: UK Ministry of Justice Design System, «Interruption card» (https://design-patterns.service.justice.gov.uk/components/interruption-card, read 2026-11-13). The pattern pauses a journey only for serious, hard-to-undo acts or likely mistakes; it names what will happen in a heading that signals the pause, gives exactly one way on and one way back, and is used sparingly so people do not learn to click through it. What NAVORA should adopt, in its own form: the in-place confirming step of §2 already has the one-way-on, one-way-back shape; add the MOJ guidance that the step is reserved for acts that are hard to undo (the region mapping qualifies, a routine save does not) and that its sentence states the concrete scope (counts) rather than a generic «Sind Sie sicher?». Taken into §2 as a note (design system v75). No design, logo or text copied.
+
+---
+
 ## 2026-11-12 23:49 CET · `uxa`: #1151 `aba49e8` carries the UXR-181 remedy as specified (reason words, «; », both types, e2e and pgTAP assert the words and the absence of the code); UXR-181 stays open until merged; answer to the PO's two B1.3 challenge rows (22:27, 22:39) on form, words and place; no new finding
 
 **What changed since 19:48.** `recovery/main` moved from `78cf9e4` to `75d4d9a`: #1143 (SAFE-D11) and the role and PO PRs merged. **No file under `src/app` or `src/components` changed** (`git diff 78cf9e4 75d4d9a -- src` is empty; the diff is migration 0125, pgTAP 129 and 130, `tests/e2e/safe-d11.spec.ts`, all read at 19:48). Open PR **#1151** (SAFE-D11 follow-up, head `aba49e8`) adds migration `20261021000126_safe_d11_uxr181_exception_detail_reason.sql`, pgTAP 131 and adjustments to 019 and 130, and one e2e change. No new `ux` issue, no new UX brief.
