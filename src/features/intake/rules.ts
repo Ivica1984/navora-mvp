@@ -38,9 +38,30 @@ export const URGENCY_BADGE_CLASS: Record<Urgency, string> = {
   niedrig: "bg-stone-200 text-stone-800",
 };
 
-/** The badge class for a stored urgency; an unknown value is neutral. */
-export function urgencyBadgeClass(urgency: string): string {
-  return (URGENCY_BADGE_CLASS as Record<string, string>)[urgency] ?? "bg-stone-200 text-stone-800";
+/**
+ * CGR-215 (d) (BK amendment 2026-11-13 21:39): a row without urgency is shown, never dropped. The gap is named in
+ * words; NAVORA sets no level for it (IPA1-7, D-34 question 7).
+ */
+export const URGENCY_MISSING_LABEL = "Dringlichkeit fehlt";
+
+/** The badge class for a stored urgency; an unknown or missing value is neutral (the word says what is missing). */
+export function urgencyBadgeClass(urgency: string | null | undefined): string {
+  return (urgency && (URGENCY_BADGE_CLASS as Record<string, string>)[urgency]) || "bg-stone-200 text-stone-800";
+}
+
+/** The badge text: the stored level, or «Dringlichkeit fehlt» when none is stored. */
+export function urgencyBadgeText(urgency: string | null | undefined): string {
+  return urgency ? urgency : URGENCY_MISSING_LABEL;
+}
+
+/**
+ * CGR-215 (d): keeps every row in its order and lists the ids without urgency, so the caller can log an error event.
+ * It never filters.
+ */
+export function intakeRowsWithUrgencyCheck<T extends { id: string; urgency: string | null }>(
+  rows: ReadonlyArray<T>,
+): { rows: T[]; missingUrgency: string[] } {
+  return { rows: [...rows], missingUrgency: rows.filter((r) => !r.urgency).map((r) => r.id) };
 }
 
 export const URGENCY_SOURCES = ["referrer_stated", "intake_assessed"] as const;
@@ -57,8 +78,12 @@ export function urgencySourceLabel(source: string | null | undefined): string {
   return (source && URGENCY_SOURCE_LABEL[source]) || URGENCY_SOURCE_LABEL.unknown;
 }
 
-/** IPA1-7: "Dringlichkeit: hoch (vom Zuweiser angegeben)", the level always with its source. */
-export function urgencyWithSource(urgency: string, source: string | null | undefined): string {
+/**
+ * IPA1-7: "Dringlichkeit: hoch (vom Zuweiser angegeben)", the level always with its source; «Dringlichkeit fehlt» when
+ * no level is stored (CGR-215 (d)).
+ */
+export function urgencyWithSource(urgency: string | null | undefined, source: string | null | undefined): string {
+  if (!urgency) return URGENCY_MISSING_LABEL;
   return `Dringlichkeit: ${urgency} (${urgencySourceLabel(source)})`;
 }
 

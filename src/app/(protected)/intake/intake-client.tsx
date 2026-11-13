@@ -22,6 +22,7 @@ import {
   parseMissing,
   parseServices,
   urgencyBadgeClass,
+  urgencyBadgeText,
   urgencySourceLabel,
   urgencyWithSource,
   type ReadinessItem,
@@ -258,7 +259,7 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
           </p>
         </div>
         <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${urgencyBadgeClass(request.urgency)}`}>
-          {request.urgency}
+          {urgencyBadgeText(request.urgency)}
         </span>
       </div>
       <p data-testid="urgency-source" className="mt-1 text-sm text-secondary">

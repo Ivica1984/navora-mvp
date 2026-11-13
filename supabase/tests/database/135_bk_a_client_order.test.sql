@@ -20,14 +20,20 @@
 --   * BK-1n: a nurse, Operations and an admin of the same organisation cannot confirm; client A never sees B's order;
 --   * idempotency: the same key twice writes one row; the confirmed order creates no case and no team search, and the
 --     Operations intake list (status open / ready_to_convert) and «Fall eröffnen» do not take it;
---   * every confirmed order writes one audit row.
+--   * every confirmed order writes one audit row;
+--   * CGR-206 (d) (BK amendment 2026-11-13 21:39 (2)): the stored duration follows the clock change. Night Sat
+--     30.10.2027 22:00 – Sun 31.10.2027 07:00 = 600 min «(10 Std.)»; night Sat 27.03.2027 22:00 – Sun 28.03.2027 07:00
+--     = 480 min «(8 Std.)»; a start of 02:30 on 28.03.2027 (a wall-clock time that does not exist) is shown as 03:30 in
+--     the preview before confirmation (DST1 / ADR-081 reading), never shifted silently after it. Dates are calendar
+--     facts, not rules. Added after the migration: the code already computed this, so these assertions were green on
+--     first run (they guard against a regression; they were not red first).
 -- Users (seed): kundebs …9e8 (client of «Testheim Rhein (synthetisch)», org S) · opsbs …9e5 (operations, org S) ·
 -- pflegebs …9e6 (nurse, org S). Fixture in this file: client account B with user …9e9, admin of org S …9ea.
 -- Pinned clock (private.test_clock): Friday 2026-11-13 12:00 Europe/Zurich. Synthetic data only.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(50);
+select plan(56);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -162,6 +168,30 @@ select is((select public.preview_client_order('00000000-0000-4000-a000-000000000
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-22', time '22:00',
            time '07:00', '4102', 'fage_efz', array['B1'], null, null) -> 'problems'), '["not_client"]'::jsonb,
           'client A cannot preview for client account B');
+
+-- 4b. Clock change (CGR-206 (d)) ------------------------------------------------------------------------------------
+create temp table dst as select
+  public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2027-10-30', time '22:00', time '07:00',
+    '4102', 'fage_efz', array['B1'], null, null) as autumn,
+  public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2027-03-27', time '22:00', time '07:00',
+    '4102', 'fage_efz', array['B1'], null, null) as spring,
+  public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2027-03-28', time '02:30', time '07:00',
+    '4102', 'fage_efz', array['B1'], null, null) as gap;
+select is((select (autumn ->> 'duration_minutes')::int from dst), 600,
+          'CGR-206 (d): night 30./31.10.2027 (clocks back) is 600 minutes');
+select is((select autumn ->> 'sentence' from dst),
+          'Schichtauftrag · FaGe · Sa 30.10.2027 22:00 – So 31.10.2027 07:00 (10 Std.) · 4102 Binningen',
+          'CGR-206 (d): the autumn sentence says (10 Std.)');
+select is((select (spring ->> 'duration_minutes')::int from dst), 480,
+          'CGR-206 (d): night 27./28.03.2027 (clocks forward) is 480 minutes');
+select is((select spring ->> 'sentence' from dst),
+          'Schichtauftrag · FaGe · Sa 27.03.2027 22:00 – So 28.03.2027 07:00 (8 Std.) · 4102 Binningen',
+          'CGR-206 (d): the spring sentence says (8 Std.)');
+select is((select (gap ->> 'starts_at')::timestamptz from dst), timestamptz '2027-03-28 03:30:00+02',
+          'CGR-206 (d): a 02:30 start on 28.03.2027 is read as 03:30 (DST1 / ADR-081)');
+select is((select gap ->> 'sentence' from dst),
+          'Schichtauftrag · FaGe · So 28.03.2027 03:30 – So 28.03.2027 07:00 (3 Std. 30 Min.) · 4102 Binningen',
+          'CGR-206 (d): the preview shows 03:30 before confirmation, not the typed 02:30');
 
 -- 5. Confirm (BK-1d) ------------------------------------------------------------------------------------------------
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
