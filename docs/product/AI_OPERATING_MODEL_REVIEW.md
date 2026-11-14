@@ -539,6 +539,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a relative date is resolved against the date at resolution, not at page load» (AUT-121):** extends the «exactly one» rule (AUT-106, AUT-120) to time passing while a form is open.
 - AUT-112 closed for BK-a (no recognised value from free text; `confirm_client_order` has no text parameter); its K-1 contract becomes the BK-d criterion. AUT-120 closed (IMPLEMENTED, unit test). No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**Team measures under K-1 to K-7; repeat orders through the graph (`aia` 2026-11-14 08:30, review 56, AUT-122 closed, AUT-123, AUT-124):**
+- **Control AUT-122 made concrete (PO amendment 04:39 (1), `lca` D-44 04:20; Phase A only):** a team row of a measure built from audit rows needs at least 5 distinct **contributors** in a fixed calendar period (K-1), no person with 50 % or more of the events (K-2), no recalculation from the organisation figure (K-3), no free or sliding range (K-4); no actor column; one configured constant (K-7). Owner confirms the values before real data (OPEN). This replaces «*k* active members, UNKNOWN» in the block above.
+- **Evidence control «a withheld measure is shown to work» (AUT-124):** because most seed teams are below *k*, acceptance of a team measure needs one scenario with a team above *k* and the record of which rows are withheld.
+- **Control «a copy is filled, never confirmed» (AUT-123):** a repeat order is prefilled from the client's own past order, the date is never copied, and the copied values pass the same preview, summary and single confirmation act as a fresh order; no tick per copied value unless `cra` names a check the summary does not make.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -597,3 +603,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-13 16:00 | `aia` | §7: A14 order capture and A15 offer ranking added (BK contracts K-1, K-2); §12: BK AI contracts and controls «ledger follows the confirmer», «confirmation by risk», «published order, fallback, no ranking of people», «draft places her own words», «no `kind = 'ai'` in BK» (AUT-112 to AUT-116); AUT-103 (4), (5) superseded by FE-073/FE-074 |
 | 2026-11-13 20:21 | `aia` | §12: controls «the team sets what the team carries» (AUT-117, AUT-119), «no step between take and cover» (AUT-119), «no time cap, no audio in BK» (AUT-118), relative date «exactly one» (AUT-120); AUT-112 narrowed. No agent added or removed |
 | 2026-11-14 02:19 | `aia` | §12: block «BK-a as built»: AUT-114 control corrected to the PO variant (21:39 (5)); controls «team measure above a minimum group size, no actor column» (AUT-122) and «relative date resolved at resolution time» (AUT-121); AUT-112 closed for BK-a, AUT-120 closed. No agent added or removed |
+| 2026-11-14 08:30 | `aia` | §12: block «team measures under K-1 to K-7; repeat orders»: AUT-122 control made concrete (k = 5 contributors, dominance, no recalculation, fixed periods; Phase A); controls «a withheld measure is shown to work» (AUT-124) and «a copy is filled, never confirmed» (AUT-123). No agent added or removed |
