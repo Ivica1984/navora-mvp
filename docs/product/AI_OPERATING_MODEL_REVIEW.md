@@ -551,6 +551,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «the form offers what the guard accepts, from one reading» (AUT-126):** a choice restricted by a rule is restricted in the form from the same server function the confirm check uses; the confirm check stays as the guard. PLANNED (BK-g candidate).
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**FE-079 sign-off; BK-b1s and CGR-220 gates; the engine is named in its BK form (`aia` 2026-11-14 20:25, review 58, AUT-127 to AUT-129):**
+- **Gates:** #1270 `1cb6e09` and #1295 `2614ccb` clear for «Simulation, synthetic data»; neither proposes, drafts or ranks.
+- **Control «a document names the BK form of an engine first» (AUT-127):** where a step can later use a model, the Blueprint/Handbook status names the stage-0 form (rule, typed text, no audio) first and the model only with its stage condition (D-35, D-41, AUT-115). PLANNED (Blueprint 3.2.17, Handbook V2.3).
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** the shown set of teams equals the `order_offers` rows; ranking only reorders. PLANNED (BK-c/BK-5).
+- **Agent contract (AUT-129):** the Handbook contract gains named confirmer with ledger scope, no accept-all on listed fields, correction rate per agent and field at team level with stop rule (by reference to §8). PLANNED (`eng`).
+- FE-079 sign-off with reservations AUT-127 to AUT-129 (#1279). AUT-115 lock and D-35 rule A unchanged. No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -611,3 +618,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-14 02:19 | `aia` | §12: block «BK-a as built»: AUT-114 control corrected to the PO variant (21:39 (5)); controls «team measure above a minimum group size, no actor column» (AUT-122) and «relative date resolved at resolution time» (AUT-121); AUT-112 closed for BK-a, AUT-120 closed. No agent added or removed |
 | 2026-11-14 08:30 | `aia` | §12: block «team measures under K-1 to K-7; repeat orders»: AUT-122 control made concrete (k = 5 contributors, dominance, no recalculation, fixed periods; Phase A); controls «a withheld measure is shown to work» (AUT-124) and «a copy is filled, never confirmed» (AUT-123). No agent added or removed |
 | 2026-11-14 14:22 | `aia` | §12: block «BK-b1 gate; a team setting sees its effect; one reading in the form»: controls «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268), «a team setting shows its effect, never a suggestion» (AUT-125), «the form offers what the guard accepts, from one reading» (AUT-126). No agent added or removed |
+| 2026-11-14 20:25 | `aia` | §12: block «FE-079 sign-off; BK-b1s and CGR-220 gates»: controls «a document names the BK form of an engine first» (AUT-127), «a ranking is tested on the rows the team sees» (AUT-128), agent contract lines (AUT-129). No agent added or removed |
