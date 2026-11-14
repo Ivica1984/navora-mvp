@@ -260,3 +260,52 @@ Sources: `aia` review 56 (#1263, merged `79ef9aa`), `uxa` review 07:48 (#1262, m
 4. **UXR-208 (low):** the `/team` offer badge renders `urgencyBadgeText(offer.urgency)`; test: an offer with `urgency: null` shows «Dringlichkeit fehlt» with the outline class, the four levels unchanged. In the next BK PR that touches `/team`, otherwise BK-g with UXR-205 to UXR-207. Presentation only; `cra` keeps the colour (CGR-215 (d)).
 
 Owners: `eng` (3, 4), `cra` and `uxa` (2 before it becomes a criterion). PO status of BK: **active**.
+
+## PO acceptance 2026-11-14 09:39 (scheduled PO run): slice BK-a accepted for the simulation
+
+**Decision: `accepted`**, gate **«Simulation, synthetic data»** (CGR-215 (a): no release for real persons before BK-c offers and the BK-6 exception exist). Named integrated commit: **`634ccb7`** (`recovery/main` after #1257; BK-a code merges #1238 `abd6f82`, #1246 `54aa56e`, #1252 `ad8eaef`, #1257 `634ccb7`). The PO did not run any test locally; every result below is read from GitHub Actions job logs or from the repository at `634ccb7`.
+
+**Run evidence.**
+- Push `ci` 43572223613 on `634ccb7`: `app`, `db`, `e2e`, `ui-screenshots` all `success`, every test step ran (step list read; skipped only the conditional «WORK1-C5 probe» and «Upload Playwright report», as on every green run).
+- `ci-repeat` 43572290695 on `repeat/bk-a-accept-634ccb7` (head `634ccb7`), 08:41–08:56 Zurich (inside the day window): **20/20 jobs `success`, attempt 1, none cancelled or re-run.** Raw log content of all 20 jobs read (PO plus one read-only helper through the GitHub API): every `db` attempt «All tests successful. Files=135, Tests=4833 … Result: PASS»; every `e2e` attempt «174 passed», no flaky, failed or skipped line in the summary; concurrency checks (cover-accept, open-visit-take, SIG1 lock, CGR-201, «CGR-203 region-map-convert-race: 29 ok, 0 not ok») «ok» in all ten; the only «not ok» lines sit inside the B0-4 «before #922» reproduction (expected red by design). Known non-blocking observation, unchanged since 13.11. 18:40: `supabase db lint` reports `schema "net" does not exist` for `private.push_dispatch_kick` (step passes).
+
+**Evidence table (criterion | result | evidence at `634ccb7`).**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BK-1c night across midnight is one order, 9 h for 22:00–07:00 | met | pgTAP 135 «one row, not two days»; e2e `bk-a-order.spec.ts` at 390 and 1440 px «confirms a night order as one order» |
+| BK-1b / AUT-120 no silent date: «Sonntag» on a Sunday gives two candidates | met | `tests/unit/bk-a-client-order.test.ts` «BK-a relative date (AUT-120)», `relative_date_ambiguous` in `features/orders/rules.ts` |
+| BK-1d binding only after «Bestätigen & Absenden» on the summary | met | e2e summary step before confirm; pgTAP 135 confirm path |
+| BK-1n nobody confirms for a client; a client sees only its own orders | met | pgTAP 135 section 6 (nurse, Operations, admin refused, `not_client`; client A never sees B) |
+| BK-1e (BK-a part) no street or coordinate on the order | met | pgTAP 135 «no street or coordinate column (P-8)»; free text and AI capture are BK-d |
+| CGR-206 (d) clock change: 600 min «(10 Std.)», 480 min «(8 Std.)», 02:30 shown as 03:30 before confirmation | met | pgTAP 135 lines 180–194 (named here as required by amendment 21:39 (2)) |
+| CGR-214 (b) audit keeps `referrer_requested_start` and every 0086 column | met, **green on first run (regression guard)** | pgTAP 086 lines 118–133 |
+| CGR-215 (d) / UXR-202 «Dringlichkeit fehlt», never dropped, not red, distinct from the four levels | met | `bk-a-intake-urgency-missing.test.ts`, `bk-a-uxr202-urgency-missing-badge.test.ts` |
+| UXR-196 sentence from labels, no code or ISO date | met | pgTAP 135 and e2e «Schichtauftrag · FaGe · …» |
+| UXR-197 label «aus Ihrem Dienstplan», no label line when none matches, radius empty «Distanz: keine Vorgabe» | met | e2e «a time that matches no plan entry …»; unit tests in `bk-a-client-order.test.ts` |
+| PO 18:40 (2)(d), first half: 22:00–07:00 valid and one row with or without a label | met | e2e no-label test plus pgTAP 135 one-row assertion |
+| PO 18:40 (2)(d), second half: changing a shift plan never changes eligibility | **moved to BK-b** | no eligibility exists before BK-b; placed as a BK-b criterion below, not dropped |
+| UXR-198 `/order` in the client's menu only | met | `bk-a-uxr198-199.test.ts`, e2e, `nav-access.test.ts` |
+| UXR-199 one press, one order | met | pgTAP 135 idempotency «duplicate»; e2e count `before + 1`; unit test |
+| UXR-200 problem at its field, UXR-201 «Datum nicht erkannt» on leaving | met | `bk-a-uxr200-201.test.ts`; e2e UXR-201 test |
+| UXR-204 client's phone home tab «Auftrag erfassen», never a bar with only «Mehr» | met | `ux2-shell.test.ts` `tabs` equals `["order"]` |
+| Gates per PR (`cra`, `uxa`, `lca` where named) | met | merge records on #1238, #1246, #1252, #1257; `cra` 09:35 «merged = cleared» |
+
+**Business value.** A ward or household can now state a shift need in one form, sees exactly what will be sent (time, duration with the clock change, place, level) and sends it once; nothing reaches a team before confirmation. That is the intake half of the dispatcher's phone call, removed. Value order 5 (less administration) and 2 (continuity: no duplicate order asking two teams). No team sees the order yet: that is BK-b and BK-c.
+
+**Not part of this acceptance:** AI or voice capture (BK-d); any filter, offer or team view (BK-b, BK-c); pricing (BK-f); private-person addresses beyond PLZ; release for real persons and data.
+
+## PO amendment 2026-11-14 09:39 (scheduled PO run): BK-b active; answers to ADR-195 (probe) OPEN items
+
+Sources: `eng` journal 09:09 (#1265) and probe branch `probe/bk-b-red-20261114` `87a98aa` (draft ADR-195, red pgTAP 136, unmerged); `cra` review 09:35 (#1266). Operational WHAT only; no clinical, legal or tariff rule (D-27); matrix stays PROPOSED. PLANNED unless marked.
+
+1. **BK-b is the active slice.** Slice order unchanged: b, c, e, f, d, g.
+2. **Split accepted (README rule 11, `eng` proposal ADR-195 (5)):** BK-b ships as two PRs, **BK-b1** (postcode distances, team reach with AUT-117 permissions, hard distance filter, CGR-217 info item) then **BK-b2** (per-member level CGR-204/CGR-216, confirmed attributes, availability). Reason: smaller PRs, each with its own gates; the distance filter is reviewable without the qualification rules. BK-b is accepted **once**, after both are merged, on one named commit with `ci-repeat` 10/10. BK-b2 does not merge before BK-b1.
+3. **`building` teams are excluded** from the hard filter with their own reason (e.g. `team_not_active`), never offered by default. Fail-closed; a team still being set up must not receive an order. Test: a synthetic `building` team whose reach covers the order gets no offer row and carries the reason.
+4. **Other organisations' teams:** Phase A screens only teams of the simulated organisation. Agreed with `eng`. Cross-organisation offers wait for D-44 (`lca`).
+5. **Empty service area:** `set_team_reach` refuses an empty postcode list (problem code named by `eng`); a team that has never set its reach stays excluded with `no_service_area` (PO 18:40 (1)(c)). A deliberate pause of a team is not part of BK. Words: `uxa`.
+6. **pgTAP 135 reference-table list gains `postcode_distances`:** reference data, readable under the same tighter guard `eng` chose on `f6fdcaf`, until `lca` answers amendment 21:39 (6). `lca` line requested.
+7. **Moved from BK-a (see acceptance table):** red test in BK-b1 or BK-b2: changing a client's shift plan never changes any team's eligibility for an existing order.
+8. **AUT-123 «Wieder erfassen» (BK-g candidate):** `cra` 09:35 gave its line: no tick per activity if (i) a copy shows the same full summary, (ii) a copy passes today's checks including CGR-216 `level_activity_conflict`, (iii) institutions only until the Clinical Owner answers for private persons (UNKNOWN). Becomes a BK-g criterion with (i)–(iii) as tests once `uxa` gives words and place. Still OPEN on `uxa`.
+
+Gates per PR unchanged: `cra` (hard filters, CGR-216), `lca` (distance data source P-5, reference data 6), `uxa` (reach screen, words 5), `aia` (AUT-117 alignment). PO status of BK: **active, slice BK-b**.
