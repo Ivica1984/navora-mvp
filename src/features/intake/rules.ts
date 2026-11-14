@@ -44,9 +44,20 @@ export const URGENCY_BADGE_CLASS: Record<Urgency, string> = {
  */
 export const URGENCY_MISSING_LABEL = "Dringlichkeit fehlt";
 
-/** The badge class for a stored urgency; an unknown or missing value is neutral (the word says what is missing). */
+/**
+ * UXR-202 (BK amendment 2026-11-14 01:39 (3), `cra` 01:35): a missing urgency looks different from every stored level:
+ * outlined, white fill, dark text, the words «Dringlichkeit fehlt». Never red (UX1-23: red only for safety signals), and
+ * no re-ordering (the list stays by arrival). tests/unit/bk-a-uxr202-urgency-missing-badge.test.ts.
+ */
+export const URGENCY_MISSING_BADGE_CLASS = "bg-white text-stone-900 ring-1 ring-stone-700";
+
+/**
+ * The badge class for a stored urgency. No value: the UXR-202 outline. An unknown stored value stays neutral grey
+ * (UX1-23; the word shows what is stored).
+ */
 export function urgencyBadgeClass(urgency: string | null | undefined): string {
-  return (urgency && (URGENCY_BADGE_CLASS as Record<string, string>)[urgency]) || "bg-stone-200 text-stone-800";
+  if (!urgency) return URGENCY_MISSING_BADGE_CLASS;
+  return (URGENCY_BADGE_CLASS as Record<string, string>)[urgency] || "bg-stone-200 text-stone-800";
 }
 
 /** The badge text: the stored level, or «Dringlichkeit fehlt» when none is stored. */
