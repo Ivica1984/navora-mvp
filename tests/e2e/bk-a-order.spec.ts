@@ -94,8 +94,13 @@ for (const width of [390, 1440]) {
     if (width >= 768) {
       await expect(page.getByTestId("main-menu").getByRole("link", { name: "Auftrag erfassen" })).toHaveAttribute("aria-current", "page");
     } else {
+      // UXR-204 (BK amendment 04:39 (2)): on the phone «Auftrag erfassen» is her tab, current on /order; not under Mehr.
+      const tabBar = page.getByTestId("tab-bar");
+      await expect(tabBar.getByRole("link", { name: "Auftrag erfassen" })).toHaveAttribute("href", "/order");
+      await expect(tabBar.getByRole("link", { name: "Auftrag erfassen" })).toHaveAttribute("aria-current", "page");
       await page.getByTestId("tab-more-button").click();
-      await expect(page.getByTestId("tab-more").getByRole("link", { name: "Auftrag erfassen" })).toHaveAttribute("href", "/order");
+      await expect(page.getByTestId("tab-more").getByRole("link", { name: "Auftrag erfassen" })).toHaveCount(0);
+      await expect(page.getByTestId("tab-more").getByRole("link", { name: "Meine Einstellungen" })).toBeVisible();
     }
   });
 }
