@@ -24,6 +24,7 @@ as $$
          t.max_distance_km, t.reach_changed_at
   from public.teams t
   where (select auth.uid()) is not null
+    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
     and private.is_team_member(t.id)
   order by t.name, t.id
 $$;
