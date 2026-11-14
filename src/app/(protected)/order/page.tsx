@@ -1,5 +1,6 @@
 import { getClientOrderPage } from "@/features/orders/queries";
 import { coverStateText, radiusLine, shiftLabelLine } from "@/features/orders/rules";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import OrderForm from "./order-form";
 
 // BK-a (brief docs/agents/briefs/BK.md; ADR-194): the client's order page (Auftraggeber-Ansicht). Synthetic data only
@@ -9,7 +10,7 @@ export default async function OrderPage() {
   if (data.accounts.length === 0) {
     return (
       <main className="mx-auto grid max-w-2xl gap-4 p-4">
-        <h1 className="text-2xl font-bold">Auftrag erfassen</h1>
+        <h1 className="text-2xl font-bold">{PAGE_LABEL.order}</h1>
         <p data-testid="order-no-account">Ihr Zugang ist keinem Auftraggeber-Konto zugeordnet.</p>
       </main>
     );
@@ -18,7 +19,7 @@ export default async function OrderPage() {
   return (
     <main className="mx-auto grid w-full max-w-2xl min-w-0 gap-6 p-4">
       <header className="grid gap-1">
-        <h1 className="text-2xl font-bold">Auftrag erfassen</h1>
+        <h1 className="text-2xl font-bold">{PAGE_LABEL.order}</h1>
         <p className="text-sm text-secondary">{account.display_name} · synthetische Daten</p>
       </header>
       <OrderForm

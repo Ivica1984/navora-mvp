@@ -147,3 +147,55 @@ export function dateLabel(iso: string): string {
   const wd = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"][isoWeekday(iso) - 1];
   return `${wd} ${d}.${m}.${y}`;
 }
+
+/** What the client has typed or chosen in the order form (BK-a). Nothing here is defaulted (BK-1b). */
+export type OrderFormState = {
+  dateWords: string;
+  /** The candidate the client picked when the date words admit two dates (AUT-120). */
+  picked: string | null;
+  startTime: string;
+  endTime: string;
+  postcode: string;
+  grade: string;
+  tags: string[];
+  required: string[];
+  radius: string;
+};
+
+/**
+ * UXR-199 (BK amendment 2026-11-14 00:39 (1)(a)): the form after «Bestätigen & Absenden». Every field is empty, so a
+ * second press through the same form builds no complete order; the database preview names every missing field.
+ */
+export const EMPTY_ORDER_FORM: Readonly<OrderFormState> = Object.freeze({
+  dateWords: "",
+  picked: null,
+  startTime: "",
+  endTime: "",
+  postcode: "",
+  grade: "",
+  tags: [],
+  required: [],
+  radius: "",
+});
+
+/** The order fields sent to the preview (the shape `previewClientOrder` checks). An empty entry stays null. */
+export function orderFieldsFrom(state: OrderFormState, clientAccountId: string, today: string) {
+  const resolution = resolveOrderDate(state.dateWords, today);
+  const startDate =
+    resolution.kind === "date"
+      ? resolution.date
+      : resolution.kind === "relative_date_ambiguous" && state.picked && resolution.candidates.includes(state.picked)
+        ? state.picked
+        : null;
+  return {
+    clientAccountId,
+    startDate,
+    startTime: state.startTime || null,
+    endTime: state.endTime || null,
+    postcode: state.postcode || null,
+    grade: state.grade || null,
+    activityTags: [...state.tags],
+    requiredTags: state.required.filter((t) => state.tags.includes(t)),
+    radiusKm: state.radius.trim() ? Number(state.radius.replace(",", ".")) : null,
+  };
+}
