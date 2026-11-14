@@ -257,3 +257,17 @@ export function orderStepAfterPreview(problems: ReadonlyArray<string>): "summary
 export function dateUnknownShown(resolution: DateResolution, leftField: boolean): boolean {
   return leftField && resolution.kind === "unknown";
 }
+
+/** BK-b1 / CGR-217: information codes of public.preview_client_order (migration 0130). Never a problem: the confirm
+ *  stays enabled. */
+export const ORDER_INFO_CODES = ["same_order_already_confirmed"] as const;
+
+/** CGR-217, words `uxa` 03:47 (PROPOSED); `cra` 05:26: «zwei Pflegekräfte» holds while one order means one person. */
+export function orderInfoText(code: string, earlierSentence: string | null | undefined): string | null {
+  if (code !== "same_order_already_confirmed") return null;
+  const which = earlierSentence && earlierSentence.trim() ? ` (${earlierSentence.trim()})` : "";
+  return (
+    `Hinweis: Für dieses Konto ist bereits ein Auftrag mit gleichem Beginn, Ende, Stufe und Ort bestätigt${which}. ` +
+    "Ein zweiter Auftrag bedeutet zwei Pflegekräfte für diese Zeit. Wenn das so gemeint ist, bestätigen Sie ihn."
+  );
+}

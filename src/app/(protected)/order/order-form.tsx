@@ -12,6 +12,7 @@ import {
   orderFieldControlId,
   orderFieldProblemId,
   orderFieldsFrom,
+  orderInfoText,
   orderProblemField,
   orderProblemText,
   orderProblemsByField,
@@ -103,6 +104,11 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
           <p>Zwingend: {summary.fields.requiredTags.map((c) => activities.find((a) => a.code === c)?.label_de ?? c).join(", ")}</p>
         )}
         <p data-testid="order-radius">{radiusLine(summary.fields.radiusKm)}</p>
+        {preview.info.map((c) => {
+          const text = orderInfoText(c, preview.sameOrderSentence);
+          // CGR-217: neutral information (not role="alert", not red, not amber); the confirm stays enabled.
+          return text ? <p key={c} data-testid="order-info" className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-950">{text}</p> : null;
+        })}
         {blocked && (
           <ul role="alert" className="grid gap-1 font-semibold text-rose-800">
             {preview.problems.map((p) => <li key={p}>{orderProblemText(p)}</li>)}

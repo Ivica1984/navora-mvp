@@ -143,3 +143,34 @@ test("«Datum nicht erkannt» appears only after leaving the date field, not whi
   await dateField.press("Tab");
   await expect(form.getByTestId("order-date-unknown")).toHaveCount(0);
 });
+
+// BK-b1 / CGR-217 (PO amendment 2026-11-14 01:39 (4)): the same order a second time is named as information, in a
+// neutral style (no alert role), and stays confirmable. Own day (+14) and time, so no other test meets it.
+test("the same order a second time shows the information line and stays confirmable (CGR-217)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await signIn(page, CLIENT, /\/order$/);
+  const form = page.getByRole("form", { name: "Auftrag" });
+  const day = zurichDay(Date.now(), 14);
+  const fillOrder = async () => {
+    await form.getByLabel(/^Datum/).fill(deDate(day));
+    await form.getByLabel("Beginn", { exact: true }).fill("06:10");
+    await form.getByLabel("Ende", { exact: true }).fill("10:20");
+    await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4123");
+    await form.getByRole("radio", { name: "AGS", exact: true }).check();
+    await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht", exact: true }).check();
+    await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
+  };
+  await fillOrder();
+  const summary = page.getByTestId("order-summary");
+  await summary.getByRole("button", { name: "Bestätigen & Absenden" }).click();
+  await expect(page.getByTestId("order-done")).toContainText("Auftrag bestätigt");
+
+  await fillOrder();
+  const info = summary.getByTestId("order-info");
+  await expect(info).toHaveText(
+    new RegExp(`^Hinweis: Für dieses Konto ist bereits ein Auftrag mit gleichem Beginn, Ende, Stufe und Ort bestätigt \\(Schichtauftrag · AGS · \\S\\S ${deDate(day).replace(/\./g, "\\.")} 06:10 .* 4123 Allschwil\\)\\. Ein zweiter Auftrag bedeutet zwei Pflegekräfte für diese Zeit\\. Wenn das so gemeint ist, bestätigen Sie ihn\\.$`),
+  );
+  await expect(info).not.toHaveAttribute("role", "alert");
+  await expect(summary.getByRole("alert")).toHaveCount(0);
+  await expect(summary.getByRole("button", { name: "Bestätigen & Absenden" })).toBeEnabled();
+});

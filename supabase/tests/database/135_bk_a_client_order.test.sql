@@ -106,7 +106,7 @@ begin
 end;
 $$;
 select is((select coalesce(string_agg(t || ':' || n, ', ' order by t), '') from visible_rows
-           where n > 0 and t not in ('postcodes', 'qual_activities', 'qual_matrix_cells', 'qual_matrix_versions',
+           where n > 0 and t not in ('postcodes', 'postcode_distances', 'qual_activities', 'qual_matrix_cells', 'qual_matrix_versions',
                                      'billing_rules', 'exception_rules', 'safety_alert_categories', 'tariff_rates',
                                      'working_time')), '',
           'a client-only user reads no organisation row of any public table (only global reference rows)');
