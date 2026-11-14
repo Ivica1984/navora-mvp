@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.13 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.14 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -649,14 +649,33 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 | Rolle | Fachbereich | Nächster planmässiger Lauf | Sign-off (wörtlich) | Quelle |
 |---|---|---|---|---|
-| `eng` | 5 Engines, Datenmodell, Testpyramide, `ci-repeat` 10/10 (§3, §6.3, §9.1; Handbook V2.2) | stündlich, Minute 09 | **ausstehend** | – |
+| `eng` | 5 Engines, Datenmodell, Testpyramide, `ci-repeat` 10/10 (§3, §6.3, §9.1; Handbook V2.2) | stündlich, Minute 09 | **unterschrieben mit Vorbehalt** (V-1 bis V-6, Wortlaut unten), 2026-11-14 15:12 | `docs/agents/journal/2026-11-14-1512-eng.md` (PR #1283, Merge `0b952ce`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6878581304) |
 | `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; vom Founder am 2026-11-14 bestätigt) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **ausstehend** | – |
 | `lca` | AVG-Abgrenzung (Anhang C §1), rote Linien R-1 bis R-10, FE-078 | alle 4 Std., Minute 20 | **ausstehend** | – |
 | `uxa` | Wireframes und Klickpfade der 6 Portale (§5, §6) | alle 4 Std., Minute 47 | **ausstehend** | – |
 | `aia` | On-Platform-Matching (Engine 1, Engine 2) und Voice-to-Report (Engine 3) (§3, §5.3, §6.3) | alle 6 Std., Minute 17 | **ausstehend** | – |
 | `csa` | Markt-Disruption und Schichtrechnung (§1, §2, Anhang A) | wöchentlich, Montag 18:37 (2026-11-16) | **ausstehend** | – |
 
-**Stand Master-Paket:** nicht besiegelt (0 von 6). Frühestens nach dem `csa`-Lauf am Montag, 2026-11-16, vollständig.
+**Wortlaut der Sign-offs (vom PO wörtlich übertragen, Reihenfolge des Eingangs).** Die Vorbehalts-IDs sind die der jeweiligen Rolle; zur Unterscheidung von den `lca`-Korrekturen V-1 bis V-7 (PR #1220) zitiert der PO sie als «`eng` V-1» usw., ohne den Wortlaut zu ändern.
+
+**`eng`, 2026-11-14 15:12 Europe/Zurich** (gelesen auf `recovery/main` `90d5614`; Journal `docs/agents/journal/2026-11-14-1512-eng.md`, PR #1283; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6878581304), Kommentar-Wortlaut):
+
+> Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten V-1 bis V-6**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage. Das Sign-off bestätigt die Arbeitsgrundlage; es ist keine Aussage, dass ungetesteter Code funktioniert.
+>
+> Field: the five engines, the data model, and the test pyramid with `ci-repeat` 10/10.
+>
+> - **V-1** Engine 1 data model: the code (M/130, ADR-195, merged `9b691af`) writes BK screening into `order_offers` / `order_exclusions` via `private.screen_order_reach`; Handbook §4.0, §5.1b and §11 still name `matching_offer_steps` and `private.offer_eligibility`. Proposal: Handbook V2.3 adopts ADR-195; the cascade (T-3) is still to be decided.
+> - **V-2** R-E1-1: the old eligibility rule is still in two copies on the case path (`M/034` `request_offered_to_team`, `M/086` `team_offers()`). «One function» is PLANNED.
+> - **V-3** Blueprint §6.3 step 2: the distance filter has been IMPLEMENTED since `9b691af` but is not accepted. Matrix, attributes and whole-slot availability are PLANNED (#1273).
+> - **V-4** Handbook counts are stale: 128 migrations, 136 pgTAP files and 122 unit test files on `90d5614`, against 126 / 133 / 115 in the Handbook.
+> - **V-5** E2–E5 and the three ledgers (GMSEP test) are PLANNED. There is no payment integration and no commission field (FE-078). ADRs T-3, T-4 and T-6 to T-9 are open.
+> - **V-6** BK-b has no `ci-repeat` acceptance yet. Acceptance only from raw logs, per job.
+>
+> I changed nothing in either document. Each reservation is a proposal.
+
+**Hinweis PO zu den `eng`-Vorbehalten (keine Änderung am Wortlaut):** `eng` V-5 nennt T-3 (Kaskadenfenster) offen; seit FE-078 Teil 2 (V3.2.13) ist die exklusive Kaskade durch den Rundruf ersetzt, T-3 betrifft damit nur noch die technische Form des Rundrufs (BK-5, BK-5a). `eng` V-1 bis V-4 sind Vorschläge für Handbook V2.3 und eine Statuszeile in §6.3; der PO nimmt sie in die Handbook-Pflege auf (kein stilles Ändern, Versionstabelle).
+
+**Stand Master-Paket:** nicht besiegelt (**1 von 6**: `eng` mit Vorbehalt). Ausstehend: `cra`, `lca`, `uxa`, `aia`, `csa`. Frühestens nach dem `csa`-Lauf am Montag, 2026-11-16, vollständig.
 
 ---
 
@@ -674,6 +693,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
+| 2026-11-14 | 3.2.14 Sign-off | Kap. 13 «Formales Sign-off FE-079»: Sign-off `eng` (15:12, mit Vorbehalten V-1 bis V-6) wörtlich eingetragen, Hinweis PO zu T-3 nach FE-078 Teil 2; Stand 1 von 6. Kopfzeile auf 3.2.14. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-079; Issue #1279 Kommentar `eng`; PR #1283 |
 | 2026-11-14 | 3.2.13 Founder-Entscheid | FE-078 Teil 2 und 3: §6.2 neu (Rundruf an alle geeigneten Teams statt exklusiver Kaskade, Zustandsdiagramm ersetzt), §5.1 Stand, §5.2 Zeile «Rundruf» statt «Zeitfenster», §6.3 Schritt 4; Hinweise PO vor Anhang B §2 und Anhang C §1 (Rollentexte unverändert); Kap. 13 Zeile `cra`: 20 Garantien vom Founder bestätigt. Keine Änderung an harten Prüfungen, Garantien, Matrix oder Gates | FE-078 (Founder, zweite Nachricht 2026-11-14); BK-Brief PO-Ergänzung 15:00 |
 | 2026-11-14 | 3.2.12 Nachtrag | Kap. 11 Zeile D-44: Satz «keine Zahlungsflüsse» als entschieden (FE-078 Teil 1) markiert. Kap. 13: neuer Abschnitt «Formales Sign-off FE-079» (Auftrag, Abgrenzung, Prompt-Synchronisation, Tabelle der sechs Rollen, Stand 0 von 6). Kopfzeile auf 3.2.12. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-078, FE-079 (Founder, Live-Sitzung 2026-11-14); Issue #1279 |
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
