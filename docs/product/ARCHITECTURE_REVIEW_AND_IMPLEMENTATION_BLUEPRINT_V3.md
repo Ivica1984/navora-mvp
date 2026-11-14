@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.7 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.8 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -654,6 +654,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-14 | 3.2.8 Status | §8 unverändert (BK-b aktiv). Operative PO-Entscheidung ohne klinische oder rechtliche Regel: der Bildschirm, auf dem ein Team sein Einsatzgebiet selbst einstellt (AUT-117 (c)), ist ein eigener PR BK-b1s vor der Abnahme von BK-b; ohne ihn setzt nur der Seed die Reichweite (zentraler Schritt). PR #1268 (BK-b1) gelesen, nicht gemergt (Prüfungen laufen, Gates fehlen) | README-Regel 12, Wertfolge 4; BK-Brief, PO-Ergänzung 10:39 |
 | 2026-11-14 | 3.2.7 Status | §8: BK-a (Auftrag erfassen, Zusammenfassung, einmal absenden) für die Simulation abgenommen auf `634ccb7`; BK-b aktiv. Operative PO-Antworten ohne klinische oder rechtliche Regel: BK-b in zwei PRs (Distanz/Reichweite, dann Stufe/Merkmale/Verfügbarkeit), Teams im Aufbau ausgeschlossen, Phase A nur eigene Organisation, leeres Einsatzgebiet abgelehnt (BK-Brief, PO-Ergänzung 09:39) | README-Regel 12, FE-071 |
 | 2026-11-13 | 3.2.6 Korrektur | §5.3: BK-8 baut die Variante «Signieren gesperrt, solange n > 0» mit vier Bedingungen; §13 Zeile `cra`: «zur Prüfung vorgelegt» ersetzt durch «geprüft und bestätigt (Anhang B, 17:40)». Keine Änderung an Matrix, Garantien oder Gates | `cra` 21:40 (#1239): Antwort 1 und Hinweis zu §13; PO-Korrektur: `cra` prüft, entscheidet nicht (D-27); BK-Nachtrag 21:39 |
 | 2026-11-13 | 3.2.5 Korrektur | §5.3 Titel und Text: keine 30-Sekunden-Grenze, Entwurf in BK als Regel über Text ohne Audio, Block «Nicht übernommen (n)» vor der Signatur; Sequenzdiagramm §6 und Tabelle «Bericht schreiben» angepasst; `field.svg` Text («Sprachnotiz», «0:18»). Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid; keine klinische Regel (Position und Sperrwirkung des Blocks: `cra`) | `uxa` UXR-195 (#1233), `aia` AUT-118, `cra` CGR-213 (b); BK-Brief Nachtrag 20:40 |
