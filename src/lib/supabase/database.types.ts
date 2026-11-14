@@ -3015,6 +3015,11 @@ isOneToOne: false
               "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
                            },
+"my_team_reach":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "max_distance_km": number,"postcodes": (string)[],"reach_changed_at": string,"team_id": string,"team_name": string,"team_status": string
+            }[]
+                           },
 "my_unexported_working_days":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
