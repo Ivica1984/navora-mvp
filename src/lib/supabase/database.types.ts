@@ -795,6 +795,66 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"client_account_members": {
+                  Row: {
+                    "client_account_id": string,"created_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_account_id": string,"created_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "client_account_id"?: string,"created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "client_account_members_client_account_id_fkey"
+      columns: ["client_account_id"]
+isOneToOne: false
+      referencedRelation: "client_accounts"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"client_accounts": {
+                  Row: {
+                    "client_kind": string,"created_at": string,"display_name": string,"id": string,"organization_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_kind": string,"created_at"?: string,"display_name": string,"id"?: string,"organization_id": string
+                  }
+                  Update: {
+                    "client_kind"?: string,"created_at"?: string,"display_name"?: string,"id"?: string,"organization_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "client_accounts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"client_shift_plans": {
+                  Row: {
+                    "client_account_id": string,"ends_at": string,"label": string,"source": string,"starts_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_account_id": string,"ends_at": string,"label": string,"source": string,"starts_at": string
+                  }
+                  Update: {
+                    "client_account_id"?: string,"ends_at"?: string,"label"?: string,"source"?: string,"starts_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "client_shift_plans_client_account_id_fkey"
+      columns: ["client_account_id"]
+isOneToOne: false
+      referencedRelation: "client_accounts"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"cover_events": {
                   Row: {
                     "created_at": string,"id": string,"kind": string,"nurse_id": string | null,"organization_id": string,"reason": string | null,"seq": number,"team_id": string | null,"visit_id": string
@@ -1325,14 +1385,14 @@ isOneToOne: false
                   ]
                 },"partner_requests": {
                   Row: {
-                    "city": string | null,"converted_case_id": string | null,"created_at": string,"id": string,"need_summary": string,"notes": string | null,"organization_id": string,"partner_name": string,"partner_type": string | null,"referrer_requested_start": string | null,"region": string,"request_title": string,"requested_services": (string)[] | null,"status": string,"time_info": string | null,"urgency": string,"urgency_source": string
+                    "activity_tags": (string)[] | null,"city": string | null,"client_account_id": string | null,"confirmed_at": string | null,"confirmed_by": string | null,"converted_case_id": string | null,"created_at": string,"ends_at": string | null,"grade": string | null,"id": string,"need_summary": string,"notes": string | null,"order_kind": string | null,"organization_id": string,"partner_name": string,"partner_type": string | null,"postcode": string | null,"radius_km": number | null,"referrer_requested_start": string | null,"region": string,"request_title": string,"requested_services": (string)[] | null,"required_tags": (string)[] | null,"shift_label": string | null,"starts_at": string | null,"status": string,"time_info": string | null,"urgency": string | null,"urgency_source": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "city"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"id"?: string,"need_summary": string,"notes"?: string | null,"organization_id": string,"partner_name": string,"partner_type"?: string | null,"referrer_requested_start"?: string | null,"region": string,"request_title": string,"requested_services"?: (string)[] | null,"status"?: string,"time_info"?: string | null,"urgency": string,"urgency_source"?: string
+                    "activity_tags"?: (string)[] | null,"city"?: string | null,"client_account_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"ends_at"?: string | null,"grade"?: string | null,"id"?: string,"need_summary": string,"notes"?: string | null,"order_kind"?: string | null,"organization_id": string,"partner_name": string,"partner_type"?: string | null,"postcode"?: string | null,"radius_km"?: number | null,"referrer_requested_start"?: string | null,"region": string,"request_title": string,"requested_services"?: (string)[] | null,"required_tags"?: (string)[] | null,"shift_label"?: string | null,"starts_at"?: string | null,"status"?: string,"time_info"?: string | null,"urgency"?: string | null,"urgency_source"?: string
                   }
                   Update: {
-                    "city"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"id"?: string,"need_summary"?: string,"notes"?: string | null,"organization_id"?: string,"partner_name"?: string,"partner_type"?: string | null,"referrer_requested_start"?: string | null,"region"?: string,"request_title"?: string,"requested_services"?: (string)[] | null,"status"?: string,"time_info"?: string | null,"urgency"?: string,"urgency_source"?: string
+                    "activity_tags"?: (string)[] | null,"city"?: string | null,"client_account_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"ends_at"?: string | null,"grade"?: string | null,"id"?: string,"need_summary"?: string,"notes"?: string | null,"order_kind"?: string | null,"organization_id"?: string,"partner_name"?: string,"partner_type"?: string | null,"postcode"?: string | null,"radius_km"?: number | null,"referrer_requested_start"?: string | null,"region"?: string,"request_title"?: string,"requested_services"?: (string)[] | null,"required_tags"?: (string)[] | null,"shift_label"?: string | null,"starts_at"?: string | null,"status"?: string,"time_info"?: string | null,"urgency"?: string | null,"urgency_source"?: string
                   }
                   Relationships: [
                     {
@@ -1340,6 +1400,12 @@ isOneToOne: false
       columns: ["converted_case_id","organization_id"]
 isOneToOne: false
       referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "partner_requests_client_account_same_org"
+      columns: ["client_account_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "client_accounts"
       referencedColumns: ["id","organization_id"]
     },{
       foreignKeyName: "partner_requests_converted_case_id_fkey"
@@ -1353,6 +1419,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "partner_requests_postcode_fkey"
+      columns: ["postcode"]
+isOneToOne: false
+      referencedRelation: "postcodes"
+      referencedColumns: ["postcode"]
     }
                   ]
                 },"plan_slot_skips": {
@@ -1374,6 +1446,20 @@ isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
     }
+                  ]
+                },"postcodes": {
+                  Row: {
+                    "place_name": string,"postcode": string,"region_name": string,"source": string,"source_version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "place_name": string,"postcode": string,"region_name": string,"source": string,"source_version": string
+                  }
+                  Update: {
+                    "place_name"?: string,"postcode"?: string,"region_name"?: string,"source"?: string,"source_version"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"push_subscriptions": {
                   Row: {
@@ -2585,6 +2671,11 @@ isOneToOne: false
 "change_absence":
 { Args: { "p_absence_id": string,"p_idempotency_key": string,"p_until": string,"p_until_time": string,"p_withdraw": boolean }; Returns: Json
                            },
+"client_orders":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "activity_tags": (string)[],"client_account_id": string,"confirmed_at": string,"cover_state": string,"duration_minutes": number,"ends_at": string,"grade": string,"id": string,"place_name": string,"postcode": string,"radius_km": number,"required_tags": (string)[],"sentence": string,"shift_label": string,"starts_at": string
+            }[]
+                           },
 "client_visit_overlap":
 { Args: { "p_case_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
@@ -2599,6 +2690,9 @@ isOneToOne: false
                            },
 "confirm_assessment":
 { Args: { "p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
+"confirm_client_order":
+{ Args: { "p_activity_tags": (string)[],"p_client_account_id": string,"p_end_time": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[],"p_start_date": string,"p_start_time": string }; Returns: Json
                            },
 "confirm_my_qualification":
 { Args: { "p_grade": string,"p_idempotency_key": string,"p_organization_id": string,"p_requirement": string }; Returns: Json
@@ -2784,6 +2878,11 @@ isOneToOne: false
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_client_accounts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "client_kind": string,"display_name": string,"id": string
+            }[]
+                           },
 "my_contract_end":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -2875,6 +2974,9 @@ isOneToOne: false
                            },
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
+                           },
+"preview_client_order":
+{ Args: { "p_activity_tags": (string)[],"p_client_account_id": string,"p_end_time": string,"p_grade": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[],"p_start_date": string,"p_start_time": string }; Returns: Json
                            },
 "propose_day_plan":
 { Args: { "p_date": string,"p_idempotency_key": string,"p_include_assigned": boolean,"p_team_id": string }; Returns: Json
