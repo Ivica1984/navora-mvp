@@ -32,6 +32,8 @@ export type OrderPreview = {
   /** BK-b1 / CGR-217: information items, never a block. */
   info: string[];
   sameOrderSentence: string | null;
+  /** BK-b2 / CGR-216: the activities that conflict with the chosen level (matrix order); empty when none. */
+  conflictActivities: string[];
 };
 
 function args(f: OrderFields) {
@@ -56,6 +58,7 @@ type PreviewRow = {
   duration_minutes?: number | null;
   info?: string[];
   same_order_sentence?: string | null;
+  conflict_activities?: string[];
 };
 
 export async function previewClientOrder(input: unknown): Promise<{ ok: true; preview: OrderPreview } | { ok: false; error: string }> {
@@ -78,13 +81,14 @@ export async function previewClientOrder(input: unknown): Promise<{ ok: true; pr
       durationMinutes: r.duration_minutes ?? null,
       info: r.info ?? [],
       sameOrderSentence: r.same_order_sentence ?? null,
+      conflictActivities: r.conflict_activities ?? [],
     },
   };
 }
 
 export async function confirmClientOrder(
   input: unknown,
-): Promise<{ ok: true } | { ok: false; error: string; problems?: string[] }> {
+): Promise<{ ok: true } | { ok: false; error: string; problems?: string[]; conflictActivities?: string[] }> {
   const p = fields.extend({ idempotencyKey: z.uuid() }).safeParse(input);
   if (!p.success) return { ok: false, error: "Bitte die Angaben prüfen." };
   const { supabase } = await requireUser();
@@ -96,14 +100,19 @@ export async function confirmClientOrder(
     logEvent("warn", "command.failed", { op: "confirm_client_order", ...errorFields(error) });
     return { ok: false, error: "Absenden fehlgeschlagen." };
   }
-  const r = (data ?? {}) as { result?: string; problems?: string[] };
+  const r = (data ?? {}) as { result?: string; problems?: string[]; conflict_activities?: string[] };
   if (r.result === "ok" || r.result === "duplicate") {
     revalidatePath(CLIENT_ORDER_PATH);
     return { ok: true };
   }
   if (r.result === "invalid") {
     const problems = r.problems ?? [];
-    return { ok: false, error: problems.map(orderProblemText).join(" "), problems };
+    return {
+      ok: false,
+      error: problems.map(orderProblemText).join(" "),
+      problems,
+      conflictActivities: r.conflict_activities ?? [],
+    };
   }
   return { ok: false, error: orderProblemText("not_client") };
 }

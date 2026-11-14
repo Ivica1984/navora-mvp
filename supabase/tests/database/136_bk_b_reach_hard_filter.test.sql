@@ -27,8 +27,8 @@
 --   * CGR-217: the preview returns an information item (never a problem) when the same client account already has a
 --     confirmed order with the same start, end, grade and postcode; a different postcode gives no item; the second
 --     order stays confirmable.
--- Not here (PLANNED, BK-b2, own red tests): CGR-204 per-member level, confirmed required attributes and
--- availability for the whole slot; CGR-216 `level_activity_conflict`; AUT-122 / K-6 reach-change counts per team.
+-- Not here: CGR-204 per-member level, required activities and availability for the whole slot and CGR-216
+-- `level_activity_conflict` (BK-b2, pgTAP 138); AUT-122 / K-6 reach-change counts per team (PLANNED, BK-g).
 -- Distances: set by this file on fixture pairs (synthetic, inside the transaction); they state nothing about real
 -- distances. Users (seed): kundebs …9e8 (client A, org S) · pflegebs …9e6 (nurse, member of Testteam Basel …1b9).
 -- Fixture: nurse …9eb (member of fixture team T2 only), admin of org S …9ea. Pinned clock: Fri 2026-11-13 12:00
@@ -175,6 +175,28 @@ select ok((select reach_changed_at = private.now() from public.teams where id = 
           'AUT-117 (c): the date of the last change is stored');
 select throws_ok($$ update public.teams set max_distance_km = 0 where id = '00000000-0000-4000-a000-0000000001ba' $$,
                  '23514', null, 'check: max_distance_km > 0');
+
+-- BK-b2 (ADR-196, pgTAP 138): the screening now also asks for ONE member per team who holds the ordered level (FaGe,
+-- verified), the activities and is free for the whole slot. This file tests the distance part, so every team that the
+-- distance lets through gets one such member here (synthetic fixture, added in BK-b2; no assertion of this file
+-- changed). The member part is tested in pgTAP 138. Written as the table owner with no request user (0120 guard).
+select set_config('request.jwt.claims', '', true), set_config('request.jwt.claim.sub', '', true);
+insert into auth.users (id, aud, role, email) values
+  ('00000000-0000-4000-a136-000000000001', 'authenticated', 'authenticated', 'bk-b1-fage1.fixture@navora.test'),
+  ('00000000-0000-4000-a136-000000000002', 'authenticated', 'authenticated', 'bk-b1-fage2.fixture@navora.test'),
+  ('00000000-0000-4000-a136-000000000003', 'authenticated', 'authenticated', 'bk-b1-fage3.fixture@navora.test');
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000001', 'nurse'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000002', 'nurse'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000003', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001b9', '00000000-0000-4000-a136-000000000001', 'care_assistant'),
+  ('00000000-0000-4000-a000-0000000001ba', '00000000-0000-4000-a136-000000000002', 'care_assistant'),
+  ('00000000-0000-4000-a000-0000000001be', '00000000-0000-4000-a136-000000000003', 'care_assistant');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000001', 'grade', 'fage_efz', 'verified', true),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000002', 'grade', 'fage_efz', 'verified', true),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000003', 'grade', 'fage_efz', 'verified', true);
 
 -- 6. Hard filter on confirmation (BK-2, BK-2n, PO 18:40 (1)(c), (d)) -----------------------------------------------
 create temp table made (k text primary key, r jsonb);

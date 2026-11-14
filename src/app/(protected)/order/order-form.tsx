@@ -9,6 +9,7 @@ import {
   GRADE_OPTIONS,
   dateLabel,
   dateUnknownShown,
+  levelActivityConflictText,
   orderFieldControlId,
   orderFieldProblemId,
   orderFieldsFrom,
@@ -45,6 +46,11 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
   const [form, setForm] = useState<OrderFormState>({ ...EMPTY_ORDER_FORM });
   const { dateWords, picked, startTime, endTime, postcode, grade, tags, required, radius } = form;
   const [problems, setProblems] = useState<string[]>([]);
+  // BK-b2 / CGR-216: the activities the database named for `level_activity_conflict` (shown by name, never dropped).
+  const [conflicts, setConflicts] = useState<string[]>([]);
+  const activityLabels = Object.fromEntries(activities.map((a) => [a.code, a.label_de]));
+  const problemText = (code: string) =>
+    code === "level_activity_conflict" ? levelActivityConflictText(grade, conflicts, activityLabels) : orderProblemText(code);
   const [dateLeft, setDateLeft] = useState(false);
   const FIELD_OF: Partial<Record<keyof OrderFormState, OrderFormField>> = {
     dateWords: "date", picked: "date", startTime: "startTime", endTime: "endTime", postcode: "postcode",
@@ -66,7 +72,7 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
   const fieldProblem = (f: OrderFormField) =>
     grouped.byField[f] ? (
       <p id={orderFieldProblemId(f)} data-testid={orderFieldProblemId(f)} className="text-sm font-semibold text-rose-800">
-        {grouped.byField[f]!.map(orderProblemText).join(" ")}
+        {grouped.byField[f]!.map(problemText).join(" ")}
       </p>
     ) : null;
   const [summary, setSummary] = useState<{ fields: OrderFields; preview: OrderPreview; key: string } | null>(null);
@@ -160,6 +166,7 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
             setSummary({ fields, preview: r.preview, key: crypto.randomUUID() });
           } else {
             setProblems(r.preview.problems);
+            setConflicts(r.preview.conflictActivities);
             setProblemsShownAt(Date.now());
           }
         });
@@ -172,10 +179,10 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
         <div ref={problemsRef} tabIndex={-1} role="alert" data-testid="order-problems" className="grid gap-1 text-sm font-semibold text-rose-800">
           <p>Bitte diese Angaben prüfen:</p>
           <ul className="grid gap-1">
-            {grouped.form.map((c) => <li key={c}>{orderProblemText(c)}</li>)}
+            {grouped.form.map((c) => <li key={c}>{problemText(c)}</li>)}
             {(Object.keys(grouped.byField) as OrderFormField[]).flatMap((f) =>
               grouped.byField[f]!.map((c) => (
-                <li key={c}><a href={`#${orderFieldControlId(f)}`} className="underline">{orderProblemText(c)}</a></li>
+                <li key={c}><a href={`#${orderFieldControlId(f)}`} className="underline">{problemText(c)}</a></li>
               )),
             )}
           </ul>
