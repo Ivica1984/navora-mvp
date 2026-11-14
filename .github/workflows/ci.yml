@@ -428,3 +428,62 @@ jobs:
       - name: Stop
         if: always() && steps.ui.outputs.run == 'true'
         run: supabase stop --no-backup
+
+  # STG1 (ADR-190; owner 2026-11-11, exception to FE-054): the repository's migrations go to the Supabase project
+  # `navora-staging` (Zurich eu-central-2, Free plan, synthetic data only) ONLY from CI, ONLY after all four required jobs
+  # are green, and ONLY on a push to recovery/main (a merge commit). A same-repository pull request that changes a
+  # migration or this file gets a dry run (lists the pending migrations, writes nothing). Never the seed: it holds
+  # sign-in accounts whose password is public in this repository; staging accounts come in their own PR with secret
+  # passwords. One secret (owner, repository secret): STAGING_DB_URL, the Session pooler connection string (IPv4) of
+  # navora-staging; no Supabase account token is needed. The value is never printed. Not one of the four required checks.
+  staging:
+    name: staging (migrations → navora-staging)
+    needs: [app, db, e2e, ui-screenshots]
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/recovery/main') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: staging-navora
+      cancel-in-progress: false
+    env:
+      STAGING_PROJECT_REF: qpmdryxkktbqqkqpsnkj
+      STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Does this pull request change a migration or ci.yml?
+        id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "$BASE_SHA" HEAD | grep -qE '^(supabase/migrations/|\.github/workflows/ci\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=staging::no migration or ci.yml change, no dry run"
+          fi
+      - name: Secret present and pointing at navora-staging? (never printed)
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          if [ -z "$STAGING_DB_URL" ]; then echo "::error title=staging secrets::missing repository secret: STAGING_DB_URL"; exit 1; fi
+          case "$STAGING_DB_URL" in
+            *"postgres.$STAGING_PROJECT_REF:"*|*"@db.$STAGING_PROJECT_REF.supabase.co"*) echo "::notice title=staging secrets::present, project navora-staging" ;;
+            *) echo "::error title=staging secrets::STAGING_DB_URL does not name the project navora-staging"; exit 1 ;;
+          esac
+      - uses: supabase/setup-cli@v1
+        if: steps.scope.outputs.run == 'true'
+        with:
+          version: 2.121.0
+      - name: Dry run against navora-staging (pull request, writes nothing)
+        if: steps.scope.outputs.run == 'true' && github.event_name == 'pull_request'
+        run: supabase db push --dry-run --db-url "$STAGING_DB_URL"
+      - name: Apply migrations to navora-staging (push to recovery/main only)
+        if: steps.scope.outputs.run == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/recovery/main'
+        run: |
+          supabase db push --db-url "$STAGING_DB_URL"
+          echo "::notice title=staging::migrations applied to navora-staging at $(git rev-parse --short HEAD)"
