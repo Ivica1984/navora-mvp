@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.12 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.13 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -324,7 +324,7 @@ Die folgenden Bildschirme sind **Konzept-Wireframes** im NAVORA-Designsystem (v7
 - **Erfassen:** sprechen oder schreiben. Der Hinweis verlangt nur Einsatzdaten, keine Namen und keine Diagnosen (`lca` M-a).
 - **Zusammenfassung:** Jedes Feld zeigt, woraus es erkannt wurde («erkannt aus: «heute»») und lässt sich ändern. Relative Angaben werden als Datum gezeigt (FE-074).
 - **Ein Klick:** «Bestätigen & Absenden». Ohne Bestätigung wird nichts gesendet.
-- **Stand:** «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.», dann «Gedeckt durch Team …», bei erschöpfter Kaskade «Kein passendes Team mehr frei» und ab Schichtbeginn «Nicht gedeckt» (UXR-188). Kein stilles Verfallen (BK-6). Ob eine Privatperson die Zahl der Teams sieht, prüft `lca`.
+- **Stand:** «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.», dann «Gedeckt durch Team …», wenn kein geeignetes Team mehr frei ist «Kein passendes Team mehr frei» (V3.2.13: Rundruf statt Kaskade) und ab Schichtbeginn «Nicht gedeckt» (UXR-188). Kein stilles Verfallen (BK-6). Ob eine Privatperson die Zahl der Teams sieht, prüft `lca`.
 
 ### 5.2 P2 `/team`: das begründete Angebot
 
@@ -332,7 +332,7 @@ Die folgenden Bildschirme sind **Konzept-Wireframes** im NAVORA-Designsystem (v7
 
 - **Empfohlen für euch:** Schicht, Ort, Distanz; darunter «Passt, weil:» mit den geprüften Fakten. **Kein Prozentwert, keine Sterne, kein Rang** (`uxa`).
 - **Transparenz:** «Nicht angeboten an 3 Teams – Gründe ansehen»; jedes ausgeschlossene Team hat seinen Grund (BK-2).
-- **Zeitfenster:** «Angebot für euer Team bis 14:45» (Kaskade, BK-5).
+- **Rundruf (V3.2.13, FE-078 Teil 2):** Alle Teams, die jede harte Prüfung bestehen, sehen das Angebot **gleichzeitig**; es gibt kein exklusives Zeitfenster. Die Sortierung ist eine Empfehlung («Empfohlen für euch, weil …»), kein Ausschluss. Wer zuerst «Übernehmen mit …» tippt und die harte Prüfung in diesem Moment besteht, hat die Schicht; die anderen Teams sehen «Bereits übernommen» (BK-5, **PLANNED**; Wortlaut `uxa`).
 - **Teamautonomie, je benannter Person (V3.2.1, CGR-204, UXR-191):** Das Team entscheidet selbst, wer geht, und zwar **im selben Schritt wie die Übernahme** («Übernehmen mit …»), nur unter Mitgliedern, die **jede** Bedingung erfüllen (Stufe, bestätigte Merkmale, Verfügbarkeit für die ganze Schicht: dieselbe Person). «Passt, weil:» nennt nur Fakten, die für mindestens ein und dasselbe Mitglied gelten. Der Auftraggeber sieht «Gedeckt» erst mit einer benannten, geprüften Person; ob er deren Namen sieht, prüft `lca` (OPEN). Vor der Übernahme sieht das Team keine Klientendaten und keine Strassenadresse (`lca` M-b); Merkmale erscheinen ohne Namen der Person (`uxa`, `UX_REVIEW.md`).
 - **Offen für `uxa` und `lca`:** Die Zeilen «Empfohlen für euch» und «Nicht angeboten an 3 Teams – Gründe ansehen» sind Vorschläge des PO. Ob ein Team die Ausschlussgründe anderer Teams sehen darf, ist eine Sichtbarkeitsfrage, die noch keine Rolle geprüft hat.
 
@@ -418,24 +418,25 @@ sequenceDiagram
   Team->>Heim: Rechnung des Teams (nach Freigabe)
 ```
 
-### 6.2 Die Angebotskaskade: nie stilles Warten
+### 6.2 Der Rundruf: alle geeigneten Teams gleichzeitig, nie stilles Warten (V3.2.13, FE-078 Teil 2)
 
 ```mermaid
 stateDiagram-v2
   [*] --> Bestaetigt: Heim bestätigt
-  Bestaetigt --> AngebotTeam1: bestes zulässiges Team
+  Bestaetigt --> Rundruf: alle Teams, die jede harte Prüfung bestehen
   Bestaetigt --> NichtGedeckt: kein zulässiges Team
-  AngebotTeam1 --> NichtGedeckt: Schichtbeginn oder einziges Team lehnt ab
-  AngebotTeam1 --> Gedeckt: übernimmt
-  AngebotTeam1 --> AngebotNaechstes: lehnt ab oder Fenster endet
-  AngebotNaechstes --> Gedeckt: übernimmt
-  AngebotNaechstes --> AngebotNaechstes: nächstes zulässiges Team
-  AngebotNaechstes --> NichtGedeckt: kein Team mehr frei oder Schichtbeginn
+  Rundruf --> Gedeckt: erstes Team übernimmt, harte Prüfung im Moment des Tipps bestanden
+  Rundruf --> Rundruf: ein Team lehnt ab, die anderen sehen es weiter
+  Rundruf --> NichtGedeckt: alle lehnen ab oder Schichtbeginn naht
   NichtGedeckt --> Ausnahme: sichtbar für Heim, Ausnahme an Operations
   Gedeckt --> [*]
 ```
 
-Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard schlägt `eng` per ADR vor (BK-5). Was der Heim-Stand wörtlich sagt, steht in 5.1.
+- **Ersetzt die exklusive Kaskade** (V3.2 bis V3.2.12) durch Founder-Entscheid FE-078 Teil 2.
+- **Sichtbar** wird das Angebot nur für Teams, die **jede** harte Prüfung von Engine 1 bestehen (Distanz, Stufe, Pflichtmerkmale, Verfügbarkeit, gültige Nachweise). Die KI bzw. in BK die Regel sortiert und begründet, schliesst aber kein geeignetes Team aus (Engine 2).
+- **Übernahme:** Das Team entscheidet frei. Bei gleichzeitigem Tippen gewinnt genau eine Übernahme; die harte Prüfung läuft im Moment des Tipps erneut (BK-5a, `cra`).
+- **Nie stilles Warten:** Ab welchem Abstand zum Schichtbeginn «nicht gedeckt» als Ausnahme erscheint, ist ein Betriebsparameter, kein klinischer Wert; den Standard schlägt `eng` per ADR vor (BK-6). Was der Heim-Stand wörtlich sagt, steht in 5.1.
+- **Recht:** Der Founder begründet den Rundruf mit der AVG-Abgrenzung (kein «Auswahlverfahren»). Diese Einschätzung prüft `lca` neu (Q-44e); verbindlich geklärt ist sie erst mit dem Gutachten (FE-050), **OPEN**.
 
 ### 6.3 Schritte, Engines und Stand
 
@@ -444,7 +445,7 @@ Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard sc
 | 1 | Bedarf erfassen (Sprache oder Text) → KI erkennt Felder → Auftraggeber bestätigt | Auftraggeber | E2 (Erfassung) | **PLANNED** (BK-1) |
 | 2 | Harte Prüfung: PLZ-Distanz, Qualifikation nach Matrix, Verfügbarkeit, bestätigte Merkmale | System | E1 | Region und Pflichtqualifikation **IMPLEMENTED**; PLZ-Distanz, Matrix im Matching und Merkmale **PLANNED** |
 | 3 | Rangfolge unter den Geeigneten, Begründung in Worten | System | E2 | **PLANNED** (BK-3, BK-4) |
-| 4 | Angebot zuerst an das beste Team (Kaskade mit exklusivem Zeitfenster) | System → Team | E1, E5 | heute sehen alle geeigneten Teams das Angebot (**IMPLEMENTED**); Kaskade **PLANNED** (BK-5) |
+| 4 | Angebot gleichzeitig an alle geeigneten Teams (Rundruf, FE-078 Teil 2), Sortierung nur als Empfehlung | System → Team | E1, E2, E5 | heute sehen alle geeigneten Teams das Angebot (**IMPLEMENTED**); Empfehlung «weil …», Übernahme-Wettlauf und Ausnahme beim Schichtbeginn **PLANNED** (BK-5, BK-6) |
 | 5 | Teamentscheid mit einem Tipp; der Auftraggeber sieht «gedeckt» | Team | E1 | Teamentscheid **IMPLEMENTED** (J2); Anzeige für den Auftraggeber **PLANNED** |
 | 6 | Einsatz: Zeit, Aufgaben | Pflegekraft | – | **IMPLEMENTED** (F1-F4) |
 | 7 | Diktat → KI-Berichtsentwurf | Pflegekraft | E3 | **PLANNED** (B6, BK-8) |
@@ -649,7 +650,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Rolle | Fachbereich | Nächster planmässiger Lauf | Sign-off (wörtlich) | Quelle |
 |---|---|---|---|---|
 | `eng` | 5 Engines, Datenmodell, Testpyramide, `ci-repeat` 10/10 (§3, §6.3, §9.1; Handbook V2.2) | stündlich, Minute 09 | **ausstehend** | – |
-| `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; der Auftrag nennt 18) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **ausstehend** | – |
+| `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; vom Founder am 2026-11-14 bestätigt) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **ausstehend** | – |
 | `lca` | AVG-Abgrenzung (Anhang C §1), rote Linien R-1 bis R-10, FE-078 | alle 4 Std., Minute 20 | **ausstehend** | – |
 | `uxa` | Wireframes und Klickpfade der 6 Portale (§5, §6) | alle 4 Std., Minute 47 | **ausstehend** | – |
 | `aia` | On-Platform-Matching (Engine 1, Engine 2) und Voice-to-Report (Engine 3) (§3, §5.3, §6.3) | alle 6 Std., Minute 17 | **ausstehend** | – |
@@ -673,6 +674,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
+| 2026-11-14 | 3.2.13 Founder-Entscheid | FE-078 Teil 2 und 3: §6.2 neu (Rundruf an alle geeigneten Teams statt exklusiver Kaskade, Zustandsdiagramm ersetzt), §5.1 Stand, §5.2 Zeile «Rundruf» statt «Zeitfenster», §6.3 Schritt 4; Hinweise PO vor Anhang B §2 und Anhang C §1 (Rollentexte unverändert); Kap. 13 Zeile `cra`: 20 Garantien vom Founder bestätigt. Keine Änderung an harten Prüfungen, Garantien, Matrix oder Gates | FE-078 (Founder, zweite Nachricht 2026-11-14); BK-Brief PO-Ergänzung 15:00 |
 | 2026-11-14 | 3.2.12 Nachtrag | Kap. 11 Zeile D-44: Satz «keine Zahlungsflüsse» als entschieden (FE-078 Teil 1) markiert. Kap. 13: neuer Abschnitt «Formales Sign-off FE-079» (Auftrag, Abgrenzung, Prompt-Synchronisation, Tabelle der sechs Rollen, Stand 0 von 6). Kopfzeile auf 3.2.12. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-078, FE-079 (Founder, Live-Sitzung 2026-11-14); Issue #1279 |
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
 | 2026-11-14 | 3.2.11 Status | §8 unverändert (BK-b aktiv). #1268: Freigaben UX, Recht, Klinik liegen vor, Automatisierung fehlt, nicht gemergt. Operative PO-Entscheidung (keine klinische Regel, D-27): für #1273 gilt bis zum Entscheid zu CR-180 die strengste Kontextlesart je Auftraggeberart (CGR-218 (A)), Absenden und Mitgliederprüfung lesen gleich (CGR-219); Audit-Auslöser nach geänderten Spalten vor der BK-b-Abnahme (CGR-220). | `cra` 13:30 (#1277); `briefs/BK.md` §PO amendment 13:39 |
@@ -1051,6 +1053,8 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 
 ### 2. Gefährdungen und Barrieren je Schritt des BK-Flows
 
+> **Hinweis PO (V3.2.13, FE-078 Teil 2):** Die Zeilen «5 Angebot (Kaskade)» unten beschreiben die exklusive Kaskade, die der Founder durch den Rundruf an alle geeigneten Teams ersetzt hat. Der Text von `cra` bleibt unverändert; `cra` prüft die Gefährdungen des Rundrufs (gleichzeitige Übernahme, Schichtbeginn ohne Zusage) im nächsten Lauf.
+
 «Neu» heisst: Ich finde im HAZARD_LOG keine passende H-ID. Eine neue ID setze ich nicht selbst. Das ist ein Vorschlag für den nächsten regulären `cra`-Lauf.
 
 | Schritt | Gefährdung (Hazard-ID) | Sicherheitsbarriere | deterministisch / Mensch | Stoppfall (wenn die Barriere greift) | Status |
@@ -1239,6 +1243,8 @@ Status der Knoten: Die Kette von «Stufe nachgewiesen» bis «geeignet mit Deleg
 ---
 
 ### 1. Abgrenzung zum Arbeitsvermittlungsgesetz (AVG)
+
+> **Hinweis PO (V3.2.13, FE-078 Teil 2):** Der Founder hat die exklusive Kaskade durch einen Rundruf an alle geeigneten Teams ersetzt, mit der KI nur als Empfehlung, ausdrücklich zur AVG-Abgrenzung. Die Zeilen zu «Rangfolge und exklusive Kaskade» unten sind Text von `lca` (unverändert); `lca` prüft Q-44e für den Rundruf neu. Die Verdikte bleiben, bis `lca` sie ändert. Die Korrekturen aus PR #1220 (C-1 bis C-7, V-1 bis V-7, W-1 bis W-7) sind seit V3.2.4 eingetragen und nach FE-078 Teil 3 verbindlich.
 
 #### 1.1 Worum es geht
 

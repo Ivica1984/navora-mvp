@@ -391,3 +391,17 @@ Sources: `aia` review 57 (#1280, merged `95678c5`), gate comments on #1268. BK s
 6. **UXR-213, `lca` B-5, UXR-209:** placements of 12:39 unchanged.
 
 Owners: `eng` (2), `lca` (3, 5), `uxa` (3, 4, 5 words), `aia` (5), `cra` (gate line on the new #1273 head). Clinical Owner: CR-180 and «D» on a shift order (UNKNOWN until answered). PO status of BK: **active, slice BK-b (BK-b1 merged, not accepted)**.
+
+## PO amendment 2026-11-14 15:00 (live session with the founder): FE-078 part 2, broadcast replaces the exclusive cascade
+
+Source: `FOUNDER_DECISIONS.md` FE-078 (v29), founder message 2026-11-14. The newest founder decision overrides BK-5 as written (README rule 10). BK stays the only active block; slice order unchanged. Operational WHAT only; no clinical, legal or tariff rule is set here (D-27). Everything below is PLANNED unless marked otherwise.
+
+1. **BK-5 replaced (broadcast):** when the client confirms, **every** team that passes **every** hard check of BK-2 (distance, level, required attributes, availability for the whole shift by one and the same member, valid evidence) sees the offer **at the same time**. No exclusive window, no «next team». The ranking (BK-3, BK-4) orders the list and explains it («Empfohlen für euch, weil …»); it never hides an eligible team. A team that declines drops out; the others keep seeing the offer. Tests: positive (three eligible teams → three offer rows at confirmation; ranking changes order only); negative (an ineligible team gets no row; the ranking never removes an eligible team; a declined offer stays open for the others).
+2. **BK-5a kept and sharpened:** the first «Übernehmen mit …» that passes the hard re-check at that moment wins; a concurrent second tap is refused with «Bereits übernommen» and creates nothing (pgTAP with two sessions, as in the existing concurrency jobs). The client sees «gedeckt durch Team …» within seconds.
+3. **BK-5n kept:** no one assigns the order for a team (FE-039); NAVORA never selects one team.
+4. **BK-6 adjusted:** «Angebot bei Team 1 von 4» is replaced by a count of eligible teams that still see the offer; «nicht gedeckt» and the Operations exception stay when all eligible teams declined or the shift start comes near (threshold is an operational parameter, default by `eng` in the ADR; not a clinical rule). No silent expiry.
+5. **Code state:** today all eligible teams already see an offer (Blueprint §6.3 row 4, IMPLEMENTED); the cascade was never built. `eng` checks in its ADR whether ADR-191/193 or the BK-b migrations assume a cascade and lists any change.
+6. **Reviews asked (next runs):** `cra` (hazards of the broadcast: concurrent take-over, shift start without take-over, PS/H rows replacing «Kaskade»); `lca` (Q-44e re-read for the broadcast; the founder's AVG reasoning is his assessment, the verdict stays with `lca` and the adviser); `uxa` (offer card without window, «Bereits übernommen», client status wording); `aia` (Engine 2 as recommendation without exclusion; AUT findings on BK-3/BK-4).
+7. **FE-078 part 3:** the `lca` corrections of PR #1220 (W-1 to W-7, C-1 to C-7, V-1 to V-7) are in the Blueprint since V3.2.4 and are now binding; any external use of the model figures keeps the labels «Beispielwerte, kein Tarif, kein Einkommensversprechen» (W-7).
+
+Owners: `eng` (1, 2, 4, 5), `cra`, `lca`, `uxa`, `aia` (6). PO status of BK: **active**.
