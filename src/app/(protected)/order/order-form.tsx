@@ -8,11 +8,18 @@ import {
   EMPTY_ORDER_FORM,
   GRADE_OPTIONS,
   dateLabel,
+  dateUnknownShown,
+  orderFieldControlId,
+  orderFieldProblemId,
   orderFieldsFrom,
+  orderProblemField,
   orderProblemText,
+  orderProblemsByField,
+  orderStepAfterPreview,
   radiusLine,
   resolveOrderDate,
   shiftLabelLine,
+  type OrderFormField,
   type OrderFormState,
 } from "@/features/orders/rules";
 
@@ -22,6 +29,9 @@ const field = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-whi
  * BK-a (ADR-194): the order form (no AI; BK-d adds the capture). Every required field is entered by the client; the
  * date words resolve to a concrete date only when they admit exactly one (AUT-120), otherwise the client picks. The
  * summary (UXR-196, UXR-197) comes from the database preview; nothing is written before «Bestätigen & Absenden».
+ * UXR-200: when the preview names problems, the form stays: a list at its top (focus, each item a link to its field)
+ * and a line under each field (`aria-invalid`, `aria-describedby`); the summary opens only with zero problems.
+ * UXR-201: «Datum nicht erkannt» appears only after the client left the date field.
  */
 export default function OrderForm({ accountId, today, postcodes, activities }: {
   accountId: string;
@@ -33,8 +43,31 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
   const [pending, start] = useTransition();
   const [form, setForm] = useState<OrderFormState>({ ...EMPTY_ORDER_FORM });
   const { dateWords, picked, startTime, endTime, postcode, grade, tags, required, radius } = form;
-  const set = <K extends keyof OrderFormState>(key: K, value: OrderFormState[K]) => setForm((f) => ({ ...f, [key]: value }));
+  const [problems, setProblems] = useState<string[]>([]);
+  const [dateLeft, setDateLeft] = useState(false);
+  const FIELD_OF: Partial<Record<keyof OrderFormState, OrderFormField>> = {
+    dateWords: "date", picked: "date", startTime: "startTime", endTime: "endTime", postcode: "postcode",
+    grade: "grade", tags: "tags", required: "tags", radius: "radius",
+  };
+  // A changed field drops its own problems (the next preview checks everything again).
+  const clearField = (field: OrderFormField | undefined) =>
+    field && setProblems((ps) => ps.filter((c) => orderProblemField(c) !== field));
+  const set = <K extends keyof OrderFormState>(key: K, value: OrderFormState[K]) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    clearField(FIELD_OF[key]);
+  };
   const doneRef = useRef<HTMLDivElement>(null);
+  const problemsRef = useRef<HTMLDivElement>(null);
+  const grouped = orderProblemsByField(problems);
+  const invalid = (f: OrderFormField) => (grouped.byField[f] ? true : undefined);
+  const describedBy = (f: OrderFormField, extra?: string) =>
+    [grouped.byField[f] ? orderFieldProblemId(f) : null, extra ?? null].filter(Boolean).join(" ") || undefined;
+  const fieldProblem = (f: OrderFormField) =>
+    grouped.byField[f] ? (
+      <p id={orderFieldProblemId(f)} data-testid={orderFieldProblemId(f)} className="text-sm font-semibold text-rose-800">
+        {grouped.byField[f]!.map(orderProblemText).join(" ")}
+      </p>
+    ) : null;
   const [summary, setSummary] = useState<{ fields: OrderFields; preview: OrderPreview; key: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -46,6 +79,12 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
   useEffect(() => {
     if (done && !summary) doneRef.current?.focus();
   }, [done, summary]);
+
+  // UXR-200: a preview with problems moves the focus to the list naming them.
+  const [problemsShownAt, setProblemsShownAt] = useState(0);
+  useEffect(() => {
+    if (problemsShownAt) problemsRef.current?.focus();
+  }, [problemsShownAt]);
 
   const toggle = (list: string[], code: string) => (list.includes(code) ? list.filter((c) => c !== code) : [...list, code]);
 
@@ -108,18 +147,43 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
         const fields = current();
         start(async () => {
           const r = await previewClientOrder(fields);
-          if (r.ok) setSummary({ fields, preview: r.preview, key: crypto.randomUUID() });
-          else setError(r.error);
+          if (!r.ok) {
+            setError(r.error);
+          } else if (orderStepAfterPreview(r.preview.problems) === "summary") {
+            setProblems([]);
+            setSummary({ fields, preview: r.preview, key: crypto.randomUUID() });
+          } else {
+            setProblems(r.preview.problems);
+            setProblemsShownAt(Date.now());
+          }
         });
       }}
     >
       <div ref={doneRef} tabIndex={-1} role="status" data-testid="order-done" className="text-sm font-semibold text-emerald-900">
         {done && <p>Auftrag bestätigt: {done}</p>}
       </div>
+      {problems.length > 0 && (
+        <div ref={problemsRef} tabIndex={-1} role="alert" data-testid="order-problems" className="grid gap-1 text-sm font-semibold text-rose-800">
+          <p>Bitte diese Angaben prüfen:</p>
+          <ul className="grid gap-1">
+            {grouped.form.map((c) => <li key={c}>{orderProblemText(c)}</li>)}
+            {(Object.keys(grouped.byField) as OrderFormField[]).flatMap((f) =>
+              grouped.byField[f]!.map((c) => (
+                <li key={c}><a href={`#${orderFieldControlId(f)}`} className="underline">{orderProblemText(c)}</a></li>
+              )),
+            )}
+          </ul>
+        </div>
+      )}
       <label className="grid gap-1 text-sm font-semibold">
         Datum (z. B. «Sonntag» oder 22.11.2026)
-        <input name="date" value={dateWords} onChange={(e) => { const v = e.target.value; setForm((f) => ({ ...f, dateWords: v, picked: null })); }} className={field} />
+        <input name="date" id={orderFieldControlId("date")} value={dateWords}
+          aria-invalid={invalid("date") ?? (dateUnknownShown(resolution, dateLeft) || undefined)}
+          aria-describedby={describedBy("date", dateUnknownShown(resolution, dateLeft) ? "order-date-unknown" : undefined)}
+          onBlur={() => setDateLeft(true)}
+          onChange={(e) => { const v = e.target.value; setDateLeft(false); setForm((f) => ({ ...f, dateWords: v, picked: null })); clearField("date"); }} className={field} />
       </label>
+      {fieldProblem("date")}
       {resolution.kind === "date" && <p data-testid="order-date">{dateLabel(resolution.date)}</p>}
       {resolution.kind === "relative_date_ambiguous" && (
         <fieldset className="grid gap-1 text-sm" data-testid="order-date-pick">
@@ -132,42 +196,54 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
           ))}
         </fieldset>
       )}
-      {resolution.kind === "unknown" && <p role="alert" className="text-sm font-semibold text-rose-800">Datum nicht erkannt. Bitte als Wochentag, «morgen» oder TT.MM.JJJJ angeben.</p>}
+      {dateUnknownShown(resolution, dateLeft) && <p id="order-date-unknown" role="alert" data-testid="order-date-unknown" className="text-sm font-semibold text-rose-800">Datum nicht erkannt. Bitte als Wochentag, «morgen» oder TT.MM.JJJJ angeben.</p>}
       <div className="grid grid-cols-2 gap-3">
+        <div className="grid content-start gap-1">
         <label className="grid gap-1 text-sm font-semibold">
           Beginn
-          <input type="time" name="startTime" value={startTime} onChange={(e) => set("startTime", e.target.value)} className={field} />
+          <input type="time" name="startTime" id={orderFieldControlId("startTime")} aria-invalid={invalid("startTime")} aria-describedby={describedBy("startTime")}
+            value={startTime} onChange={(e) => set("startTime", e.target.value)} className={field} />
         </label>
+        {fieldProblem("startTime")}
+        </div>
+        <div className="grid content-start gap-1">
         <label className="grid gap-1 text-sm font-semibold">
           Ende
-          <input type="time" name="endTime" value={endTime} onChange={(e) => set("endTime", e.target.value)} className={field} />
+          <input type="time" name="endTime" id={orderFieldControlId("endTime")} aria-invalid={invalid("endTime")} aria-describedby={describedBy("endTime")}
+            value={endTime} onChange={(e) => set("endTime", e.target.value)} className={field} />
         </label>
+        {fieldProblem("endTime")}
+        </div>
       </div>
       <label className="grid gap-1 text-sm font-semibold">
         Einsatzort (Postleitzahl)
-        <select name="postcode" value={postcode} onChange={(e) => set("postcode", e.target.value)} className={field}>
+        <select name="postcode" id={orderFieldControlId("postcode")} aria-invalid={invalid("postcode")} aria-describedby={describedBy("postcode")}
+          value={postcode} onChange={(e) => set("postcode", e.target.value)} className={field}>
           <option value="">bitte wählen</option>
           {postcodes.map((p) => <option key={p.postcode} value={p.postcode}>{p.postcode} {p.place_name}</option>)}
         </select>
       </label>
-      <fieldset className="grid gap-1 text-sm">
+      {fieldProblem("postcode")}
+      <fieldset id={orderFieldControlId("grade")} tabIndex={-1} aria-describedby={describedBy("grade")} className="grid gap-1 text-sm">
         <legend className="font-semibold">Stufe</legend>
         <div className="flex flex-wrap gap-3">
           {GRADE_OPTIONS.map((g) => (
             <label key={g.value} className="flex min-h-11 items-center gap-2">
-              <input type="radio" name="grade" value={g.value} checked={grade === g.value} onChange={() => set("grade", g.value)} />
+              <input type="radio" name="grade" value={g.value} aria-invalid={invalid("grade")} checked={grade === g.value} onChange={() => set("grade", g.value)} />
               {g.label}
             </label>
           ))}
         </div>
+        {fieldProblem("grade")}
       </fieldset>
-      <fieldset className="grid gap-1 text-sm">
+      <fieldset id={orderFieldControlId("tags")} tabIndex={-1} aria-describedby={describedBy("tags")} className="grid gap-1 text-sm">
         <legend className="font-semibold">Tätigkeiten</legend>
+        {fieldProblem("tags")}
         <ul className="grid gap-1">
           {activities.map((a) => (
             <li key={a.code} className="flex flex-wrap items-center gap-x-4">
               <label className="flex min-h-11 min-w-0 items-center gap-2">
-                <input type="checkbox" name="tag" value={a.code} checked={tags.includes(a.code)} onChange={() => set("tags", toggle(tags, a.code))} />
+                <input type="checkbox" name="tag" value={a.code} aria-invalid={invalid("tags")} checked={tags.includes(a.code)} onChange={() => set("tags", toggle(tags, a.code))} />
                 <span className="break-words">{a.label_de}</span>
               </label>
               {tags.includes(a.code) && (
@@ -182,8 +258,10 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
       </fieldset>
       <label className="grid gap-1 text-sm font-semibold">
         Höchstdistanz in km (freiwillig)
-        <input name="radius" inputMode="decimal" value={radius} onChange={(e) => set("radius", e.target.value)} className={field} />
+        <input name="radius" id={orderFieldControlId("radius")} aria-invalid={invalid("radius")} aria-describedby={describedBy("radius")}
+          inputMode="decimal" value={radius} onChange={(e) => set("radius", e.target.value)} className={field} />
       </label>
+      {fieldProblem("radius")}
       {error && <p role="alert" className="font-semibold text-rose-800">{error}</p>}
       <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 px-4 font-semibold text-white disabled:opacity-60">
         Weiter zur Zusammenfassung

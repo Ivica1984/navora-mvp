@@ -68,8 +68,25 @@ for (const width of [390, 1440]) {
     await expect(form.getByLabel("Beginn", { exact: true })).toHaveValue("");
     await expect(form.getByLabel("Einsatzort (Postleitzahl)")).toHaveValue("");
     await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
-    await expect(summary.getByRole("alert")).toBeVisible();
-    await expect(summary.getByRole("button", { name: "Bestätigen & Absenden" })).toBeDisabled();
+    // UXR-200 (BK amendment 00:39 (1)(c)): the form stays; the list at its top has the focus, each problem is also
+    // named at its field (aria-invalid, aria-describedby), and the summary does not open, so nothing can be confirmed.
+    const problems = form.getByTestId("order-problems");
+    await expect(problems).toBeVisible();
+    await expect(problems).toBeFocused();
+    await expect(summary).toHaveCount(0);
+    const dateField = form.getByLabel(/^Datum/);
+    await expect(dateField).toHaveAttribute("aria-invalid", "true");
+    await expect(dateField).toHaveAttribute("aria-describedby", /order-field-date-problem/);
+    await expect(form.getByTestId("order-field-date-problem")).toHaveText("Bitte das Datum angeben.");
+    const postcodeField = form.getByLabel("Einsatzort (Postleitzahl)");
+    await expect(postcodeField).toHaveAttribute("aria-invalid", "true");
+    await problems.getByRole("link", { name: "Bitte die Postleitzahl des Einsatzorts wählen." }).click();
+    await expect(postcodeField).toBeFocused();
+    // A field the client changes drops its own problem line; the others stay until the next check.
+    await postcodeField.selectOption("4102");
+    await expect(form.getByTestId("order-field-postcode-problem")).toHaveCount(0);
+    await expect(postcodeField).not.toHaveAttribute("aria-invalid", "true");
+    await expect(form.getByTestId("order-field-date-problem")).toBeVisible();
     await page.reload();
     await expect(orders).toHaveCount(before + 1);
 
@@ -102,4 +119,22 @@ test("a time that matches no plan entry shows no label line and stays confirmabl
   // Nothing was written by the summary: «Ändern» returns to the form.
   await summary.getByRole("button", { name: "Ändern" }).click();
   await expect(form).toBeVisible();
+});
+
+test("«Datum nicht erkannt» appears only after leaving the date field, not while typing (UXR-201)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await signIn(page, CLIENT, /\/order$/);
+  const form = page.getByRole("form", { name: "Auftrag" });
+  const dateField = form.getByLabel(/^Datum/);
+  await dateField.pressSequentially("Son");
+  await expect(form.getByTestId("order-date-unknown")).toHaveCount(0);
+  await expect(dateField).not.toHaveAttribute("aria-invalid", "true");
+  await dateField.press("Tab");
+  await expect(form.getByTestId("order-date-unknown")).toBeVisible();
+  await expect(dateField).toHaveAttribute("aria-describedby", /order-date-unknown/);
+  // Typing again hides it until the field is left again; a recognised word never shows it.
+  await dateField.fill("Sonntag");
+  await expect(form.getByTestId("order-date-unknown")).toHaveCount(0);
+  await dateField.press("Tab");
+  await expect(form.getByTestId("order-date-unknown")).toHaveCount(0);
 });

@@ -199,3 +199,61 @@ export function orderFieldsFrom(state: OrderFormState, clientAccountId: string, 
     radiusKm: state.radius.trim() ? Number(state.radius.replace(",", ".")) : null,
   };
 }
+
+/**
+ * UXR-200 (BK amendment 2026-11-14 00:39 (1)(c); DESIGN_SYSTEM §2, PROPOSED): the form fields a preview problem can
+ * point at. Each field has a control id (the link target) and a problem id (its line, `aria-describedby`).
+ */
+export const ORDER_FORM_FIELDS = ["date", "startTime", "endTime", "postcode", "grade", "tags", "radius"] as const;
+export type OrderFormField = (typeof ORDER_FORM_FIELDS)[number];
+
+const PROBLEM_FIELD: Record<(typeof ORDER_PROBLEM_CODES)[number], OrderFormField | null> = {
+  not_client: null,
+  missing_start_date: "date",
+  starts_in_past: "date",
+  missing_start_time: "startTime",
+  missing_end_time: "endTime",
+  end_equals_start: "endTime",
+  missing_postcode: "postcode",
+  postcode_not_in_list: "postcode",
+  postcode_outside_regions: "postcode",
+  missing_grade: "grade",
+  grade_unknown: "grade",
+  missing_activity_tags: "tags",
+  tag_unknown: "tags",
+  required_tag_not_in_tags: "tags",
+  radius_not_positive: "radius",
+};
+
+/** The field a problem code belongs to; null for a form-level problem (not_client, or a code this module lacks). */
+export function orderProblemField(code: string): OrderFormField | null {
+  return (PROBLEM_FIELD as Record<string, OrderFormField | null>)[code] ?? null;
+}
+
+/** The problems grouped per field, in the database's order; codes with no field stay in `form` (never dropped). */
+export function orderProblemsByField(codes: ReadonlyArray<string>): {
+  byField: Partial<Record<OrderFormField, string[]>>;
+  form: string[];
+} {
+  const byField: Partial<Record<OrderFormField, string[]>> = {};
+  const form: string[] = [];
+  for (const code of codes) {
+    const f = orderProblemField(code);
+    if (f) (byField[f] ??= []).push(code);
+    else form.push(code);
+  }
+  return { byField, form };
+}
+
+export const orderFieldControlId = (field: OrderFormField) => `order-field-${field}`;
+export const orderFieldProblemId = (field: OrderFormField) => `order-field-${field}-problem`;
+
+/** UXR-200: the summary opens only when the preview found no problem; otherwise the form stays with its problems. */
+export function orderStepAfterPreview(problems: ReadonlyArray<string>): "summary" | "form" {
+  return problems.length === 0 ? "summary" : "form";
+}
+
+/** UXR-201: «Datum nicht erkannt» only after the client left the date field, never while typing. */
+export function dateUnknownShown(resolution: DateResolution, leftField: boolean): boolean {
+  return leftField && resolution.kind === "unknown";
+}
