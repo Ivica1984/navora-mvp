@@ -6,6 +6,61 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-14 03:47 CET · `uxa`: BK-a gate lines on #1246 head `c1eeaa4` (clear) and draft #1252 head `57838f4` (clear), gate «Simulation, synthetic data»; UXR-196, UXR-197 closed (#1238 merged); UXR-198, UXR-199, UXR-202 built on #1246, UXR-200, UXR-201 built on #1252; UXR-204 (medium, client has no phone tab), UXR-205 to UXR-207 (low); words for CGR-217 and AUT-121; benchmark NHS.UK error summary
+
+**State.** `recovery/main` at `1d76477` (PO merge #1253, 03:39). Since 23:48 merged: #1243 (my 23:48 section), #1244 (`lca` G-1 to G-6), **#1238 (BK-a, `abd6f82`, head `45e07db`)**, #1247 (`cra` 01:35), #1249, #1250 (`aia` 55: AUT-121, AUT-122), #1251, #1253. **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 01:39): BK-a merged, **not accepted**; acceptance needs #1246, the criteria of BK amendments 00:39 and 01:39 and `ci-repeat` 10/10. Open PRs that change screens: **#1246** (UXR-198, UXR-199, UXR-202, CGR-214 (b); head `c1eeaa4`; lists `uxa` as a gate; PO 03:39 holds it for a `cra` gate line), **#1252** (draft, stacked on #1246: UXR-200, UXR-201; head `57838f4`; lists `uxa` as its gate). Others: #1248 (`cra` duplicate, docs), #1087, #1084, #3. Both screen PRs belong to the active block, so their gate lines come first (README rule 12).
+
+**CI read from the API (not run by me):** `c1eeaa4` run 43540406126 and `57838f4` run 43546167804: `app`, `db`, `e2e`, `ui-screenshots` all `completed success`. I did not open the job logs; no `ci-repeat` was read (that is the block acceptance, not a gate line).
+
+**Founder direction.** Newest decision FE-077 (FE-078 still not in `FOUNDER_DECISIONS.md`, UNKNOWN for me). Same prompt contradiction as in every run since 13 Nov 16:20 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2).
+
+**Screenshots.** `ui-screenshots` artifacts 14094432080 (`57838f4`, #1252) and 14093565351 (`recovery/main` `1fe0017`) are listed; the archive download was refused by the session's proxy (blob host, as in every run since 13 Nov). **No screenshots were available.** Review from the diffs on `c1eeaa4` and `57838f4` and the PR descriptions. Nothing run against the live project.
+
+### `uxa` gate line for #1246 (BK-a follow-up)
+
+«`uxa` 2026-11-14 03:47 on #1246 head `c1eeaa4`: **clear**, gate «Simulation, synthetic data». UXR-199: after «Bestätigen & Absenden» the form state resets to `EMPTY_ORDER_FORM` and focus moves to the confirmation line (`order-form.tsx`, `doneRef`, `tabIndex={-1}`), so a second press cannot send the same values. UXR-198: «Auftrag erfassen» is a destination (`NavKey` `order`, `PAGE_LABEL.order`, check `client_account` from `my_client_accounts`, fail closed for this item only), first in the sidebar and menu; page heading uses the same label. UXR-202: «Dringlichkeit fehlt» has its own outlined badge (white, `ring-1 ring-stone-700`, stone-900 text), never red, position and order unchanged, on `cra`'s 01:35 position. Answer to the OPEN «client tab bar»: on the phone the client now has **no tab** and «Auftrag erfassen» under «Mehr» (UXR-204, medium, a follow-up and not a merge condition: #1246 is better than `recovery/main`, where she has no item at all). No severe or high finding. Screenshots not viewed (download refused); reviewed from code. This line is not a clinical or legal gate: the duplicate-order path is `cra`'s, the own-rows read is `lca`'s.»
+
+### `uxa` gate line for #1252 (draft, stacked on #1246)
+
+«`uxa` 2026-11-14 03:47 on #1252 head `57838f4`: **clear**, gate «Simulation, synthetic data», to be merged only after #1246 as the PR says. UXR-200: a preview with problems keeps the form; a focused list at its top (`role="alert"`, «Bitte diese Angaben prüfen:», field problems as links to their field), one line under each field with `aria-invalid` and `aria-describedby`, a changed field drops its own line, the summary opens only with zero problems (`orderStepAfterPreview`); form-level codes stay in the list and are never dropped. UXR-201: «Datum nicht erkannt» only after leaving the date field (`dateUnknownShown`), hidden again while typing. Three low follow-ups (UXR-205 to UXR-207), none a merge condition. Screenshots not viewed; reviewed from code.»
+
+### Closed with evidence
+
+| ID | Evidence |
+|---|---|
+| UXR-196 | Built as gated 23:48; on `recovery/main` since #1238 merged as `abd6f82` (migration `20261021000129_bk_a_client_order.sql`, `bk-a-order.spec.ts`). Merge CI run 43535200821 4/4 as read by the PO 01:39. |
+| UXR-197 | Same merge `abd6f82` (`features/orders/rules.ts` `shiftLabelLine`, `radiusLine`). The form hint part stays open as UXR-203. |
+
+**Built, closes when the PO merges:** UXR-198, UXR-199, UXR-202 (#1246 `c1eeaa4`); UXR-200, UXR-201 (#1252 `57838f4`). Evidence in the gate lines above.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-204 | Phone shell (390 px), client (client-account member, no organisation role) | medium | With #1246 the client's page is a destination, but on the phone the **tab bar holds no tab, only «Mehr»**: `homeTabFor` returns null because `homePathForRoles([])` is `/operations`, not her landing `/order`, and `TAB_KEYS` (`field`, `team`, `work`) are all team-scoped. Her one page is two taps away behind «Mehr», next to «Meine Einstellungen» and «Abmelden». This is the case the shell rule names as «the set is wrong for that role». | `src/lib/auth/shell.ts` `homeTabFor`, `shellItemsFor`; `src/lib/auth/paths.ts:19-21`; `src/lib/auth/home.ts` (client lands on `/order`, ADR-192 (6)); on `c1eeaa4` | §5 «a role's home is its first tab» (UX2-31), extended v81 | `homeTabFor` also returns the `order` item when `access.clientAccount` and no organisation role (the same condition as `resolveHomePath`). Unit test in `ux2-shell.test.ts`: `shellItemsFor({ roles: [], inTeam: false, clientAccount: true }).tabs` equals `["order"]` and `more` holds «Meine Einstellungen»; staff cases unchanged. Tab label «Auftrag erfassen» fits one column of two at 390 px (or «Aufträge» if the PO prefers a short tab word, UX2-32). Not a #1246 merge condition; PO places it (BK-a follow-up or BK-c). | — (medium) |
+| UXR-205 | `/order` problem list, client (keyboard and screen reader) | low | The links for «Stufe» and «Tätigkeiten» go to the `fieldset` (`tabIndex={-1}`), not to the first option. A keyboard user lands on the group and must press Tab once more before she can choose; the benchmark pattern links to the first option. | #1252 `order-form.tsx` (`fieldset id={orderFieldControlId("grade")} tabIndex={-1}`, same for `tags`); `rules.ts` `orderFieldControlId` | §2 «a form names its problems at their fields» (v81 addition); §6 | Give the first radio or checkbox the control id (or link to `…-first`); e2e: activating the «Stufe» link focuses the first grade radio. | — (low) |
+| UXR-206 | `/order` problem list and field lines, client (screen reader) | low | The list is `role="alert"` **and** receives focus, so some screen readers read it twice; the line under each field is red text without a word that it is an error, so in the field's description it reads like a hint. | #1252 `order-form.tsx` (`problemsRef`, `role="alert"`, `fieldProblem` `<p>` rose-800) | §6 no needless interruption; §3 meaning not in colour alone | Keep focus on the list and drop `role="alert"` (or keep the role and do not move focus, not both); prefix each field line with a visually hidden «Fehler:». Component or e2e: list has `tabindex="-1"` and no `role="alert"`; field line text content starts with «Fehler:». | — (low) |
+| UXR-207 | `/order` problem list, client | low | The list follows the order in which the database found the problems, grouped by field in first-seen order (`Object.keys(grouped.byField)`). With a date in the past and an end equal to the start, «Ende» is listed before «Datum» (`end_equals_start` is appended before `starts_in_past`), against the order of the form. | migration `20261021000129_bk_a_client_order.sql:228`, `:234`; #1252 `order-form.tsx` list map; `rules.ts` `ORDER_FORM_FIELDS` exists but is not used for the order | §2 (v81 addition: the list follows the order of the fields on the screen) | Iterate `ORDER_FORM_FIELDS` instead of `Object.keys`; unit test on the ordering with `["end_equals_start","starts_in_past"]` → date first. | — (low) |
+
+**Also seen, no finding:** #1246 keeps one filled primary per state; the reset keeps the idempotency key per summary; the confirmation line stays a `role="status"`; #1252 field lines sit under each control, the two time fields keep their two-column row at 390 px with the line inside each column; problem texts stay plain «Sie» without codes; no colour carries meaning alone in the list (heading in words).
+
+### Words asked of `uxa` (PROPOSED; for `eng` when the slices are built)
+
+- **CGR-217 (BK-b, information item, never a block):** on the summary, above «Bestätigen & Absenden», in the neutral info style (not `role="alert"`, not red, not amber): «Hinweis: Für dieses Konto ist bereits ein Auftrag mit gleichem Beginn, Ende, Stufe und Ort bestätigt (<sentence of that order>). Ein zweiter Auftrag bedeutet zwei Pflegekräfte für diese Zeit. Wenn das so gemeint ist, bestätigen Sie ihn.» Confirm stays enabled. `cra` may read it (it is not a safety signal).
+- **AUT-121 (BK-g, optional earlier):** one line under the date in the summary: «Datum neu berechnet: «<words>» ist jetzt <Mo 23.11.2026> (beim Öffnen der Seite war es <So 22.11.2026>).» Shown only when the two dates differ.
+
+### Benchmark (once a day; NHS.UK design system, «Error summary», read 2026-11-14)
+
+The NHS.UK form guidance puts one summary of problems at the top of the main content, moves focus to it when the page shows it, links each problem to its answer (for a radio or checkbox group, to the first option; for a multi-part field, to the first part in error) and repeats the same message next to the field, with a hidden «Error:» prefix at the field and «Error:» at the start of the page title. Source: https://service-manual.nhs.uk/design-system/components/error-summary (read 2026-11-14; the GOV.UK page could not be fetched in this session). **NAVORA should adopt:** links to the first option of a group (UXR-205), a hidden «Fehler:» prefix at the field line (UXR-206), and the list in screen order (UXR-207); NAVORA already matches the placement, focus move and same text at the field (#1252). Not adopted: the page-title prefix (NAVORA's form does not reload the page; UNKNOWN whether the title changes; low, not raised). Pattern described in my own words; no design, text or logo copied.
+
+**Still open, unchanged:** UXR-188 (BK-c gate, `lca`), UXR-190 (high, #1232), UXR-193, UXR-194, UXR-195 (high, #1233, BK-8), UXR-203 (low, `lca` P-5), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+### Task adjustment (README rule 11)
+
+None new: the 390 px drawings of `/b2b-institution` and `/platform` stay for a later run; the two BK-a gate lines came first.
+
+---
+
 ## 2026-11-13 23:48 CET · `uxa`: BK-a gate on #1238 head `45e07db` (clear for form, summary and wording, gate «Simulation, synthetic data»); UXR-196 and UXR-197 built as asked; UXR-198 to UXR-203 (medium and low, follow-ups, no merge condition); no benchmark
 
 **State.** `recovery/main` at `092b10e` (PO merge #1241, 22:52). Since 20:00 merged: #1234 (my 20:00 section, `e713989`), #1236, #1223, #1237, #1239 (`cra` 21:40, CGR-214 blocking on `3d9fb98`), #1240, #1241 (PO 21:39 and 22:39). **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 21:39). Open PRs: **#1238** (BK-a code, head `45e07db`, changes `src/app/(protected)/order`, `intake-client.tsx`, `src/lib/auth/home.ts`, e2e `bk-a-order.spec.ts`), #1242 (PO 23:39, docs), #1087, #1084, #3. #1238 lists `uxa` as a gate («form, summary 390/1440 px, wording»); no `uxa` gate line on it yet, so this run gives it first (README rule 12).
