@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.6 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.7 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -510,7 +510,7 @@ flowchart TB
 |---|---|---|---|
 | 0 | **SAFE-D11** | ein wiedereröffneter Fall ohne Team geht nie verloren | **abgenommen** für Simulation, synthetische Daten (`29e54ec`, 20/20) |
 | 0b | **B1.1 (verkürzt)** | Regionsliste, Altwert-Absicherung (#1181, #1184), Seed nur BS/BL mit PLZ | **für die Simulation abgenommen** 13.11. 18:40 auf `33523a5` (#1164, #1181, #1184, #1196, #1224; `ci-repeat` 20/20; `ABNAHMEAKTE.md` §2) (V3.2.3) |
-| 1 | **BK** | universeller Auftragsdurchstich: Erfassung → Prüfung → Empfehlung → Teamentscheid → `/field` → Bericht → Rechnung; Szenario-Matrix | **aktiv** seit 13.11. 18:40, Teilstück BK-a zuerst (V3.2.3) |
+| 1 | **BK** | universeller Auftragsdurchstich: Erfassung → Prüfung → Empfehlung → Teamentscheid → `/field` → Bericht → Rechnung; Szenario-Matrix | **aktiv** seit 13.11. 18:40 (V3.2.3); Teilstück **BK-a für die Simulation abgenommen** 14.11. 09:39 auf `634ccb7` (`ci-repeat` 20/20; `ABNAHMEAKTE.md` §2); BK-b aktiv, in zwei PRs (V3.2.7) |
 | 2 | **B2-Kern** | Qualifikationsmatrix auf jedem Zuteilungsweg, Nachweise, Delegation | QUAL1 Teil 1-2 **IMPLEMENTED** (nur Simulation); Matrix **PROPOSED** |
 | 3 | **B3** | Team- und KI-Planung, Ausfallkoordination, Kontinuität | **IMPLEMENTED**, nicht als Block abgenommen |
 | 4 | **B6** | Diktat, KI-Dokumentationsentwurf, menschliche Freigabe | Signatur **IMPLEMENTED**; Diktat und Entwurf **PLANNED** |
@@ -654,6 +654,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-14 | 3.2.7 Status | §8: BK-a (Auftrag erfassen, Zusammenfassung, einmal absenden) für die Simulation abgenommen auf `634ccb7`; BK-b aktiv. Operative PO-Antworten ohne klinische oder rechtliche Regel: BK-b in zwei PRs (Distanz/Reichweite, dann Stufe/Merkmale/Verfügbarkeit), Teams im Aufbau ausgeschlossen, Phase A nur eigene Organisation, leeres Einsatzgebiet abgelehnt (BK-Brief, PO-Ergänzung 09:39) | README-Regel 12, FE-071 |
 | 2026-11-13 | 3.2.6 Korrektur | §5.3: BK-8 baut die Variante «Signieren gesperrt, solange n > 0» mit vier Bedingungen; §13 Zeile `cra`: «zur Prüfung vorgelegt» ersetzt durch «geprüft und bestätigt (Anhang B, 17:40)». Keine Änderung an Matrix, Garantien oder Gates | `cra` 21:40 (#1239): Antwort 1 und Hinweis zu §13; PO-Korrektur: `cra` prüft, entscheidet nicht (D-27); BK-Nachtrag 21:39 |
 | 2026-11-13 | 3.2.5 Korrektur | §5.3 Titel und Text: keine 30-Sekunden-Grenze, Entwurf in BK als Regel über Text ohne Audio, Block «Nicht übernommen (n)» vor der Signatur; Sequenzdiagramm §6 und Tabelle «Bericht schreiben» angepasst; `field.svg` Text («Sprachnotiz», «0:18»). Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid; keine klinische Regel (Position und Sperrwirkung des Blocks: `cra`) | `uxa` UXR-195 (#1233), `aia` AUT-118, `cra` CGR-213 (b); BK-Brief Nachtrag 20:40 |
 | 2026-11-13 | 3.2.4 Korrektur | `lca`-Korrekturen vom 16:40 eingetragen: §2.1 Titel, Spalte «Mit NAVORA (Beispielpreis Team)», «+120 CHF Umsatz des Teams», Beispielwert-Zeile und Nutzungsregel (W-1 bis W-5, W-7); §2.2 Vorbehalt Arbeitgeberrolle (W-6); §4.4 SECO-Weisungen und Q-44e (C-7); §7 Adresse und Name nur für Mitglieder auf diesem Auftrag, Freigabe der Angehörigen-Updates durch die betreute Person oder Vertretung, Gebühr unabhängig von Übernahmen, zwei neue Zeilen, Merkmale bestreitbar, Bericht-Vorbehalt (V-1 bis V-7); Anhang C mit «[C-n]» markiert (C-1 bis C-6; Q-44e und Q-44f im Katalog v7); Issue-Nummer in Anhang C (#1210). Kap. 11: Satz «keine Zahlungsflüsse über NAVORA» als offene Founder-Frage; PLZ-Quelle präzisiert. Hinweis PO über Anhang A (Text `csa` unverändert). Kap. 13: `lca`-Zeile. Keine Änderung an Umfang, Blockfolge, Zahlen oder Founder-Entscheid; keine neue Rechtsregel (alle Texte von `lca`, beratend) | `lca`-Journal 2026-11-13 16:40 §2, §3, §4, §5; D-44 `lca` 16:40; `ADVISER_CATALOGUE.md` v7 |
