@@ -16,6 +16,75 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-14 01:35 CET: **#1238 (BK-a, client order, head `45e07db`): clear for the gate «Simulation, synthetic data».** **CGR-214 closed** (blocking part): migration 0129 again audits `urgency_source` and `referrer_requested_start` on `partner_requests`; pgTAP 086 test 21 green; the 068, 074 and 077 guards are green without any guard test changed. **CGR-206 (d) met on the PR** (pgTAP 135 §4b, both clock-change nights and the spring gap). **CGR-215 (d) built** (a row without urgency stays listed, with an error event). **One residual (CGR-214 (b), advisory):** no test asserts the `referrer_requested_start` audit key on `partner_requests`. **New advisory CGR-217** (#1246, S3): a reload or a retype makes a second identical order without a notice. **UXR-202 answered:** «Dringlichkeit fehlt» must look different from every stored level, not red.
+
+**Scope:** `recovery/main` @ `7f2417e`; PR #1238 head `45e07db` (`3d9fb98..45e07db`, 5 commits, 11 files; `recovery/main...45e07db` test files); PR #1246 head `90f6578` (draft, stacked on #1238, CI running); open PRs #1087, #1084, #3 (out of scope, unchanged). **Trigger:** since my 21:40 section: my #1239 merged (`eb46681`); `eng` pushed `f6fdcaf` to `45e07db` on #1238; PO cycles 21:39, 22:39, 23:39, 00:39 held #1238 for my gate line; BK amendments 21:39 and 00:39; `uxa` 23:48 (#1243, gate clear, UXR-198 to UXR-203), `lca` 00:20 (#1244, G-1 to G-6); new draft PR #1246 (UXR-198, UXR-199). **Asks to me:** the `cra` gate line on `45e07db` (PO_MERGE_PROCESS §4 (2)); UXR-202 (amendment 00:39 (2)); `cra` gate on #1246 after retarget (duplicate-order protection).
+
+I read: the diff `3d9fb98..45e07db` whole (migration `20261021000129_bk_a_client_order.sql`, `intake/rules.ts`, `intake/queries.ts`, `intake-client.tsx`, pgTAP 135, vitest `bk-a-intake-urgency-missing`); `recovery/main...45e07db` for test files (only 002 seed count 17 → 18 for the new client user, 135 new, three new vitest/e2e files: no existing guard test changed); pgTAP 086:105-116 and 088:93-101; `orders/commands.ts:93` (duplicate path); the #1246 diff `45e07db..90f6578` (`order-form.tsx`, `orders/rules.ts`, `nav.ts`, `nav-access.ts`, tests); `db` job 132179583045 log (pgTAP «Files=135, Tests=4831 … Result: PASS»; 068, 074, 077, 086, 135 «ok»); check runs on `45e07db`: `ci` workflow run 43510617229 `success`, `app`, `db`, `e2e`, `ui-screenshots` all `success`. `ci-repeat` on `45e07db`: not read by me (it is a BK-a acceptance item, not part of this gate line).
+
+### Task adjustment (README rule 11) and contradictions
+
+- **Order of work:** the active block's PR (#1238) first, then the PO's ask (UXR-202), then a pre-review of the stacked #1246. No later block prepared.
+- **Sources:** as at 21:40, my scheduled prompt names Blueprint V2 and `ARCHITECTURE.md`; FE-077 replaces them (owner step: the prompt text). `FOUNDER_DECISIONS.md` is still v27 (newest FE-077); FE-078 not recorded: UNKNOWN, CGR-211 stays conditional.
+- **Red-first:** the commit message and the 135 header say the CGR-206 (d) assertions were green on first run (the code already computed it). I accept them as regression guards; they are not evidence of a red-first cycle, and the BK-a acceptance record should say so.
+
+### #1238 (BK-a, head `45e07db`)
+
+**CGR-214, what changed (IMPLEMENTED on the PR, not merged):** 0129 §4 recreates `audit_partner_requests` with `status, urgency, region, converted_case_id, urgency_source, referrer_requested_start, starts_at, ends_at, postcode, grade, confirmed_at`: the full 0086:225 list plus the five order columns. The five order columns and `client_accounts.client_kind` are classified `code` in `private.audit_value_classes` (AUD1-1). `client_accounts.display_name` is no longer audited: no command renames an account in BK-a (seed only), and a rename command must add it with `lca` (ADR-194). Evidence: pgTAP 086 test 21 («12 … the audit trail records the source on the request, the case and the matching request») green with 0129 applied, `db` job 132179583045.
+
+**The other guards:** 068 (DST1) green: `order_local_text` and the weekend flag use `private.at_zurich`. 074 (LEAVE1) green: a restrictive `leave1_access_open` policy on `postcodes` and an `access_ended` guard in `my_client_accounts` and `client_orders`. 077 (AUD1) green: the duplicate path of `confirm_client_order` no longer reads `audit_events`; it returns `duplicate` without an order id, and `orders/commands.ts:93` treats `duplicate` as success, so the client sees the same confirmation. No guard test file changed (`git diff recovery/main...45e07db -- supabase/tests`: only 002 seed count and the new 135).
+
+**CGR-206 (d):** pgTAP 135 §4b asserts 600 min «(10 Std.)» for Sat 30.10.2027 22:00 – Sun 31.10.2027 07:00, 480 min «(8 Std.)» for Sat 27.03.2027 22:00 – Sun 28.03.2027 07:00, and that a typed 02:30 on 28.03.2027 is stored and shown as 03:30 in the preview **before** confirmation. This meets my 21:40 remedy. It closes when #1238 is merged.
+
+**CGR-215 (d):** the intake list keeps a row without urgency, shows «Dringlichkeit fehlt», and logs `intake.urgency_missing` with a count only (no ids, no content in the log). `intakeRowsWithUrgencyCheck` never filters (vitest `bk-a-intake-urgency-missing`). The query still excludes client orders (`.is("order_kind", null)`), so the label marks a broken invariant, not a normal client order. CGR-215 (a)-(c) unchanged (BK-c).
+
+**Residual, CGR-214 (b) (advisory, not a gate condition):** 086 test 21 checks only `urgency_source`. The `referrer_requested_start` key on `partner_requests` is in the trigger but no test asserts it (088:93-101 checks `change_log` of `cases`, a different path). A later trigger rewrite could drop it again unseen, as happened here. Remedy: one pgTAP assertion (in 086 or 135) that an intake request recorded with a requested start writes `changed -> 'referrer_requested_start'`; better, a catalogue assertion that the `partner_requests` audit column list contains the 0086:225 list. Wanted in the BK-a acceptance record.
+
+### UXR-202 («Dringlichkeit fehlt» badge colour; amendment 00:39 (2))
+
+My review position: **confirmed, with one change of emphasis.** A missing urgency must never look like a stored level. In a list, grey = «niedrig» tells the intake person that someone judged the request not urgent, which nobody did (IPA1-7: the level always with its source). The `uxa` proposal (outlined badge, dark text, the words «Dringlichkeit fehlt», distinct from every level) is right. **Not red:** red is reserved for safety signals (UX1-23), and the row is a data-integrity gap; the error event already reaches Engineering. **Not moved:** the list stays ordered by arrival; NAVORA does not rank a request without a level above or below others (no invented priority). Testable remedy: vitest that `urgencyBadgeClass(null)` differs from `urgencyBadgeClass(x)` for each of the four levels, and that the badge text is «Dringlichkeit fehlt». Not a #1238 merge condition; the next BK-a PR.
+
+### #1246 (draft, stacked, head `90f6578`): pre-review, no gate line
+
+CI on `90f6578`: `app` `success`; `db`, `e2e`, `ui-screenshots` still running when I read them. The PR asks for the `cra` gate after its retarget to `recovery/main`; I give a pre-review now and the gate line on the retargeted head.
+
+**Duplicate-order protection, what I checked (IMPLEMENTED on the branch):** (1) the server: one idempotency key per summary; the same key twice writes one row (pgTAP 135:202); (2) after a successful confirm the form resets to `EMPTY_ORDER_FORM` and the summary is dropped, so a second press builds an order with every required field empty, which the preview refuses (`order-form.tsx`, vitest `bk-a-uxr198-199`, e2e «exactly one more order»); (3) after a failed or thrown confirm the summary and its key stay, so a retry reuses the key. Sound for the case UXR-199 names.
+
+**CGR-217 (advisory, S3):** two paths still create a second identical order under a new key: a reload of `/order` after a confirm whose answer was lost, and a client who retypes the same order because she is not sure it went through. Nothing in the preview says «the same shift is already ordered», so two teams may be asked for one shift (H-40, PS-187). A second order for the same shift can be correct (two staff needed), so this must never block. Remedy: `preview_client_order` returns an information item when the same client account already has a confirmed order with the same start, end, level and postcode, and the summary names it in words; pgTAP on the preview. Owner: `po` (whether and in which slice), `uxa` (words). Not a condition for #1246 or for BK-a in the simulation.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-214 (b)** | #1238 audit trigger: `referrer_requested_start` on `partner_requests` | **advisory** (residual of a closed blocking finding); S2 | The column is audited again, but no test asserts it; the same regression could recur silently. | 0129 §4 trigger list on `45e07db`; 086:105-116 checks `urgency_source` only; 088:93-101 checks `cases.change_log` | pgTAP: an intake request with a requested start writes `changed -> 'referrer_requested_start'`; or a catalogue assertion that the trigger list contains 0086:225. In the BK-a acceptance record. |
+| **CGR-217** | #1246 / BK-a order form: second identical order | **advisory**; S3 | A reload after a lost confirmation, or a retype, makes a second identical order under a new key, with no notice to the client. | `order-form.tsx` summary key on `90f6578`; pgTAP 135:202 (same key only) | Preview information item «gleicher Auftrag bereits bestätigt» (same account, start, end, level, postcode), never a block; pgTAP on `preview_client_order`. |
+
+### Findings closed with evidence
+
+- **CGR-214 (a), blocking part** (on `45e07db`, closes on merge): trigger list restored (0129 §4); pgTAP 086 test 21 green; 068, 074, 077 green without a changed guard test (`db` job 132179583045).
+- **CGR-206 (d)** (on `45e07db`, closes on merge): pgTAP 135 §4b (six assertions), green.
+- **CGR-215 (d)** (on `45e07db`, closes on merge): `intakeRowsWithUrgencyCheck`, error event, vitest `bk-a-intake-urgency-missing`.
+
+### Status of open findings
+
+- **CGR-215:** (a) the BK-a acceptance names the gate «Simulation, synthetic data» only; (b), (c) BK-c; (d) built.
+- **CGR-216:** unchanged (BK-b criterion, amendment 21:39).
+- **CGR-205, CGR-207, CGR-208, CGR-209, CGR-210, CGR-212, CGR-213 (b):** unchanged. CGR-211 conditional (FE-078 not recorded).
+
+### Decisions requested
+
+- **`po`:** merge #1238 on `45e07db` under the gate line below if every other merge condition holds; enter CGR-214 (b) in the BK-a acceptance record; place UXR-202 (with my position above) and CGR-217 (slice and whether).
+- **`eng`:** CGR-214 (b) assertion; UXR-202 test; after the retarget of #1246, name the head for my gate line.
+- **Clinical Owner:** nothing new; BK-8 position, street-less visits and a distance threshold still wait (21:40).
+
+### Gate status
+
+- **#1238 `45e07db`:** `cra-gate: #1238 45e07db clear` for the gate «Simulation, synthetic data». Not a release for real persons and data: CGR-215 (a)-(c), CGR-216 and CR-217 (Clinical Owner) stand before that.
+- **#1246 `90f6578`:** no gate line (draft, stacked, CI running); pre-review above, no blocking finding.
+- **BK block:** no slice accepted; BK-a acceptance needs the ABNAHMEAKTE record with `ci-repeat` 10/10 on the integrated commit (README rule 12).
+
+---
+
 ## 2026-11-13 21:40 CET: **#1238 (BK-a, client order, head `3d9fb98`): not clear. One blocking finding, CGR-214:** migration 0129 redefines the `partner_requests` audit trigger without `urgency_source` and `referrer_requested_start`, so the audit trail no longer records who set a referral's urgency (IPA1-7). pgTAP 086 test 21 fails («have: 8, want: 12», `db` job 132149490313). The `db` job also shows three existing guards red (068 DST1, 074 LEAVE1, 077 AUD1); they must be fixed in the code, never by loosening the guard. **Urgency change reviewed (gate ask): acceptable**, with conditions. **Two new advisory findings:** **CGR-215** (a confirmed order has no reader until BK-c); **CGR-216** (level and activity can contradict each other at confirmation, CGR-205 (a) not built). **Answers to the PO 20:40 asks:** BK-8 «Nicht übernommen» (my position: the `uxa` variant, with conditions); UXR-190 in BK-e (agreed, no founder exception needed); distance and timely arrival (no threshold; the control is time left, CGR-207). **CGR-213 (a) closed** (Blueprint V3.2.2)
 
 **Scope:** `recovery/main` @ `cdf79fc`; PR #1238 heads `4073870` and `3d9fb98` (`recovery/main...3d9fb98`, 16 files); open PRs #1087, #1084, #3 (out of scope, unchanged). **Trigger:** since my 17:40 section: my #1226 merged; B1.1 accepted on `33523a5` (PO 18:40); **BK active**, slice BK-a first; BK ADR drafts ADR-191 to ADR-193 merged (#1228); BK brief amendments 18:40 (radius, shift labels) and 20:40 (AUT-117 to AUT-120, UXR-190, UXR-195 to UXR-197); Blueprint V3.2.3 to V3.2.5; `uxa` 20:00 (#1234), `aia` review 54 (#1236), `lca` D-44 conditional (#1223); new PR #1238 (`eng`, BK-a, opened 21:25). **Asks to me:** #1238 gates (BK-1c, CGR-206 (a), the urgency change; ADR-194 «Gates»); brief amendment 20:40 points 6 (c) and 7; amendment 18:40 point 1 (e); `uxa` (UXR-195 position); `lca` (CGR-211 (d) answered by B-5).
