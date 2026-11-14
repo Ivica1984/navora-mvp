@@ -16,6 +16,69 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-14 09:35 CET: **BK-a fully merged on code I cleared; no new finding.** #1246, #1252 and #1257 merged with `src supabase tests e2e` identical to the heads I cleared at 05:26 (diffs empty, read by me). **CGR-214 closed** (part (b) merged with #1246 `54aa56e`). `ci` on the BK-a code merge `634ccb7` green (`db` log «Files=135, Tests=4833 … Result: PASS»), `ci-repeat` 43572290695 20/20 jobs `success` (conclusions read from the API; the 10/10 log reading is the PO's acceptance step). **AUT-123 «Wieder erfassen»: the existing summary is enough, under three conditions** (below). UXR-208 keeps the CGR-215 (d) presentation. PO standing-offer hypothesis: the care need stays the institution's statement per booking.
+
+**Scope:** `recovery/main` @ `0f33ba3` (since my 05:26 section at `c283936`); code commits in range: #1246 (`54aa56e`), #1252 (`ad8eaef`), #1257 (`634ccb7`), each a merge of a head I cleared plus `recovery/main` merges; since `634ccb7` docs only. Open PRs: #1265 (eng journal, docs only), #1087, #1084, #3 (out of scope, unchanged). **Trigger:** three BK-a merges; PO 08:39 asks `cra` for an AUT-123 line and names `cra` in the standing-offer challenge; `uxa` 07:48 asks me to confirm UXR-208.
+
+I read: `git diff 57838f4 cd92240`, `git diff d9d142d 8d92bfc`, `git diff d9d142d 634ccb7`, `git diff 634ccb7 0f33ba3` (each over `src supabase tests e2e`; all empty, the last also over `.github scripts`); `briefs/BK.md` amendment 08:39; `AUTOMATION_REVIEW.md` review 56 (AUT-123, AUT-124); `UX_REVIEW.md` journal 07:48 (UXR-208); journals 0539-po to 0839-po, 0748-uxa, 0830-aia; `src/features/orders/rules.ts` (form fields, `EMPTY_ORDER_FORM`, problem codes); migration 0129:201-262 (preview checks: `grade_unknown`, `tag_unknown` against `qual_activities`, `required_tag_not_in_tags`) and 0129:355-378 (`client_orders()`); push `ci` 43572223613 (jobs and `db` log) and `ci-repeat` 43572290695 (job list).
+
+### Task adjustment (README rule 11) and contradictions
+
+- **Order of work:** the active block first (confirm that what merged is what I cleared; CI state on the integrated commit as evidence for the acceptance record), then the two lines the PO and `uxa` asked of me (AUT-123, UXR-208), then the PO's BK-b hypothesis. No later block prepared beyond these lines.
+- **Sources:** unchanged: my scheduled prompt names Blueprint V2 and `ARCHITECTURE.md`; FE-077 replaces them (owner step: the prompt text). `FOUNDER_DECISIONS.md` unchanged since 05:26. CGR-211 stays conditional (FE-078 not recorded: UNKNOWN).
+- **CI reading:** I read the job conclusions of both runs and the `db` log of the push run; I did not read the 20 `ci-repeat` logs. That reading is part of the block acceptance (FE-071) and stays with the PO.
+
+### BK-a (merged; acceptance pending with the PO)
+
+- **IMPLEMENTED:** the merged code equals the cleared heads: `cra-gate` lines of 05:26 (`#1246 c1eeaa4`, `#1252 57838f4`, `#1257 d9d142d`) apply to what is on `recovery/main`; no code reached `recovery/main` after `634ccb7`.
+- **CI (read by me, not run):** push `ci` 43572223613 on `634ccb7`: `app`, `db`, `e2e`, `ui-screenshots` `success`; `db` log «Files=135, Tests=4833 … Result: PASS». `ci-repeat` 43572290695 on `634ccb7`: `db repeat 1`–`10` and `e2e repeat 1`–`10`, all `success` (API conclusions).
+- **For the acceptance record (unchanged from 05:26):** gate «Simulation, synthetic data» only; CGR-214 (b) assertions green on first run (regression guards, not red-first evidence); CGR-215 (a) satisfied by naming that gate; CGR-215 (b), (c), CGR-216 and CGR-217 are BK-b/BK-c criteria and must stay open in the record, not be counted as done. From the clinical side nothing blocks the BK-a acceptance on `634ccb7`.
+
+### AUT-123 «Wieder erfassen» (BK-g candidate; PO 08:39 asks `cra`)
+
+**Question:** does a copied activity list need a check beyond the existing summary? **Answer: no extra tick per activity**, the summary and the single «Bestätigen & Absenden» are the re-confirmation, as `aia` 56 proposes, **provided**:
+
+1. **The summary of a copy is the same summary as for a fresh order:** every activity and every required activity listed by name, the grade and the times in words; no condensed «wie beim letzten Auftrag» or «unverändert» variant that hides the list. Test: e2e on a copy: the summary lists every copied tag by its catalogue label and the grade, and its markup equals a fresh order's summary for the same fields.
+2. **A copy is re-validated against today's rules, not against the source order:** the preview already refuses `tag_unknown` (0129:253) and `grade_unknown` (0129:250); the copy must also pass the level-activity check of CGR-216 / PS-186 (`level_activity_conflict`) once BK-b builds it, so a grade and activity pair that was accepted earlier but is a «–» or «?» cell now is refused at its field. Because AUT-123 is placed in BK-g, after BK-b, this is a test, not a new rule. Test: a copy from a source whose grade and tag pair is now a conflict cell is refused at the grade or tag field; pgTAP or e2e.
+3. **Scope: institution client accounts only.** A ward's standing night cover is a staffing need of the ward. For a private person (household path, not built, ADR-194 (6)) a copied activity list would restate one person's care need from an earlier date, and whether that needs a fresh needs statement is a clinical question: **UNKNOWN, owner: named Clinical Owner**. Until answered, «Wieder erfassen» must not be offered on a household order. Test: the action is absent on a household-path order (when that path exists).
+
+The PO's own conditions (date never copied; only the client's own rows; `confirm_client_order` re-checks every field) are right and stay. A copy carries no free text (the only text field of `OrderFormState`, `dateWords`, is the date, which is never copied), so no fact can be added or dropped by the copy itself. No clinical, tariff, LTCF, PAG or MQI rule is added. No new finding: these are conditions for the BK-g criterion.
+
+### UXR-208 (`uxa` 07:48 asks `cra`)
+
+`/team` offer badge rendering `urgencyBadgeText(offer.urgency)` with the outline class for `null`, the four levels unchanged (BK amendment 08:39 (4)): **keeps the CGR-215 (d) presentation** (distinct from every level, never red, order unchanged). It closes my 05:26 note. Presentation only; CR-218 row updated.
+
+### PO challenge 08:39: standing offer for a ward's night cover (BK-b hypothesis)
+
+Read for safety only; not a brief, no finding. If a team publishes capacity and a ward books it, three properties of today's order must survive the inversion: (1) **the ward states the care need per booking** (grade, activities, required activities, times); a team's offer states what it can provide and never stands in for the need, because only the institution knows its residents that night; (2) **the CR-212 / CGR-216 checks run at booking** (grade allowed for every activity, required attributes, one and the same member per H-39), so a booking cannot match a need the offer does not cover; (3) **an unbooked night stays visible as «nicht gedeckt»** with the same lead-time rule (H-40, CGR-207); a standing offer must not create the impression of cover. Whether cantonal rules for nursing homes in Basel-Stadt and Basel-Landschaft (staffing or skill-mix requirements per shift) constrain who may decide that a booked team suffices: **UNKNOWN, owners `lca` and the named Clinical Owner.** I set no threshold.
+
+### Findings
+
+No new finding this run.
+
+### Findings closed with evidence
+
+- **CGR-214 (fully closed):** part (b) merged with #1246 as `54aa56e` (pgTAP 086 audit-key and trigger-catalogue assertions, code identical to `c1eeaa4`); green on the integrated `634ccb7` (`db` log «Result: PASS», 135 files). Part (a) closed 05:26 (#1238 `abd6f82`). PS-184 closed.
+
+### Status of open findings
+
+- **CGR-215:** (a) met once the BK-a record names «Simulation, synthetic data» only; (b), (c) BK-c.
+- **CGR-216, CGR-217:** BK-b criteria, open (advisory S3 for CGR-217; CGR-216 per its row).
+- **CGR-205, CGR-207, CGR-208, CGR-209, CGR-210, CGR-212, CGR-213 (b):** unchanged. CGR-211 conditional (FE-078 not recorded).
+
+### Gate status
+
+- BK-a slice on `634ccb7`: clinical side clear for «Simulation, synthetic data» (lines of 05:26 carry, code unchanged). Not released for real persons and data.
+- No open Engineering PR in scope; no new `cra-gate` line due.
+
+### Decisions requested
+
+- **`po`:** BK-a acceptance record on `634ccb7` as listed above (gate «Simulation, synthetic data»; CGR-214 closed; CGR-215 (b)(c), CGR-216, CGR-217 open into BK-b/BK-c). AUT-123: if it becomes a BK-g criterion, carry conditions 1 to 3 as tests.
+- **`gov`:** the 05:26 carry-over proposal (unchanged, supported by `aia` 56 and the PO).
+- **Clinical Owner:** whether a repeated order for a private person needs a fresh needs statement (AUT-123 (3)); with `lca`: cantonal nursing-home skill-mix rules for a booked standing offer (BK-b hypothesis). Earlier items unchanged (BK-8 position, street-less visits, distance threshold, CR-217).
+
+---
+
 ## 2026-11-14 05:26 CET: **#1246 (BK-a follow-up, head `c1eeaa4`): clear for the gate «Simulation, synthetic data».** **CGR-214 (b) met on the PR** (pgTAP 086: two new assertions, an audit-key check and a trigger-catalogue check). **UXR-202 built as I asked** (outlined badge, never red, arrival order kept). UXR-198 and UXR-199 reviewed: no clinical rule, nothing defaulted, fail-closed menu. **Stacked drafts cleared on their heads:** #1252 `57838f4` (UXR-200, UXR-201) and #1257 `d9d142d` (UXR-204). **No new finding.** CGR-217 stays open (advisory, S3); the `uxa` wording of its information item is acceptable. My duplicate run PR #1248 is closed, as the PO asked.
 
 **Scope:** `recovery/main` @ `c283936`; PR #1246 head `c1eeaa4` (`recovery/main...c1eeaa4`, 7 commits, 16 files); PR #1252 head `57838f4` (`c1eeaa4...57838f4`, 4 commits, 7 files); PR #1257 head `d9d142d` (`57838f4...d9d142d`, 2 commits, 5 files); open PRs #1087, #1084, #3 (out of scope, unchanged). **Trigger:** since my 01:35 section: my #1247 merged (`fb388f1`); **#1238 (BK-a) merged** as `abd6f82` (PO 01:39; merged, not accepted); `eng` pushed `90f6578` to `c1eeaa4` on #1246 and retargeted it to `recovery/main`; new drafts #1252 and #1257; PO cycles 01:39 to 04:39 held #1246 because it had no `cra` gate line; BK amendments 01:39, 02:39 (AUT-121, AUT-122) and 04:39 (`lca` K-1 to K-7, UXR-204 to UXR-207); `aia` review 55 (#1250), `uxa` 03:47 (#1254), `lca` 04:20 (#1255). **Asks to me:** a gate line on #1246 `c1eeaa4` and then on #1252 (PO 04:39); close #1248 (PO 01:39, 04:39); read the CGR-217 wording (amendment 04:39 (4)).
