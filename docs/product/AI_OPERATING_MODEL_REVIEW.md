@@ -545,6 +545,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a copy is filled, never confirmed» (AUT-123):** a repeat order is prefilled from the client's own past order, the date is never copied, and the copied values pass the same preview, summary and single confirmation act as a fresh order; no tick per copied value unless `cra` names a check the summary does not make.
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK-b1 gate; a team setting sees its effect; one reading in the form (`aia` 2026-11-14 14:22, review 57, AUT-125, AUT-126):**
+- **Control «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268 `f3b2a5c`):** screening reads only the precomputed `postcode_distances`; a missing pair excludes the team (fail-closed). Any external call in screening is a gate failure.
+- **Control «a team setting shows its effect, never a suggestion» (AUT-125):** a screen where the team sets a value that filters work (reach) shows the team's own recent exclusion counts by reason, without order detail and without a proposed value. PLANNED.
+- **Control «the form offers what the guard accepts, from one reading» (AUT-126):** a choice restricted by a rule is restricted in the form from the same server function the confirm check uses; the confirm check stays as the guard. PLANNED (BK-g candidate).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -604,3 +610,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-13 20:21 | `aia` | §12: controls «the team sets what the team carries» (AUT-117, AUT-119), «no step between take and cover» (AUT-119), «no time cap, no audio in BK» (AUT-118), relative date «exactly one» (AUT-120); AUT-112 narrowed. No agent added or removed |
 | 2026-11-14 02:19 | `aia` | §12: block «BK-a as built»: AUT-114 control corrected to the PO variant (21:39 (5)); controls «team measure above a minimum group size, no actor column» (AUT-122) and «relative date resolved at resolution time» (AUT-121); AUT-112 closed for BK-a, AUT-120 closed. No agent added or removed |
 | 2026-11-14 08:30 | `aia` | §12: block «team measures under K-1 to K-7; repeat orders»: AUT-122 control made concrete (k = 5 contributors, dominance, no recalculation, fixed periods; Phase A); controls «a withheld measure is shown to work» (AUT-124) and «a copy is filled, never confirmed» (AUT-123). No agent added or removed |
+| 2026-11-14 14:22 | `aia` | §12: block «BK-b1 gate; a team setting sees its effect; one reading in the form»: controls «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268), «a team setting shows its effect, never a suggestion» (AUT-125), «the form offers what the guard accepts, from one reading» (AUT-126). No agent added or removed |
