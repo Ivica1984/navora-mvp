@@ -1,7 +1,7 @@
 -- BK-b2, merge conditions of PR #1273 (brief `docs/agents/briefs/BK.md` §PO amendment 2026-11-14 13:39 (2), (3);
 -- `cra` 13:30 CGR-218, CGR-219; ADR-196 amendment 14:10).
 --
--- Red first (task rule 3): pushed before the code on the #1273 branch. On head `4b8a158` it fails: the matrix cell is
+-- Red first (task rule 3): committed before the code on the #1273 branch. On head `4b8a158` it fails: the matrix cell is
 -- read without the client kind (a FaGe with B1 on a `home` order is confirmed), a required «D» is accepted at confirm,
 -- there is no `conflict_reading` key and no `private.member_activity_ok`.
 --
@@ -60,9 +60,10 @@ insert into member_grade values
   ('00000000-0000-4000-a139-000000000002', 'fage_efz'),
   ('00000000-0000-4000-a139-000000000003', 'nurse_hf_fh');
 insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until)
-  select '00000000-0000-4000-b000-000000000019', m.user_id, 'grade', m.grade, 'verified', true, null from member_grade m
+  select '00000000-0000-4000-b000-000000000019'::uuid, m.user_id, 'grade', m.grade, 'verified', true, null::timestamptz
+  from member_grade m
   union all
-  select '00000000-0000-4000-b000-000000000019', m.user_id, r, null, 'verified', true, null
+  select '00000000-0000-4000-b000-000000000019'::uuid, m.user_id, r, null, 'verified', true, null
   from member_grade m
   cross join unnest(array['practice_licence', 'experience_2y', 'experience_psych_2y', 'instruction_record']) r;
 

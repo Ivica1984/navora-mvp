@@ -34,6 +34,8 @@ export type OrderPreview = {
   sameOrderSentence: string | null;
   /** BK-b2 / CGR-216: the activities that conflict with the chosen level (matrix order); empty when none. */
   conflictActivities: string[];
+  /** 0133 / CGR-218 (A): the reading the database used (plain, nh_ext_strict, hosp_in_strict). */
+  conflictReading: string;
 };
 
 function args(f: OrderFields) {
@@ -59,6 +61,7 @@ type PreviewRow = {
   info?: string[];
   same_order_sentence?: string | null;
   conflict_activities?: string[];
+  conflict_reading?: string;
 };
 
 export async function previewClientOrder(input: unknown): Promise<{ ok: true; preview: OrderPreview } | { ok: false; error: string }> {
@@ -82,6 +85,7 @@ export async function previewClientOrder(input: unknown): Promise<{ ok: true; pr
       info: r.info ?? [],
       sameOrderSentence: r.same_order_sentence ?? null,
       conflictActivities: r.conflict_activities ?? [],
+      conflictReading: r.conflict_reading ?? "unknown",
     },
   };
 }

@@ -48,9 +48,10 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
   const [problems, setProblems] = useState<string[]>([]);
   // BK-b2 / CGR-216: the activities the database named for `level_activity_conflict` (shown by name, never dropped).
   const [conflicts, setConflicts] = useState<string[]>([]);
+  const [conflictReading, setConflictReading] = useState<string>("unknown");
   const activityLabels = Object.fromEntries(activities.map((a) => [a.code, a.label_de]));
   const problemText = (code: string) =>
-    code === "level_activity_conflict" ? levelActivityConflictText(grade, conflicts, activityLabels) : orderProblemText(code);
+    code === "level_activity_conflict" ? levelActivityConflictText(grade, conflicts, activityLabels, conflictReading) : orderProblemText(code);
   const [dateLeft, setDateLeft] = useState(false);
   const FIELD_OF: Partial<Record<keyof OrderFormState, OrderFormField>> = {
     dateWords: "date", picked: "date", startTime: "startTime", endTime: "endTime", postcode: "postcode",
@@ -167,6 +168,7 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
           } else {
             setProblems(r.preview.problems);
             setConflicts(r.preview.conflictActivities);
+            setConflictReading(r.preview.conflictReading);
             setProblemsShownAt(Date.now());
           }
         });

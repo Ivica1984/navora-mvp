@@ -67,20 +67,36 @@ export function orderProblemText(code: string): string {
   return (PROBLEM_TEXT as Record<string, string>)[code] ?? "Der Auftrag kann so nicht gespeichert werden.";
 }
 
+/** 0133 / CGR-218 (A): the sentence that a strict reading is a limit of the simulation (PO 13:39 (4)). */
+const SIMULATION_LIMIT = "Das ist eine Sicherheitsgrenze der Simulation, keine Entscheidung eines Teams.";
+
 /**
  * BK-b2 / CGR-216 (a), CGR-205 (a): the conflict between the chosen level and activities, naming every activity the
  * database returned (`conflict_activities`, matrix order). An activity without a label is shown by its code, never
- * dropped; an empty list or an unknown level falls back to the general text. Words PROPOSED for `uxa`.
+ * dropped; an empty list, an unknown level or an unknown reading falls back to the general text. Words PROPOSED for
+ * `uxa` (CGR-218 (A) words: PO amendment 2026-11-14 13:39 (4)).
  */
 export function levelActivityConflictText(
   grade: string,
   codes: ReadonlyArray<string>,
   labels: Readonly<Record<string, string>>,
+  reading: string = "plain",
 ): string {
   const level = GRADE_OPTIONS.find((g) => g.value === grade)?.label;
   if (!level || codes.length === 0) return orderProblemText("level_activity_conflict");
   const names = codes.map((c) => labels[c] ?? c).join(", ");
-  return `Für ${level} ist diese Auswahl nicht möglich: ${names}. Bitte eine andere Stufe wählen oder die Tätigkeit entfernen.`;
+  // 0133 / CGR-218 (A): the database names the reading it used (`conflict_reading`). A strict reading is a safety
+  // limit of the simulation, never a team decision (PO 13:39 (4)); no clinical explanation is given.
+  switch (reading) {
+    case "plain":
+      return `Für ${level} ist diese Auswahl nicht möglich: ${names}. Bitte eine andere Stufe wählen oder die Tätigkeit entfernen.`;
+    case "nh_ext_strict":
+      return `Für ${level} ist diese Auswahl hier nicht möglich: ${names}. ${SIMULATION_LIMIT} Bitte die Tätigkeit entfernen.`;
+    case "hosp_in_strict":
+      return `Aufträge für eine Spitalstation sind in der Simulation noch nicht möglich. ${SIMULATION_LIMIT}`;
+    default:
+      return orderProblemText("level_activity_conflict");
+  }
 }
 
 /** UXR-197: the label line of the summary, only when the client's own plan has a matching entry. */
