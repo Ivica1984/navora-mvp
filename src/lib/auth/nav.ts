@@ -87,7 +87,7 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
     label: PAGE_LABEL.order,
     href: "/order",
     check: { kind: "client_account" },
-    source: "public.my_client_accounts / public.confirm_client_order: own client_account_members",
+    source: "public.my_client_accounts / public.confirm_client_order: private.is_client_member (own client_account_members)",
   },
   {
     key: "operations",

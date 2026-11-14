@@ -84,7 +84,8 @@ describe("menu role lists = the database predicates (UX1-3, no drift)", () => {
     // /team (UX2-1, ADR-131): the offers of the caller's own teams.
     expect(newestDefinition("public.team_offers")).toMatch(/team_memberships/);
     // /order (BK-a, UXR-198): the caller's own client accounts; confirming checks the membership again.
-    expect(newestDefinition("public.my_client_accounts")).toMatch(/client_account_members/);
+    expect(newestDefinition("public.my_client_accounts")).toMatch(/private\.is_client_member\(/);
+    expect(newestDefinition("private.is_client_member")).toMatch(/client_account_members/);
     expect(newestDefinition("public.confirm_client_order")).toMatch(/private\.is_client_member\(/);
   });
 
