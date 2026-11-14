@@ -594,7 +594,7 @@ Alle Werte gelten je Team und nie je Person. In Phase A sind es synthetische Wer
 | # | Frage | Wirkt auf |
 |---|---|---|
 | D-14 | Höhe der Plattformgebühr (Variante F3/F6 nach VZE) | Kap. 2.3, 4, Abo-Ledger |
-| D-44 | Rechtsform und Vertragsweg je Auftragskonstellation (Genossenschaft? Personalverleih oder Auftrag, AVG); Gebührengestaltung L-10 wartet auf Freigabe; **offener Satz an den Founder:** «Über NAVORA laufen keine Zahlungsflüsse zwischen Auftraggeber und Team» (von FE-055 nicht ausdrücklich gedeckt, `lca` 16:40) | GM-1, BK-Rechnung, Phase B |
+| D-44 | Rechtsform und Vertragsweg je Auftragskonstellation (Genossenschaft? Personalverleih oder Auftrag, AVG); Gebührengestaltung L-10 wartet auf Freigabe; **offener Satz an den Founder:** «Über NAVORA laufen keine Zahlungsflüsse zwischen Auftraggeber und Team» (von FE-055 nicht ausdrücklich gedeckt, `lca` 16:40); **dieser Satz ist seit 2026-11-14 entschieden: FE-078 Teil 1.** Rechtsform, Vertragsweg und L-10 bleiben offen | GM-1, BK-Rechnung, Phase B |
 | D-41 | KI-Pfad für reale Daten (Muster 4: Rechenzentrum, Gutachten, DSFA) | E2, E3 |
 | D-2 | Hosting: App-Host Infomaniak und `navora-prod` entschieden (FE-063, FE-064); offen sind der Auftragsverarbeitungsvertrag und das Upgrade vor realen Daten | B11 |
 | STG1 | Owner-Secret `STAGING_DB_URL` für das Staging | B11 |
@@ -637,6 +637,26 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 **Vollständige Beiträge als Anhänge:** A `csa` (Modell und Markt) · B `cra` (Patientensicherheit) · C `lca` (Recht). Die `eng`-Prüfung steht im Handbook V2.2 §11. Die Wireframes von `uxa` sind als SVG in `blueprint-v3/wireframes/`.
 
+
+### Formales Sign-off FE-079 (Founder-Auftrag 2026-11-14)
+
+**Auftrag (FE-079).** Jede Fachrolle bestätigt in ihrem nächsten Lauf, in ihrer Journal-Datei und als Kommentar auf Issue #1279: «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.» **Das Master-Paket ist erst besiegelt, wenn alle sechs Zeilen unten unterschrieben sind.** Der PO trägt jede Bestätigung wörtlich ein, mit Vorbehalten und Befund-ID; ein Vorbehalt wird nie gestrichen oder umformuliert.
+
+**Was ein Sign-off ist und was nicht.** Es bestätigt die gemeinsame Arbeitsgrundlage. Es ist **keine klinische Freigabe** (D-27: nur der benannte Clinical Owner), **keine Rechtsauskunft** (`lca` bleibt beratend), ändert keinen Status PROPOSED und keine Abnahme nach Kapitel 9.
+
+**Prompts (IMPLEMENTED 2026-11-14 14:00-14:07, `po` im Auftrag des Founders):** die Aufgabenbeschreibungen von `cra`, `lca`, `uxa`, `aia`, `csa`, `eng` (stündlich und Wochenstatus) und `po` nennen jetzt Blueprint V3.2 und Handbook V2.2 als einzige Quellen (vorher Blueprint V2 und `ARCHITECTURE.md`), die Block-Regel mit BK als aktivem Block, das Geschäftsmodell mit FE-078 und den Sign-off-Auftrag.
+
+| Rolle | Fachbereich | Nächster planmässiger Lauf | Sign-off (wörtlich) | Quelle |
+|---|---|---|---|---|
+| `eng` | 5 Engines, Datenmodell, Testpyramide, `ci-repeat` 10/10 (§3, §6.3, §9.1; Handbook V2.2) | stündlich, Minute 09 | **ausstehend** | – |
+| `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; der Auftrag nennt 18) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **ausstehend** | – |
+| `lca` | AVG-Abgrenzung (Anhang C §1), rote Linien R-1 bis R-10, FE-078 | alle 4 Std., Minute 20 | **ausstehend** | – |
+| `uxa` | Wireframes und Klickpfade der 6 Portale (§5, §6) | alle 4 Std., Minute 47 | **ausstehend** | – |
+| `aia` | On-Platform-Matching (Engine 1, Engine 2) und Voice-to-Report (Engine 3) (§3, §5.3, §6.3) | alle 6 Std., Minute 17 | **ausstehend** | – |
+| `csa` | Markt-Disruption und Schichtrechnung (§1, §2, Anhang A) | wöchentlich, Montag 18:37 (2026-11-16) | **ausstehend** | – |
+
+**Stand Master-Paket:** nicht besiegelt (0 von 6). Frühestens nach dem `csa`-Lauf am Montag, 2026-11-16, vollständig.
+
 ---
 
 ## 14. Pflege dieses Dokuments
@@ -653,6 +673,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
+| 2026-11-14 | 3.2.12 Nachtrag | Kap. 11 Zeile D-44: Satz «keine Zahlungsflüsse» als entschieden (FE-078 Teil 1) markiert. Kap. 13: neuer Abschnitt «Formales Sign-off FE-079» (Auftrag, Abgrenzung, Prompt-Synchronisation, Tabelle der sechs Rollen, Stand 0 von 6). Kopfzeile auf 3.2.12. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-078, FE-079 (Founder, Live-Sitzung 2026-11-14); Issue #1279 |
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
 | 2026-11-14 | 3.2.11 Status | §8 unverändert (BK-b aktiv). #1268: Freigaben UX, Recht, Klinik liegen vor, Automatisierung fehlt, nicht gemergt. Operative PO-Entscheidung (keine klinische Regel, D-27): für #1273 gilt bis zum Entscheid zu CR-180 die strengste Kontextlesart je Auftraggeberart (CGR-218 (A)), Absenden und Mitgliederprüfung lesen gleich (CGR-219); Audit-Auslöser nach geänderten Spalten vor der BK-b-Abnahme (CGR-220). | `cra` 13:30 (#1277); `briefs/BK.md` §PO amendment 13:39 |
 | 2026-11-14 | 3.2.12 Status | §8 unverändert (BK-b aktiv). #1268 (BK-b1) mit allen vier Freigaben gemergt (`9b691af`), nicht abgenommen. AUT-125 (Einsatzgebiet zeigt eigene Ausschlüsse) und AUT-126 (Formular aus derselben Serverlesart) in BK-g eingeplant; Hypothese H-BK-14:39 (Auftrag ohne erreichbares Team vor dem Absenden melden). | `aia` 14:22 (#1280); `briefs/BK.md` §PO amendment 14:39 |
