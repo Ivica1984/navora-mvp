@@ -4032,7 +4032,7 @@ The trigger, not each command, is the guard, so no other write path can bypass i
 
 ### ADR-195 — BK-b1: team reach set by the team itself, distance hard filter written as offer and exclusion rows at confirmation, CGR-217 as information
 
-**Date:** 2026-11-14 10:40 Europe/Zurich · **Block:** BK, slice BK-b1 (PO amendment 2026-11-14 09:39 (2)) · **Status:** ACCEPTED by `eng` for BK-b1 (HOW); the split BK-b1/BK-b2 was proposed in the probe draft (09:30) and decided by the PO 09:39 (2). Red pgTAP `supabase/tests/database/136_bk_b_reach_hard_filter.test.sql` (first commit of PR #1268, alone), migration `20261021000130_bk_b1_reach_distance_filter.sql`.
+**Date:** 2026-11-14 10:20 Europe/Zurich · **Block:** BK, slice BK-b1 (PO amendment 2026-11-14 09:39 (2)) · **Status:** ACCEPTED by `eng` for BK-b1 (HOW); the split BK-b1/BK-b2 was proposed in the probe draft (09:30) and decided by the PO 09:39 (2). Red pgTAP `supabase/tests/database/136_bk_b_reach_hard_filter.test.sql` (first commit of PR #1268, alone), migration `20261021000130_bk_b1_reach_distance_filter.sql`.
 
 - **Context:** ADR-193 (draft) proposed the distance table, service area and radius rule; AUT-117 (PO 20:40 (1)) replaces «set by an organisation `admin`» in ADR-193 (3)/(4) by «set by an active member of that team; an `admin` only for a team without active members» (README rule 10, the newer PO text wins; this ADR aligns ADR-193). BK-a built `public.postcodes` (ADR-194 (2)). PO 09:39 answered the probe's OPEN items: `building` teams excluded (3), own organisation only (4), empty service area refused (5), `postcode_distances` joins pgTAP 135's reference list (6), shift-plan change test moved here (7).
 - **Decision (IMPLEMENTED on PR #1268, not merged):**
