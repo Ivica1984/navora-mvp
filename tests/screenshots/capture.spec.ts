@@ -34,7 +34,8 @@ const PEOPLE: ReadonlyArray<{ role: string; email: string; access: NavAccess }> 
 function routesFor(access: NavAccess): string[] {
   // UX2-1 (ADR-131): /team is a menu item now; the set keeps each route once.
   const menu = navItemsFor(access).map((item) => item.href);
-  return [...new Set([...menu, ...(access.inTeam ? ["/team"] : []), "/teams", "/visits"])];
+  // BK-b1s (e): the team's reach screen at 390 and 1440 for a team member.
+  return [...new Set([...menu, ...(access.inTeam ? ["/team", "/team/einsatzgebiet"] : []), "/teams", "/visits"])];
 }
 
 const AXE_CORE_PATH = process.env.AXE_CORE_PATH ?? "node_modules/axe-core/axe.min.js";
