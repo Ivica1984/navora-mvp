@@ -1309,6 +1309,70 @@ isOneToOne: false
       referencedColumns: ["organization_id","user_id"]
     }
                   ]
+                },"order_exclusions": {
+                  Row: {
+                    "created_at": string,"id": string,"order_id": string,"organization_id": string,"reason": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"order_id": string,"organization_id": string,"reason": string,"team_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"order_id"?: string,"organization_id"?: string,"reason"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_exclusions_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "partner_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_exclusions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_exclusions_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_offers": {
+                  Row: {
+                    "created_at": string,"distance_km": number,"id": string,"limit_km": number,"order_id": string,"organization_id": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"distance_km": number,"id"?: string,"limit_km": number,"order_id": string,"organization_id": string,"team_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"distance_km"?: number,"id"?: string,"limit_km"?: number,"order_id"?: string,"organization_id"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_offers_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "partner_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_offers_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_offers_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"organization_memberships": {
                   Row: {
                     "created_at": string,"organization_id": string,"role": string,"user_id": string
@@ -1445,6 +1509,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"postcode_distances": {
+                  Row: {
+                    "distance_km": number,"from_postcode": string,"source": string,"source_version": string,"to_postcode": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "distance_km": number,"from_postcode": string,"source": string,"source_version": string,"to_postcode": string
+                  }
+                  Update: {
+                    "distance_km"?: number,"from_postcode"?: string,"source"?: string,"source_version"?: string,"to_postcode"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "postcode_distances_from_postcode_fkey"
+      columns: ["from_postcode"]
+isOneToOne: false
+      referencedRelation: "postcodes"
+      referencedColumns: ["postcode"]
+    },{
+      foreignKeyName: "postcode_distances_to_postcode_fkey"
+      columns: ["to_postcode"]
+isOneToOne: false
+      referencedRelation: "postcodes"
+      referencedColumns: ["postcode"]
     }
                   ]
                 },"postcodes": {
@@ -2191,16 +2281,42 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"teams": {
+                },"team_service_postcodes": {
                   Row: {
-                    "care_focus": string | null,"coach_name": string | null,"created_at": string,"deactivated_at": string | null,"id": string,"lead_name": string | null,"name": string,"next_step": string | null,"open_slots": number | null,"organization_id": string,"priority": boolean | null,"region": string | null,"status": string | null,"utilization": number | null
+                    "created_at": string,"postcode": string,"team_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"deactivated_at"?: string | null,"id"?: string,"lead_name"?: string | null,"name": string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id": string,"priority"?: boolean | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
+                    "created_at"?: string,"postcode": string,"team_id": string
                   }
                   Update: {
-                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"deactivated_at"?: string | null,"id"?: string,"lead_name"?: string | null,"name"?: string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id"?: string,"priority"?: boolean | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
+                    "created_at"?: string,"postcode"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_service_postcodes_postcode_fkey"
+      columns: ["postcode"]
+isOneToOne: false
+      referencedRelation: "postcodes"
+      referencedColumns: ["postcode"]
+    },{
+      foreignKeyName: "team_service_postcodes_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"teams": {
+                  Row: {
+                    "care_focus": string | null,"coach_name": string | null,"created_at": string,"deactivated_at": string | null,"id": string,"lead_name": string | null,"max_distance_km": number | null,"name": string,"next_step": string | null,"open_slots": number | null,"organization_id": string,"priority": boolean | null,"reach_changed_at": string | null,"region": string | null,"status": string | null,"utilization": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"deactivated_at"?: string | null,"id"?: string,"lead_name"?: string | null,"max_distance_km"?: number | null,"name": string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id": string,"priority"?: boolean | null,"reach_changed_at"?: string | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
+                  }
+                  Update: {
+                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"deactivated_at"?: string | null,"id"?: string,"lead_name"?: string | null,"max_distance_km"?: number | null,"name"?: string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id"?: string,"priority"?: boolean | null,"reach_changed_at"?: string | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
                   }
                   Relationships: [
                     {
@@ -3141,6 +3257,9 @@ isOneToOne: false
                            },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
+                           },
+"set_team_reach":
+{ Args: { "p_idempotency_key": string,"p_max_distance_km": number,"p_postcodes": (string)[],"p_team_id": string }; Returns: Json
                            },
 "set_watched_hours":
 { Args: { "p_hours": Json,"p_idempotency_key": string,"p_organization_id": string }; Returns: string

@@ -29,6 +29,9 @@ export type OrderPreview = {
   shiftLabel: string | null;
   weekend: boolean | null;
   durationMinutes: number | null;
+  /** BK-b1 / CGR-217: information items, never a block. */
+  info: string[];
+  sameOrderSentence: string | null;
 };
 
 function args(f: OrderFields) {
@@ -51,6 +54,8 @@ type PreviewRow = {
   shift_label?: string | null;
   weekend?: boolean | null;
   duration_minutes?: number | null;
+  info?: string[];
+  same_order_sentence?: string | null;
 };
 
 export async function previewClientOrder(input: unknown): Promise<{ ok: true; preview: OrderPreview } | { ok: false; error: string }> {
@@ -71,6 +76,8 @@ export async function previewClientOrder(input: unknown): Promise<{ ok: true; pr
       shiftLabel: r.shift_label ?? null,
       weekend: r.weekend ?? null,
       durationMinutes: r.duration_minutes ?? null,
+      info: r.info ?? [],
+      sameOrderSentence: r.same_order_sentence ?? null,
     },
   };
 }

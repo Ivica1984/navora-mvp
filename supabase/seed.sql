@@ -804,8 +804,8 @@ from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';
 -- practice licence (strict default (b) of ADR-163 for A1-A4), assistbs pflegehelfer_srk.
 insert into public.organizations (id, name, simulation) values
   ('00000000-0000-4000-b000-000000000019', 'Testorganisation S (synthetische Simulation Basel)', true);
-insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', private.now() - interval '120 days', 'Testteam Basel', 'Basel-Stadt', 'Ambulante Pflege', 'active', 3, 50, 'Leitung Test S', 'Keine Massnahme', false, null);
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name, max_distance_km, reach_changed_at) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', private.now() - interval '120 days', 'Testteam Basel', 'Basel-Stadt', 'Ambulante Pflege', 'active', 3, 50, 'Leitung Test S', 'Keine Massnahme', false, null, 10, private.now() - interval '120 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -886,6 +886,21 @@ insert into public.postcodes (postcode, place_name, region_name, source, source_
   ('4132', 'Muttenz', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13'),
   ('4142', 'Münchenstein', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13'),
   ('4410', 'Liestal', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13');
+-- BK-b1 (ADR-193 (1), (2), ADR-195): distances between every pair of listed postcodes, symmetric, 0 to itself.
+-- SYNTHETIC: computed here from an invented grid position per postcode (km, never stored, not a coordinate of the place)
+-- times 1.3; the values state nothing about real road distances (Phase B data source: lca P-5).
+insert into public.postcode_distances (from_postcode, to_postcode, distance_km, source, source_version)
+with grid (postcode, x, y) as (values
+  ('4051', 0.0, 0.0), ('4052', 1.5, 0.5), ('4053', 1.0, -1.5), ('4055', -1.5, 0.5), ('4056', -1.5, 1.5),
+  ('4057', 0.5, 2.0), ('4058', 2.0, 1.5), ('4125', 4.0, 3.0), ('4102', -2.0, -2.5), ('4123', -3.5, 0.0),
+  ('4132', 4.5, -2.5), ('4142', 2.5, -4.5), ('4410', 11.0, -8.0))
+select a.postcode, b.postcode,
+       case when a.postcode = b.postcode then 0
+            else greatest(0.1, round((sqrt((a.x - b.x) ^ 2 + (a.y - b.y) ^ 2) * 1.3)::numeric, 1)) end,
+       'synthetic', 'BK-b1 seed 2026-11-14'
+from grid a cross join grid b;
+-- BK-b1 (AUT-117 (d)): Testteam Basel's own reach (fixture: 4051, 10 km, set on the team row above).
+insert into public.team_service_postcodes (team_id, postcode) values ('00000000-0000-4000-a000-0000000001b9', '4051');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
