@@ -14,8 +14,8 @@ import {
   orderFieldProblemId,
   orderFieldsFrom,
   orderInfoText,
-  orderProblemField,
   orderProblemText,
+  orderProblemsAfterChange,
   orderProblemsByField,
   orderStepAfterPreview,
   radiusLine,
@@ -50,16 +50,20 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
   const [conflicts, setConflicts] = useState<string[]>([]);
   const [conflictReading, setConflictReading] = useState<string>("unknown");
   const activityLabels = Object.fromEntries(activities.map((a) => [a.code, a.label_de]));
+  // UXR-215: the refusal is worded with the level it was checked against, never the live field.
+  const [conflictGrade, setConflictGrade] = useState<string>("");
   const problemText = (code: string) =>
-    code === "level_activity_conflict" ? levelActivityConflictText(grade, conflicts, activityLabels, conflictReading) : orderProblemText(code);
+    code === "level_activity_conflict"
+      ? levelActivityConflictText(conflictGrade, conflicts, activityLabels, conflictReading)
+      : orderProblemText(code);
   const [dateLeft, setDateLeft] = useState(false);
   const FIELD_OF: Partial<Record<keyof OrderFormState, OrderFormField>> = {
     dateWords: "date", picked: "date", startTime: "startTime", endTime: "endTime", postcode: "postcode",
     grade: "grade", tags: "tags", required: "tags", radius: "radius",
   };
-  // A changed field drops its own problems (the next preview checks everything again).
-  const clearField = (field: OrderFormField | undefined) =>
-    field && setProblems((ps) => ps.filter((c) => orderProblemField(c) !== field));
+  // A changed field drops its own problems and every problem that names it (UXR-215: a new level drops the
+  // level-against-activity refusal); the next preview checks everything again.
+  const clearField = (field: OrderFormField | undefined) => setProblems((ps) => orderProblemsAfterChange(ps, field));
   const set = <K extends keyof OrderFormState>(key: K, value: OrderFormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     clearField(FIELD_OF[key]);
@@ -169,6 +173,7 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
             setProblems(r.preview.problems);
             setConflicts(r.preview.conflictActivities);
             setConflictReading(r.preview.conflictReading);
+            setConflictGrade(fields.grade ?? "");
             setProblemsShownAt(Date.now());
           }
         });
