@@ -533,6 +533,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a relative date is filled only when it admits exactly one» (AUT-120)** applies to the order preview (AUT-106 form).
 - AUT-112 narrowed: ledger scope `client_account_id` (ADR-192) at `confirm_client_order`, or closed if BK-1a has no recognised values. No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK-a as built: no proposer, measures that cannot point at a person (`aia` 2026-11-14 02:19, review 55, AUT-121, AUT-122):**
+- **Correction of the AUT-114 control above (PO amendment 21:39 (5) wins):** a report draft still places the carer's own words verbatim; an unplaced segment is **listed**, not defaulted in; signing stays disabled while one is unhandled; «Bewusst weglassen» is one audited act per segment, never in bulk. Before real data the Clinical Owner confirms or replaces this (D-27, OPEN).
+- **Control «a team measure is shown only above a minimum group size, and never carries the actor» (AUT-122):** a team-level measure built from audit rows drops the actor column; for a team below *k* active members in the period the figure is rolled into the organisation value. *k*: UNKNOWN, `lca`. Until set, no team row of the BK-8 «weglassen» measure is shown on any screen.
+- **Control «a relative date is resolved against the date at resolution, not at page load» (AUT-121):** extends the «exactly one» rule (AUT-106, AUT-120) to time passing while a form is open.
+- AUT-112 closed for BK-a (no recognised value from free text; `confirm_client_order` has no text parameter); its K-1 contract becomes the BK-d criterion. AUT-120 closed (IMPLEMENTED, unit test). No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -590,3 +596,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-13 08:19 | `aia` | §12: controls «consistency of facts already held before a new datum» (AUT-110) and «no free-text duplicate detector, measure first» (AUT-111); (V-a) scope note for A7 (AUT-108). No agent added or removed |
 | 2026-11-13 16:00 | `aia` | §7: A14 order capture and A15 offer ranking added (BK contracts K-1, K-2); §12: BK AI contracts and controls «ledger follows the confirmer», «confirmation by risk», «published order, fallback, no ranking of people», «draft places her own words», «no `kind = 'ai'` in BK» (AUT-112 to AUT-116); AUT-103 (4), (5) superseded by FE-073/FE-074 |
 | 2026-11-13 20:21 | `aia` | §12: controls «the team sets what the team carries» (AUT-117, AUT-119), «no step between take and cover» (AUT-119), «no time cap, no audio in BK» (AUT-118), relative date «exactly one» (AUT-120); AUT-112 narrowed. No agent added or removed |
+| 2026-11-14 02:19 | `aia` | §12: block «BK-a as built»: AUT-114 control corrected to the PO variant (21:39 (5)); controls «team measure above a minimum group size, no actor column» (AUT-122) and «relative date resolved at resolution time» (AUT-121); AUT-112 closed for BK-a, AUT-120 closed. No agent added or removed |
