@@ -6,6 +6,50 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-14 07:48 CET · `uxa`: BK-a gate line on #1257 head `8d92bfc` (clear), gate «Simulation, synthetic data»; UXR-198 to UXR-202 closed (#1246, #1252 merged); UXR-204 built on #1257; UXR-208 (low, `/team` badge empty when no level is stored, `cra` note 05:26)
+
+**State.** `recovery/main` at `eadaf9f` (PO merge #1260, 06:39). Since 03:47 merged: #1254 (my 03:47 section), #1255 (`lca` 04:20), #1256, **#1246 (BK-a follow-up, `54aa56e`, head `c1eeaa4`)**, #1258 (`cra` 05:26), #1259, **#1252 (BK-a UXR-200, UXR-201, `ad8eaef`, head `cd92240`)**, #1260. **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 06:39): BK-a merged, **not accepted**; the PO run 07:39 (#1261, open) holds **#1257** for a `uxa` gate line on its head. Nothing else in `src/app` or `src/components` is open (#1087 STG1 and #1084 Dependabot touch no screen).
+
+**CI read from the API (not run by me):** `8d92bfc` run 43565105508: `app`, `db`, `e2e`, `ui-screenshots` all `completed success`. I did not open the job logs; no `ci-repeat` was read (block acceptance, not a gate line).
+
+**Founder direction.** Newest decision still FE-077 (`FOUNDER_DECISIONS.md` last changed 13 Nov 15:15). Same prompt contradiction as in every run since 13 Nov 16:20 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2).
+
+**Screenshots.** `ui-screenshots` artifact 14102011800 (`recovery/main` `eadaf9f`) is listed; the archive download was refused by the session's proxy (blob host, as in every run since 13 Nov). **No screenshots were available.** Review from the diff `recovery/main...8d92bfc` (`shell.ts`, `ux2-shell.test.ts`, `bk-a-order.spec.ts`) and `AppShell.tsx`. Nothing run against the live project.
+
+### `uxa` gate line for #1257 (BK-a, UXR-204)
+
+«`uxa` 2026-11-14 07:48 on #1257 head `8d92bfc`: **clear**, gate «Simulation, synthetic data». UXR-204 built as asked: a client-account member with no organisation role and no team gets «Auftrag erfassen» (`/order`) as her one tab (`shell.ts` `clientTabFrom`, only when there is no home tab and none of `TAB_KEYS`, and only an item her menu already holds, so the UX1-20 fail-closed case is unchanged); the bar is then two columns (`AppShell.tsx` `TAB_COLUMNS[2]`, about 195 px each at 390 px), so the label fits on one line next to «Mehr»; `aria-current="page"` on `/order` is asserted in e2e at 390 px, and «Mehr» no longer repeats the item but keeps «Meine Einstellungen». Staff cases keep their tabs (vitest, four cases), at most three tabs for every combination. Code diff since `d9d142d` (cleared by `cra` 05:26) is empty for `src tests supabase e2e .github`. No safety signal, no clinical or legal text moved. Not a clinical or legal gate.»
+
+### Closed with evidence
+
+| ID | Evidence |
+|---|---|
+| UXR-198 | #1246 merged as `54aa56e` (head `c1eeaa4`): «Auftrag erfassen» a destination for client-account members (`nav.ts`, `nav-access.ts`). Phone tab part follows as UXR-204. |
+| UXR-199 | Same merge `54aa56e`: `order-form.tsx` resets to `EMPTY_ORDER_FORM`, focus on the confirmation (`doneRef`), e2e `bk-a-order.spec.ts`. |
+| UXR-202 | Same merge `54aa56e`: `URGENCY_MISSING_BADGE_CLASS` outline with «Dringlichkeit fehlt» on `/intake` (`intake/rules.ts:45-66`). The `/team` badge text part stays open as UXR-208. |
+| UXR-200 | #1252 merged as `ad8eaef` (head `cd92240`, code identical to the gated `57838f4`): problem list at the top, line under each field. UXR-205 to UXR-207 stay open (placed by the PO in BK-g, 04:39 (3)). |
+| UXR-201 | Same merge `ad8eaef`: date notice on leaving the field (`orders/rules.ts`). |
+
+**Built, closes when the PO merges:** UXR-204 (#1257 `8d92bfc`). Evidence in the gate line above.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-208 | `/team` offer card, team member | low | The urgency badge uses the UXR-202 outline class but prints the raw stored value, so an offer with no stored level shows an **empty outlined pill**; only the line below says «Dringlichkeit fehlt». `/intake` already uses `urgencyBadgeText`. A team offer comes from a converted intake case whose urgency is required, so this appears only if that invariant breaks (`cra` note 05:26, no safety finding). | `recovery/main` `eadaf9f` `src/app/(protected)/team/team-client.tsx:331-333` (`{offer.urgency}`) vs. `intake-client.tsx:261-262` (`urgencyBadgeText`); `src/features/intake/rules.ts:64-66` | §3 «a missing level never looks like a stored level» (the badge carries the word); §8 consistency, one component one text | Render `urgencyBadgeText(offer.urgency)` in the `/team` badge; vitest or component test: an offer with `urgency: null` shows a badge with the text «Dringlichkeit fehlt» and the outline class, and the four levels are unchanged. Presentation only; `cra` keeps the colour (CGR-215 (d)). | none (low) |
+
+**Also seen, no finding:** with only one real tab the bar has two columns; the label «Auftrag erfassen» stays `PAGE_LABEL` (no short tab word was made up, consistent with ADR-131 deviation 1 still open); the tab is not shown for a staff member who also holds a client account, so nobody's existing tab order shifts.
+
+**Benchmark:** none in this run (one made today at 03:47, NHS.UK error summary).
+
+**Still open, unchanged:** UXR-205, UXR-206, UXR-207 (low, BK-g), UXR-188 (BK-c gate, `lca`), UXR-190 (high, #1232), UXR-193, UXR-194, UXR-195 (high, #1233, BK-8), UXR-203 (low, `lca` P-5), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+### Task adjustment (README rule 11)
+
+None new: the gate line for #1257 came first; the 390 px drawings of `/b2b-institution` and `/platform` stay for a later run.
+
+---
+
 ## 2026-11-14 03:47 CET · `uxa`: BK-a gate lines on #1246 head `c1eeaa4` (clear) and draft #1252 head `57838f4` (clear), gate «Simulation, synthetic data»; UXR-196, UXR-197 closed (#1238 merged); UXR-198, UXR-199, UXR-202 built on #1246, UXR-200, UXR-201 built on #1252; UXR-204 (medium, client has no phone tab), UXR-205 to UXR-207 (low); words for CGR-217 and AUT-121; benchmark NHS.UK error summary
 
 **State.** `recovery/main` at `1d76477` (PO merge #1253, 03:39). Since 23:48 merged: #1243 (my 23:48 section), #1244 (`lca` G-1 to G-6), **#1238 (BK-a, `abd6f82`, head `45e07db`)**, #1247 (`cra` 01:35), #1249, #1250 (`aia` 55: AUT-121, AUT-122), #1251, #1253. **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 01:39): BK-a merged, **not accepted**; acceptance needs #1246, the criteria of BK amendments 00:39 and 01:39 and `ci-repeat` 10/10. Open PRs that change screens: **#1246** (UXR-198, UXR-199, UXR-202, CGR-214 (b); head `c1eeaa4`; lists `uxa` as a gate; PO 03:39 holds it for a `cra` gate line), **#1252** (draft, stacked on #1246: UXR-200, UXR-201; head `57838f4`; lists `uxa` as its gate). Others: #1248 (`cra` duplicate, docs), #1087, #1084, #3. Both screen PRs belong to the active block, so their gate lines come first (README rule 12).
