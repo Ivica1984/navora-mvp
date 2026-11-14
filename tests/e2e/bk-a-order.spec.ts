@@ -3,7 +3,8 @@ import { zurichDay } from "./support/durchgang-time";
 
 // BK-a (brief docs/agents/briefs/BK.md; ADR-194): the client's order, form → summary → «Bestätigen & Absenden».
 // Synthetic local-only account `kundebs.test` (supabase/seed.sql, client of «Testheim Rhein (synthetisch)», org S).
-// The date is ten Zurich days ahead (the e2e database runs on the real clock); November has no clock change.
+// The date is ten (390 px) or twelve (1440 px) Zurich days ahead (the e2e database runs on the real clock); no clock
+// change falls in that window in November.
 // Every run adds one synthetic order; no assertion counts orders.
 const CLIENT = "kundebs.test@navora.test";
 const PASSWORD = "navora-local-only";
@@ -25,7 +26,8 @@ for (const width of [390, 1440]) {
     await expect(page.getByRole("heading", { name: "Auftrag erfassen" })).toBeVisible();
 
     const form = page.getByRole("form", { name: "Auftrag" });
-    const day = zurichDay(Date.now(), 10);
+    // One day per width (UXR-199 counts the orders of that day and time).
+    const day = zurichDay(Date.now(), width === 390 ? 10 : 12);
     await form.getByLabel(/^Datum/).fill(deDate(day));
     await expect(form.getByTestId("order-date")).toContainText(deDate(day));
     await form.getByLabel("Beginn", { exact: true }).fill("22:00");
@@ -50,10 +52,34 @@ for (const width of [390, 1440]) {
     await expect(confirm).toBeEnabled();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
+    const orders = page.getByTestId("client-orders").locator("li", { hasText: `${deDate(day)} 22:00` });
+    const before = await orders.count();
     await confirm.click();
-    await expect(page.getByTestId("order-done")).toContainText("Auftrag bestätigt");
+    const done = page.getByTestId("order-done");
+    await expect(done).toContainText("Auftrag bestätigt");
     await expect(page.getByTestId("client-orders")).toContainText(deDate(day) + " 22:00");
     await expect(page.getByTestId("order-cover-state").first()).toHaveText("Stand: noch nicht gedeckt");
+
+    // UXR-199 (BK amendment 00:39 (1)(a)): the form is cleared, focus is on the confirmation naming the order, and
+    // pressing on again without new input cannot send a second order (the summary names the missing fields).
+    await expect(done).toBeFocused();
+    await expect(done).toContainText(deDate(day));
+    await expect(form.getByLabel(/^Datum/)).toHaveValue("");
+    await expect(form.getByLabel("Beginn", { exact: true })).toHaveValue("");
+    await expect(form.getByLabel("Einsatzort (Postleitzahl)")).toHaveValue("");
+    await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
+    await expect(summary.getByRole("alert")).toBeVisible();
+    await expect(summary.getByRole("button", { name: "Bestätigen & Absenden" })).toBeDisabled();
+    await page.reload();
+    await expect(orders).toHaveCount(before + 1);
+
+    // UXR-198 (BK amendment 00:39 (1)(b)): the client's menu has a destination for /order.
+    if (width >= 768) {
+      await expect(page.getByTestId("main-menu").getByRole("link", { name: "Auftrag erfassen" })).toHaveAttribute("aria-current", "page");
+    } else {
+      await page.getByTestId("tab-more-button").click();
+      await expect(page.getByTestId("tab-more").getByRole("link", { name: "Auftrag erfassen" })).toHaveAttribute("href", "/order");
+    }
   });
 }
 
