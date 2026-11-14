@@ -2,7 +2,6 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { getMyTeamReach, getPostcodeOptions } from "@/features/reach/queries";
-import { REACH_HELP_TEXT } from "@/features/reach/rules";
 import ReachClient from "./reach-client";
 
 // BK-b1s (PO amendment 2026-11-14 10:39 (3), AUT-117 (c); ADR-195 addendum 11:10): «Unser Einsatzgebiet». An active
@@ -21,7 +20,6 @@ export default async function ReachPage() {
           </Link>
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">Unser Einsatzgebiet</h1>
-        <p className="mx-auto max-w-xl text-sm text-emerald-100">{REACH_HELP_TEXT}</p>
       </header>
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <ReachClient teams={teams} postcodes={postcodes} />

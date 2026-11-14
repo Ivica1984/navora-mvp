@@ -35,6 +35,15 @@ test.describe("BK-b1s: Unser Einsatzgebiet", () => {
       "Eine Änderung gilt für neue Aufträge. Aufträge, die schon geprüft wurden, bleiben, wie sie sind.",
     );
 
+    // UXR-209: the distance field explains how postcodes and km combine (accessible description, uxa words).
+    await expect(form.getByLabel("Höchstdistanz in km")).toHaveAccessibleDescription(
+      "NAVORA misst von der nächsten gewählten PLZ bis zum Einsatzort. Gibt der Auftraggeber eine kleinere Distanz an, gilt seine.",
+    );
+    // lca D-44 B-5 (G-4 (c)): the postcode field itself says the area is not a home address.
+    await expect(form.getByRole("group", { name: "PLZ des Einsatzgebiets" })).toHaveAccessibleDescription(
+      "PLZ, von der aus euer Team Aufträge annimmt. Nicht eure Wohnadresse.",
+    );
+
     // (b) nothing ticked, no distance: both refusals, each at its own field; nothing saved.
     for (const box of await form.getByRole("checkbox").all()) await box.uncheck();
     await form.getByLabel("Höchstdistanz in km").fill("");

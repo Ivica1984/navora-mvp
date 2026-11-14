@@ -4,7 +4,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { setTeamReach } from "@/features/reach/commands";
 import type { PostcodeOption, TeamReach } from "@/features/reach/queries";
-import { REACH_NEW_ORDERS_ONLY_TEXT, parseDistanceKm, parsePostcodes, reachProblemsByField } from "@/features/reach/rules";
+import {
+  REACH_DISTANCE_RULE_TEXT,
+  REACH_HELP_TEXT,
+  REACH_NEW_ORDERS_ONLY_TEXT,
+  parseDistanceKm,
+  parsePostcodes,
+  reachProblemsByField,
+} from "@/features/reach/rules";
 import { formatDate } from "@/features/ai/labels";
 import { ErrorText } from "../error-text";
 
@@ -84,8 +91,14 @@ function ReachForm({ team, postcodes }: { team: TeamReach; postcodes: PostcodeOp
       <p data-testid="reach-changed-at" className="mt-1 text-sm text-stone-700">
         {team.reach_changed_at ? `Zuletzt geändert am ${formatDate(team.reach_changed_at)}.` : "Noch nicht eingestellt."}
       </p>
-      <fieldset className="mt-3" aria-describedby={problems.postcodes.length ? `${pcId}-err` : undefined}>
+      <fieldset
+        className="mt-3"
+        aria-describedby={problems.postcodes.length ? `${pcId}-help ${pcId}-err` : `${pcId}-help`}
+      >
         <legend className="text-sm font-semibold">PLZ des Einsatzgebiets</legend>
+        <p id={`${pcId}-help`} data-testid="reach-help" className="text-sm text-stone-700">
+          {REACH_HELP_TEXT}
+        </p>
         <ul className="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2">
           {postcodes.map((p) => (
             <li key={p.postcode}>
@@ -117,9 +130,12 @@ function ReachForm({ team, postcodes }: { team: TeamReach; postcodes: PostcodeOp
           value={distance}
           onChange={(e) => setDistance(e.target.value)}
           aria-invalid={problems.distance.length > 0}
-          aria-describedby={problems.distance.length ? `${kmId}-err` : undefined}
+          aria-describedby={problems.distance.length ? `${kmId}-rule ${kmId}-err` : `${kmId}-rule`}
           className="mt-1 block min-h-11 w-32 rounded-lg border border-stone-400 px-2 text-base"
         />
+        <p id={`${kmId}-rule`} data-testid="reach-distance-rule" className="mt-1 text-sm text-stone-700">
+          {REACH_DISTANCE_RULE_TEXT}
+        </p>
         {problems.distance.length ? (
           <div id={`${kmId}-err`} data-testid="reach-distance-error">
             <ErrorText message={problems.distance.join(" ")} testId="reach-distance-error-text" />
