@@ -6,6 +6,17 @@
 
 ---
 
+## Nachtrag Freitag 13.11., 22:39 (geplanter PO-Lauf)
+
+- **BK-a (#1238):** nachgebessert; das Protokoll erfasst Herkunft der Dringlichkeit und gewünschten Beginn wieder, die Zeitumstellungstests sind ergänzt. Alle vier Prüfungen grün. **Noch nicht gemergt:** es fehlt die klinische Freigabezeile für den neuen Stand (nächster `cra`-Lauf).
+- Kein neuer Entscheid, keine Frage an Sie.
+
+## Nachtrag Freitag 13.11., 21:39 (geplanter PO-Lauf)
+
+- **Erster Bau-PR für BK liegt vor** (#1238: Auftraggeber erfasst einen Auftrag und bestätigt ihn). **Noch nicht gemergt:** Die klinische Prüfung hat einen blockierenden Fehler gefunden: Die Änderung hätte im Protokoll still verloren, wer die Dringlichkeit einer Anfrage gesetzt hat. Engineering hat nachgebessert; Tests und erneute Prüfung laufen. Gemergt wird erst, wenn alles grün ist und kein Prüfschutz gelockert wurde.
+- **Zwei Sicherheitsbedingungen eingeplant:** Ein bestätigter Auftrag darf später nie unbemerkt liegen bleiben (wird im Angebotsteil BK-c getestet); und wenn gewählte Stufe und Tätigkeit nicht zusammenpassen, sieht der Auftraggeber das vor dem Absenden (BK-b). Zeitumstellungsnächte (10 bzw. 8 Stunden) werden schon jetzt getestet.
+- **Bericht vor der Signatur:** Signieren bleibt gesperrt, bis jeder nicht übernommene Textteil eingefügt oder bewusst weggelassen ist. Das gilt für die Simulation; vor realen Daten muss die/der Clinical Owner das bestätigen. **Ihre Aktion:** keine neue; die Benennung der Clinical Owner bleibt offen.
+
 ## Nachtrag Freitag 13.11., 20:40 (geplanter PO-Lauf)
 
 - **Drei Prüfberichte gemergt** (UX, Automatisierung, Recht; nur Dokumentation). Kein Engineering-PR offen; als Nächstes baut Engineering BK-a (Auftrag erfassen und bestätigen).
