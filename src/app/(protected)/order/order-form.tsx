@@ -229,7 +229,7 @@ export default function OrderForm({ accountId, today, postcodes, activities }: {
         <div className="flex flex-wrap gap-3">
           {GRADE_OPTIONS.map((g) => (
             <label key={g.value} className="flex min-h-11 items-center gap-2">
-              <input type="radio" name="grade" value={g.value} aria-invalid={invalid("grade")} checked={grade === g.value} onChange={() => set("grade", g.value)} />
+              <input type="radio" name="grade" value={g.value} checked={grade === g.value} onChange={() => set("grade", g.value)} />
               {g.label}
             </label>
           ))}
