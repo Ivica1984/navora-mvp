@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.9 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.10 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -654,6 +654,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-14 | 3.2.10 Status | §8 unverändert (BK-b aktiv). #1268: Freigaben UX (11:48) und Recht (12:20, beratend) liegen vor, Klinik und Automatisierung fehlen, nicht gemergt; #1273 (BK-b2, Stufe/Tätigkeit/Verfügbarkeit pro Mitglied) als Entwurf auf #1268, Lesart «D» (ADR-196 (3)) wartet auf `cra`. Operative PO-Einordnung ohne klinische oder rechtliche Regel: UXR-209 und `lca` B-5 vor der BK-b-Abnahme, UXR-213 vor der BK-Blockabnahme; `lca` B-2 (b) als stehendes Kriterium (Distanzen nur aus der vorberechneten Tabelle, kein Auftragsfeld verlässt NAVORA) | BK-Brief, PO-Ergänzung 12:39; D-44 `lca` 12:20; UX_REVIEW 11:48 |
 | 2026-11-14 | 3.2.9 Status | §8 unverändert (BK-b aktiv). #1268 mit CI 4/4 grün, Gates von `cra`, `lca`, `uxa`, `aia` fehlen, nicht gemergt; #1270 (BK-b1s, Einsatzgebiet-Bildschirm) als Entwurf auf #1268. Operative PO-Entscheidung ohne klinische oder rechtliche Regel: Ex-Mitglied für BK-b1s per pgTAP nachgewiesen, e2e-Negativtest mit eigenem synthetischem Ex-Mitglied vor der BK-Blockabnahme | BK-Brief, PO-Ergänzung 11:39; ADR-195 Nachtrag 11:10 (5) |
 | 2026-11-14 | 3.2.8 Status | §8 unverändert (BK-b aktiv). Operative PO-Entscheidung ohne klinische oder rechtliche Regel: der Bildschirm, auf dem ein Team sein Einsatzgebiet selbst einstellt (AUT-117 (c)), ist ein eigener PR BK-b1s vor der Abnahme von BK-b; ohne ihn setzt nur der Seed die Reichweite (zentraler Schritt). PR #1268 (BK-b1) gelesen, nicht gemergt (Prüfungen laufen, Gates fehlen) | README-Regel 12, Wertfolge 4; BK-Brief, PO-Ergänzung 10:39 |
 | 2026-11-14 | 3.2.7 Status | §8: BK-a (Auftrag erfassen, Zusammenfassung, einmal absenden) für die Simulation abgenommen auf `634ccb7`; BK-b aktiv. Operative PO-Antworten ohne klinische oder rechtliche Regel: BK-b in zwei PRs (Distanz/Reichweite, dann Stufe/Merkmale/Verfügbarkeit), Teams im Aufbau ausgeschlossen, Phase A nur eigene Organisation, leeres Einsatzgebiet abgelehnt (BK-Brief, PO-Ergänzung 09:39) | README-Regel 12, FE-071 |
