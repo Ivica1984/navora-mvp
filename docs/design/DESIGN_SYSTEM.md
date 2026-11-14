@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 85 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 86 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 **Companion build specification (2026-11-03, for M2 to M8, #832):** [`NAVORA_DESIGN_SYSTEM_V1.md`](NAVORA_DESIGN_SYSTEM_V1.md) (token values, CSS, components with states, phone and desktop systems, marketing extension), [`NAVORA_SCREEN_CATALOG.md`](NAVORA_SCREEN_CATALOG.md) (every screen), [`NAVORA_INFORMATION_ARCHITECTURE.md`](NAVORA_INFORMATION_ARCHITECTURE.md) (surfaces, roles, navigation, website sitemap). This file keeps the behaviour rules.
 
@@ -212,6 +212,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 
 ## Change log
 
+- 2026-11-14 21:08 CET (`uxa`, founder instruction): version 86. New companion file `BK5_OFFER_TEMPLATE.md` (PROPOSED): the single screen reference for BK-5 (broadcast offer card, team states, client status, never-shown list, BK-c tests). The §5 rule «An offer many teams see shows no window and no race» now reads with that file; its words «the first take-over counts» are replaced there by «Alle passenden Teams sehen dieses Angebot.» No token change.
 - 2026-11-14 19:58 CET (`uxa`): version 85. §2 new PROPOSED rule «Not covered has one headline, before the start» (Blueprint 3.2.16 §5.1, CGR-222 (b), CGR-223; BK amendment 17:40), refining «an open need states its cover first» (UXR-188: «ab Schichtbeginn» superseded). No token change.
 - 2026-11-14 15:51 CET (`uxa`): version 84. §5 new «An offer many teams see shows no window and no race» (FE-078 part 2, UXR-214, BK-5 words) and «A refusal keeps the values it was checked against» (UXR-215, #1273), both PROPOSED. No token change.
 - 2026-11-14 11:48 CET (`uxa`): version 83. §3 new «An information item is neutral and never contradicts the screen» (CGR-217 built on #1268 `f3b2a5c`; UXR-213 PROPOSED). §5 new «A team's own setting says how it is applied» (PROPOSED, UXR-209 to UXR-212, first case BK-b1s #1270). No token change.

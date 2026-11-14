@@ -6,6 +6,45 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-14 21:08 CET · `uxa` (founder instruction, live session): one BK-5 template; UXR-214 rest corrected in the pictures (open until checked on a named merge); stale BK-5 lines marked; UXR-215 and UXR-195 placed; UXR-217 corrected in the picture; UXR-219 (medium)
+
+**Trigger.** Founder message to `uxa` 2026-11-14 (live): settle the decision state, give Engineering one contradiction-free BK-5 template, correct every picture, keep D-44 / Q-44e visible, UXR-215 before the BK-b acceptance, UXR-195 with a date and gate, visible evidence instead of an unopened CI artifact. Founder chose: one docs PR, the PO checks and merges; Annex C stays with `lca`, UXR-216 (code) with `eng`.
+
+**State.** `recovery/main` at `ed8bcf9` (PO merge #1304, Blueprint 3.2.17). **Active: BK, slice BK-b.** BK-5 is slice **BK-c, not active**; no offer card and no window exist in code (search of `src/` and `supabase/migrations/`: no offer window, no cascade; IMPLEMENTED only `order_offers` / `order_exclusions` rows). UXR-214 therefore does not block BK-b; it must be corrected **before BK-c starts**, because `eng` already prepares BK-c (`BK-c_ADR_DRAFT.md`).
+
+**Decision state.** FE-078 part 2, `FOUNDER_DECISIONS.md` row FE-078, status *verbindlich* (v29, 2026-11-14 15:00), quoted in `design/BK5_OFFER_TEMPLATE.md` §1 with the PO notes (a) D-44 unresolved, Q-44e open; (b) every hard check; (c) «nicht gedeckt» stays.
+
+**What contradicted it on `ed8bcf9`, and what this PR does:**
+
+| Place | Stale content | This PR |
+|---|---|---|
+| `briefs/BK.md` criterion BK-5 (line 43) | «Offer cascade … exclusive window», replaced only by an amendment further down | Marked SUPERSEDED in place, struck through, kept as history; BK-5n «the cascade continues» and slice line marked; 15:00 (4) team count marked superseded by 20:40 (3) |
+| `wireframes/team.svg` | «Die Schicht hat, wer sie zuerst übernimmt.» (race, my own 15:51 word), «Warum zuerst euch … das nächstgelegene passende Team» (priority and a comparison with other teams), «Ablehnen mit Grund» | Same line as P2 «Alle passenden Teams sehen dieses Angebot.»; «Warum empfohlen» with this team's reason only and «Kein anderes passendes Team ist ausgeschlossen.»; «Ablehnen» |
+| `wireframes/order.svg` | «Angebot bei Team 1 von 3 passenden Teams», note «‹Team 1 von 3› bleibt» | «Angebot an alle passenden Teams gleichzeitig»; note without team count (`lca` 20:25, BK 20:40 (3)) |
+| `wireframes/platform.svg`, `diagrams/platform-map.svg` | «Vermittlung», «Vermittlung (Coach)», «Vermittlung ohne Aufsicht» | «Moderation», «Moderation auf Anfrage (Coach)», «Moderation ohne Aufsicht» (`lca` D-44 20:25 confirmed) |
+| `diagrams/engine-map.svg`, `erd-b-auftrag.mmd` | «Kaskade» | «Rundruf» |
+| Blueprint Annex C rows «Rangfolge und exklusive Kaskade», Q-44e table | stale word | **not changed** (`lca`'s text); the legal question **stays open**; issue to `lca` |
+| ADR-191 (4), (6), ADR-195 (3) | «cascade» | not changed (`eng`; already listed in `BK-c_ADR_DRAFT.md` §2) |
+| Blueprint PDF | old pictures | PO regenerates with the next version line |
+
+`grep -rniE "exklusiv|kaskade|vermittlung|Team 1 von" docs/product/blueprint-v3/wireframes docs/product/blueprint-v3/diagrams` finds nothing on this branch.
+
+**Visual evidence.** I rendered `team.svg`, `order.svg`, `platform.svg`, `engine-map.svg`, `platform-map.svg` from this branch with the pre-installed Chromium and looked at each image (no overflow; the platform panel title fits). The phone picture P2 (`img/v3/p2-team.png`, committed, opened directly) matches the template except state B (UXR-218). No app screenshot of the card can exist yet (BK-c not built). For BK-c, `BK5_OFFER_TEMPLATE.md` §5 proposes screenshots as images in a PR comment, named in the `uxa` gate line (PO to decide); a green `ui-screenshots` job alone is not a visual review.
+
+**UXR-215 (before the BK-b acceptance).** Fix and the test for exactly this change (AGS + «Venöse und kapillare Blutentnahme» refused → FaGe → refusal gone, no «Für FaGe …») are on #1291 head `a036e59` (draft, stacked on #1273, `ci` 4/4 success read from the API; `uxa` line clear 19:58). **Open until #1291 is merged and the e2e is green on the named merge commit.** UXR-216 («hier» → «bei diesem Auftrag») is a one-string change in `orders/rules.ts`: proposed to ride the same PR or the next #1273 push (`eng`), `cra` confirms the words.
+
+**UXR-195 (P3 drawing).** Needed for **BK-e** (`/field` report draft; brief amendment 13 Nov 20:40 (6) (d)), slice order a, b, c, e, f, d, g. Not needed for BK-b or BK-c. Proposed: delivered by `uxa` **before BK-e becomes active**, as gate «`uxa` drawing present on a named commit» in the BK-e entry; until then Blueprint §5.3 says «ausstehend» and no BK-e acceptance may present it as present.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-219 | Desktop offer card `team.svg` (team) | medium | The desktop picture gave a second, different template from P2: priority wording «Warum zuerst euch», a comparison «das nächstgelegene passende Team» (reveals other teams), «Ablehnen mit Grund» (P2 and BK ask no reason). | `ed8bcf9` `blueprint-v3/wireframes/team.svg:39, 58-60, 65` | §4 one word per thing; FE-078 (2); §7 visibility | Corrected on this branch; check after merge: `team.svg` contains «Alle passenden Teams sehen dieses Angebot.», no «zuerst euch», no «nächstgelegene», no «mit Grund». | #1286 |
+
+**UXR-214:** corrected on this branch in every picture; **stays open** until the PO merges and `uxa` checks the named merge commit. **UXR-217:** corrected in `team.svg` (P2 wording kept); closes with UXR-214. **UXR-218:** P2 state B unchanged (PNG, no generator in the repo); `BK5_OFFER_TEMPLATE.md` §3 wins.
+
+---
+
 ## 2026-11-14 19:58 CET · `uxa`: FE-079 sign-off renewed on Blueprint 3.2.16 (my field changed: UXR-214 part 1 done), reservations narrowed to the rest of UXR-214 and UXR-195; gate line #1291 head `a036e59` (clear, UXR-215 fixed as proposed); words for «nicht gedeckt» before the start and «nicht mehr gedeckt» (BK amendment 17:40, CGR-222 (b), CGR-223); answer to H-BK-15:39 under `cra`'s three conditions; UXR-217, UXR-218 (low)
 
 **State.** `recovery/main` at `879f97c` (PO merge #1299). Since 15:51 merged: my section (#1287), `lca` (#1289), PO #1290 (Blueprint 3.2.15, UXR-214 images), `eng` journals (#1292, #1296, #1298, BK-c ADR draft, docs only), `cra` (#1293), PO #1294 (Blueprint 3.2.16), #1297, #1299. **No change under `src/`, `tests/` or styles on `recovery/main`.** **Active block: BK, slice BK-b** (`NEXT_CAPABILITY.md`; BK amendment 17:40). Open PRs that change screens: #1270 (head `1cb6e09`, unchanged), #1273 (draft, `1dde2d8`, unchanged), #1276 (draft, `1600588`, unchanged), **#1291** (draft, `a036e59`, new, stacked on #1273). #1295 (`2614ccb`, CGR-220) changes only a migration, pgTAP and `DECISIONS.md`: no screen. #1087, #1084: no screen.
