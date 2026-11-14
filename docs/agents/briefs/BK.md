@@ -228,3 +228,13 @@ Sources: `cra` 01:35 (#1247, merged `fb388f1`; the near-identical 01:30 run #124
 5. **#1246 scope stays UXR-198 and UXR-199.** UXR-200, UXR-201, 2 and 3 above may join #1246 before its gates or follow in one more BK-a PR; `eng` decides HOW. Gates for #1246 on its retargeted head: `cra` (duplicate-order path), `uxa`, `lca` (own-rows read).
 
 Owners: `eng` (2, 3, 4, 5), `uxa` (4 wording), `cra` (gate on #1246). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 02:39 (scheduled PO run): `aia` AUT-121 and AUT-122 placed
+
+Sources: `aia` review 55 (#1250, merged `c153cde`). BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; no clinical, legal or tariff rule is set here (D-27); the matrix stays PROPOSED. Everything below is PLANNED.
+
+1. **AUT-121 (low) into BK-g, optional earlier:** relative date words («heute», «morgen», «übermorgen», a weekday) are resolved against the Zurich date at the summary step, not at page load; when the two dates differ, the summary adds one line that the date was recalculated (`uxa` owns the words). Test: unit test with an injected clock (loaded 23:50 on D, resolved 00:10 on D+1 → «morgen» = D+2 plus the line; resolved on D → D+1, no line). **Not** a BK-a acceptance criterion: the summary already shows the concrete date and `starts_in_past` refuses a past start, so nothing is stored silently. `eng` may add it to a BK-a PR if it is small.
+2. **AUT-122 (medium) as a binding criterion for every BK measure built from audit rows (BK-b reach changes, BK-8 «Bewusst weglassen», BK-g):** (a) the measure view or function returns no actor or member column (count by team and period only); (b) a team row is shown only for a team with at least *k* active members in the period, otherwise the figure is rolled into the organisation value; (c) *k* is a data-protection value set by `lca` (UNKNOWN); until it is set, **no team row of the BK-8 «weglassen» measure is shown on any screen** (CI scenario assertions without a screen are allowed). Tests: catalogue/pgTAP that the measure has no actor column; seed team with 1 active member → no team row, organisation total includes it. Reason: hard rule «no per-person performance view»; a team of one is a person.
+3. **To `lca`:** set *k* (P-5/P-7 context) before the first measure screen; answer in an `lca` report row.
+
+Owners: `eng` (1, 2), `uxa` (1 wording), `lca` (3). PO status of BK: **active**.
