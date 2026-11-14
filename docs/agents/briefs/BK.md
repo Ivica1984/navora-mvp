@@ -417,3 +417,12 @@ Source: `CLINICAL_GOVERNANCE.md` 17:26 (PR #1293, merged `c860cc3`); `eng` journ
 5. **Blueprint text (CGR-221, CGR-222 (a), (b)):** transferred in V3.2.16 (Annex B replacement text word for word; §5.1, §6.2, §6.4 sentences). Annex B §2 row «3 Engine 1» and the Handbook part stay with Handbook V2.3 (`eng` V-1, `lca` S-3).
 
 Owners: `eng` (1, 2, 3 in the BK-c ADR), `uxa` (words for «nicht gedeckt vor Beginn» and «nicht mehr gedeckt»), `cra` (closes CGR-221 to CGR-223 itself). PO status of BK: **active**, slice BK-b.
+
+## PO amendment 2026-11-14 20:40 (scheduled PO run): #1270 merged; BK-c criteria from the FE-079 reservations
+
+1. **#1270 (BK-b1s) merged** `a076731` (head `1cb6e09`; merge record comment on #1270). Merged, not accepted: BK-b is accepted only as a whole slice on a named integrated commit (`ci` green, `ci-repeat` 10/10, raw job logs), gate «Simulation, synthetic data». The seeded former-member e2e negative (amendment 11:39 (3)) stays due before the BK block acceptance.
+2. **BK-c criterion (from `eng` V-8 and `aia` AUT-128, same finding):** on the order path, the set of teams a team-facing view shows equals the `order_offers` rows for that order, and the ranking only reorders them; positive test (every offered team sees it) and negative test (a team without an offer row never sees it, and no ranking change removes a team). Until BK-5 exists, Blueprint §6.3 step 4 is read as «case path IMPLEMENTED; order path: offer rows IMPLEMENTED, team view PLANNED».
+3. **BK-c criterion (from `lca` 20:25, D-44 (2), option (a), advisory):** the client read model returns no team count (no exact, banded or live count) for every client kind, with its own zero state; negative test that no count field reaches the client. Any count variant stays `unresolved: needs owner`; the PO does not pick it.
+4. **Unchanged:** CGR-222 4 h latest-coverage default PROPOSED for simulation only (`eng` V-7), value before real data with the Clinical Owner (K-8, OPEN). No clinical, legal or tariff rule set here.
+
+Owners: `eng` (2, 3 in the BK-c ADR and tests), `uxa` (zero-state words for 3), `lca` (reads 3), `aia` (reads 2). PO status of BK: **active**, slice BK-b.
