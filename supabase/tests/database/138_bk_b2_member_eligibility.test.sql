@@ -26,7 +26,7 @@
 -- Not here (PLANNED): the re-check at the take and at shift start and naming the member (BK-c / BK-5a, CGR-204 (b));
 -- overlap with another taken order (BK-c); ranking (BK-3). The matrix cells stay PROPOSED (D-43); passing this file is
 -- no clinical release.
--- Users: kundebs …9e8 (client account …3c1, org S, seed). Fixture: teams …b138-…01 to …0d and members …a138-…01 to
+-- Users: kundebs …9e8 (seed client of …3c1; here member of the fixture household …3c2, org S). Fixture: teams …b138-…01 to …0d and members …a138-…01 to
 -- …0f of Testorganisation S (simulation), each team with service postcode 4102 and maximum 10 km (distance 0), so the
 -- distance part passes and only the qualification part decides. Pinned clock: Fri 2026-11-13 12:00 Europe/Zurich.
 -- Order slot: Sun 2026-11-22 22:00 – Mon 2026-11-23 07:00. Synthetic data only; everything is rolled back.
@@ -41,9 +41,17 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
 $$;
 select set_config('navora.test_now', '2026-11-13 12:00:00+01', true);
 
+-- Named fixture change (CGR-218 (A), PO 13:39 (2)): the plain QAM-0.2 table applies only to a `household` order, so this
+-- file orders for a synthetic household account …3c2 (kundebs as member) instead of the seed home …3c1. The home and
+-- hospital ward readings are pgTAP 139.
+insert into public.client_accounts (id, organization_id, display_name, client_kind) values
+  ('00000000-0000-4000-a000-0000000003c2', '00000000-0000-4000-b000-000000000019', 'Haushalt Fixture (synthetisch)', 'household');
+insert into public.client_account_members (client_account_id, user_id) values
+  ('00000000-0000-4000-a000-0000000003c2', '00000000-0000-4000-a000-0000000009e8');
+
 -- 1. CGR-216: level against activity at preview and confirm ---------------------------------------------------------
 create function pg_temp.pv(grade text, tags text[], req text[]) returns jsonb language sql as $$
-  select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
+  select public.preview_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-22', time '22:00',
                                      time '07:00', '4102', grade, tags, req, null)
 $$;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
@@ -62,12 +70,12 @@ select is((pg_temp.pv('fage_efz', array['B1', 'C1'], '{}') -> 'conflict_activiti
           'no conflict → an empty list, never a missing key');
 select ok(not ((pg_temp.pv('nurse_hf_fh', array['B2'], '{}') -> 'problems') ? 'level_activity_conflict'),
           'CGR-216 (b): HF with B2 (cell «E») passes; the level is read as ordered');
-select is((public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
+select is((public.confirm_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-22', time '22:00',
            time '07:00', '4102', 'ags_eba', array['B2'], array[]::text[], null,
            'dddd0000-0000-4000-8138-000000000001') ->> 'result'), 'invalid',
           'CGR-216 (a): confirm refuses an order with a level_activity_conflict');
 reset role;
-select is((select count(*)::int from public.partner_requests where client_account_id = '00000000-0000-4000-a000-0000000003c1'
+select is((select count(*)::int from public.partner_requests where client_account_id = '00000000-0000-4000-a000-0000000003c2'
              and grade = 'ags_eba' and activity_tags = array['B2']), 0, 'CGR-216 (a): no order row is written');
 
 -- The fixture is written as the table owner with no request user (the 0120 evidence guard refuses any app user).
@@ -172,16 +180,16 @@ grant all on made to authenticated;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
 set local role authenticated;
 -- F: FaGe, B1 («D») and C1 («E»), C1 required.
-insert into made select 'f', public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22',
+insert into made select 'f', public.confirm_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-22',
   time '22:00', time '07:00', '4102', 'fage_efz', array['B1', 'C1'], array['C1'], null, 'dddd0000-0000-4000-8138-000000000010');
--- F2: FaGe, B1 required («D» is not own scope).
-insert into made select 'f2', public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-24',
+-- F2: FaGe, B1 required («D» is not own scope): refused at confirm since CGR-219 (one reading, PO 13:39 (3)).
+insert into made select 'f2', public.confirm_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-24',
   time '22:00', time '07:00', '4102', 'fage_efz', array['B1'], array['B1'], null, 'dddd0000-0000-4000-8138-000000000011');
 -- H: HF, A3 («E», requires practice licence and two years' experience), required.
-insert into made select 'h', public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22',
+insert into made select 'h', public.confirm_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-22',
   time '22:00', time '07:00', '4102', 'nurse_hf_fh', array['A3'], array['A3'], null, 'dddd0000-0000-4000-8138-000000000012');
 reset role;
-select is((select count(*)::int from made where r ->> 'result' = 'ok'), 3, 'the three fixture orders are confirmed');
+select is((select count(*)::int from made where r ->> 'result' = 'ok'), 2, 'the fixture orders F and H are confirmed');
 
 create function pg_temp.oid(k text) returns uuid language sql as $$ select (r ->> 'order_id')::uuid from made where made.k = $1 $$;
 create function pg_temp.why(k text, team text) returns text language sql as $$
@@ -217,8 +225,8 @@ select is((select count(*)::int from public.order_offers o
           'BK-2n: no team is both offered and excluded');
 
 -- 4. Required activities need own scope; evidence the cell requires (draft ADR-196 (3)) ----------------------------
-select is(pg_temp.why('f2', '01'), 'no_member_activity_evidence',
-          'a required activity whose cell is «D» (FaGe B1) is not own scope → not offered');
+select is((select r -> 'conflict_activities' from made where k = 'f2'), '["B1"]'::jsonb,
+          'CGR-219: a required activity whose cell is «D» (FaGe B1) is refused at confirm, B1 named (was: confirmed, then no team)');
 select is(pg_temp.why('h', '04'), 'no_member_activity_evidence',
           'HF A3 needs two years'' experience verified; licence alone → not offered');
 select is(pg_temp.why('h', '09'), 'offered', 'HF with licence and experience verified, free → offered');

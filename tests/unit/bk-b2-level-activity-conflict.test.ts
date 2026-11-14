@@ -47,3 +47,33 @@ describe("CGR-216: level against activity, worded for the client", () => {
     expect(levelActivityConflictText("xx", ["B2"], LABELS)).toBe(orderProblemText("level_activity_conflict"));
   });
 });
+
+// CGR-218 (A), CGR-219 (PO amendment 2026-11-14 13:39 (2)-(4)): the database returns the reading it used
+// (`conflict_reading`); the words say for a strict reading that it is a safety limit of the simulation, not a team
+// decision, and for a hospital ward that such orders are not yet possible. No clinical explanation. Words PROPOSED for
+// `uxa`. Written before the code (red first: no reading parameter on 4b8a158).
+describe("CGR-218: the refusal names the reading honestly", () => {
+  it("keeps the plain-table words for a household (and when no reading is given)", () => {
+    expect(levelActivityConflictText("ags_eba", ["B2"], LABELS, "plain")).toBe(
+      levelActivityConflictText("ags_eba", ["B2"], LABELS),
+    );
+  });
+
+  it("calls a home refusal a safety limit of the simulation", () => {
+    expect(levelActivityConflictText("fage_efz", ["B2"], LABELS, "nh_ext_strict")).toBe(
+      "Für FaGe ist diese Auswahl hier nicht möglich: Venöse und kapillare Blutentnahme. " +
+        "Das ist eine Sicherheitsgrenze der Simulation, keine Entscheidung eines Teams. Bitte die Tätigkeit entfernen.",
+    );
+  });
+
+  it("says in one sentence that hospital ward orders are not yet possible", () => {
+    expect(levelActivityConflictText("nurse_hf_fh", ["B2", "B3"], LABELS, "hosp_in_strict")).toBe(
+      "Aufträge für eine Spitalstation sind in der Simulation noch nicht möglich. " +
+        "Das ist eine Sicherheitsgrenze der Simulation, keine Entscheidung eines Teams.",
+    );
+  });
+
+  it("falls back to the general text for an unknown reading (nothing is guessed)", () => {
+    expect(levelActivityConflictText("fage_efz", ["B2"], LABELS, "zz")).toBe(orderProblemText("level_activity_conflict"));
+  });
+});
