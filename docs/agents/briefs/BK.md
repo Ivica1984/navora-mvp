@@ -309,3 +309,27 @@ Sources: `eng` journal 09:09 (#1265) and probe branch `probe/bk-b-red-20261114` 
 8. **AUT-123 «Wieder erfassen» (BK-g candidate):** `cra` 09:35 gave its line: no tick per activity if (i) a copy shows the same full summary, (ii) a copy passes today's checks including CGR-216 `level_activity_conflict`, (iii) institutions only until the Clinical Owner answers for private persons (UNKNOWN). Becomes a BK-g criterion with (i)–(iii) as tests once `uxa` gives words and place. Still OPEN on `uxa`.
 
 Gates per PR unchanged: `cra` (hard filters, CGR-216), `lca` (distance data source P-5, reference data 6), `uxa` (reach screen, words 5), `aia` (AUT-117 alignment). PO status of BK: **active, slice BK-b**.
+
+## PO amendment 2026-11-14 10:39 (scheduled PO run): BK-b1 PR #1268 read; reach screen placed
+
+Sources: PR #1268 (`eng` 10:12/10:38, head `f3b2a5c`, branch `feature/hourly-update-2026-11-14-1012-bk-b1`), read by the PO on the diff; ADR-195; PO amendment 09:39. Operational WHAT only; no clinical, legal or tariff rule (D-27); matrix stays PROPOSED. PLANNED unless marked. The PO did not run tests locally.
+
+1. **#1268 not merged this run.** `ci` 43581473063 on head `f3b2a5c` was running at the PO's read (`app` success; `db`, `e2e`, `ui-screenshots` in progress; `mergeable_state` `blocked`). No gate line yet from `cra`, `lca`, `uxa` or `aia` (PO_MERGE_PROCESS §4 (1)–(3)). Merge when all four gate lines name an unchanged code head (AUT-50) and CI on that head is 4/4.
+2. **PO reading of #1268 against amendment 09:39 (not an acceptance):**
+
+| Point | Result | Evidence (diff at `f3b2a5c`) |
+|---|---|---|
+| (3) `building` team excluded, fail-closed | present | `private.screen_order_reach`: `status is distinct from 'active'` → `team_not_active`; pgTAP 136 fixture T7 «im Aufbau», no offer row |
+| (4) own organisation only | present | `where t.organization_id = o.organization_id` |
+| (5) empty service area refused | present | `set_team_reach` → `missing_service_postcode`; pgTAP 136 |
+| (6) `postcode_distances` reference data, tighter guard | present | RLS on, no write grant, `leave1_access_open` restrictive; pgTAP 135 list gains the table |
+| (7) shift-plan change never changes eligibility | present | pgTAP 136 «changing the client's shift plan changes no offer or exclusion row» |
+| AUT-117 (a) who may set reach | present | active member of the team; `admin` only without active members; pgTAP 136 both directions |
+| BK-2n every team in exactly one table | present | pgTAP 136 «never both, never missing» |
+| CGR-217 information item, never a block | present | `preview_client_order` `info`, neutral style, confirm stays enabled; vitest + e2e |
+| no person column in offer/exclusion | present | `order_offers`, `order_exclusions`: team only |
+
+3. **Reach screen (AUT-117 (c)), `eng` OPEN in #1268: decided.** Not in #1268 (keep the open PR's gates on the code they started on). It becomes its own PR **BK-b1s** «Unser Einsatzgebiet» (team view), after #1268 and before the BK-b acceptance; it may merge before or after BK-b2. Reason (value 4, team autonomy): without the screen only the seed sets a team's reach, which is a central step; BK-b is not accepted while a team cannot set its own reach. Criteria: (a) an active member sees and changes postcodes and maximum distance of the own team only, through `set_team_reach`; (b) the three refusals (`missing_service_postcode`, `postcode_not_in_list`, `max_distance_not_positive`) appear at their fields in `uxa` words; (c) a member of another team and a former member (LEAVE1) cannot open or submit it (e2e negative); (d) the screen states that a change applies to new orders only (words `uxa`), because existing orders keep their screening (BK-2n, written once); (e) 390 and 1440 screenshots. Gates: `uxa` (words, place), `aia` (AUT-117), `cra` only if the words touch care.
+4. **Observation for `uxa` and `lca`, not a finding:** a team member can read the exclusion row of the own team for an order (reason only, no order detail). The PO's product view: a team should see *why* an order did not reach it («ausserhalb Ihres Einsatzgebiets»), because that is how a team adjusts its own reach without anyone deciding for it. Whether and where the team sees this is `uxa`'s; whether the order's existence alone is a disclosure is `lca`'s (reference amendment 21:39 (6)). Until both answer, nothing is shown in the UI; the table stays as built.
+
+PO status of BK: **active, slice BK-b** (BK-b1 PR open, BK-b1s and BK-b2 to follow).
