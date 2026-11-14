@@ -95,21 +95,21 @@
 <text x="1132" y="218" font-size="13" font-weight="400" fill="#065f46" text-anchor="start">Team Gundeli · übernommen um 14:31</text>
 <text x="1120" y="258" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Nachtdienst So, 15.11.2026</text>
 <text x="1120" y="280" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">22:00 – Mo 07:00 (9 Std.)</text>
-<text x="1120" y="304" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Angebot bei Team 1 von 3 passenden</text>
-<text x="1120" y="322" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Teams · gedeckt um 14:31</text>
+<text x="1120" y="304" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Angebot an alle passenden Teams</text>
+<text x="1120" y="322" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">gleichzeitig · gedeckt um 14:31</text>
 <rect x="1104" y="368" width="304" height="196" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
 <rect x="1120" y="384" width="272" height="60" rx="8" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
 <text x="1132" y="408" font-size="15" font-weight="700" fill="#92400e" text-anchor="start">Noch nicht gedeckt</text>
 <text x="1132" y="430" font-size="13" font-weight="400" fill="#92400e" text-anchor="start">Beginn in 17 Std. 05 Min.</text>
 <text x="1120" y="470" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Frühdienst Sa, 14.11.2026</text>
 <text x="1120" y="492" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">07:00–15:30 · Wohnbereich 2</text>
-<text x="1120" y="516" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Noch nicht gedeckt. Angebot an alle</text>
-<text x="1120" y="534" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">passenden Teams gleichzeitig.</text>
+<text x="1120" y="516" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Angebot an alle passenden Teams</text>
+<text x="1120" y="534" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">gleichzeitig.</text>
 <text x="1104" y="594" font-size="15" font-weight="600" fill="#065f46" text-anchor="start">Alle Aufträge (4)</text>
 <line x1="1104" y1="598" x2="1222.69032" y2="598" stroke="#065f46" stroke-width="1"/>
 <rect x="1104" y="620" width="304" height="104" rx="6" fill="#ffffff" stroke="#78716c" stroke-width="1" stroke-dasharray="4 3"/>
 <text x="1114" y="637" font-size="12" font-weight="700" fill="#44403c" text-anchor="start">Wireframe-Notiz</text>
 <text x="1114" y="654" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Stand zuerst, Weg der Anfrage darunter in</text>
-<text x="1114" y="670" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Worten. «Team 1 von 3» bleibt als</text>
-<text x="1114" y="686" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Founder-Text; Wortlaut prüft cra (UXR-188).</text>
+<text x="1114" y="670" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Worten, ohne Teamzahl (lca 20:25, D-44).</text>
+<text x="1114" y="686" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Rundruf FE-078; Wortlaut prüft cra.</text>
 </svg>
