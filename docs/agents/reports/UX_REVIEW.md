@@ -6,6 +6,46 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-14 23:50 CET · `uxa`: UXR-214 closed on merge `b122a60` (#1305); FE-079 sign-off renewed on Blueprint 3.2.19 with reservations UXR-195 and UXR-220; #1291 head `6abf9f8` line stands (base merge only); UXR-220 (low, Annex C client view still shows a team count, stale Annex C note)
+
+**State.** `recovery/main` at `b4a1189` (PO merge #1312, Blueprint 3.2.19, Handbook V2.2). **Active: BK, slice BK-b** (`NEXT_CAPABILITY.md`, unchanged). Since my 21:08 section merged: my PR #1305 (`b122a60`), `cra` #1308, `eng` #1307, #1310, #1312, PO #1309 (3.2.18), #1311 (3.2.19). **No change under `src/`, `tests/` or styles on `recovery/main`** (`git log --since 21:00 -- src tests`: empty). Open PO PR #1313 (3.2.20) changes only chapter 13 sign-off lines, nothing in my field.
+
+**Screenshots.** Not downloaded (the blob host was refused by the session proxy in earlier runs). **No screenshots were available.** This run reviews documents and diffs only.
+
+**#1291 (UXR-215), head `6abf9f8`.** Since my line on `a036e59` the head only merged the base (`c2ffef1`, `ed8bcf9`: BK-b1s from #1270, reviewed by me at 11:48). `git diff a036e59 6abf9f8 -- src` touches only `team/einsatzgebiet/*`, `team-client.tsx`, `features/reach/*`, `database.types.ts`; the UXR-215 change (`order-form.tsx`, `orders/rules.ts`, the two tests) is unchanged. CI read from the API (not run by me): `app`, `db`, `e2e`, `ui-screenshots`, `sync` `completed success` on `6abf9f8`. **My 19:58 line stands for `6abf9f8`.** UXR-215 stays open until #1291 is merged and `e2e` is green on the named merge commit (IMPLEMENTED on the branch, not merged).
+
+### UXR-214 closed
+
+Evidence on the named merge commit `b122a60` (PO merge of #1305) and still on `b4a1189`: `git diff 5928b13 b4a1189 -- docs/product/blueprint-v3` is empty (the pictures are exactly what I rendered and viewed at 21:08); `grep -rniE "exklusiv|kaskade|vermittlung|Team 1 von" docs/product/blueprint-v3/wireframes docs/product/blueprint-v3/diagrams` finds nothing; Blueprint §5 to §7 contain no «vermittelt», «Gründe ansehen» or «zuerst euch» (3.2.17 «moderiert»; 3.2.18 §5.1 «Transparenz» now says a team sees only its own state, never other teams' reasons; «Geprüft (V3.2.18)» points to `design/BK5_OFFER_TEMPLATE.md`). **UXR-214 closed; UXR-217 and UXR-219 close with it** (both corrected in `team.svg` in the same merge). #1286 gets one comment with this evidence; the PO closes it. The build part of BK-5 (card in code) stays a BK-c criterion, PLANNED.
+
+**#1306 (Annex C «Kaskade»):** 3.2.18 and 3.2.19 transferred the `lca` replacement text for §1.2, §1.5, §1.6, §2.2 P-1, §2.6 and §5 Q-44e; Q-44e stays **OPEN**, as asked. Two rests remain, recorded as UXR-220 below; #1306 stays open for them.
+
+### FE-079 sign-off, renewed (Blueprint 3.2.17 to 3.2.19 changed my field)
+
+3.2.17 changed the §5 portal table (Coach «moderiert») and 3.2.18 the §5.1 «Transparenz» line and the open visibility question; my 19:58 sign-off (on 3.2.16, reservations UXR-214 rest and UXR-195) no longer describes the current version. I renew it once, on `b4a1189` (Blueprint 3.2.19, Handbook V2.2 unchanged):
+
+«Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten UXR-195 und UXR-220**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **Field:** wireframes and click paths of the six portals (Blueprint §5, §6; `blueprint-v3/wireframes/`).
+- **Removed from the reservation:** UXR-214 (closed above).
+- **UXR-195** (#1233): the P3 dictation drawing (no 30-second cap, list of unused input before signing) is still missing; due before BK-e becomes active (my 21:08 proposal), not for BK-b or BK-c.
+- **UXR-220:** below; text of `lca` and a PO note, not mine to change.
+- **Honesty:** this confirms the working basis; it changes no clinical or legal wording (`cra`, `lca`) and no PROPOSED status. I ran no NAVORA test.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-220 | `/order` cover state, client (Annex C §2.4 «Rollenrechte»); Annex C header note | low | (a) The client row still lists «Deckungsstand («Angebot bei Team 1 von 4», …)» as what the client sees. Since FE-078 part 2 every eligible team gets the offer at once, and `lca` 20:25 says the client is shown no team count; `order.svg` and §5.1 already say «Angebot an alle passenden Teams gleichzeitig» / «Noch nicht gedeckt». A builder reading Annex C would build the old string. (b) The V3.2.13 PO note in Annex C still says the rows «Rangfolge und exklusive Kaskade» below are unchanged `lca` text; 3.2.19 replaced them, and the 3.2.19 note that says the old note «entfällt» was placed in **Annex B** instead. | `b4a1189` Blueprint lines 1504 (Annex C §2.4), 1378 (Annex C note V3.2.13), 1187 (Annex B note V3.2.19); string from `95b8dbf` | §4 one word per thing; §7 visibility (client sees no other-team information); FE-078 (2) | (a) `lca` gives the client words for §2.4 (proposal: «Deckungsstand («Noch nicht gedeckt», «Gedeckt durch Team …»)», the same as §5.1); (b) PO moves the 3.2.19 note to Annex C and removes or marks the 3.2.13 note. Check: `grep -n "Team 1 von" Blueprint` finds only the version table. `lca` must confirm (a). | comment on #1306 (low) |
+
+**Benchmark:** none (made at 03:47 today).
+
+**Design system:** unchanged (version 86).
+
+**Waiting for the PO:** close #1286 on the evidence above; merge #1291 when BK-b2 is ready (UXR-215 then checked on the merge commit); place UXR-220 (b) in the next Blueprint version; enter my renewal in chapter 13. **For `lca`:** UXR-220 (a) wording.
+
+---
+
 ## 2026-11-14 21:08 CET · `uxa` (founder instruction, live session): one BK-5 template; UXR-214 rest corrected in the pictures (open until checked on a named merge); stale BK-5 lines marked; UXR-215 and UXR-195 placed; UXR-217 corrected in the picture; UXR-219 (medium)
 
 **Trigger.** Founder message to `uxa` 2026-11-14 (live): settle the decision state, give Engineering one contradiction-free BK-5 template, correct every picture, keep D-44 / Q-44e visible, UXR-215 before the BK-b acceptance, UXR-195 with a date and gate, visible evidence instead of an unopened CI artifact. Founder chose: one docs PR, the PO checks and merges; Annex C stays with `lca`, UXR-216 (code) with `eng`.
