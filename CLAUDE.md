@@ -2,17 +2,38 @@
 
 Du arbeitest am NAVORA-Projekt.
 
-Lies vor jeder Architektur- oder Codeänderung:
+ZUSAMMENARBEIT (offiziell, vom Owner am 2026-10-21 freigegeben)
 
-MASTER_CONTEXT.md
-ARCHITECTURE.md
-DOMAIN_RULES.md
-TECHNICAL_DECISIONS.md
-CURRENT_IMPLEMENTATION_STATUS.md
+Jeder Agent beginnt mit dem Collaboration Layer in docs/agents/:
+
+docs/agents/README.md                 (Protokoll, Rollen, Regeln)
+docs/agents/NEXT_CAPABILITY.md        (Product Owner: was als Nächstes gebaut wird)
+docs/agents/IMPLEMENTATION_STATUS.md  (Engineering: Stand je Item)
+docs/agents/OPEN_DECISIONS.md         (offene Entscheide: Owner, Empfehlung, blockiert)
+docs/agents/JOURNAL.md                (Übergaben, neueste zuerst)
+
+AUTONOME KOORDINATION (COORD-4): docs/agents/COORDINATION.md.
+Übergaben laufen über GitHub-Issues (Labels agent:eng, agent:po, human-decision, active, blocked, claimed),
+die der Workflow agents-coordination aus den drei Dateien erzeugt. Vor der Arbeit ein Issue beanspruchen
+(Label claimed + Kommentar); fertig = Status ready-for-review/delivered (löst die PO-Prüfung aus).
+
+Schreibe nur die Abschnitte deiner Rolle, halte die Dateien bei jeder Änderung aktuell
+und prüfe sie mit `npm run agents:check` (läuft auch in CI).
+
+ZWEI QUELLEN (Founder-Direktive FE-077, 2026-11-13, verbindlich)
+
+Lies vor jeder Architektur- oder Codeänderung ausschliesslich:
+
+docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md  (Blueprint V3.2: einzige fachliche Quelle, WAS, WARUM, Block-Reihenfolge)
+docs/architecture/ARCHITECTURE_HANDBOOK_V2.md                       (Handbook V2.2: einzige technische Quelle, WIE)
+
+ARCHIVIERT und nicht mehr massgeblich: ARCHITECTURE.md, MASTER_CONTEXT.md, DOMAIN_RULES.md, TECHNICAL_DECISIONS.md,
+CURRENT_IMPLEMENTATION_STATUS.md und die übrigen Übergabedokumente der Wurzel, Blueprint V1.x bis V3.1, alte Entwürfe.
+Kein Agent leitet aus ihnen Vorgaben ab (docs/agents/README.md Regel 13).
 
 WICHTIG
 
-Diese Dokumente sind eine Übergabedokumentation.
+Auch die zwei Quellen beschreiben den Code nur.
 
 Der tatsächliche Repository-Code hat Vorrang.
 

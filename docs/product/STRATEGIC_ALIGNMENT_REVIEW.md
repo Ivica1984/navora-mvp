@@ -1,0 +1,507 @@
+# NAVORA Strategic Alignment Review
+
+**Prepared by:** Product Owner (`po`), 2026-10-27 13:00 CET, on owner instruction 2026-10-27. **Status:** review and proposals. Where a proposal changes a decision owned by the owner, it is put to the owner as a package (D-37) or an addendum to the existing package. Nothing in this review is built, and no clinical, legal or tariff rule is set by it.
+
+**Labels:** IMPLEMENTED (in the repository today, synthetic data); PLANNED (approved or proposed, not built); OPEN (undecided); UNKNOWN (not established).
+
+**Sections by the Chief Strategy Architect (`csa`)** come first, newest first, each dated. Never edit an earlier section; correct it in a new one. The PO's sections of 2026-10-27 13:00 follow below, unchanged.
+
+---
+
+## 2026-11-10 04:40 CET · csa · Week 3: two business models, product blocks, nursing-home Phase B, D-41 to D-44
+
+**Read (evidence):** `recovery/main` at `63584c0`; JOURNAL 2026-11-06 08:57 to 2026-11-10 04:05; `FOUNDER_DECISIONS.md` v12 (FE-023 to FE-052); Blueprint v2.30; `PRODUCT_BLOCKS.md` (FE-052); `BUSINESS_MODELS_AND_CONSTELLATIONS.md` v1.0 (FE-040); `ECONOMICS_COMPARISON.md`; `OWNER_AGENDA.md` (2026-11-07 15:39); D-41, D-42, D-43, D-44 (recommendations of 2026-11-07 05:39 and addenda); `decisions/INDEX.md`; issues #820, #905, #909, #925, #932. Nothing built or tested by `csa`; every product statement below is quoted from these files.
+
+**What changed in the week:** the founder confirmed the direction (2026-11-06, FE-023 to FE-036): Phase A is a simulation of home care **and** a nursing-home ward until M9; the real pilot (Phase B) is by current direction a nursing home; F3 is a possible fee basis, not a price. FE-039 split self-organisation, professional authority and formal responsibility, and replaced "name a Clinical Owner" with a mandate package (D-43). FE-040 created **two business models** (GM-1 team business, GM-2 B2B software) and five constellations (KON-1 to KON-5). FE-051 answered D-41 in direction (patterns 1-3 now, pattern 4 prepared, rule A stays). FE-052 reset the delivery state: **no block is accepted**, feature merges stop until B0 is accepted, Phase A passes only with two end-to-end simulations with stop cases. D-42, D-43, D-44 were escalated on 2026-11-07 05:39 and returned to `inputs-requested` by FE-042 the same day; they will come back to the owner, so the fit notes are written now. No package is newly `awaiting-approval: owner` since 2026-11-06; the seven frozen ones (D-4, D-9, D-14, D-26, D-29, D-36, D-38) are unchanged and get no new note (frozen-package rule).
+
+### 1 Strategic fit notes (one row per package that will reach the owner, or was decided by the owner this week)
+
+Dimensions: (1) self-organised teams; (2) AI-assisted operations; (3) planning; (4) documentation; (5) billing preparation; (6) interRAI-supported care planning and governance; (7) independence from hierarchical operating models.
+
+| STR | Package | Fit | Lock-in risk | Challenge | Proposal (equal safety) |
+|---|---|---|---|---|---|
+| **STR-27** (high, drift) | **D-44** (contract, legal form, billing path per constellation; ask: approve the L-10 fee design for GM-1/GM-2) | Serves (5) and (7) for GM-1: the fee is never a share of care revenue and no payment runs through NAVORA, so NAVORA is not a placement agency. **Harms (7) through GM-2/KON-5:** `BUSINESS_MODELS_AND_CONSTELLATIONS.md` §2 KON-5 says "R1 bis R4 vollständig bei der Einrichtung; NAVORA setzt nur deren Regeln um". R1 is operative planning. Nothing stops a home or hospital from using M-PLAN as a central dispatch tool for a Pflegedienstleitung, which is the model FE-039 (1) excludes for teams ("keine hierarchische Pflegeleitung, die täglich Einsätze verteilt"). KON-2 keeps self-planning ward teams; KON-5 does not. | **high.** `ECONOMICS_COMPARISON.md` §4 already shows the clearest measurable customer value in GM-2 (M-PLAN example 3,378 + 2,200 CHF per month, assumptions marked), while GM-1's income gain "verschwindet" at low utilisation (§5). Commercial gravity therefore pulls the roadmap toward selling planning software to hierarchical organisations: the supplier role this role exists to prevent. | A dispatcher use of M-PLAN would add a planning hierarchy; no patient-care benefit over team planning is shown in any document read. | (a) **Product invariant** for every constellation: the unit that confirms an AI planning proposal is the team whose members are planned (PLAN3/AIG1 confirmation per value), never a role above it; NAVORA builds no "assign for the team" mode. The institution keeps R2 to R4 (rules, delegation, formal responsibility) unchanged, so safety is equal. (b) Add to the D-44 ask: "GM-2 customers use the same team-confirmed planning; NAVORA offers no central dispatch mode." (c) A strategy metric: share of NAVORA revenue and of active members in GM-1 vs GM-2, reported per quarter from M9, so drift is visible. (d) Carry STR-2 here: the GM-1 fee is agreed **per team and portable** (re-routed from the deferred D-14, see tracker P-2). |
+| **STR-28** (high, drift) | **D-42** (Phase B pilot agreement with a nursing home; recommendation: option B, twelve legal points plus eight clinical clauses as drafting basis) | Serves safety, privacy and exit (data return, stop right, shadow billing). **Does not serve (1), (3), (7):** none of the twelve points or the eight clauses says that the pilot ward plans and decides its own shifts and assignments, or how the home's Pflegedienstleitung (BS § 36) or pflegefachverantwortliche Person (BL APV) relates to the team. D-42 rejects D-38 (T1-T18) as unsuitable, so the only document that protected team autonomy in a partnership is no longer used for Phase B. | **high.** Phase B is the first real use of NAVORA. A contract that is silent on the operating model lets the home run NAVORA under its existing roster hierarchy, and Phase B would then measure software inside the old model, not the model (H-1 to H-6 untested). O-5 (does the team-owned destination apply to a nursing home) is still open (FD-25) and the contract would answer it by default. | The package adds no administration; the gap is a missing term. | Add three clauses before the owner sees D-42 again: **(i) operating model:** the pilot ward team plans and decides its own shifts and cover in NAVORA (R1); the home's legally required function holds R3 (adopts the rule version, grants and revokes delegations, is the escalation point) and does not dispatch daily; a change to that is a change request under the stop-right clause. This is the "parallel/integrated" nurse role that the Green House research found workable and the "traditional" one it found micromanaging (benchmark §7 of `STRATEGY.md`, 2026-11-10). **(ii) measurement:** the home agrees that H-1 to H-6 are measured per team and month from events (D-41 pattern 2, AN1-AN3), never per person, and receives the results. **(iii) non-exclusivity and reuse:** no exclusivity; the contract template and rule adoption records are reusable for the next home without renegotiation (STR-19, provider kit). And: put O-5 to the owner **before** D-42 is drafted, not after. |
+| **STR-29** (medium, challenge) | **D-43** (mandate for clinical rule approval; recommendation B + D: review board with product-rule mandate and no planning authority; Phase B binding only with the partner's adoption record) | Strong for (1), (6), (7): the board approves rules, never plans or dispatches; it replaces the undefined "Clinical Owner" ask (FE-039). It keeps safety approval separate from daily self-organisation. | low for the model; medium for scale. Point 2 of the recommendation reads "a rule applies to a real provider's clients only with **two records**: the board's approval and the partner's adoption". With 115 matrix cells (`PRODUCT_BLOCKS.md` B2) and every further provider, adoption per rule grows with rules × providers and must be redone at each rule change. | **Added step:** one adoption record per rule per provider. **Benefit claimed:** accountability of the legally required function, which is real and stays. **Leaner at equal safety:** the provider's function adopts a **versioned rule catalogue as a whole** (one signed record per catalogue version), lists any rule it does not adopt as an exception (the strict default then applies to that rule), and re-adopts only the changed rules of a new version. `cra`'s form requirements 1-5 (qualification, evidence, review cycle, append-only command, fail-safe suspension) are unchanged. This is the "one version co-signed per provider" of STR-13. | Make "adoption per catalogue version with an exception list" the Phase B wording of point 2, subject to `lca` confirming that the BS/BL function's duty is met by a version adoption (UNKNOWN until `lca` answers). |
+| **STR-30** (fit, decided) | **D-41** (AI on real data), answered in direction by FE-051 | Strong for (2) and (3): pattern 1 (planning with identifiers and planning facts only) and pattern 2 (team figures only) let AI work without patient data, which matches D-35 rule A. **Weak for (4):** pattern 3 is a rule-based report without AI; documentation AI depends on pattern 4 (own Swiss model, real data only after a legal opinion and DPIA) or on E-3 (below). | medium: pattern 4 makes NAVORA operate its own model in a Swiss data centre. Cost, staffing and operation are UNKNOWN in every file read; a small company running model infrastructure is a capital and focus commitment. | None (founder decision; safety and privacy controls are not administration). | When pattern 4 is prepared, record its monthly cost and operating effort on synthetic data, and let the real-data decision compare it with one contracted Swiss-hosted model under a processor agreement (no training on data, CH region), so the owner chooses on evidence. `lca` decides whether that second option is compatible with rule A (UNKNOWN). |
+| **STR-31** (fit) | **PRODUCT_BLOCKS §7, founder decisions E-1 to E-4** (local tests, task prompts, AI documentation step in Phase A, M9 date) | E-1 A and E-2 A+C are delivery hygiene; support. **E-3 matters for (4) and for H-1:** option A (rules only, no language model) proves no AI documentation relief, so Phase A could pass without evidence for the founder's primary objective (administrative relief). Option B (a language model on synthetic data only, CH/EU provider, `lca` check first) keeps rule A for real data. E-4 A (keep M9, re-assess after B0) keeps the date tied to evidence. | low | None | Support the PO's recommendations, and **E-3 B with A as fallback**; add one acceptance line to Phase A: the documentation step reports minutes from input to approved report and the reviewer's correction count on synthetic data (AUT-54, M-16), so H-1 has a first measurement before Phase B. |
+
+### 2 Drift check of the week (evidence)
+
+1. **STR-32 (medium): interRAI-supported care planning is not in the Phase A pass criteria for home care.** `PRODUCT_BLOCKS.md` §5 lists nine steps per flow; the home-care flow goes from request (J1) to qualification check, planning, visit, documentation and billing, with **no assessment and care-plan step**. B7 (ASM1, care plan, orders) exists as a block and B11 depends on it, but the end-to-end flow does not exercise it, so dimension 6 can pass Phase A unproven, although FE-022 puts "an integrated assessment and care-planning model" into the vision. D-36 (licence terms, a fact the owner gives) has waited since 2026-10-27, now 14 days; D-37 waits on it. **Proposal:** add step "1b Bedarfsabklärung → Pflegeplan (ASM1, instrument-neutral)" to both flows (the ward flow's NH-A2 admission already names an assessment), with the stop case "no current assessment → no planned visit for that need". It needs no interRAI content (D-36 rule) and no new clinical rule.
+2. **STR-33 (medium): contradiction between FE-039 and two documents (README rule 10).** FE-039 (2026-11-06) replaced the repeated request to name a "Clinical Owner" without a mandate by package D-43. Still in force elsewhere: `OWNER_AGENDA.md` bundle 1 row G-1 "Name the Clinical Owner (route B recommended)" (ask of 2026-10-27), and `PRODUCT_BLOCKS.md` (B12 "Clinical Owner (G-1, D-43)", §6 step 9 "Clinical Owner ernannt", B2/B5/B7 "gibt frei: Clinical Owner"). The owner now sees two asks for one function. `STRATEGY.md` §4 carried the same old wording; its update of 2026-11-10 in this PR supersedes that row. FOUNDER_DECISIONS is followed; the PO decides how to align its files. **Proposal:** replace the G-1 row by a pointer to D-43, and write "clinical rule approval function (D-43)" in PRODUCT_BLOCKS.
+3. **Phase B moved and its shape changed.** `PRODUCT_BLOCKS.md` §6 puts Phase B at "frühestens Q2 2027", with a nursing home as partner. The home-care destination (team-owned provider C, D-12, D-38) now has **no vehicle and no date**: D-38 is "not asked now" and O-5 is open. This is not a hierarchy step, but it is a postponement without a stage for dimension 7 in home care. See `STRATEGY.md` §4 update 2026-11-10 and action L-2 below.
+4. **The reset itself (FE-052) is aligned.** It replaces counting merges by accepted blocks and stop cases; that is evidence, not administration. One observation, no challenge: 534 of 701 merged PRs since 2026-10-21 were documentation or governance (`PRODUCT_BLOCKS.md` §1 (2)). NAVORA's own development carries the coordination load the product removes for care teams; the PO's block structure is the remedy and `csa` adds no further process.
+5. **STR-34 (low): cross-check of `ECONOMICS_COMPARISON.md` (asked of `csa` in its §5).** Three assumptions bias the result; none changes the PO's conclusion that an income gain is not proven. (a) §2.3 keeps the NAVORA fee at 4 % of revenue while utilisation falls; a fee per active member per month (F3) is fixed in CHF, so at 70 % utilisation it is about 4/0.7 ≈ 5.7 % of revenue. Low-utilisation teams carry more of it, which is evidence for BM-3 (band variant) and for showing the fee in CHF. (b) §3 compares a team with incumbent Spitex on the tariff alone. At a 60 % billable share the formula gives 38.70 CHF/h for treatment care, below the wage B5 (40.21), so the incumbent must also have income the table omits (for example financing tied to a municipal service mandate). Whether a team receives it is L-9 (UNKNOWN); until then the team's comparison may be too optimistic. (c) §2.1 applies B2's factor 1.7 to employer cost; the source does not say whether it compares hourly wages or full cost, so 82.03 is an upper bound, and B3's lower figure comes from a study commissioned by a staffing agency (already flagged). No price is proposed.
+6. **No new hierarchy step found in the product this week.** NH-A1's acceptance is "24-h-Tag einer Abteilung ohne Dienstplanerin" (B9), QUAL1 refuses rather than lets a coordinator override (FE-040 (5) "keine Umgehung durch manuellen Tausch"), and the D-43 board has no planning authority. These serve dimensions 1 and 7.
+
+### 3 Strategic risks
+
+| ID | Risk | Likelihood | Impact | Mitigation proposed |
+|---|---|---|---|---|
+| R-6 (STR-27) | GM-2 revenue turns NAVORA into a planning supplier for hierarchical homes and hospitals | medium (GM-2 value is easier to show than GM-1 income) | high: dimension 7, brand of the model | product invariant, D-44 ask line, GM-1/GM-2 metric |
+| R-7 (STR-28) | Phase B runs NAVORA inside the home's roster hierarchy; the model is never tested | medium | high: H-1 to H-6 unproven after the first real pilot | three D-42 clauses; O-5 first |
+| R-8 (STR-32) | Phase A passes without an assessment-to-care-plan step; interRAI stays a promise | medium | medium | step 1b in both flows; D-36 fact from the owner |
+| R-9 (§4 update) | The home-care team-owned provider path loses its date because Phase B is a nursing home | high | high: the destination (D-12) moves by a year or more | C-path questions in the Q1 2027 adviser mandate (L-2) |
+| R-1 to R-5 | as on 2026-11-06 | unchanged | unchanged | tracker below |
+
+### 4 Required actions, owners, success criteria (proposals; `eng`, `cra`, `lca` through `po`; founder only through the owner agenda)
+
+**ACTIONS FOR PRODUCT OWNER**
+
+| ID | Action | Priority | Success criterion | Target |
+|---|---|---|---|---|
+| P-5 | Add the STR-27 invariant to `BUSINESS_MODELS_AND_CONSTELLATIONS.md` KON-5 (R1 stays with the team that is planned) and the GM-2 sentence plus STR-2 portability to the D-44 ask | high | KON-5 row R1 changed; D-44 ask carries both sentences | before D-44 returns to the owner |
+| P-6 | Add the three STR-28 clauses to D-42 option B, and put O-5 to the owner before D-42 is escalated again | high | D-42 lists clauses (i)-(iii); O-5 on the owner agenda | before D-42 returns to the owner |
+| P-7 | Put STR-29 (adoption per catalogue version with exception list) to `lca` and into D-43 point 2 | medium | `lca` answer recorded in D-43 | with the `lca` Q-43a/b input |
+| P-8 | Add step 1b (assessment → care plan) and its stop case to `PRODUCT_BLOCKS.md` §5 | medium | §5 table shows step 1b in both flows | before B11 test cases are written |
+| P-9 | Align G-1 with FE-039 (STR-33) in `OWNER_AGENDA.md` and `PRODUCT_BLOCKS.md` | medium | no row asks to "name the Clinical Owner" outside D-43 | next PO run |
+| P-10 | Take the STR-34 corrections into `ECONOMICS_COMPARISON.md` (fixed fee at low utilisation; incumbent financing beyond the tariff; B2 basis) | low | §2.3 shows the fee in CHF; §3 names the missing financing line as UNKNOWN | 2026-11-27 |
+
+**ACTIONS FOR LEGAL** (`lca`, through `po`)
+
+| ID | Action | Priority | Success criterion | Target |
+|---|---|---|---|---|
+| L-2 | Put the C-path questions into the Q1 2027 adviser catalogue (FE-050): licence and OKP admission procedure and duration in BS and BL for a team-owned home-care provider; whether residual financing reaches a team without a Leistungsauftrag (L-9); and the STR-29 version-adoption question | high | the catalogue lists them; quotes requested by December | catalogue completion (FE-050: quotes by December 2026) |
+
+**ACTIONS FOR FOUNDER** (reported here; they reach the owner only through `po`)
+
+| ID | Action | Priority | Success criterion | Target |
+|---|---|---|---|---|
+| O-6 | Answer O-5 (does the team-owned destination apply to a nursing-home partner, or is ward-team autonomy inside the operator the Phase B goal?) | high | answer in `FOUNDER_DECISIONS.md` | before D-42 is drafted |
+| O-7 | Give `lca` the interRAI licence terms (D-36, a fact) | high | D-36 receives the terms | M3, 2026-12-11 (open since 2026-10-27) |
+
+### 5 Execution tracker (checked 2026-11-10 against the repository)
+
+| STR | Recommendation | Adopted | Evidence | Next |
+|---|---|---|---|---|
+| STR-2 / P-2 | D-14 fee per team, portable | **no**; D-14 deferred by the founder ("decide after Phase A", FE-023) | `OWNER_AGENDA.md` D-14 row | re-routed into the live D-44 ask (P-5); D-14 itself not re-escalated |
+| STR-24 / P-3 | three uses named in the D-36 licence talk | **no** | D-36 row unchanged | target 2026-11-13 not yet passed; checked on the next run |
+| STR-25 / L-1 | `lca` marks Zurich-only evidence | **partly**: `lca` re-read D-22, D-18 for BS/BL (2026-11-06 16:10); no list for D-38 or §4 durations | `lca` commit `63679a6` | D-38 is "not asked now"; folded into L-2 |
+| STR-26 / P-1, E-1 | brand gate before the public website | **no** (no file names it) | grep of `docs/` | target 2026-11-20; WEB1 not started |
+| P-4 | PO answer on #820 | **no** (last comment is `csa`'s of 2026-11-06) | #820 | target 2026-11-13 |
+| STR-13 / O-5 (2026-11-06) | G-1 answered | **superseded** by FE-039 → D-43 | `FOUNDER_DECISIONS.md` FE-039 | tracked as P-9 and D-43 |
+| STR-21 | no nursing-home build before a self-organised ward, G-1, D-36 | **superseded** by FE-031 (simulated ward in Phase A); the design-partner part survives as STR-28 (i) | FE-031 | none |
+| STR-20 | one canton first | superseded by FE-019 (PO 2026-11-06) | JOURNAL 2026-11-06 | none |
+| STR-27 to STR-34 | this section | new | – | P-5 to P-10, L-2, O-6, O-7 |
+
+### 6 Review date
+
+**Next check: Monday 2026-11-16** (weekly run), before the role review of 2026-11-24. It reads P-3, P-4, P-5, P-6 and O-6 first.
+
+---
+
+## 2026-11-06 08:57 CET · csa · First execution-tracking cycle: adoption check of STR-1 to STR-25, brand gate (STR-26)
+
+**Why this section has a new shape:** owner instruction of 2026-11-06 (STRATEGY §9). Each cycle now ends with findings, risks, required actions, owners, success criteria and a review date, and keeps an execution tracker. `csa` stays advisory (owner choice: "track and escalate"); the PO alone moves the queue.
+
+**Read (evidence):** `recovery/main` at `9a4ba543`; JOURNAL 2026-11-03 to 2026-11-06; `OWNER_AGENDA.md` (2026-11-06 06:30); `DELIVERY_PROGRAM.md` (M1-M10); `ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md` (SV-2); D-11, D-14, D-24, D-36, D-38, D-39 headers; issues #539, #816, #817, #818, #820.
+
+### 1 Strategic findings
+
+1. **Four of the six STR items of 2026-11-03 were adopted within three days.** STR-20 is an M3 acceptance criterion ("one of BS/BL first"); STR-21 and STR-23 are SV-2 in the architecture blueprint (no nursing-home build, sensors specification only until M9); STR-22 is the owner's D-39 decision (A, frozen as specification); STR-23's target is the M5 website rule "AI prepares – humans decide". IMPLEMENTED in documents; nothing built, as intended.
+2. **Three recommendations did not move and are re-escalated:** STR-2 (the D-14 fee agreed per team and portable, no exclusivity with the partner) is not in the D-14 owner ask; STR-24 (name three uses in the interRAI licence talk) is not in the D-36 ask; STR-25 (`lca` marks which D-38 terms rest on Zurich-only sources) has no `lca` entry. #820 has had no PO reply in three days.
+3. **New, STR-26 (competitor and timing threat to the name):** the public website (M5, 2027-01-15) is the first public use of the name, and its domain is an owner decision in M3 (2026-12-11). The brand Phase 2 (STRATEGY §10) has no date. If it ends after M3, the site goes live on a name that may fail clearance, and every later rename costs more (site, search ranking, consents, partner LOI). Evidence: `DELIVERY_PROGRAM.md` M5 dependencies; the 2026-11-03 desk research (navora.hr and navora.at in use by other Navora businesses; Navora AI LLC selling healthcare AI in Switzerland).
+4. **The owner bottleneck is unchanged and now dated:** G-1 and D-36 have waited 10 days, D-38 9 days, D-14 12 days. M3 (2026-12-11) collects them; each week of delay moves M9 and M10 by a week (`DELIVERY_PROGRAM.md`).
+5. **Transformation check (challenge duty), no new challenge:** the week added the PO merge gate (owner 2026-11-05: PO merges autonomously). It removes an owner step from every merge, which lowers coordination; the PO already escalated that the scheduled task cannot merge yet (owner agenda, 06:30). `csa` supports, no duplicate.
+
+### 2 Strategic risks
+
+| ID | Risk | Likelihood | Impact | Mitigation in this cycle |
+|---|---|---|---|---|
+| R-1 (STR-26) | The website goes public under a name that fails trademark or confusion checks | medium (2 country domains and one Swiss healthcare-AI user already carry the name) | high: rebuild of public material, consents and LOI wording | brand gate before M5; Phase 2 finished by M3 (O-1 to O-4, P-1) |
+| R-2 (STR-2) | The fee is agreed organisation-wide with the partner, so teams cannot take it with them to their own provider | medium | high: locks NAVORA into a supplier role (dimension 7) | P-2 |
+| R-3 (STR-24) | The interRAI licence does not cover software or AI use, found only after ASM1 grows | UNKNOWN | high: dimension 6 blocked, rework | P-3, O-5 |
+| R-4 (STR-25) | The C-provider licence timeline for BS/BL has no source, so the 12-month sunset is unprotected | high (no source exists) | high | L-1 |
+| R-5 | M3 owner decisions slip past 2026-12-11 | medium | high: M9, M10 move day for day | O-5 (dated), unchanged asks |
+
+### 3 Required actions, owners, success criteria
+
+Every action below is a proposal to its owner; actions for `eng`, `cra` and `lca` reach them through `po`. Target dates are `csa` proposals, aligned to the milestones.
+
+**ACTIONS FOR PRODUCT OWNER**
+
+| ID | Action | Priority | Rationale | Success criterion (measurable) | Target |
+|---|---|---|---|---|---|
+| P-1 | Add a **brand gate** to the WEB1 brief and to M3: the product name and the public domain are one configuration value on the site; M5 does not go public until the owner has recorded the Phase 2 result | high | R-1; costs no build time now | WEB1 contains the criterion; M3's list in `DELIVERY_PROGRAM.md` names "brand gate (STRATEGY §10)" | 2026-11-20 (WEB1 due) |
+| P-2 | Add STR-2 to the D-14 owner ask: fee agreed **per team, portable** to the team-owned provider, no organisation-wide licence or exclusivity | high | R-2; re-escalation (not adopted since 2026-10-27) | the D-14 line on `OWNER_AGENDA.md` carries it | 2026-11-13 |
+| P-3 | Add STR-24's three uses to the D-36 ask (automated computation of scales and CAPs; AI-drafted proposals a nurse confirms; contractor software use) | medium | R-3; re-escalation | the D-36 line names the three uses | 2026-11-13 |
+| P-4 | Answer #820 (adopt, adapt or reject each part, with a reason) and record the owner's execution-tracking rule in README *Strategy review* | medium | the tracker needs the PO's answer per item | a PO comment on #820; README names STRATEGY §9 | 2026-11-13 |
+
+**ACTIONS FOR ENGINEERING** (through `po`)
+
+| ID | Action | Priority | Rationale | Success criterion | Target |
+|---|---|---|---|---|---|
+| E-1 | When building WEB1, read the product name and public domain from one configuration value | medium | makes R-1 cheap whatever the brand result; no rename now | WEB1 PR shows a single source for name and domain | with WEB1 (M5 build, 2026-12-18) |
+
+**ACTIONS FOR CLINICAL** (`cra`): none this cycle that create measurable progress; the clinical gates sit with G-1.
+
+**ACTIONS FOR LEGAL** (`lca`, through `po`)
+
+| ID | Action | Priority | Rationale | Success criterion | Target |
+|---|---|---|---|---|---|
+| L-1 | Mark which D-38 terms and which STRATEGY §4 durations rest on Zurich-only sources; once D-11 names the first canton, read its licence and OKP-admission procedure durations | high | R-4; re-escalation of STR-25 | a dated `lca` note listing the Zurich-only items; later, a sourced duration for the first canton | list: 2026-11-20; durations: two weeks after D-11 |
+
+**ACTIONS FOR FOUNDER** (put to the owner only through `po`'s owner agenda; this section reports them, it does not contact anyone)
+
+| ID | Action | Priority | Rationale | Success criterion | Target |
+|---|---|---|---|---|---|
+| O-1 | Look up navora.ch at nic.ch, and WHOIS for navora.de, .care, .health | high | the cheapest Phase 2 check; decides check 3 | result recorded in STRATEGY §10 | 2026-11-13 |
+| O-2 | Commission the trademark search (brief in the Phase 2 tab of the brand document) | high | checks 1 and 2 | attorney opinion received | 2026-12-04 |
+| O-3 | Run the 13-person confusion test (no client data) | medium | check 4 | one line per person recorded; count of confusions | 2026-12-04 |
+| O-4 | Record the brand gate decision: keep NAVORA customer-facing, or rebrand | high | R-1 | decision in STRATEGY §10 and the owner agenda | at M3, 2026-12-11 |
+| O-5 | Answer G-1, D-36, D-38 and D-14 | high | R-3, R-5 | four answered packages | M3, 2026-12-11 (G-1 earlier, it gates nine packages) |
+
+### 4 Execution tracker (every `csa` recommendation still open or changed; checked 2026-11-06)
+
+Columns: adopted (yes / partly / no); where it entered the roadmap or architecture; risk mitigated; next step. Rows for STR-3 to STR-12 are fit notes on frozen packages: they wait for the owner's answer and are not re-escalated until the package moves.
+
+| STR | Recommendation | Owner | Adopted | Roadmap / architecture entry | Risk mitigated | Next |
+|---|---|---|---|---|---|---|
+| STR-1 | D-11: one municipality with a known financing path | owner | partly | owner agenda D-11 line | no (D-11 open) | superseded by STR-20 for Basel |
+| STR-2 | D-14 fee per team, portable, no exclusivity | owner via `po` | **no** | none | no | **re-escalated: P-2** |
+| STR-13 | G-1 Clinical Owner, route B, now | owner | yes (asked) | owner agenda bundle 1; M3 | no (unanswered 10 days) | O-5 |
+| STR-14, STR-17 | freeze waiting packages; enforce in CI | `po` | yes | `DECISION_PACKAGES.md` *Frozen packages*; COORD6 | yes | none |
+| STR-15, STR-18 | C-transfer terms before any LOI (D-38) | owner | yes (package) | D-38 T1-T18; M3 (D-12) | no (unanswered 9 days) | O-5 |
+| STR-19 | provider kit, partner route needed once | `po` | yes | `CARE_OPERATING_MODEL.md` *Provider kit*; P-25 | partly | none |
+| STR-20 | Basel: start in one canton | owner | yes | M3 acceptance criterion | partly (D-11 open) | O-5 |
+| STR-21 | no nursing-home build before a self-organised ward, G-1, D-36 | `po` | yes | blueprint V2 SV-2 | yes, until M9 | none |
+| STR-22 | sensors: specification, no migration | owner | yes | D-39 A (decided) | yes | none |
+| STR-23 | "AI prepares, one human confirmation", not "fully automated" | `po` | yes | M5 claim rule; AI-first mandatory sequence; AUT-38 (OPEN) tracks human acts per proposal | yes | none |
+| STR-24 | three uses named in the interRAI licence talk | `po`, owner | **no** | none | no | **re-escalated: P-3** |
+| STR-25 | `lca` marks Zurich-only evidence in D-38 and §4 | `lca` via `po` | **no** | none | no | **re-escalated: L-1** |
+| STR-26 | brand gate before the public website | `po`, owner | new | – | – | P-1, E-1, O-1 to O-4 |
+
+### 5 Review date
+
+**Next check: Friday 2026-11-13** (the weekly `csa` run and M1). It reads P-2, P-3, P-4 and O-1 first. Any action past its target date without movement is re-escalated per STRATEGY §9 rule 5.
+
+---
+
+## 2026-11-03 13:33 CET · csa · Week 2: owner directions of 2026-11-03 (Basel, all-in-one, IoT/AI), D-38, owner bottleneck
+
+**Read this week (evidence):** `recovery/main` at `adf80a3`; JOURNAL 2026-10-28 to 2026-11-03; `OPEN_DECISIONS.md` (last change 2026-10-29 19:40), `OWNER_AGENDA.md` (last change 2026-10-29 18:12); D-11, D-24, D-36, D-37, D-38 headers; `NEXT_CAPABILITY.md` (2026-11-03 06:30); issues **#816** (D-11 → Basel-Stadt and Basel-Landschaft), **#817** (draft spec `iot_sensor_streams`, `ki_prediction_audit_logs`, automated KVG billing in phase 2), **#818** (D-24/D-25: one platform for home care and nursing homes, Basel nursing-home licensing as user stories), all three filed by the owner on 2026-11-03 12:32 UTC as owner directions to `po`.
+
+**Also given to this `csa` run (2026-11-03, in the scheduled task's session):** (1) acquire and contact a Basel pilot partner for "the first fully automated IoT/AI MVP" (labelled D-38); (2) negotiate immediately with interRAI Switzerland on commercial licence terms for software that evaluates assessments through an automated AI pipeline (D-36/D-37); (3) write a weekly sync template for the PO to check compliance with "the guidelines for fully automated software".
+
+**What `csa` did and did not do with (1)-(3):** (1) and (2) were **not done**. `csa` may not contact partners, payers, authorities or licensors (role hard rule; README *Roles*), and this run has no channel to any of them. Partner and licence talks are the owner's (D-12, D-36: "a fact, not a decision", asked of the owner since 2026-10-27). What `csa` can add is below: STR-20 to STR-25 and the PO check in *Weekly strategic alignment check*. (3) is written as an **advisory** check, not a supervision: `csa` has no gate or queue authority over `po` (role review 2026-10-27). No guideline for "fully automated software" exists in the repository; the guidelines that do exist are the staged AI path (D-35, stages 0-3) and the human confirmation of every AI value (AIG1, IMPLEMENTED on synthetic data). The check below tests against those.
+
+**Note on labels:** D-38 is the C-transfer terms package for the partner's letter of intent, not a partner-acquisition package. The Basel partner is the open owner ask "Partner (D-12)" on the owner agenda; the canton is D-11 (#816).
+
+### Strategic fit notes, one row per item awaiting or newly decided by the owner
+
+Seven dimensions: (1) self-organised teams, (2) AI-assisted operations, (3) planning, (4) documentation, (5) billing preparation, (6) interRAI-supported care planning and governance, (7) independence from hierarchical operating models.
+
+| STR | Item | Fit | Lock-in risk | Challenge | Proposal (equal safety) |
+|---|---|---|---|---|---|
+| STR-20 | **#816 D-11 Basel (BS + BL)** | Neutral for (1)-(6); positive for (7) only if the Basel partner is chosen by D-11 criterion 1 (where a self-organised team and a design partner already are). | Low if done as #816 proposes (pilot cantons as configuration, no canton in code). **Medium on the timeline:** every duration in STRATEGY §4 came from `lca` on Zurich sources [Z1] (licence and OKP admission about 8 weeks each). For BS and BL they are now **UNKNOWN**, so the month-7 C-file deadline that protects the 12-month sunset (D-12) no longer has a source. Two cantons means two licence and residual-financing frames for the C provider. | **Medium.** Adds a second cantonal frame (legal work on D-18, D-25, D-9, D-4, D-29 per canton; two C licence files) with no patient-care benefit shown for starting in both at once. | **Start in the one canton where the first team and the partner are; add the second by configuration once the first C licence is filed.** Same safety, half the legal work before the first real client (`lca`'s own point in #816 item 2). `lca` re-reads the C licence and OKP admission durations for that canton first, so §4 has a dated source again. |
+| STR-21 | **#818 D-24/D-25 all-in-one with nursing homes, now** | (1) and (7) **at risk**: the nursing-home licence frame is the most hierarchical setting NAVORA would serve (named home management and nursing management, staffing ratios; content UNKNOWN until `lca` sources BS/BL, #818). Building for it before one self-organised home-care team runs on NAVORA makes NAVORA a supplier to the hierarchical model the mission warns against. (6) positive in the long run (interRAI LTCF), but blocked by D-36. | **High.** A setting model touches every RLS policy and pgTAP catalogue (#818 item 4); built before a design-partner ward exists, its shape is set by the licence text (hierarchy) instead of by a self-organised ward team. | **High: no patient-care benefit for any pilot client is shown.** Added: a setting attribute across the data model, a second set of provisional rules switched by setting (`cra`, #818 item 3), a second licence path, and the review load of a second product line, while horizon 1 has no real client (D-1 owner rule). | Keep what is cheap and reversible, defer what locks in: (a) `lca` sources the BS/BL nursing-home licence requirements as user stories with sources (knowledge, no build); (b) the data model keeps an optional setting attribute reserved, no setting-specific screens or rules; (c) build for nursing homes only with **one design-partner ward that works as a self-organised team** (D-24's own staged path NH0/NH1, `NURSING_HOME_TRANSFORMATION.md` §11), after G-1 and D-36. Same safety, the direction is kept, the hierarchy is not imported. |
+| STR-22 | **#817 IoT sensor stream and AI prediction log; automated KVG billing in phase 2** | (2) and (5) are vision dimensions, so the direction fits. The spec as written is careful: it extends the AIG1 ledger, keeps J5's rule that a billable fact comes only from a final, human-signed visit report, and lists six gates (D-34, D-35, a new D-39 on sensors in a private home, D-3/D-4, an `lca` billing question, G-1). | **Medium.** Two tables "ready in phase 1" fix a schema before any device, client, provider (D-35) or intended purpose (D-34) exists; a schema shaped now is shaped by guesses. | **Medium.** New tables, an ingestion endpoint and a per-device credential add complexity with no patient-care benefit until a device and a clinical purpose exist. Sensor-based risk prediction is very likely a medical-device function (#817 gate 1, `cra`/`lca` to confirm; `csa` gives no MepV reading). | **Spec now, no migration.** Record #817 as a PLANNED spec and as an AIG1 ledger kind; write the D-39 package; create no table until D-34 has a conformity route and D-35 stage 1 is approved. Same safety, no schema built on guesses. For phase 2, the vision word is **billing preparation**: AI prepares, a person signs (J5). |
+| STR-23 | **"Fully automated" as the target (this run's instruction 1-3)** | Conflicts with the owner's own vision text of 2026-10-27: "pilot safety requires a staged approach" and AI that **removes administrative burden**. It does not say AI removes the nurse's confirmation of clinical or billing facts. | **High** if adopted as a rule: it would lift the AIG1 confirmation ("vorgeschlagen von / bestätigt von") and the J5 signed-report rule, both patient-safety and legal controls. | **High.** The challenge duty excludes patient-safety controls and legal duties from "administration to remove"; their form may be challenged, never their existence. No patient-care benefit of removing the human confirmation is shown. | Replace "fully automated" with **"automated preparation, one human confirmation"** as the measurable target: share of a team's administrative steps that are prepared by an agent and confirmed in one act (AIG1 ledger, per team, never per person). That is the leanest form of the control at equal safety, and it is measurable now on synthetic data. |
+| STR-24 | **D-36/D-37 interRAI: licence terms for automated AI evaluation of assessments** | (6) is a core of the vision; (2) depends on it. | **High** if NAVORA builds evaluation logic before the terms are known: whether a licence permits software or AI processing of interRAI items, scales or CAPs is **UNKNOWN** (D-36 lists "AI processing and software design" among the terms asked); `csa` gives no licence reading. | None on administration. The bottleneck is a fact only the owner can obtain (D-36, asked since 2026-10-27, 7 days). | The owner's licence conversation should ask, in one meeting, for HC now and LTCF later (STR-11), and name **automated computation of scales and CAPs, AI-drafted care-plan proposals confirmed by a nurse, and software use by a contractor** as the three uses to be licensed. Until then ASM1 stays instrument-neutral (D-13 B). |
+| STR-25 | **D-38 (escalated 2026-10-28 15:15, T1-T18)** | Unchanged from STR-18: it is the one package that makes the 12-month sunset real (7). | Signing a partner LOI without it locks NAVORA into the partner (supplier role). | None: the terms are minimum content, not a process. | Unchanged ask. New: with Basel (#816), T6 (tariff route) and the T12 (i) cut-over window now need BS/BL sources; `lca` should state which T-terms carry Zurich-only evidence. |
+
+### Drift check of the week (evidence)
+
+1. **Scope expanded, foundation unanswered.** On 2026-11-03 the owner opened three new lines (a second canton, a second care setting, IoT/AI with billing automation). The same day, the gates every one of them names are still open on the owner agenda: **G-1** (Clinical Owner, asked since 2026-10-27), the **Basel partner** (D-12 ask), a **legal adviser** (now for BS/BL, not Zurich), **D-1** (no real client data until clarified, 2026-10-29), **D-36**. None of the new lines can reach a patient before those. This is drift by sequence, not by direction: horizon 3 (nursing homes) and AI beyond stage 0 are pulled ahead of horizon 1's first real client.
+2. **Supplier-role risk (#818).** Writing nursing-home licensing rules as the product's user stories, before a self-organised ward exists, lets the licence's hierarchy define the product (STR-21).
+3. **Condition chains on synthetic data.** Since 2026-10-28, 22 distinct named conditions (`<brief>-C<n>`: ADM2, AIG1, ASM1, OBS1, RLS4, UX1, VIS2, WORK1) appear in commit subjects (some opened earlier), and 5 UX2 PRs were open at once (PO 2026-11-03 06:30 itself names the cost). Each is justified on its own; together, with no real client possible before D-1 and G-1, the review machine grows while the pilot does not move. Not administration for nurses (no pilot user exists), so no challenge is raised; it is a bottleneck for the PO to weigh.
+4. **No drift found** in D-35: AIG1 stage 0 is built (IMPLEMENTED on synthetic data, accepted 2026-10-31 02:25) and keeps the human confirmation.
+
+### Weekly strategic alignment check (advisory, for `po`; replaces nothing in the PO's own process)
+
+One line per question, answered from the repository each week. `csa` reads it on its next run; a "no" is a candidate `STR-<n>`.
+
+| # | Question | Evidence to cite |
+|---|---|---|
+| 1 | Did any item accepted this week add a step, approval, role, field or coordination for a nurse? If yes, which patient-care benefit is shown? | brief, ADR |
+| 2 | Did any item move a decision from a team to a role above it (lead, administrator, partner)? | brief, RLS policy |
+| 3 | Which administrative step did an agent prepare this week, and how many acts does a person need to confirm it (target: one)? | AIG1 ledger counts per team |
+| 4 | Is every AI output still "proposed by / confirmed by", and is no stage of D-35 skipped? | D-35, AIG1 |
+| 5 | Does any billing path create a billable fact without a final, human-signed visit report? (must be "no") | J5, `billable_facts` |
+| 6 | Did anything use or require interRAI items, scales or CAPs beyond what D-36's terms allow? (UNKNOWN until D-36) | D-36, ASM1 |
+| 7 | Which owner asks are older than 7 days, and which built work waits on them? | OWNER_AGENDA, queue |
+| 8 | Did any decision accept NAVORA as a supplier to a hierarchical organisation (exclusivity, organisation-wide licence, partner-owned data)? | D-12, D-38, D-14 |
+| 9 | Which item this week brings the first real client closer (D-1, G-1, partner, adviser, licence file)? | agenda, journal |
+| 10 | What is the direct care share and continuity per team on the latest synthetic run (AN1, AN2), and did it change? | AN1, AN2 |
+
+### Proposed to the PO (one issue, `agents`, `agent:po`, `strategy`)
+
+A combined owner ask, so the three directions of 2026-11-03 can move: **"For Basel: (a) name the one canton to start in, the 2-5 municipalities and the partner provider, or say none is in view; (b) name one legal adviser for that canton; (c) G-1: name the Clinical Owner; (d) D-36: the interRAI licence conversation with the three uses of STR-24. Until (a)-(c), #818 and #817 stay specifications without migrations."** The PO decides whether and how to escalate.
+
+---
+
+## 2026-10-28 10:47 CET · csa · Owner instructions of 2026-10-28: freeze implementation, D-38 completeness, provider kit
+
+**Owner, 2026-10-28 (in this `csa` session):**
+- approved the review of 2026-10-27 and the priority on G-1;
+- **STR-14 approved**, with a proposal for how to implement it;
+- **STR-15 approved as high priority**: the transition must be defined before a pilot partnership, covering nine named topics;
+- new instruction for `csa` and `aia`: start from "home care designed from scratch", then compare (STRATEGY §1, §8).
+
+Recorded in STRATEGY §1, §2, §8.
+
+**What was already in place when the owner wrote** (evidence: JOURNAL 2026-10-27 14:45 onwards):
+- the PO adopted STR-14 on 2026-10-27 14:45 as a rule in `DECISION_PACKAGES.md` (*Frozen packages*: five unfreeze triggers, one-page `decisions/OWNER_AGENDA.md`, short INDEX cell);
+- the PO opened STR-15 as package **D-38**, which has been `awaiting-approval: owner` (Medium) since 2026-10-27 20:15, with terms T1-T14 and `lca` and `cra` input.
+
+So this section does not start either from zero. It measures the freeze (STR-17) and checks D-38 against the owner's nine topics (STR-18).
+
+### STR-17 · Freezing packages: what the first day shows, and the proposed implementation
+
+**Effect of the rule since 2026-10-27 14:45 (evidence):**
+
+| Measure | Before (2026-10-20 to 2026-10-27 14:45) | Since the rule (about 20 hours) |
+|---|---|---|
+| Journal lines "no new evidence" | 83 | **10 more** (7 from `lca` "Tier 1: D-22 and D-18 … no new evidence (skipped)", 3 from `po`) |
+| Commits touching `decisions/` | 141 since 2026-10-20 | 18 of 117 commits |
+| Amendments to a package already `awaiting-approval: owner` | – | **D-38: four amendment rounds after escalation** (21:15, 22:15, 00:15, 01:10), each answered by an `lca` re-check (20:48, 21:45, 23:41, 00:45). The owner ask stayed the same throughout ("approve T1-T14") |
+| Owner-facing page | 15 packages, no summary | `OWNER_AGENDA.md`, one page, three bundles: **works** |
+
+**Reading:**
+- The one-page agenda works.
+- The freeze works for the PO's re-checks of untouched packages.
+- **Two gaps remain:**
+  1. **The rule binds only the PO's package work.** `lca`, `cra`, `aia`, `uxa` and `csa` follow their own "no repeat reviews" wording, and `lca` still writes a skip line every run.
+  2. **A ping-pong loop:** the PO amends wording, which counts as "the package changed" under `lca`'s rule, which triggers a re-check, which the PO takes in again. The D-38 amendments did close real care gaps (CGR-82: a client could be left without a visiting provider), so this is not waste in itself. The cost is that **the owner's version of D-38 changed four times while it waited for the owner**, and `lca` itself classed the last round as wording, not law.
+
+**Proposed implementation approach** (for the PO and Engineering to adopt or change; `csa` builds nothing):
+
+| # | Step | What changes | Owner of the step | Effort | Measure of success |
+|---|---|---|---|---|---|
+| F1 | **One rule for every role.** Move *Frozen packages* from the PO's process into README *Rules* (rule 9) so it binds `po`, `lca`, `cra`, `aia`, `uxa`, `csa` alike. A run that has no unfrozen package to work on writes **nothing** about packages: no "skipped" or "no new evidence" line | README, `DECISION_PACKAGES.md` (cross-reference) | `po` | one docs PR | journal lines "no new evidence" or "skipped" about packages: 0 per week |
+| F2 | **Frozen is visible, unfreezing is named.** INDEX *Package status* gains `frozen since <date>` for every `awaiting-approval` row. Any later edit to that package starts with one line `Unfreeze: <trigger 1-5> <reference>` (the answer, source, CGR, PR or issue comment) | INDEX, package addenda | `po` (format), every role (use) | small | every post-escalation edit carries an `Unfreeze:` line |
+| F3 | **CI enforces F2.** `scripts/agents-check.mjs` fails when a package at `awaiting-approval` changes in a PR without a new `Unfreeze:` line, and when a journal entry contains "no new evidence" (warning first, error after one week) | validator plus unit test (`tests/unit/agents-coordination.test.ts`) | `eng`, on a PO brief | about one small item | CI green; the rule holds without anyone checking by hand |
+| F4 | **Close the amendment loop.** Once a package is escalated, wording-only changes that do not change the owner's answer, the default in force or what it blocks are **collected, not published**. They go into a short *Pending wording* list in the package and are applied in one batch when the owner answers or a substantive trigger holds. A finding that closes a safety gap (a `cra` S1/S2, or `lca` "non-compliant") is substantive and is applied at once. `lca`'s "package changed since my section" rule then counts only substantive changes | `DECISION_PACKAGES.md` (PO rule), `lca` section rules | `po`; `lca` confirms | docs | rounds per escalated package between escalation and answer: at most one, unless a safety or compliance trigger holds |
+| F5 | **Owner agenda is the only owner surface.** The agenda line says the date of the version the owner is asked to approve. A change to the ask moves that date and adds one line "changed since you last looked: …" | `OWNER_AGENDA.md` | `po` | docs | the owner never approves a version that changed unseen |
+| F6 | **Weekly measure.** `csa` reports the F1-F5 measures each week in this file. The PO reports them in the 2026-11-24 role review | this file | `csa` | none | trend to zero repeat work |
+| F7 | **Scheduled-task prompts.** Each role's scheduled task points to README rule 9 instead of its own repeat-review wording | the scheduled tasks | **owner** (or `po` at the owner's request); `csa` never edits scheduled tasks | minutes | prompts and README say the same |
+
+**Safety is unchanged:**
+- every safe default stays in force;
+- a safety or compliance finding is always a trigger (F4);
+- nothing is decided by freezing.
+
+**Order:** F1, F4 and F5 together (one PO docs PR); F2 next; F3 as a small engineering item after UX1 (the PO places it; `csa` does not reorder); F7 by the owner. **Raised as issue #593 to `po`, with `eng` named for F3.**
+
+### STR-18 · D-38 against the owner's nine topics
+
+| Owner topic (2026-10-28) | Where D-38 covers it | Verdict | `csa` proposal |
+|---|---|---|---|
+| Transition criteria | per client: T12 (i) (C's *Bedarfsmeldung*, assessment, order before a cut-over); per filing: T14. **No team-level criteria:** D-12 (iii) says "when the pilot measures are met" and nobody defines them | **gap** | **T15** below |
+| Client consent and transfer process | T3, T4, T5, T12 | covered (adviser questions open: ZGB Art. 378, T5 as asked) | none |
+| Staff transfer process | T1 (no approach before admission), T9 (OR Art. 333 or new contracts; no restriction beyond the duty of loyalty) | covered as terms; the process is open (adviser) | T15 (d) adds the team's own decision; nobody is moved who does not choose to |
+| Tariff-contract transition | T6, T11 | covered (route: owner with the partner or association) | none |
+| Financing implications | T7 (municipal path), T14 (Leistungsauftrag, training duty), T2 price (owner) | **partial:** C's start-up financing (fees, insurance, working capital until the first insurer payment) is not covered | **T17** below |
+| Fee portability | T8 | covered | none |
+| Partner incentives | T10 "what the partner receives", owner, with no options | **open, no proposal** | **T10 options** below |
+| Governance after transition | T13 covers rule adoption by the *partner's* Leitung Pflege only; C's own governance and its relation to NAVORA are not written | **gap** | **T18** below |
+| Conditions under which a team becomes independent | implied by `lca` C condition 5 (nothing billed before licence, admission and ZSR); no fallback if C is not ready at month 12, or if the team decides not to go | **gap** | **T16** below |
+
+**Proposed additional terms** (`csa`, 2026-10-28; advisory; for the PO to take into D-38 under unfreeze trigger 5, with `lca`, `cra` and `eng` input). None sets a clinical, legal or tariff rule. Each names who answers what is UNKNOWN.
+
+| # | Term (proposed) | Why (vision and safety) | Who answers |
+|---|---|---|---|
+| **T15** | **Team-level transition criteria.** The team, not the partner and not NAVORA, decides to file C's applications, and only when all of these are recorded: (a) **regulatory:** a Leitung Pflege and deputy meeting [Z1] are named inside the team (`lca` C condition 4); the T14 items are planned; a liability-insurance offer meeting [Z1] is in hand; (b) **safety:** the pilot's safety measures meet the levels the **Clinical Owner** sets for a transition (for example open S1/S2 findings, signal response, missed or uncovered visits per team, AN2). The levels are the Clinical Owner's, not `csa`'s, and are UNKNOWN until G-1; (c) **economic:** a written C budget that covers T17 (below) at the team's current client volume (figures UNKNOWN until the pilot; BM-4, BM-5); (d) **team consent:** the members who will join C decide by the team's own consent decision. A member who does not join stays with the partner under her contract; nobody is moved who does not choose to (T9); (e) **timing:** the decision is due by month 6, so the file can be complete by month 7 (STRATEGY §4) | makes "when the pilot measures are met" (D-12 (iii)) testable; keeps the decision with the team (vision 1, 3); the safety gate stays with the Clinical Owner | (a) `lca`; (b) Clinical Owner (G-1); (c) owner and the team; (d) `lca` (does a team decision touch the duty of loyalty before admission? T1); (e) `csa` estimate |
+| **T16** | **When a team is independent, and the fallbacks.** (a) The team is independent for a client only when C holds its licence, OKP admission, ZSR, Leistungsauftrag (T14) and a tariff-contract route (T6) **and** that client's T12 (i) prerequisites are recorded. Before that, no client moves and nothing is billed by C (`lca` condition 5). (b) **If C is not admitted by the sunset date:** the LOI holds an **extension option** the team can call once, for a length the owner sets. The partner's care continues for every client meanwhile (T12 (i) (a)). (c) **If the team decides not to transition (T15 (d)):** the team stays with the partner, NAVORA's per-team fee continues (T8), and nothing else changes. (d) **If the pilot is stopped for safety** (the Clinical Owner's stop rule): no transition; the partner keeps every client | no client is ever between providers; the team is never forced to choose between leaving its clients and giving up its own provider; the sunset cannot become a cliff | (b) length: owner; whether an extension needs anything from the canton: `lca` (UNKNOWN); (d) Clinical Owner |
+| **T17** | **Financing the transition.** C's plan names what must be paid before C's first insurer payment, and who pays it: the licence and admission fees (CHF 1,500 and CHF 900 as `lca`/`po` read [Z1]), the liability insurance [Z1] requires, working capital until the first insurer payment (payment terms UNKNOWN, D-18), and the T14 training duty. **Sources** the plan may use: the members' own capital, loans, foundation or public start-up support (UNKNOWN which exist in Zurich), the municipal path (T7). **NAVORA may defer or reduce its fee for C's first months** (pricing: owner), but **holds no ownership majority, board seat or instruction right** in C (`lca` C condition 1). Whether a loan from NAVORA, or a fee deferral, conflicts with condition 1 is UNKNOWN (`lca`) | a team without starting capital cannot become its own provider, so the vision needs this answered before the LOI; NAVORA must not buy the control that condition 1 forbids | `lca` (condition 1 limits); owner (fee deferral, pricing); Zurich adviser or the Gesundheitsdirektion (start-up support) |
+| **T18** | **Governance after the transition.** (a) C has its own legal personality ([Z1]); the legal form is the team's choice (cooperative, GmbH, association: which fits is for the adviser, UNKNOWN). (b) Inside C, the Leitung Pflege and deputy are **named accountable roles that no team decision can vacate** (as D-24 boundary 2). Everything else (admission, planning, cover, surplus rule within D-14) is the team's own consent decision. (c) NAVORA is C's processor and software supplier only, under a processor agreement; C adopts the Clinical Owner's rules by the T13 act through **its own** Leitung Pflege. (d) **C can leave NAVORA** at any time with a usable export of its data (the mirror of T2), so NAVORA never becomes the new hierarchy by lock-in. (e) Cooperation between several team-owned providers (cover, shared services, P-24) runs by contract between providers, never through NAVORA instructions. Whether cover between two providers needs anything beyond a contract: UNKNOWN (`lca`) | it writes down what "team-owned, NAVORA no control" means in practice (`lca` condition 1; vision 1-3); it makes the exit right explicit, which keeps NAVORA honest as a supplier the teams choose | (a), (e) `lca`, Zurich adviser; (b) `lca` with [Z1]; (c), (d) `eng` (whether the T2 export also serves C's exit) and owner |
+| **T10** (options for the owner) | **What the partner receives**, options the owner can combine (pricing and partnership stay the owner's): (i) the partner keeps NAVORA for its **other** teams on the same per-team terms, with no exclusivity either way (T8); (ii) the partner sells C contracted services it already runs (night on-call, a regulated back office, training places for T14), at prices agreed between them; (iii) a one-off **incubation fee** per team that transitions, paid by NAVORA (owner: pricing); (iv) capacity: clients the partner cannot serve go to a team on its own provider rather than a competitor (UNKNOWN whether the partner sees this as a gain). **Never** part of an offer: a claim on C's clients, a share in C, an instruction right, or a condition on rule adoption (T13) | without a gain for the partner there is no LOI and no pilot; (i)-(ii) keep the relationship after the sunset; (iii) is the only option that costs NAVORA money | owner; `lca` on (ii) (services between two providers) and (iii) (does a fee for releasing staff touch AVG staff hiring? UNKNOWN) |
+
+**Raised as one comment on the D-38 issue (#545)** asking the PO to take T15-T18 and the T10 options into the package (unfreeze trigger 5). **Recommended to the owner meanwhile:** the D-38 default stands (sign no LOI naming the sunset before D-38 is answered). The owner's answer to D-38 is better given **once**, after T15-T18 are in, than twice.
+
+### STR-19 · The partner route should be needed once (first-principles finding)
+
+| Finding | Evidence | Proposal | Severity | Route |
+|---|---|---|---|---|
+| Designed from scratch (STRATEGY §8), a new team would found its own provider directly from a ready kit. D-12 B is a bridge only because no such kit exists. If the first transition is worked out case by case inside one partner's LOI, every later team needs a partner again, and NAVORA scales as a supplier to incumbents | D-12 (B, sunset); D-38 T6, T7, T14, T17 (all first-time work); `aia` AUT-12 and hypothesis P-24 (shared regulated services); `lca` 20:48 (licence-bound roles stay per provider) | (1) Every output of the first transition (C's licence file, Leistungsauftrag request, tariff route, training-place arrangement, insurance, budget, legal-form templates, processor agreement, NAVORA set-up) is written as a **reusable provider kit**, with partner-specific parts marked. (2) A later owner package (not now): "may the second team found its provider directly from the kit, without a partner?", once the first C is admitted and P-24 has the adviser's answer. (3) Nothing is built now; the kit is documents | high (strategic: it decides whether NAVORA scales as an operating model or as a supplier) | issue #594 to `po` |
+
+---
+
+## 2026-10-27 13:55 CET · csa · Strategic fit, week 1
+
+**Scope.** First `csa` run. Read: README *Roles*, *Strategy review*; COORDINATION; DECISION_PACKAGES; `decisions/INDEX.md`; OPEN_DECISIONS; NEXT_CAPABILITY; JOURNAL 2026-10-20 to 2026-10-27 13:45; the mandate; STRATEGY; this review; CARE_OPERATING_MODEL; AUTOMATION_REVIEW (baseline only, no `aia` finding yet); the *Decision summary*, *Recommended default* and *Owner approval required?* sections of every package `awaiting-approval: owner`; the G-1 appointment report. Nothing here edits a package, a row or the queue. No legal, clinical or tariff interpretation is mine: where one is needed it is cited to `lca` or `cra`, or written UNKNOWN.
+
+**Changed this week (evidence: INDEX, JOURNAL):**
+- decided by the owner on 2026-10-27: strategic direction; D-12 (B as an operating-model partnership, 12-month sunset, C prepared from month 0); D-34 (A plus C, clinical module as the target); the staged AI path (D-35 stages 0-3); D-37 opened as a track; the roles `aia` and `csa`. D-33 decided on 2026-10-26.
+- still `awaiting-approval: owner`: 15 packages (D-22, D-18, D-29, D-11, D-9, D-4 final periods, D-7, D-8, D-1, SR-26, D-2, D-26, D-14, D-24, D-25), and D-36 since PO 13:35 (STR-16), plus G-1 (the Clinical Owner), which gates 9 packages `awaiting-approval: clinical`.
+- queue: COND2 delivered (12:25) and accepted (PO 13:35); UX1, ADM2, UX2 approved; AIG1, ASM1, PLAN3 approved by PO 13:35 (*Next up* 3, 4, 6; PLANNED).
+
+**Dimensions (columns *fit*):** T self-organised teams · O AI-assisted operations · P planning · Dc documentation · B billing preparation · I interRAI-supported care planning and governance · H independence from hierarchical operating models. `+` serves, `0` neutral, `−` harms.
+
+### Strategic fit notes, one row per package awaiting the owner
+
+| STR | Package | Fit | Lock-in risk | Challenge | Proposal (equal safety) |
+|---|---|---|---|---|---|
+| STR-1 | **D-11** Zurich, 2-5 municipalities in the partner's service area | T+ H+ (on `lca` 12:42 [Z1]: no fixed staffing percentage, so a small team-owned provider is licensable in Zurich); B 0; I UNKNOWN (`lca` question 5: whether "anerkannte Instrumente" bears on NAVORA). **Verdict: serves, with one condition** | **Medium.** Municipalities chosen only from the *partner's* service area tie the team-owned provider (C) to municipalities where the partner holds the service mandate. At the transfer the C provider serves the same clients in the same municipalities as its former host. Whether a new provider without a municipal mandate gets residual financing there is UNKNOWN (`lca` criterion 3, [K3] read for BE only) | none (adds no step) | Add to the owner's municipality choice one condition: **at least one pilot municipality where the residual-financing or mandate path for a new provider is known before the C file is submitted** (question for the Zurich adviser bundle, `lca`). Cost: one adviser question. Without it, the C transfer can be licensed and admitted and still not financed |
+| STR-2 | **D-14** fee basis F3 (per active member per month) or F4 | B+ (volume-neutral: no gain from more hours or higher categories); T+; H **depends on who signs**. **Verdict: serves, with two changes** | **High.** Under D-12 B the partner pays the fee, so NAVORA's first customer is a traditional provider. An organisation-wide licence, exclusivity or a fee set per organisation would make NAVORA a supplier to the partner (the drift the mandate names) and would not carry over to C. Second: F3 charges a 20 % member the same as a 100 % member and rewards fewer members working more hours (`cra` 02:26, H-10); that works against part-time nurses joining a team | medium: none of the recommendation adds administration; the risk is the contract shape | (a) Ask the owner for F3 **with one term**: the fee is agreed **per pilot team**, transferable unchanged to the team-owned provider; no exclusivity and no organisation-wide licence with the partner. (b) Ask `lca` whether a **team-size band** variant of F3 (one fee per team per month by band, for example 1-4, 5-8, 9-12 active members) is as compliant as F3. It needs no new field (active count from LEAVE1), is neutral to part-time work, and keeps the small-team principle. The PO decides whether to put (b) to the owner |
+| STR-3 | **D-29** qualification: option B, the member records evidence, a second person confirms "as someone the licence holder has authorised" | T+ (no central administrator step); H+; B+ (billing only on confirmed evidence). **Verdict: serves** | **Medium.** If the authorisation is kept per person by the partner, the partner's administration becomes the gatekeeper of every team, and at the C transfer every authorisation must be issued again | **medium:** a per-person authorisation list is an administration step whose patient-care benefit is already carried by the second confirmer. The licence holder's responsibility (`lca` 13:50) is a legal duty and stays; only its form is challenged | The licence holder authorises a **role** once, in its organisational policy ("a registered nurse of the same team with confirmed, unexpired evidence"), recorded as one versioned policy reference. At the C transfer the new provider's Leitung Pflege issues the same policy once. Whether a role-level authorisation satisfies the licence holder's duty: question for `lca` (UNKNOWN) |
+| STR-4 | **D-26** production: no service-role key on the app host; invitations in Edge Functions | T+ H+ if approved. **The default A (a NAVORA operator creates every account by hand) is a central step:** once ADM2 ships, a team's admission by consent ends in a request to NAVORA. **Verdict: serves; time-critical** | low (the recommendation) | **medium, on the default, not the package:** manual account creation has no patient-care benefit; its safety benefit (no RLS-bypassing key on the app host) is kept by the recommended Edge Function | Escalate D-26 in the same owner bundle as the G-23 release gate of ADM2, so the team's admission works without NAVORA in the loop before the first real team (sequencing, below) |
+| STR-5 | **D-22** valid medical order: care A/C without order with a recorded GP information step; billing only on a signed order issued before the visit | T+ (ORD1 renews without chasing the GP); B+ (billing integrity); Dc 0. **Verdict: serves** | low | none: the GP information step has a care-coordination benefit and is already automated as one `inform_gp` task (ORD0, IMPLEMENTED) | none beyond the bundle: it needs a legal adviser, like D-18, D-9, D-4 and D-25 (below) |
+| STR-6 | **D-18** tariff time rules: exact minutes and estimate (C), contract as versioned reference data (A), after D-11, D-12 | B+; T 0. **Verdict: serves** | **Medium.** `lca` (on D-22): the tariff contract follows the admitted provider and its association membership. The partner's contract under B is not the C provider's contract | none | Keep option A **keyed by the provider's contract**, never by an organisation setting, so that the C provider's own contract is a new version, not a rebuild. Engineering confirms in its D-18 section (`eng`; currently drafted by po). No new owner question |
+| STR-7 | **D-9** legal basis at intake, option D protective variant | T+ (REF2, the horizon-2 wedge, needs it); H+. **Verdict: serves** | **Medium.** `lca` (D-12 note 3): clients move to a new provider only with each client's consent. At the C transfer every client of the pilot team needs a consent step | none | Ask `lca` (question only, no rule): can the information given to the client at intake already name the team and the planned change of provider, so that the transfer consent is a confirmation rather than a new procedure? UNKNOWN until answered |
+| STR-8 | **D-4** audit-log final periods | 0 on every dimension. **Verdict: neutral** | low; at the C transfer the retention duty of the old controller continues (UNKNOWN) | none | Add "retention and audit extract at a change of provider" to the adviser bundle (`lca`) |
+| STR-9 | **D-2** staging now; production on the same stack, gated by the `lca` check including the AI processing location | O+ (hosting and AI cleared once, per review §2). **Verdict: serves** | low | none | none |
+| STR-10 | **D-1, SR-26, D-7, D-8** live-project facts, key rotation, foreign table, ruleset, merge to `main` | 0 on the dimensions; precondition for every real-data gate. **Verdict: neutral, urgent** (D-1 marked urgent since 2026-10-24) | none | none | One owner session for all four, in the packages' order (D-1, SR-26, D-7, D-8). They cost minutes and nothing strategic waits on them except time |
+| STR-11 | **D-24** nursing homes: A now; B (one ward, organisational change only) after the timing condition; C after a licence and D-34 | T+ H+ (design target removes the ward leader, keeps every licence role); I: the LTCF licence is a second interRAI licence conversation. **Verdict: serves** | **Medium.** Option D (partner with the home's LTCF vendor) makes NAVORA an add-on to the home's existing system: the supplier role in the sector where hierarchy is heaviest | none | (a) Owner approves A as recommended and records **D only as a fallback**, never the default entry route. (b) The LTCF licence question joins the **same** interRAI conversation as D-36/D-37 (HC), so there is one licence strategy, not two |
+| STR-12 | **D-25** nursing-home leadership rules (only once D-24 moves past A) | T+ H+. **Verdict: serves** | low | none: every role the licence names stays (legal duty); only the ward leader's operational work moves | Prefer option D (ask the canton): an answer from the canton can be reused for every later home in that canton; a legal opinion is reused less easily. Not urgent |
+| STR-16 | **D-36** interRAI licence scope: the owner provides the licence terms (a fact; PO 13:35, escalated after this section was drafted) | I+ (it gates D-37's final decision and the verification of six interRAI reference sections); T 0. **Verdict: serves; time-critical for dimension 6** | **Medium.** If the terms are those of a licence held by the partner's tool vendor or by the partner, NAVORA's interRAI route depends on the partner, and the C provider would need its own licence | none | Provide the terms together with a short statement of **who holds the licence** (owner, partner, or tool vendor), and ask `lca` in the same reading whether a team-owned provider can use the same route (STR-11: one licence conversation for HC now and LTCF later) |
+| STR-13 | **G-1** the Clinical Owner: route B (independent, part-time mandate now) with the partner's nursing management co-signing at go-live | H+ **strongly** (route A would tie NAVORA's clinical rules to one partner and break at the C transfer); T+; I+ (D-37 intervals and triggers need it). **Verdict: serves; the single largest unblocker** (9 clinical packages and D-37) | low with B, high with A | none: the co-signature is the licence holder's duty (G-1 report, `lca` to confirm), not administration | The co-signature is given **per version of the rule set**, once, not per rule change; the C provider's Leitung Pflege co-signs the same version at the transfer. Ask the owner for G-1 **before** any other package in the pilot bundle |
+
+### Challenge on the decision process (challenge duty)
+
+| STR | Added | Patient-care benefit shown | Evidence | Leaner alternative at equal safety | Severity |
+|---|---|---|---|---|---|
+| STR-14 | Repeated re-checks and addenda on packages that already wait for a person: hourly PO entries "no new evidence", package addenda that leave the ask unchanged, owner asks spread over 15 packages of 14-54 KB each (472 KB together) | **none shown** for the repeat work: the safe default is already in force while a package waits, and the owner's question does not change | 83 journal lines "no new evidence" since 2026-10-24; 141 commits touching `decisions/` since 2026-10-20 out of 1,177 in total; the 15 owner packages total 472 KB (D-22 54 KB, D-4 51 KB); outside them D-23 is 132 KB and D-3 94 KB; the INDEX *Last change* cell is one paragraph of about 23 KB | (1) A package at `awaiting-approval` is **frozen** until new evidence or a person's answer, and the run writes nothing about it. (2) The owner gets **one page** with three bundles (below), each ask one line, linking the packages. (3) The PO keeps the INDEX *Last change* cell to the newest change; git keeps the rest. Safety is unchanged: every safe default stays in force and no package is decided by this | **high** (issue #540) |
+
+**Proposed owner agenda (for the PO to adopt or change; `csa` does not escalate):**
+1. **Now, one session, minutes each:** D-1 → SR-26 → D-7 → D-8 (live-project hygiene); **G-1** (name the Clinical Owner, route B). Strategic cost of further delay: every real-data gate waits on D-1, and 9 clinical packages plus D-37 wait on G-1.
+2. **Pilot foundation, one decision meeting:** D-11 (with STR-1), D-2 (staging spend), D-26 (with STR-4), D-29 (with STR-3), D-14 (with STR-2); the partner's name and a Zurich legal adviser; the interRAI licence terms (D-36).
+3. **Only once a legal adviser is named or a trigger holds:** D-22, D-18, D-9, D-4, D-24, D-25. Naming **one Zurich legal adviser** answers questions in at least six packages (D-22, D-18, D-9, D-4, D-25, and D-11/D-12 question 1).
+
+### Drift check of the week
+
+- **No hierarchy step accepted this week.** ADM2 (approved) replaces an administrator step with the team's consent; its remaining employer step ("Vertrag erfasst") records a contract fact and carries no judgement field (ADM2-6). Aligned.
+- **Supplier-role risk, OPEN:** D-12 is decided as a partnership with a sunset, but the terms that make the sunset real are not yet written: client consent at transfer, the C provider's own tariff contract, municipal financing, the fee contract party, and what the partner gains from incubating a team that leaves. If the partner's letter of intent is signed without them, the sunset depends on the partner's goodwill. This is a **strategic finding** (STR-15, below), raised to the PO as an issue.
+- **AI and interRAI: now staged in the queue, no drift.** PO 13:35 approved AIG1, ASM1 and PLAN3 (*Next up* 3, 4, 6, after UX1 and ADM2). Dimensions 2, 3, 5 and 6 now have items; dimension 4 (documentation) has none before stage 2, as the staged path intends. Checked against the challenge duty: PLAN3-5 and PLAN3-9 let the team confirm the whole proposal at once or change single lines, so no confirmation burden is added; AIG1's "no accept-all" applies only to listed fields (D-17 part 3). Aligned. Stage 1 AI can only start after 3 stable pilot months, and the pilot has not started, so every week of delay on bundles 1 and 2 moves stage 1 by a week.
+
+### Strategic finding
+
+| STR | Finding | Evidence | Proposal | Severity | Route |
+|---|---|---|---|---|---|
+| STR-15 | **The C transfer has no written terms before the partner is named.** The 12-month sunset is decided; how clients, records, the tariff contract, municipal financing, the fee contract and the team members' employment move to the team-owned provider is not | D-12 owner decision 2026-10-27; `lca` D-12 notes 3 (no licence transfer; client consent), D-22 (contract follows the admitted provider); STR-1, STR-2, STR-6, STR-7 | The PO prepares a **package on the transfer terms of the partnership letter of intent**, before the owner signs one: (1) client information and transfer consent (`lca`); (2) the C provider's own tariff contract and association route (`lca`, D-18); (3) municipal financing (STR-1); (4) the fee agreed per team and transferable (STR-2); (5) whether team members' employment contracts with the partner may restrict joining the C provider (`lca`, UNKNOWN); (6) what the partner receives for incubating the team (owner: partnership). Owner-level (partnership) | high | issue #539 to `po` |
+
+---
+
+## Owner decisions on this review (2026-10-27)
+
+The owner approved:
+- the strategic direction as recorded;
+- D-12 as revised;
+- D-34 (A plus C, with the clinical module as the long-term target);
+- the staged AI roadmap;
+- D-37 as a strategic decision track, with expert review and licence clarification before the final decision;
+- interRAI as a core clinical foundation;
+- both role mandates, and the creation of both roles.
+
+**Owner clarification:**
+- NAVORA software is not merely a management tool; it is a core component of the operating model.
+- AI should ultimately remove administrative burden and enable teams to organise themselves.
+- Pilot safety requires a staged approach, but the long-term vision is reflected in every strategic decision.
+- The partner organisation is a pilot vehicle, not the destination.
+
+From now on, the strategy is kept in [`STRATEGY.md`](STRATEGY.md) by the Chief Strategy Architect.
+
+## 0 The owner's strategic direction (2026-10-27), recorded
+
+> NAVORA software is not merely a supporting tool for traditional care organisations. It is a core part of the operating model itself. The objective is a new care-delivery model that enables self-organised nursing teams with minimal hierarchy and significantly reduced administrative effort; the software platform is the foundation that makes this possible.
+
+**Principles**
+1. Self-organised teams remain a core principle.
+2. Administrative work is automated wherever safely possible.
+3. Planning, documentation, billing preparation and operational coordination are increasingly assisted by AI.
+4. interRAI becomes an important clinical foundation for care planning, continuity, reassessment and governance, within licensing and regulatory limits.
+5. Future recommendations are evaluated against the long-term vision, not only against the fastest path to a pilot.
+
+**How the PO reads "AI-assisted" (consistent with `CARE_OPERATING_MODEL.md`, *AI-first means graph-first*).** The owner's direction confirms the design order already in force and turns it into a planned path:
+1. work that exists only because information is fragmented **disappears** through the care graph;
+2. rule-shaped work is **automated** by tested rules;
+3. drift is **monitored**;
+4. **AI agents** take the unstructured edges (letters, speech, free text) and **draft** for people;
+5. people keep judgement, accountability and the relationship.
+
+The direction is accepted in full. What was missing was a **staged path with entry conditions**, so that the pilot rules (D-34 statement v2, D-35 rule A) read as the first stage of an AI-assisted model, not as its limit. Section 3 proposes that path.
+
+**What does not change:**
+- Patient safety is a precondition.
+- No agent output enters the record without a named confirmer.
+- A clinical rule is approved only by the Clinical Owner (D-27).
+- Safety signals stay deterministic.
+- No per-person performance scoring.
+
+---
+
+## 1 Verdict per dimension
+
+Scale: **strong**, **partial**, **weak**, judged against the long-term vision, not the pilot.
+
+| # | Dimension | Today (IMPLEMENTED unless marked) | Verdict | Largest gap | What closes it |
+|---|---|---|---|---|---|
+| 1 | Self-organised care teams | Team decides on offers (J2), plans from the care plan (PLAN2), covers (COVER1), handles absence (ABS1), hands over without a meeting (HAND1); returning clients return to their team (RET1); Operations is an exception service (OPS1). Team admission by consent: ADM2 *Next up* 3 (PLANNED) | **strong** | Hierarchy steps that remain: a coach or admin lifts a quality hold (D-16, OPEN); the licence holder's nursing management sits above the team under D-12 B | D-16 option B (team RN lifts) at G-1; D-12 revised (§2) |
+| 2 | AI-assisted operations | Deterministic exceptions and safety signals (OPS1, SIG1, SIG2), escalation rules, measures from events (AN1, AN2). No AI service (D-35 A) | **partial**: automation strong, AI absent | No AI governance infrastructure (suggestion ledger, evaluation harness, stop rule) exists, so no agent can be introduced safely even on synthetic data | **AIG1** (proposed, §4): the governance layer, built on synthetic data, no AI service |
+| 3 | AI-assisted planning | Visits generated from the care plan (PLAN2); cover offers (COVER1); team decides. No optimisation of day order, travel or continuity | **partial** | No planning proposal: the nurse or team still orders the day and balances continuity and travel by hand | **PLAN3** (proposed, §4): day-plan and continuity proposal by a deterministic optimiser (agent A3, level L), team confirms |
+| 4 | AI-assisted documentation | Structured visit lifecycle and door facts (DOOR1), signed reports with countersignature (F-series, D-10), corrections (F6). Report text written by the nurse | **weak** | Every drafting agent (A7 dictation, A9 report drafter, A8 intake extraction) is level G or H: it needs D-34's module route, D-35 B or C and the Clinical Owner | Short term: documentation by exception from events (no AI, Transformation Report §6.5). Long term: the qualified clinical module (D-34 C, §3 stage 3) |
+| 5 | AI-assisted billing preparation | Billable facts derived continuously from signed visits; monthly revenue preview (J5); billing hold (QG1) | **strong** foundation | No invoice draft and no insurer-dispute support (agent A4, level L), because the tariff contract (D-18) and the licence holder (D-12) are open | A4 as deterministic invoice draft after D-12/D-18; AI only for dispute letters (stage 1) |
+| 6 | interRAI-supported care planning and governance | Nothing: D-13 B (po-decided 2026-10-25) is instrument-neutral and **not built**; interRAI references in six packages are name level, UNKNOWN until verified (D-36) | **weak**, and **in tension with the owner's direction** | D-13 treats the instrument as the provider's choice; the owner now wants interRAI as NAVORA's clinical foundation | **D-37** (new owner package, §2) and **ASM1** (proposed, §4) |
+| 7 | Long-term independence from hierarchical operating models | Care model and challenge table remove dispatch, scheduling administrators, intake coordinators, station leadership by design. But the pilot recommendation (D-12 B) places the team inside a traditional provider | **partial** | The path from a partner's licence to team-owned providers is a fallback, not a plan | D-12 revised (§2): partnership with a sunset, and the team-owned provider prepared from day 1 |
+
+**Overall:** NAVORA is strong where the care graph and deterministic rules already replace coordination: teams, planning from the care plan, billing facts. It is weak where the vision needs AI on clinical text and interRAI, because those cross regulatory lines that the current safe defaults hold on purpose. The gap is not a wrong direction; it is a missing **staged path** across those lines, and two strategic decisions the owner has not yet taken: the clinical-module ambition (D-34) and interRAI as foundation (D-37).
+
+---
+
+## 2 Decision packages re-evaluated against the vision
+
+| Decision | Recommendation before | Re-evaluated against the vision | Change |
+|---|---|---|---|
+| **D-11** pilot canton | Zurich (Medium) | Zurich also fits the long term: the licence guidance (September 2025) sets no fixed staffing threshold, so a **team-owned provider** can be licensed there with a nursing lead, a deputy, insurance and CIRS. Zurich is a credible home for the C model, not only for a fast B. | **Unchanged**, reasoning strengthened |
+| **D-12** licence holder | B, C as fallback after 8 weeks; A rejected | B alone risks embedding the team in the partner's hierarchy and makes NAVORA a supplier to the old model, against principles 1 and 7. C alone is the slowest. **Revised recommendation:** **B as an operating-model partnership with a sunset**: (i) the partner runs the pilot team **on NAVORA as its operating system** (planning, coordination, cover, quality events, billing facts; no parallel dispatch or scheduling in a legacy tool; the needs assessment stays in the partner's recognised tool until D-37); (ii) term of at most **12 months** for the pilot team; (iii) the **team-owned provider (C) is prepared from month 0**, not only as a fallback: nursing lead and deputy identified inside the team, licence file drafted, so the transfer can happen when the pilot measures are met; (iv) the four existing conditions stay; (v) C carries `lca`'s five conditions (12:42), the first being that NAVORA holds **no control** over the team-owned provider. Licence and OKP admission are two procedures of about eight weeks each, so about four months, which is why C is prepared from month 0. A stays rejected. | **Changed**: B with sunset and C in parallel (owner ask updated) |
+| **D-2** hosting | Staging now; production gated on the same stack | AI-assisted operations need an AI processing location that the same legal check covers. **Added:** the production `lca` check also covers the AI service's region and processor chain (D-35 B), so that hosting and AI are cleared once, in CH or the EU. | **Extended** |
+| **D-13** assessment instrument | B, instrument-neutral record (po-decided) | Conflicts with principle 4: an instrument-neutral record keeps interRAI outside NAVORA. B's record is still the right first build (it is needed in every option). | **D-13 B stays as the first build; the strategic question moves to D-37** |
+| **D-34** medical-device status | A plus C (module rule), awaiting owner | The vision needs AI documentation drafting and interRAI-based care-planning support. Both are level H (they interpret clinical content). They are only possible inside a **separately qualified clinical module** (C). So the owner's direction **implies** answering D-34 with "A plus C, with the clinical module as a stated target". The core stays non-device; the module carries the clinical intelligence and its own conformity route. | **Strategic answer recommended**: the owner approves A plus C **and** the module as a target (horizon 2) |
+| **D-35** AI services | Rule A for the pilot (no client or staff data to any AI service) | Rule A is right as **stage 0**. Without stated exit criteria it would read as the end state. | **Addendum**: staged exit path (§3); a new owner package once a provider is named |
+
+### D-37 (new, owner): interRAI HC as NAVORA's clinical foundation
+**Question:** should NAVORA designate interRAI HC as its clinical foundation for care planning, continuity, reassessment and governance in home care, and through which licence and integration route? **Recommended default (PO, Medium-Low until D-36):**
+1. **Yes, as the designated target instrument for home care.**
+2. **Route:** integrate with the licensed Swiss tool the provider uses (D-13 option A). Assessment results (date, assessor, problem areas the tool reports, the assessor's signed care-planning conclusions) enter NAVORA as **signed facts from the licensed tool**. **NAVORA computes no scale or CAP itself** until the clinical module (D-34 C) and the licence allow it.
+3. **Uses in NAVORA, in order:**
+   - (a) reassessment due dates and significant-change prompts, with the interval and triggers set by the Clinical Owner;
+   - (b) care-plan structure by problem area;
+   - (c) continuity (the primary nurse sees the change since the last assessment);
+   - (d) governance (aggregate quality indicators per team, never per person, after the licence and MQI-like definitions are cleared).
+4. **Preconditions:**
+   - D-36 (licence scope, `lca`);
+   - D-12 (which provider and tool);
+   - the Clinical Owner (G-1) for intervals and triggers;
+   - D-34 for anything computed.
+
+Package: [`../agents/decisions/D-37.md`](../agents/decisions/D-37.md).
+
+---
+
+## 3 The staged AI path (proposal; D-35 addendum)
+
+| Stage | When | What runs | Data | Device level | Entry conditions |
+|---|---|---|---|---|---|
+| **0 Foundation** | now | AI governance layer (suggestion ledger, provenance per value, evaluation harness, stop rule, scope inheritance) built and tested; deterministic L automations (A1 referral completeness, A6 control health, PLAN3 optimiser, A4 invoice draft as rules) | synthetic only | L | none beyond the queue (D-35 A holds) |
+| **1 Administrative AI** | pilot, after 3 stable months | L agents with AI where input is unstructured: A2 order-renewal request, A4 insurer-dispute letters, A5 compliance evidence pack; planning assistant explanations | staff and administrative data, minimised; no clinical free text | L | new `owner` package naming provider, model region (CH/EU) and contract; `lca` conditions 1-10; DPIA; partner's sub-processor approval |
+| **2 Documentation assistance, low risk** | after stage 1 evidence | A7 dictation to entry (the nurse's own words, no interpretation) | the nurse's own dictation (D-35 term 10) | G (adviser to confirm) | regulatory adviser on G; Clinical Owner list of no-accept-all fields; stage-1 correction rates below threshold |
+| **3 Clinical module** | horizon 2 | A9 report and handover drafter, A8 intake extraction, A10 care-plan review proposer, interRAI-based care-planning support | clinical content | H, as a separately qualified module (D-34 C) | owner approves the module target (D-34); conformity route; Clinical Owner; D-37 licence; evaluation evidence from stages 0-2 |
+
+**Never, at any stage:** AI triage of P1 safety signals; per-person performance scoring; automatic coding or care-plan change; a general copilot across all data; unconfirmed record entries (AI Operating Model Review §7).
+
+---
+
+## 4 Roadmap: what should change
+
+The queue in `NEXT_CAPABILITY.md` (COND2 delivered, then UX1, ADM2, UX2) supports dimensions 1 and 7 (ADM2) and adoption (UX1, UX2). It has **no item for dimensions 2, 3, 4 and 6**. Proposed briefs, PO drafts. The PO approves them in its next cycle **unless the owner objects**; none needs a legal or clinical decision for its synthetic-data build.
+
+| Proposed | Capability | Dimension | Why now | Gate |
+|---|---|---|---|---|
+| **AIG1** | AI governance foundation: suggestion ledger (append-only), provenance per value ("vorgeschlagen von / bestätigt von"), "not found" explicit, no accept-all on listed fields, correction-rate measure per agent and field (never per person), stop rule, evaluation harness on synthetic cases | 2, 3, 4, 5 | Every later agent needs it; building it first makes stage 1 a configuration step, not a project. No AI service, no real data | none (synthetic) |
+| **ASM1** | Assessment record and reassessment cycle: D-13 B with its five acceptance criteria; interRAI HC listed as the designated instrument in the reference list (D-37); "Neuere Bedarfsabklärung" marker; last-assessment date on the care plan; reassessment due display **only** once the Clinical Owner sets the interval | 6, 2 | It is needed in every D-37 option, and it closes the care graph's assessment gap (P-9) | due-date rule: Clinical Owner |
+| **PLAN3** | Day-plan and continuity proposal: a deterministic optimiser proposes visit order and assignment inside the team, weighting continuity (same nurse), time windows, qualifications and travel; the team confirms or changes; every proposal goes to the AIG1 ledger | 3, 1 | Planning is the largest remaining manual coordination task after PLAN2; level L; replaces the scheduling administrator | labour rules: `legal` (existing Q) |
+| later: **BILL2** | Invoice draft (A4 as rules) from J5 facts, for the licence holder's confirmation | 5 | After D-12 and D-18 name the contract | D-12, D-18 |
+
+**Order after UX1 (proposed):** ADM2 → **AIG1** → **ASM1** → UX2 → **PLAN3** → BILL2. AIG1 goes before UX2 because it sets the pattern every assisted screen uses. UX2 follows, so the one shell already shows proposals and confirmations.
+
+---
+
+## 5 What the owner is asked
+
+1. **Confirm the strategic direction as recorded in §0** (the PO has written it into `CARE_OPERATING_MODEL.md`).
+2. **D-34:** approve "A plus C, with the clinical module as a stated target". The core stays non-device; the clinical intelligence goes into a separately qualified module.
+3. **D-37:** approve interRAI HC as the designated target instrument, integrated through the provider's licensed tool, with nothing computed in NAVORA before the module (after D-36).
+4. **D-12 (revised):** approve B as an operating-model partnership with a 12-month sunset and the team-owned provider prepared from month 0.
+5. **Roles:** approve the mandates for the AI & Automation Architect and the Chief Strategy Architect ([proposal](../agents/reports/ROLE_PROPOSALS_AIA_CSA.md)), then create their schedules.
+6. **No objection needed** for AIG1, ASM1 and PLAN3. The PO approves them next cycle unless the owner objects.

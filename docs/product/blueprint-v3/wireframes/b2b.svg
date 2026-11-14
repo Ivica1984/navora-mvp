@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" font-family="Inter, Arial, sans-serif" role="img" aria-label="Wireframe B2B-Heimsuite /b2b-institution">
+<title>Wireframe B2B-Heimsuite /b2b-institution</title>
+<rect x="0" y="0" width="1440" height="900" rx="0" fill="#f5f5f4"/>
+<rect x="0" y="0" width="1440" height="28" rx="0" fill="#e7e5e4"/>
+<text x="16" y="19" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Wireframe · /b2b-institution · Phase A, synthetische Daten</text>
+<rect x="0" y="28" width="220" height="872" rx="0" fill="#022c22"/>
+<text x="24" y="68" font-size="18" font-weight="800" fill="#ffffff" text-anchor="start">NAVORA</text>
+<text x="24" y="92" font-size="13" font-weight="400" fill="#d1fae5" text-anchor="start">Pflegeheim Rheinblick</text>
+<text x="24" y="110" font-size="13" font-weight="400" fill="#d1fae5" text-anchor="start">(synthetisch)</text>
+<rect x="0" y="142" width="220" height="44" rx="0" fill="#064e3b"/>
+<rect x="0" y="142" width="4" height="44" rx="0" fill="#ffffff"/>
+<text x="24" y="169" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start">Schichtplan</text>
+<text x="24" y="217" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Ausfälle</text>
+<text x="24" y="265" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Protokoll</text>
+<text x="24" y="313" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Angehörige</text>
+<text x="24" y="361" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Lizenzen</text>
+<text x="24" y="409" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Meine Einstellungen</text>
+<text x="24" y="876" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Abmelden</text>
+<rect x="252" y="44" width="300" height="44" rx="10" fill="#ffffff" stroke="#065f46" stroke-width="2"/>
+<text x="266" y="72" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Modul 1 Planung</text>
+<rect x="491.4016" y="55" width="50.598400000000005" height="22" rx="11.0" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="499.4016" y="70.32" font-size="12" font-weight="600" fill="#065f46" text-anchor="start">aktiv</text>
+<rect x="564" y="44" width="300" height="44" rx="10" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="578" y="72" font-size="15" font-weight="600" fill="#022c22" text-anchor="start">Modul 2 Protokoll</text>
+<rect x="803.4016" y="55" width="50.598400000000005" height="22" rx="11.0" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="811.4016" y="70.32" font-size="12" font-weight="600" fill="#065f46" text-anchor="start">aktiv</text>
+<rect x="876" y="44" width="300" height="44" rx="10" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="890" y="72" font-size="15" font-weight="600" fill="#022c22" text-anchor="start">Modul 3 Angehörige</text>
+<rect x="1057.9072" y="55" width="108.09279999999998" height="22" rx="11.0" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1065.9072" y="70.32" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">nicht gebucht</text>
+<text x="252" y="124" font-size="24" font-weight="700" fill="#022c22" text-anchor="start">Schichtplan</text>
+<text x="252" y="148" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">KW 46 · 9.–15.11.2026 · alle Abteilungen</text>
+<rect x="1108" y="104" width="140" height="40" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="1178.0" y="129.04" font-size="14" font-weight="600" fill="#022c22" text-anchor="middle">‹ KW 45</text>
+<rect x="1260" y="104" width="148" height="40" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="1334.0" y="129.04" font-size="14" font-weight="600" fill="#022c22" text-anchor="middle">KW 47 ›</text>
+<rect x="252" y="168" width="1156" height="176" rx="16" fill="#ffffff" stroke="#92400e" stroke-width="1.5"/>
+<text x="272" y="200" font-size="18" font-weight="700" fill="#022c22" text-anchor="start">Ausfallkoordination</text>
+<rect x="462" y="183" width="393.2964000000003" height="23" rx="11.5" fill="#fffbeb" stroke="#92400e" stroke-width="1"/>
+<text x="470" y="199.18" font-size="13" font-weight="600" fill="#92400e" text-anchor="start">2 Ausfälle diese Woche, 1 Vorschlag zur Bestätigung</text>
+<line x1="272" y1="218" x2="1388" y2="218" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="244" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Fr 13.11. · Spät · Demenzabteilung · Ausfall</text>
+<text x="272" y="266" font-size="13" font-weight="400" fill="#0c4a6e" text-anchor="start">Vorschlag: Ersatz aus Wohnbereich 2 (FaGe, Demenz-Erfahrung bestätigt) · vorgeschlagen von Planungs-Assistent</text>
+<rect x="1198" y="230" width="190" height="44" rx="8" fill="#065f46"/>
+<text x="1293.0" y="257.4" font-size="15" font-weight="600" fill="#ffffff" text-anchor="middle">Vorschlag prüfen</text>
+<line x1="272" y1="284" x2="1388" y2="284" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="310" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Sa 14.11. · Früh · Wohnbereich 3 · Ausfall</text>
+<text x="272" y="330" font-size="13" font-weight="400" fill="#92400e" text-anchor="start">Auftrag an NAVORA-Teams gesendet · noch nicht gedeckt, beim 2. von 3 Teams bis 15:10</text>
+<rect x="1198" y="294" width="190" height="40" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="1293.0" y="319.04" font-size="14" font-weight="600" fill="#022c22" text-anchor="middle">Stand ansehen</text>
+<rect x="252" y="364" width="1156" height="512" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="start">Abteilung · Schicht</text>
+<text x="570.8571428571429" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">Mo 9.11.</text>
+<text x="696.5714285714286" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">Di 10.11.</text>
+<text x="822.2857142857143" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">Mi 11.11.</text>
+<text x="948.0" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">Do 12.11.</text>
+<rect x="1010.8571428571429" y="376" width="125.71428571428571" height="456" rx="8" fill="#ecfdf5"/>
+<text x="1073.7142857142858" y="416" font-size="12" font-weight="600" fill="#065f46" text-anchor="middle">heute</text>
+<text x="1073.7142857142858" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">Fr 13.11.</text>
+<text x="1199.4285714285713" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">Sa 14.11.</text>
+<text x="1325.142857142857" y="398" font-size="13" font-weight="700" fill="#44403c" text-anchor="middle">So 15.11.</text>
+<line x1="272" y1="426" x2="1388" y2="426" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="454" font-size="14" font-weight="700" fill="#022c22" text-anchor="start">Demenzabteilung</text>
+<text x="422" y="454" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Früh</text>
+<rect x="514.0" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<rect x="639.7142857142857" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<rect x="765.4285714285714" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<rect x="891.1428571428571" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<rect x="1016.8571428571429" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<rect x="1142.5714285714284" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<rect x="1268.2857142857142" y="432" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="454" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">4/4</text>
+<text x="422" y="498" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Spät</text>
+<rect x="514.0" y="476" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="498" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="639.7142857142857" y="476" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="498" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="765.4285714285714" y="476" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="498" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="891.1428571428571" y="476" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="498" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1016.8571428571429" y="476" width="113.71428571428571" height="32" rx="6" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="1073.7142857142858" y="498" font-size="13" font-weight="700" fill="#0c4a6e" text-anchor="middle">2/3 · Vorschlag</text>
+<rect x="1142.5714285714284" y="476" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="498" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1268.2857142857142" y="476" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="498" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<text x="422" y="542" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Nacht</text>
+<rect x="514.0" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="639.7142857142857" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="765.4285714285714" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="891.1428571428571" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1016.8571428571429" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1142.5714285714284" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1268.2857142857142" y="520" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="542" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<line x1="272" y1="558" x2="1388" y2="558" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="586" font-size="14" font-weight="700" fill="#022c22" text-anchor="start">Wohnbereich 2</text>
+<text x="422" y="586" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Früh</text>
+<rect x="514.0" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="639.7142857142857" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="765.4285714285714" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="891.1428571428571" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1016.8571428571429" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1142.5714285714284" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1268.2857142857142" y="564" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="586" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<text x="422" y="630" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Spät</text>
+<rect x="514.0" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="639.7142857142857" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="765.4285714285714" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="891.1428571428571" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="1016.8571428571429" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="1142.5714285714284" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="1268.2857142857142" y="608" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="630" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<text x="422" y="674" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Nacht</text>
+<rect x="514.0" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="639.7142857142857" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="765.4285714285714" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="891.1428571428571" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1016.8571428571429" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1142.5714285714284" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1268.2857142857142" y="652" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="674" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<line x1="272" y1="690" x2="1388" y2="690" stroke="#d6d3d1" stroke-width="1"/>
+<text x="272" y="718" font-size="14" font-weight="700" fill="#022c22" text-anchor="start">Wohnbereich 3</text>
+<text x="422" y="718" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Früh</text>
+<rect x="514.0" y="696" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="718" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="639.7142857142857" y="696" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="718" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="765.4285714285714" y="696" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="718" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="891.1428571428571" y="696" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="718" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1016.8571428571429" y="696" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="718" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<rect x="1142.5714285714284" y="696" width="113.71428571428571" height="32" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="1199.4285714285713" y="718" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">Lücke · 2/3</text>
+<rect x="1268.2857142857142" y="696" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="718" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">3/3</text>
+<text x="422" y="762" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Spät</text>
+<rect x="514.0" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="639.7142857142857" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="765.4285714285714" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="891.1428571428571" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="1016.8571428571429" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="1142.5714285714284" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<rect x="1268.2857142857142" y="740" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="762" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">2/2</text>
+<text x="422" y="806" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Nacht</text>
+<rect x="514.0" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="570.8571428571429" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="639.7142857142857" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="696.5714285714286" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="765.4285714285714" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="822.2857142857143" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="891.1428571428571" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="948.0" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1016.8571428571429" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1073.7142857142858" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1142.5714285714284" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1199.4285714285713" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<rect x="1268.2857142857142" y="784" width="113.71428571428571" height="32" rx="6" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="1325.142857142857" y="806" font-size="13" font-weight="400" fill="#022c22" text-anchor="middle">1/1</text>
+<text x="272" y="860" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Zahlen: eingeteilt / Bedarf (synthetisches Beispiel) · Lücke = Bedarf nicht gedeckt, nie nur Farbe · Vorschlag = wartet auf Bestätigung</text>
+</svg>

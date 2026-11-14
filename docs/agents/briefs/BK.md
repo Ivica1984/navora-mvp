@@ -1,0 +1,393 @@
+---
+id: BK
+title: Durchgehender Kern — vom Auftrag bis zur Abrechnung (generisch für Heim, Spital, Privatperson)
+author: po
+status: approved   # ACTIVE block since 2026-11-13 18:40 CET (B1.1 accepted on 33523a5)
+updated: 2026-11-13
+---
+
+# BK — Durchgehender Kern: Auftrag → Prüfung → Empfehlung → Teamentscheid → Einsatz → Bericht → Rechnung
+
+Founder decisions **FE-073** (core chain first) and **FE-074** (generic logic, client view with AI capture, synthetic variety), 2026-11-13. Phase A only: **simulation, synthetic data.** No release for real persons and data.
+
+**Generic, not one case.** BK builds one logic for every order type (shift in a home or hospital ward, care at a private household), every shift type (früh, spät, nacht, Wochenende) and every level (AGS, FaGe, HF). The Lehenmatt late shift (FE-073 (5)) is **one** of the acceptance scenarios, not the design.
+
+## Problem
+A home, a hospital ward or a private household that needs care at short notice phones agencies; the agency keeps the margin, a dispatcher decides, the carer types reports, someone writes the invoice. NAVORA has parts of the chain but no single path from an order to an invoice, and no view in which the client states the need in its own words.
+
+## Users and views
+- **Auftraggeber-Ansicht (Referral/Client Portal):** home, hospital ward, private person. States the need by voice or free text, checks the recognised fields, confirms.
+- **Team-Dashboard:** gets the offer with reasons; an authorised member takes it.
+- **`/field`:** the carer runs the shift, records time, dictates, signs.
+- **NAVORA operator:** counts only (the chain ran); no content.
+- Not in the happy path: Operations as dispatcher, coach, relatives.
+
+## Acceptance criteria
+
+### Step 1: capture (client view, AI-assisted)
+- [ ] BK-1 The client enters the need **by voice or free text** (e.g. «Brauche für Sonntag Nachtdienst eine FaGe, 22:00–07:00 Uhr»), or fills the form directly; both end in the same structured order.
+- [ ] BK-1a **Extraction** fills the required fields: date(s), start and end, shift type (früh/spät/nacht/Wochenende, derived from the times), place of care as **PLZ** (BS/BL list), qualification level (AGS, FaGe, HF), activity tags. Every field shows whether it was **recognised** or **entered**.
+- [ ] BK-1b **Nothing is guessed silently:** a relative date («Sonntag») is shown as a concrete date; a field that cannot be recognised stays empty and is asked for; a contradiction (e.g. «Nachtdienst 14:00–18:00») is shown and must be resolved by the client. No default fills a required field.
+- [ ] BK-1c **A night shift across midnight is one order** (start date + end next day, 9 h for 22:00–07:00), never two days or a negative duration (known risk CGR-200).
+- [ ] BK-1d The order is binding only after **«Bestätigen & Absenden»** on a summary of all fields; before that nothing reaches teams. Client can correct any field in the summary.
+- [ ] BK-1e **Data minimisation in the capture:** the view asks for the need, not for a patient story; for a **private household** only the PLZ is used for matching, the street address is released to the team only after it has taken the order. Free text that is not mapped to a field is not stored with the order (wording and rule `lca`, `uxa`).
+- [ ] BK-1n A team member cannot create or confirm an order for a client; a client sees only its own orders.
+
+### Step 2: deterministic check, then AI ranking (the heart)
+- [ ] BK-2 **Hard filters**, deterministic, in the database, before any AI: PLZ distance within the team's maximum travel distance and, if the client set one, within the order's radius (PO amendment 18:40); qualification level allowed for every tag (`QUALIFICATION_MATRIX`, PROPOSED, simulation only); availability for the **whole** slot (including night and weekend); every tag marked «required» held as a **confirmed** attribute. Each excluded team carries its reason.
+- [ ] BK-2n A team failing any hard filter is **never** offered, whatever the ranking says (test asserts on offer rows).
+- [ ] BK-3 **Ranking** among the eligible only: practice experience, prior knowledge, language (ranking only, not a filter; PO 13:40, FE-073 (3)), continuity with this client, distance. The ranking can reorder, never add. AI ranking runs on synthetic data only (D-35 rule A; FE-051 Muster 1/4).
+- [ ] BK-4 The **offer card** gives reasons built from the facts used («Nachtdienst So 22:00–Mo 07:00, 4102 Binningen, 3,4 km · passt: FaGe, Demenzerfahrung bestätigt, frei, kennt diese Einrichtung»). No percentage score. Wording `uxa`.
+
+### Step 3: offer and team decision (best team first, never waiting silently)
+- [ ] BK-5 **Offer cascade:** the best-ranked team receives the offer first, on its dashboard, for an **exclusive window**; if it declines or the window ends, the next eligible team receives it, and so on. The window is a parameter per order, shorter when the shift starts soon (default PROPOSED by `eng` in the ADR; not a clinical rule).
+- [ ] BK-5a An authorised member takes it with one tap («Übernehmen»); the hard filters run again at that moment; the client sees «gedeckt durch Team …» within seconds.
+- [ ] BK-5n No one assigns the order for a team (product invariant, FE-039). A member who no longer meets BK-2 at the tap is refused with the reason; the cascade continues.
+- [ ] BK-6 **Not covered stays visible:** the client sees at every moment «Angebot bei Team 1 von 4», «noch nicht gedeckt, Beginn in 2 h 10»; when every eligible team has declined or the shift starts, «nicht gedeckt» is shown to the client and raised as an Operations exception. No silent expiry.
+
+### Step 4: shift and report (`/field`)
+- [ ] BK-7 The carer sees the order as her next item (times, place, tags from the order); time is recorded with the existing F1-F4 path, including a shift across midnight.
+- [ ] BK-8 Dictation or typed input produces a **draft** report (FE-051 Muster 3 core; Muster 4 only on synthetic data); each sentence traces to the input; nothing invented. The carer reviews, edits and signs; until then no billable fact.
+- [ ] BK-8n Only the carer who did the shift signs; an unsigned draft creates no invoice line.
+
+### Step 5: invoice
+- [ ] BK-9 After signature, one **invoice draft from the team to the client**: hours × price of the order (synthetic example values, not tariffs); **no NAVORA commission line**; the NAVORA subscription lives in its own ledger.
+- [ ] BK-9n Recorded and ordered times disagree → no invoice, visible error; a second invoice for the same order is refused.
+- [ ] BK-10 Simulated service invoice only; **no KVG/KLV billing** in BK (D-44, D-18 for later).
+
+### Whole block: synthetic variety (FE-074 (3))
+- [ ] BK-11 The seed and the e2e set cover a **scenario matrix**, all synthetic, in BS and BL: at least three fictitious institutions (home, hospital ward, second home) and two private households; shift types früh, spät, nacht (across midnight), Wochenende; levels AGS, FaGe, HF; teams that pass and teams that fail each hard filter. Scenario table in the ADR.
+- [ ] BK-12 Acceptance: the e2e set runs every scenario of the matrix through steps 1-5 (and the stop cases of BK-1b, BK-2n, BK-5n, BK-6, BK-8n, BK-9n), green in `ci` and 10/10 in `ci-repeat` on a named commit. Protocol counts human actions per step (AUT-74).
+
+## Rules and their input class
+| Rule | Input class | Status |
+|---|---|---|
+| Field extraction from voice/text | none (client confirms every field) | buildable; AI prepares only |
+| PLZ distance within radius | visit/schedule fact | buildable |
+| Level allowed for a tag | clinical content (matrix) | **simulation only**, matrix PROPOSED; Clinical Owner before real data (D-27) |
+| Required attribute confirmed | care-context fact recorded by a person | buildable; **for the adviser** (it routes) |
+| Availability for the whole slot | visit/schedule fact | buildable |
+| Ranking among the eligible | schedule fact + confirmed attributes | buildable; ranks only |
+| Cascade window | operational parameter | buildable; not a clinical rule |
+
+## AI leverage
+1. **Remove:** phone chain, dispatcher, retyping the need, typed reports, manual invoice.
+2. **Rules:** BK-2 filters, BK-1c duration, BK-9 arithmetic.
+3. **Monitor:** BK-6 cover state until start.
+4. **AI prepares:** field extraction (BK-1a), ranking reasons (BK-4), report draft (BK-8). Input synthetic; output class «Entwurf»/«erkannt»; level L/G; stop rule: no source → empty field or no sentence.
+5. **Human reviews:** client checks the summary; team reads the card; carer reads the draft.
+6. **Human decides:** client confirms the order; team takes it.
+7. **Human signs:** carer signs the report.
+- Gate: D-35 rule A; synthetic data only. Before real data: AI path D-41 (Muster 4, legal opinion, DSFA), because client free text may carry personal or health data. The AI never adds a team, removes a filter, fills a required field without showing it, confirms an order, signs, or sets a price.
+
+## Out of scope (after BK, FE-073 (4))
+B1.1-2 to -5, recurring orders, cancellation and change after confirmation, partial cover, real tariffs and KVG/KLV, payment, payroll, social insurance, contracts and legal form (D-44), real data.
+
+## Dependencies
+B1.1 accepted (cut). Builds on J1/J2 (B1), QUAL1 (B2), F1-F4 (B4), F6/F7 (B6). New: client view with capture, order type with shift fields, PLZ list with distances (BS/BL), confirmed attribute, offer cascade, invoice draft to a client.
+
+## Reviews required per PR
+`cra` (BK-1c, BK-2, BK-5, BK-6, BK-8), `lca` (BK-1e minimisation, PLZ source and terms, attributes as staff data, invoice wording, D-44 note), `uxa` (client view, summary, card, cascade state, 390 px), `aia` (BK-1a, BK-3, BK-4, BK-8 AI contracts).
+
+## Vision check (FE-070 (7))
+1. Direct care time: ≤ 3 admin actions for the carer after a shift. 2. Continuity: ranking prefers a team known to the client. 3. Nurse income: no intermediary margin on the invoice. 4. Team autonomy: the team decides; cascade offers, never assigns. 5. Less administration: one sentence and one tap for the client. 6. Patient outcome: only verified qualifications reach the client; uncovered stays visible. 7. Scalability: one logic for home, hospital and household. 8. Platform: first full chain from client portal to invoice.
+
+## Slices (proposal; `eng` may change in the ADR)
+BK-a order type + client form + summary/confirm (no AI) · BK-b PLZ list + hard filters · BK-c ranking + card + cascade + cover state · BK-d AI capture (BK-1a/b) on synthetic data · BK-e `/field` link + report draft · BK-f invoice draft · BK-g scenario matrix seed + whole e2e. One PR each, gates per PR.
+
+## Open questions for engineering
+1. Reuse `partner_requests`/cases or a new order type? ADR first.
+2. PLZ distance source for BS/BL (`lca` checks terms; synthetic table acceptable for Phase A).
+3. How does the cascade relate to today's open search and the «1 Team prüft» signal (FE-072 (4))? Propose; FE-074 (2) wins for BK.
+
+## PO amendment 2026-11-13 13:40 (scheduled PO run): placement of `cra` CGR-204 to CGR-210; language in the ranking
+
+Source: `cra` specification review 2026-11-13 13:30 (`CLINICAL_GOVERNANCE.md`, merged with #1205, `69548c3`). BK is still **not active** (B1.1 first, FE-073). This amendment changes the brief before the BK ADR, so `eng` can take the conditions in; it sets no care rule (D-27), and the matrix stays PROPOSED.
+
+**BK acceptance conditions, gate «Simulation, synthetic data» (PLANNED):**
+
+1. **CGR-204 (a)-(c), per-person eligibility:** BK-2 is read per **member**: a team is eligible only if one and the same member passes level, every required confirmed attribute and availability for the whole slot. «Übernehmen» names that member; the check re-runs for her at the tap and at shift start. The cover state tells «Team hat übernommen, Pflegekraft noch nicht benannt» apart from «gedeckt» (named, checked carer). Negative test: a team whose qualified member is unavailable and whose available member lacks the level is never offered. (d) service area: `eng` proposes in the ADR.
+2. **CGR-206 (a)-(d), time basis:** durations and «whole slot» from Europe/Zurich timestamps, never clock-time differences; shift type derived as a set (Saturday night = night and weekend); CGR-200 fixed in BK-e or before BK-7 is accepted; scenario matrix (BK-g) adds a clock-change night and a night with an F3 correction after midnight (pinned clock), asserting order duration, availability, recorded duration and invoice hours.
+3. **CGR-207 (a), latest cover time:** no offer window runs past a latest cover time before the start; when the remaining time is shorter, the client sees «nicht gedeckt» and Operations gets the exception **before** the start. The lead-time default is an operational `eng` value (PROPOSED), not a clinical rule.
+4. **CGR-208 (a)-(c), no dropped facts (PO places this above the `cra` proposal):** BK-8 shows the source beside the draft; every input segment not used is listed «nicht übernommen» and must be taken in or discarded before signing; the signed version records its input; test with one safety observation and one filler sentence, signing refused until every listed segment is handled. Reason: a fluent draft that silently drops a fall or a refused medication is the patient-safety failure an AI-first report most easily creates; it is testable now with synthetic dictation. `aia` writes it into the BK-8 AI contract.
+5. **CGR-209 (b):** the BK acceptance record and the founder demo state that hand-over at the place of care and escalation of an acute event are **not modelled** in Phase A.
+6. **UXR-188 with `cra` conditions (1)-(3):** cover state line per server state on each load; «nicht gedeckt» as text, never colour alone.
+
+**Real-data conditions (before «released for real persons and data»), not BK acceptance:** CGR-205 (a)-(e) (level vs tag contradictions shown to the client, «D» cells in a home only with an Einsatzvereinbarung, tags as matrix IDs; PH SRK for an «AGS» order is the Clinical Owner's); CGR-207 (b), (c) (no-start exception, decline log; `eng` may build them in BK if cheap); CGR-208 (d) and CGR-209 (a), (c) (hand-over step, escalation route: Clinical Owner, `lca`, L-7, D-44); CGR-210 (a)-(c) (invoice tied to the signed version; correction voids the draft; no tag on a private invoice unless `lca` says so). If `eng` builds CGR-210 (a), (b) in BK-f, the PO accepts it there.
+
+**Language (`cra` CGR-205 (e), contradiction with FE-073 (3)):** FE-073 (3) names «Sprache» among the profile-matching inputs; BK-3 omitted it. Following `FOUNDER_DECISIONS.md` (README rule 10), BK-3 now reads: ranking among the eligible on practice experience, prior knowledge, **language**, continuity with this client, distance. Language is a **ranking input, not a hard filter**, in Phase A. Whether a missing shared language must exclude a carer (for example on a dementia ward) is a care question: UNKNOWN, Clinical Owner (D-27); until then no hard language filter is built, and the offer card states the language fact it used.
+
+Owners: `eng` (ADR: 1-3, slices), `aia` (4), `uxa` (1 wording, 6), `cra` (gate per PR), `lca` (real-data items). PO status of BK: approved, not active.
+
+## PO amendment 2026-11-13 16:39 (scheduled PO run): `uxa` UXR-191 and UXR-192 as BK acceptance criteria
+
+Source: `uxa` review 16:20 (`UX_REVIEW.md`, merged with #1219), issues #1217 and #1218. Both apply CGR-204 and `lca` M-a to the screens; neither adds a clinical or legal rule. The Blueprint V3.2 wireframes that contradicted them are corrected in V3.2.1 (PO, this run). PLANNED, not built.
+
+- **UXR-191 (BK-c, BK-e):**
+  1. Component test: a team whose qualified member is unavailable and whose available member lacks the level renders **no** offer card.
+  2. Component test: the «Passt, weil:» line lists only facts true for at least one and the same member.
+  3. e2e at 390 px: the primary action is «Übernehmen mit …» and lists eligible members only; without a named member the client status reads «… hat übernommen · Pflegekraft noch nicht benannt» or «noch nicht gedeckt», never «Gedeckt»; «Gedeckt» only after naming. BK-5a («gedeckt durch Team …») is read with this point. Whether the client sees the member's name: `lca` (OPEN); until answered the client line shows no member name.
+- **UXR-192 (BK-a capture, BK-1 planner, fixtures):**
+  1. `git grep -i krankmeldung -- src tests docs/product/blueprint-v3` returns only rule texts that forbid it; no fixture, placeholder, hint or sample carries an absence reason.
+  2. Component test: the planner's absence row renders no reason field. Unit test: a «Krankmeldung» segment in a capture is listed as unused («nicht übernommen», CGR-208) and is not written to the order.
+
+Owners: `eng` (tests), `uxa` (wording, gate), `lca` (member name to client). PO status of BK: approved, not active (B1.1 acceptance first).
+
+## PO amendment 2026-11-13 18:40 (scheduled PO run): BK active; answers to the two `po` OPEN items in ADR-191 and ADR-193 (#1228)
+
+**BK is the active block from now** (B1.1 accepted on `33523a5`, `briefs/B1.1.md` §PO 18:40). Feature PRs merge in slice order BK-a, b, c, e, f, d, g; BK-a first. This amendment decides two operational WHAT questions that `eng` left to the PO; it sets no clinical, legal or tariff rule.
+
+1. **Radius (ADR-191 decision 1, ADR-193 decision 4): no NAVORA-wide default.** Phase A, simulation only:
+   - (a) The **team** sets its own maximum travel distance (km) together with its service postcodes (`team_service_postcodes`, ADR-193 (3)); it is set and changed by the team (or an organisation `admin` in the seed), with audit. Reason: value 4 (team autonomy); the team carries the travel time; a central default would be dispatching in disguise (challenge row 18:40).
+   - (b) The client **may** narrow the distance per order (optional field, empty by default); the client is never asked for a radius to send an order.
+   - (c) The hard filter (BK-2) uses the **smaller** of the team's maximum and the order's optional radius; an order without radius uses the team's maximum. A team without service postcode or without maximum distance is excluded with its reason (`no_service_area`), never included by default. **BK-2 now reads:** «PLZ distance within the team's maximum travel distance and, if the client set one, within the order's radius».
+   - (d) Red tests (BK-b): an order without radius reaches a team whose maximum covers the distance; the same order does not reach a team whose maximum is 1 km short; a client radius smaller than the team's maximum excludes the team; a team without maximum gets no offer row and carries its reason.
+   - (e) Not decided here: whether distance is a safety concern for timely arrival in an urgent order (`cra`, advisory), and P-5 wording (`lca`). Synthetic values only.
+2. **Shift-type boundaries (ADR-191 decision 4): NAVORA sets no clock definition.**
+   - (a) The binding facts of an order are its exact start and end (Europe/Zurich, CGR-206). Hard filters, availability, the cascade and the invoice use these, **never** the shift-type label.
+   - (b) The label (früh, spät, nacht, Wochenende, as a set) comes from the **client's own shift plan** (start/end per label, per client account). In Phase A the seed holds one synthetic shift plan per synthetic client, marked `synthetic`; the extraction (BK-1a, BK-d) may propose a label only by matching the stated times to that plan, and shows it as «erkannt».
+   - (c) A time that matches no label of the client's plan shows no label and asks nothing extra; the order is still valid. Weekend = start or end on Saturday or Sunday (calendar fact, not a rule).
+   - (d) Red tests (BK-a/BK-d): an order 22:00–07:00 is valid and one row whether or not a label matches; changing a client's shift plan never changes any team's eligibility for an existing order.
+   - (e) OPEN for `lca` (BK-f, before any invoice line uses it): whether night and Sunday surcharges and the ArG night-work definition apply to a team's invoice in the chosen legal structure (D-44). Until answered, the invoice draft shows no surcharge.
+
+Owners: `eng` (ADR-191, ADR-193 text to follow these answers; schema HOW), `uxa` (radius field wording, label display), `cra` (1 (e), advisory), `lca` (1 (e), 2 (e)). PO status of BK: **active**.
+
+## PO amendment 2026-11-13 20:40 (scheduled PO run): AUT-117 to AUT-120, UXR-190, UXR-195 to UXR-197 placed
+
+Sources: `aia` review 54 (#1236, merged `b2f43b0`), `uxa` review 20:00 (#1234, merged `e713989`), issues #1232, #1233, #1235. BK stays the only active block, slice order unchanged (a, b, c, e, f, d, g). This amendment decides operational WHAT questions only; it sets no clinical, legal or tariff rule (D-27), and the matrix stays PROPOSED. Everything below is PLANNED, nothing built.
+
+1. **AUT-117 (#1235, high): the team sets its own reach.** This applies the PO amendment 18:40 (1)(a); ADR-193 (3)/(4) («set by an organisation `admin`») contradicts it, and the newer PO text wins (README rule 10). `eng` aligns the ADR text in the BK-b ADR or PR.
+   - (a) One audited command for the team's service postcodes and maximum distance, callable by an **active member of that team**; an organisation `admin` only for the seed and for a team without active members. Postcodes only from `postcodes` (P-8); distance > 0. No approval step, no new role.
+   - (b) A change applies to new offers only; an offer row already written is not altered or withdrawn silently.
+   - (c) The team view shows its reach with the date of the last change; a team without reach sees in words that it receives no orders, and the action to set it.
+   - (d) Tests (BK-b, red first): pgTAP: a member of team A sets A's reach; a member of team B cannot set A's; an admin can; every change writes an audit row with old and new values; a reach change leaves an existing offer row unchanged. Scenario matrix: teams excluded `no_service_area` / `no_max_distance` after seed setup = 0; reach changes counted by team act vs admin act **per team, never per person**.
+   - (e) Gates: `lca` (P-5: the reach is the team's area, never a member's home address; who may set it), `eng` (HOW).
+2. **AUT-119 (medium): price, direction for BK-f; replaces the PO hypothesis of 19:40.**
+   - (a) **BK-a builds no price column set by the client.** The `price_per_hour` on the client's order row in ADR-191 (1) is not built in BK-a; pricing is BK-f.
+   - (b) Direction for the BK-f ADR (mirrors the radius answer): the team keeps a standing price per hour (team-set, audited, synthetic example value, never a NAVORA reference value); the client may set an optional ceiling per order (empty by default), and a team above it is excluded with its reason; at «Übernehmen» the team's price is copied onto the accepted offer (snapshot), so the client confirms nothing after the take. A per-order deviation is only possible **before** the take and is shown to the client as a new offer state.
+   - (c) OPEN before BK-f: `lca` (price setting by self-employed teams, competition questions, W-7 labelling); the founder question «keine Zahlungsflüsse über NAVORA» (Blueprint ch. 11). Measure: time from «Übernehmen» to «gedeckt» unchanged by pricing.
+3. **AUT-120 (low) into BK-a:** the preview fills a concrete date only when the words admit exactly one; otherwise it returns `relative_date_ambiguous` with both candidates for the client to pick. Test: on a Sunday fixture «Sonntag» returns two candidates; on a Wednesday one date; the confirmed row never carries a date the client did not see. Gates `cra` (CGR-200, CGR-206), `uxa` (pick wording).
+4. **UXR-196 (medium) into BK-a:** the built order sentence uses the form's labels, never a code or an ISO date, e.g. «Schichtauftrag · FaGe · So 22.11.2026 22:00 – Mo 23.11.2026 07:00 (9 Std.) · 4102 Binningen» (synthetic). Test: the sentence for the 22:00–07:00 fixture equals the expected string and contains no `_`. P-7: `lca`.
+5. **UXR-197 (medium) into BK-a, at 390 and 1440 px:** a matching label reads «Nacht · aus Ihrem Dienstplan»; with no matching label the summary shows the time line and **no** label line and no «keine Bezeichnung» (PO 18:40 (2)(c) stands over ADR-191 risk (c)), and «Bestätigen & Absenden» stays enabled; the radius field is empty by default and the summary reads «Distanz: keine Vorgabe». Radius words: `lca` (P-5).
+6. **UXR-195 (#1233, high) and AUT-118 into BK-8 / BK-e:**
+   - (a) **No time cap** on the report input. BK-8 at stage 0 is a rule over text; NAVORA receives and stores **no audio** in BK (catalogue test: no audio column or bucket in BK migrations).
+   - (b) «Nicht übernommen (n)» above the sign button, one item per unused segment, with «Einfügen» and «Bewusst weglassen»; the draft shows its origin («regelbasiert, keine KI · synthetische Daten»).
+   - (c) Two proposals differ: `uxa` (sign button disabled while n > 0) and `aia` (an unhandled segment defaults into the report; removal is an audited act). Either keeps the guarantee «nothing dictated is dropped without a decision». **`cra` decides** at the BK-e gate (CGR-213 (b)); the PO sets no documentation rule. Shared test, either way: 40 input segments → 40 placed or listed, none lost.
+   - (d) Blueprint V3.2.5 §5.3 and `field.svg` (text) are corrected; the drawing of the block, a text input instead of a recording, and the PNG are `uxa`'s (#1233).
+7. **UXR-190 (#1232, high, `cra` CGR-212) into BK-e, first criterion of that slice.** README rule 12 allows a separately named safety fix only while **no** block is active; with BK active a non-BK feature merge would compete with it. Phase A has no real persons, so no patient is exposed now; the defect still hides a safety signal in the simulation (every seed visit has a postcode and no street). BK-e touches `/field` anyway. Criterion: with an empty street and a postcode, the card shows «4052 Basel · Strasse fehlt – im Team klären» as text (not colour alone); unchanged when the street exists or everything is empty. Tests: unit test on the place builder for the three cases; e2e at 390 px: a seed visit without a street shows «Strasse fehlt», no horizontal scroll. **No release for real data without it.** Whether a visit without a street may be planned at all: OPEN for `cra` (advisory) and the DOOR1 intake; not decided here.
+
+Owners: `eng` (ADR-193 text, tests), `uxa` (wording, P3 drawing), `cra` (6 (c), 7), `lca` (1 (e), 2 (c), 4, 5), `aia` (measures). PO status of BK: **active**.
+
+## PO amendment 2026-11-13 21:39 (scheduled PO run): CGR-214 to CGR-216, CGR-206 (d), BK-8 variant
+
+Sources: `cra` review 21:40 (#1239, merged `eb46681`), PR #1238 (BK-a, heads `3d9fb98` and `f6fdcaf`). BK stays the only active block, slice order unchanged (a, b, c, e, f, d, g). This amendment decides operational WHAT only; it sets no clinical, legal or tariff rule (D-27), and the matrix stays PROPOSED. Everything below is PLANNED unless marked otherwise.
+
+1. **CGR-214 (blocking for #1238): merge condition of BK-a.** #1238 is merged only when the `partner_requests` audit trigger keeps every column it audited before 0129 (including `urgency_source` and `referrer_requested_start`, 0086:225), pgTAP 086 is green, and the guards 068 (DST1), 074 (LEAVE1) and 077 (AUD1) are green **without** any guard or assertion loosened. `eng` pushed `f6fdcaf` («audit list of 0086 kept», LEAVE1-3 guard, `private.at_zurich`, no `audit_events` read); CI was running at this run. PO_MERGE_PROCESS §4 (2), AUT-50: `cra` reads the new head and writes a gate line before the PO merges.
+2. **CGR-206 (d) into BK-a (PO choice over «at the latest BK-g»):** BK-a is the slice that computes and stores the order's duration, so its tests carry the clock-change cases. pgTAP 135 (or a sibling file) asserts: night Sat 30.10.2027 22:00 – Sun 31.10.2027 07:00 = 600 min, sentence «(10 Std.)»; night Sat 27.03.2027 22:00 – Sun 28.03.2027 07:00 = 480 min, «(8 Std.)»; a start of 02:30 on 28.03.2027 is shown as 03:30 in the preview **before** confirmation, never shifted silently. Dates are calendar facts, not rules. If `cra` clears #1238 for the simulation without these, they are added in the next BK-a PR before the BK-a acceptance; the acceptance record names them.
+3. **CGR-215 placed:**
+   - (a) BK-a acceptance gate is «Simulation, synthetic data» only; no release for real persons before BK-c offers and the BK-6 exception exist.
+   - (b) BK-c criterion (red test): an order confirmed before the BK-c migration is offered or raised as an Operations exception; none stays «noch nicht gedeckt» with no team and no exception.
+   - (c) BK-c criterion: client orders in the exception list are ordered by time to start (CGR-207 (a)), never hidden or placed last because urgency is empty; test with an order starting in 2 h.
+   - (d) BK-a (if not in #1238, the next BK-a PR): the intake list never drops a row silently for missing urgency; it shows «Dringlichkeit fehlt» or logs an error event; unit test.
+4. **CGR-216 placed as a BK-b criterion** (before BK-b is accepted): the preview returns `level_activity_conflict` naming the activity when the matrix cell for the chosen level is «–» or «?», and confirm refuses it; pgTAP with a synthetic AGS order carrying an activity whose cell is «–» → refused with the activity named. No mapping from a higher to a lower level in code (CGR-205 (d)). The matrix stays PROPOSED; the cells are not set by the PO.
+5. **BK-8 «Nicht übernommen (n)»: the `uxa` variant is the build target for the simulation gate.** Correction of amendment 20:40 (6)(c): I wrote «`cra` decides»; `cra` is a review role (D-27) and gave a review position, not a decision. The PO decides the product behaviour for Phase A on that review position: the sign button stays disabled while n > 0. Conditions (from `cra` 21:40 answer 1): (i) no bulk action («alle weglassen» or similar); (ii) «Bewusst weglassen» is one audited act per segment, and the discarded text stays in the signed version's input record (CGR-208 (c)); (iii) `aia` measures discarded segments per report, counted per team, never per person; (iv) shared test: 40 segments in, 40 placed or listed, none lost, signing refused while one is unhandled. **Before real data the Clinical Owner confirms or replaces this (D-27); OPEN.** The `aia` default-in proposal is recorded as considered and not chosen (reason: a default places text the carer did not read in context under her signature).
+6. **Not decided here:** whether reference data (the BS/BL postcode list) may stay readable after access ends (LEAVE1, `lca`); `eng` chose the tighter guard on `f6fdcaf`, which the PO accepts as the default until `lca` answers. Street-less home visits and a distance threshold: UNKNOWN, Clinical Owner (`cra` 21:40 answers 2 and 3); no NAVORA default.
+
+Owners: `eng` (1, 2, 3 (d), 4), `cra` (gate line on the new #1238 head), `uxa` (5 wording, #1233), `aia` (5 (iii)), `lca` (6). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 00:39 (scheduled PO run): UXR-198 to UXR-203 and `lca` G-1 to G-6 placed
+
+Sources: `uxa` review 23:48 (#1243, merged `aab0d48`), `lca` D-44 section 00:20 (#1244, merged `e9acb2a`), PR #1238 head `45e07db` (`uxa` gate clear, `lca` advisory gate clear; the `cra` gate line is still missing, CGR-214). BK stays the only active block, slice order unchanged (a, b, c, e, f, d, g). This amendment decides operational WHAT only; it sets no clinical, legal or tariff rule (D-27), and the matrix stays PROPOSED. Everything below is PLANNED unless marked otherwise. None of it is a merge condition of #1238.
+
+1. **BK-a acceptance criteria (next BK-a PR after #1238, before the BK-a acceptance record):**
+   - (a) **UXR-199:** after «Bestätigen & Absenden» the form is cleared and focus moves to a confirmation block naming the order; a second press on the same filled form never creates a second order. Test (e2e or unit, red first): send, then send again without new input → exactly one order. Reason (value order 2, continuity): a duplicate order would ask two teams for one shift.
+   - (b) **UXR-198:** the client's menu has a destination for `/order` (`nav.ts` `menuItemsFor`); test: a client-only user sees the entry, a team member without client account does not.
+   - (c) **UXR-200:** each problem is also shown at its field (`aria-describedby`), not only on the summary.
+   - (d) **UXR-201 (low):** «Datum nicht erkannt» is announced on leaving the field, not while typing; in the same PR if small, otherwise BK-g.
+2. **UXR-202 waits for `cra`:** whether «Dringlichkeit fehlt» needs its own colour (not the grey of «niedrig») is a safety-signal question; `cra` confirms or rejects, then it goes into the next BK-a PR. OPEN.
+3. **BK-b criteria:** `lca` G-4 (a)-(c): the team reach is stored as the team's area (postcodes or a base postcode plus km), never a member's address, never GPS; setter recorded as actor. UXR-203: the radius hint appears in the client form; wording as proposed in G-4, `uxa` owns the words.
+4. **BK-c criteria (from `lca` G-2, G-3, G-6):**
+   - (a) G-2 (i), (ii): for a household order no street, contact or `activity_tags` key is an audited key of class `code`; catalogue assertion in pgTAP 077.
+   - (b) G-3 (2): the offer read model for a household order returns no `partner_name` before «Übernehmen»; test.
+   - (c) G-3 (1): any command that changes start, end, level or postcode rebuilds the order sentence in the same transaction; test (change → sentence equals a fresh build). Applies to whichever slice first adds such a command.
+   - (d) G-6 role separation: a person who is client in one network and team member in another sees, as client, none of the other network's team-side data, and the reverse; test.
+   - (e) G-5: in the simulation the client line may show the named member's first name and surname under `lca` (a)-(e) (only after «Übernehmen», only that order, no other personal fields). **Real use: unresolved, needs the owner (L-11 legal form, privacy notice text).** OPEN.
+5. **LEAVE1 (amendment 21:39 (6)) closed:** `lca` G-1 recommends keeping the uniform guard; the PO keeps it (074 not loosened).
+6. **Least privilege on global configuration rows (`lca` G-6 first point):** product choice, not a legal blocker. PO direction: before Phase B (real external clients), a client-only user reads no tariff, billing or exception configuration rows; `eng` proposes the change in an ADR at BK-f at the latest. PLANNED.
+
+Owners: `eng` (1, 3, 4, 6), `cra` (2, gate line on #1238), `uxa` (1 and 3 wording), `lca` (4 (e) real use with the owner). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 01:39 (scheduled PO run): #1238 merged; CGR-214 (b), CGR-217, UXR-202 placed
+
+Sources: `cra` 01:35 (#1247, merged `fb388f1`; the near-identical 01:30 run #1248 is not merged, overlap), `cra-gate: #1238 45e07db clear` (Simulation, synthetic data), PR #1238 merged `abd6f82` (head `45e07db`), PR #1246 (retargeted to `recovery/main`, draft). BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; no clinical, legal or tariff rule is set here (D-27); the matrix stays PROPOSED. Everything below is PLANNED unless marked otherwise.
+
+1. **IMPLEMENTED (merged, not accepted):** BK-a first PR #1238 on `recovery/main` as `abd6f82`. BK-a is **not** accepted until (a) CI on the merge commit is green (met: run 43535200821, 4/4 `success`), (b) the BK-a follow-up criteria below and of amendment 00:39 (1) are merged, and (c) `ci-repeat` 10/10 (`db`, `e2e`) on a named integrated commit (README rule 12 (4)). Gate of the acceptance: «Simulation, synthetic data».
+2. **BK-a acceptance criterion, CGR-214 (b):** one pgTAP assertion that an intake request with a referrer date writes `changed -> 'referrer_requested_start'` to the `partner_requests` audit (or a catalogue assertion that the trigger list contains every column of 0086:225). In #1246 or the next BK-a PR; regression guard, green on first run is acceptable and must be stated as such.
+3. **BK-a acceptance criterion, UXR-202, on `cra`'s review position (01:35):** «Dringlichkeit fehlt» looks different from every stored level (outlined badge, dark text, the words «Dringlichkeit fehlt»), **not red** (red stays for safety signals, UX1-23), and the list order stays by arrival (no invented priority). Test: vitest that `urgencyBadgeClass(null)` differs from the class of each of the four levels and the badge text is «Dringlichkeit fehlt». Closes the OPEN of amendment 00:39 (2).
+4. **CGR-217 into BK-b (advisory, S3):** `preview_client_order` returns an **information item, never a block**, when the same client account already has a confirmed order with the same start, end, level and postcode; the summary names it in words (`uxa` owns the words). pgTAP on the preview (positive: same order → item; negative: a different postcode or start → no item; a second order stays confirmable). Reason (value order 2, continuity; patient safety precondition): two teams asked for one shift wastes care time; two staff for one shift can be correct, so NAVORA informs and never forbids. Not a condition for #1246.
+5. **#1246 scope stays UXR-198 and UXR-199.** UXR-200, UXR-201, 2 and 3 above may join #1246 before its gates or follow in one more BK-a PR; `eng` decides HOW. Gates for #1246 on its retargeted head: `cra` (duplicate-order path), `uxa`, `lca` (own-rows read).
+
+Owners: `eng` (2, 3, 4, 5), `uxa` (4 wording), `cra` (gate on #1246). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 02:39 (scheduled PO run): `aia` AUT-121 and AUT-122 placed
+
+Sources: `aia` review 55 (#1250, merged `c153cde`). BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; no clinical, legal or tariff rule is set here (D-27); the matrix stays PROPOSED. Everything below is PLANNED.
+
+1. **AUT-121 (low) into BK-g, optional earlier:** relative date words («heute», «morgen», «übermorgen», a weekday) are resolved against the Zurich date at the summary step, not at page load; when the two dates differ, the summary adds one line that the date was recalculated (`uxa` owns the words). Test: unit test with an injected clock (loaded 23:50 on D, resolved 00:10 on D+1 → «morgen» = D+2 plus the line; resolved on D → D+1, no line). **Not** a BK-a acceptance criterion: the summary already shows the concrete date and `starts_in_past` refuses a past start, so nothing is stored silently. `eng` may add it to a BK-a PR if it is small.
+2. **AUT-122 (medium) as a binding criterion for every BK measure built from audit rows (BK-b reach changes, BK-8 «Bewusst weglassen», BK-g):** (a) the measure view or function returns no actor or member column (count by team and period only); (b) a team row is shown only for a team with at least *k* active members in the period, otherwise the figure is rolled into the organisation value; (c) *k* is a data-protection value set by `lca` (UNKNOWN); until it is set, **no team row of the BK-8 «weglassen» measure is shown on any screen** (CI scenario assertions without a screen are allowed). Tests: catalogue/pgTAP that the measure has no actor column; seed team with 1 active member → no team row, organisation total includes it. Reason: hard rule «no per-person performance view»; a team of one is a person.
+3. **To `lca`:** set *k* (P-5/P-7 context) before the first measure screen; answer in an `lca` report row.
+
+Owners: `eng` (1, 2), `uxa` (1 wording), `lca` (3). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 04:39 (scheduled PO run): `lca` K-1 to K-7 adopted for Phase A; UXR-204 to UXR-207 placed
+
+Sources: `lca` D-44 section 04:20 (#1255, merged `81c2819`), `uxa` review 03:47 (#1254, merged `37c07ca`). BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; no clinical, legal or tariff rule is set here (D-27); the matrix stays PROPOSED. Everything below is PLANNED.
+
+1. **AUT-122, *k* adopted for Phase A only (gate «Simulation, synthetic data»):** the PO adopts `lca` K-1 to K-7 with k = 5 as product behaviour for every BK measure built from audit rows. This replaces 02:39 (2)(b) «at least *k* active members» by «at least 5 distinct **contributors** to the counted events in the period» (K-1), and adds: dominance, one person with 50 % or more of the events withholds the row (K-2); no recalculation from the organisation total (K-3); fixed calendar periods only, no free or sliding range (K-4); the team sees its own row, an organisation administrator only under K-1 to K-4, nobody outside the organisation (K-5); reach-change counts (AUT-117) may stay per team without K-1 to K-3 provided no actor column and no change text (K-6); *k* and the 50 % share as one configured constant (K-7). Tests: as listed in D-44 04:20 under K-7, in BK-b (reach changes) and BK-g (measures). 02:39 (2)(a) (no actor column) stays. `lca`'s role note is followed: `lca` proposed, the PO adopts for Phase A. **Not decided, OPEN for the owner before real data:** confirm k = 5 and 50 % (or stricter) and the privacy-notice sentence that team measures never appraise a person; any reader outside the team needs the legal-adviser question added to Q-44a. Reason (value order 4, team autonomy): a team learns from its own figures without them turning into a per-person monitor.
+2. **UXR-204 (medium) as a BK-a acceptance criterion** (next BK-a PR after #1252, before the BK-a acceptance record): on the phone a client-account member with no organisation role has «Auftrag erfassen» (`order`) as her home tab; a tab bar with no tab and only «Mehr» is never shown. Test: unit test in `ux2-shell.test.ts`, `shellItemsFor({ roles: [], inTeam: false, clientAccount: true }).tabs` equals `["order"]`, staff cases unchanged. Tab word «Auftrag erfassen» (one label per destination, UX2-32); `uxa` may shorten it in its next review. Reason (value order 5, less administration): the client's only task must be one tap away.
+3. **UXR-205, UXR-206, UXR-207 (low):** in #1252 if `eng` takes them before the gates, otherwise BK-g. Not a merge condition of #1252 and not a BK-a acceptance criterion.
+4. **Words placed (PROPOSED, `uxa` 03:47):** the CGR-217 information item text for BK-b and the AUT-121 recalculation line for BK-g, as written in `UX_REVIEW.md` 03:47. `cra` may read the CGR-217 text; it is not a safety signal.
+
+Owners: `eng` (1 tests in BK-b/BK-g, 2, 3), `uxa` (2 tab word), `lca` (Q-44a candidate), owner (1 OPEN before real data). PO status of BK: **active**.
+
+## PO amendment 2026-11-14 08:39 (scheduled PO run): #1257 merged; AUT-123, AUT-124, UXR-208 placed
+
+Sources: `aia` review 56 (#1263, merged `79ef9aa`), `uxa` review 07:48 (#1262, merged `bada97a`). BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; no clinical, legal or tariff rule is set here (D-27). Everything below is PLANNED unless marked.
+
+1. **UXR-204 IMPLEMENTED:** #1257 merged as `634ccb7` (head `8d92bfc`; `cra` clear on `d9d142d`, diff to head empty for `src supabase tests e2e .github` (AUT-50); `uxa` clear on `8d92bfc`). With it every BK-a criterion of the amendments 00:39, 01:39 and 04:39 (2) is merged. BK-a stays **merged, not accepted** until `ci` on `634ccb7` and `ci-repeat` 10/10 (`repeat/bk-a-accept-634ccb7`, started 08:45) are read from raw job logs.
+2. **AUT-123 «Wieder erfassen» (medium), candidate for BK-g, not yet a criterion:** on an order in the client's own list, «Wieder erfassen» opens `/order` prefilled with times, postcode, grade, activities, required activities and radius; **the date is never copied**; the copy passes the same preview, summary and single «Bestätigen & Absenden» as a fresh order, and `confirm_client_order` re-checks every field. Not a recurring order (no order is created without the client's act; series stay out of BK scope). It becomes a BK-g criterion only after (a) a `cra` line on whether a copied activity list needs a check beyond the existing summary and (b) `uxa` words and place of the action. Tests then: unit (date empty after copy; copied fields equal the source; copy only from the client's own rows) and e2e (copy, set date, confirm; a tag no longer in the catalogue is refused at its field). Reason (value order 5, less administration; 4, no dispatcher between ward and team): a ward's repeat request takes seconds.
+3. **AUT-124 (low) as a BK-g acceptance criterion:** the K-7 test set adds one scenario (fixture or seed scenario; HOW is `eng`'s) with a team of at least 6 contributors and no one at 50 % or more, so the shown path, the withheld path and K-3 run on one dataset; the BK-g acceptance record lists which seed teams show a row and which are withheld. *k* and the rule unchanged.
+4. **UXR-208 (low):** the `/team` offer badge renders `urgencyBadgeText(offer.urgency)`; test: an offer with `urgency: null` shows «Dringlichkeit fehlt» with the outline class, the four levels unchanged. In the next BK PR that touches `/team`, otherwise BK-g with UXR-205 to UXR-207. Presentation only; `cra` keeps the colour (CGR-215 (d)).
+
+Owners: `eng` (3, 4), `cra` and `uxa` (2 before it becomes a criterion). PO status of BK: **active**.
+
+## PO acceptance 2026-11-14 09:39 (scheduled PO run): slice BK-a accepted for the simulation
+
+**Decision: `accepted`**, gate **«Simulation, synthetic data»** (CGR-215 (a): no release for real persons before BK-c offers and the BK-6 exception exist). Named integrated commit: **`634ccb7`** (`recovery/main` after #1257; BK-a code merges #1238 `abd6f82`, #1246 `54aa56e`, #1252 `ad8eaef`, #1257 `634ccb7`). The PO did not run any test locally; every result below is read from GitHub Actions job logs or from the repository at `634ccb7`.
+
+**Run evidence.**
+- Push `ci` 43572223613 on `634ccb7`: `app`, `db`, `e2e`, `ui-screenshots` all `success`, every test step ran (step list read; skipped only the conditional «WORK1-C5 probe» and «Upload Playwright report», as on every green run).
+- `ci-repeat` 43572290695 on `repeat/bk-a-accept-634ccb7` (head `634ccb7`), 08:41–08:56 Zurich (inside the day window): **20/20 jobs `success`, attempt 1, none cancelled or re-run.** Raw log content of all 20 jobs read (PO plus one read-only helper through the GitHub API): every `db` attempt «All tests successful. Files=135, Tests=4833 … Result: PASS»; every `e2e` attempt «174 passed», no flaky, failed or skipped line in the summary; concurrency checks (cover-accept, open-visit-take, SIG1 lock, CGR-201, «CGR-203 region-map-convert-race: 29 ok, 0 not ok») «ok» in all ten; the only «not ok» lines sit inside the B0-4 «before #922» reproduction (expected red by design). Known non-blocking observation, unchanged since 13.11. 18:40: `supabase db lint` reports `schema "net" does not exist` for `private.push_dispatch_kick` (step passes).
+
+**Evidence table (criterion | result | evidence at `634ccb7`).**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BK-1c night across midnight is one order, 9 h for 22:00–07:00 | met | pgTAP 135 «one row, not two days»; e2e `bk-a-order.spec.ts` at 390 and 1440 px «confirms a night order as one order» |
+| BK-1b / AUT-120 no silent date: «Sonntag» on a Sunday gives two candidates | met | `tests/unit/bk-a-client-order.test.ts` «BK-a relative date (AUT-120)», `relative_date_ambiguous` in `features/orders/rules.ts` |
+| BK-1d binding only after «Bestätigen & Absenden» on the summary | met | e2e summary step before confirm; pgTAP 135 confirm path |
+| BK-1n nobody confirms for a client; a client sees only its own orders | met | pgTAP 135 section 6 (nurse, Operations, admin refused, `not_client`; client A never sees B) |
+| BK-1e (BK-a part) no street or coordinate on the order | met | pgTAP 135 «no street or coordinate column (P-8)»; free text and AI capture are BK-d |
+| CGR-206 (d) clock change: 600 min «(10 Std.)», 480 min «(8 Std.)», 02:30 shown as 03:30 before confirmation | met | pgTAP 135 lines 180–194 (named here as required by amendment 21:39 (2)) |
+| CGR-214 (b) audit keeps `referrer_requested_start` and every 0086 column | met, **green on first run (regression guard)** | pgTAP 086 lines 118–133 |
+| CGR-215 (d) / UXR-202 «Dringlichkeit fehlt», never dropped, not red, distinct from the four levels | met | `bk-a-intake-urgency-missing.test.ts`, `bk-a-uxr202-urgency-missing-badge.test.ts` |
+| UXR-196 sentence from labels, no code or ISO date | met | pgTAP 135 and e2e «Schichtauftrag · FaGe · …» |
+| UXR-197 label «aus Ihrem Dienstplan», no label line when none matches, radius empty «Distanz: keine Vorgabe» | met | e2e «a time that matches no plan entry …»; unit tests in `bk-a-client-order.test.ts` |
+| PO 18:40 (2)(d), first half: 22:00–07:00 valid and one row with or without a label | met | e2e no-label test plus pgTAP 135 one-row assertion |
+| PO 18:40 (2)(d), second half: changing a shift plan never changes eligibility | **moved to BK-b** | no eligibility exists before BK-b; placed as a BK-b criterion below, not dropped |
+| UXR-198 `/order` in the client's menu only | met | `bk-a-uxr198-199.test.ts`, e2e, `nav-access.test.ts` |
+| UXR-199 one press, one order | met | pgTAP 135 idempotency «duplicate»; e2e count `before + 1`; unit test |
+| UXR-200 problem at its field, UXR-201 «Datum nicht erkannt» on leaving | met | `bk-a-uxr200-201.test.ts`; e2e UXR-201 test |
+| UXR-204 client's phone home tab «Auftrag erfassen», never a bar with only «Mehr» | met | `ux2-shell.test.ts` `tabs` equals `["order"]` |
+| Gates per PR (`cra`, `uxa`, `lca` where named) | met | merge records on #1238, #1246, #1252, #1257; `cra` 09:35 «merged = cleared» |
+
+**Business value.** A ward or household can now state a shift need in one form, sees exactly what will be sent (time, duration with the clock change, place, level) and sends it once; nothing reaches a team before confirmation. That is the intake half of the dispatcher's phone call, removed. Value order 5 (less administration) and 2 (continuity: no duplicate order asking two teams). No team sees the order yet: that is BK-b and BK-c.
+
+**Not part of this acceptance:** AI or voice capture (BK-d); any filter, offer or team view (BK-b, BK-c); pricing (BK-f); private-person addresses beyond PLZ; release for real persons and data.
+
+## PO amendment 2026-11-14 09:39 (scheduled PO run): BK-b active; answers to ADR-195 (probe) OPEN items
+
+Sources: `eng` journal 09:09 (#1265) and probe branch `probe/bk-b-red-20261114` `87a98aa` (draft ADR-195, red pgTAP 136, unmerged); `cra` review 09:35 (#1266). Operational WHAT only; no clinical, legal or tariff rule (D-27); matrix stays PROPOSED. PLANNED unless marked.
+
+1. **BK-b is the active slice.** Slice order unchanged: b, c, e, f, d, g.
+2. **Split accepted (README rule 11, `eng` proposal ADR-195 (5)):** BK-b ships as two PRs, **BK-b1** (postcode distances, team reach with AUT-117 permissions, hard distance filter, CGR-217 info item) then **BK-b2** (per-member level CGR-204/CGR-216, confirmed attributes, availability). Reason: smaller PRs, each with its own gates; the distance filter is reviewable without the qualification rules. BK-b is accepted **once**, after both are merged, on one named commit with `ci-repeat` 10/10. BK-b2 does not merge before BK-b1.
+3. **`building` teams are excluded** from the hard filter with their own reason (e.g. `team_not_active`), never offered by default. Fail-closed; a team still being set up must not receive an order. Test: a synthetic `building` team whose reach covers the order gets no offer row and carries the reason.
+4. **Other organisations' teams:** Phase A screens only teams of the simulated organisation. Agreed with `eng`. Cross-organisation offers wait for D-44 (`lca`).
+5. **Empty service area:** `set_team_reach` refuses an empty postcode list (problem code named by `eng`); a team that has never set its reach stays excluded with `no_service_area` (PO 18:40 (1)(c)). A deliberate pause of a team is not part of BK. Words: `uxa`.
+6. **pgTAP 135 reference-table list gains `postcode_distances`:** reference data, readable under the same tighter guard `eng` chose on `f6fdcaf`, until `lca` answers amendment 21:39 (6). `lca` line requested.
+7. **Moved from BK-a (see acceptance table):** red test in BK-b1 or BK-b2: changing a client's shift plan never changes any team's eligibility for an existing order.
+8. **AUT-123 «Wieder erfassen» (BK-g candidate):** `cra` 09:35 gave its line: no tick per activity if (i) a copy shows the same full summary, (ii) a copy passes today's checks including CGR-216 `level_activity_conflict`, (iii) institutions only until the Clinical Owner answers for private persons (UNKNOWN). Becomes a BK-g criterion with (i)–(iii) as tests once `uxa` gives words and place. Still OPEN on `uxa`.
+
+Gates per PR unchanged: `cra` (hard filters, CGR-216), `lca` (distance data source P-5, reference data 6), `uxa` (reach screen, words 5), `aia` (AUT-117 alignment). PO status of BK: **active, slice BK-b**.
+
+## PO amendment 2026-11-14 10:39 (scheduled PO run): BK-b1 PR #1268 read; reach screen placed
+
+Sources: PR #1268 (`eng` 10:12/10:38, head `f3b2a5c`, branch `feature/hourly-update-2026-11-14-1012-bk-b1`), read by the PO on the diff; ADR-195; PO amendment 09:39. Operational WHAT only; no clinical, legal or tariff rule (D-27); matrix stays PROPOSED. PLANNED unless marked. The PO did not run tests locally.
+
+1. **#1268 not merged this run.** `ci` 43581473063 on head `f3b2a5c` was running at the PO's read (`app` success; `db`, `e2e`, `ui-screenshots` in progress; `mergeable_state` `blocked`). No gate line yet from `cra`, `lca`, `uxa` or `aia` (PO_MERGE_PROCESS §4 (1)–(3)). Merge when all four gate lines name an unchanged code head (AUT-50) and CI on that head is 4/4.
+2. **PO reading of #1268 against amendment 09:39 (not an acceptance):**
+
+| Point | Result | Evidence (diff at `f3b2a5c`) |
+|---|---|---|
+| (3) `building` team excluded, fail-closed | present | `private.screen_order_reach`: `status is distinct from 'active'` → `team_not_active`; pgTAP 136 fixture T7 «im Aufbau», no offer row |
+| (4) own organisation only | present | `where t.organization_id = o.organization_id` |
+| (5) empty service area refused | present | `set_team_reach` → `missing_service_postcode`; pgTAP 136 |
+| (6) `postcode_distances` reference data, tighter guard | present | RLS on, no write grant, `leave1_access_open` restrictive; pgTAP 135 list gains the table |
+| (7) shift-plan change never changes eligibility | present | pgTAP 136 «changing the client's shift plan changes no offer or exclusion row» |
+| AUT-117 (a) who may set reach | present | active member of the team; `admin` only without active members; pgTAP 136 both directions |
+| BK-2n every team in exactly one table | present | pgTAP 136 «never both, never missing» |
+| CGR-217 information item, never a block | present | `preview_client_order` `info`, neutral style, confirm stays enabled; vitest + e2e |
+| no person column in offer/exclusion | present | `order_offers`, `order_exclusions`: team only |
+
+3. **Reach screen (AUT-117 (c)), `eng` OPEN in #1268: decided.** Not in #1268 (keep the open PR's gates on the code they started on). It becomes its own PR **BK-b1s** «Unser Einsatzgebiet» (team view), after #1268 and before the BK-b acceptance; it may merge before or after BK-b2. Reason (value 4, team autonomy): without the screen only the seed sets a team's reach, which is a central step; BK-b is not accepted while a team cannot set its own reach. Criteria: (a) an active member sees and changes postcodes and maximum distance of the own team only, through `set_team_reach`; (b) the three refusals (`missing_service_postcode`, `postcode_not_in_list`, `max_distance_not_positive`) appear at their fields in `uxa` words; (c) a member of another team and a former member (LEAVE1) cannot open or submit it (e2e negative); (d) the screen states that a change applies to new orders only (words `uxa`), because existing orders keep their screening (BK-2n, written once); (e) 390 and 1440 screenshots. Gates: `uxa` (words, place), `aia` (AUT-117), `cra` only if the words touch care.
+4. **Observation for `uxa` and `lca`, not a finding:** a team member can read the exclusion row of the own team for an order (reason only, no order detail). The PO's product view: a team should see *why* an order did not reach it («ausserhalb Ihres Einsatzgebiets»), because that is how a team adjusts its own reach without anyone deciding for it. Whether and where the team sees this is `uxa`'s; whether the order's existence alone is a disclosure is `lca`'s (reference amendment 21:39 (6)). Until both answer, nothing is shown in the UI; the table stays as built.
+
+PO status of BK: **active, slice BK-b** (BK-b1 PR open, BK-b1s and BK-b2 to follow).
+
+## PO amendment 2026-11-14 11:39 (scheduled PO run): #1268 CI green, gates still missing; BK-b1s deviation (5) decided
+
+Sources: PR #1268 (head `f3b2a5c`), draft PR #1270 (`eng` 11:10, head `1cb6e09`, stacked on #1268), ADR-195 addendum 11:10. Operational WHAT only; no clinical, legal or tariff rule (D-27); matrix stays PROPOSED. PLANNED unless marked. The PO did not run tests locally.
+
+1. **#1268 not merged this run.** `ci` 43581473063 on head `f3b2a5c` is now 4/4 `success` (`db` 136 files / 4880 tests PASS; `e2e` 175 passed; `ui-screenshots` success), condition (1) holds for the checks. Still missing: gate lines from `cra`, `lca`, `uxa` and `aia` naming `f3b2a5c` (PO_MERGE_PROCESS §4 (2), (3); amendment 10:39 (1)); no review, no role journal since 10:39. Merge in the first PO run in which all four lines name an unchanged code head (AUT-50).
+2. **#1270 (BK-b1s) read, not mergeable:** draft and based on the #1268 branch; `ci` 43586014799 had `app`, `db`, `ui-screenshots` `success` and `e2e` running at the PO's read. It is merged only after #1268, retargeted to `recovery/main`, with CI 4/4 on its own head and gate lines from `uxa` and `aia` (and `cra` only if `uxa` words touch care).
+3. **Deviation (5) of ADR-195 addendum 11:10 (criterion (c), former member): decided, accepted with a condition.** For the BK-b1s merge, the former member (LEAVE1) is evidenced at the database (pgTAP 137 §4: reader empty, `set_team_reach` refused with `access_ended`, reach unchanged), because the database is where access is enforced and the screen only shows what `my_team_reach()` returns; e2e covers a member of another team and a person in no team. Ending a shared seeded member's access in e2e would change other specs, which is a worse test. **Condition:** a dedicated seeded former member (synthetic) with an e2e negative on `/team/einsatzgebiet` (no team data shown, submit refused) is added **before the BK block acceptance** (not before BK-b), in BK-b2 or its own small PR; until then criterion (c) reads «e2e: other team, no team; pgTAP: former member». Reason: privacy is enforced fail-closed at the database already; the e2e is a second line, not the control.
+4. **Order unchanged:** #1268, then BK-b1s (#1270) and BK-b2 in either order, then the BK-b acceptance on a named commit (`ci` green, `ci-repeat` 10/10 `db` and `e2e`, raw logs).
+
+PO status of BK: **active, slice BK-b** (BK-b1 #1268 waiting for gates; BK-b1s #1270 draft; BK-b2 to follow).
+
+
+## PO amendment 2026-11-14 12:39 (scheduled PO run): `uxa` and `lca` gates on #1268; UXR-209 to UXR-213 and `lca` B-2, B-5, E-1 to E-4 placed; #1273 read
+
+Sources: PR #1268 (head `f3b2a5c`), draft PRs #1270 (head `1cb6e09`) and #1273 (BK-b2, head `4b8a158`, both stacked on #1268), `UX_REVIEW.md` 11:48 (#1272, merged `9fb2f4a`), D-44 section `lca` 12:20 (#1274, merged `076dee3`), ADR-196. Operational WHAT only; no clinical, legal or tariff rule (D-27); matrix stays PROPOSED. PLANNED unless marked. The PO did not run tests locally.
+
+1. **#1268 not merged this run.** Head unchanged at `f3b2a5c`; `ci` 43581473063 4/4 `success`. Gate lines now present: `uxa-gate: #1268 f3b2a5c clear` (11:48) and `lca-gate: #1268 f3b2a5c clear` (12:20, advisory). **Still missing: `cra` and `aia`** (PO_MERGE_PROCESS §4 (2); amendment 10:39 (1)). Merge in the first PO run in which both name the unchanged code head (AUT-50).
+2. **UXR-209 (medium) placed: before the BK-b acceptance**, not a merge condition for #1270 (so the `uxa` gate on `1cb6e09` stays valid): the reach screen says that the distance is measured from the nearest chosen postcode and that the smaller of team reach and client limit applies (words `uxa`). In #1270 (new head, new `uxa` line) or a small follow-up PR. Reason (value 4): a team that cannot predict which orders reach it cannot steer its own area.
+3. **`lca` B-5 placed with UXR-209, same timing:** the reach screen carries the G-4 (c) help line that the area is the team's working area, not anyone's home address (words `uxa`, substance `lca`).
+4. **UXR-213 (low) placed: before the BK block acceptance:** the CGR-217 item on `/order` is shown only when the confirm button is enabled. In #1273 (it changes `order-form.tsx` already) or later.
+5. **UXR-210, UXR-211 (low):** queued for BK-g (screen polish). **UXR-212 (low):** before Phase B (real postcode list).
+6. **`lca` D-44 B-2 (b) adopted as a standing BK criterion (privacy, D-35 rule A spirit):** no order field leaves NAVORA to compute a distance; distances are read only from the precomputed `postcode_distances` table. Check at the BK-b acceptance: the PO reads the diff for any external call in screening, and the `aia` gate line confirms it. Phase B data source: swisstopo OGD precomputed offline with attribution is compliant on the sources `lca` read; any other source needs the owner (licence not read). Not decided here: the Phase B source itself (owner, before Phase B).
+7. **`lca` B-4 E-1 to E-4 recorded, no view placed:** a «why not reached» view for teams is not built now. If it is ever placed, E-1 to E-3 are its criteria (reason and date only; private-person orders only as period counts; the client never sees exclusions), and real use needs the owner (privacy notice) and E-4 (legal adviser, across organisations).
+8. **#1273 (BK-b2) read, not an acceptance:** draft, stacked on #1268; red first present (`4e2035f` alone: pgTAP 138 and vitest failing as expected in `ci` 43589501063). The pgTAP 136 change is named as a fixture addition (one verified synthetic FaGe per offered team, no assertion, plan or expected value changed); the PO checks this in the diff at merge. **ADR-196 (3) is a clinical reading** («D» passes only for a non-required activity; a required activity needs own scope with its evidence): the PO does not decide it; `cra` must confirm or change it before #1273 merges (D-27). Gates: `cra` (CGR-204 (a), CGR-216, ADR-196 (3)), `uxa` (conflict words, place), `lca` (P-5: a step, never a person), `aia` (no AI in the filter).
+9. **Challenge hypothesis H-BK-12:39 (for the BK-c brief, PLANNED):** an order that no team reaches after screening must never wait silently or fall to a central dispatcher. The client sees at once one honest state («Zurzeit kann kein Team diesen Auftrag übernehmen», words `uxa`) without per-team reasons (compatible with E-3), and can widen its own limits or time window. Questions for `uxa` (words) and `lca` (whether the state itself discloses anything); no build before the BK-c brief.
+10. **Order unchanged:** #1268, then #1270 and #1273 in either order, then the BK-b acceptance on a named commit (`ci` green, `ci-repeat` 10/10 `db` and `e2e`, raw logs).
+
+PO status of BK: **active, slice BK-b** (BK-b1 #1268 waiting for `cra` and `aia`; BK-b1s #1270 and BK-b2 #1273 drafts).
+
+## PO amendment 2026-11-14 13:39 (scheduled PO run): CGR-218 (A), CGR-219, CGR-220 placed
+
+Sources: `cra` review 13:30 (#1277, merged `4c43e3b`), comments on #1268. BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; the PO sets no clinical, legal or tariff rule (D-27). The matrix and its context modifiers (CR-180) stay PROPOSED. Everything below is PLANNED unless marked.
+
+1. **#1268 not merged this run.** Head `f3b2a5c` unchanged, `ci` 43581473063 4/4 `success`. Gate lines `uxa` (11:48), `lca` (12:20) and now **`cra` (13:30, «Simulation, synthetic data»)** name the head. **Still missing: `aia`** (amendment 10:39 (1); B-2 (b) check: no external call in screening). Merge in the first PO run in which the `aia` line names the unchanged head (AUT-50).
+2. **CGR-218: option (A) for #1273 (merge condition), (B) rejected.** Until the Clinical Owner decides CR-180, BK reads the activity cell in the **strictest context that fits the client kind** (the `cra` safe default): `home` orders under NH-EXT (every «D» and every Bst. b «E» counts as «?»), `hospital_ward` orders under HOSP-IN (every row «?»), `household` under the plain table. A «?» counts as «–» in every phase (CR-179). Reason: patient safety is the precondition; a simulation that shows behaviour the matrix forbids trains the wrong product and would carry into Phase B (by current direction a nursing home). The PO adopts the stricter of two `cra` review positions; it does not create or confirm a clinical rule. Product consequence, accepted for Phase A: in the simulation no `hospital_ward` order can be confirmed, and on `home` orders FaGe «D» activities and HF Bst. b «E» activities are refused at confirm. Tests (from `cra`): FaGe with B1 on a `home` order → refused at confirm, B1 named, no order row; HF with B7 on a `home` order → refused; any `hospital_ward` order with an activity → refused; the same FaGe/B1 on a `household` order → plain table.
+3. **CGR-219: in #1273 (merge condition).** Confirm check and member step use **one** reading: an activity that no member can pass at the chosen grade under the active reading is refused at confirm, with the activity named; never «sent» and then excluded everywhere. Tests as `cra` 13:30 (FaGe with B1 required → `invalid`, no order row; not required → confirmed in the plain-table context) plus one consistency test over every grade × activity of QAM-0.2: «confirm accepts» implies «a member with that grade and evidence can pass». Code name and words: `eng` and `uxa`.
+4. **Honest state for refused combinations (words `uxa`, before #1273 merge):** the refusal says which activity cannot be ordered at this level in this setting and that this is a safety limit of the simulation, not a team decision; for `hospital_ward` one sentence that hospital ward orders are not yet possible. No clinical explanation is invented in the words.
+5. **CGR-220 (advisory, S3): placed before the BK-b acceptance, not a #1268 merge condition** (keeps the cleared head). A small Engineering PR after #1268 merges: the `audit_teams` trigger skips by **what changed**, not by a session value; pgTAP as `cra` 13:30 (with `navora.command = 'set_team_reach'` a direct `priority` update still writes one audit row; `set_team_reach` still writes exactly one). Reason: auditability above speed; no audit trigger may be switched off by a session setting.
+6. **Note for the BK-b acceptance record (adopted from `cra`):** offer rows written while only BK-b1 was merged carry no member check; the record states that they are synthetic and are not read as eligible.
+7. **#1270** (BK-b1s, `1cb6e09`): `cra` line present (not required). **#1276** (UXR-209 and B-5 follow-up, stacked on #1270): read, not mergeable; gate lines `uxa` and `aia` on a green head after retargeting.
+8. **Challenge hypothesis H-BK-13:39 (PLANNED, questions to `uxa` and `aia`):** a refusal at confirm is still a round trip for the client. The order form should offer, at the moment the level is chosen, only the activities the active reading allows for this client kind, and show the others as «auf dieser Stufe hier nicht bestellbar» with a one-click «höhere Stufe wählen». Deterministic, from the same reading as the confirm check (no AI). Same guarantee, one step less. Not a #1273 condition; candidate for BK-g.
+9. **Order unchanged:** #1268 (`aia`), then #1270 and #1273 (CGR-218 (A), CGR-219, new `cra` line), #1276, the CGR-220 PR, then the BK-b acceptance on a named commit (`ci` green, `ci-repeat` 10/10 `db` and `e2e`, raw logs).
+
+Owners: `eng` (2, 3, 5), `uxa` (4, 8 words), `cra` (gate line on the new #1273 head), `aia` (#1268 line, 8), Clinical Owner (CR-180, meaning of «D» on a shift order: UNKNOWN until answered). PO status of BK: **active, slice BK-b**.
+
+## PO amendment 2026-11-14 14:39 (scheduled PO run): #1268 merged; AUT-125, AUT-126 placed; H-BK-14:39
+
+Sources: `aia` review 57 (#1280, merged `95678c5`), gate comments on #1268. BK stays the only active block; slice order unchanged (a, b, c, e, f, d, g). Operational WHAT only; the PO sets no clinical, legal or tariff rule (D-27). Everything below is PLANNED unless marked.
+
+1. **#1268 (BK-b1) merged** as `9b691af` (head `f3b2a5c`; `ci` 43581473063 4/4; gate lines `uxa` 11:48, `lca` 12:20, `cra` 13:30, `aia` 14:22, all «Simulation, synthetic data»; merge record comment 6878119279). **Merged, not accepted.** The push `ci` on `9b691af` was cancelled by the next push (`95678c5`, docs only); the push `ci` on `95678c5` carries the integrated BK-b1 code and was running at publication. If it is red, `eng` is asked for a revert or fix-forward per FE-071 (3) in the next PO run. CGR-217 closes with this merge (`cra` 13:30).
+2. **Stack after the merge (`eng`):** #1270 (BK-b1s) and #1273 (BK-b2) point at the merged branch `feature/hourly-update-2026-11-14-1012-bk-b1`; retarget both to `recovery/main`, #1276 stays on #1270. Gate lines on the new green heads (AUT-50). Next Engineering merge: **#1270**, then #1273 (CGR-218 (A), CGR-219, new `cra` line), #1276, the CGR-220 PR, then the BK-b acceptance on a named commit.
+3. **AUT-125 (medium): placed in BK-g, not a BK-b condition.** The reach screen shows the team's own count of recent exclusions by reason (from `order_exclusions`), no order detail, no suggested value, the team decides. Reason: it turns a blind setting into a self-correcting one (team autonomy, fewer wasted offers), but it needs `lca` (team-level count without order detail is no disclosure) and `uxa` words first; adding it to #1270 would move a cleared slice. Preconditions before BK-g starts: `lca` line, `uxa` words, the fixed period named by `uxa`/`aia`. Tests as `aia` 14:22 (pgTAP: only own team, no order column, former member none; e2e: seeded order outside distance shows «1»).
+4. **AUT-126 (low): adopted as the design for H-BK-13:39 (BK-g candidate)** with all three `aia` conditions: (a) the form receives the allowed set from the **same server function** as the confirm check, never a copy of the matrix in the client; (b) the confirm check stays unchanged as the guard; (c) where the active reading refuses every order of a client kind (`hospital_ward` under CGR-218 (A)), the page says so before the first input, in `uxa` words. Test: one test over the matrix that the offered set equals the accepted set for every (client kind, level).
+5. **Challenge hypothesis H-BK-14:39 (PLANNED, questions to `uxa`, `lca`, `aia`):** with the hard distance filter merged, an order can be confirmed that reaches **no team at all** (every team excluded). The client then waits for an answer that cannot come, and someone has to notice by hand: exactly the dispatcher role NAVORA removes. Proposal: the preview runs the same deterministic reach screening and, when zero teams of the own organisation remain, says so before confirm («Für diese Postleitzahl ist zurzeit kein Team erreichbar»), with no team name, count or distance shown. Open questions: `lca` (is a yes/no on coverage a disclosure about teams?), `uxa` (words, what the client can do next), `aia` (same function as confirm, no copy). Not a condition for #1270 or #1273; candidate for BK-b acceptance criteria only if all three answer before #1273 merges, otherwise BK-c.
+6. **UXR-213, `lca` B-5, UXR-209:** placements of 12:39 unchanged.
+
+Owners: `eng` (2), `lca` (3, 5), `uxa` (3, 4, 5 words), `aia` (5), `cra` (gate line on the new #1273 head). Clinical Owner: CR-180 and «D» on a shift order (UNKNOWN until answered). PO status of BK: **active, slice BK-b (BK-b1 merged, not accepted)**.

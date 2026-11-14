@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" font-family="Inter, Arial, sans-serif" role="img" aria-label="Wireframe Caregiver Mobile /field">
+<title>Wireframe Caregiver Mobile /field</title>
+<rect x="0" y="0" width="900" height="900" rx="0" fill="#f5f5f4"/>
+<text x="16" y="20" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Wireframe · /field · Phase A, synthetische Daten</text>
+<rect x="32" y="32" width="406" height="860" rx="44" fill="#e7e5e4" stroke="#44403c" stroke-width="2"/>
+<rect x="40" y="40" width="390" height="844" rx="38" fill="#f5f5f4"/>
+<text x="72" y="68" font-size="14" font-weight="700" fill="#022c22" text-anchor="start">14:02</text>
+<rect x="370" y="56" width="26" height="13" rx="3" fill="none" stroke="#022c22" stroke-width="1.5"/>
+<rect x="372" y="58" width="18" height="9" rx="2" fill="#022c22"/>
+<rect x="40" y="84" width="390" height="60" rx="0" fill="#ffffff"/>
+<line x1="40" y1="144" x2="430" y2="144" stroke="#d6d3d1" stroke-width="1"/>
+<text x="56" y="124" font-size="24" font-weight="700" fill="#022c22" text-anchor="start">Heute</text>
+<rect x="40" y="800" width="390" height="84" rx="0" fill="#ffffff"/>
+<line x1="40" y1="800" x2="430" y2="800" stroke="#d6d3d1" stroke-width="1"/>
+<rect x="56.0" y="800" width="65.5" height="4" rx="2" fill="#065f46"/>
+<circle cx="88.75" cy="824" r="8" fill="none" stroke="#065f46" stroke-width="2"/>
+<text x="88.75" y="852" font-size="12" font-weight="700" fill="#022c22" text-anchor="middle">Heute</text>
+<circle cx="186.25" cy="824" r="8" fill="none" stroke="#78716c" stroke-width="2"/>
+<text x="186.25" y="852" font-size="12" font-weight="400" fill="#022c22" text-anchor="middle">Team</text>
+<circle cx="283.75" cy="824" r="8" fill="none" stroke="#78716c" stroke-width="2"/>
+<text x="283.75" y="852" font-size="12" font-weight="400" fill="#022c22" text-anchor="middle">Arbeitstag</text>
+<circle cx="381.25" cy="824" r="8" fill="none" stroke="#78716c" stroke-width="2"/>
+<text x="381.25" y="852" font-size="12" font-weight="400" fill="#022c22" text-anchor="middle">Mehr</text>
+<rect x="170" y="870" width="130" height="5" rx="3" fill="#022c22"/>
+<text x="306" y="112" font-size="12" font-weight="600" fill="#065f46" text-anchor="start">Ich kann nicht</text>
+<text x="306" y="128" font-size="12" font-weight="600" fill="#065f46" text-anchor="start">arbeiten</text>
+<rect x="56" y="164" width="358" height="44" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="70" y="191" font-size="14" font-weight="600" fill="#065f46" text-anchor="start">Zu erledigen: Zur Gegenzeichnung (1)</text>
+<text x="56" y="228" font-size="13" font-weight="700" fill="#44403c" text-anchor="start">Als Nächstes</text>
+<rect x="56" y="240" width="358" height="400" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<rect x="72" y="256" width="213.15999999999994" height="22" rx="11.0" fill="#ecfdf5" stroke="#065f46" stroke-width="1"/>
+<text x="80" y="271.32" font-size="12" font-weight="600" fill="#065f46" text-anchor="start">übernommen von Team Gundeli</text>
+<text x="72" y="310" font-size="20" font-weight="700" fill="#022c22" text-anchor="start">Spätdienst · 16:30–21:30</text>
+<text x="72" y="336" font-size="15" font-weight="400" fill="#022c22" text-anchor="start">Pflegeheim Rheinblick (synthetisch)</text>
+<text x="72" y="358" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Demenzabteilung · 4052 Basel · 2,1 km</text>
+<rect x="72" y="374" width="326" height="62" rx="8" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="84" y="396" font-size="13" font-weight="700" fill="#44403c" text-anchor="start">Zugang</text>
+<text x="84" y="418" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Anmeldung an der Pforte, 2. OG (synthetisch)</text>
+<rect x="72" y="454" width="326" height="72" rx="8" fill="#065f46"/>
+<text x="235.0" y="497.92" font-size="22" font-weight="600" fill="#ffffff" text-anchor="middle">Einchecken</text>
+<text x="72" y="550" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Ein Tippen erfasst deinen Beginn mit der Uhrzeit.</text>
+<rect x="72" y="568" width="159.0" height="48" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="151.5" y="597.04" font-size="14" font-weight="600" fill="#022c22" text-anchor="middle">Ereignis melden</text>
+<rect x="239.0" y="568" width="159.0" height="48" rx="8" fill="#ffffff" stroke="#78716c" stroke-width="1.5"/>
+<text x="318.5" y="597.04" font-size="14" font-weight="600" fill="#022c22" text-anchor="middle">Mehr</text>
+<text x="56" y="664" font-size="13" font-weight="700" fill="#44403c" text-anchor="start">Später (0)</text>
+<text x="56" y="686" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Heute keine weiteren Einsätze.</text>
+<rect x="462" y="32" width="406" height="860" rx="44" fill="#e7e5e4" stroke="#44403c" stroke-width="2"/>
+<rect x="470" y="40" width="390" height="844" rx="38" fill="#f5f5f4"/>
+<text x="502" y="68" font-size="14" font-weight="700" fill="#022c22" text-anchor="start">14:02</text>
+<rect x="800" y="56" width="26" height="13" rx="3" fill="none" stroke="#022c22" stroke-width="1.5"/>
+<rect x="802" y="58" width="18" height="9" rx="2" fill="#022c22"/>
+<rect x="470" y="84" width="390" height="60" rx="0" fill="#ffffff"/>
+<line x1="470" y1="144" x2="860" y2="144" stroke="#d6d3d1" stroke-width="1"/>
+<text x="486" y="108" font-size="13" font-weight="600" fill="#065f46" text-anchor="start">‹ Heute</text>
+<text x="486" y="132" font-size="20" font-weight="700" fill="#022c22" text-anchor="start">Bericht · Spätdienst</text>
+<rect x="470" y="800" width="390" height="84" rx="0" fill="#ffffff"/>
+<line x1="470" y1="800" x2="860" y2="800" stroke="#d6d3d1" stroke-width="1"/>
+<rect x="486.0" y="800" width="65.5" height="4" rx="2" fill="#065f46"/>
+<circle cx="518.75" cy="824" r="8" fill="none" stroke="#065f46" stroke-width="2"/>
+<text x="518.75" y="852" font-size="12" font-weight="700" fill="#022c22" text-anchor="middle">Heute</text>
+<circle cx="616.25" cy="824" r="8" fill="none" stroke="#78716c" stroke-width="2"/>
+<text x="616.25" y="852" font-size="12" font-weight="400" fill="#022c22" text-anchor="middle">Team</text>
+<circle cx="713.75" cy="824" r="8" fill="none" stroke="#78716c" stroke-width="2"/>
+<text x="713.75" y="852" font-size="12" font-weight="400" fill="#022c22" text-anchor="middle">Arbeitstag</text>
+<circle cx="811.25" cy="824" r="8" fill="none" stroke="#78716c" stroke-width="2"/>
+<text x="811.25" y="852" font-size="12" font-weight="400" fill="#022c22" text-anchor="middle">Mehr</text>
+<rect x="600" y="870" width="130" height="5" rx="3" fill="#022c22"/>
+<rect x="486" y="158" width="358" height="168" rx="16" fill="#ffffff" stroke="#d6d3d1" stroke-width="1"/>
+<text x="502" y="186" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Sprachnotiz</text>
+<rect x="504" y="225.0" width="5" height="10" rx="2" fill="#065f46"/>
+<rect x="513" y="221.0" width="5" height="18" rx="2" fill="#065f46"/>
+<rect x="522" y="216.0" width="5" height="28" rx="2" fill="#065f46"/>
+<rect x="531" y="223.0" width="5" height="14" rx="2" fill="#065f46"/>
+<rect x="540" y="213.0" width="5" height="34" rx="2" fill="#065f46"/>
+<rect x="549" y="219.0" width="5" height="22" rx="2" fill="#065f46"/>
+<rect x="558" y="210.0" width="5" height="40" rx="2" fill="#065f46"/>
+<rect x="567" y="217.0" width="5" height="26" rx="2" fill="#065f46"/>
+<rect x="576" y="222.0" width="5" height="16" rx="2" fill="#065f46"/>
+<rect x="585" y="215.0" width="5" height="30" rx="2" fill="#065f46"/>
+<rect x="594" y="208.0" width="5" height="44" rx="2" fill="#065f46"/>
+<rect x="603" y="220.0" width="5" height="20" rx="2" fill="#065f46"/>
+<rect x="612" y="224.0" width="5" height="12" rx="2" fill="#065f46"/>
+<rect x="621" y="217.0" width="5" height="26" rx="2" fill="#065f46"/>
+<rect x="630" y="212.0" width="5" height="36" rx="2" fill="#065f46"/>
+<rect x="639" y="221.0" width="5" height="18" rx="2" fill="#065f46"/>
+<rect x="648" y="218.0" width="5" height="24" rx="2" fill="#065f46"/>
+<rect x="657" y="225.0" width="5" height="10" rx="2" fill="#065f46"/>
+<rect x="666" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="675" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="684" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="693" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="702" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="711" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="720" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<rect x="729" y="227.0" width="5" height="6" rx="2" fill="#d6d3d1"/>
+<text x="828" y="236" font-size="18" font-weight="700" fill="#022c22" text-anchor="end">0:18</text>
+<rect x="502" y="260" width="326" height="6" rx="3" fill="#e7e5e4"/>
+<rect x="502" y="260" width="195.6" height="6" rx="3" fill="#065f46"/>
+<rect x="502" y="276" width="116" height="40" rx="8" fill="#065f46"/>
+<rect x="516" y="288" width="16" height="16" rx="2" fill="#ffffff"/>
+<text x="542" y="302" font-size="16" font-weight="600" fill="#ffffff" text-anchor="start">Stopp</text>
+<text x="632" y="294" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">Aufnahme läuft · nur auf</text>
+<text x="632" y="310" font-size="12" font-weight="400" fill="#44403c" text-anchor="start">diesem Gerät gespeichert</text>
+<rect x="486" y="340" width="358" height="372" rx="16" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<rect x="502" y="354" width="267.8560000000001" height="22" rx="11.0" fill="#f0f9ff" stroke="#075985" stroke-width="1"/>
+<text x="510" y="369.32" font-size="12" font-weight="600" fill="#0c4a6e" text-anchor="start">Entwurf – bitte prüfen und signieren</text>
+<text x="502" y="400" font-size="12" font-weight="400" fill="#0c4a6e" text-anchor="start">vorgeschlagen von Berichts-Assistent</text>
+<text x="502" y="430" font-size="12" font-weight="700" fill="#0c4a6e" text-anchor="start">1</text>
+<text x="520" y="430" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">Schicht um 16:34 begonnen und um</text>
+<text x="520" y="450" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">21:28 beendet.</text>
+<rect x="520" y="464" width="160.49919999999995" height="22" rx="11.0" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="528" y="479.32" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Quelle: Zeiterfassung</text>
+<text x="502" y="510" font-size="12" font-weight="700" fill="#0c4a6e" text-anchor="start">2</text>
+<text x="520" y="510" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">Frau A. (synthetisch) hat das Abendessen</text>
+<text x="520" y="530" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">etwa zur Hälfte gegessen.</text>
+<rect x="520" y="544" width="176.27199999999996" height="22" rx="11.0" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="528" y="559.32" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Quelle: Sprachnotiz 0:04</text>
+<text x="502" y="590" font-size="12" font-weight="700" fill="#0c4a6e" text-anchor="start">3</text>
+<text x="520" y="590" font-size="14" font-weight="400" fill="#022c22" text-anchor="start">Abendpflege wie geplant durchgeführt.</text>
+<rect x="520" y="604" width="176.27199999999996" height="22" rx="11.0" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<text x="528" y="619.32" font-size="12" font-weight="600" fill="#44403c" text-anchor="start">Quelle: Sprachnotiz 0:11</text>
+<rect x="502" y="640" width="326" height="56" rx="8" fill="#065f46"/>
+<text x="665.0" y="674.12" font-size="17" font-weight="600" fill="#ffffff" text-anchor="middle">Prüfen und signieren</text>
+<rect x="486" y="726" width="358" height="58" rx="10" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1"/>
+<path d="M508,762 a8,8 0 0 1 4,-15 a10,10 0 0 1 19,2 a7,7 0 0 1 1,13 z" fill="none" stroke="#44403c" stroke-width="1.8"/>
+<text x="542" y="750" font-size="13" font-weight="700" fill="#44403c" text-anchor="start">Offline gespeichert, wird synchronisiert</text>
+<text x="542" y="770" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">Noch nicht beim Team.</text>
+</svg>
