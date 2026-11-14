@@ -151,6 +151,10 @@ export default function TeamClient({
           <Link href="/team/tagesplan" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             Tagesvorschlag
           </Link>
+          {/* BK-b1s (AUT-117 (c), ADR-195 addendum 11:10): the team sets its own service postcodes and maximum distance. */}
+          <Link href="/team/einsatzgebiet" data-testid="reach-link" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            Einsatzgebiet
+          </Link>
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">{PAGE_LABEL.team}</h1>
         <p className="mx-auto max-w-xl text-sm text-emerald-100">

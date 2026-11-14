@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.7 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.17 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -324,7 +324,7 @@ Die folgenden Bildschirme sind **Konzept-Wireframes** im NAVORA-Designsystem (v7
 - **Erfassen:** sprechen oder schreiben. Der Hinweis verlangt nur Einsatzdaten, keine Namen und keine Diagnosen (`lca` M-a).
 - **Zusammenfassung:** Jedes Feld zeigt, woraus es erkannt wurde («erkannt aus: «heute»») und lässt sich ändern. Relative Angaben werden als Datum gezeigt (FE-074).
 - **Ein Klick:** «Bestätigen & Absenden». Ohne Bestätigung wird nichts gesendet.
-- **Stand:** «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.», dann «Gedeckt durch Team …», bei erschöpfter Kaskade «Kein passendes Team mehr frei» und ab Schichtbeginn «Nicht gedeckt» (UXR-188). Kein stilles Verfallen (BK-6). Ob eine Privatperson die Zahl der Teams sieht, prüft `lca`.
+- **Stand:** «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.», dann «Gedeckt durch Team …», wenn kein geeignetes Team mehr frei ist «Kein passendes Team mehr frei» (V3.2.13: Rundruf statt Kaskade). **V3.2.16 (CGR-222 (b)):** zur spätesten Deckungszeit (oder wenn alle geeigneten Teams abgelehnt haben, was zuerst eintritt) ein Zustand, der sagt, dass die Schicht nicht gedeckt ist, **vor** dem Schichtbeginn, mit Operations-Ausnahme; nicht erst ab Schichtbeginn (bis V3.2.15 «ab Schichtbeginn ‹Nicht gedeckt›», UXR-188). Wortlaut: `uxa` (OPEN). Kein stilles Verfallen (BK-6). Ob eine Privatperson die Zahl der Teams sieht, prüft `lca`.
 
 ### 5.2 P2 `/team`: das begründete Angebot
 
@@ -332,7 +332,7 @@ Die folgenden Bildschirme sind **Konzept-Wireframes** im NAVORA-Designsystem (v7
 
 - **Empfohlen für euch:** Schicht, Ort, Distanz; darunter «Passt, weil:» mit den geprüften Fakten. **Kein Prozentwert, keine Sterne, kein Rang** (`uxa`).
 - **Transparenz:** «Nicht angeboten an 3 Teams – Gründe ansehen»; jedes ausgeschlossene Team hat seinen Grund (BK-2).
-- **Zeitfenster:** «Angebot für euer Team bis 14:45» (Kaskade, BK-5).
+- **Rundruf (V3.2.13, FE-078 Teil 2):** Alle Teams, die jede harte Prüfung bestehen, sehen das Angebot **gleichzeitig**; es gibt kein exklusives Zeitfenster. Die Sortierung ist eine Empfehlung («Empfohlen für euch, weil …»), kein Ausschluss. Wer zuerst «Übernehmen mit …» tippt und die harte Prüfung in diesem Moment besteht, hat die Schicht; die anderen Teams sehen «Bereits übernommen» (BK-5, **PLANNED**; Wortlaut `uxa`).
 - **Teamautonomie, je benannter Person (V3.2.1, CGR-204, UXR-191):** Das Team entscheidet selbst, wer geht, und zwar **im selben Schritt wie die Übernahme** («Übernehmen mit …»), nur unter Mitgliedern, die **jede** Bedingung erfüllen (Stufe, bestätigte Merkmale, Verfügbarkeit für die ganze Schicht: dieselbe Person). «Passt, weil:» nennt nur Fakten, die für mindestens ein und dasselbe Mitglied gelten. Der Auftraggeber sieht «Gedeckt» erst mit einer benannten, geprüften Person; ob er deren Namen sieht, prüft `lca` (OPEN). Vor der Übernahme sieht das Team keine Klientendaten und keine Strassenadresse (`lca` M-b); Merkmale erscheinen ohne Namen der Person (`uxa`, `UX_REVIEW.md`).
 - **Offen für `uxa` und `lca`:** Die Zeilen «Empfohlen für euch» und «Nicht angeboten an 3 Teams – Gründe ansehen» sind Vorschläge des PO. Ob ein Team die Ausschlussgründe anderer Teams sehen darf, ist eine Sichtbarkeitsfrage, die noch keine Rolle geprüft hat.
 
@@ -405,7 +405,7 @@ sequenceDiagram
   Heim->>N: Bestätigen & Absenden
   Note over N: Engine 1: PLZ-Distanz, Qualifikation, Verfügbarkeit,<br/>bestätigte Demenzerfahrung. Wer fehlt, fällt heraus, mit Grund.
   Note over N: Engine 2: Rangfolge nur unter den Zulässigen,<br/>Begründung in Worten
-  N->>Team: Angebot «Empfohlen für euch», exklusiv bis 14:45
+  N->>Team: Rundruf an alle passenden Teams gleichzeitig (FE-078 Teil 2)
   Team->>N: Schicht übernehmen (Regeln werden erneut geprüft)
   N-->>Heim: «Gedeckt durch Team Basel Ost»
   Team->>PK: Team teilt selbst zu
@@ -418,24 +418,26 @@ sequenceDiagram
   Team->>Heim: Rechnung des Teams (nach Freigabe)
 ```
 
-### 6.2 Die Angebotskaskade: nie stilles Warten
+### 6.2 Der Rundruf: alle geeigneten Teams gleichzeitig, nie stilles Warten (V3.2.13, FE-078 Teil 2)
 
 ```mermaid
 stateDiagram-v2
   [*] --> Bestaetigt: Heim bestätigt
-  Bestaetigt --> AngebotTeam1: bestes zulässiges Team
+  Bestaetigt --> Rundruf: alle Teams, die jede harte Prüfung bestehen
   Bestaetigt --> NichtGedeckt: kein zulässiges Team
-  AngebotTeam1 --> NichtGedeckt: Schichtbeginn oder einziges Team lehnt ab
-  AngebotTeam1 --> Gedeckt: übernimmt
-  AngebotTeam1 --> AngebotNaechstes: lehnt ab oder Fenster endet
-  AngebotNaechstes --> Gedeckt: übernimmt
-  AngebotNaechstes --> AngebotNaechstes: nächstes zulässiges Team
-  AngebotNaechstes --> NichtGedeckt: kein Team mehr frei oder Schichtbeginn
+  Rundruf --> Gedeckt: erstes Team übernimmt, harte Prüfung im Moment des Tipps bestanden
+  Rundruf --> Rundruf: ein Team lehnt ab, die anderen sehen es weiter
+  Rundruf --> NichtGedeckt: alle lehnen ab oder späteste Deckungszeit erreicht
+  Gedeckt --> Rundruf: benannte Person fällt vor Beginn aus (PLANNED, CGR-223)
   NichtGedeckt --> Ausnahme: sichtbar für Heim, Ausnahme an Operations
   Gedeckt --> [*]
 ```
 
-Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard schlägt `eng` per ADR vor (BK-5). Was der Heim-Stand wörtlich sagt, steht in 5.1.
+- **Ersetzt die exklusive Kaskade** (V3.2 bis V3.2.12) durch Founder-Entscheid FE-078 Teil 2.
+- **Sichtbar** wird das Angebot nur für Teams, die **jede** harte Prüfung von Engine 1 bestehen (Distanz, Stufe, Pflichtmerkmale, Verfügbarkeit, gültige Nachweise). Die KI bzw. in BK die Regel sortiert und begründet, schliesst aber kein geeignetes Team aus (Engine 2).
+- **Übernahme:** Das Team entscheidet frei. Bei gleichzeitigem Tippen gewinnt genau eine Übernahme; die harte Prüfung läuft im Moment des Tipps erneut (BK-5a, `cra`).
+- **Nie stilles Warten:** Ab welchem Abstand zum Schichtbeginn «nicht gedeckt» als Ausnahme erscheint, ist ein Betriebsparameter, kein klinischer Wert; den Standard schlägt `eng` per ADR vor (BK-6). **V3.2.16 (CGR-222 (a)):** Standard per `eng`-ADR für die Simulation, im Clinical Rule Register als PROPOSED geführt; vor realen Daten bestätigt oder ersetzt der Clinical Owner den Wert (K-8). Der Zustand «nicht gedeckt» erreicht den Auftraggeber zu dieser spätesten Deckungszeit, immer **vor** dem Schichtbeginn (G9). Was der Heim-Stand wörtlich sagt, steht in 5.1.
+- **Recht:** Der Founder begründet den Rundruf mit der AVG-Abgrenzung (kein «Auswahlverfahren»). Diese Einschätzung prüft `lca` neu (Q-44e); verbindlich geklärt ist sie erst mit dem Gutachten (FE-050), **OPEN**.
 
 ### 6.3 Schritte, Engines und Stand
 
@@ -444,7 +446,7 @@ Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard sc
 | 1 | Bedarf erfassen (Sprache oder Text) → KI erkennt Felder → Auftraggeber bestätigt | Auftraggeber | E2 (Erfassung) | **PLANNED** (BK-1) |
 | 2 | Harte Prüfung: PLZ-Distanz, Qualifikation nach Matrix, Verfügbarkeit, bestätigte Merkmale | System | E1 | Region und Pflichtqualifikation **IMPLEMENTED**; PLZ-Distanz, Matrix im Matching und Merkmale **PLANNED** |
 | 3 | Rangfolge unter den Geeigneten, Begründung in Worten | System | E2 | **PLANNED** (BK-3, BK-4) |
-| 4 | Angebot zuerst an das beste Team (Kaskade mit exklusivem Zeitfenster) | System → Team | E1, E5 | heute sehen alle geeigneten Teams das Angebot (**IMPLEMENTED**); Kaskade **PLANNED** (BK-5) |
+| 4 | Angebot gleichzeitig an alle geeigneten Teams (Rundruf, FE-078 Teil 2), Sortierung nur als Empfehlung | System → Team | E1, E2, E5 | heute sehen alle geeigneten Teams das Angebot (**IMPLEMENTED**); Empfehlung «weil …», Übernahme-Wettlauf und Ausnahme beim Schichtbeginn **PLANNED** (BK-5, BK-6) |
 | 5 | Teamentscheid mit einem Tipp; der Auftraggeber sieht «gedeckt» | Team | E1 | Teamentscheid **IMPLEMENTED** (J2); Anzeige für den Auftraggeber **PLANNED** |
 | 6 | Einsatz: Zeit, Aufgaben | Pflegekraft | – | **IMPLEMENTED** (F1-F4) |
 | 7 | Diktat → KI-Berichtsentwurf | Pflegekraft | E3 | **PLANNED** (B6, BK-8) |
@@ -465,7 +467,7 @@ Das Zeitfenster ist ein Betriebsparameter, kein klinischer Wert; den Standard sc
 | Ein wiedereröffneter Fall ohne Team geht nie verloren | ∞ | SAFE-D11 (abgenommen) |
 | Qualifikationsregeln sind nur Simulationsregeln, bis der Clinical Owner sie freigibt | Schritt 2 | Matrix v0.2 PROPOSED (D-27, D-43) |
 | «Gedeckt» erst, wenn beim «Übernehmen» eine benannte, geprüfte Pflegeperson feststeht; vorher «Pflegekraft noch nicht benannt» (PLANNED; V3.2.2, `cra` CGR-213 (a), CGR-204 (c), UXR-191) | Schritt 5–6 | BK-5n, BK-6 |
-| «Nicht gedeckt» erreicht den Auftraggeber **vor** dem Schichtbeginn, spätestens zu einer festen Deckungsfrist (PLANNED; V3.2.2, CGR-207 (a); Frist: Clinical Owner, K-8) | Schritt 6 | BK-6 |
+| «Nicht gedeckt» erreicht den Auftraggeber **vor** dem Schichtbeginn, spätestens zu einer festen Deckungsfrist (PLANNED; V3.2.2, CGR-207 (a); Frist: Clinical Owner, K-8. V3.2.16, CGR-222 (a): Standard per `eng`-ADR für die Simulation, im Clinical Rule Register als PROPOSED geführt; vor realen Daten bestätigt oder ersetzt der Clinical Owner den Wert) | Schritt 6 | BK-6 |
 | Kein diktierter Inhalt geht still verloren: jedes nicht übernommene Eingabesegment wird vor dem Signieren gelistet und behandelt (PLANNED; V3.2.2, CGR-208 (a)) | Schritt 7–8 | BK-8n |
 | Dauern werden aus Zeitstempeln in Europe/Zurich berechnet; eine Nacht über Mitternacht und die Umstellungsnacht ergeben eine Schicht mit richtiger Dauer (PLANNED; V3.2.2, CGR-206, CGR-200) | Schritt 1 | BK-1c |
 | Übergabe und Eskalation am Ort der Pflege sind in Phase A **nicht modelliert**; das steht im BK-Abnahmeprotokoll (PLANNED als Vermerk; V3.2.2, CGR-209 (b)) | Schritt 7 | BK-Abnahme |
@@ -594,7 +596,7 @@ Alle Werte gelten je Team und nie je Person. In Phase A sind es synthetische Wer
 | # | Frage | Wirkt auf |
 |---|---|---|
 | D-14 | Höhe der Plattformgebühr (Variante F3/F6 nach VZE) | Kap. 2.3, 4, Abo-Ledger |
-| D-44 | Rechtsform und Vertragsweg je Auftragskonstellation (Genossenschaft? Personalverleih oder Auftrag, AVG); Gebührengestaltung L-10 wartet auf Freigabe; **offener Satz an den Founder:** «Über NAVORA laufen keine Zahlungsflüsse zwischen Auftraggeber und Team» (von FE-055 nicht ausdrücklich gedeckt, `lca` 16:40) | GM-1, BK-Rechnung, Phase B |
+| D-44 | Rechtsform und Vertragsweg je Auftragskonstellation (Genossenschaft? Personalverleih oder Auftrag, AVG); Gebührengestaltung L-10 wartet auf Freigabe; **offener Satz an den Founder:** «Über NAVORA laufen keine Zahlungsflüsse zwischen Auftraggeber und Team» (von FE-055 nicht ausdrücklich gedeckt, `lca` 16:40); **dieser Satz ist seit 2026-11-14 entschieden: FE-078 Teil 1.** Rechtsform, Vertragsweg und L-10 bleiben offen | GM-1, BK-Rechnung, Phase B |
 | D-41 | KI-Pfad für reale Daten (Muster 4: Rechenzentrum, Gutachten, DSFA) | E2, E3 |
 | D-2 | Hosting: App-Host Infomaniak und `navora-prod` entschieden (FE-063, FE-064); offen sind der Auftragsverarbeitungsvertrag und das Upgrade vor realen Daten | B11 |
 | STG1 | Owner-Secret `STAGING_DB_URL` für das Staging | B11 |
@@ -637,6 +639,121 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 **Vollständige Beiträge als Anhänge:** A `csa` (Modell und Markt) · B `cra` (Patientensicherheit) · C `lca` (Recht). Die `eng`-Prüfung steht im Handbook V2.2 §11. Die Wireframes von `uxa` sind als SVG in `blueprint-v3/wireframes/`.
 
+
+### Formales Sign-off FE-079 (Founder-Auftrag 2026-11-14)
+
+**Auftrag (FE-079).** Jede Fachrolle bestätigt in ihrem nächsten Lauf, in ihrer Journal-Datei und als Kommentar auf Issue #1279: «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.» **Das Master-Paket ist erst besiegelt, wenn alle sechs Zeilen unten unterschrieben sind.** Der PO trägt jede Bestätigung wörtlich ein, mit Vorbehalten und Befund-ID; ein Vorbehalt wird nie gestrichen oder umformuliert.
+
+**Was ein Sign-off ist und was nicht.** Es bestätigt die gemeinsame Arbeitsgrundlage. Es ist **keine klinische Freigabe** (D-27: nur der benannte Clinical Owner), **keine Rechtsauskunft** (`lca` bleibt beratend), ändert keinen Status PROPOSED und keine Abnahme nach Kapitel 9.
+
+**Prompts (IMPLEMENTED 2026-11-14 14:00-14:07, `po` im Auftrag des Founders):** die Aufgabenbeschreibungen von `cra`, `lca`, `uxa`, `aia`, `csa`, `eng` (stündlich und Wochenstatus) und `po` nennen jetzt Blueprint V3.2 und Handbook V2.2 als einzige Quellen (vorher Blueprint V2 und `ARCHITECTURE.md`), die Block-Regel mit BK als aktivem Block, das Geschäftsmodell mit FE-078 und den Sign-off-Auftrag.
+
+| Rolle | Fachbereich | Nächster planmässiger Lauf | Sign-off (wörtlich) | Quelle |
+|---|---|---|---|---|
+| `eng` | 5 Engines, Datenmodell, Testpyramide, `ci-repeat` 10/10 (§3, §6.3, §9.1; Handbook V2.2) | stündlich, Minute 09 | **unterschrieben mit Vorbehalt** (V-1 bis V-6, Wortlaut unten), 2026-11-14 15:12; **erneuert** 2026-11-14 20:14 auf 3.2.16 (Vorbehalte V-1 bis V-8) | `docs/agents/journal/2026-11-14-1512-eng.md` (PR #1283, Merge `0b952ce`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6878581304); Erneuerung: `docs/agents/journal/2026-11-14-2014-eng.md` (PR #1301, Merge `fca9405`), [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882788966) |
+| `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; vom Founder am 2026-11-14 bestätigt) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **unterschrieben mit Vorbehalt** (CGR-221, CGR-222, CGR-223, Wortlaut unten), 2026-11-14 17:26 | `docs/agents/journal/2026-11-14-1726-cra.md` (PR #1293, Merge `c860cc3`); Details `CLINICAL_GOVERNANCE.md` 17:26; [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6880720873) |
+| `lca` | AVG-Abgrenzung (Anhang C §1), rote Linien R-1 bis R-10, FE-078 | alle 4 Std., Minute 20 | **unterschrieben mit Vorbehalt** (S-1 bis S-5, Wortlaut unten), 2026-11-14 16:25 | `docs/agents/journal/2026-11-14-1625-lca.md` (PR #1289, Merge `65f5363`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6879658721) |
+| `uxa` | Wireframes und Klickpfade der 6 Portale (§5, §6) | alle 4 Std., Minute 47 | **unterschrieben mit Vorbehalt** (UXR-214, UXR-195, Wortlaut unten), 2026-11-14 15:51; **erneuert** 2026-11-14 19:58 auf 3.2.16 (Vorbehalte UXR-214 (Rest), UXR-195) | `docs/agents/journal/2026-11-14-1551-uxa.md` (PR #1287, Merge `7e6c30c`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6879192359); Erneuerung: `docs/agents/journal/2026-11-14-1958-uxa.md` (PR #1300, Merge `1959721`), [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882530952) |
+| `aia` | On-Platform-Matching (Engine 1, Engine 2) und Voice-to-Report (Engine 3) (§3, §5.3, §6.3) | alle 6 Std., Minute 17 | **unterschrieben mit Vorbehalt** (AUT-127, AUT-128, AUT-129, Wortlaut unten), 2026-11-14 20:25 | `docs/agents/journal/2026-11-14-2025-aia.md` (PR #1302, Merge `500946c`); Details `AUTOMATION_REVIEW.md` Review 58; [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882931222) |
+| `csa` | Markt-Disruption und Schichtrechnung (§1, §2, Anhang A) | wöchentlich, Montag 18:37 (2026-11-16) | **ausstehend** | – |
+
+**Wortlaut der Sign-offs (vom PO wörtlich übertragen, Reihenfolge des Eingangs).** Die Vorbehalts-IDs sind die der jeweiligen Rolle; zur Unterscheidung von den `lca`-Korrekturen V-1 bis V-7 (PR #1220) zitiert der PO sie als «`eng` V-1» usw., ohne den Wortlaut zu ändern.
+
+**`eng`, 2026-11-14 15:12 Europe/Zurich** (gelesen auf `recovery/main` `90d5614`; Journal `docs/agents/journal/2026-11-14-1512-eng.md`, PR #1283; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6878581304), Kommentar-Wortlaut):
+
+> Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten V-1 bis V-6**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage. Das Sign-off bestätigt die Arbeitsgrundlage; es ist keine Aussage, dass ungetesteter Code funktioniert.
+>
+> Field: the five engines, the data model, and the test pyramid with `ci-repeat` 10/10.
+>
+> - **V-1** Engine 1 data model: the code (M/130, ADR-195, merged `9b691af`) writes BK screening into `order_offers` / `order_exclusions` via `private.screen_order_reach`; Handbook §4.0, §5.1b and §11 still name `matching_offer_steps` and `private.offer_eligibility`. Proposal: Handbook V2.3 adopts ADR-195; the cascade (T-3) is still to be decided.
+> - **V-2** R-E1-1: the old eligibility rule is still in two copies on the case path (`M/034` `request_offered_to_team`, `M/086` `team_offers()`). «One function» is PLANNED.
+> - **V-3** Blueprint §6.3 step 2: the distance filter has been IMPLEMENTED since `9b691af` but is not accepted. Matrix, attributes and whole-slot availability are PLANNED (#1273).
+> - **V-4** Handbook counts are stale: 128 migrations, 136 pgTAP files and 122 unit test files on `90d5614`, against 126 / 133 / 115 in the Handbook.
+> - **V-5** E2–E5 and the three ledgers (GMSEP test) are PLANNED. There is no payment integration and no commission field (FE-078). ADRs T-3, T-4 and T-6 to T-9 are open.
+> - **V-6** BK-b has no `ci-repeat` acceptance yet. Acceptance only from raw logs, per job.
+>
+> I changed nothing in either document. Each reservation is a proposal.
+
+**Hinweis PO zu den `eng`-Vorbehalten (keine Änderung am Wortlaut):** `eng` V-5 nennt T-3 (Kaskadenfenster) offen; seit FE-078 Teil 2 (V3.2.13) ist die exklusive Kaskade durch den Rundruf ersetzt, T-3 betrifft damit nur noch die technische Form des Rundrufs (BK-5, BK-5a). `eng` V-1 bis V-4 sind Vorschläge für Handbook V2.3 und eine Statuszeile in §6.3; der PO nimmt sie in die Handbook-Pflege auf (kein stilles Ändern, Versionstabelle).
+
+**`uxa`, 2026-11-14 15:51 Europe/Zurich** (gelesen auf `recovery/main` `0b952ce`, Blueprint 3.2.13; Journal `docs/agents/journal/2026-11-14-1551-uxa.md`, PR #1287; Details `UX_REVIEW.md` 15:51; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6879192359), Kommentar-Wortlaut):
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten UXR-214 und UXR-195**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **UXR-214 (high, #1286):** P2 image (`img/v3/p2-team.png`), `team.svg:38`, `order.svg:107`, `platform.svg:42`, `e2e-a-auftrag.svg:66-70` and §6.1 line 408 still show the exclusive window that FE-078 part 2 removed; P2 also shows other teams' exclusion reasons (§7: internal trail only) and «Vermittlungsgebühr» (§4.4); `e2e-b-einsatz.svg:5` still says «spricht 30 Sekunden».
+> - **UXR-195 (#1233):** the P3 drawing («Nicht übernommen (n)», text field instead of recording) is still owed by `uxa`.
+> - Not a clinical or legal approval; no `cra` or `lca` wording changed.
+
+**`lca`, 2026-11-14 16:25 Europe/Zurich** (gelesen auf `recovery/main` `a86a5aa`, Blueprint 3.2.14; Journal `docs/agents/journal/2026-11-14-1625-lca.md`, PR #1289; Details D-44 `lca` 16:25; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6879658721), Kommentar-Wortlaut):
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten S-1 bis S-5 (D-44, `lca` 2026-11-14 16:25)**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **S-1** Blueprint §4.4, Annex C §1.5 and §1.6 (R-3 row) still call «keine Zahlungsflüsse über NAVORA» open or awaiting approval; FE-078 (1) has decided it (direction).
+> - **S-2** Annex C §1.2, §1.6, §2.2 P-1, §2.6 and §5 Q-44e still describe the exclusive cascade that FE-078 (2) replaced.
+> - **S-3** Handbook V2.2 still describes the cascade in seven places (same point as `eng` V-1/V-5).
+> - **S-4** «keine Vermittlungsgebühr» (P2 image) and «Vermittlung» / «Vermittlung (Coach)» (`platform.svg`) breach the language rule Annex C §1.3 (10) / R-9.
+> - **S-5** P2 image shows an exclusive window and other teams' exclusion reasons (= `uxa` UXR-214).
+>
+> Unchanged: R-1 to R-10 stand as written. FE-078 (1) is compliant for NAVORA's own fee and payment role. Real use stays **unresolved: needs legal adviser** (Q-44a, Q-44e, Q-44f). This sign-off confirms the working basis; it is not legal advice, not a legal determination and changes no «unresolved» verdict.
+
+**Hinweis PO zu den Vorbehalten `uxa` und `lca` (keine Änderung am Wortlaut, PLANNED):** `uxa` UXR-214, `lca` S-2, S-4, S-5 und `eng` V-1/V-5 (`lca` S-3) betreffen denselben Rückstand: Bilder, Wireframes und Anhangstexte zeigen noch die exklusive Kaskade, die FE-078 Teil 2 (V3.2.13) durch den Rundruf ersetzt hat, und Wörter der Vermittlungssprache (R-9). `lca` S-1 betrifft den Satz «keine Zahlungsflüsse über NAVORA», den FE-078 Teil 1 entschieden hat. Die Korrektur ist Dokumentpflege: Bilder und Wireframes durch `uxa` (UXR-214, #1286), Anhang C durch `lca` (Rollentext, der PO ändert ihn nicht), PO-Kapitel (§4.4, §6.1) und Handbook V2.3 durch den PO mit Versionszeile. Sie ändert keine harte Prüfung, keine Garantie und kein Gate; bis dahin gilt §6.2 (Rundruf) vor jedem älteren Bild.
+
+**`cra`, 2026-11-14 17:26 Europe/Zurich** (gelesen auf `recovery/main` `db2b298`, Blueprint 3.2.15, Handbook V2.2; Journal `docs/agents/journal/2026-11-14-1726-cra.md`, PR #1293, Merge `c860cc3`; Details `CLINICAL_GOVERNANCE.md` 17:26; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6880720873), Kommentar-Wortlaut):
+
+> Field: the patient-safety guarantees of Blueprint Annex B §1 (20 since V3.2.2; the founder's request says 18) and the qualification matrix QAM v0.2 (PROPOSED).
+>
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten CGR-221, CGR-222 und CGR-223 (`cra` 2026-11-14 17:26)**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **CGR-221:** Some text in my field is out of date after FE-078 part 2 and the #1268 merge.
+>   - Annex B: §1 G1, §2 rows «3 Engine 1» and «5 Angebot (Kaskade)», the stop case of row 6, and §4.1 «Nicht gedeckt».
+>   - Handbook: §4.0, §4 E1 «Kaskade» and §4 E5.
+>   - The Annex B header gives issue #1210; it should be #1209.
+>   - Replacement text for Annex B is in `CLINICAL_GOVERNANCE.md` 17:26.
+> - **CGR-222:** The documents disagree about the latest time by which a shift must be covered.
+>   - Who sets it: §6.2 and BK-6 say it is an operating parameter with a default from `eng`. §6.4, G9 and Annex B §6 item 9 say the Clinical Owner sets it (K-8).
+>   - When the client learns «nicht gedeckt»: §5.1 says from the start of the shift. G9 says before the start.
+> - **CGR-223:** In the broadcast, no guarantee covers a taken order whose named person drops out before the start. That order must stop showing «gedeckt» at once and go back into the broadcast.
+>
+> Unchanged: the 20 guarantees stand as written, and every matrix cell stays PROPOSED. CR-180 is applied on #1273 because the PO chose my strict default; that is not an approval. This sign-off confirms the working basis. It is **not a clinical approval** (D-27, D-43, G-1), not legal advice, and it changes no PROPOSED status and no acceptance.
+
+**Hinweis PO zu den `cra`-Vorbehalten (keine Änderung am Wortlaut; Vorbehalte bleiben stehen, bis `cra` sie selbst schliesst):** In V3.2.16 übertragen: der Ersatztext von `cra` für Anhang B (Kopf #1209, §1 G1 «Heute», G9-Unterpunkt, §2 Zeile 5 und Stoppfall Zeile 6, §4.1 «Nicht gedeckt») (CGR-221) und die Sätze zu CGR-222 (a) in §6.2 und §6.4 sowie (b) in §5.1 (Wortlaut des Zustands: `uxa`, OPEN); Übergang «Gedeckt → Rundruf» im Zustandsdiagramm §6.2 (CGR-223 (d), PLANNED). Ohne Ersatztext von `cra` bleiben Anhang B §2 Zeile «3 Engine 1» und der Handbook-Teil (§4.0, §4 E1, §4 E5); diese gehen mit `eng` V-1 und `lca` S-3 in Handbook V2.3 (PLANNED). CGR-222 (c) und CGR-223 (a) bis (c) sind Abnahmebedingungen von BK-c (`briefs/BK.md` PO-Ergänzung 17:40). Kein Wert für die Deckungszeit ist gesetzt.
+
+**`uxa`, Erneuerung 2026-11-14 19:58 Europe/Zurich** (gelesen auf `recovery/main` `879f97c`, Blueprint 3.2.16, Handbook V2.2; Journal `docs/agents/journal/2026-11-14-1958-uxa.md`, PR #1300, Merge `1959721`; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882530952), Kommentar-Wortlaut; das Sign-off von 15:51 bleibt für 3.2.13 stehen):
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten UXR-214 (Rest) und UXR-195**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **UXR-214 part 1 verified closed** (no exclusive window, §6.1 broadcast, P2 image clean). **Rest (#1286):** «Vermittlung» / «Vermittlung (Coach)» in `platform.svg:16, 46` and «Vermittlung ohne Aufsicht» in `platform-map.svg:59` (proposed «Moderation», `lca` confirms); «Kaskade» in `engine-map.svg:83` and `erd-b-auftrag.mmd:7` (with Handbook V2.3).
+> - **UXR-195 (#1233):** my P3 drawing is still owed.
+> - The §5.1 words for «nicht gedeckt» before the start are now PROPOSED in `UX_REVIEW.md` 19:58 (`cra` confirms); not a reservation.
+> - The 15:51 sign-off stays as given for 3.2.13. No clinical or legal approval; no `cra` or `lca` wording changed.
+
+**`eng`, Erneuerung 2026-11-14 20:14 Europe/Zurich** (gelesen auf `recovery/main` `879f97c`, Blueprint 3.2.16, Handbook V2.2; Journal `docs/agents/journal/2026-11-14-2014-eng.md`, PR #1301, Merge `fca9405`; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882788966), Kommentar-Wortlaut; V-1 bis V-6 von 15:12 bleiben stehen):
+
+> Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten V-1 bis V-8 unten** (gelesen auf Blueprint 3.2.16, Handbook V2.2, `recovery/main` `879f97c`). Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage. Das Sign-off bestätigt die Arbeitsgrundlage; es ist keine Aussage, dass ungetesteter Code funktioniert.
+>
+> **Reservations (document against code on `879f97c`; nothing changed in either document; proposals only):**
+>
+> - **V-1 to V-6 stand as written 15:12** (journal `2026-11-14-1512-eng.md`). Re-checked facts: V-3 still holds (Blueprint §6.3 step 2 «PLZ-Distanz … PLANNED», while the distance filter and team reach are IMPLEMENTED since `9b691af`, not accepted). V-4 counts on `879f97c`: migrations up to `M/130` (unchanged), 136 pgTAP files, 122 unit test files, 37 e2e specs (unchanged since 15:12; nothing in `src/` or `supabase/` merged since).
+> - **V-7 (new, 3.2.16 §6.2, §6.4, CGR-222 (a), CGR-223): both are PLANNED, no ADR number yet.** The latest-coverage default and the reopen path «Gedeckt → Rundruf» exist only as the docs draft `docs/engineering/probes/BK-c_ADR_DRAFT.md` (merged with #1298, `84220d8`): default **4 h PROPOSED for «Simulation, synthetic data»** (same as the visit-cover `fallback_lead_hours`, M/028); the value before real data stays with the Clinical Owner (K-8, OPEN). They get an ADR number in `DECISIONS.md` with the first BK-c PR, only when the PO activates BK-c. The draft also records that ADR-191 (4), (6) and ADR-195 (3) still assume a cascade (FE-078 part 2); superseded by the BK-c ADR, no accepted ADR text changed.
+> - **V-8 (new, deviation): Blueprint §6.3 step 4 «heute sehen alle geeigneten Teams das Angebot (IMPLEMENTED)» holds only for the case path.** On `879f97c` the BK order path writes `public.order_offers` at confirmation (`M/130`), but no screen or RPC reads it for a team: `order_offers` appears in `src/` only in `database.types.ts`. What teams see today is the case-path list `public.team_offers()` (`M/086`, label check, V-2). The team-facing broadcast of orders is PLANNED (BK-c/BK-5). Proposal to the PO: status line «Fallpfad IMPLEMENTED; Auftragspfad: Angebotszeilen IMPLEMENTED, Sicht der Teams PLANNED (BK-5)».
+
+**`aia`, 2026-11-14 20:25 Europe/Zurich** (gelesen auf `recovery/main` `879f97c`, Blueprint 3.2.16, Handbook V2.2; Journal `docs/agents/journal/2026-11-14-2025-aia.md`, PR #1302, Merge `500946c`; Details `AUTOMATION_REVIEW.md` Review 58; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882931222), Kommentar-Wortlaut):
+
+> - **Field:** on-platform matching (Engine 1 hard rules, Engine 2 ranking and explanation) and voice-to-report (Engine 3) (Blueprint §3, §5.3, §6.3).
+> - **Journal:** `docs/agents/journal/2026-11-14-2025-aia.md`. Details in `AUTOMATION_REVIEW.md` review 58 (both in PR #1302).
+>
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten AUT-127, AUT-128 und AUT-129**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **AUT-127 (medium):** Blueprint §6.3 rows 1 and 7 and the §3.1 table name a model or dictation as the path. So does the Handbook §4.0 diagram («KI-Extraktion», «Audio-Diktat → Spracherkennung», «KI-Matching»). §5.3 and Handbook S-2/S-3 say otherwise for BK: a rule over typed text, no audio, and a rule-based ranking. The code has no model or speech call, and `kind = 'ai'` is refused. Proposal: give the BK form first in each place.
+> - **AUT-128 (medium):** these are the same facts as `eng` V-8 (`lca` S-3 and `cra` CGR-221 for the «Kaskade» text). The order path writes `order_offers`, but no team reads them yet. Until a team view exists, the Engine 2 rule «ordnet, schliesst kein geeignetes Team aus» cannot be checked on that path. Proposal: one assertion in BK-c/BK-5 that the set of teams shown equals the offer rows, and that the ranking only reorders them.
+> - **AUT-129 (low):** the Handbook agent contract lacks three controls: a named confirmer with ledger scope, no accept-all on listed fields, and a correction rate per agent and field at team level with a stop rule. Proposal: add them by reference to AI Operating Model Review §8.
+>
+> This sign-off confirms the working basis. It relaxes no AI lock (AUT-115), chooses no AI provider and moves no data to an AI service (D-35 rule A). Stage 0 only. I changed nothing in either document. Each reservation is a proposal.
+
+**Hinweis PO zu den Vorbehalten `eng` V-7, V-8 und `aia` AUT-127 bis AUT-129 (keine Änderung am Wortlaut; Vorbehalte bleiben stehen, bis die Rolle sie selbst schliesst; PLANNED):** `eng` V-8 und `aia` AUT-128 sind derselbe Befund: auf dem Auftragspfad schreibt `M/130` Angebotszeilen, aber kein Team liest sie (Sicht der Teams PLANNED, BK-5); die Statuszeile in §6.3 Schritt 4 wird mit der nächsten Dokumentpflege entsprechend getrennt (Fallpfad / Auftragspfad), und die Prüfung «gezeigte Teams = Angebotszeilen, Rangfolge ordnet nur» wird Abnahmebedingung des BK-c/BK-5-Briefs. `eng` V-7: Simulations-Standard 4 Std. bleibt PROPOSED, der Wert vor realen Daten bleibt beim Clinical Owner (K-8, OPEN). AUT-127 (BK-Form zuerst: Regel über getippten Text, kein Audio, regelbasierte Rangfolge) und AUT-129 (Agentenvertrag) gehen mit `eng` V-1, `lca` S-3 und `cra` CGR-221 in Handbook V2.3 und die §3.1/§6.3-Pflege. Kein KI-Schloss gelockert (AUT-115), keine Daten an einen KI-Dienst (D-35 Regel A).
+
+**Stand Master-Paket:** nicht besiegelt (**5 von 6**: `eng`, `uxa`, `lca`, `cra`, `aia`, alle mit Vorbehalt; `eng` und `uxa` auf 3.2.16 erneuert). Ausstehend: `csa`. Frühestens nach dem `csa`-Lauf am Montag, 2026-11-16, vollständig.
+
 ---
 
 ## 14. Pflege dieses Dokuments
@@ -653,7 +770,18 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
+| 2026-11-14 | 3.2.17 Sign-off | Kap. 13 «Formales Sign-off FE-079»: Sign-off `aia` (20:25, Vorbehalte AUT-127, AUT-128, AUT-129) und die Erneuerungen `uxa` (19:58, UXR-214 (Rest), UXR-195) und `eng` (20:14, V-1 bis V-8) wörtlich eingetragen; Tabelle der Rollen nachgeführt; Hinweis PO zu `eng` V-7, V-8 und AUT-127 bis AUT-129; Stand 5 von 6, ausstehend `csa`. Kopfzeile auf 3.2.17. Keine Änderung an Umfang, Blockfolge, Zahl der Garantien, Matrix oder Gates | FE-079; Issue #1279 Kommentare `uxa`, `eng`, `aia`; PR #1300, #1301, #1302 |
+| 2026-11-14 | 3.2.16 Sign-off | Kap. 13 «Formales Sign-off FE-079»: Sign-off `cra` (17:26, Vorbehalte CGR-221, CGR-222, CGR-223) wörtlich eingetragen, Hinweis PO; Stand 4 von 6. Anhang B: Ersatztext von `cra` (CGR-221) wörtlich übertragen (Kopf #1209 statt #1210; §1 G1 «Heute»; G9 neuer Unterpunkt ohne neue Nummer, CGR-223; §2 Zeile «5 Angebot (Rundruf)» statt «(Kaskade)»; Stoppfall Zeile 6; §4.1 «Nicht gedeckt»); Hinweis PO vor §2 ergänzt. CGR-222: §6.2 und §6.4 Satz zur Deckungszeit (Simulations-Standard per `eng`-ADR, PROPOSED, Clinical Owner vor realen Daten, K-8), §5.1 «nicht gedeckt» vor dem Schichtbeginn statt ab Schichtbeginn (Wortlaut `uxa` OPEN); §6.2 Zustandsdiagramm: «späteste Deckungszeit» statt «Schichtbeginn naht», neuer Übergang «Gedeckt → Rundruf» (PLANNED, CGR-223 (d)). Kopfzeile auf 3.2.16. Kein Wert gesetzt; keine Änderung an Umfang, Blockfolge, Zahl der Garantien, Matrix oder Gates | FE-079; Issue #1279 Kommentar `cra`; PR #1293; `CLINICAL_GOVERNANCE.md` 17:26 (CGR-221 bis CGR-223) |
+| 2026-11-14 | 3.2.15 Sign-off | Kap. 13 «Formales Sign-off FE-079»: Sign-offs `uxa` (15:51, Vorbehalte UXR-214, UXR-195) und `lca` (16:25, Vorbehalte S-1 bis S-5) wörtlich eingetragen; Hinweis PO (gemeinsamer Rückstand Kaskade/R-9 in Bildern und Anhängen, Zuständigkeiten); Stand 3 von 6. Bilder nach FE-078 Teil 2 (UXR-214, #1286, Teil 1): §6.1 Sequenz «Rundruf an alle passenden Teams gleichzeitig» statt «exklusiv bis 14:45»; `team.svg` ohne Countdown, neutrale Zeile; `order.svg`, `b2b.svg`, `platform.svg` Status «Angebot an alle passenden Teams» statt Teamreihenfolge; Swimlane Teil A (Rundruf statt Kaskade) und Teil B (Bericht in eigenen Worten, keine Zeitgrenze) aus `gen-e2e-swimlane.py` neu erzeugt; Bild P2 ohne Uhrzeile, ohne «Nicht angeboten an 3 Teams», «0 CHF an NAVORA» statt «keine Vermittlungsgebühr». Offen: «Vermittlung (Coach)» in `platform.svg`/`platform-map.svg` (`lca` S-4, Wort von `uxa`/`lca`), «Kaskade» in `engine-map.svg` (mit Handbook V2.3), Kundenstatus-Wortlaut (`cra`). Kopfzeile auf 3.2.15. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-079; Issue #1279 Kommentare `uxa`, `lca`; PR #1287, #1289; UXR-214 (#1286); FE-078 Teil 2 |
+| 2026-11-14 | 3.2.14 Sign-off | Kap. 13 «Formales Sign-off FE-079»: Sign-off `eng` (15:12, mit Vorbehalten V-1 bis V-6) wörtlich eingetragen, Hinweis PO zu T-3 nach FE-078 Teil 2; Stand 1 von 6. Kopfzeile auf 3.2.14. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-079; Issue #1279 Kommentar `eng`; PR #1283 |
+| 2026-11-14 | 3.2.13 Founder-Entscheid | FE-078 Teil 2 und 3: §6.2 neu (Rundruf an alle geeigneten Teams statt exklusiver Kaskade, Zustandsdiagramm ersetzt), §5.1 Stand, §5.2 Zeile «Rundruf» statt «Zeitfenster», §6.3 Schritt 4; Hinweise PO vor Anhang B §2 und Anhang C §1 (Rollentexte unverändert); Kap. 13 Zeile `cra`: 20 Garantien vom Founder bestätigt. Keine Änderung an harten Prüfungen, Garantien, Matrix oder Gates | FE-078 (Founder, zweite Nachricht 2026-11-14); BK-Brief PO-Ergänzung 15:00 |
+| 2026-11-14 | 3.2.12 Nachtrag | Kap. 11 Zeile D-44: Satz «keine Zahlungsflüsse» als entschieden (FE-078 Teil 1) markiert. Kap. 13: neuer Abschnitt «Formales Sign-off FE-079» (Auftrag, Abgrenzung, Prompt-Synchronisation, Tabelle der sechs Rollen, Stand 0 von 6). Kopfzeile auf 3.2.12. Keine Änderung an Umfang, Blockfolge, Garantien, Matrix oder Gates | FE-078, FE-079 (Founder, Live-Sitzung 2026-11-14); Issue #1279 |
 | 2026-11-13 | 3.0 Entwurf | Neufassung von Grund auf: Vision, Geschäftsmodell, sechs Portale, Kernablauf, Lieferkette, Gates | Founder-Anweisung FE-075 |
+| 2026-11-14 | 3.2.11 Status | §8 unverändert (BK-b aktiv). #1268: Freigaben UX, Recht, Klinik liegen vor, Automatisierung fehlt, nicht gemergt. Operative PO-Entscheidung (keine klinische Regel, D-27): für #1273 gilt bis zum Entscheid zu CR-180 die strengste Kontextlesart je Auftraggeberart (CGR-218 (A)), Absenden und Mitgliederprüfung lesen gleich (CGR-219); Audit-Auslöser nach geänderten Spalten vor der BK-b-Abnahme (CGR-220). | `cra` 13:30 (#1277); `briefs/BK.md` §PO amendment 13:39 |
+| 2026-11-14 | 3.2.12 Status | §8 unverändert (BK-b aktiv). #1268 (BK-b1) mit allen vier Freigaben gemergt (`9b691af`), nicht abgenommen. AUT-125 (Einsatzgebiet zeigt eigene Ausschlüsse) und AUT-126 (Formular aus derselben Serverlesart) in BK-g eingeplant; Hypothese H-BK-14:39 (Auftrag ohne erreichbares Team vor dem Absenden melden). | `aia` 14:22 (#1280); `briefs/BK.md` §PO amendment 14:39 |
+| 2026-11-14 | 3.2.10 Status | §8 unverändert (BK-b aktiv). #1268: Freigaben UX (11:48) und Recht (12:20, beratend) liegen vor, Klinik und Automatisierung fehlen, nicht gemergt; #1273 (BK-b2, Stufe/Tätigkeit/Verfügbarkeit pro Mitglied) als Entwurf auf #1268, Lesart «D» (ADR-196 (3)) wartet auf `cra`. Operative PO-Einordnung ohne klinische oder rechtliche Regel: UXR-209 und `lca` B-5 vor der BK-b-Abnahme, UXR-213 vor der BK-Blockabnahme; `lca` B-2 (b) als stehendes Kriterium (Distanzen nur aus der vorberechneten Tabelle, kein Auftragsfeld verlässt NAVORA) | BK-Brief, PO-Ergänzung 12:39; D-44 `lca` 12:20; UX_REVIEW 11:48 |
+| 2026-11-14 | 3.2.9 Status | §8 unverändert (BK-b aktiv). #1268 mit CI 4/4 grün, Gates von `cra`, `lca`, `uxa`, `aia` fehlen, nicht gemergt; #1270 (BK-b1s, Einsatzgebiet-Bildschirm) als Entwurf auf #1268. Operative PO-Entscheidung ohne klinische oder rechtliche Regel: Ex-Mitglied für BK-b1s per pgTAP nachgewiesen, e2e-Negativtest mit eigenem synthetischem Ex-Mitglied vor der BK-Blockabnahme | BK-Brief, PO-Ergänzung 11:39; ADR-195 Nachtrag 11:10 (5) |
+| 2026-11-14 | 3.2.8 Status | §8 unverändert (BK-b aktiv). Operative PO-Entscheidung ohne klinische oder rechtliche Regel: der Bildschirm, auf dem ein Team sein Einsatzgebiet selbst einstellt (AUT-117 (c)), ist ein eigener PR BK-b1s vor der Abnahme von BK-b; ohne ihn setzt nur der Seed die Reichweite (zentraler Schritt). PR #1268 (BK-b1) gelesen, nicht gemergt (Prüfungen laufen, Gates fehlen) | README-Regel 12, Wertfolge 4; BK-Brief, PO-Ergänzung 10:39 |
 | 2026-11-14 | 3.2.7 Status | §8: BK-a (Auftrag erfassen, Zusammenfassung, einmal absenden) für die Simulation abgenommen auf `634ccb7`; BK-b aktiv. Operative PO-Antworten ohne klinische oder rechtliche Regel: BK-b in zwei PRs (Distanz/Reichweite, dann Stufe/Merkmale/Verfügbarkeit), Teams im Aufbau ausgeschlossen, Phase A nur eigene Organisation, leeres Einsatzgebiet abgelehnt (BK-Brief, PO-Ergänzung 09:39) | README-Regel 12, FE-071 |
 | 2026-11-13 | 3.2.6 Korrektur | §5.3: BK-8 baut die Variante «Signieren gesperrt, solange n > 0» mit vier Bedingungen; §13 Zeile `cra`: «zur Prüfung vorgelegt» ersetzt durch «geprüft und bestätigt (Anhang B, 17:40)». Keine Änderung an Matrix, Garantien oder Gates | `cra` 21:40 (#1239): Antwort 1 und Hinweis zu §13; PO-Korrektur: `cra` prüft, entscheidet nicht (D-27); BK-Nachtrag 21:39 |
 | 2026-11-13 | 3.2.5 Korrektur | §5.3 Titel und Text: keine 30-Sekunden-Grenze, Entwurf in BK als Regel über Text ohne Audio, Block «Nicht übernommen (n)» vor der Signatur; Sequenzdiagramm §6 und Tabelle «Bericht schreiben» angepasst; `field.svg` Text («Sprachnotiz», «0:18»). Keine Änderung an Umfang, Blockfolge oder Founder-Entscheid; keine klinische Regel (Position und Sperrwirkung des Blocks: `cra`) | `uxa` UXR-195 (#1233), `aia` AUT-118, `cra` CGR-213 (b); BK-Brief Nachtrag 20:40 |
@@ -928,7 +1056,7 @@ Jede Hypothese hat eine Kennzahl, einen Zielwert und einen Prüfzeitpunkt. Kennz
 
 ## Anhang B · Beitrag `cra`: Patientensicherheit im Kernablauf
 
-*Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `cra`, nur gelesen, keine Tests. **Keine klinische Freigabe**; klinische Regeln gibt nur der Clinical Owner frei (D-27, D-43). Bestätigung im nächsten regulären `cra`-Lauf (#1210).*
+*Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `cra`, nur gelesen, keine Tests. **Keine klinische Freigabe**; klinische Regeln gibt nur der Clinical Owner frei (D-27, D-43). Bestätigung im nächsten regulären `cra`-Lauf (#1209; bis V3.2.15 fälschlich #1210, korrigiert V3.2.16, CGR-221).*
 
 **Rolle:** `cra` (Clinical & Regulatory Architect, Prüfrolle, KI-Agent, keine zugelassene Pflegefachperson) · **Auftrag:** Founder, 13.11.2026 (FE-076) · **Grundlage:** `recovery/main`, nur gelesen · **Geltung:** nur Phase A (Simulation, synthetische Daten). Dieser Beitrag ist **keine klinische Freigabe**. Klinische Regeln gibt nur der Clinical Owner frei (D-27, D-43). Dieser ist noch nicht benannt (G-1).
 
@@ -961,7 +1089,7 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 
 1. **Kein Team ohne geprüfte Qualifikation erhält je ein Angebot.** Ein Team, das eine harte Prüfung nicht besteht, erhält keine Angebotszeile, was auch immer die Rangfolge sagt.
    - **PLANNED:** BK-2, BK-2n. Der Test prüft die Angebotszeilen (Handbook V2, Engine 1, Invariante).
-   - **Heute IMPLEMENTED nur als Etikett-Prüfung:** `M/034:204`, `M/017:308-310`. Nicht IMPLEMENTED als QUAL1-Prüfung (CGR-197).
+   - **Heute (Ersatztext `cra` 17:26, CGR-221, V3.2.16):** «IMPLEMENTED for the order path (distance part only): `private.screen_order_reach` (`M/130`, merged `9b691af`) writes each team of the organisation into `order_offers` or `order_exclusions`, never both (pgTAP 136). Level, activities and availability per member are PLANNED (#1273, not merged). On the case path still the label check only (`M/034:204`, `M/017:308-310`; CGR-197).»
 2. **Niemand wird für eine Tätigkeit verantwortlich, die für ihn nicht «geeignet» oder «geeignet mit Delegation» ist.** Dieselbe Funktion entscheidet auf jedem Weg.
    - **IMPLEMENTED in Simulationsorganisationen:** `private.qual_check` (`M/120:639`), `private.qual_may_perform` (`M/120:756`), `private.qual_may_perform_in` auf allen Zuweisungswegen und als Rückhalt auf `care_visits` (`M/121`; CR-191, CR-192); pgTAP 120, 121, 122, 127.
    - **Ausserhalb der Simulation** gilt nur CR-007/CR-164 (CGR-190).
@@ -989,6 +1117,7 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
    - **Teilweise IMPLEMENTED für die Teamsuche:** `deadline_passed` und `candidates_exhausted` als Operations-Ausnahme P2 (`M/017:517-556`, `M/019:40, 124`). Diese Ausnahmen sind nur abrufbar und werden niemandem zugestellt (CGR-160, PS-144).
    - **Deckungsstand je Auftrag für den Auftraggeber PLANNED** (BK-6; Handbook V2, Engine 5).
    - **Ergänzt V3.2.2 (`cra` 17:40):** vor dem Start, zu einer spätesten Deckungsfrist (**PLANNED**, CGR-207 (a)).
+   - **Ergänzt V3.2.16 (`cra` 17:26, Unterpunkt ohne neue Nummer, Zahl bleibt 20):** «Eine übernommene Schicht, deren benannte Person vor dem Beginn ausfällt, ist sofort wieder ‹nicht gedeckt› und geht zurück in den Rundruf (PLANNED, CGR-223).»
 10. **Kein Auftrag wird ohne Bestätigung des Auftraggebers verbindlich. Kein Pflichtfeld wird still geraten oder vorbelegt.**
     - **PLANNED:** BK-1b, BK-1d.
 11. **Ein Auftrag ohne vollständige Einsatzvereinbarung in einem Heim (NH-EXT) ist nicht anbietbar.** Für jede Tätigkeit einer Bewohnerin gibt es genau eine Delegationsquelle und genau einen Eskalationsadressaten.
@@ -1025,6 +1154,8 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 
 ### 2. Gefährdungen und Barrieren je Schritt des BK-Flows
 
+> **Hinweis PO (V3.2.13, FE-078 Teil 2):** Die Zeilen «5 Angebot (Kaskade)» unten beschreiben die exklusive Kaskade, die der Founder durch den Rundruf an alle geeigneten Teams ersetzt hat. Der Text von `cra` bleibt unverändert; `cra` prüft die Gefährdungen des Rundrufs (gleichzeitige Übernahme, Schichtbeginn ohne Zusage) im nächsten Lauf. **V3.2.16:** `cra` hat geprüft (17:26, CGR-211, CGR-222, CGR-223); Zeile 5 und der Stoppfall von Zeile 6 tragen jetzt den Ersatztext von `cra` (CGR-221), vom PO wörtlich übertragen.
+
 «Neu» heisst: Ich finde im HAZARD_LOG keine passende H-ID. Eine neue ID setze ich nicht selbst. Das ist ein Vorschlag für den nächsten regulären `cra`-Lauf.
 
 | Schritt | Gefährdung (Hazard-ID) | Sicherheitsbarriere | deterministisch / Mensch | Stoppfall (wenn die Barriere greift) | Status |
@@ -1038,8 +1169,8 @@ Die Garantien sind verbindlich formuliert. Ihr **Status** sagt, ob sie heute sch
 | 3 Engine 1: harte Prüfung | Person ist doppelt eingeplant oder abwesend (H-10, H-17) | Verfügbarkeit für den **ganzen** Slot (BK-2); Überschneidung über Teams (PLAN3-14, `M/110`) | deterministisch | Mitglied zählt nicht; ohne geeignetes Mitglied wird das Team nicht angeboten | Besuchsseitig IMPLEMENTED; für Aufträge PLANNED |
 | 3 Engine 1: harte Prüfung | Produktion läuft ohne QUAL1 (Flag `false`) (H-04, CGR-190, PS-162) | Rückfall CR-007/CR-164 nie nur auf das Etikett (CGR-197 (5)) | deterministisch | – | OPEN |
 | 4 Engine 2: Rangfolge | Die KI fügt ein Team hinzu oder hebt ein «ungeklärtes» Team an; ein Prozentwert suggeriert Eignung (H-20) | Rangfolge nur über die Menge aus Schritt 3; keine Prozente; Gründe aus Fakten (BK-3, BK-4) | KI ordnet, Regel begrenzt | Ein Team ausserhalb der geeigneten Menge kann technisch nicht in die Rangfolge (Test auf Angebotszeilen) | PLANNED |
-| 5 Angebot (Kaskade) | Angebot wartet still bei einem Team, während der Schichtbeginn naht (**neu** für BK; verwandt: H-01, H-19, PS-144) | Exklusives Fenster, kürzer bei nahem Beginn; Deckungsstand immer sichtbar; «nicht gedeckt» als Operations-Ausnahme (BK-5, BK-6) | deterministisch | Weiter zum nächsten Team; am Ende «nicht gedeckt» beim Auftraggeber und in OPS1 | PLANNED; die Fensterlänge ist kein klinischer Wert |
-| 6 Zusage | Nachweis oder Delegation läuft zwischen Angebot und Tipp ab (H-04, CGR-197 (4)) | Erneute harte Prüfung im Moment des Tipps (BK-5a) | deterministisch | Zusage verweigert mit Grund; Kaskade läuft weiter (BK-5n) | PLANNED |
+| 5 Angebot (Rundruf) | niemand ist Halter des Angebots, jedes Team nimmt an, ein anderes übernimmt; zwei Teams übernehmen gleichzeitig (H-40, H-43) | genau eine Übernahme je Auftrag in der Datenbank mit erneuter Prüfung im selben Schritt (BK-5a, CGR-211); späteste Deckungszeit vor dem Beginn (CGR-207 (a), CGR-222) | deterministisch | zweiter Tipp abgelehnt «Bereits übernommen»; zur Deckungszeit «nicht gedeckt» beim Auftraggeber und als Operations-Ausnahme, vor dem Beginn | PLANNED |
+| 6 Zusage | Nachweis oder Delegation läuft zwischen Angebot und Tipp ab (H-04, CGR-197 (4)) | Erneute harte Prüfung im Moment des Tipps (BK-5a) | deterministisch | Zusage verweigert mit Grund; das Angebot bleibt für die anderen geeigneten Teams offen (BK-5n) | PLANNED |
 | 7 `/field` Einsatz | Start durch eine Person, deren Nachweis seit der Planung abgelaufen ist (H-04) | Prüfung beim Start und bei der Wiederaufnahme (CR-194) | deterministisch | Start verweigert (`qualification_lapsed`). Der Besuch **bleibt zugewiesen, und niemand wird alarmiert** (CGR-154) | IMPLEMENTED (Simulation); Freigabe PLANNED |
 | 7 `/field` Einsatz | Pflegeperson kommt ohne Kontext und Sicherheitsinformation der Bewohnenden (H-03, H-09) | Sicherheitsinformationen im Auftrag beziehungsweise in der Einsatzvereinbarung (CGR-173 (4)) | Mensch (Heim) | – | OPEN (D-17); Phase A: nicht modelliert, im BK-Abnahmeprotokoll genannt (V3.2.2, CGR-209 (b)) |
 | 7 `/field` Einsatz | Auf der Heimstation greifen die Signale nicht, weil sie nur für geplante Besuche feuern (H-32, H-34) | Je NH-Brief eine Tabelle «Auslöser auf der Station ja / nein / UNKNOWN» (CGR-142) | – | – | PLANNED / OPEN |
@@ -1133,7 +1264,7 @@ Status der Knoten: Die Kette von «Stufe nachgewiesen» bis «geeignet mit Deleg
 | PLZ-Distanz | 4052 zum Team im Radius | PLANNED |
 | Pflichtmerkmal | «Demenzerfahrung» als bestätigtes Merkmal (BK-2) | PLANNED |
 | Zusage | erneute Prüfung beim Tipp; Heim sieht «gedeckt» | PLANNED |
-| Nicht gedeckt | Beginn in 2 h 15 nach der Meldung; Kaskade mit kurzem Fenster; am Ende «nicht gedeckt» beim Heim und in OPS1; Eskalation an die F5 des Heims (QAM §7.3 NH-EXT) | PLANNED; Zeitschritte OPEN (K-8, D-28) |
+| Nicht gedeckt | Beginn in 2 h 15 nach der Meldung; Rundruf an alle geeigneten Teams; zur spätesten Deckungszeit (Wert OPEN, CGR-222) «nicht gedeckt» beim Heim und in OPS1, vor dem Beginn; Eskalation an die F5 des Heims (QAM §7.3 NH-EXT) | PLANNED; Zeitschritte OPEN (K-8, D-28) |
 | Signale auf der Station | Es gibt keine geplanten Besuche je Bewohnerin. Deshalb feuern Überfällig-, Nicht-erschienen- und Lücken-Signale auf der Station nicht (H-32) | IMPLEMENTED-Fakt (Lücke) |
 
 #### 4.2 Was «Demenzerfahrung bestätigt» klinisch bedeutet und was nicht
@@ -1213,6 +1344,8 @@ Status der Knoten: Die Kette von «Stufe nachgewiesen» bis «geeignet mit Deleg
 ---
 
 ### 1. Abgrenzung zum Arbeitsvermittlungsgesetz (AVG)
+
+> **Hinweis PO (V3.2.13, FE-078 Teil 2):** Der Founder hat die exklusive Kaskade durch einen Rundruf an alle geeigneten Teams ersetzt, mit der KI nur als Empfehlung, ausdrücklich zur AVG-Abgrenzung. Die Zeilen zu «Rangfolge und exklusive Kaskade» unten sind Text von `lca` (unverändert); `lca` prüft Q-44e für den Rundruf neu. Die Verdikte bleiben, bis `lca` sie ändert. Die Korrekturen aus PR #1220 (C-1 bis C-7, V-1 bis V-7, W-1 bis W-7) sind seit V3.2.4 eingetragen und nach FE-078 Teil 3 verbindlich.
 
 #### 1.1 Worum es geht
 

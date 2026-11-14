@@ -2,7 +2,7 @@
 <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs>
 <rect width="1520" height="738" fill="#ffffff"/>
 <text x="20.0" y="34.0" font-size="23" font-weight="700" fill="#022c22" text-anchor="start">Teil B · Vom Einsatz zur Rechnung ohne Provision</text>
-<text x="20.0" y="60.0" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Die Pflegekraft spricht 30 Sekunden statt ein Formular zu tippen. Beträge rechnet nie die KI. Der Pflegeerlös gehört ganz dem Team.</text>
+<text x="20.0" y="60.0" font-size="14" font-weight="400" fill="#44403c" text-anchor="start">Die Pflegekraft schreibt den Bericht in eigenen Worten statt ein Formular auszufüllen. Beträge rechnet nie die KI. Der Pflegeerlös gehört ganz dem Team.</text>
 <rect x="20" y="92" width="1480" height="144" rx="10" fill="#fafaf9" stroke="#d6d3d1"/>
 <text x="34.0" y="161.0" font-size="16" font-weight="700" fill="#022c22" text-anchor="start">Pflegekraft</text>
 <text x="34.0" y="181.0" font-size="13" font-weight="400" fill="#44403c" text-anchor="start">/field</text>
@@ -26,10 +26,10 @@
 <rect x="374.3" y="106.0" width="162.3" height="116" rx="10" fill="#ecfdf5" stroke="#065f46" stroke-width="1.6"/>
 <circle cx="391.3" cy="125.0" r="12" fill="#065f46"/>
 <text x="391.3" y="130.0" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">9</text>
-<text x="410.3" y="131.0" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Diktat 30 s</text>
-<text x="386.3" y="154.0" font-size="13.5" font-weight="400" fill="#022c22" text-anchor="start">Sprachnotiz statt</text>
-<text x="386.3" y="171.0" font-size="13.5" font-weight="400" fill="#022c22" text-anchor="start">Formular; offline</text>
-<text x="386.3" y="188.0" font-size="13.5" font-weight="400" fill="#022c22" text-anchor="start">zwischengespeichert</text>
+<text x="410.3" y="131.0" font-size="15" font-weight="700" fill="#022c22" text-anchor="start">Bericht in Worten</text>
+<text x="386.3" y="154.0" font-size="13.5" font-weight="400" fill="#022c22" text-anchor="start">Text in eigenen Worten,</text>
+<text x="386.3" y="171.0" font-size="13.5" font-weight="400" fill="#022c22" text-anchor="start">keine Zeitgrenze;</text>
+<text x="386.3" y="188.0" font-size="13.5" font-weight="400" fill="#022c22" text-anchor="start">offline gespeichert</text>
 <text x="386.3" y="212.0" font-size="11" font-weight="700" fill="#92400e" text-anchor="start">PLANNED</text>
 <rect x="562.6" y="256.0" width="162.3" height="116" rx="10" fill="#f0f9ff" stroke="#075985" stroke-width="1.6"/>
 <circle cx="579.6" cy="275.0" r="12" fill="#075985"/>
