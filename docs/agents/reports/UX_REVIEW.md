@@ -6,6 +6,46 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-15 03:47 CET · `uxa`: UXR-220 closed on Blueprint 3.2.21 (merge `5db36ff`); FE-079 sign-off renewed on 3.2.22 with reservation UXR-195 only; #1273 (BK-b2) merged as `6c4b74b`, my screen line stands; UXR-215 now on `recovery/main` until #1291 is merged; benchmark GOV.UK validation pattern
+
+**State.** `recovery/main` at `6c4b74b` (PO merge #1273, BK-b2, head `c2ffef1`). Since my 23:50 section merged: my PR #1314, PO #1313, #1316 (3.2.21), #1321 (3.2.22), #1323, #1325 open (PO 03:39, docs), `lca` #1315, #1317, `csa` #1318, `cra` #1320, `aia` #1322, `eng` #1324, and **#1273**. **Active: BK, slice BK-b** (`NEXT_CAPABILITY.md`, unchanged). Open PRs that change screens: #1291 (draft, head `6abf9f8`, unchanged, now based on `6c4b74b`), #1276 (draft, `1600588`, unchanged). #1295 changes no screen.
+
+**Screenshots.** The newest `ui-screenshots` artifact for `recovery/main` (id 14143860519, `6c4b74b`, 02:46 UTC) exists; the download was refused by the session proxy (blob host). **No screenshots were available.** This run reviews code and documents only.
+
+**#1273 merged (`6c4b74b`).** `git diff c2ffef1 6c4b74b -- src tests` is empty, and `c2ffef1` differs from the head I reviewed (`1dde2d8`, 15:51) only by the base merge (`ed8bcf9`, BK-b1s, reviewed 11:48). **My 15:51 screen line for #1273 stands for `6c4b74b`.** CI on `6c4b74b` read from the API at 03:50 (not run by me): `app`, `db`, `ui-screenshots`, `sync` `completed success`; **`e2e` `in_progress`**, so no statement on e2e. Not an acceptance; the block record is the PO's (`ABNAHMEAKTE.md`).
+
+**UXR-215 is now on `recovery/main`** (`order-form.tsx` `problemText` re-reads the live `grade`; `rules.ts` `PROBLEM_FIELD.level_activity_conflict = "tags"`). Nothing wrong is sent (the next «Weiter» re-checks), but the false sentence «Für FaGe ist diese Auswahl … nicht möglich» can be shown. The fix is on #1291: `git diff 6c4b74b...6abf9f8` touches only `order-form.tsx`, `orders/rules.ts`, the BK-b2 e2e and `uxr-215-refusal-keeps-checked-values.test.ts`; my 19:58 line on `a036e59` stands for `6abf9f8`. **For the PO: #1291 belongs before the BK-b acceptance** (BK amendment 17:40 (4)). UXR-216 («hier») is also on `recovery/main`; unchanged, low, BK-g.
+
+### UXR-220 closed
+
+Evidence on `5db36ff` (PO merge #1316, Blueprint 3.2.21), unchanged on `6c4b74b`: (a) Annex C §2.4 client row now reads «Deckungsstand («Noch nicht gedeckt», «Gedeckt durch Team …», «Kein passendes Team mehr frei»)» and lists under «sieht nie» the number of offered, seeing or refusing teams (`lca` 20:25 (2)); `grep -n "Team 1 von"` in the Blueprint finds only the sign-off quotes in chapter 13. (b) The «Hinweis PO (V3.2.19)» now stands before Annex C §1 in place of the V3.2.13 note and is removed from Annex B §2. **UXR-220 closed.** One comment on #1306: my part is done; whether #1306 closes is for `lca` (S-7) and the PO.
+
+### FE-079 sign-off, renewed (reservation UXR-220 closed)
+
+3.2.21 and 3.2.22 changed one line in my field (§6.2 «Recht», `lca` text, no click path) and closed UXR-220. Renewed once on `6c4b74b` (Blueprint 3.2.22, Handbook V2.2 unchanged):
+
+«Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter dem Vorbehalt UXR-195**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **Field:** wireframes and click paths of the six portals (Blueprint §5, §6; `blueprint-v3/wireframes/`).
+- **Removed:** UXR-220 (closed above).
+- **UXR-195** (#1233): the P3 dictation drawing is still missing; due before BK-e becomes active, not for BK-b or BK-c.
+- **Honesty:** confirms the working basis only; no clinical or legal wording (`cra`, `lca`) changed. I ran no NAVORA test.
+- [Comment on #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6888169318).
+
+### Findings
+
+No new finding this run.
+
+### Benchmark (2026-11-15)
+
+GOV.UK Design System, pattern «Recover from validation errors» (https://design-system.service.gov.uk/patterns/validation, read 2026-11-15): check answers when the person tries to move on, not when they leave a field or while typing; always check on the server too; show the page again with the answers kept, put «Error:» at the start of the page title, a summary at the top with focus moved to it, and the message next to each field. The page says nothing about a problem that depends on two fields. **NAVORA already matches** the moment of the check («Weiter»), the server check (database preview), kept answers, the summary with focus and jump links and the text at the field (#1252, IMPLEMENTED). **Adopt:** nothing new beyond UXR-206 (hidden «Fehler:» at the field line, still open, low). **NAVORA's own rule** for two-field problems (design system §5 «A refusal keeps the values it was checked against», UXR-215) has no counterpart there; it stays PROPOSED until #1291 is merged. Pattern described in my own words; nothing copied.
+
+**Design system:** version 87 (status and benchmark note on the §5 refusal rule; no token change).
+
+**Waiting for the PO:** merge #1291 before the BK-b acceptance (UXR-215 then checked on the merge commit with `e2e` green); enter my renewal in chapter 13; #1306 with `lca`.
+
+---
+
 ## 2026-11-14 23:50 CET · `uxa`: UXR-214 closed on merge `b122a60` (#1305); FE-079 sign-off renewed on Blueprint 3.2.19 with reservations UXR-195 and UXR-220; #1291 head `6abf9f8` line stands (base merge only); UXR-220 (low, Annex C client view still shows a team count, stale Annex C note)
 
 **State.** `recovery/main` at `b4a1189` (PO merge #1312, Blueprint 3.2.19, Handbook V2.2). **Active: BK, slice BK-b** (`NEXT_CAPABILITY.md`, unchanged). Since my 21:08 section merged: my PR #1305 (`b122a60`), `cra` #1308, `eng` #1307, #1310, #1312, PO #1309 (3.2.18), #1311 (3.2.19). **No change under `src/`, `tests/` or styles on `recovery/main`** (`git log --since 21:00 -- src tests`: empty). Open PO PR #1313 (3.2.20) changes only chapter 13 sign-off lines, nothing in my field.

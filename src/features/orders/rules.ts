@@ -266,6 +266,29 @@ export function orderProblemField(code: string): OrderFormField | null {
   return (PROBLEM_FIELD as Record<string, OrderFormField | null>)[code] ?? null;
 }
 
+/**
+ * UXR-215 (`uxa` 2026-11-14 15:51; DESIGN_SYSTEM.md §5 «A refusal keeps the values it was checked against», PROPOSED):
+ * the other fields a problem names besides the field it is shown at. `level_activity_conflict` is shown at the
+ * activities field but its words name the level, so a changed level makes it stale.
+ */
+const PROBLEM_ALSO_NAMES: Partial<Record<(typeof ORDER_PROBLEM_CODES)[number], ReadonlyArray<OrderFormField>>> = {
+  level_activity_conflict: ["grade"],
+};
+
+/**
+ * The problems still shown after the client changed `changed`: a changed field drops every problem shown at it and
+ * every problem that names it (UXR-215). Form-level problems and codes this module lacks are never dropped. The next
+ * preview checks everything again, so nothing is sent on a dropped problem.
+ */
+export function orderProblemsAfterChange(problems: ReadonlyArray<string>, changed: OrderFormField | undefined): string[] {
+  if (!changed) return [...problems];
+  return problems.filter((code) => {
+    if (orderProblemField(code) === changed) return false;
+    const also = (PROBLEM_ALSO_NAMES as Record<string, ReadonlyArray<OrderFormField> | undefined>)[code];
+    return !also?.includes(changed);
+  });
+}
+
 /** The problems grouped per field, in the database's order; codes with no field stay in `form` (never dropped). */
 export function orderProblemsByField(codes: ReadonlyArray<string>): {
   byField: Partial<Record<OrderFormField, string[]>>;
