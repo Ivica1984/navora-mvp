@@ -6,6 +6,8 @@ import { zurichDay } from "./support/durchgang-time";
 // The date is ten (390 px) or twelve (1440 px) Zurich days ahead (the e2e database runs on the real clock); no clock
 // change falls in that window in November.
 // Every run adds one synthetic order; no assertion counts orders.
+// Named fixture change (CGR-218 (A), PO 2026-11-14 13:39 (2)): the activity is «Grundpflege» (C1), not «Vitalzeichen,
+// Gewicht» (B1), which a `home` order no longer accepts at any level (pgTAP 139, bk-b2-level-activity-conflict.spec.ts).
 const CLIENT = "kundebs.test@navora.test";
 const PASSWORD = "navora-local-only";
 
@@ -34,7 +36,7 @@ for (const width of [390, 1440]) {
     await form.getByLabel("Ende", { exact: true }).fill("07:00");
     await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4102");
     await form.getByRole("radio", { name: "FaGe", exact: true }).check();
-    await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht", exact: true }).check();
+    await form.getByRole("checkbox", { name: "Grundpflege", exact: true }).check();
     await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
 
     const summary = page.getByTestId("order-summary");
@@ -114,7 +116,7 @@ test("a time that matches no plan entry shows no label line and stays confirmabl
   await form.getByLabel("Ende", { exact: true }).fill("13:20");
   await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4051");
   await form.getByRole("radio", { name: "AGS", exact: true }).check();
-  await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht", exact: true }).check();
+  await form.getByRole("checkbox", { name: "Grundpflege", exact: true }).check();
   await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
   const summary = page.getByTestId("order-summary");
   await expect(summary.getByTestId("order-sentence")).toContainText("(4 Std. 10 Min.)");
@@ -157,7 +159,7 @@ test("the same order a second time shows the information line and stays confirma
     await form.getByLabel("Ende", { exact: true }).fill("10:20");
     await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4123");
     await form.getByRole("radio", { name: "AGS", exact: true }).check();
-    await form.getByRole("checkbox", { name: "Vitalzeichen, Gewicht", exact: true }).check();
+    await form.getByRole("checkbox", { name: "Grundpflege", exact: true }).check();
     await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
   };
   await fillOrder();

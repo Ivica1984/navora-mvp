@@ -30,6 +30,9 @@
 -- Users (seed): kundebs …9e8 (client of «Testheim Rhein (synthetisch)», org S) · opsbs …9e5 (operations, org S) ·
 -- pflegebs …9e6 (nurse, org S). Fixture in this file: client account B with user …9e9, admin of org S …9ea.
 -- Pinned clock (private.test_clock): Friday 2026-11-13 12:00 Europe/Zurich. Synthetic data only.
+-- Named fixture change (BK-b2 / CGR-218 (A), PO amendment 2026-11-14 13:39 (2)): the order fixtures use C1 (Grundpflege,
+-- «E» outside the rows B*) instead of B1. The seed client is a `home` account, read as NH-EXT, where B1 («D») is refused
+-- (pgTAP 139). No assertion, plan or expected value changed.
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -126,7 +129,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
 set local role authenticated;
 create temp table pv as select public.preview_client_order(
   '00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00', time '07:00', '4102', 'fage_efz',
-  array['B1'], array[]::text[], null) as r;
+  array['C1'], array[]::text[], null) as r;
 select is((select r -> 'problems' from pv), '[]'::jsonb, 'a complete night order has no problem');
 select is((select (r ->> 'duration_minutes')::int from pv), 540, 'BK-1c: 22:00–07:00 is 540 minutes');
 select is((select (r ->> 'ends_at')::timestamptz from pv), timestamptz '2026-11-23 07:00:00+01', 'BK-1c: ends the next day 07:00');
@@ -138,45 +141,45 @@ select is((select r ->> 'shift_label' from pv), 'Nacht', 'PO 18:40 (2)(b): label
 select is((select (r ->> 'weekend')::boolean from pv), true, 'PO 18:40 (2)(c): a Sunday start is weekend (calendar fact)');
 
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-18', time '09:10',
-           time '13:20', '4051', 'ags_eba', array['B1'], null, null) ->> 'shift_label'), null,
+           time '13:20', '4051', 'ags_eba', array['C1'], null, null) ->> 'shift_label'), null,
           'PO 18:40 (2)(c): no plan entry matches → no label');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-18', time '09:10',
-           time '13:20', '4051', 'ags_eba', array['B1'], null, null) -> 'problems'), '[]'::jsonb,
+           time '13:20', '4051', 'ags_eba', array['C1'], null, null) -> 'problems'), '[]'::jsonb,
           'PO 18:40 (2)(c): an order without label is still valid');
 
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '22:00', '4102', 'fage_efz', array['B1'], null, null) -> 'problems'), '["end_equals_start"]'::jsonb,
+           time '22:00', '4102', 'fage_efz', array['C1'], null, null) -> 'problems'), '["end_equals_start"]'::jsonb,
           'a zero duration is refused, never read as 24 h');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-12', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], null, null) -> 'problems'), '["starts_in_past"]'::jsonb,
+           time '07:00', '4102', 'fage_efz', array['C1'], null, null) -> 'problems'), '["starts_in_past"]'::jsonb,
           'a start before now is refused');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '3000', 'fage_efz', array['B1'], null, null) -> 'problems'), '["postcode_not_in_list"]'::jsonb,
+           time '07:00', '3000', 'fage_efz', array['C1'], null, null) -> 'problems'), '["postcode_not_in_list"]'::jsonb,
           'a postcode outside the BS/BL list is refused');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'pflegehelfer_srk', array['B1'], null, null) -> 'problems'), '["grade_unknown"]'::jsonb,
+           time '07:00', '4102', 'pflegehelfer_srk', array['C1'], null, null) -> 'problems'), '["grade_unknown"]'::jsonb,
           'only AGS, FaGe, HF can be ordered');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1', 'ZZ9'], null, null) -> 'problems'), '["tag_unknown"]'::jsonb,
+           time '07:00', '4102', 'fage_efz', array['C1', 'ZZ9'], null, null) -> 'problems'), '["tag_unknown"]'::jsonb,
           'a tag outside the activity list is refused (P-6)');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], array['B3'], null) -> 'problems'), '["required_tag_not_in_tags"]'::jsonb,
+           time '07:00', '4102', 'fage_efz', array['C1'], array['B3'], null) -> 'problems'), '["required_tag_not_in_tags"]'::jsonb,
           'a required tag must be one of the tags');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], null, 0) -> 'problems'), '["radius_not_positive"]'::jsonb,
+           time '07:00', '4102', 'fage_efz', array['C1'], null, 0) -> 'problems'), '["radius_not_positive"]'::jsonb,
           'a radius must be > 0 when given');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c2', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], null, null) -> 'problems'), '["not_client"]'::jsonb,
+           time '07:00', '4102', 'fage_efz', array['C1'], null, null) -> 'problems'), '["not_client"]'::jsonb,
           'client A cannot preview for client account B');
 
 -- 4b. Clock change (CGR-206 (d)) ------------------------------------------------------------------------------------
 create temp table dst as select
   public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2027-10-30', time '22:00', time '07:00',
-    '4102', 'fage_efz', array['B1'], null, null) as autumn,
+    '4102', 'fage_efz', array['C1'], null, null) as autumn,
   public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2027-03-27', time '22:00', time '07:00',
-    '4102', 'fage_efz', array['B1'], null, null) as spring,
+    '4102', 'fage_efz', array['C1'], null, null) as spring,
   public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2027-03-28', time '02:30', time '07:00',
-    '4102', 'fage_efz', array['B1'], null, null) as gap;
+    '4102', 'fage_efz', array['C1'], null, null) as gap;
 select is((select (autumn ->> 'duration_minutes')::int from dst), 600,
           'CGR-206 (d): night 30./31.10.2027 (clocks back) is 600 minutes');
 select is((select autumn ->> 'sentence' from dst),
@@ -195,13 +198,13 @@ select is((select gap ->> 'sentence' from dst),
 
 -- 5. Confirm (BK-1d) ------------------------------------------------------------------------------------------------
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], array[]::text[], null,
+           time '07:00', '4102', 'fage_efz', array['C1'], array[]::text[], null,
            'bbbb0000-0000-4000-8000-000000000001') ->> 'result'), 'ok', 'client A confirms the night order');
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], array[]::text[], null,
+           time '07:00', '4102', 'fage_efz', array['C1'], array[]::text[], null,
            'bbbb0000-0000-4000-8000-000000000001') ->> 'result'), 'duplicate', 'the same key twice is a duplicate');
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '22:00', '4102', 'fage_efz', array['B1'], null, null,
+           time '22:00', '4102', 'fage_efz', array['C1'], null, null,
            'bbbb0000-0000-4000-8000-000000000002') ->> 'result'), 'invalid', 'confirm re-runs the checks');
 select is((select count(*)::int from public.client_orders()), 1, 'client A sees its one order');
 select is((select o.duration_minutes from public.client_orders() o), 540, 'client_orders: 540 minutes');
@@ -235,7 +238,7 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e5');
 set local role authenticated;
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], null, null, 'bbbb0000-0000-4000-8000-000000000003') ->> 'result'),
+           time '07:00', '4102', 'fage_efz', array['C1'], null, null, 'bbbb0000-0000-4000-8000-000000000003') ->> 'result'),
           'rejected', 'Operations cannot confirm for a client');
 select is((select public.convert_partner_request(p.id, 'Test', 'Person', true, '{}'::jsonb, 'bbbb0000-0000-4000-8000-000000000004') ->> 'result'
            from public.partner_requests p where p.order_kind = 'shift'), 'rejected',
@@ -244,13 +247,13 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e6');
 set local role authenticated;
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], null, null, 'bbbb0000-0000-4000-8000-000000000005') ->> 'result'),
+           time '07:00', '4102', 'fage_efz', array['C1'], null, null, 'bbbb0000-0000-4000-8000-000000000005') ->> 'result'),
           'rejected', 'a nurse cannot confirm for a client');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009ea');
 set local role authenticated;
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], null, null, 'bbbb0000-0000-4000-8000-000000000006') ->> 'result'),
+           time '07:00', '4102', 'fage_efz', array['C1'], null, null, 'bbbb0000-0000-4000-8000-000000000006') ->> 'result'),
           'rejected', 'an admin of the organisation cannot confirm for a client');
 reset role;
 
