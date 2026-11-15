@@ -97,6 +97,20 @@ Updated by `csa` 2026-10-27 13:55 CET. Month 0 = the partner's letter of intent 
 | **Legal adviser** | Not a precondition for Phase A (FE-026); one bundled mandate, quotes by December 2026, mandate January 2027, answers before M9 (FE-050). | as stated | the questions not in this mandate wait for Phase B |
 | **Hosting, repository** | D-2: Supabase Zurich, Swiss app host, staging now (FE-048); D-7 stage 1 decided but not clicked (PRODUCT_BLOCKS §1 (8): repository public, no ruleset). | D-7 stage 1 now; staging 2026-12-04 | B0 cannot be accepted; every later block waits |
 
+**Update `csa` 2026-11-15 00:59 CET (FE-053 to FE-079; Blueprint V3.2 and Handbook V2.2 as the only sources, FE-077).** Rows above are kept as written; where they conflict, this update wins. Dates are PO or founder targets, not commitments, unless marked as a `csa` estimate.
+
+| Track | Change | When it must happen | Cost of each month of delay |
+|---|---|---|---|
+| **Delivery (block rule)** | One active block: BK «Durchgehender Kern» (FE-071 to FE-074). BK-a (client order, `M/129`) and BK-b1 (distance and reach filter, `M/130`) are merged, **not accepted**; a block is accepted only on a named commit with `ci` green, `ci-repeat` 10/10 and a record in `ABNAHMEAKTE.md` (FE-072). | M9 Phase A passed 2027-03-12 (Blueprint §10) | every block after BK (home-care flow, nursing-home ward, B2B modules) waits; M9 moves by the same time |
+| **Production on synthetic data** | Production is built now to production standard, synthetic data only (FE-062 to FE-066: Supabase Zurich, Infomaniak host); no release for real data. | as `eng` delivers PROD1 to PROD3 (whether they are an exception to the block rule is the owner's, FE-062) | none for patients; it removes the later production step from the critical path to Phase B |
+| **Money flows** | No payment between client and team runs through NAVORA (FE-078 (1)); NAVORA invoices only its own fee; three separate ledgers (FE-055 (2)). | in the data model of BK-f / GMSEP (Handbook T-7) | without it, AVG and trust questions (Blueprint §4.4) stay open for the first real order |
+| **Offer model** | Broadcast to every team that passes every hard check, ranking only orders (FE-078 (2)); `lca` re-reads Q-44e; the AVG verdict waits for the adviser (Q1 2027, FE-050). Continuity at a home has no mechanism yet (STR-39). | `lca` Q-44e re-read before BK-c is accepted; adviser answer before Phase B | a speed-only shift market before Phase B would test the temp agency's game, not NAVORA's (STR-39) |
+| **Fee (D-14)** | Direction decided: F3/F6 weighted by effective FTE, F1 (per hour) and F2 (share of revenue) forbidden; amount open (FE-055 (3)). | amount after the Phase A cost measurement (FE-023) | none before Phase B; no price may appear in any external document (STR-35) |
+| **Clinical rule approval (D-43)** | Built along in Phase A (FE-069); owner answer target 2027-01-15. | as stated | every rule stays PROPOSED; Phase B cannot start |
+| **AI path** | BK uses a deterministic parser for capture and typed report drafts (Handbook §11 S-2, S-3); a model needs T-6 (pattern 4 hosting), which has **no date**. | `csa` proposal: T-6 decided by M4 (2026-12-18) so that one synthetic AI capture and one synthetic AI draft are measured before M9 | without a T-6 date, H-4 has no first measurement in Phase A and the AI stage of the vision is untested at the Phase B decision |
+| **interRAI (D-36, D-37)** | Unchanged: D-36 waits on the owner since 2026-10-27 (19 days); BK has no assessment step (STR-32, #994). | D-36 terms by M3 (2026-12-11) | dimension 6 can pass Phase A unproven |
+| **Team-owned provider (C)** | Unchanged since 2026-11-10: no vehicle, no date; the BS/BL licence and admission durations and L-9 must be in the Q1 2027 adviser mandate (FE-050). Phase B test environment for a Basel home from March 2027 (FE-055 (8)). | adviser catalogue before quotes (December 2026) | `csa` estimate: a missed mandate moves the C path by a year or more |
+
 ## 5 Business model hypotheses (OPEN)
 
 Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
@@ -119,6 +133,13 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 
 **Status note 2026-11-10:** BM-1: F3 is "a possible basis, not a chosen price" and D-14 is decided only after Phase A (FE-023). BM-2: re-routed into the D-44 ask (P-5), because D-14 is not asked now. No price, amount or percentage above is a proposal.
 
+| # | Hypothesis | Status | Evidence needed | Source of evidence |
+|---|---|---|---|---|
+| BM-13 | (2026-11-15) With no money flow through NAVORA (FE-078 (1)), the fee is invoiced and collected separately from care revenue, so each team carries a payment run and NAVORA carries collection risk; a fixed monthly fee stays small enough per team that this costs less than the commission it replaces | hypothesis, `csa`; no price | collection rate and days to payment of the fee; minutes of team administration per fee invoice (M-15 line) | NAVORA ledger A in Phase B; UNKNOWN until then |
+| BM-14 | (2026-11-15) Under the broadcast (FE-078 (2)), shift takes spread across eligible teams rather than concentrating on the fastest; if they concentrate, utilisation (BM-11) and income diverge between teams and continuity at a home falls (STR-39) | hypothesis, `csa` | distribution of takes per team; share of takes by the top-ranked team; share by a team that served the home before | BK-g scenario matrix (synthetic); Phase B |
+
+**Status note 2026-11-15:** BM-1 direction decided by FE-055 (3) (FTE-weighted F3/F6; F1, F2 forbidden; amount open); BM-12 is mitigated in direction by the FTE weighting and stays a check for brief FEE1. Blueprint Annex A §3.3 uses a fee of 120 CHF per member and month labelled as a founder value; no founder decision contains it (STR-35). No amount in this file or in Annex A is a fee proposal.
+
 ## 6 Open strategic questions for `csa`
 
 1. **How fast can the pilot move from the partner (B) to a team-owned provider (C) without a gap in licence or admission?** *Partial answer, 2026-10-27:* not by a licence transfer, which `lca` reads as impossible (D-12 note 3); only by a new licence and a new OKP admission, two procedures of about 8 weeks each, plus each client's consent to move. Earliest admission about month 4-5 if the file is complete at month 0; latest safe file date about month 7 for the 12-month sunset (§4). What is still unknown is written as STR-15.
@@ -140,7 +161,23 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 
 *Update to question 4 (2026-11-10):* `BUSINESS_MODELS_AND_CONSTELLATIONS.md` §1 names R3-b, one network-wide responsible professional for several teams, as a variant to check; its legality for several licences is UNKNOWN. The D-43 board is the first shared network service that exists on paper (rules, not supervision).
 
+15. **New 2026-11-15:** under the broadcast, how does a nursing home keep continuity with a team that knows its ward, without NAVORA choosing a team? OPEN; `csa` proposes measurement first and a client-set preference only if `lca` finds it compatible with Q-44e (STR-39). *Partial evidence:* Florence (benchmark 2026-11-15) answers it with home-chosen tiers and favourites and approval of the person, which NAVORA excludes by design.
+16. **New 2026-11-15:** what does fee collection cost a team and NAVORA once no money runs through NAVORA (BM-13)? UNKNOWN until Phase B.
+
 ## 7 Benchmarks (one per `csa` run, newest first)
+
+### 2026-11-15 · Florence (UK shift-staffing app for care homes and the NHS)
+
+**Source:** Florence, «FAQs» for care organisations, https://florenceapp.com/en/care-organisations/faqs/, and «How to fill shifts», https://florenceapp.com/en/care-organisations/how-to-fill-shifts/, both read 2026-11-15 through a summarising fetch (pages undated; vendor self-description, not checked by NAVORA).
+
+**In my words:** Florence is a digital-first replacement for parts of the temporary agency in UK care homes. The home posts a shift and invites in tiers: its own staff first, then «trusted» Florence temps, then chosen agencies; Florence temps apply and the home approves the person of its choice in one click. Matching is described as rule-based and controlled by the home; there is a favourites feature to invite the same people back. Florence vets each worker (interview, training, qualifications, right to work, background) and pays workers weekly with holiday pay shown on the payslip, so money flows through Florence. The home pays only when a shift is filled («pay as you go»); no fee amount is published on these pages.
+
+**Where NAVORA must exceed it:**
+- **No toll on the shift.** Florence earns when a shift is filled, which is a per-shift intermediary model. NAVORA's fixed fee and 0 % on care revenue (FE-055, FE-078 (1)) is the structural difference, and Blueprint §2 must show it with sourced figures only (STR-35).
+- **The team, not the home, decides who goes.** Florence leaves the selection of the individual to the home; NAVORA's broadcast lets the team decide (FE-039, FE-078 (2)). This is the step beyond the marketplace and must stay.
+- **Continuity without a client picking people.** Florence keeps continuity through home-chosen favourites. NAVORA has no equivalent for shift orders yet (STR-39): it must reach equal or better continuity at a home through ranking, measurement and, if `lca` allows, a client-set preference for teams that served it before.
+- **Coordination removed, not moved.** Florence still asks the home to post, review and approve. NAVORA's BK aims at «gedeckt» without a coordinator in the home (BK-6, H-3); the minutes from report to «gedeckt» and the actions per order (Blueprint §10, new BK metrics) are where NAVORA must beat it.
+- **Verified checks as hard rules.** Florence vets workers once at entry; NAVORA checks distance, level, attributes, availability and valid evidence at offer and again at take (BK-2, BK-5a), which is the safety claim to prove in BK-g.
 
 ### 2026-11-10 · The Green House Project (US small-house nursing homes with self-managed teams)
 
