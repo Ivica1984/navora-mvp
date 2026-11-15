@@ -61,3 +61,24 @@ test("FaGe with «Vitalzeichen, Gewicht» on a home order is refused at the acti
   );
   await expect(page.getByTestId("order-summary")).toHaveCount(0);
 });
+
+// UXR-215 (`uxa` 2026-11-14 15:51): the refusal names the level it was checked against. Picking another level drops it
+// (the next «Weiter» checks again), so the screen never says «Für FaGe … nicht möglich» when no check was made for FaGe.
+test("after the AGS refusal, picking FaGe drops the refusal instead of re-wording it for FaGe", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await signIn(page);
+  const form = page.getByRole("form", { name: "Auftrag" });
+  await form.getByLabel(/^Datum/).fill(deDate(zurichDay(Date.now(), 13)));
+  await form.getByLabel("Beginn", { exact: true }).fill("08:00");
+  await form.getByLabel("Ende", { exact: true }).fill("12:00");
+  await form.getByLabel("Einsatzort (Postleitzahl)").selectOption("4102");
+  await form.getByRole("radio", { name: "AGS", exact: true }).check();
+  await form.getByRole("checkbox", { name: "Venöse und kapillare Blutentnahme", exact: true }).check();
+  await form.getByRole("button", { name: "Weiter zur Zusammenfassung" }).click();
+  await expect(page.getByTestId("order-field-tags-problem")).toContainText("Für AGS ist diese Auswahl hier nicht möglich");
+
+  await form.getByRole("radio", { name: "FaGe", exact: true }).check();
+  await expect(page.getByTestId("order-field-tags-problem")).toHaveCount(0);
+  await expect(page.getByText(/Für FaGe ist diese Auswahl/)).toHaveCount(0);
+  await expect(page.getByTestId("order-summary")).toHaveCount(0);
+});
