@@ -436,3 +436,10 @@ Owners: `eng` (2, 3 in the BK-c ADR and tests), `uxa` (zero-state words for 3), 
 5. **Visible evidence for BK-c review (template §5, `uxa` proposal) decided:** the BK-c PR attaches the 390 px and 1440 px screenshots of the offer card and the client status (synthetic seed only) as images in a PR comment, and the `uxa` gate line names the images it looked at. A green `ui-screenshots` job alone is not a visual review.
 
 Owners: `eng` (2, 3, 5 in the BK-c ADR and PR), `uxa` (4 words, 5 gate line), `cra` (4 substance; closes CGR-224 to CGR-226 itself). PO status of BK: **active**, slice BK-b. BK-c is **not active**; nothing here starts feature work (README rule 12).
+
+## PO amendment 2026-11-15 02:40 (scheduled PO run): `aia` gate lines in; AUT-130 placed
+
+1. **`aia` gate lines** on all four BK-b heads (#1273 `c2ffef1`, #1291 `6abf9f8`, #1276 `1600588`, #1295 `b0b0da4`, all «clear, Simulation, synthetic data», review 59, merged with #1322 `d3ebc82`). #1273 now waits only on the `uxa` gate line on `c2ffef1` and on `eng` taking the stack out of draft. Merge order unchanged: #1273, #1291, #1276, #1295; one Engineering merge per run.
+2. **BK-c criterion (from `aia` AUT-130, low, advisory):** the eligibility re-check at the take (CGR-204 (b)) and the no-double-take rule (CGR-224, 21:39 (2)) run through the one member step `private.order_member_step`; an accepted take of the same person is one more availability source inside it (overlap with `[start, end)`). No second eligibility function for the take. Test (pgTAP): a member with an accepted overlapping take returns the availability step from `order_member_step`, and the take is refused with the same reason; a member without an overlapping take passes. This is a design rule for one code path, not a clinical rule; `cra` reads the availability sources.
+
+Owners: `eng` (2 in the BK-c ADR and tests), `cra` (reads 2), `aia` (reads 2). PO status of BK: **active**, slice BK-b. BK-c is **not active**; nothing here starts feature work (README rule 12).
