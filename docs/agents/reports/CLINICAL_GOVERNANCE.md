@@ -16,6 +16,76 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-15 05:28 CET: **#1273 and #1291 are merged on the code I cleared. CGR-216, CGR-218 and CGR-219 are closed, and CGR-204 (a) is met.** Read on `recovery/main` `ddba8d8`. `git diff c2ffef1 6c4b74b` and `git diff e9b1672 08e5d8e` over `src supabase tests e2e` are both empty. I recomputed the patch-id for #1291 myself: old head `6abf9f8` and new head `e9b1672` both give `e822681e…`. `ci` on merge `6c4b74b` is green, and the `db` log reads «138 … ok», «139 … ok», «Files=139, Tests=4953 … Result: PASS». **#1276 and #1295 have moved again by merge-up only.** I recomputed the patch-ids: #1276 `1600588` → `08b29c8` gives `da25ecea…` on both, and #1295 `b0b0da4` → `296e6ba` gives `4da97377…` on both. Neither PR touches `package.json`, `.github` or `scripts` (only docs outside the code paths), and all four jobs are green. **New gate lines:** `#1276 08b29c8 clear` and `#1295 296e6ba clear`. **No new finding.** My field did not change in Blueprint 3.2.22 and 3.2.23 (chapter 13, Annex A, Annex C only) or in Handbook V2.2. So my FE-079 sign-off of 01:30 on #1279 stands, and no renewal is due.
+
+### What I read
+
+- Merges since 01:30: #1273 (`6c4b74b`, second parent `c2ffef1`), #1291 (`08e5d8e`, second parent `e9b1672`), and docs PRs #1320 to #1329.
+- Open PRs: #1276 `08b29c8`, #1295 `296e6ba`, #1330 (`eng` journal, docs), #1087 and #1084 (not in *Active now*).
+- Blueprint diff `5db36ff..ddba8d8` (3.2.22, 3.2.23): chapter 13 sign-offs, Annex A (`csa` STR-35 to STR-38), Annex C §1.2 item 3 (`lca` S-8). Annex B and the qualification matrix are untouched. The Handbook is unchanged.
+- `NEXT_CAPABILITY.md` (04:39): BK-b is still active. No brief changed.
+- Journals: `po` 0439, 0339, `eng` 0410, 0310, `aia` 0217, `uxa` 0347, `lca` 0420.
+
+### Findings
+
+No new finding.
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| – | – | – | none | – | – |
+
+**Observation for `csa`/`po` (not a finding, not a reservation; Annex A is `csa`'s field):** Annex A table «Passende Person suchen» still reads «Matrix im Matching, Rangfolge PLANNED (BK-3, BK-4)». Since #1273 (`6c4b74b`), the matrix check per member is on `recovery/main`: 0132 `order_member_step`, with the cell read through the client kind in 0133 `private.qual_cell_for_client` (lines 34 to 48). It is IMPLEMENTED, not accepted, and the matrix stays PROPOSED (D-43). Ranking stays PLANNED. Suggested wording: «Matrix je Mitglied IMPLEMENTED (BK-b2, nicht abgenommen; Matrix PROPOSED); Rangfolge PLANNED (BK-4)».
+
+### Findings closed with evidence
+
+- **CGR-216 closed:** the level and activities are refused at preview and confirm when the cell cannot be ordered (`level_activity_conflict`).
+  - Code: 0132 `client_order_check` (line 27), read through 0133 `client_order_check` (line 102) and `qual_activity_orderable` (line 54).
+  - Tests: pgTAP 138 (plan 34), 139 (plan 21). E2E `tests/e2e/bk-b2-level-activity-conflict.spec.ts` (#1291).
+  - CI: `db` job 132674648570 on `6c4b74b`, «138 … ok».
+- **CGR-218 closed:** every cell is read through the client kind. `household` reads the plain table. `home` (NH-EXT) reads every «D» and every «E» in a row B* as «?». `hospital_ward` (HOSP-IN) and an unknown kind read «?».
+  - Code: 0133 `qual_reading` (line 26), `qual_cell_for_client` (lines 34 to 48). The confirm path (line 102) and the member step (`order_member_step`, line 204) use the same function.
+  - Test: pgTAP 139 §1, §2 (grid: 0 mismatches).
+  - CI: same `db` job, «139 … ok».
+  - The cells and CR-180 stay PROPOSED with the Clinical Owner.
+- **CGR-219 closed:** one reading for confirm and member step. «D» is orderable only when not required, «–» and «?» never.
+  - Code: 0133 `qual_activity_orderable` (lines 54 to 67), `member_activity_ok` (line 69).
+  - Tests: pgTAP 138 F2, 139 §3 to §5.
+- **CGR-204 (a) met:** one and the same member must pass status, grade, every activity and the whole slot (0133 `order_member_step`, pgTAP 138). CGR-204 (b) and (c) stay open (BK-c: named member at take, and re-check).
+- **UXR-215 presentation (#1291):** no care rule in it. My `6abf9f8` line covered the same patch-id as the merged head.
+
+### Status of open findings
+
+- **CGR-220:** met on #1295 `296e6ba` (same patch-id as `b0b0da4`). It closes on merge.
+- **CGR-211, CGR-222 (c), CGR-223 (a) to (c), CGR-224, CGR-225:** BK-c acceptance conditions, placed in brief BK (BK-c not active).
+- **CGR-226:** placed (BK 21:39 (4)). The words are with `uxa`.
+- **CGR-227:** the PO (01:40) states it is placed with STR-39 for BK-g. I did not find the text outside journals and my files by search, so where the text sits is UNKNOWN. `po`, please name the file.
+- **CGR-221:** Handbook part only. It stays my sign-off reservation.
+- **CGR-204 (b), (c), CGR-205, CGR-207 to CGR-210, CGR-212, CGR-213 (b), CGR-215 (b), (c):** unchanged.
+
+### Gate status
+
+All gates below are «Simulation, synthetic data».
+
+- `cra-gate: #1276 08b29c8 clear` (same patch-id `da25ecea…` as `1600588`; `ci` 4/4 success on the head).
+- `cra-gate: #1295 296e6ba clear` (same patch-id `4da97377…` as `b0b0da4`; `ci` 4/4 success on the head).
+- **Patch-id line (H-BK-03:39):** I support it from the patient-safety side, with the condition `eng` named at 04:10. The line covers `src supabase tests e2e` only. For a PR that also changes `package.json`, `package-lock.json`, `.github/` or `scripts/`, the earlier gate line does not carry over: the role reads the change again. For #1276 and #1295, I checked that this is not the case.
+- **BK-b acceptance, my conditions:**
+  - Content: #1276 and #1295 merged, on a named integrated commit with `ci` green and `ci-repeat` 10/10 read from the job logs.
+  - The record names a **completed, successful** `ci` run for the commit. Example: merge `08e5d8e` has one cancelled set of jobs (132688435482 and the three next to it) next to one successful set (132688424865 …). Only the successful run counts. The cancelled one is neither a pass nor a fail.
+  - The record keeps the note on offer rows written before BK-b2 (PO 13:39 (6)).
+  - Not released for real persons or data: CR-180, K-8 and the cells stay with the Clinical Owner (D-27).
+- #1330 is an `eng` docs PR. It needs no `cra` gate line.
+
+### Decisions requested
+
+- **`po`:** name the file that holds CGR-227 with STR-39 (BK-g). In the BK-b acceptance record, cite the successful `ci` run per commit, not a cancelled one.
+- **`csa`:** consider the Annex A wording above (observation, not a finding).
+- **`eng`:** Handbook V2.3 broadcast text (CGR-221 rest, with V-1 and `lca` S-3).
+- **Clinical Owner:** K-8, the household fallback, CR-180 and «D» on a shift order: still UNKNOWN.
+- Earlier asks are unchanged.
+
+---
+
 ## 2026-11-15 01:30 CET: **FE-079 sign-off renewed on Blueprint 3.2.21; the reservation narrows to CGR-221 (Handbook part).** Blueprint 3.2.18 carries my 21:30 Annex B §2 text for the three rows «3 Engine 1» word for word, so the Annex B part of CGR-221 is met. What remains is the Handbook cascade text (V2.3, PLANNED, with `eng` V-1 and `lca` S-3). **No code changed since 21:30:** no Engineering merge; #1273 `c2ffef1`, #1291 `6abf9f8`, #1295 `b0b0da4` and #1276 `1600588` are unchanged, so my gate lines stand. **CGR-224, CGR-225 and CGR-226 are placed** in brief BK (PO amendment 21:39 (2) to (4)) as BK-c criteria. **New advisory CGR-227 (S2)** on `csa` STR-39 (c) (PR #1318): a continuity preference for a shift order may only order the broadcast, never hold the offer back or delay cover.
 
 ### Basis
