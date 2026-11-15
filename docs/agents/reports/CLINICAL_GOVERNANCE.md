@@ -16,6 +16,66 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-15 01:30 CET: **FE-079 sign-off renewed on Blueprint 3.2.21; the reservation narrows to CGR-221 (Handbook part).** Blueprint 3.2.18 carries my 21:30 Annex B §2 text for the three rows «3 Engine 1» word for word, so the Annex B part of CGR-221 is met. What remains is the Handbook cascade text (V2.3, PLANNED, with `eng` V-1 and `lca` S-3). **No code changed since 21:30:** no Engineering merge; #1273 `c2ffef1`, #1291 `6abf9f8`, #1295 `b0b0da4` and #1276 `1600588` are unchanged, so my gate lines stand. **CGR-224, CGR-225 and CGR-226 are placed** in brief BK (PO amendment 21:39 (2) to (4)) as BK-c criteria. **New advisory CGR-227 (S2)** on `csa` STR-39 (c) (PR #1318): a continuity preference for a shift order may only order the broadcast, never hold the offer back or delay cover.
+
+### Basis
+
+Read on `recovery/main` `5db36ff`: Blueprint 3.2.21, Handbook V2.2, `FOUNDER_DECISIONS.md`, brief BK (amendment 21:39), `BK5_OFFER_TEMPLATE.md`, the journals after mine of 21:30, and open PRs #1317 and #1318 (docs). I read every Blueprint change from 3.2.18 to 3.2.21 whole (diff `ed8bcf9..5db36ff`). In my field, Annex B changed only in §2: the three rows «3 Engine 1» in 3.2.18 (my text), and in 3.2.21 the PO's own note before §2 was removed (it belonged to Annex C; PO text, not mine). Annex B §1 still holds 20 guarantees; the matrix stays PROPOSED. The Handbook did not change.
+
+### FE-079 sign-off (renewed, #1279)
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter dem Vorbehalt CGR-221 (Rest, nur Handbook) (`cra` 2026-11-15 01:30, gelesen auf Blueprint 3.2.21)**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **CGR-221 (rest, Handbook only):** Handbook V2.2 §4.0 «Kaskade mit Zeitfenster», §4 E1 «Kaskade», §4 E5 («Angebot bei Team 1 von n») and the ERD `matching_offer_steps` still describe the cascade that FE-078 part 2 replaced. Owner `eng`/`po` (Handbook V2.3). The BK-c ADR draft already supersedes ADR-191 (6), and brief BK and the template win (BK 21:39 (1)), so this is no build risk for BK-b. It is a source-text gap: it closes when V2.3 has the broadcast.
+- **Annex B part met** (3.2.18; Blueprint lines 1231, 1233, 1234 on `5db36ff`, identical to my 21:30 text).
+- The sign-off confirms the working basis. It is not a clinical approval (D-27, G-1), not legal advice, and changes no PROPOSED status.
+- On `csa` STR-41 (renew only per minor version): I renew because 3.2.18 changed my field and a narrower reservation helps the seal. I support a rule that records closed reservations per version without new comments (P-13, PO decision).
+
+### Review of new items
+
+- **#1318 (`csa`, docs), STR-39: continuity at a home under the broadcast.** From the patient-safety side:
+  - Under the broadcast, the person on a home shift can differ every time. The safety barrier for an unfamiliar person is the safety information and handover the home gives (Annex B §2 row 1, CR-182, H-03, H-33: OPEN). Team choice is not that barrier. I support STR-39 (a) and (b) as measurement only.
+  - STR-39 (c) (a continuity preference set by the client) can create a new cause of H-40: a preference that holds the offer back, or waits for the preferred team, lets the shift reach the coverage time uncovered. That is **CGR-227**.
+  - STR-35 to STR-38 are outside my field (money, Annex A). No figure there is a clinical rule.
+- **#1317 (`lca`, D-44 Q-44a, Q-44e):** legal; no care rule, no clinical claim. Not reviewed further.
+- **Brief BK 21:39:** (2) and (3) carry CGR-224 and CGR-225 as I asked, with positive and negative tests; (4) carries CGR-226. The substance of the next step under «Nicht gedeckt» is in my 21:30 section, CGR-226 (b). `uxa` still needs to write it into template §4 (the row still reads UNKNOWN). The zero-state row («whether the exception is raised at once: `cra`, UNKNOWN») is answered by CGR-225 (a): yes, at once.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-227** | #1318 `STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-15 §3 (1), STR-39 (c); brief BK 15:00 (1), (2); H-40 | advisory; S2 (before any continuity preference is built) | A client-set continuity preference on a shift order (proposal: «zuerst sichtbar für Teams, die bei uns schon gearbeitet haben», for a few minutes) shows the offer to the preferred teams first and makes the others wait. That brings back the exclusive window that FE-078 part 2 removed, and it lets a shift reach the latest coverage time uncovered. Continuity does not replace the handover barrier (CR-182). | STR-39 (c) text on PR #1318 head `2733167`; FE-078 part 2 (every eligible team sees the offer at once); BK 15:00 (1) (ranking only orders) | (a) A preference, if built, only changes the order in Engine 2. It never removes an eligible team, never delays the offer to any team and never moves `latest_cover_at`. (b) It is never a hard check and never shows the client a team count. (c) Test when built: an order with a preferred team that does not take it still reaches every eligible team at the same moment as without the preference; the Operations exception time is identical with and without it. |
+
+### Findings closed with evidence
+
+- None closed outright (no fix merged).
+- **CGR-221, Annex B part met** in Blueprint 3.2.18 (lines 1231, 1233, 1234 on `5db36ff`). The Handbook part stays.
+- Unchanged from 21:30: CGR-220 closes on merge of #1295 `b0b0da4`; CGR-216, CGR-218 and CGR-219 close on merge of #1273 `c2ffef1`.
+
+### Status of open findings
+
+- **CGR-211, CGR-222 (c), CGR-223 (a) to (c), CGR-224, CGR-225:** BK-c acceptance conditions, placed in brief BK (BK-c not active).
+- **CGR-226:** placed (BK 21:39 (4)); words with `uxa`; substance given 21:30.
+- **CGR-221:** Handbook part only.
+- **CGR-204 (b), (c), CGR-205, CGR-207 to CGR-210, CGR-212, CGR-213 (b), CGR-215 (b), (c):** unchanged.
+
+### Gate status
+
+- Heads unchanged since 21:30. These lines stand: `cra-gate: #1273 c2ffef1 clear`, `cra-gate: #1291 6abf9f8 clear`, `cra-gate: #1295 b0b0da4 clear`, `cra-gate: #1276 1600588 clear` (17:26). All «Simulation, synthetic data».
+- **BK-b acceptance:** clinically possible once #1273 and #1295 are merged, on a named integrated commit with `ci` green and `ci-repeat` 10/10 read from the job logs. The record notes offer rows written before BK-b2 (PO 13:39 (6)). Gate «Simulation, synthetic data». Not released for real persons and data.
+- #1318 and #1317 are docs PRs of other roles. They need no `cra` gate line, and I give none.
+
+### Decisions requested
+
+- **`po`:** carry my renewed sign-off into chapter 13 word for word; place CGR-227 next to `csa` P-12 (STR-39 (c)) before any continuity preference reaches a brief.
+- **`eng`:** Handbook V2.3 broadcast text (CGR-221 rest, with V-1 and `lca` S-3).
+- **`uxa`:** template §4: the CGR-226 (b) next-step line, and the zero-state row answered by CGR-225 (a).
+- **`csa`:** STR-39 (c) with CGR-227 as its safety condition.
+- **Clinical Owner:** K-8, the household fallback, CR-180 and «D» on a shift order: still UNKNOWN.
+- Earlier asks are unchanged.
+
+---
+
 ## 2026-11-14 21:30 CET: **FE-079 sign-off renewed on Blueprint 3.2.17, now with one reservation: CGR-221 (rest).** The document parts of CGR-222 and CGR-223 were transferred in 3.2.16; what remains of them are BK-c build conditions, not reservations. **Gates (all «Simulation, synthetic data»): #1273 `c2ffef1` clear, #1291 `6abf9f8` clear, #1295 `b0b0da4` clear (CGR-220 met on the PR, closes on merge), #1305 `5928b13` clear (docs; advisory CGR-226).** #1270 merged on the head I cleared. **BK-c ADR draft (#1298) reviewed:** it carries CGR-211, CGR-222 and CGR-223 correctly. It has two gaps. **CGR-224 (advisory, S1 before real clients):** nothing stops the same named person from being taken onto two overlapping shift orders. **CGR-225 (advisory, S2):** Operations hears of a shift that no team can take only at the coverage time, not at once. **CGR-226 (advisory, S2):** in the `uxa` template, «Pflegekraft benannt» can claim more than was checked, and the next-step words under «Nicht gedeckt» need content.
 
 **Scope:** `recovery/main` @ `ed8bcf9`, compared with my 17:26 section at `db2b298`. Code on `recovery/main`: **#1270 merged** as `a076731`; `git diff 1cb6e09 a076731 -- src supabase tests e2e` is empty, so the merged code is the head I cleared at 13:30. On `a076731` the push `ci` jobs succeeded and a later duplicate run was cancelled. On `ed8bcf9`, `ci` is 4/4 `success` (read from the API). Docs merged since 17:26: Blueprint 3.2.16 and 3.2.17; the BK-c ADR draft `docs/engineering/probes/BK-c_ADR_DRAFT.md` (#1298); PO amendments 17:40 and 20:40 in `briefs/BK.md`; the role reviews of `uxa`, `eng`, `aia` and `lca`. Open PRs in scope: #1273 `c2ffef1`, #1291 `6abf9f8`, #1295 `b0b0da4`, #1276 `1600588` (unchanged), #1305 `5928b13` (new, docs), #1307 (`eng` journal only). #1087, #1084 and #3 are out of scope and unchanged.
