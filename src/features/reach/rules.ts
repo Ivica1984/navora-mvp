@@ -44,6 +44,14 @@ export const REACH_NEW_ORDERS_ONLY_TEXT =
 /** D-44 (`lca`, proposed wording): the start of the distance is the team's area, never a home address (P-5). */
 export const REACH_HELP_TEXT = "PLZ, von der aus euer Team Aufträge annimmt. Nicht eure Wohnadresse.";
 
+/**
+ * UXR-209 (`uxa` 2026-11-14 11:48, words verbatim): how postcodes and km combine. Facts from migration 0130
+ * `private.screen_order_reach`: distance from the nearest ticked postcode (`min`), limit = the smaller of the team
+ * maximum and the client's optional distance (`least`). No new rule.
+ */
+export const REACH_DISTANCE_RULE_TEXT =
+  "NAVORA misst von der nächsten gewählten PLZ bis zum Einsatzort. Gibt der Auftraggeber eine kleinere Distanz an, gilt seine.";
+
 /** «10», «7,5», «7.5»; anything else is null and the database refuses it at the field. */
 export function parseDistanceKm(raw: string): number | null {
   const s = raw.trim();
