@@ -27,12 +27,15 @@
 --   * CGR-217: the preview returns an information item (never a problem) when the same client account already has a
 --     confirmed order with the same start, end, grade and postcode; a different postcode gives no item; the second
 --     order stays confirmable.
--- Not here (PLANNED, BK-b2, own red tests): CGR-204 per-member level, confirmed required attributes and
--- availability for the whole slot; CGR-216 `level_activity_conflict`; AUT-122 / K-6 reach-change counts per team.
+-- Not here: CGR-204 per-member level, required activities and availability for the whole slot and CGR-216
+-- `level_activity_conflict` (BK-b2, pgTAP 138); AUT-122 / K-6 reach-change counts per team (PLANNED, BK-g).
 -- Distances: set by this file on fixture pairs (synthetic, inside the transaction); they state nothing about real
 -- distances. Users (seed): kundebs …9e8 (client A, org S) · pflegebs …9e6 (nurse, member of Testteam Basel …1b9).
 -- Fixture: nurse …9eb (member of fixture team T2 only), admin of org S …9ea. Pinned clock: Fri 2026-11-13 12:00
 -- Europe/Zurich. Synthetic data only.
+-- Named fixture change (BK-b2 / CGR-218 (A), PO amendment 2026-11-14 13:39 (2)): the order fixtures use C1 (Grundpflege,
+-- «E» outside the rows B*) instead of B1. The seed client is a `home` account, read as NH-EXT, where B1 («D») is refused
+-- (pgTAP 139). No assertion, plan or expected value changed.
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -176,16 +179,38 @@ select ok((select reach_changed_at = private.now() from public.teams where id = 
 select throws_ok($$ update public.teams set max_distance_km = 0 where id = '00000000-0000-4000-a000-0000000001ba' $$,
                  '23514', null, 'check: max_distance_km > 0');
 
+-- BK-b2 (ADR-196, pgTAP 138): the screening now also asks for ONE member per team who holds the ordered level (FaGe,
+-- verified), the activities and is free for the whole slot. This file tests the distance part, so every team that the
+-- distance lets through gets one such member here (synthetic fixture, added in BK-b2; no assertion of this file
+-- changed). The member part is tested in pgTAP 138. Written as the table owner with no request user (0120 guard).
+select set_config('request.jwt.claims', '', true), set_config('request.jwt.claim.sub', '', true);
+insert into auth.users (id, aud, role, email) values
+  ('00000000-0000-4000-a136-000000000001', 'authenticated', 'authenticated', 'bk-b1-fage1.fixture@navora.test'),
+  ('00000000-0000-4000-a136-000000000002', 'authenticated', 'authenticated', 'bk-b1-fage2.fixture@navora.test'),
+  ('00000000-0000-4000-a136-000000000003', 'authenticated', 'authenticated', 'bk-b1-fage3.fixture@navora.test');
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000001', 'nurse'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000002', 'nurse'),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000003', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001b9', '00000000-0000-4000-a136-000000000001', 'care_assistant'),
+  ('00000000-0000-4000-a000-0000000001ba', '00000000-0000-4000-a136-000000000002', 'care_assistant'),
+  ('00000000-0000-4000-a000-0000000001be', '00000000-0000-4000-a136-000000000003', 'care_assistant');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000001', 'grade', 'fage_efz', 'verified', true),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000002', 'grade', 'fage_efz', 'verified', true),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a136-000000000003', 'grade', 'fage_efz', 'verified', true);
+
 -- 6. Hard filter on confirmation (BK-2, BK-2n, PO 18:40 (1)(c), (d)) -----------------------------------------------
 create temp table made (k text primary key, r jsonb);
 grant all on made to authenticated;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
 set local role authenticated;
 insert into made select 'o1', public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22',
-  time '22:00', time '07:00', '4102', 'fage_efz', array['B1'], array[]::text[], null,
+  time '22:00', time '07:00', '4102', 'fage_efz', array['C1'], array[]::text[], null,
   'cccc0000-0000-4000-8000-000000000010');
 insert into made select 'o2', public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-23',
-  time '22:00', time '07:00', '4102', 'fage_efz', array['B1'], array[]::text[], 4,
+  time '22:00', time '07:00', '4102', 'fage_efz', array['C1'], array[]::text[], 4,
   'cccc0000-0000-4000-8000-000000000011');
 select is((select count(*)::int from public.order_offers), 0, 'ADR-192 (3): the client reads no offer row');
 select is((select count(*)::int from public.order_exclusions), 0, 'ADR-192 (3): the client reads no exclusion row');
@@ -262,13 +287,13 @@ select is((select count(*)::int from (
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
 set local role authenticated;
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], array[]::text[], null) -> 'info'),
+           time '07:00', '4102', 'fage_efz', array['C1'], array[]::text[], null) -> 'info'),
           '["same_order_already_confirmed"]'::jsonb, 'CGR-217: same start, end, grade and postcode → information item');
 select is((select public.preview_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4051', 'fage_efz', array['B1'], array[]::text[], null) -> 'info'),
+           time '07:00', '4051', 'fage_efz', array['C1'], array[]::text[], null) -> 'info'),
           '[]'::jsonb, 'CGR-217: a different postcode gives no item');
 select is((select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1', date '2026-11-22', time '22:00',
-           time '07:00', '4102', 'fage_efz', array['B1'], array[]::text[], null,
+           time '07:00', '4102', 'fage_efz', array['C1'], array[]::text[], null,
            'cccc0000-0000-4000-8000-000000000013') ->> 'result'), 'ok', 'CGR-217: the second order stays confirmable');
 reset role;
 
