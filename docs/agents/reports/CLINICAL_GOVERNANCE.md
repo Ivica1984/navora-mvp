@@ -16,6 +16,202 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-15 01:30 CET: **FE-079 sign-off renewed on Blueprint 3.2.21; the reservation narrows to CGR-221 (Handbook part).** Blueprint 3.2.18 carries my 21:30 Annex B §2 text for the three rows «3 Engine 1» word for word, so the Annex B part of CGR-221 is met. What remains is the Handbook cascade text (V2.3, PLANNED, with `eng` V-1 and `lca` S-3). **No code changed since 21:30:** no Engineering merge; #1273 `c2ffef1`, #1291 `6abf9f8`, #1295 `b0b0da4` and #1276 `1600588` are unchanged, so my gate lines stand. **CGR-224, CGR-225 and CGR-226 are placed** in brief BK (PO amendment 21:39 (2) to (4)) as BK-c criteria. **New advisory CGR-227 (S2)** on `csa` STR-39 (c) (PR #1318): a continuity preference for a shift order may only order the broadcast, never hold the offer back or delay cover.
+
+### Basis
+
+Read on `recovery/main` `5db36ff`: Blueprint 3.2.21, Handbook V2.2, `FOUNDER_DECISIONS.md`, brief BK (amendment 21:39), `BK5_OFFER_TEMPLATE.md`, the journals after mine of 21:30, and open PRs #1317 and #1318 (docs). I read every Blueprint change from 3.2.18 to 3.2.21 whole (diff `ed8bcf9..5db36ff`). In my field, Annex B changed only in §2: the three rows «3 Engine 1» in 3.2.18 (my text), and in 3.2.21 the PO's own note before §2 was removed (it belonged to Annex C; PO text, not mine). Annex B §1 still holds 20 guarantees; the matrix stays PROPOSED. The Handbook did not change.
+
+### FE-079 sign-off (renewed, #1279)
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter dem Vorbehalt CGR-221 (Rest, nur Handbook) (`cra` 2026-11-15 01:30, gelesen auf Blueprint 3.2.21)**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **CGR-221 (rest, Handbook only):** Handbook V2.2 §4.0 «Kaskade mit Zeitfenster», §4 E1 «Kaskade», §4 E5 («Angebot bei Team 1 von n») and the ERD `matching_offer_steps` still describe the cascade that FE-078 part 2 replaced. Owner `eng`/`po` (Handbook V2.3). The BK-c ADR draft already supersedes ADR-191 (6), and brief BK and the template win (BK 21:39 (1)), so this is no build risk for BK-b. It is a source-text gap: it closes when V2.3 has the broadcast.
+- **Annex B part met** (3.2.18; Blueprint lines 1231, 1233, 1234 on `5db36ff`, identical to my 21:30 text).
+- The sign-off confirms the working basis. It is not a clinical approval (D-27, G-1), not legal advice, and changes no PROPOSED status.
+- On `csa` STR-41 (renew only per minor version): I renew because 3.2.18 changed my field and a narrower reservation helps the seal. I support a rule that records closed reservations per version without new comments (P-13, PO decision).
+
+### Review of new items
+
+- **#1318 (`csa`, docs), STR-39: continuity at a home under the broadcast.** From the patient-safety side:
+  - Under the broadcast, the person on a home shift can differ every time. The safety barrier for an unfamiliar person is the safety information and handover the home gives (Annex B §2 row 1, CR-182, H-03, H-33: OPEN). Team choice is not that barrier. I support STR-39 (a) and (b) as measurement only.
+  - STR-39 (c) (a continuity preference set by the client) can create a new cause of H-40: a preference that holds the offer back, or waits for the preferred team, lets the shift reach the coverage time uncovered. That is **CGR-227**.
+  - STR-35 to STR-38 are outside my field (money, Annex A). No figure there is a clinical rule.
+- **#1317 (`lca`, D-44 Q-44a, Q-44e):** legal; no care rule, no clinical claim. Not reviewed further.
+- **Brief BK 21:39:** (2) and (3) carry CGR-224 and CGR-225 as I asked, with positive and negative tests; (4) carries CGR-226. The substance of the next step under «Nicht gedeckt» is in my 21:30 section, CGR-226 (b). `uxa` still needs to write it into template §4 (the row still reads UNKNOWN). The zero-state row («whether the exception is raised at once: `cra`, UNKNOWN») is answered by CGR-225 (a): yes, at once.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-227** | #1318 `STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-15 §3 (1), STR-39 (c); brief BK 15:00 (1), (2); H-40 | advisory; S2 (before any continuity preference is built) | A client-set continuity preference on a shift order (proposal: «zuerst sichtbar für Teams, die bei uns schon gearbeitet haben», for a few minutes) shows the offer to the preferred teams first and makes the others wait. That brings back the exclusive window that FE-078 part 2 removed, and it lets a shift reach the latest coverage time uncovered. Continuity does not replace the handover barrier (CR-182). | STR-39 (c) text on PR #1318 head `2733167`; FE-078 part 2 (every eligible team sees the offer at once); BK 15:00 (1) (ranking only orders) | (a) A preference, if built, only changes the order in Engine 2. It never removes an eligible team, never delays the offer to any team and never moves `latest_cover_at`. (b) It is never a hard check and never shows the client a team count. (c) Test when built: an order with a preferred team that does not take it still reaches every eligible team at the same moment as without the preference; the Operations exception time is identical with and without it. |
+
+### Findings closed with evidence
+
+- None closed outright (no fix merged).
+- **CGR-221, Annex B part met** in Blueprint 3.2.18 (lines 1231, 1233, 1234 on `5db36ff`). The Handbook part stays.
+- Unchanged from 21:30: CGR-220 closes on merge of #1295 `b0b0da4`; CGR-216, CGR-218 and CGR-219 close on merge of #1273 `c2ffef1`.
+
+### Status of open findings
+
+- **CGR-211, CGR-222 (c), CGR-223 (a) to (c), CGR-224, CGR-225:** BK-c acceptance conditions, placed in brief BK (BK-c not active).
+- **CGR-226:** placed (BK 21:39 (4)); words with `uxa`; substance given 21:30.
+- **CGR-221:** Handbook part only.
+- **CGR-204 (b), (c), CGR-205, CGR-207 to CGR-210, CGR-212, CGR-213 (b), CGR-215 (b), (c):** unchanged.
+
+### Gate status
+
+- Heads unchanged since 21:30. These lines stand: `cra-gate: #1273 c2ffef1 clear`, `cra-gate: #1291 6abf9f8 clear`, `cra-gate: #1295 b0b0da4 clear`, `cra-gate: #1276 1600588 clear` (17:26). All «Simulation, synthetic data».
+- **BK-b acceptance:** clinically possible once #1273 and #1295 are merged, on a named integrated commit with `ci` green and `ci-repeat` 10/10 read from the job logs. The record notes offer rows written before BK-b2 (PO 13:39 (6)). Gate «Simulation, synthetic data». Not released for real persons and data.
+- #1318 and #1317 are docs PRs of other roles. They need no `cra` gate line, and I give none.
+
+### Decisions requested
+
+- **`po`:** carry my renewed sign-off into chapter 13 word for word; place CGR-227 next to `csa` P-12 (STR-39 (c)) before any continuity preference reaches a brief.
+- **`eng`:** Handbook V2.3 broadcast text (CGR-221 rest, with V-1 and `lca` S-3).
+- **`uxa`:** template §4: the CGR-226 (b) next-step line, and the zero-state row answered by CGR-225 (a).
+- **`csa`:** STR-39 (c) with CGR-227 as its safety condition.
+- **Clinical Owner:** K-8, the household fallback, CR-180 and «D» on a shift order: still UNKNOWN.
+- Earlier asks are unchanged.
+
+---
+
+## 2026-11-14 21:30 CET: **FE-079 sign-off renewed on Blueprint 3.2.17, now with one reservation: CGR-221 (rest).** The document parts of CGR-222 and CGR-223 were transferred in 3.2.16; what remains of them are BK-c build conditions, not reservations. **Gates (all «Simulation, synthetic data»): #1273 `c2ffef1` clear, #1291 `6abf9f8` clear, #1295 `b0b0da4` clear (CGR-220 met on the PR, closes on merge), #1305 `5928b13` clear (docs; advisory CGR-226).** #1270 merged on the head I cleared. **BK-c ADR draft (#1298) reviewed:** it carries CGR-211, CGR-222 and CGR-223 correctly. It has two gaps. **CGR-224 (advisory, S1 before real clients):** nothing stops the same named person from being taken onto two overlapping shift orders. **CGR-225 (advisory, S2):** Operations hears of a shift that no team can take only at the coverage time, not at once. **CGR-226 (advisory, S2):** in the `uxa` template, «Pflegekraft benannt» can claim more than was checked, and the next-step words under «Nicht gedeckt» need content.
+
+**Scope:** `recovery/main` @ `ed8bcf9`, compared with my 17:26 section at `db2b298`. Code on `recovery/main`: **#1270 merged** as `a076731`; `git diff 1cb6e09 a076731 -- src supabase tests e2e` is empty, so the merged code is the head I cleared at 13:30. On `a076731` the push `ci` jobs succeeded and a later duplicate run was cancelled. On `ed8bcf9`, `ci` is 4/4 `success` (read from the API). Docs merged since 17:26: Blueprint 3.2.16 and 3.2.17; the BK-c ADR draft `docs/engineering/probes/BK-c_ADR_DRAFT.md` (#1298); PO amendments 17:40 and 20:40 in `briefs/BK.md`; the role reviews of `uxa`, `eng`, `aia` and `lca`. Open PRs in scope: #1273 `c2ffef1`, #1291 `6abf9f8`, #1295 `b0b0da4`, #1276 `1600588` (unchanged), #1305 `5928b13` (new, docs), #1307 (`eng` journal only). #1087, #1084 and #3 are out of scope and unchanged.
+
+I read: the Blueprint diff `db2b298..ed8bcf9` whole (Annex B, §5.1, §6.2, §6.4, chapter 13, the version rows 3.2.16 and 3.2.17); the BK-c ADR draft whole; `briefs/BK.md` 17:40 and 20:40; migration 0134 and pgTAP 140 whole (#1295); `BK5_OFFER_TEMPLATE.md` and the brief and wireframe diffs on #1305; `order_member_step` in 0132 again (availability, lines 166-176). For #1273 and #1291 I compared the PRs' own diffs: `git diff 879f97c 1dde2d8` equals `git diff ed8bcf9 c2ffef1`, and #1291 against its base equals the previous diff, over `src supabase tests e2e`. Both new heads only merge `recovery/main` in. **CI (read, not run):** `c2ffef1` 4/4 `success` + `sync`; its `db` job 132573269319 shows 135 to 139 «ok». `6abf9f8` 4/4 `success`. `b0b0da4` 4/4 `success`; its `db` job 132573358736 shows «140_bk_b_cgr220_teams_audit_by_change … ok, Files=138, Tests=4910». `git merge-tree c2ffef1 b0b0da4` conflicts only in `docs/engineering/DECISIONS.md`. The migrations do not overlap (0132 and 0133 do not touch `teams` or `set_team_reach`).
+
+### FE-079 sign-off, renewed (issue #1279)
+
+Read on `recovery/main` `ed8bcf9`, Blueprint 3.2.17, Handbook V2.2. I read the 3.2.16 and 3.2.17 changes whole. My whole read of both documents was at 17:26 (3.2.15); the version rows record no other change to scope, block order, guarantees, matrix or gates. 3.2.16 changed my field (Annex B text, G9 sub-point), so I renew:
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter dem Vorbehalt CGR-221 (Rest) (`cra` 2026-11-14 21:30, gelesen auf Blueprint 3.2.17)**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **Removed from the reservation:**
+  - **CGR-222:** the document contradiction is resolved. §6.2 (Blueprint line 439), §6.4 (line 470) and §5.1 (line 327) now agree: `eng` sets a simulation default (PROPOSED), the Clinical Owner sets the value before real data (K-8), and «nicht gedeckt» comes **before** the start.
+  - **CGR-223:** the G9 sub-point (line 1120) and the transition «Gedeckt → Rundruf» (line 431) are in.
+  - What remains open of both (CGR-222 (c), CGR-223 (a) to (c)) is a BK-c acceptance condition (17:40 (2)). It is no longer a deviation in the text.
+- **CGR-221 (rest), still a reservation:**
+  - Annex B §2 row «3 Engine 1», first line (1166): it says «heute nur Etikett» for every path.
+  - Row «PLZ» (1168): it says «PLZ PLANNED», but the distance filter has been in the code since `9b691af`.
+  - Handbook §4.0 «Kaskade mit Zeitfenster», §4 E1 «Kaskade», §4 E5 and the ERD `matching_offer_steps`: they still describe the cascade (with `eng` V-1 and `lca` S-3, planned for Handbook V2.3).
+  - Replacement text for the two Annex B rows is below.
+- **Unchanged:** the 20 guarantees stand as written. Every QAM v0.2 cell stays PROPOSED.
+- **Honesty:** this confirms the working basis. It is **not a clinical approval** (D-27, D-43, G-1: no Clinical Owner is named), not legal advice, and it changes no PROPOSED status. I ran no test.
+- **Annex C:** the row «Auftraggeber … «Angebot bei Team 1 von 4»» (line 441) is stale after 20:40 (3). That is `lca`'s field; I note it only.
+
+**Replacement text for Annex B §2 (my role text; the PO transfers it, versioned):**
+- Row «3 Engine 1», «Angebot an ein Team, in dem niemand die Tätigkeiten ausführen darf», status column: «Auftragspfad: Distanz IMPLEMENTED (`M/130`, `9b691af`, nicht abgenommen); Stufe, Tätigkeit im Kontext des Auftraggebers und Verfügbarkeit je Mitglied PLANNED (#1273, CR-220, CR-222, CR-223). Fallpfad: nur Etikett (`M/017:308`, CGR-197).»
+- Row «3 Engine 1», «Team erreicht den Ort nicht», status column: «Region IMPLEMENTED (B1.1-1); PLZ-Distanz für Aufträge IMPLEMENTED (`M/130`, `9b691af`, nicht abgenommen; pgTAP 136); Teamreichweite durch das Team IMPLEMENTED (`M/131`, `a076731`).»
+- Row «3 Engine 1», «Person ist doppelt eingeplant oder abwesend», barrier column, add: «Auf dem Auftragspfad zählt eine übernommene, überlappende Schicht derselben Person als belegt (CGR-224, PLANNED BK-c).»
+
+### #1295 (CGR-220, head `b0b0da4`)
+
+- **Code (0134):** the `audit_teams` trigger condition no longer reads a session value. It skips a row only when nothing but `max_distance_km` and `reach_changed_at` changed and at least one of them did. `set_team_reach` writes its own audit row with the old and new values (0130, AUT-117 (d)). A mixed update and an update that changes nothing still write the trigger row. `max_distance_km` joins the audited columns (class `code`). `set_team_reach` no longer makes an empty update. The patch is anchored: it is found exactly once, or the migration raises.
+- **Tests (pgTAP 140, 12 assertions, red first on 0130):**
+  - §1: the trigger definition matches no `current_setting` or `navora.`.
+  - §2: with `navora.command = 'set_team_reach'` set, a direct `priority` update still writes exactly one row carrying `priority`. This is the test I asked for at 13:30.
+  - §3: a mixed update writes one row with both keys.
+  - §4: `set_team_reach` writes exactly one row per change, also for a postcode-only change.
+  - §5: `authenticated` has no `UPDATE` privilege on the reach columns.
+  - §6: a no-change update writes one row.
+- **Residual (ADR-197):** a privileged database role that writes only the reach columns gets no trigger row. Such a role can disable any trigger. Acceptable for the simulation gate. No care rule.
+- **CGR-220 is met on the PR and closes on merge.**
+- `cra-gate: #1295 b0b0da4 clear`.
+
+### #1273 (`c2ffef1`) and #1291 (`6abf9f8`)
+
+- Both new heads only merge `recovery/main` `ed8bcf9` in, which brings in #1270. Each PR's own diff over code and tests is byte-identical to the head I cleared at 17:26 (`1dde2d8`, `a036e59`).
+- The position from 17:26 stands: CGR-216, CGR-218 and CGR-219 are met; ADR-196 (3) is acceptable only for the `household` plain table and the simulation.
+- `cra-gate: #1273 c2ffef1 clear`. `cra-gate: #1291 6abf9f8 clear`. On merge of #1273, CGR-216, CGR-218 and CGR-219 close and CGR-204 (a) is met.
+- #1276 `1600588`: unchanged, and its base #1270 is merged. The 17:26 line stands.
+
+### BK-c ADR draft (`docs/engineering/probes/BK-c_ADR_DRAFT.md`, merged with #1298; docs only, BK-c not active)
+
+This answers my 17:26 asks to `eng`. What it gets right:
+- One live take per order: a lock on the order, then a fresh `order_member_step = 4` at the tap, plus a partial unique index as backstop, plus a two-session script run in `db` and `ci-repeat` (CGR-211).
+- The cover state is derived at read time. `covered` re-runs the member check, so a missed release path shows «nicht mehr gedeckt» instead of a false «gedeckt».
+- Release and a fresh round of screening for every team when the named member drops out (CGR-223 (a) to (c)).
+- `latest_cover_at < starts_at`; the short-notice case raises the state at once; pinned-clock tests (CGR-222 (b), (c)).
+- 4 h as the simulation default, PROPOSED, with the Clinical Owner before real data (CR-224, K-8).
+- Backfill of orders confirmed before BK-c (CGR-215 (b)).
+- My conditions (i) to (iii) for H-BK-15:39.
+
+I set no value and do not judge whether 4 h is clinically adequate for a ward or a household: UNKNOWN, Clinical Owner. Two gaps:
+
+1. **CGR-224:** the same person on two overlapping shift orders. `order_member_step` counts as busy only her absences and her open visits (0132:166-176). The draft's take (§3.2 step 4) relies on that function, and the lock is per order. So member M can be named on order O1 by team A and on an overlapping order O2 by team B (she can be a member of both), or twice in two sessions at the same moment. Both orders show «gedeckt», and one of the two is not covered. Annex B §2 row «doppelt eingeplant» (1169) already requires overlap across teams (PLAN3-14, `M/110`).
+2. **CGR-225:** in the draft (§3.3), Operations gets the exception only «at or after `latest_cover_at`». The state `not_covered` comes earlier, when no team is eligible at confirmation or every team has declined, and so do a release whose new round has no eligible team and the `uxa` zero state. In those cases nobody can take the order, so waiting until the coverage time only takes time away from the client and Operations. This also answers the `uxa` template's open point (§4, «whether the exception is raised at once: `cra`, UNKNOWN»): yes, at once.
+
+### #1305 (`uxa`, single BK-5 template, head `5928b13`; docs, BK-c not active)
+
+Read against my conditions (i) to (iii), CGR-222 and CGR-223:
+- The card is removed only after the commit. A failed take returns as an ordinary open offer.
+- «Bereits übernommen» stores nothing. «Nicht mehr gedeckt» names no reason.
+- The client states run «Noch nicht gedeckt» → «Nicht gedeckt» at the coverage time, before the start. There are separate states for «every eligible team declined», «no team eligible» and «started».
+- No team count reaches the client. No countdown appears on the team card.
+
+All of that is right from the patient-safety side. Two points (CGR-226, advisory):
+- (a) **«Gedeckt · Pflegekraft benannt»:** «Pflegekraft» can be read as a qualified nurse, but the named person may hold the grade AGS or FaGe. The status must not claim more than was checked. It should name the person as checked for the ordered grade and activities. The words are for `uxa`; for example the ordered grade, or «Person benannt und geprüft».
+- (b) **Next step under «Nicht gedeckt» (template §4, «substance from `cra`»):**
+  - The state must say plainly that no team is coming through NAVORA for this shift, and that the client's own fallback applies from now on. It must never sound as if someone may still come. NAVORA promises no cover (Annex C, item 12).
+  - For a `home`: its own escalation, as in Annex B §4.1 (F5 of the home, QAM §7.3 NH-EXT, PROPOSED).
+  - For a `household`: who the fallback is, is UNKNOWN (Clinical Owner with `lca`). Until then the state names no medical step and points to the client's own plan and to Operations.
+  - After the start, the order stays in the Operations exception until Operations closes it.
+  - I give no wording.
+
+`cra-gate: #1305 5928b13 clear` (docs; CGR-226 is advisory and is due before the BK-c card is built).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-224** | BK-c ADR draft §3.2 (take), §3.4 (release triggers); `private.order_member_step` (#1273, 0132); Annex B §2 «doppelt eingeplant»; H-10, H-17 | advisory; S1 before real clients (BK-c gate) | The availability step counts only absences and open visits. Under the broadcast, the same named member can be taken onto two overlapping shift orders, by two of her teams or by two sessions at once. The per-order lock and the per-order unique index do not serialise takes of different orders. Both orders read «gedeckt»; one shift has nobody. The reverse also holds. In the draft, a visit planned later for her overlapping a live take releases the take (§3.4, last trigger), and this can happen silently close to the start. | 0132:166-176 (availability: `member_absences`, `care_visits` only); draft §3.2 step 1 (lock on `partner_requests` row of this order), §3.1 (unique `on (order_id) where released_at is null`), §3.4 trigger list; Blueprint 3.2.17 line 1169 | (a) `order_member_step` step 3 also counts every live take (`released_at is null`) of the member on another order overlapping `[starts_at, ends_at)`, in any team. (b) The database backstop is per member, not only per order: an exclusion constraint on `order_takes (member_id, tstzrange)` for live takes, or a lock on the member inside `take_order` and `change_take_member`. (c) A team action that would create an overlap with a live take (planning or covering a visit, a second take) is refused, or it names the shift it would uncover and needs an explicit choice. It never releases the take silently. An absence still releases at once (it cannot be refused). (d) pgTAP: M taken on O1 by team A → a take of overlapping O2 with M by team B is refused with step 3. A two-session script: two orders, same member, two takes at once → exactly one live take. Planning an overlapping visit for M is refused or returns the named conflict, and O1 stays «gedeckt» unless the choice is made. |
+| **CGR-225** | BK-c ADR draft §3.3 (Operations exception); `BK5_OFFER_TEMPLATE.md` §4 zero state; CGR-222; H-40 | advisory; S2 (S1 before real clients) | The Operations exception `order_not_covered` is raised only at or after `latest_cover_at`. When no team is eligible at confirmation, when every team of the round has declined, or when a release opens a round with no eligible team, the order cannot be taken. Even so, Operations hears of it only at the coverage time, possibly hours later. | draft §3.3: «raised when the state is `not_covered` or `no_longer_covered` at or after `latest_cover_at`»; table row `not_covered` («… or every team of the current round declined or is excluded»); template §4 «whether the exception is raised at once: `cra`, UNKNOWN» | (a) The exception is raised **at once** when the current round has no team left that can take the order: zero eligible at confirmation, all declined, or a new round with zero eligible. Otherwise it is raised at `latest_cover_at`. (b) pgTAP with a pinned clock: an order with no eligible team, confirmed 10 h before the start with a 4 h lead, has `not_covered` and the exception at confirm. The last of two teams declining at 9 h raises it then. A release whose new round is empty raises it at the release. |
+| **CGR-226** | #1305 `BK5_OFFER_TEMPLATE.md` §4 (client status) | advisory; S2 (before the BK-c card) | (a) «Gedeckt · Pflegekraft benannt» can claim a higher qualification than the one checked (AGS, FaGe, HF). (b) The next step under «Nicht gedeckt» has no content yet. Without it, a client may read «nicht gedeckt» as «still being worked on». | template §4 rows «Taken with a named, checked person» and «Next step under «Nicht gedeckt»: UNKNOWN, substance from `cra`»; Annex B §4.1; Annex C item 12 | (a) The covered status names only what was checked (the ordered grade, or «benannt und geprüft»), never a grade word above it. (b) Every «Nicht gedeckt» state says that no team comes through NAVORA and that the client's own fallback applies: for a `home`, its escalation (Annex B §4.1, PROPOSED); for a `household`, UNKNOWN (Clinical Owner, `lca`), with no medical advice. Words `uxa`. Playwright: on each «Nicht gedeckt» state the next-step line is present, and no covered state contains «Pflegekraft» unless the ordered grade is that grade. |
+
+### Findings closed with evidence
+
+- None closed outright this run (no PR merged with a fix).
+- **On merge of #1295 `b0b0da4`, CGR-220 closes:** 0134 trigger condition; pgTAP 140 §1, §2; `db` job 132573358736 «140 … ok».
+- **On merge of #1273 `c2ffef1`:** CGR-216, CGR-218 and CGR-219 close, and CGR-204 (a) is met (evidence as at 17:26; `db` job 132573269319 «138 … ok», «139 … ok»).
+- **CGR-222, document part met in 3.2.16** (lines 327, 439, 470). Part (c) stays open as a BK-c condition.
+- **CGR-223, part (d) met in 3.2.16** (line 431). Parts (a) to (c) stay open as BK-c conditions.
+- **CGR-221, Annex B header, G1, rows 5 and 6 and §4.1 met in 3.2.16** (lines 1059, 1092, 1172, 1173, §4.1). The rest is above.
+
+### Status of open findings
+
+- **CGR-211, CGR-222 (c), CGR-223 (a)-(c), CGR-224, CGR-225:** BK-c acceptance conditions (BK-c not active).
+- **CGR-221:** the rest, as above.
+- **CGR-204 (b), (c), CGR-207, CGR-215 (b), (c):** BK-c. The draft covers CGR-215 (b) in §3.6 and CGR-215 (c) in §3.3.
+- **CGR-205, CGR-208, CGR-209, CGR-210, CGR-212, CGR-213 (b):** unchanged.
+
+### Gate status
+
+- `cra-gate: #1273 c2ffef1 clear`, «Simulation, synthetic data».
+- `cra-gate: #1291 6abf9f8 clear`, «Simulation, synthetic data».
+- `cra-gate: #1295 b0b0da4 clear`, «Simulation, synthetic data».
+- `cra-gate: #1305 5928b13 clear` (docs).
+- #1276 `1600588`: the 17:26 line stands.
+- **BK-b acceptance:** clinically possible once #1273 and #1295 are merged, on a named integrated commit with `ci` green and `ci-repeat` 10/10 read from the job logs. The record must contain the note on offer rows written before BK-b2 (PO 13:39 (6)). Gate «Simulation, synthetic data». Not released for real persons and data.
+
+### Decisions requested
+
+- **`po`:**
+  - Transfer the Annex B §2 replacement text above (CGR-221 rest) with a version line, and carry my renewed sign-off into chapter 13 word for word.
+  - Place CGR-224 and CGR-225 as BK-c acceptance conditions next to CGR-211, CGR-222 (c) and CGR-223.
+  - Place CGR-226 with the BK-5 template when you place #1305.
+- **`eng`:** CGR-224 (a) to (d) and CGR-225 (a), (b) in the BK-c ADR when BK-c is active. No code now.
+- **`uxa`:** CGR-226 (a), (b) words.
+- **`lca`:** the fallback words for a `household` under «Nicht gedeckt» (with the Clinical Owner).
+- **Clinical Owner:**
+  - K-8 (latest coverage time per client kind; `eng` simulation default 4 h, PROPOSED).
+  - The household fallback.
+  - CR-180, and the meaning of «D» on a shift order: still UNKNOWN.
+- Earlier asks are unchanged.
+
+---
+
 ## 2026-11-14 17:26 CET: **FE-079 sign-off given, with reservations CGR-221, CGR-222, CGR-223.** **#1273 (BK-b2, head `1dde2d8`): clear for the gate «Simulation, synthetic data».** CGR-218 and CGR-219 are met on the PR: migration 0133 reads every matrix cell through the client kind (`home` as NH-EXT, `hospital_ward` as HOSP-IN, `household` the plain table), and confirm and member step share one function. A pgTAP grid over every client kind × grade × activity × required finds 0 mismatches. **#1291 (`a036e59`), #1276 (`1600588`): clear** (presentation only, no care rule). **Broadcast review (FE-078 part 2, PO 15:00 (6)):** CGR-211 is now active (FE-078 is recorded). There are three new advisory findings. **CGR-221:** Blueprint and Handbook text in my field is stale after FE-078 and #1268. **CGR-222:** the Blueprint contradicts itself on who sets the coverage deadline and on when the client is told «nicht gedeckt». **CGR-223:** a taken shift whose named person drops out before the start must leave «gedeckt» at once and go back to the broadcast.
 
 **Scope:** `recovery/main` @ `db2b298` (since my 13:30 section at `116f0b3`). Code on `recovery/main`: **#1268 merged** as `9b691af`; `git diff f3b2a5c 9b691af -- src supabase tests e2e` is empty, so the merged code is the head I cleared. Push `ci` on `9b691af` was cancelled; push `ci` on `95678c5` and on `db2b298` is 4/4 `success` (conclusions read from the API). Everything else since then is docs: PO cycles 13:39 to 16:39, FE-078 parts 2 and 3 (v29), FE-079, Blueprint 3.2.11 to 3.2.15, the `eng`, `uxa`, `lca` and `aia` journals and reviews. Open PRs in scope: #1270 (`1cb6e09`, out of draft, unchanged), #1273 (`1dde2d8`, draft, base `recovery/main`), #1276 (`1600588`, on #1270), #1291 (`a036e59`, draft, on #1273). #1087, #1084 and #3 are out of scope and unchanged.

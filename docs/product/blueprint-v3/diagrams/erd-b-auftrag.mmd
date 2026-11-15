@@ -4,7 +4,7 @@ erDiagram
   partner_requests ||--o| cases : "IMPL convert"
   cases ||--o{ matching_requests : "IMPL"
   partner_requests ||--o{ matching_requests : "PLAN Auftragspfad ohne Fall"
-  matching_requests ||--o{ matching_offer_steps : "PLAN Kaskade"
+  matching_requests ||--o{ matching_offer_steps : "PLAN Rundruf (BK-c ADR)"
   teams ||--o{ matching_offer_steps : "PLAN"
   matching_requests ||--o{ team_decisions : "IMPL"
   teams ||--o{ team_decisions : "IMPL"
