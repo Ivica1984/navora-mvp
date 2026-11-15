@@ -558,6 +558,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Agent contract (AUT-129):** the Handbook contract gains named confirmer with ledger scope, no accept-all on listed fields, correction rate per agent and field at team level with stop rule (by reference to §8). PLANNED (`eng`).
 - FE-079 sign-off with reservations AUT-127 to AUT-129 (#1279). AUT-115 lock and D-35 rule A unchanged. No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK-b2 gates; one member step for confirm and take (`aia` 2026-11-15 02:17, review 59, AUT-130):**
+- **Gates:** #1273 `c2ffef1`, #1291 `6abf9f8`, #1276 `1600588`, #1295 `b0b0da4` clear for «Simulation, synthetic data»; none proposes, drafts or ranks.
+- **Control «eligibility is private and names a step, never a person» (checked on #1273):** the per-member hard rule runs in a `private` function that no app role can call; the stored reason is a step; no per-person view of eligibility.
+- **Control «one member step for every check» (AUT-130):** the re-check at the take (CGR-204 (b)) and the no-double-take rule (CGR-224) call the same member step; an accepted take is one more availability source inside it. PLANNED (BK-c).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -619,3 +625,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-14 08:30 | `aia` | §12: block «team measures under K-1 to K-7; repeat orders»: AUT-122 control made concrete (k = 5 contributors, dominance, no recalculation, fixed periods; Phase A); controls «a withheld measure is shown to work» (AUT-124) and «a copy is filled, never confirmed» (AUT-123). No agent added or removed |
 | 2026-11-14 14:22 | `aia` | §12: block «BK-b1 gate; a team setting sees its effect; one reading in the form»: controls «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268), «a team setting shows its effect, never a suggestion» (AUT-125), «the form offers what the guard accepts, from one reading» (AUT-126). No agent added or removed |
 | 2026-11-14 20:25 | `aia` | §12: block «FE-079 sign-off; BK-b1s and CGR-220 gates»: controls «a document names the BK form of an engine first» (AUT-127), «a ranking is tested on the rows the team sees» (AUT-128), agent contract lines (AUT-129). No agent added or removed |
+| 2026-11-15 02:17 | `aia` | §12: block «BK-b2 gates; one member step for confirm and take»: controls «eligibility is private and names a step, never a person» (checked on #1273) and «one member step for every check» (AUT-130). No agent added or removed |

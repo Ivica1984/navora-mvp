@@ -31,6 +31,46 @@
 
 ---
 
+## 2026-11-15 02:17 CET · aia review 59: `aia` gate lines on the four BK-b drafts: #1273 `c2ffef1`, #1291 `6abf9f8`, #1276 `1600588`, #1295 `b0b0da4`, all **clear** for «Simulation, synthetic data»; Engine 1 per member stays a private, deterministic hard rule that names a step, never a person; one advisory finding (AUT-130, low: the take re-check reuses the same member step); the PO's proposals «gate line on the first green head» and the leaner sign-off cadence (P-13) are supported
+
+**Read:** `recovery/main` at `35d764a` (since review 58 at `879f97c`): journals 2040-po to 0140-po (2040-po, 2139-po, 2240-po, 2339-po, 0039-po, 0140-po); open PRs #1273, #1291, #1276, #1295 (diffs `merge-base..head`, migrations 0132, 0133, 0134 headers and bodies, `orders/rules.ts`, `orders/commands.ts`, `order-form.tsx`, `reach/rules.ts`, `reach-client.tsx`; check runs read through the API); Blueprint 3.2.22 §6.3 and chapter 13 (my reservation rows). Review 58 merged (#1302, `500946c`); no `aia/…` PR open.
+
+**Measured versus estimated:** nothing here is a measurement of care work. Code facts are readings of the named diffs; I ran no NAVORA test. CI states: check runs on each head read through the API (all jobs `success` on `c2ffef1`, `6abf9f8`, `1600588`, `b0b0da4`). **Active block (README rule 12):** BK, slice BK-b; the four gate lines serve the next merges in the PO's order (#1273, #1291, #1295, #1276). I ask for no merge outside it. **Contradictions (README rule 10):** none new with `FOUNDER_DECISIONS.md`. **Task adjustment (README rule 11):** the PO's runs 22:40 to 01:40 name my gate line on #1273 `c2ffef1` as one of two open conditions for the BK-b stack; gate lines come first, for all four heads in one run so none waits on a later `aia` run. Bottleneck map v4 stays due 2026-11-17. FE-079: my sign-off (20:25, reservations AUT-127 to AUT-129) is recorded in Blueprint chapter 13 (3.2.17); the Master-Paket is sealed (3.2.22). No change in my field since 3.2.16, so no renewal is due (FE-079 «again only if a later Blueprint version changes your field»). The reservations stay open: §6.3 rows 1 and 7 still name «KI erkennt Felder» and «Diktat → KI-Berichtsentwurf» without the BK form (AUT-127); the order-path team view is still PLANNED (AUT-128); the Handbook contract lines are still missing (AUT-129).
+
+### 1 Gate lines (posted on the PRs)
+
+- **`aia-gate: #1273 c2ffef1 clear (Simulation, synthetic data)`.** (a) `private.order_member_step` is a deterministic hard rule: level verified at the slot end, the cell's evidence, absences in any team, open visits; members are never combined; execute revoked from `public`/`anon`/`authenticated`, so no app role reads who is eligible; the `order_exclusions` reason names a step, never a person (P-5); no per-person view. (b) One reading (CGR-219, AUT-126): confirm and member step share `qual_activity_orderable`; the form gets codes and the reading from the database and holds no matrix copy. A required «D» is refused at confirm, so no unmatchable order is broadcast to every team. (c) Fail-closed: missing cell or open question reads «?»; outside a simulation no team passes step 1; QAM-0.2 and CR-180 stay PROPOSED, no clinical rule set. (d) No score, ranking, `kind = 'ai'` or external call.
+- **`aia-gate: #1291 6abf9f8 clear (Simulation, synthetic data)`.** Own diff against `c2ffef1` is client-side: a changed level drops the stale refusal (`orderProblemsAfterChange`), the refusal names the level it was checked against, the next preview re-checks on the server. No matrix copy, no AI.
+- **`aia-gate: #1276 1600588 clear (Simulation, synthetic data)`.** Two static lines on the team's own reach screen; the distance rule line matches 0130 (`min`, `least`). No new rule, no suggested value.
+- **`aia-gate: #1295 b0b0da4 clear (Simulation, synthetic data)`.** Same changed lines as `2614ccb` (cleared in review 58), compared line by line; basis of review 58 holds.
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-130 | Engine 1 at the take (BK-c), team | **PLANNED gap, not a defect.** #1273 screens each member once at confirmation (0132 comment: «the re-check at the take and at shift start is BK-c / BK-5a», CGR-204 (b)); availability reads `member_absences` and open `care_visits` only. BK-c adds a take record and the no-double-take rule (CGR-224, PO 21:39). If BK-c writes a second eligibility check at the take, the two can drift, as the confirm check and member step did before CGR-219 | **Rule, one function:** the take re-check calls the same `private.order_member_step`; an accepted take of the same person becomes one more availability source inside it (overlap with `[start, end)`), so CGR-224 and CGR-204 (b) are one code path. No new step for the team: the tap either succeeds or names the step that failed | L | Stage 0; gate: PO (BK-c brief), `eng` (ADR); `cra` reads the availability sources | One pgTAP assertion in BK-c: a member with an accepted overlapping take returns step 3 from `order_member_step`, and the take refuses with the same reason | low | — |
+
+### 3 Updated, supported, closed
+
+- **PO proposal 22:40 (gate line on the first green head in the next own run, explicit «no finding»): supported.** Evidence against myself: `cra` cleared `c2ffef1` at 21:30; my line follows at 02:17, about five hours later, because `aia` runs every 6 h. Leaner at equal safety: a gate line per head, all open heads of the active slice in one run (done here), and «clear, no finding» stated explicitly. No new role, no new approval.
+- **PO P-13 / `csa` STR-41 (sign-off renewal only when a patch changes a role's field or at a minor version): supported.** Six sign-offs and fifteen comments in eleven hours added no care-time gain. The founder decides; until then FE-079 practice holds.
+- **PO H-BK-01:40 («Ihr Team war hier am …» on the offer): supported under three conditions, as a hypothesis.** (a) Only facts from the team's own visits, no other team's data, no team count (`lca` D-44 (2)). (b) The line orders nothing and removes no team; it is shown text, not a rank input, until a BK-3/BK-4 ranking rule names it (AUT-128 test applies). (c) Measured first with STR-39 (a) (rank and prior service per take, team level) before any client preference is designed. This removes a coordination step (a client asking for «the same team») without a new field.
+- **AUT-128:** the PO placed it as a BK-c criterion (`briefs/BK.md` amendment 20:40 (2)) and split the §6.3 step 4 status line (3.2.18). The reservation stays open until the team view and the test exist.
+- **AUT-125, AUT-126:** #1273 respects AUT-126 (one reading from the server); AUT-125 stays a BK-g item.
+- **AI readiness (§8 checklist):** none of the four PRs proposes, drafts or ranks; the checklist does not apply. No `kind = 'ai'` added.
+- **Unchanged:** AUT-115 (lock stays), AUT-118, AUT-119, AUT-123, AUT-124, AUT-127, AUT-129.
+
+### 4 Stage tracking
+
+Stage 0 only (D-35 rule A). Stage 1 entry conditions unchanged since review 55: no provider decision (owner), no proposer in BK, the correction-rate view not built (AUT-129).
+
+### 5 Issues
+
+- None opened (no `high` finding). Comments: gate lines on #1273, #1291, #1276, #1295.
+- **Bottleneck map v4:** due 2026-11-17. Top bottleneck unchanged (estimate, not measured): the order path frees no direct care time until a team can see and take an order (BK-5, AUT-128).
+
+---
+
 ## 2026-11-14 20:25 CET · aia review 58: `aia` gate on BK-b1s (#1270, head `1cb6e09`): **clear**; `aia` gate on CGR-220 (#1295, head `2614ccb`): **clear** (the audit control is keyed on what changed, never on a session value); **FE-079 sign-off given with reservations AUT-127, AUT-128, AUT-129** (Blueprint 3.2.16, Handbook V2.2); the AI lock (AUT-115) and D-35 rule A unchanged
 
 **Read:** `recovery/main` at `879f97c` (since review 57 at `650d759`): journals 1440-po to 1940-po (incl. 1512-eng, 1551-uxa, 1625-lca, 1726-cra, 1914-eng); issue #1279 (six comments up to `eng` 20:14); open PRs #1270, #1295 (diffs `merge-base..head`, check runs read through the API), #1300, #1301; Blueprint V3.2 (3.2.16) §3, §5.2, §5.3, §6.2 to §6.4, §13, Annex B §5; Handbook V2.2 §4.0, Engine 1 to Engine 3, §11.1 S-2/S-3, §11.2 E2/E3 rows; a search of `src` for a model or speech call. Review 57 merged (#1280); no `aia/…` PR open.
