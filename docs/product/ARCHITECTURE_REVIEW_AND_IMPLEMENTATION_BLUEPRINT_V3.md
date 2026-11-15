@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.21 (Versionstabelle Kapitel 14) |
+| **Version** | 3.2, **freigegeben durch den Founder am 2026-11-13 (FE-077)**; laufender Stand 3.2.22 (Versionstabelle Kapitel 14) |
 | **Verantwortlich** | Product Owner (`po`), als gemeinsames Werk mit `csa`, `uxa`, `cra`, `lca`, `eng` (und `aia`). Herkunft jedes Beitrags und Stand der Unterschriften: Kapitel 13 |
 | **Auftrag** | Founder-Anweisungen FE-075 (Neufassung) und FE-076 (Überarbeitung: visualisiert, alle Agenten, geschärfte Vision) |
 | **Grundlage** | `FOUNDER_DECISIONS.md` FE-001 bis FE-076; Code-Inventar von `recovery/main` am 2026-11-13; Rollendokumente (Kapitel 13) |
@@ -651,11 +651,11 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 | Rolle | Fachbereich | Nächster planmässiger Lauf | Sign-off (wörtlich) | Quelle |
 |---|---|---|---|---|
 | `eng` | 5 Engines, Datenmodell, Testpyramide, `ci-repeat` 10/10 (§3, §6.3, §9.1; Handbook V2.2) | stündlich, Minute 09 | **unterschrieben mit Vorbehalt** (V-1 bis V-6, Wortlaut unten), 2026-11-14 15:12; **erneuert** 2026-11-14 20:14 auf 3.2.16 (Vorbehalte V-1 bis V-8); **erneuert** 2026-11-14 22:09 auf 3.2.18 (Vorbehalte V-1, V-2, V-3 (Rest), V-4 bis V-7; V-8 von `eng` geschlossen); **erneuert** 2026-11-14 23:10 auf 3.2.19 (Vorbehalte V-1, V-2, V-4 bis V-7; V-3 und V-8 von `eng` geschlossen) | `docs/agents/journal/2026-11-14-1512-eng.md` (PR #1283, Merge `0b952ce`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6878581304); Erneuerung: `docs/agents/journal/2026-11-14-2014-eng.md` (PR #1301, Merge `fca9405`), [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882788966); Erneuerung: `docs/agents/journal/2026-11-14-2209-eng.md` (PR #1310, Merge `fb35907`), [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6884260957); Erneuerung: `docs/agents/journal/2026-11-14-2310-eng.md` (PR #1312, Merge `b4a1189`), [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6884989780) |
-| `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; vom Founder am 2026-11-14 bestätigt) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **unterschrieben mit Vorbehalt** (CGR-221, CGR-222, CGR-223, Wortlaut unten), 2026-11-14 17:26; **erneuert** 2026-11-14 21:30 auf 3.2.17 (Vorbehalt CGR-221 (Rest)) | `docs/agents/journal/2026-11-14-1726-cra.md` (PR #1293, Merge `c860cc3`); Details `CLINICAL_GOVERNANCE.md` 17:26; [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6880720873); Erneuerung: `docs/agents/journal/2026-11-14-2130-cra.md` (PR #1308, Merge `65d8057`), Details `CLINICAL_GOVERNANCE.md` 21:30, [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6883799759) |
+| `cra` | Patientensicherheits-Garantien Anhang B §1 (**20** seit V3.2.2; vom Founder am 2026-11-14 bestätigt) und Qualifikationsmatrix (PROPOSED) | alle 4 Std., Minute 26 | **unterschrieben mit Vorbehalt** (CGR-221, CGR-222, CGR-223, Wortlaut unten), 2026-11-14 17:26; **erneuert** 2026-11-14 21:30 auf 3.2.17 (Vorbehalt CGR-221 (Rest)); **erneuert** 2026-11-15 01:30 auf 3.2.21 (Vorbehalt CGR-221 (Rest, nur Handbook); Teil Anhang B von `cra` geschlossen) | `docs/agents/journal/2026-11-14-1726-cra.md` (PR #1293, Merge `c860cc3`); Details `CLINICAL_GOVERNANCE.md` 17:26; [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6880720873); Erneuerung: `docs/agents/journal/2026-11-14-2130-cra.md` (PR #1308, Merge `65d8057`), Details `CLINICAL_GOVERNANCE.md` 21:30, [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6883799759); Erneuerung 01:30: `docs/agents/journal/2026-11-15-0130-cra.md` (PR #1320, Merge `2c85586`), Details `CLINICAL_GOVERNANCE.md` 01:30, [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6886609845) |
 | `lca` | AVG-Abgrenzung (Anhang C §1), rote Linien R-1 bis R-10, FE-078 | alle 4 Std., Minute 20 | **unterschrieben mit Vorbehalt** (S-1 bis S-5, Wortlaut unten), 2026-11-14 16:25; **erneuert** 2026-11-15 00:25 auf 3.2.20 (Vorbehalte S-3, S-7; S-1, S-2, S-4, S-5, S-6 von `lca` geschlossen) | `docs/agents/journal/2026-11-14-1625-lca.md` (PR #1289, Merge `65f5363`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6879658721); Erneuerung: `docs/agents/journal/2026-11-15-0025-lca.md` (PR #1315, Merge `a9f37b5`), Details `decisions/D-44.md` 00:25, [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6885840913) |
 | `uxa` | Wireframes und Klickpfade der 6 Portale (§5, §6) | alle 4 Std., Minute 47 | **unterschrieben mit Vorbehalt** (UXR-214, UXR-195, Wortlaut unten), 2026-11-14 15:51; **erneuert** 2026-11-14 19:58 auf 3.2.16 (Vorbehalte UXR-214 (Rest), UXR-195); **erneuert** 2026-11-14 23:50 auf 3.2.19 (Vorbehalte UXR-195, UXR-220; UXR-214 von `uxa` geschlossen) | `docs/agents/journal/2026-11-14-1551-uxa.md` (PR #1287, Merge `7e6c30c`); [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6879192359); Erneuerung: `docs/agents/journal/2026-11-14-1958-uxa.md` (PR #1300, Merge `1959721`), [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882530952); Erneuerung: `docs/agents/journal/2026-11-14-2350-uxa.md` (PR #1314, Merge `09d7123`), Details `UX_REVIEW.md` 23:50, [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6885439670) |
 | `aia` | On-Platform-Matching (Engine 1, Engine 2) und Voice-to-Report (Engine 3) (§3, §5.3, §6.3) | alle 6 Std., Minute 17 | **unterschrieben mit Vorbehalt** (AUT-127, AUT-128, AUT-129, Wortlaut unten), 2026-11-14 20:25 | `docs/agents/journal/2026-11-14-2025-aia.md` (PR #1302, Merge `500946c`); Details `AUTOMATION_REVIEW.md` Review 58; [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6882931222) |
-| `csa` | Markt-Disruption und Schichtrechnung (§1, §2, Anhang A) | wöchentlich, Montag 18:37 (2026-11-16) | **ausstehend** | – |
+| `csa` | Markt-Disruption und Schichtrechnung (§1, §2, Anhang A) | wöchentlich, Montag 18:37 (2026-11-16) | **unterschrieben mit Vorbehalt** (STR-35, STR-36, STR-37, STR-38, Wortlaut unten), 2026-11-15 00:59 | `docs/agents/journal/2026-11-15-0059-csa.md` (PR #1318, Merge `c1a45a9`); Details `STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-15 §1; [Kommentar #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6886290274) |
 
 **Wortlaut der Sign-offs (vom PO wörtlich übertragen, Reihenfolge des Eingangs).** Die Vorbehalts-IDs sind die der jeweiligen Rolle; zur Unterscheidung von den `lca`-Korrekturen V-1 bis V-7 (PR #1220) zitiert der PO sie als «`eng` V-1» usw., ohne den Wortlaut zu ändern.
 
@@ -815,7 +815,28 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 **Hinweis PO zu den Erneuerungen `uxa` 23:50 und `lca` 00:25 und zu den Übertragungen in V3.2.21 (keine Änderung am Wortlaut; die Vorbehalte bleiben stehen, bis die Rolle sie selbst schliesst):** `uxa` hat UXR-214 und `lca` S-1, S-2, S-4, S-5, S-6 selbst geschlossen; der PO hat nichts entfernt, die früheren Einträge bleiben stehen. Berichtigung zu V3.2.19: der Hinweis «V3.2.13 ersetzt» war damals vor Anhang B §2 statt vor Anhang C §1 eingesetzt worden (Fehler des PO, gemeldet von `uxa` UXR-220 (2) und `lca` S-7 (a)). In V3.2.21 übertragen: **S-7 (a)** Hinweis V3.2.19 vor Anhang C §1 an Stelle des Hinweises V3.2.13 verschoben, in Anhang B §2 entfernt (PO-Text, nicht `cra`-Text); **S-7 (b) bis (e)** wörtlich nach `decisions/D-44.md` 00:25 (3) in Anhang C §1.1 Zeile (a), §1.3 Punkt 3, §2.4 (Zeile Auftraggeber, inklusive `uxa` UXR-220 (1), und Zeilenname «Team mit offenem Angebot (Rundruf)») und «Zusammenfassung», Punkt «An `po`»; **S-7 (f)** §6.2 «Recht» und §11 Zeile D-44 nach dem Vorschlag von `lca`. Kein Verdikt geändert; Q-44a, Q-44e bleiben **OPEN** (FE-050). Ob S-7 und UXR-220 damit schliessen und ob #1306 geschlossen wird, entscheiden `lca` und `uxa` selbst. Offen bleiben `lca` S-3 (Handbook V2.3, PLANNED) und `uxa` UXR-195 (Bild P3 vor BK-e, #1233).
 
-**Stand Master-Paket:** nicht besiegelt (**5 von 6**: `eng`, `uxa`, `lca`, `cra`, `aia`, alle mit Vorbehalt; `cra` auf 3.2.17, `eng` und `uxa` auf 3.2.19, `lca` auf 3.2.20 erneuert). Ausstehend: `csa`. Frühestens nach dem `csa`-Lauf am Montag, 2026-11-16, vollständig.
+**`csa`, 2026-11-15 00:59 Europe/Zurich** (gelesen auf `recovery/main` `5db36ff1`, Blueprint 3.2.21, Handbook V2.2; Journal `docs/agents/journal/2026-11-15-0059-csa.md`, PR #1318, Merge `c1a45a9`; Details `STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-15 §1; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6886290274), Kommentar-Wortlaut):
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten STR-35, STR-36, STR-37 und STR-38**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **STR-35 (high):** Annex A §3.2/§3.3 uses a fee of «120 CHF je Mitglied und Monat» labelled [F] (founder value). No FE row contains it, and the PO removed it as unsourced on 2026-11-13 (journals 1314-po, 1359-po).
+> - **STR-36 (medium):** the gross-wage equivalent is 186 CHF (§2.2) and 188.75 CHF (Annex A §3.2). With A3 = 4 % used everywhere it is 186.33 CHF (+46.33, +33.1 %).
+> - **STR-37 (medium):** Annex A §3.1 «die Pflegenden erhalten CHF 120 mehr» compares the team's revenue with a wage, which goes against §2.1 and `lca` W-2 (binding under FE-078 (3)).
+> - **STR-38 (medium):** Annex A still describes the cascade (superseded by FE-078 (2)) and shows the order form and distance filter as PLANNED, although `M/129` and `M/130` are merged (not accepted). Three header lines are stale.
+>
+> The sign-off confirms the working basis. It sets no price and turns no example value or hypothesis into a fact. It also answers #1212, with the same reservations.
+
+**`cra`, Erneuerung 2026-11-15 01:30 Europe/Zurich** (gelesen auf `recovery/main` `5db36ff`, Blueprint 3.2.21, Handbook V2.2; Journal `docs/agents/journal/2026-11-15-0130-cra.md`, PR #1320, Merge `2c85586`; Details `CLINICAL_GOVERNANCE.md` 01:30; [Kommentar auf #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6886609845), Kommentar-Wortlaut; das Sign-off von 21:30 bleibt für 3.2.17 stehen):
+
+> «Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter dem Vorbehalt CGR-221 (Rest, nur Handbook) (`cra` 2026-11-15 01:30, gelesen auf Blueprint 3.2.21)**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+>
+> - **Closed from the reservation:** the Annex B §2 rows «3 Engine 1». Blueprint 3.2.18 carries my 21:30 text word for word.
+> - **CGR-221 (rest):** Handbook V2.2 §4.0, §4 E1, §4 E5 and the ERD `matching_offer_steps` still describe the cascade. This is for V2.3 (`eng`/`po`).
+> - This confirms the working basis only. It is not a clinical approval (D-27), not legal advice, and it changes no PROPOSED status.
+
+**Hinweis PO zum Sign-off `csa` 00:59, zur `cra`-Erneuerung 01:30 und zu den Übertragungen in V3.2.22 (keine Änderung am Wortlaut; die Vorbehalte bleiben stehen, bis die Rolle sie selbst schliesst):** `cra` hat den Anhang-B-Teil von CGR-221 selbst geschlossen; der PO hat nichts entfernt, die früheren Einträge bleiben stehen. Der Anhang A wurde in der PO-Sitzung vom 2026-11-13 in der Rolle `csa` geschrieben (Kopfzeile Anhang A) und wird nur über die Versionstabelle geändert. In V3.2.22 übertragen, nach den Vorschlägen von `csa` in `STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-15 §1 (P-11): **STR-35** die Kennzeichnung [F] und der Betrag 120 CHF im Anhang A entfernt; die Gebühr `F` ist OPEN (D-14), §3.3 rechnet als Formel ohne CHF-Betrag; **STR-36** §3.2 rechnet mit A3 = 4 % [A] wie §2.2 (186.33 CHF, +46.33 CHF, +33,1 %; Spielraum 55.60 CHF; Marge `249.60 − 140 × (1 + s_ag)`; Rechnung vom PO nachgerechnet, kein Test); **STR-37** Kernsatz und Zeilenname in §3.1 wörtlich; **STR-38** (a) und (b) in §4.1 und §4.3, (c) Kopfzeilen als historisch markiert. Der PO setzt damit keinen Preis und keine Gebührenhöhe; D-14 bleibt OPEN. Ob STR-35 bis STR-38 schliessen, entscheidet `csa`. **STR-39** (Kontinuität im Rundruf) und **CGR-227** (eine Präferenz ordnet nur, hält das Angebot nie zurück) sind Kandidaten für BK-g; **STR-41** (Erneuerungsregel) ist ein Vorschlag an den Founder, keine Regeländerung (Journal PO 2026-11-15 01:40).
+
+**Stand Master-Paket: besiegelt am 2026-11-15** (PO-Lauf 01:40 Europe/Zurich, Blueprint 3.2.22). Alle sechs Rollen haben unterschrieben, alle mit Vorbehalt: `eng` (zuletzt 23:10 auf 3.2.19: V-1, V-2, V-4 bis V-7), `cra` (zuletzt 01:30 auf 3.2.21: CGR-221 (Rest, nur Handbook)), `lca` (zuletzt 00:25 auf 3.2.20: S-3, S-7), `uxa` (zuletzt 23:50 auf 3.2.19: UXR-195, UXR-220), `aia` (20:25 auf 3.2.16: AUT-127, AUT-128, AUT-129), `csa` (00:59 auf 3.2.21: STR-35 bis STR-38). Die Besiegelung bestätigt die gemeinsame Arbeitsgrundlage. Sie ist keine klinische Freigabe (D-27), keine Rechtsauskunft, keine Block-Abnahme und ändert keinen Status PROPOSED oder OPEN; alle Vorbehalte bleiben offen, bis die jeweilige Rolle sie schliesst.
 
 ---
 
@@ -833,6 +854,7 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 | Datum | Version | Änderung | Grund |
 |---|---|---|---|
+| 2026-11-15 | 3.2.22 Sign-off, Besiegelung und Übertragungen | Kap. 13 «Formales Sign-off FE-079»: Sign-off `csa` (00:59, Vorbehalte STR-35 bis STR-38) und Erneuerung `cra` (01:30, Vorbehalt CGR-221 (Rest, nur Handbook); Teil Anhang B von `cra` geschlossen) wörtlich eingetragen, Tabelle nachgeführt, Hinweis PO; **Stand 6 von 6, Master-Paket besiegelt am 2026-11-15**. Anhang A nach `csa` P-11: STR-35 ([F] und 120 CHF entfernt, §3.3 als Formel, Gebühr OPEN D-14), STR-36 (§3.2 mit A3 = 4 %: 186.33 CHF, +46.33 CHF, +33,1 %), STR-37 (Kernsatz und Zeilenname §3.1), STR-38 (§4.1 Rundruf statt Kaskade, §4.3 Status Formular und Distanzfilter IMPLEMENTED nicht abgenommen, Kopfzeilen historisch). Kopfzeile auf 3.2.22. Kein Preis gesetzt; keine Änderung an Umfang, Blockfolge, Zahl der Garantien, Matrix, Gates oder einem Verdikt | FE-079; Issue #1279 Kommentare `csa` 00:59, `cra` 01:30; PR #1318, #1320; `STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-15 §1; Issue #1319 |
 | 2026-11-15 | 3.2.21 Sign-off und Übertragungen | Kap. 13 «Formales Sign-off FE-079»: Erneuerungen `uxa` (23:50, Vorbehalte UXR-195, UXR-220; UXR-214 von `uxa` geschlossen) und `lca` (00:25, Vorbehalte S-3, S-7; S-1, S-2, S-4, S-5, S-6 von `lca` geschlossen) wörtlich eingetragen, Tabelle nachgeführt, Hinweis PO mit Berichtigung zu V3.2.19; Stand 5 von 6, ausstehend `csa`. Übertragungen `lca` S-7: (a) Hinweis PO V3.2.19 von Anhang B §2 vor Anhang C §1 verschoben (ersetzt V3.2.13); (b) bis (e) wörtlich in Anhang C §1.1 Zeile (a), §1.3 Punkt 3, §2.4 (Zeile Auftraggeber mit `uxa` UXR-220 (1), Zeilenname «Team mit offenem Angebot (Rundruf)»), «Zusammenfassung» Punkt «An `po`»; (f) §6.2 «Recht», §11 Zeile D-44. Kopfzeile auf 3.2.21. Keine Änderung an Umfang, Blockfolge, Zahl der Garantien, Matrix, Gates oder einem Verdikt | FE-079; Issue #1279 Kommentare `uxa` 23:50, `lca` 00:25; PR #1314, #1315; `decisions/D-44.md` `lca` 00:25 (3); `UX_REVIEW.md` 23:50 (UXR-220) |
 | 2026-11-14 | 3.2.20 Sign-off | Kap. 13 «Formales Sign-off FE-079»: Erneuerung `eng` (23:10, Vorbehalte V-1, V-2, V-4 bis V-7; V-3 und V-8 von `eng` geschlossen) wörtlich eingetragen, Tabelle nachgeführt, Hinweis PO; Stand 5 von 6, ausstehend `csa`. Kopfzeile auf 3.2.20. Keine Änderung an Umfang, Blockfolge, Zahl der Garantien, Matrix, Gates oder einem Verdikt | FE-079; Issue #1279 Kommentar `eng` 23:10; PR #1312 |
 | 2026-11-14 | 3.2.19 Sign-off und Übertragungen | Kap. 13 «Formales Sign-off FE-079»: Erneuerung `eng` (22:09, Vorbehalte V-1, V-2, V-3 (Rest), V-4 bis V-7; V-8 von `eng` geschlossen) wörtlich eingetragen, Tabelle nachgeführt, Hinweis PO; Stand 5 von 6, ausstehend `csa`. §6.3 Schritt 2 Statuszeile nach `eng` V-3 (Rest) wörtlich. Anhang C §2.6 Knoten F, G und Kante zu J nach `lca` D-44 20:25 (5) (Text J unverändert, Wortlaut `uxa`/`cra`); §5 Zeile Q-44e mit Fragetext Katalog v9 (Übersetzung PO, beide Varianten) und Status nach `lca`; Hinweis PO V3.2.13 vor Anhang C §1 durch Verweis ersetzt. Gemeldet, nicht geändert: gleiche veraltete PLZ-Statuszeile in Anhang A §4.3 (`csa`) und Anhang B §4.1 (`cra`). Kopfzeile auf 3.2.19. Keine Änderung an Umfang, Blockfolge, Zahl der Garantien, Matrix, Gates oder einem Verdikt | FE-079; Issue #1279 Kommentar `eng` 22:09; PR #1310; `decisions/D-44.md` `lca` 20:25 (5); `ADVISER_CATALOGUE.md` v9 |
@@ -867,12 +889,12 @@ Aufträge V3.2 (eigene Bestätigung je Rolle; Nummern in V3.2.2 korrigiert, `uxa
 
 > **Hinweis PO (V3.2.4, `lca` W-1 bis W-7):** Alle Beträge in diesem Anhang sind Beispielwerte der Founder-Fallsimulation (FE-073), kein Tarif, keine Lohnangabe und kein Einkommensversprechen; den Preis vereinbaren Auftraggeber und Team, nie NAVORA (R-10). Keine Verwendung ausserhalb des Projekts ohne diese Beschriftung direkt daneben. Den Anhangstext passt `csa` selbst an.
 
-*Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `csa`, nur gelesen, keine Tests. Bestätigung im nächsten regulären `csa`-Lauf (#1208). Die Zahlen bleiben ein Rechenmodell mit Herkunft (FE-040 (1), FE-070 (1)).*
+*Erstellt in der PO-Sitzung 13.11.2026 (FE-076) in der Rolle `csa`, nur gelesen, keine Tests. Bestätigung durch `csa` am 2026-11-15 00:59 mit Vorbehalten STR-35 bis STR-38 (#1212, Kapitel 13). Die Zahlen bleiben ein Rechenmodell mit Herkunft (FE-040 (1), FE-070 (1)).*
 
-**Rolle:** Chief Strategy Architect (`csa`) · **Stand:** 13.11.2026 · **Auftrag:** Founder, 13.11.2026 (FE-076, in `FOUNDER_DECISIONS.md` noch nicht eingetragen) · **Ersetzt:** die Abschnitte 1.1, 1.2, 1.4 und 3 des Entwurfs V3.0, sobald der PO ihn übernimmt · **Grundlage:** FE-032, FE-040, FE-055, FE-066, FE-070, FE-073 bis FE-075; `ECONOMICS_COMPARISON.md`; `PRICING_MODEL_COMPARISON.md`; `BUSINESS_MODELS_AND_CONSTELLATIONS.md`; `CARE_OPERATING_MODEL.md`; `STRATEGY.md`; Paket D-44
+**Rolle:** Chief Strategy Architect (`csa`) · **Stand:** 13.11.2026 · **Auftrag:** Founder, 13.11.2026 (FE-076) · *(historisch, V3.2.22, `csa` STR-38 (c): ersetzte die Abschnitte 1.1, 1.2, 1.4 und 3 des archivierten Entwurfs V3.0)* · **Grundlage:** FE-032, FE-040, FE-055, FE-066, FE-070, FE-073 bis FE-075; `ECONOMICS_COMPARISON.md`; `PRICING_MODEL_COMPARISON.md`; `BUSINESS_MODELS_AND_CONSTELLATIONS.md`; `CARE_OPERATING_MODEL.md`; `STRATEGY.md`; Paket D-44
 
 **Marken:** IMPLEMENTED (im Code auf `recovery/main`, synthetische Daten) · PLANNED (beschlossen, nicht gebaut) · OPEN (Entscheid ausstehend) · UNKNOWN (nicht belegt).
-**Zahlenherkunft:** **[F]** Founder-Referenzwert (FE-073 (5), Blueprint V3.0 §1.2) · **[B]** belegt mit Quelle im Repo · **[A]** Annahme, als solche markiert.
+**Zahlenherkunft:** **[F]** Founder-Referenzwert (FE-073 (5)) · **[B]** belegt mit Quelle im Repo · **[A]** Annahme, als solche markiert.
 
 ---
 
@@ -939,11 +961,11 @@ Rechenmodell mit Founder-Referenzwerten [F]. Kein Tarif, kein Angebot. Der Preis
 | Stundensatz an das Heim | 75 CHF/h | 52 CHF/h | −23 CHF/h |
 | Dauer | 5 h | 5 h | – |
 | **Heim zahlt je Schicht** | **375 CHF** | **260 CHF** | **−115 CHF (−30,7 %)** |
-| Davon an die Pflege | 28 CHF/h × 5 h = 140 CHF Bruttolohn | 52 CHF/h × 5 h = 260 CHF Teamerlös | **+120 CHF (+85,7 %)** |
+| Umsatz des Teams (vor Teamkosten) | 28 CHF/h × 5 h = 140 CHF Bruttolohn | 52 CHF/h × 5 h = 260 CHF Teamerlös | **+120 CHF Umsatz (vor Teamkosten), kein Lohnvergleich (§3.2)** |
 | Davon an Vermittler | 235 CHF (62,7 % des Preises) | 0 CHF | −235 CHF |
 | NAVORA je Schicht | – | 0 CHF Provision | – |
 
-**Kernsatz:** Das Heim spart CHF 115, die Pflegenden erhalten CHF 120 mehr pro Schicht. Beide gewinnen, weil die 235 CHF des Zwischenhandels wegfallen.
+**Kernsatz:** Das Heim zahlt im Modell CHF 115 weniger, das Team setzt CHF 120 mehr um (vor Teamkosten); als Bruttolohn-Äquivalent bleiben nach allen Teamkosten rund CHF 46 mehr. Beispielwerte, kein Tarif, kein Einkommensversprechen.
 
 #### 3.2 Stufe 2: Vom Brutto zum Netto des Teams
 
@@ -964,7 +986,7 @@ Vorteil  = L_äqu − L_temp                           gegenüber dem Temporärl
 | `h` | Dauer der Schicht | 5 h | [F] 16:30–21:30 | – |
 | `L_temp` | Bruttolohn heute, Temporär | 140 CHF | [F] 28 CHF/h × 5 h | Founder. OPEN: sind Ferien- und Feiertagsanteile darin enthalten? |
 | `s_ag` | Arbeitgeberabgaben auf dem Lohn: AHV/IV/EO, ALV, BVG, UVG, KTG, FAK, Ferienanteil | **OPEN**. Im Repo nur der Platzhalter A1 = 20 % [A], nicht belegt | `ECONOMICS_COMPARISON.md` A1 | `lca` mit Rechtsgutachten Q1 2027: Rechtsform (D-44) und AHV-Statut (L-11) bestimmen den Satz |
-| `c_abo` | NAVORA-Abo, umgelegt auf die Schicht | siehe 3.3 | [F] 120 CHF/Monat; D-14 OPEN | Founder (D-14) |
+| `c_abo` | NAVORA-Abo, umgelegt auf die Schicht | siehe 3.3; in der Illustration A3 = 4 % des Umsatzes [A] wie §2.2 | Gebühr `F` je Mitglied und Monat **OPEN** (D-14); A3 aus `ECONOMICS_COMPARISON.md` | Founder (D-14) |
 | `c_vers` | Berufshaftpflicht und Betriebsversicherung des Teams | **UNKNOWN** | kein Wert im Repo | registrierter Versicherungsbroker als Partner (FE-055 (5), L-12); Founder |
 | `c_adm` | Verbleibende Administration: Buchhaltung, Treuhand, Weiterbildung, Material | **OPEN**. Im Repo nur der Platzhalter A2 = 10 % des Umsatzes [A]. Referenz Overhead Buurtzorg 6,7 % [B] | `ECONOMICS_COMPARISON.md` A2; `STRATEGY.md` §7 | Phase B: Buchhaltung des ersten Teams (BM-6) |
 | `c_ausfall` | Rücklage für Ausfallrisiko: Krankheit, Unfall, abgesagte Schichten | **OPEN** | kein Wert im Repo; teilweise in `s_ag` (KTG, UVG), je Rechtsform | `lca` (D-44, L-11) |
@@ -977,34 +999,34 @@ Vorteil  = L_äqu − L_temp                           gegenüber dem Temporärl
 c_vers + c_adm + c_ausfall  ≤  E − c_abo − L_temp × (1 + s_ag)
 ```
 
-Mit den Founder-Werten und 16 Schichten im Monat bleiben `252.50 − 140 × (1 + s_ag)` CHF je Schicht für Versicherung, Administration und Ausfall. Jeder Franken darunter ist zusätzlicher Lohn.
+Mit den Founder-Werten und dem Abo als A3 = 4 % [A] bleiben `249.60 − 140 × (1 + s_ag)` CHF je Schicht für Versicherung, Administration und Ausfall. Jeder Franken darunter ist zusätzlicher Lohn.
 
-**Illustration, nur mit den Repo-Platzhaltern A1 und A2 [A]** (keine Prognose):
+**Illustration, nur mit den Repo-Platzhaltern A1, A2 und A3 [A]** (keine Prognose):
 
 | Schritt | Rechnung | CHF je Schicht |
 |---|---|---|
 | Teamerlös `E` | 52 × 5 | 260.00 |
 | − Administration `c_adm` (A2 = 10 %) | 260 × 0,10 | −26.00 |
-| − Abo `c_abo` (16 Schichten, 3.3) | 120 ÷ 16 | −7.50 |
-| = verfügbar für Lohn und Abgaben | | 226.50 |
-| Bruttolohn-Äquivalent (A1 = 20 %) | 226.50 ÷ 1,20 | **188.75** |
-| Vorteil gegenüber `L_temp` | 188.75 − 140 | **+48.75 (+34,8 %)** |
-| Spielraum für `c_vers` und `c_ausfall` bis zum Gleichstand | 188.75 − 140, × 1,20 | 58.50 |
+| − Abo `c_abo` (A3 = 4 %) | 260 × 0,04 | −10.40 |
+| = verfügbar für Lohn und Abgaben | | 223.60 |
+| Bruttolohn-Äquivalent (A1 = 20 %) | 223.60 ÷ 1,20 | **186.33** |
+| Vorteil gegenüber `L_temp` | 186.33 − 140 | **+46.33 (+33,1 %)** |
+| Spielraum für `c_vers` und `c_ausfall` bis zum Gleichstand | (186.33 − 140) × 1,20 | 55.60 |
 
 Lesart: Selbst nach Abgaben und Administration bleibt mit diesen Platzhaltern ein Lohnvorteil je Schicht. Ob er trägt, entscheiden `s_ag`, `c_vers` und die Auslastung `u`. Diese drei Werte liefern `lca`, der Broker und Phase B.
 
 #### 3.3 Die Abo-Rechnung
 
-Founder-Beispiel: 120 CHF je Mitglied und Monat [F]. Die Höhe ist OPEN (D-14). Die Gebühr wird nach effektivem Pensum (VZE) gewichtet (FE-055 (3)); das Beispiel rechnet ohne Gewichtung.
+Die Höhe der Gebühr `F` je Mitglied und Monat ist **OPEN** (D-14); kein Founder-Entscheid nennt einen Betrag (FE-055 (3) «Preishöhe bleibt offen»). Die Gebühr wird nach effektivem Pensum (VZE) gewichtet (FE-055 (3)); die Rechnung unten rechnet ohne Gewichtung. *(V3.2.22, `csa` STR-35: der frühere Beispielbetrag mit Kennzeichnung [F] ist entfernt, weil keine FE-Zeile ihn enthält.)*
 
-| Schichten je Mitglied und Monat [A] | Abo je Schicht | je Stunde (5 h) | Anteil am Teamerlös von 260 CHF |
-|---|---|---|---|
-| 8 | 15.00 CHF | 3.00 CHF | 5,8 % |
-| 12 | 10.00 CHF | 2.00 CHF | 3,8 % |
-| **16 (Referenzannahme)** | **7.50 CHF** | **1.50 CHF** | **2,9 %** |
-| 20 | 6.00 CHF | 1.20 CHF | 2,3 % |
+| Schichten je Mitglied und Monat `n` [A] | Abo je Schicht | Anteil am Teamerlös von 260 CHF |
+|---|---|---|
+| 8 | `F ÷ 8` | `F ÷ 2080` |
+| 12 | `F ÷ 12` | `F ÷ 3120` |
+| **16 (Referenzannahme)** | **`F ÷ 16`** | **`F ÷ 4160`** |
+| 20 | `F ÷ 20` | `F ÷ 5200` |
 
-Zum Vergleich: Der Zwischenhandel nimmt heute 235 CHF je Schicht. Das Abo kostet bei 16 Schichten 7.50 CHF, also rund 1/31 davon.
+Zum Vergleich: Der Zwischenhandel nimmt heute 235 CHF je Schicht. Mit dem Platzhalter A3 = 4 % [A] (§2.2, §3.2) wären es 10.40 CHF je Schicht.
 
 Wichtig: Die Gebühr ist fest und nicht an Schichten gebunden. Die Umrechnung je Schicht dient nur dem Vergleich und ist kein Vorschlag für eine Gebühr je Schicht (L-10). Wenige Schichten machen die feste Gebühr je Schicht teurer (BM-12). Die VZE-Gewichtung gleicht das aus (FE-055 (3), Brief FEE1, PLANNED).
 
@@ -1016,7 +1038,7 @@ Wichtig: Die Gebühr ist fest und nicht an Schichten gebunden. Die Umrechnung je
 
 | Gegner | Was er heute leistet | Was er dafür nimmt | Was NAVORA an seine Stelle setzt | Status |
 |---|---|---|---|---|
-| **Temporärbüro** | Ersatz bei Ausfall finden | Marge auf jeder Stunde; im Referenzfall 235 CHF je Schicht [F] | Bedarf per Diktat oder Text, harte Prüfung, Angebot an das passende Team, Zusage per Klick | Teamentscheid IMPLEMENTED (J2); Erfassung, Angebotskaskade, Anzeige «gedeckt» PLANNED (BK) |
+| **Temporärbüro** | Ersatz bei Ausfall finden | Marge auf jeder Stunde; im Referenzfall 235 CHF je Schicht [F] | Bedarf per Diktat oder Text, harte Prüfung, Angebot gleichzeitig an alle Teams, die alle harten Prüfungen bestehen; die KI ordnet und begründet, schliesst keines aus (FE-078 (2)); Zusage per Klick | Teamentscheid IMPLEMENTED (J2); Formular und Distanzfilter IMPLEMENTED (BK-a, BK-b1; nicht abgenommen); KI-Erfassung, Matrix im Matching, Rangfolge, Rundruf an die Teams, Anzeige «gedeckt» PLANNED (BK) |
 | **Spitex-Verwaltung** | Disposition, Hierarchie, Abrechnung | Overhead; Referenz 16,9 % bis 25 % [B] | Team plant selbst; Regeln und KI koordinieren; Abrechnung aus signierten Einsätzen | Tagesplanung, Ausfall, Vertretung IMPLEMENTED (PLAN3, ABS1, COVER1); Abrechnungsfakten IMPLEMENTED (J5); Rechnung PLANNED (B8) |
 
 Die Logik ist einfach. Beide Apparate verkaufen Koordination. Koordination ist Informationsfluss. Informationsfluss kann Software leisten, schneller und ohne Marge. Damit bleibt der Preisvorteil beim Heim und der Lohnvorteil bei den Pflegenden.
@@ -1033,8 +1055,8 @@ Buurtzorg beweist, dass selbstorganisierte Teams mit wenig Overhead gute Pflege 
 
 | Arbeit, die heute Menschen tun | NAVORA | Status |
 |---|---|---|
-| Bedarf telefonisch aufnehmen | KI erkennt Felder aus Diktat oder Text; Auftraggeber bestätigt | PLANNED (BK-1) |
-| Passende Person suchen | Regeln filtern Ort, Qualifikation, Verfügbarkeit; KI ordnet nur unter den Geeigneten und begründet | Region und Pflichtqualifikation IMPLEMENTED; PLZ-Distanz, Matrix, Rangfolge PLANNED (BK-3, BK-4) |
+| Bedarf telefonisch aufnehmen | KI erkennt Felder aus Diktat oder Text; Auftraggeber bestätigt | Formular IMPLEMENTED (BK-a, nicht abgenommen); KI-Erfassung PLANNED (BK-1) |
+| Passende Person suchen | Regeln filtern Ort, Qualifikation, Verfügbarkeit; KI ordnet nur unter den Geeigneten und begründet | Region und Pflichtqualifikation IMPLEMENTED; Distanzfilter IMPLEMENTED (BK-b1, nicht abgenommen); Matrix im Matching, Rangfolge PLANNED (BK-3, BK-4) |
 | Ausfall abtelefonieren | Abwesenheit mit zwei Tipps; Vertretung wird automatisch angeboten | IMPLEMENTED (ABS1, COVER1) |
 | Bericht schreiben | eigene Worte ohne Zeitgrenze; regelbasierter Entwurf mit Quellenbezug und Liste «Nicht übernommen»; Pflegekraft signiert | Signatur IMPLEMENTED (F6, F7); Diktat und Entwurf PLANNED (B6) |
 | Rechnung erstellen | Rechnung aus signierten Einsätzen, Prüfung auf Doppelabrechnung | Fakten IMPLEMENTED (J5); Rechnung PLANNED (B8) |
