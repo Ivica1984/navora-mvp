@@ -3,6 +3,7 @@
 // BK-c2 (ADR-200; brief BK.md 04:39 (4), 05:39 (3), 08:39 (2), (4), 09:39 (2) (d)): the shift-order offers of the
 // caller's teams. Every state comes from the database; the card only shows it and sends one command. No countdown, no
 // other team, no reason about a person (BK5_OFFER_TEMPLATE.md §2, §3). Synthetic data only (Phase A).
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { TeamShiftOffer } from "@/features/orders/team-queries";
@@ -135,6 +136,14 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
             {view.lines.map((l) => <p key={l} data-testid="shift-offer-line">{l}</p>)}
           </>
         )}
+        {view.wayBack && !view.actions && (
+          <p data-testid="shift-offer-way-back" className="text-sm text-secondary">{view.wayBack}</p>
+        )}
+        {view.wayBack && !view.actions && (
+          <Link href="/field" className="flex min-h-11 w-fit items-center rounded-lg px-2 text-sm font-semibold text-emerald-900 underline underline-offset-4">
+            Abwesenheit erfassen
+          </Link>
+        )}
         {error && <p role="alert" data-testid="shift-offer-error" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">{error}</p>}
         {view.actions && step === "cannot" && (
           <ConfirmStep
@@ -166,6 +175,7 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
               </button>
             </div>
             <p data-testid="shift-offer-ack-note" className="text-sm text-secondary">{ACK_FINAL_LINE}</p>
+            {view.wayBack && <p data-testid="shift-offer-way-back" className="text-sm text-secondary">{view.wayBack}</p>}
           </>
         )}
       </article>

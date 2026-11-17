@@ -83,6 +83,8 @@ for (const width of [390, 1440]) {
     await expect(taken.getByTestId("shift-offer-tag")).toHaveText("Übernommen");
     await expect(taken.getByTestId("shift-offer-line")).toHaveText("Ihr habt diese Schicht übernommen. Es geht: Pflegekraft B.");
     await expect(taken.getByRole("button")).toHaveCount(0);
+    // CGR-235 (a): a self-named take counts as acknowledged; the going person sees her way back, nobody else does.
+    await expect(taken.getByTestId("shift-offer-way-back")).toHaveText("Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.");
     await signOut(page);
 
     // 5. A colleague of the same team sees the team's take and the going person, with no action.
@@ -92,6 +94,7 @@ for (const width of [390, 1440]) {
     await expect(seen.getByTestId("shift-offer-tag")).toHaveText("Übernommen");
     await expect(seen.getByTestId("shift-offer-line")).toHaveText("Ihr habt diese Schicht übernommen. Es geht: Pflegekraft B.");
     await expect(seen.getByRole("button")).toHaveCount(0);
+    await expect(seen.getByTestId("shift-offer-way-back")).toHaveCount(0);
     await signOut(page);
 
     // 6. The client now reads «Gedeckt» with the ordered level (CGR-226 (a)), the team and the time of the take.

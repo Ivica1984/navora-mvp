@@ -90,7 +90,7 @@ export type TeamOfferView =
       /** The primary button's label before a person is ticked; null = no primary button (UXR-226). */
       chooseLabel: "Person wählen" | "Andere Person wählen" | null;
     }
-  | { kind: "taken"; tag: "Übernommen" | "Für dich eingeteilt"; lines: string[]; actions: boolean; mine: boolean }
+  | { kind: "taken"; tag: "Übernommen" | "Für dich eingeteilt"; lines: string[]; actions: boolean; mine: boolean; wayBack: string | null }
   | { kind: "released"; line: string };
 
 export const BROADCAST_LINE = "Alle passenden Teams sehen dieses Angebot.";
@@ -111,6 +111,12 @@ export const CANNOT_STEP: ConfirmStep = {
 export const DECLINE_STEP: ConfirmStep = { sentence: "Euer Team sieht dieses Angebot danach nicht mehr.", action: "Ablehnen", back: "Zurück" };
 /** UXR-224: one line under «Bestätigen». */
 export const ACK_FINAL_LINE = "Mit dem Bestätigen bist du fest eingeteilt.";
+/**
+ * CGR-235 (a) (PO 13:39 (1)): after the acknowledgement her only way back is an absence record on /field, which
+ * releases the take through the ADR-199 trigger. Shown to the assigned person only, never to colleagues; no reason.
+ * Words PROPOSED (`cra` 13:28 example); `uxa` owns the final words.
+ */
+export const ACK_WAY_BACK_LINE = "Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.";
 
 function releaseText(kind: string | null, member: string, latestCoverAt: string | null): string | null {
   switch (kind) {
@@ -141,12 +147,12 @@ export function teamOfferView(
     const mine = member === callerId;
     const selfNamed = member !== null && member === row.taken_by;
     if (selfNamed) {
-      return { kind: "taken", tag: "Übernommen", lines: [`Ihr habt diese Schicht übernommen. Es geht: ${nameOf(member)}`], actions: false, mine };
+      return { kind: "taken", tag: "Übernommen", lines: [`Ihr habt diese Schicht übernommen. Es geht: ${nameOf(member)}`], actions: false, mine, wayBack: mine ? ACK_WAY_BACK_LINE : null };
     }
     if (row.acknowledged_at) {
       return mine
-        ? { kind: "taken", tag: "Für dich eingeteilt", lines: ["Du bist für diese Schicht eingeteilt."], actions: false, mine }
-        : { kind: "taken", tag: "Übernommen", lines: [`Es geht: ${nameOf(member)} · bestätigt um ${zurichTime(row.acknowledged_at)}`], actions: false, mine };
+        ? { kind: "taken", tag: "Für dich eingeteilt", lines: ["Du bist für diese Schicht eingeteilt."], actions: false, mine, wayBack: ACK_WAY_BACK_LINE }
+        : { kind: "taken", tag: "Übernommen", lines: [`Es geht: ${nameOf(member)} · bestätigt um ${zurichTime(row.acknowledged_at)}`], actions: false, mine, wayBack: null };
     }
     const until = row.latest_cover_at ? zurichDayTime(row.latest_cover_at) : null;
     if (mine) {
@@ -159,6 +165,7 @@ export function teamOfferView(
         ],
         actions: true,
         mine,
+        wayBack: ACK_WAY_BACK_LINE,
       };
     }
     return {
@@ -171,6 +178,7 @@ export function teamOfferView(
       ],
       actions: false,
       mine,
+      wayBack: null,
     };
   }
   const list = candidates.map((c) => ({
