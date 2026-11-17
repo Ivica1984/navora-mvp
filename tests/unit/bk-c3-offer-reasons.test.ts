@@ -51,6 +51,24 @@ describe("reason line (BK-c3)", () => {
     expect(reasonLine(["member_free"])).toBe("Empfohlen für euch: jemand von euch ist frei");
   });
 
+  it("shows no line without member_free, also not with knows_client alone (CGR-238 (c), UXR-234, PO 19:39)", () => {
+    expect(reasonLine(["knows_client"])).toBeNull();
+    expect(reasonLine(["knows_client", "rank_1"])).toBeNull();
+  });
+
+  it("shows no line on a card where nobody of the team can go (UXR-234, CGR-238 (c))", () => {
+    const nobodyBoth = teamOfferView(row({ reasons: ["member_free", "knows_client"] }), "me", new Map(), []);
+    expect(nobodyBoth.kind).toBe("offer");
+    if (nobodyBoth.kind === "offer") {
+      expect(nobodyBoth.nobodyLine).not.toBeNull();
+      expect(nobodyBoth.reasonLine).toBeNull();
+    }
+    const nobodyKnows = teamOfferView(row({ reasons: ["knows_client"] }), "me", new Map(), []);
+    if (nobodyKnows.kind === "offer") expect(nobodyKnows.reasonLine).toBeNull();
+    const nobodyFree = teamOfferView(row({ reasons: ["member_free"] }), "me", new Map(), []);
+    if (nobodyFree.kind === "offer") expect(nobodyFree.reasonLine).toBeNull();
+  });
+
   it("shows nothing for no clause, an unknown code, or a code that explains nothing (K-2)", () => {
     expect(reasonLine([])).toBeNull();
     expect(reasonLine(null)).toBeNull();
@@ -63,7 +81,7 @@ describe("reason line (BK-c3)", () => {
   });
 
   it("never carries a number, a rank, a percentage or another team", () => {
-    for (const codes of [["member_free"], ["knows_client"], ["member_free", "knows_client"]]) {
+    for (const codes of [["member_free"], ["member_free", "knows_client"]]) {
       const line = reasonLine(codes) ?? "";
       expect(line).not.toMatch(/\d|%|Rang|Platz|Punkte|Teams?\b|zuerst|besser/);
     }
