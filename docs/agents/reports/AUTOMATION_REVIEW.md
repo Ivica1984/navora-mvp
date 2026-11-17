@@ -31,6 +31,38 @@
 
 ---
 
+## 2026-11-17 08:25 CET · aia review 61: `aia` gate line on BK-c1 #1342 `abe0c5d` **clear** for «Simulation, synthetic data»; V-8 / AUT-128 met in the database (the team view is exactly the offer rows of the current round), AUT-130 met (one member step, a live take is one more availability source); one advisory finding for BK-c2 (AUT-132, low: show the caller only her own «free / not free», list colleagues only when they pass)
+
+**Read:** `recovery/main` at `74ef56b` (since review 60 at `bbaed7c`): journals 0233-eng to 0739-po; `briefs/BK.md` amendments 03:39 to 06:39; PR #1342 head `abe0c5d` (`1464ba0..abe0c5d`: migration 0135 in full for `order_takes`, `order_declines`, `order_member_step`, `client_orders`, `take_order`, `decline_order`, `team_order_offers`, `recheck_member_takes`; pgTAP 141 §3, §8, §9; workflow diffs); check runs on `abe0c5d` through the API; open PR #1352 (`uxa`) description only.
+
+**Measured versus estimated:** nothing here is a measurement of care work. Code facts are readings of the diff; I ran no NAVORA test. CI: check runs on `abe0c5d` read through the API (app, db, e2e, ui-screenshots, sync: `success`); the race case 3 result is the PO's reading of `db` log 133837476095 (journal 06:39). **Active block (README rule 12):** BK, slice BK-c, sub-slice BK-c1; the gate line serves the merge of #1342 inside it. I ask for no merge outside it. **Contradictions (README rule 10):** none new with `FOUNDER_DECISIONS.md`; my prompt's read list still names archived documents (known). **Task adjustment (README rule 11):** the PO's 06:39 and 07:39 runs name my gate line on `abe0c5d` as one of three open merge conditions; it comes first. Map v4 stands (next refresh 2026-11-24). FE-079: sign-off of 2026-11-14 20:25 stands on #1279, my field unchanged; reservations AUT-127, AUT-128, AUT-129 open (AUT-128 now partly met, below).
+
+### 1 Gate line (posted on #1342, comment 6941528774)
+
+- **`aia-gate: #1342 abe0c5d clear (Simulation, synthetic data)`.** (a) V-8 / AUT-128: `public.team_order_offers()` returns only `order_offers` rows of the current round for the caller's own teams (LEAVE1-3 inside), minus own declines, minus orders another team holds; no count, rank, position or other-team column (pgTAP 141 §3 positive T1 to T3, negative T4; §8 a committed take leaves the other lists). (b) AUT-130: `take_order` and `recheck_member_takes` call only `private.order_member_step`; a live take of the same person on another overlapping order is step 3 (`[start, end)`, own order excluded; 141 §9). (c) CGR-229: per-person advisory transaction lock after the order row lock, before the re-check; fixed order, no cycle. (d) Engine 1 stays a private hard rule: execute revoked from app roles, release reason a step code, no score, no `kind = 'ai'`, no external call in `src`, `supabase`, `scripts`. `merge-tree` against `74ef56b` clean. Valid only for `abe0c5d` (AUT-50).
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-132 | Take on `/team` (BK-c2), team member | **PLANNED, not built.** BK-c1 refuses a take only after the tap (`member_not_eligible` with a step, 0135 `take_order`); `team_order_offers` carries no per-caller state. PO H-BK-06:39 (show whether the caller is free) and H-BK-05:39 (caller named by default) propose fewer futile taps and fewer acknowledgements. Estimate, not measured: one futile tap and one re-choice per refused take | **Rule, read only, from the one step:** the offer card shows the caller only her own «frei / nicht frei» for that order from `order_member_step` (no step name of anyone else); the take names the caller by default; a «Kollegin nennen» list shows only members of the team at step 4 and never a colleague's failing step (eligibility names a step, never a person, review 59). No new rule; the take keeps its re-check | L | stage 0; `uxa` (words, #1352), `lca` (team-internal read of colleagues' availability), `cra` (none: no clinical content) | share of takes refused `member_not_eligible` and share of takes naming someone other than the caller, per simulation run, team level only | low | – |
+
+### 3 Updated, supported, closed
+
+- **AUT-130: met on `abe0c5d`** (141 §9). Closes when #1342 is merged into `recovery/main`.
+- **AUT-128: database part met on `abe0c5d`** (141 §3, §8). Stays open for the screen (BK-c2 reads only `team_order_offers`) and the ranking (BK-c3: ranking only reorders, no team removed). FE-079 reservation narrowed accordingly.
+- **PO H-BK-06:39 and H-BK-05:39: supported** (AUT-132); `uxa` #1352 proposes caller-first words, consistent with AUT-132.
+- **`uxa` UXR-222 (#1351, colleague can say «Ich kann nicht»): noted, not my gate**; a refusal by the named colleague should release the take through the same re-check path (one path, AUT-130), not a second release rule. `eng`/`cra` decide.
+- Open, unchanged: AUT-125, AUT-126, AUT-127, AUT-129, AUT-131 and the list in review 60.
+
+### 4 Stage tracking
+
+Stage 0 only. Stage 1 entry conditions unchanged (AUT-115 lock, D-35 rule A, no provider). BK-c1 adds no agent, no proposal ledger entry, no model call.
+
+**Top bottlenecks (map v4, estimate):** documentation per visit/shift (BK-e) holds the most recoverable time; on the order path no minute returns until a team can see and take an order, which BK-c1 makes possible in the database and BK-c2 on the screen.
+
+**Issues/comments:** gate comment on #1342. No issue (no `high` finding).
+
 ## 2026-11-17 02:19 CET · aia review 60: bottleneck map v4 (weekly refresh, first map on Blueprint V3.2 and the BK order path, nursing-home ward column kept); BK-b is merged in full (#1273, #1291, #1276, #1295), not yet accepted, and adds **no human act** (the hard check runs in the database); the order path still frees no direct care time because no team can see or take an order (BK-c), so the top "unblocking" item is unchanged; one advisory finding (AUT-131, low: the ward's own uncovered shift and the home's BK order are two entries for one gap); #1337 (ADR-198, CI tooling) read, no `aia` finding; FE-079 sign-off unchanged, reservations AUT-127 to AUT-129 open
 
 **Read:** `recovery/main` at `bbaed7c` (since review 59 at `35d764a`, 58 commits): journals 0240-po to 0610-eng (2026-11-15) and 0010-eng, 0020-lca, 0039-po, 0128-cra, 0139-po (2026-11-17); diffs of `briefs/BK.md` (amendments 02:40, 05:39), `NEXT_CAPABILITY.md`, Blueprint 3.2.22 → 3.2.24 (chapter 13 and Annex C §1.2 only); migrations 0129 to 0134 by name; open PR #1337 (head `16bf358`, `scripts/ci-repeat-window.mjs`, `tests/unit/ci-repeat-window.test.ts`); review 39 (map v3); one published review (Moore et al. 2020, below), read 2026-11-17. Review 59 merged (#1322, `d3ebc82`); no `aia/…` PR open.

@@ -569,6 +569,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «one entry for one gap» (AUT-131):** when the ward cannot cover its own shift, the BK order is opened from the ward's shift plan, not typed again; the required level is always entered by the home, never derived. PLANNED (B9, after BK).
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK-c1 gate; the caller sees only her own state (`aia` 2026-11-17 08:25, review 61, AUT-132):**
+- **Gate:** #1342 `abe0c5d` clear for «Simulation, synthetic data»; it proposes, drafts and ranks nothing.
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** database part IMPLEMENTED on the branch (`team_order_offers` = current-round offer rows of own teams); screen (BK-c2) and ranking (BK-c3) PLANNED.
+- **Control «one member step for every check» (AUT-130):** IMPLEMENTED on the branch (take and re-check call `order_member_step`; a live take is an availability source).
+- **Control «the caller sees only her own state» (AUT-132):** a pre-tap «frei / nicht frei» comes from the same step and shows only the caller's own result; a colleague list shows only members who pass, never a colleague's failing step. PLANNED (BK-c2).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -632,3 +639,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-14 20:25 | `aia` | §12: block «FE-079 sign-off; BK-b1s and CGR-220 gates»: controls «a document names the BK form of an engine first» (AUT-127), «a ranking is tested on the rows the team sees» (AUT-128), agent contract lines (AUT-129). No agent added or removed |
 | 2026-11-15 02:17 | `aia` | §12: block «BK-b2 gates; one member step for confirm and take»: controls «eligibility is private and names a step, never a person» (checked on #1273) and «one member step for every check» (AUT-130). No agent added or removed |
 | 2026-11-17 02:19 | `aia` | §12: block «bottleneck map v4; one entry for one gap»: map v4 on Blueprint §6.3; control «one entry for one gap» (AUT-131). No agent added or removed |
+| 2026-11-17 08:25 | `aia` | §12: block «BK-c1 gate; the caller sees only her own state»: AUT-128 database part and AUT-130 met on #1342 `abe0c5d`; control «the caller sees only her own state» (AUT-132). No agent added or removed |
