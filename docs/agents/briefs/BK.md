@@ -530,3 +530,21 @@ Read: `cra` journal `2026-11-17-0529-cra.md` and `CLINICAL_GOVERNANCE.md` 05:29 
 7. **Challenge hypothesis H-BK-05:39 (PLANNED, measure only):** every acknowledgement is a coordination step. If the take names the caller by default and naming a colleague is the explicit exception, most takes need no acknowledgement. Measure in the simulation the share of takes that name someone other than the caller; if it is high, ask `uxa` and `aia` why the team does not let the going person take herself.
 
 Owners: `eng` (2, then 3 in BK-c2), `cra` (2 gate, 3 substance, 5, 6), `lca` (2 re-confirm), `aia` (2 gate: V-8 / AUT-128, AUT-130), `uxa` (3 words, 5 words). PO status of BK: **active**, slice BK-c (BK-c1 changes requested: CGR-229, CGR-225 (b)).
+
+## PO amendment 2026-11-17 06:39 (scheduled PO run): BK-c1 change request met on `abe0c5d`; awaits fresh gates
+
+Read: `eng` comment 6939600897 on #1342, diff `9543ad1..abe0c5d` (migration 0135, pgTAP 143, `order-take.sh`, ADR-199 addendum 06:20), `ci` 44023229539 check runs and the raw `db` log. Interim review, not an acceptance; the PO ran no test.
+
+| Criterion (PO 05:39 (2)) | Result | Evidence |
+|---|---|---|
+| CGR-229 (b) red first | met | `0e0a581`, `db` job 133835499750 failure «live takes of M1: 2» (journal `eng` 06:20; PR comment 6939309384) |
+| CGR-229 (a) one person cannot be taken on two overlapping orders in two sessions | met (CI) | `take_order`: `pg_advisory_xact_lock(hashtextextended('order_take_member:' \|\| member, 0))` before `order_member_step`; lock order order row, then person (no cycle); `db` job 133837476095 race case 3 «member_not_eligible:3 ok ; live takes of M1: 1; take rows: 1» |
+| CGR-229 (c) writer list | met | ADR-199 `order_takes` writer row corrected, addendum 06:20 |
+| CGR-225 (b) empty new round | met (CI) | pgTAP 143 (14 assertions, positive and negative) «ok»; «Files=143, Tests=5069 … Result: PASS» |
+| CI on head | green | `app` 133837476189, `db` 133837476095, `e2e` 133837476226 (182 passed per `eng`), `ui-screenshots` 133837476203: all success; `mergeable_state` clean |
+
+1. **Merge still waits** for fresh gate lines on `abe0c5d` from `cra`, `lca`, `aia` (§4 (2), (3); AUT-50: the `cra` clearance names `9543ad1` and the diff touches `supabase/`).
+2. **Residual (ADR-199 addendum 06:20), PO decision:** a visit written by another writer at the same instant as a take is **placed with CGR-232** as a criterion of the slice that first writes a visit from a take (BK-e or later), with a two-session race case there. It does not block BK-c1: BK-c1 writes no visit. `cra` may raise it as before-merge if it sees otherwise.
+3. **Challenge hypothesis H-BK-06:39 (PLANNED, proposal to `uxa`/`aia` for BK-c2):** the person lock makes a failed take visible only after the tap («member_not_eligible»). If the offer list on `/team` shows per offer whether the caller herself is free for it (same `order_member_step`, read only), a nurse never taps an order she cannot take, and the race becomes the rare case. Measure in the simulation: share of takes refused with `member_not_eligible`. No new rule; the deterministic check stays the only gate.
+
+Owners: `cra`, `lca`, `aia` (gate lines on `abe0c5d`), `eng` (none until gates), `uxa`/`aia` (3). PO status of BK: **active**, slice BK-c (BK-c1 awaiting gates on `abe0c5d`).
