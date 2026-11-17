@@ -214,3 +214,13 @@ describe("client side (template §4, F-1, UXR-223, CGR-226 (a))", () => {
     expect(clientCoverLines({ ...base, cover_state: "something", cover_detail: null }).headline).toBe("Noch nicht gedeckt · Beginn Sa 21.11., 07:00");
   });
 });
+
+describe("command answers on the team card", () => {
+  it("words a lost race neutrally and never names a step or a reason about a person", async () => {
+    const { offerCommandText, ALREADY_TAKEN_TEXT } = await import("@/features/orders/offer-rules");
+    expect(offerCommandText("already_taken")).toBe(ALREADY_TAKEN_TEXT);
+    for (const r of ["member_not_eligible", "not_offered", "order_started", "not_named", "self_named", "already_acknowledged", "no_live_take", undefined]) {
+      expect(offerCommandText(r)).not.toMatch(/step|Stufe|Abwesen|Nachweis|Team [A-Z]/);
+    }
+  });
+});
