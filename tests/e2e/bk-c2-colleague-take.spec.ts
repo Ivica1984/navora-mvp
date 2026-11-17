@@ -9,8 +9,10 @@ import { zurichDay } from "./support/durchgang-time";
 //   kolleginbs.test registered nurse of Testteam Basel (seed addition, PO 11:39 (2)): the named person;
 //   pflege.test     member of Testteam Nord (org A): never sees either card.
 // Case 1: the colleague sees «Für dich eingeteilt» first and confirms; the client reads «Noch nicht gedeckt» until then
-// and «Gedeckt» after. Case 2: she presses «Ich kann nicht»; the order is offered again and the client reads
-// «Nicht mehr gedeckt». Each case and width uses its own Zurich day 32 to 35 days ahead (no other spec orders on those
+// and «Gedeckt» after. Case 2: she presses «Ich kann nicht»; the first tap only opens the confirm step (UXR-224, PO
+// 12:39 (1)), «Freigeben» releases; the order is offered again and the client, who never read «Gedeckt», reads
+// «Noch nicht gedeckt», never «Nicht mehr gedeckt» (UXR-225 (a), PO 12:39 (2)); then the team's «Ablehnen» goes through
+// the same two-step confirm. Each case and width uses its own Zurich day 32 to 35 days ahead (no other spec orders on those
 // days), so both nurses are free (step 3); no assertion counts orders. Screenshots of the cards at 390 and 1440 px are
 // attached to the Playwright report (CI artefact `playwright-report`) for `uxa` (PO 2026-11-16 21:39 (5)).
 const PASSWORD = "navora-local-only";
@@ -107,6 +109,7 @@ async function namedCard(page: Page, when: string) {
   await expect(lines.nth(0)).toHaveText("Pflegekraft B. hat diese Schicht für euer Team übernommen und dich eingeteilt.");
   await expect(lines.nth(1)).toHaveText(/^Bitte bis \S\S \d\d\.\d\d\., \d\d:\d\d bestätigen\.$/);
   await expect(card.getByRole("button")).toHaveText(["Bestätigen", "Ich kann nicht"]);
+  await expect(card.getByTestId("shift-offer-ack-note")).toHaveText("Mit dem Bestätigen bist du fest eingeteilt.");
   await expect(card).not.toContainText(FORBIDDEN);
   await expect(card.getByRole("timer")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -144,14 +147,30 @@ for (const width of [390, 1440]) {
     await otherTeamNeverSees(page, when);
   });
 
-  test(`at ${width} px the named colleague presses «Ich kann nicht»: the order is offered again and the client reads «Nicht mehr gedeckt»`, async ({ page }) => {
+  test(`at ${width} px the named colleague presses «Ich kann nicht» (two steps): the order is offered again and the client reads «Noch nicht gedeckt»; the team declines in two steps`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const when = await orderShift(page, zurichDay(Date.now(), width === 390 ? 34 : 35));
     await takeNamingColleague(page, when, width, "cannot");
     await otherTeamNeverSees(page, when);
 
-    const card = await namedCard(page, when);
+    let card = await namedCard(page, when);
+    // UXR-224: the first tap opens the step and writes nothing; «Zurück» restores the card.
     await card.getByRole("button", { name: "Ich kann nicht" }).click();
+    const step = card.getByTestId("shift-offer-step");
+    await expect(step.getByTestId("shift-offer-step-sentence")).toHaveText(
+      "Du gibst diese Schicht frei. Sie geht sofort an alle passenden Teams; du kannst sie danach nicht mehr übernehmen.",
+    );
+    await expect(step.getByTestId("shift-offer-step-sentence")).toBeFocused();
+    await expect(card.getByRole("button")).toHaveText(["Freigeben", "Zurück"]);
+    await snap(page, `bk-c2-cannot-step-${width}.png`);
+    await page.reload();
+    card = await namedCard(page, when);
+    await card.getByRole("button", { name: "Ich kann nicht" }).click();
+    await card.getByRole("button", { name: "Zurück" }).click();
+    await expect(card.getByRole("button")).toHaveText(["Bestätigen", "Ich kann nicht"]);
+    await expect(card.getByTestId("shift-offer-step")).toHaveCount(0);
+    await card.getByRole("button", { name: "Ich kann nicht" }).click();
+    await card.getByRole("button", { name: "Freigeben" }).click();
     // Her card no longer asks her to act; the release is stated without a reason about her.
     const after = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
     await expect(after.getByTestId("shift-offer-release")).toHaveText("Nicht mehr übernommen: Kollegin B. kann diese Schicht nicht übernehmen.");
@@ -172,7 +191,35 @@ for (const width of [390, 1440]) {
     await snap(page, `bk-c2-cannot-team-${width}.png`);
     await signOut(page);
 
-    await clientReads(page, when, /^Nicht mehr gedeckt · Beginn /, "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.");
+    // UXR-225 (a) with `lca` F-2: the client never read «Gedeckt», so never «Nicht mehr gedeckt».
+    await clientReads(page, when, /^Noch nicht gedeckt · Beginn /, "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.");
+    await signIn(page, "kundebs.test@navora.test");
+    await page.goto("/order");
+    await expect(page.getByTestId("client-orders").locator("li", { hasText: when }).last()).not.toContainText("Nicht mehr gedeckt");
+    await signOut(page);
     await otherTeamNeverSees(page, when);
+
+    // UXR-224 for «Ablehnen»: the first tap writes nothing (the offer is still there after a reload), «Zurück» restores
+    // the card, the step's «Ablehnen» declines.
+    await signIn(page, "pflegebs.test@navora.test");
+    await page.goto("/team");
+    let offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
+    await offer.getByRole("button", { name: "Ablehnen" }).click();
+    await expect(offer.getByTestId("shift-offer-step-sentence")).toHaveText("Euer Team sieht dieses Angebot danach nicht mehr.");
+    await expect(offer.getByTestId("shift-offer-step-sentence")).toBeFocused();
+    await expect(offer.getByRole("button", { name: "Zurück" })).toBeVisible();
+    await snap(page, `bk-c2-decline-step-${width}.png`);
+    await page.reload();
+    offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
+    await expect(offer.getByTestId("shift-offer-tag")).toHaveText("Neues Angebot");
+    await expect(offer.getByTestId("shift-offer-step")).toHaveCount(0);
+    await offer.getByRole("button", { name: "Ablehnen" }).click();
+    await offer.getByRole("button", { name: "Zurück" }).click();
+    await expect(offer.getByTestId("shift-offer-step")).toHaveCount(0);
+    await expect(offer.getByRole("button", { name: /^Übernehmen mit / })).toBeVisible();
+    await offer.getByRole("button", { name: "Ablehnen" }).click();
+    await offer.getByTestId("shift-offer-step").getByRole("button", { name: "Ablehnen" }).click();
+    await expect(page.getByTestId("shift-offer-card").filter({ hasText: when })).toHaveCount(0);
+    await signOut(page);
   });
 }

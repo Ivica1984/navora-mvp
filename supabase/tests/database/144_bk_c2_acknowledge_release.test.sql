@@ -29,7 +29,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(61);
+select plan(67);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -243,7 +243,8 @@ select is(private.order_member_step(pg_temp.oid('o3'), pg_temp.t('01'), pg_temp.
           'PO 08:39 (2): her «Ich kann nicht» is a non-availability for this order');
 select is(pg_temp.offered('o3', 2), array[pg_temp.t('01'), pg_temp.t('02')],
           'UXR-222: the release path screens a new round; her team stays in through another member');
-select is(pg_temp.cs('o3'), 'no_longer_covered', 'the client reads «nicht mehr gedeckt»');
+select is(pg_temp.cs('o3'), 'open/take_fell_away',
+          'UXR-225 (a) (PO 12:39 (2)): the client never read «gedeckt», so it reads «noch nicht gedeckt», never «nicht mehr gedeckt»');
 select pg_temp.look('01', 'o3');
 select is((select offer_state || '/' || release_kind || '/' || released_member_id::text from seen where member = '01' and k = 'o3'),
           'open/member_cannot/' || pg_temp.m('02')::text, 'CGR-234 (d): the taker''s team sees the release and who released');
@@ -299,6 +300,23 @@ select is(pg_temp.ops('o6'), 'not_covered/started', 'an unacknowledged take neve
 select is(pg_temp.ack('02', 'o6', 'ffff0000-0000-4000-8144-000000000052') ->> 'reason', 'order_started',
           'an acknowledgement after the start is refused');
 
+-- 10. An acknowledged take dropped by the ADR-199 safety net (UXR-225 (b), `lca` F-2; PO 12:39 (2)) ------------------
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+select pg_temp.co('o7', date '2026-11-28', 'dddd0000-0000-4000-8144-000000000007');
+reset role;
+select pg_temp.as_owner();
+select is(made.r ->> 'result', 'ok', 'O7 is confirmed') from made where made.k = 'o7';
+select is(pg_temp.take('01', 'o7', '01', '02', 'ffff0000-0000-4000-8144-000000000060') ->> 'result', 'ok', 'M1 takes O7 naming M2');
+select is(pg_temp.ack('02', 'o7', 'ffff0000-0000-4000-8144-000000000061') ->> 'result', 'ok', 'M2 acknowledges O7');
+select is(pg_temp.cs('o7'), 'covered', 'the client reads «gedeckt»');
+-- A membership row removed with triggers off stands for any path the triggers miss (as pgTAP 142 section 2).
+set local session_replication_role = replica;
+delete from public.team_memberships where team_id = pg_temp.t('01') and user_id = pg_temp.m('02');
+set local session_replication_role = origin;
+select is(pg_temp.cs('o7'), 'no_longer_covered',
+          'UXR-225 (b): after «gedeckt» was shown, the safety net reads «nicht mehr gedeckt» (the words carry no person, F-2)');
+
 -- 9. Whole client read model (F-1, UXR-223 negative) -------------------------------------------------------------------
 create temp table cl (id uuid, cover_state text, cover_detail text);
 grant all on cl to authenticated;
@@ -312,6 +330,10 @@ select is((select count(*)::int from cl where cover_detail in ('no_team_eligible
 select is((select count(*)::int from cl join public.order_takes t on t.order_id = cl.id and t.released_at is null
            where cl.cover_state = 'covered' and t.acknowledged_at is null), 0,
           'UXR-223: no client row reads «gedeckt» on an unacknowledged take');
+select is((select count(*)::int from cl
+           where cl.cover_state = 'no_longer_covered'
+             and not exists (select 1 from public.order_takes t where t.order_id = cl.id and t.acknowledged_at is not null)), 0,
+          'UXR-225 (a): no client row reads «nicht mehr gedeckt» on an order whose take was never acknowledged');
 
 select * from finish();
 rollback;

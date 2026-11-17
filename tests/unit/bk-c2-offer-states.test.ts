@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  ACK_FINAL_LINE,
+  CANNOT_STEP,
+  DECLINE_STEP,
+  NOBODY_LINE,
+  TAKE_FOOTER,
   clientCoverLines,
   firstName,
   shortName,
@@ -141,6 +146,40 @@ describe("team side (template §3, UXR-221, CGR-230, UXR-222, AUT-132, CGR-234 (
     expect(v.chooseLabel).toBe("Andere Person wählen");
   });
 
+  it("UXR-226: nobody in the team can take: one line, no «Du selbst …», no primary button; «Ablehnen» stays", () => {
+    const v = teamOfferView(row({ caller_free: false }), ME, NAMES, []);
+    if (v.kind !== "offer") throw new Error(v.kind);
+    expect(v.nobodyLine).toBe("Niemand in eurem Team kann diese Schicht zurzeit übernehmen.");
+    expect(NOBODY_LINE).toBe(v.nobodyLine);
+    expect(v.callerNotFree).toBeNull();
+    expect(v.chooseLabel).toBeNull();
+    expect(v.candidates).toEqual([]);
+    expect(JSON.stringify(v)).not.toMatch(/Person wählen|Du selbst|erfüllt niemand/);
+  });
+
+  it("UXR-226 negative: with a candidate there is no «Niemand …» line and the primary stays", () => {
+    const v = teamOfferView(row(), ME, NAMES, [{ user_id: ME, is_caller: true }]);
+    if (v.kind !== "offer") throw new Error(v.kind);
+    expect(v.nobodyLine).toBeNull();
+    expect(v.chooseLabel).toBe("Person wählen");
+  });
+
+  it("UXR-224: the confirm steps carry one consequence sentence each; «Bestätigen» says it is final", () => {
+    expect(CANNOT_STEP).toEqual({
+      sentence: "Du gibst diese Schicht frei. Sie geht sofort an alle passenden Teams; du kannst sie danach nicht mehr übernehmen.",
+      action: "Freigeben",
+      back: "Zurück",
+    });
+    expect(DECLINE_STEP).toEqual({ sentence: "Euer Team sieht dieses Angebot danach nicht mehr.", action: "Ablehnen", back: "Zurück" });
+    expect(ACK_FINAL_LINE).toBe("Mit dem Bestätigen bist du fest eingeteilt.");
+  });
+
+  it("UXR-228: the footer says when the client reads «Gedeckt»", () => {
+    expect(TAKE_FOOTER).toBe(
+      "Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut. ‹Gedeckt› sieht der Auftraggeber, wenn diese Person geprüft ist und, falls ihr jemand anderen wählt, bestätigt hat.",
+    );
+  });
+
   it("a release with no new offer for the team: the line only, no action (CGR-234 (d))", () => {
     expect(teamOfferView(row({ offer_state: "released", release_kind: "not_acknowledged", released_member_id: COLLEAGUE }), ME, NAMES, [])).toEqual({
       kind: "released",
@@ -204,10 +243,25 @@ describe("client side (template §4, F-1, UXR-223, CGR-226 (a))", () => {
       headline: "Nicht gedeckt · Die Schicht hat um 07:00 begonnen.",
       detail: null,
     });
+    // UXR-225 (b) with `lca` F-2 (PO 12:39 (2)): after «Gedeckt» was shown, the detail names no person and no cause.
     expect(clientCoverLines({ ...base, cover_state: "no_longer_covered", cover_detail: null })).toEqual({
       headline: "Nicht mehr gedeckt · Beginn Sa 21.11., 07:00",
+      detail: "Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.",
+    });
+  });
+
+  it("UXR-225 (a): a take that fell away before «Gedeckt» was ever shown reads «Noch nicht gedeckt», never «Nicht mehr gedeckt»", () => {
+    const l = clientCoverLines({ ...base, cover_state: "open", cover_detail: "take_fell_away" });
+    expect(l).toEqual({
+      headline: "Noch nicht gedeckt · Beginn Sa 21.11., 07:00",
       detail: "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.",
     });
+    expect(JSON.stringify(l)).not.toMatch(/Nicht mehr gedeckt/);
+  });
+
+  it("`lca` F-2 negative: «Nicht mehr gedeckt» never carries a person or a cause", () => {
+    const l = clientCoverLines({ ...base, cover_state: "no_longer_covered", cover_detail: null });
+    expect(JSON.stringify(l)).not.toMatch(/Person kann nicht|Person|abwesend|krank|Nachweis|erfüllt/);
   });
 
   it("an unknown state is never shown as covered", () => {
