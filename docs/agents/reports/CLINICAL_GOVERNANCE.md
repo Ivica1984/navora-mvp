@@ -16,6 +16,46 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 22:26 CET: `cra-gate: #1403 6007fd5 clear` (gate «Simulation, synthetic data» only). #1403 is the test-only PR the PO asked for in the BK-c acceptance review of 21:39 (`changes-requested`): pgTAP 147 pins `lca` D-44 G-2 (i), (ii), G-3 (2) and G-6 on the existing code. No migration, grant, seed or app code changed. `app`, `db`, `e2e`, `ui-screenshots` green on `6007fd5`. No new finding; no finding closed. Read on `recovery/main` `7fccdae`. Blueprint 3.2.43 changed the header, §8 row BK and the version rows; Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
+
+### What I read
+
+- Merges since my 21:27 section: #1399 (`eng` journal, docs only), #1400 (mine), #1401 (`po` 21:39: brief `BK.md` §PO review 21:39, `ABNAHMEAKTE.md` §3 row BK-c, `NEXT_CAPABILITY.md` *Active now*, Blueprint 3.2.43). `git diff c6806b2 7fccdae -- src supabase tests` is empty.
+- Open PRs: #1403 (`eng`, BK-c, test only; head `6007fd5`), #1402 (`uxa` role docs, no finding from my field), #1084 (Dependabot, out of my scope). No review comment addressed to me.
+- The test file itself, `supabase/tests/database/147_bk_c_privacy_criteria.test.sql` (31 assertions), and the table definitions it reads (0130 `order_offers`, `order_exclusions`; 0135 `order_takes`, `order_declines`).
+
+### #1403 against the PO change request (brief `BK.md` §PO review 21:39 point 1)
+
+| Criterion | What the test asserts | My check |
+|---|---|---|
+| G-2 (i), (ii): no address, contact or `activity_tags` key audited as class `code` for a household client's order | on the audit rows the household order path really writes (account, confirm, decline, take): every key classified; no key matching street/address/contact/phone/mail/name/place/city/activity/tag/title/summary/note/text is class `code`; `activity_tags`, `required_tags`, `partner_name`, `display_name`, `city`, `need_summary`, `request_title` not audited at all; the name token in no audit value; the same check on the `write_audit_event` trigger column lists of the four tables (covers update paths the test does not run); catalogue rows for name, place and tags never `code` | met. A precondition asserts the four audited tables are present, so the key scan is not empty. A care tag such as a diagnosis-like activity never becomes a freely readable audit value next to postcode and time |
+| G-3 (2): no household name and no `partner_name` to a team before «Übernehmen» | two members of the offered teams: ten reads captured as text (offer list, take candidates, the order tables under RLS, `partner_requests`, `teams`, the client reads); no name token, no `partner_name`/`display_name`/`partner_type` key; `partner_requests` 0 rows to a nurse; no app role reads `client_accounts`; the offer list has no partner, name or client column; no app-callable function reading the order tables touches `partner_name` or `display_name`; non-empty check (TA1 sees oA as open offer); positive: the client then reads «covered / BK-c 147 Team A1»; the declining team still reads no name after the take | met. The non-empty precondition keeps the scan from being vacuous |
+| G-6: one person client in network A and member in network B | U reads no `teams`, `order_offers`, `order_exclusions`, `order_takes`, `order_declines` row of A, although A holds such rows for U's own order; U's team view lists only the B order; U's client view only the own A order (not the B order U's own team took); `my_client_accounts()` = HA; U cannot take the own A order (`not_offered`, `not_team_member`) nor order for B's account (`rejected`); reverse for a client-only user of B and a member-only user of A | met. The organisation filter is not vacuous: all five tables carry `organization_id` (0130 lines 162, 173; 0135 lines 83, 103; teams inserted with it in the fixture), and a positive row (U reads its own team's take of oB) proves the capture works |
+
+The reading `eng` states for G-6 (the client role gives no team-side read of network A; the member role gives no client-side read beyond the own account) is the safe one from my field; whether it matches D-44 is `lca`'s to say.
+
+**Patient-safety reading.** These assertions protect privacy, not cover. They do not change who sees an offer, when an order counts as covered, or any release path (pgTAP 141 to 146 unchanged). Nothing in the file sets or implies a clinical rule, a qualification cell, a care level or KVG billability (CGR-237 (2) unaffected).
+
+**CI on `6007fd5`** (check runs, read through the API): `app` `success`, `db` `success`, `e2e` `success`, `ui-screenshots` `success`; `staging` still running (not a test of this change). I read the check-run conclusions; I did not read the `db` raw log for the per-file line of 147 this run. The acceptance evidence stays the PO-requested `ci-repeat` on the merge commit inside the window, read from raw logs (FE-072).
+
+`cra-gate: #1403 6007fd5 clear` (simulation, synthetic data). A later head needs a new gate line.
+
+### Findings
+
+No new finding. No new hard-coded clinical rule (test only).
+
+### Answers and decisions requested
+
+- **PO:** from my field #1403 may merge on `6007fd5` once `lca` has given its gate line. Then `ci-repeat` on the merge commit after 02:20 Zurich; my acceptance input of 21:27 on `ad21dd2` carries over if the new run is 10/10 for `db` and `e2e` with pgTAP 147 «ok» in every log and no code diff to `ad21dd2` other than the test file; I will read the logs in my next run after it.
+- **`lca`:** gate line on #1403; the G-6 reading; CGR-239 (one reference, open).
+- Waiting (unchanged): Clinical Owner (K-8, CR-224 to CR-228, CGR-196, CGR-226 (b), CGR-238 (b)); founder (CGR-237 (3), `STAGING_DB_URL`); `uxa` (UXR-229 to UXR-231, CGR-235 (c), CGR-238 (a) words).
+
+### Findings closed
+
+None this run.
+
+---
+
 ## 2026-11-17 21:27 CET: BK-c on the integrated commit `ad21dd2`: **`cra` acceptance input clear for «Simulation, synthetic data»** (my field; the acceptance itself is the PO's, FE-072). The merge of #1388 carries exactly the head I cleared (`git diff 8744acd ad21dd2 -- src supabase tests` empty); push `ci` 44163100048 on `ad21dd2` green; `ci-repeat` 44166631679 on `ad21dd2` 10/10 for `db` and `e2e`, read by me from all 20 raw job logs, pgTAP 145 (CGR-235 (b)) and 146 (CGR-236) «ok» in every `db` log. CGR-236 and CGR-238 (c) close. CGR-237 (1) answered by `lca` (D-18 20:20). One new advisory finding, CGR-239 (a cross-reference in D-18). Read on `recovery/main` `ca6487b`. Blueprint 3.2.42 changed §2.2, §8 row BK, Annex A and Chapter 13 (`csa` renewal); Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
 
 ### What I read
