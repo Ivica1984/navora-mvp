@@ -6,6 +6,41 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 03:48 CET · `uxa`: UXR-215 and UXR-209 closed on merges `08e5d8e` and `792a5d3` (both in the BK-b acceptance commit `ab90875`); BK-c active, #1342 (BK-c1) changes no screen; ADR-199 cover states map onto the BK-5 template; UXR-221 (medium, the template has no «taken by us» state and no view for the named person); benchmark open-shift claim pattern
+
+**State.** `recovery/main` at `14f0f91` (PO merge #1341). Since my 03:47 section (2026-11-15) merged: my PR #1326, #1291 (`08e5d8e`), #1276 (`792a5d3`), #1295 (`ab90875`), PO, `eng`, `cra`, `lca`, `aia` docs PRs up to #1341. **BK-b accepted for the simulation on `ab90875`** (PO 02:39, gate «Simulation, synthetic data»; not released for real persons or data). **Active: BK, slice BK-c** (`NEXT_CAPABILITY.md`). Screen changes on `recovery/main` since `6c4b74b`: only `order-form.tsx`, `orders/rules.ts` (#1291) and `team/einsatzgebiet/page.tsx`, `reach-client.tsx`, `reach/rules.ts` (#1276); I reviewed both on their heads (19:58 and 15:51 on 2026-11-14). Blueprint moved 3.2.22 → 3.2.25: only the header, §8 status line and chapter 13 lines changed (hunks at lines 7, 515, 655, 839, 888, 1491); **no change in §5, §6 or `blueprint-v3/wireframes/`**, so my FE-079 sign-off (reservation UXR-195, [#1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6888169318)) stands; no renewal.
+
+**Open PRs.** #1342 (draft, BK-c1, head `b6f4cb7`): migration, pgTAP 141, types, `DECISIONS.md` (ADR-199), journal; **no file under `src/app` or `src/components`**, so no screen review and no `uxa` gate (BK amendment 03:39 (6) on #1343 agrees). #1343 (PO 03:39), #1337 (ADR-198), #1087 (STG1): no screen.
+
+**Screenshots.** The newest `ui-screenshots` artifact for `recovery/main` (id 14291880847, `14f0f91`, 01:58 UTC) exists; the download was refused again by the session proxy (blob host). **No screenshots were available.** Review from code, diffs and documents.
+
+### Closed
+
+| Finding | Evidence |
+|---|---|
+| **UXR-215** (`/order`, level change kept a stale «Für FaGe …» refusal) | #1291 merged by the PO as `08e5d8e` (head `e9b1672`); the change (`order-form.tsx` `conflictGrade`, `orders/rules.ts` `orderProblemsAfterChange`) and its tests (`tests/e2e/bk-b2-level-activity-conflict.spec.ts:66` ff., `tests/unit/uxr-215-refusal-keeps-checked-values.test.ts`) are on `14f0f91`. `08e5d8e` is an ancestor of `ab90875`. CI read from the API (not run by me): `08e5d8e` `app`, `db`, `e2e`, `ui-screenshots` success (earlier runs cancelled); `ab90875` all 22 `e2e` check runs success, `db` and 10 `db repeat` success. The PO read the 20 `ci-repeat` logs (PO 02:39: `e2e` 182 passed, 0 skipped). |
+| **UXR-209** (`/team/einsatzgebiet`, how postcodes and km combine) | #1276 merged as `792a5d3` (head `08b29c8`): `REACH_DISTANCE_RULE_TEXT` with my words verbatim under «Höchstdistanz in km», `aria-describedby` `-rule` (plus `-err` on refusal); `lca` B-5 help line moved into the postcode fieldset (`reach-client.tsx` `-help`), header line removed (`page.tsx`). Ancestor of `ab90875`; CI as above. |
+
+### BK-c2 input (words; presentation only)
+
+**ADR-199 (6) cover states against the template** (`docs/design/BK5_OFFER_TEMPLATE.md` §4): `open` → «Noch nicht gedeckt …»; `covered` → «Gedeckt · Pflegekraft benannt»; `no_longer_covered` → «Nicht mehr gedeckt …»; `not_covered` with `cover_time_reached`, `all_declined`, `no_team_eligible`, `started` → the four «Nicht gedeckt» rows. **Every value has exactly one row; no gap.** `client_orders()` returns `covered_team_name` only after a take and no count (ADR-199 (6), `lca` G-3, D-44 (2) (a)), which matches §4 «Never for the client». The next step under «Nicht gedeckt» stays **UNKNOWN** (`cra`, CGR-226). The take-over right is decided for Phase A (BK amendment 03:39 (2) on #1343, not yet merged): every active member; the template's «team members with the take-over right» (§2 heading) then means every active member, no extra label on screen.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-221 | `/team` offer list, team member; the named person (BK-c2) | medium | The BK-5 template has no state for an offer **the own team has taken**, and none for the **person named** in a take. ADR-199 (8) keeps such a row in `team_order_offers()` as `offer_state = 'taken_by_us'` with the named member, and BK amendment 03:39 (3) requires that the named member sees her own take on `/team`; a colleague may name her (03:39 (2)). Without words, BK-c2 must invent them, or the card vanishes after the take and the team cannot see who goes (first question: what needs attention now). | `BK5_OFFER_TEMPLATE.md` §3 (states: choosing, pending, other team first, taken elsewhere, failed, declined, dropped out; no «taken by us»); #1342 `DECISIONS.md` ADR-199 (8); #1343 `briefs/BK.md` 03:39 (2), (3) | §1 (three questions), §2 (one primary action), §5 offer rule | Words, PROPOSED: **team card after the own take**, tag «Übernommen», line «Ihr habt diese Schicht übernommen. Es geht: [Vorname N.].», second line «Übernommen von [Vorname N.] um 14:31.» only when the taker is not the named person; **no primary button** in BK-c (no un-take is specified). **Named person's own view** (on `/team`, later `/field`): «Du bist für diese Schicht eingeteilt.» plus shift fact line, and «Eingeteilt von [Vorname N.]» when a colleague took it. Playwright 390: after a take by member A naming member B, A's and B's `/team` show the card with «Übernommen» and B's first name; a member of another team sees neither (03:39 (3)). **`cra` decides** whether the named person must acknowledge before shift start (03:39 (4), OPEN); if yes, an acknowledge action replaces «no primary button» for her, words then from `uxa`. First names to other team members only: `lca` G-5 (e) before real use. | report only (medium) |
+
+### Benchmark (2026-11-17)
+
+Open-shift claiming in workforce apps; read Connecteam help «How to claim an open shift» (https://help.connecteam.com/en/articles/6814564-how-to-claim-an-open-shift, read 2026-11-17). Pattern in my words: a worker finds an open shift in the schedule, claims it in one tap, and the shift then **appears in her own schedule at once**; where a manager must approve, the shift shows a waiting status until approved or refused; workers can opt in to a notice when open shifts are published. The page does not say what the card shows or what a worker sees when someone else claimed first. **Adopt:** the taken shift moves into the taker's own view at once with a plain status (UXR-221). **Do not adopt:** the manager approval step (NAVORA has no dispatcher, FE-039, BK-5n) and «claim early» notices, which would turn the broadcast into a race (§5 offer rule; any push text is `lca`'s). NAVORA's «Bereits übernommen» neutral state (template §3) covers the gap the page leaves. Nothing copied.
+
+**Design system:** version 88 (UXR-215 rule and UXR-209 lines IMPLEMENTED; §5 offer rule gains «A taken offer stays visible to the team that took it», PROPOSED). No token change.
+
+**Waiting for the PO:** place UXR-221 in BK-c2 (words above; `BK5_OFFER_TEMPLATE.md` §3 gets the two rows when placed); BK-c2 PR to attach 390/1440 px images in a PR comment (03:39 (1)). **For `cra`:** 03:39 (4) acknowledgement question and CGR-226 next step. I ran no NAVORA test.
+
+---
+
 ## 2026-11-15 03:47 CET · `uxa`: UXR-220 closed on Blueprint 3.2.21 (merge `5db36ff`); FE-079 sign-off renewed on 3.2.22 with reservation UXR-195 only; #1273 (BK-b2) merged as `6c4b74b`, my screen line stands; UXR-215 now on `recovery/main` until #1291 is merged; benchmark GOV.UK validation pattern
 
 **State.** `recovery/main` at `6c4b74b` (PO merge #1273, BK-b2, head `c2ffef1`). Since my 23:50 section merged: my PR #1314, PO #1313, #1316 (3.2.21), #1321 (3.2.22), #1323, #1325 open (PO 03:39, docs), `lca` #1315, #1317, `csa` #1318, `cra` #1320, `aia` #1322, `eng` #1324, and **#1273**. **Active: BK, slice BK-b** (`NEXT_CAPABILITY.md`, unchanged). Open PRs that change screens: #1291 (draft, head `6abf9f8`, unchanged, now based on `6c4b74b`), #1276 (draft, `1600588`, unchanged). #1295 changes no screen.

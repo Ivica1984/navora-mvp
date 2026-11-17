@@ -23,6 +23,40 @@ const JOB_NAMES = Object.freeze({
   e2e: "e2e (auth · protected routes · Playwright)",
 });
 
+export const WINDOW_START = "window-start";
+export const WINDOW_VERDICT = "window";
+
+/**
+ * ADR-198: two jobs around the attempts. `window-start` records when the run started; every attempt needs it, so no
+ * attempt starts earlier than the recorded time. `window` runs after all attempts (also after failures) and labels the
+ * run inside or outside the e2e acceptance window (scripts/ci-repeat-window.mjs). Neither job fails on the verdict.
+ */
+export const WINDOW_JOBS =
+  `  ${WINDOW_START}:\n` +
+  "    name: repeat window start (ADR-198)\n" +
+  "    runs-on: ubuntu-latest\n" +
+  "    timeout-minutes: 5\n" +
+  "    outputs:\n" +
+  "      started: ${{ steps.start.outputs.started }}\n" +
+  "    steps:\n" +
+  "      - uses: actions/checkout@v5\n" +
+  "      - name: Record the run start (Europe/Zurich)\n" +
+  "        id: start\n" +
+  "        run: node scripts/ci-repeat-window.mjs start\n" +
+  "\n" +
+  `  ${WINDOW_VERDICT}:\n` +
+  "    name: repeat window verdict (ADR-198)\n" +
+  `    needs: [${WINDOW_START}, ${REPEAT_JOBS.join(", ")}]\n` +
+  "    if: always()\n" +
+  "    runs-on: ubuntu-latest\n" +
+  "    timeout-minutes: 5\n" +
+  "    steps:\n" +
+  "      - uses: actions/checkout@v5\n" +
+  "      - name: Acceptance window verdict (label only, never fails the run)\n" +
+  "        env:\n" +
+  `          REPEAT_STARTED: \${{ needs.${WINDOW_START}.outputs.started }}\n` +
+  "        run: node scripts/ci-repeat-window.mjs verdict\n";
+
 /** The text of one job (`  <id>:` up to the next job or the end), as in tests/unit/ci2-scope.test.ts. */
 export function jobBlock(text, id) {
   const start = text.indexOf(`\n  ${id}:\n`);
@@ -41,7 +75,7 @@ function top(text, key) {
 function repeatJob(ci, id) {
   let block = jobBlock(ci, id);
   const head = block.split("\n    steps:\n")[0];
-  if (/\n {4}(strategy|if):/.test(head)) throw new Error(`ci-repeat: job ${id} already has a strategy or job-level if`);
+  if (/\n {4}(strategy|if|needs):/.test(head)) throw new Error(`ci-repeat: job ${id} already has a strategy, needs or job-level if`);
   const nameLine = `    name: ${JOB_NAMES[id]}\n`;
   if (!block.startsWith(`  ${id}:\n${nameLine}`)) throw new Error(`ci-repeat: job ${id} does not start with ${nameLine.trim()}`);
   const [first, ...rest] = JOB_NAMES[id].split(" (");
@@ -53,7 +87,8 @@ function repeatJob(ci, id) {
     "      fail-fast: false\n" +
     "      matrix:\n" +
     `        attempt: \${{ fromJSON(startsWith(github.ref, 'refs/heads/repeat/2/') && '${short}' || '${full}') }}\n`;
-  block = block.replace(`  ${id}:\n${nameLine}`, `  ${id}:\n${name}${strategy}`);
+  // ADR-198: every attempt starts after the window-start job has recorded the run's start (Europe/Zurich).
+  block = block.replace(`  ${id}:\n${nameLine}`, `  ${id}:\n${name}    needs: [${WINDOW_START}]\n${strategy}`);
   // upload-artifact@v4 refuses two artifacts of the same name in one run.
   block = block.replace(/(\n {10}name: playwright-report)\n/g, "$1-${{ matrix.attempt }}\n");
   return block;
@@ -73,6 +108,8 @@ export function render(ci) {
     "concurrency:\n  group: ci-repeat-${{ github.sha }}-${{ github.ref }}\n  cancel-in-progress: false\n\n" +
     top(ci, "env") +
     "\njobs:\n" +
+    WINDOW_JOBS +
+    "\n" +
     jobs
   );
 }
