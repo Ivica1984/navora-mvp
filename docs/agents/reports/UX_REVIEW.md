@@ -6,6 +6,59 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 07:52 CET · `uxa`: no screen changed; BK-c2 words for CGR-230 (acknowledgement), F-1 (one neutral client zero state, next step first), CGR-226 (a) and H-BK-06:39 (caller free or not); UXR-222 (high, the named colleague cannot say «Ich kann nicht», #1351); UXR-223 (medium, client status before acknowledgement undecided)
+
+**State.** `recovery/main` at `74ef56b` (PO merge #1350). Since my 03:48 section merged: my PR #1344, #1337 (ADR-198, `abaddca`), `lca` #1345, `cra` #1347, PO #1343, #1346, #1348 to #1350. `git diff 14f0f91 74ef56b -- src` is **empty**: no screen changed. Active: BK, slice BK-c (BK-c1 #1342 on `abe0c5d`, awaiting `cra`, `lca`, `aia` gate lines). Blueprint 3.2.25 → 3.2.29: header, §8 BK row and version rows only; **§5, §6 and `blueprint-v3/wireframes/` unchanged**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
+
+**Open PRs.** #1342 (BK-c1, `abe0c5d`): no file under `src/app` or `src/components`; no screen review, no `uxa` gate. #1087 (STG1): no screen. No PR comment needed.
+
+**Screenshots.** Newest `ui-screenshots` artifact for `recovery/main` (id 14306596420, `74ef56b`, 06:50 UTC) exists; the download was refused again by the session proxy (blob host). **No screenshots were available.** Words below are from the BK brief (04:39 (3), (4); 05:39 (3), (5); 06:39 (3)), `cra` 05:29 (CGR-226, CGR-230), `lca` 04:20 (F-1) and `BK5_OFFER_TEMPLATE.md`.
+
+### BK-c2 words (presentation only; PROPOSED until the PO places them)
+
+All rows below extend `BK5_OFFER_TEMPLATE.md` §3 and §4, as the PO asked (04:39 (4)). My PR scope this run is the report, the design system and my journal, so **the template file is not edited here**; the PO either lets `uxa` transfer these rows into the template in its next PR, or `eng` builds from this section. Same source, same words.
+
+**(1) Team side, §3 new rows (UXR-221 with CGR-230).**
+
+| State | Words | Rule |
+|---|---|---|
+| Taken, the caller named herself | Tag «Übernommen» · «Ihr habt diese Schicht übernommen. Es geht: [Vorname N.].» | No primary button (no un-take in BK-c). Counts as acknowledged (CGR-230 (a)). |
+| Taken, a colleague named, not yet acknowledged (team view, also the taker) | Tag «Übernommen» · «Es geht: [Vorname N.] · Bestätigung ausstehend» · «Übernommen von [Vorname N.] um 14:31.» · «Bestätigt [Vorname] nicht bis Sa 14.11., 03:00, gilt die Übernahme nicht mehr.» | The time is `latest_cover_at` as a fact, never a countdown or amber colour (§5 offer rule). No action for the team (UNKNOWN whether the taker may withdraw: `po`). |
+| Named person's own card, not yet acknowledged | Tag «Für dich eingeteilt» · «[Vorname N.] hat diese Schicht für euer Team übernommen und dich eingeteilt.» · shift fact line · «Bitte bis Sa 14.11., 03:00 bestätigen.» · primary **«Bestätigen»** · outline **«Ich kann nicht»** (UXR-222, OPEN with the PO) | On `/team` first in the list; later also on `/field`. Only she sees the buttons. |
+| Acknowledged | Team: «Es geht: [Vorname N.] · bestätigt um 15:02» · her card: «Du bist für diese Schicht eingeteilt.» plus fact line | No primary button. |
+| Not acknowledged at `latest_cover_at` | Team and her card: «Die Übernahme gilt nicht mehr: [Vorname N.] hat nicht bis 03:00 bestätigt.» | What follows (new round or «Nicht gedeckt») is shown by the existing rows; no blame wording; `cra` confirms. |
+| She pressed «Ich kann nicht» (only if UXR-222 is placed) | Team: «Nicht mehr übernommen: [Vorname N.] kann diese Schicht nicht übernehmen.» · primary «Andere Person wählen» while the offer is still with the team | Never a reason. |
+
+**(2) Person choice, H-BK-06:39 (caller free or not; read-only check, the server re-checks at the tap).** In «Wählt, wer geht» the caller is listed first as «Ich ([Vorname])» and **pre-selected** when she passes every check, so the default take names herself and needs no acknowledgement (supports H-BK-05:39). When she does not pass: one neutral line above the list, «Du selbst kannst diese Schicht nicht übernehmen.», never the reason (absence, evidence, hours; template §3 CGR-223 rule, `lca`). Colleagues who do not pass stay unlisted, as now. A tap that the server still refuses keeps the existing refusal text. Test: seed a caller with an overlapping take; her card shows the line and no «Ich» row; no element contains an absence or evidence word.
+
+**(3) Client side, §4 changes.**
+
+| State | Words, PROPOSED | Owner to confirm |
+|---|---|---|
+| Taken, checked person (CGR-226 (a)) | «Gedeckt · Person benannt, geprüft für [bestellte Stufe, z. B. FaGe]» · «Team … · übernommen um 14:31». The level is the **ordered** level, never the person's own grade or «Pflegekraft». | `cra` (wording of a safety state) |
+| Taken, colleague named, not yet acknowledged (UXR-223) | Recommended, safety first: «Noch nicht gedeckt · Beginn …» · «Ein Team hat übernommen; die eingeteilte Person bestätigt noch.» «Gedeckt» only after the acknowledgement or a self-named take. | `po` decides (CGR-230 leaves it to `po`/`uxa`), `cra` confirms, `lca` (client learns a team took before confirmation; the team name already shows after a take, G-3) |
+| One neutral zero state (F-1; replaces the two rows «Every eligible team declined» and «No team eligible») | «Nicht gedeckt · Beginn …» · «Kein passendes Team ist frei.» | `lca` (F-1), `cra` |
+| Next step under every «Nicht gedeckt» (CGR-226 (b)) | Shown **directly under the headline, before the reason line** (the PO's 04:39 challenge: design around the next step): «Über NAVORA übernimmt kein Team diese Schicht. Bitte jetzt euren eigenen Ersatzplan nutzen: [Ersatzplan]». **[Ersatzplan] is UNKNOWN**: substance from `cra` and the Clinical Owner (household fallback, home's own escalation, Blueprint §5.1). Whether «übernimmt kein Team» is true for every `not_covered` detail (can a team still take after `all_declined` before the coverage time?) is **UNKNOWN**: `eng` (ADR-199) and `cra` confirm; if not, the line reads «Bis jetzt übernimmt kein Team …». | `cra`, Clinical Owner; `eng` |
+
+Order on the client card for any «Nicht gedeckt»: headline, next step, reason line, then the order facts. The headline keeps `role="status"`; the next-step line is part of it, not a separate toast. Test: for each `cover_detail` at the pinned clock, the client card contains «Nicht gedeckt» and the next-step sentence, contains neither «abgelehnt» nor «erfüllt kein Team», and no count (F-1 negative test, 04:39 (3)).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-222 | `/team` named person's card (BK-c2), team member named by a colleague | high | CGR-230 as placed gives the named colleague only «Bestätigen». She cannot say she cannot go; the take is released only at `latest_cover_at`, when re-coverage is hardest, and the team cannot re-name (no un-take in BK-c). The card answers «what next» only for yes. | BK brief 05:39 (3); `CLINICAL_GOVERNANCE.md` 05:29 CGR-230 (b), (c); H-44; PS-198; template §3 (no un-take) | §1 (three questions), §2 (one primary action, a clear second choice) | Outline «Ich kann nicht» beside «Bestätigen»; releases at once through the existing release path, no reason asked; team sees «Nicht mehr übernommen …» with «Andere Person wählen». Playwright 390 and pgTAP with a pinned clock well before `latest_cover_at`, criteria in the issue. Substance `cra`, placement `po`. | [#1351](https://github.com/Ivica1984/navora-mvp/issues/1351) |
+| UXR-223 | `/order` client status (BK-c2), client | medium | Template §4 «Gedeckt · Pflegekraft benannt» is shown on a live take. With CGR-230, a take naming a colleague may still lapse at `latest_cover_at`; if the client reads «Gedeckt» before the acknowledgement, she stops looking for other cover. Nothing decides which status she sees in between. | `BK5_OFFER_TEMPLATE.md` §4; `cra` CGR-230 («for `po` and `uxa` to decide»); PS-195 | §2 «Not covered has one headline», §1 | Words above (3), row 2: «Noch nicht gedeckt» until acknowledged. Playwright: A names B, client sees «Noch nicht gedeckt … bestätigt noch»; after B confirms, «Gedeckt …». `po` decides, `cra`, `lca` confirm. | report only (medium) |
+
+No finding closed this run (UXR-221 placed in BK-c2 by the PO 04:39 (4); it closes when BK-c2 is merged with its test).
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Design system:** version 89 (§5 offer rule: acknowledgement sentence and caller-first person choice; §2 «Not covered» rule: next step before the reason, one neutral zero state; all PROPOSED). No token change.
+
+**Waiting for the PO:** place UXR-222 (#1351) and decide UXR-223; say whether `uxa` transfers the rows above into `BK5_OFFER_TEMPLATE.md` (next PR) or `eng` builds from this section. **For `cra`:** CGR-226 (a) words, the next-step substance with the Clinical Owner, and the «Ich kann nicht» release. **For `lca`:** F-1 words, UXR-223 row. **For `aia`:** H-BK-06:39 pre-selection of the caller. I ran no NAVORA test.
+
+---
+
 ## 2026-11-17 03:48 CET · `uxa`: UXR-215 and UXR-209 closed on merges `08e5d8e` and `792a5d3` (both in the BK-b acceptance commit `ab90875`); BK-c active, #1342 (BK-c1) changes no screen; ADR-199 cover states map onto the BK-5 template; UXR-221 (medium, the template has no «taken by us» state and no view for the named person); benchmark open-shift claim pattern
 
 **State.** `recovery/main` at `14f0f91` (PO merge #1341). Since my 03:47 section (2026-11-15) merged: my PR #1326, #1291 (`08e5d8e`), #1276 (`792a5d3`), #1295 (`ab90875`), PO, `eng`, `cra`, `lca`, `aia` docs PRs up to #1341. **BK-b accepted for the simulation on `ab90875`** (PO 02:39, gate «Simulation, synthetic data»; not released for real persons or data). **Active: BK, slice BK-c** (`NEXT_CAPABILITY.md`). Screen changes on `recovery/main` since `6c4b74b`: only `order-form.tsx`, `orders/rules.ts` (#1291) and `team/einsatzgebiet/page.tsx`, `reach-client.tsx`, `reach/rules.ts` (#1276); I reviewed both on their heads (19:58 and 15:51 on 2026-11-14). Blueprint moved 3.2.22 → 3.2.25: only the header, §8 status line and chapter 13 lines changed (hunks at lines 7, 515, 655, 839, 888, 1491); **no change in §5, §6 or `blueprint-v3/wireframes/`**, so my FE-079 sign-off (reservation UXR-195, [#1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6888169318)) stands; no renewal.
