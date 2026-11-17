@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { createSupabaseServerClient } from "@/lib/supabase/server";
+import { homePathFor } from "@/features/orders/rules";
 import { homePathForRoles } from "./paths";
 import { requireUser } from "./session";
 import { errorFields, logEvent } from "@/lib/log";
@@ -14,7 +15,15 @@ export async function resolveHomePath(supabase: ServerClient): Promise<string> {
     logEvent("warn", "auth.home_path_failed", errorFields(error));
     return homePathForRoles([]);
   }
-  return homePathForRoles((data ?? []).map((row) => row.role));
+  const roles = (data ?? []).map((row) => row.role);
+  if (roles.length > 0) return homePathForRoles(roles);
+  // BK-a (ADR-192 (6)): a client account member has no organisation role and lands on /order.
+  const { data: accounts, error: aError } = await supabase.rpc("my_client_accounts");
+  if (aError) {
+    logEvent("warn", "auth.client_accounts_failed", errorFields(aError));
+    return homePathForRoles([]);
+  }
+  return homePathFor(roles, (accounts ?? []).length > 0);
 }
 
 export async function getHomePath(): Promise<string> {

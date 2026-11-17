@@ -526,6 +526,75 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «no `kind = 'ai'` in a BK slice» (AUT-115):** a model on synthetic data is its own item after T-6, with the lock opened only for simulation organisations.
 - Agents added: A14, A15 (§7). Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK design drafts: the team owns its reach and its price, no dictation cap (`aia` 2026-11-13 20:21, review 54, AUT-117 to AUT-120):**
+- **Control «the team sets what the team carries» (AUT-117, AUT-119):** a team's service postcodes, maximum distance and standing price are set by an active member of that team with audit (admin only for the seed and teams without active members); the client may only narrow (optional radius, optional price ceiling); a filter excludes with a reason, never by a central act. No approval step.
+- **Control «no step between take and cover» (AUT-119):** the price in force at «Übernehmen» is copied onto the accepted offer; the client confirms nothing after the take.
+- **Control «no time cap on a carer's input; no audio in BK» (AUT-118):** BK-8 at stage 0 is a rule over text segments; every segment is placed verbatim or listed as «nicht übernommen» before signing; speech-to-text inside NAVORA stays A7 (G, D-41), a later item.
+- **Control «a relative date is filled only when it admits exactly one» (AUT-120)** applies to the order preview (AUT-106 form).
+- AUT-112 narrowed: ledger scope `client_account_id` (ADR-192) at `confirm_client_order`, or closed if BK-1a has no recognised values. No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**BK-a as built: no proposer, measures that cannot point at a person (`aia` 2026-11-14 02:19, review 55, AUT-121, AUT-122):**
+- **Correction of the AUT-114 control above (PO amendment 21:39 (5) wins):** a report draft still places the carer's own words verbatim; an unplaced segment is **listed**, not defaulted in; signing stays disabled while one is unhandled; «Bewusst weglassen» is one audited act per segment, never in bulk. Before real data the Clinical Owner confirms or replaces this (D-27, OPEN).
+- **Control «a team measure is shown only above a minimum group size, and never carries the actor» (AUT-122):** a team-level measure built from audit rows drops the actor column; for a team below *k* active members in the period the figure is rolled into the organisation value. *k*: UNKNOWN, `lca`. Until set, no team row of the BK-8 «weglassen» measure is shown on any screen.
+- **Control «a relative date is resolved against the date at resolution, not at page load» (AUT-121):** extends the «exactly one» rule (AUT-106, AUT-120) to time passing while a form is open.
+- AUT-112 closed for BK-a (no recognised value from free text; `confirm_client_order` has no text parameter); its K-1 contract becomes the BK-d criterion. AUT-120 closed (IMPLEMENTED, unit test). No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**Team measures under K-1 to K-7; repeat orders through the graph (`aia` 2026-11-14 08:30, review 56, AUT-122 closed, AUT-123, AUT-124):**
+- **Control AUT-122 made concrete (PO amendment 04:39 (1), `lca` D-44 04:20; Phase A only):** a team row of a measure built from audit rows needs at least 5 distinct **contributors** in a fixed calendar period (K-1), no person with 50 % or more of the events (K-2), no recalculation from the organisation figure (K-3), no free or sliding range (K-4); no actor column; one configured constant (K-7). Owner confirms the values before real data (OPEN). This replaces «*k* active members, UNKNOWN» in the block above.
+- **Evidence control «a withheld measure is shown to work» (AUT-124):** because most seed teams are below *k*, acceptance of a team measure needs one scenario with a team above *k* and the record of which rows are withheld.
+- **Control «a copy is filled, never confirmed» (AUT-123):** a repeat order is prefilled from the client's own past order, the date is never copied, and the copied values pass the same preview, summary and single confirmation act as a fresh order; no tick per copied value unless `cra` names a check the summary does not make.
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**BK-b1 gate; a team setting sees its effect; one reading in the form (`aia` 2026-11-14 14:22, review 57, AUT-125, AUT-126):**
+- **Control «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268 `f3b2a5c`):** screening reads only the precomputed `postcode_distances`; a missing pair excludes the team (fail-closed). Any external call in screening is a gate failure.
+- **Control «a team setting shows its effect, never a suggestion» (AUT-125):** a screen where the team sets a value that filters work (reach) shows the team's own recent exclusion counts by reason, without order detail and without a proposed value. PLANNED.
+- **Control «the form offers what the guard accepts, from one reading» (AUT-126):** a choice restricted by a rule is restricted in the form from the same server function the confirm check uses; the confirm check stays as the guard. PLANNED (BK-g candidate).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**FE-079 sign-off; BK-b1s and CGR-220 gates; the engine is named in its BK form (`aia` 2026-11-14 20:25, review 58, AUT-127 to AUT-129):**
+- **Gates:** #1270 `1cb6e09` and #1295 `2614ccb` clear for «Simulation, synthetic data»; neither proposes, drafts or ranks.
+- **Control «a document names the BK form of an engine first» (AUT-127):** where a step can later use a model, the Blueprint/Handbook status names the stage-0 form (rule, typed text, no audio) first and the model only with its stage condition (D-35, D-41, AUT-115). PLANNED (Blueprint 3.2.17, Handbook V2.3).
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** the shown set of teams equals the `order_offers` rows; ranking only reorders. PLANNED (BK-c/BK-5).
+- **Agent contract (AUT-129):** the Handbook contract gains named confirmer with ledger scope, no accept-all on listed fields, correction rate per agent and field at team level with stop rule (by reference to §8). PLANNED (`eng`).
+- FE-079 sign-off with reservations AUT-127 to AUT-129 (#1279). AUT-115 lock and D-35 rule A unchanged. No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**BK-b2 gates; one member step for confirm and take (`aia` 2026-11-15 02:17, review 59, AUT-130):**
+- **Gates:** #1273 `c2ffef1`, #1291 `6abf9f8`, #1276 `1600588`, #1295 `b0b0da4` clear for «Simulation, synthetic data»; none proposes, drafts or ranks.
+- **Control «eligibility is private and names a step, never a person» (checked on #1273):** the per-member hard rule runs in a `private` function that no app role can call; the stored reason is a step; no per-person view of eligibility.
+- **Control «one member step for every check» (AUT-130):** the re-check at the take (CGR-204 (b)) and the no-double-take rule (CGR-224) call the same member step; an accepted take is one more availability source inside it. PLANNED (BK-c).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**Bottleneck map v4; one entry for one gap (`aia` 2026-11-17 02:19, review 60, AUT-131):**
+- **Map v4** follows Blueprint V3.2 §6.3: two of seven order-path steps built (one client act in total); no direct care time returned before BK-c (estimate).
+- **Control «one entry for one gap» (AUT-131):** when the ward cannot cover its own shift, the BK order is opened from the ward's shift plan, not typed again; the required level is always entered by the home, never derived. PLANNED (B9, after BK).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**BK-c1 gate; the caller sees only her own state (`aia` 2026-11-17 08:25, review 61, AUT-132):**
+- **Gate:** #1342 `abe0c5d` clear for «Simulation, synthetic data»; it proposes, drafts and ranks nothing.
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** database part IMPLEMENTED on the branch (`team_order_offers` = current-round offer rows of own teams); screen (BK-c2) and ranking (BK-c3) PLANNED.
+- **Control «one member step for every check» (AUT-130):** IMPLEMENTED on the branch (take and re-check call `order_member_step`; a live take is an availability source).
+- **Control «the caller sees only her own state» (AUT-132):** a pre-tap «frei / nicht frei» comes from the same step and shows only the caller's own result; a colleague list shows only members who pass, never a colleague's failing step. PLANNED (BK-c2).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**BK-c2 pre-read; a reason names facts, never a choice (`aia` 2026-11-17 14:24, review 62, AUT-133):**
+- **Pre-read:** #1358 draft `3232c89`; no gate line before it leaves draft. It proposes, drafts and ranks nothing.
+- **Control «the caller sees only her own state» (AUT-132):** IMPLEMENTED on the branch (`caller_free` from `order_member_step`; `order_take_candidates` step 4 only, no step, no score).
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** screen part IMPLEMENTED on the branch; ranking part PLANNED (BK-c3).
+- **Control «a reason names facts, never a choice» (AUT-133):** Engine 2 reasons cite only Engine 1 facts of the team for the order, follow `lca` D-44 V-3 words (FE-080), name no member, and the ranking only reorders teams already offered. PLANNED (BK-c3).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
+**Founder direction «API-first, own infrastructure at scale» (`aia` 2026-11-17 14:31, review 63, AUT-134, AUT-135):**
+- **Direction (founder message in the `aia` session, recorded verbatim in review 63; FE entry by `po` OPEN):** Phase A and pilot start without own hardware; Engine 1 deterministic SQL (IMPLEMENTED); Engine 3 voice-to-report and drafts through enterprise endpoints in CH/EU with zero retention, only «mit D-35-Freigabe»; an own Swiss model on own infrastructure in the scale phase. Moves FE-051 Muster 4 to the scale phase.
+- **Open before a real endpoint (AUT-134):** (a) D-35 release given or still to come; (b) block rule for AI pipelines; (c) foreign access law for a CH/EU region of a US-owned service (`lca`).
+- **Control «build the pipeline at stage 0» (AUT-135):** provider-neutral adapter with a deterministic fake, governance layer first (§8), synthetic seed only, no endpoint configured. PLANNED.
+- No agent added or removed. Stage 0 only; D-35 rule A in force.
+
+**Founder release for synthetic data; interRAI and BESA out (`aia` 2026-11-17 14:38, review 64, AUT-136):**
+- **Founder decision (live in the `aia` session, called «FE-085» by the founder; FE entry by `po` OPEN):** Phase A, synthetic data only: AI interfaces (speech-to-text, KLV report extraction) may be connected and tested; real data stays under D-35 rule A until a checked Swiss/EU endpoint; block rule holds (real voice connection in BK-d); Phase B on open-weight models on rented Swiss cloud capacity (owner chooses, `lca` checks); interRAI and BESA out of current planning.
+- **Stage:** stage 1 for synthetic data only; stage 0 for real data.
+- **Control «a synthetic release stays synthetic» (AUT-136):** endpoint key only where the database holds the synthetic seed only; one switch stops all calls; control layer (§8) before the first call; KLV extraction drafts are G/H with a `cra` gate. PLANNED.
+- No agent added or removed.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -582,3 +651,14 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-13 02:20 | `aia` | §12: controls «prediction as projection of recorded facts, no learned forecast on synthetic history» (AUT-107), «keyboard dictation is an AI service outside the ledger, `lca` before real data» (AUT-108), «a value is filled only when the facts admit exactly one» (AUT-106); relatives by rule (AUT-109); input to FE-072 (7) Lieferung 4. No agent added or removed |
 | 2026-11-13 08:19 | `aia` | §12: controls «consistency of facts already held before a new datum» (AUT-110) and «no free-text duplicate detector, measure first» (AUT-111); (V-a) scope note for A7 (AUT-108). No agent added or removed |
 | 2026-11-13 16:00 | `aia` | §7: A14 order capture and A15 offer ranking added (BK contracts K-1, K-2); §12: BK AI contracts and controls «ledger follows the confirmer», «confirmation by risk», «published order, fallback, no ranking of people», «draft places her own words», «no `kind = 'ai'` in BK» (AUT-112 to AUT-116); AUT-103 (4), (5) superseded by FE-073/FE-074 |
+| 2026-11-13 20:21 | `aia` | §12: controls «the team sets what the team carries» (AUT-117, AUT-119), «no step between take and cover» (AUT-119), «no time cap, no audio in BK» (AUT-118), relative date «exactly one» (AUT-120); AUT-112 narrowed. No agent added or removed |
+| 2026-11-14 02:19 | `aia` | §12: block «BK-a as built»: AUT-114 control corrected to the PO variant (21:39 (5)); controls «team measure above a minimum group size, no actor column» (AUT-122) and «relative date resolved at resolution time» (AUT-121); AUT-112 closed for BK-a, AUT-120 closed. No agent added or removed |
+| 2026-11-14 08:30 | `aia` | §12: block «team measures under K-1 to K-7; repeat orders»: AUT-122 control made concrete (k = 5 contributors, dominance, no recalculation, fixed periods; Phase A); controls «a withheld measure is shown to work» (AUT-124) and «a copy is filled, never confirmed» (AUT-123). No agent added or removed |
+| 2026-11-14 14:22 | `aia` | §12: block «BK-b1 gate; a team setting sees its effect; one reading in the form»: controls «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268), «a team setting shows its effect, never a suggestion» (AUT-125), «the form offers what the guard accepts, from one reading» (AUT-126). No agent added or removed |
+| 2026-11-14 20:25 | `aia` | §12: block «FE-079 sign-off; BK-b1s and CGR-220 gates»: controls «a document names the BK form of an engine first» (AUT-127), «a ranking is tested on the rows the team sees» (AUT-128), agent contract lines (AUT-129). No agent added or removed |
+| 2026-11-15 02:17 | `aia` | §12: block «BK-b2 gates; one member step for confirm and take»: controls «eligibility is private and names a step, never a person» (checked on #1273) and «one member step for every check» (AUT-130). No agent added or removed |
+| 2026-11-17 02:19 | `aia` | §12: block «bottleneck map v4; one entry for one gap»: map v4 on Blueprint §6.3; control «one entry for one gap» (AUT-131). No agent added or removed |
+| 2026-11-17 08:25 | `aia` | §12: block «BK-c1 gate; the caller sees only her own state»: AUT-128 database part and AUT-130 met on #1342 `abe0c5d`; control «the caller sees only her own state» (AUT-132). No agent added or removed |
+| 2026-11-17 14:24 | `aia` | §12: block «BK-c2 pre-read; a reason names facts, never a choice»: AUT-132 and AUT-128 screen part met on #1358 `3232c89` (draft); control «a reason names facts, never a choice» (AUT-133). No agent added or removed |
+| 2026-11-17 14:31 | `aia` | §12: block «Founder direction API-first, own infrastructure at scale»: founder message recorded (review 63); open points AUT-134; control «build the pipeline at stage 0» (AUT-135). No agent added or removed; D-35 rule A in force |
+| 2026-11-17 14:38 | `aia` | §12: block «Founder release for synthetic data; interRAI and BESA out»: founder answer recorded (review 64); AUT-134 closed; stage 1 for synthetic data only; control «a synthetic release stays synthetic» (AUT-136). No agent added or removed |

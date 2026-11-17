@@ -38,8 +38,19 @@ export function homeTabFor(access: NavAccess, demoPages = false): NavItem | null
   return menuItemsFor(access, demoPages).find((item) => item.href === HOME_PATH) ?? null;
 }
 
+/**
+ * UXR-204 (`uxa` 2026-11-14 03:47; BK amendment 2026-11-14 04:39 (2); ADR-194 addendum 05:20): the client's order page
+ * as her one tab. Only when nothing else would be a tab (no home tab, none of TAB_KEYS) and only an item her menu
+ * already holds (`client_account` check, fail closed): a client-account member without a role or team never sees a
+ * tab bar of "Mehr" alone. Every staff case keeps its tabs; /order stays under "Mehr" there.
+ */
+function clientTabFrom(items: ReadonlyArray<NavItem>): NavItem | null {
+  return items.find((item) => item.key === "order") ?? null;
+}
+
 export type ShellItems = {
-  /** Tab bar items she may open: the home tab (UX2-31) if any, then TAB_KEYS order (zero to three in all). */
+  /** Tab bar items she may open: the home tab (UX2-31) if any, then TAB_KEYS order, or the client's /order tab alone
+   * (UXR-204) when neither applies (zero to three in all). */
   tabs: NavItem[];
   /** Every other menu item she may open, in menu order. Never empty: "Meine Einstellungen" always stays (cra UX1-20). */
   more: NavItem[];
@@ -53,7 +64,8 @@ export function shellItemsFor(access: NavAccess, demoPages = false): ShellItems 
   const items = menuItemsFor(access, demoPages);
   const home = homeTabFor(access, demoPages);
   const fixed = TAB_KEYS.flatMap((key) => items.filter((item) => item.key === key));
-  const tabs = home ? [home, ...fixed.slice(0, TABS_AFTER_HOME)] : fixed;
+  const client = home || fixed.length > 0 ? null : clientTabFrom(items);
+  const tabs = home ? [home, ...fixed.slice(0, TABS_AFTER_HOME)] : client ? [client] : fixed;
   const inTabs = new Set(tabs.map((item) => item.key));
   const more = items.filter((item) => !inTabs.has(item.key));
   return { tabs, more };

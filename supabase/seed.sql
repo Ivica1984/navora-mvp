@@ -804,8 +804,8 @@ from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';
 -- practice licence (strict default (b) of ADR-163 for A1-A4), assistbs pflegehelfer_srk.
 insert into public.organizations (id, name, simulation) values
   ('00000000-0000-4000-b000-000000000019', 'Testorganisation S (synthetische Simulation Basel)', true);
-insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
-  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', private.now() - interval '120 days', 'Testteam Basel', 'Basel-Stadt', 'Ambulante Pflege', 'active', 3, 50, 'Leitung Test S', 'Keine Massnahme', false, null);
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name, max_distance_km, reach_changed_at) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', private.now() - interval '120 days', 'Testteam Basel', 'Basel-Stadt', 'Ambulante Pflege', 'active', 3, 50, 'Leitung Test S', 'Keine Massnahme', false, null, 10, private.now() - interval '120 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -865,3 +865,58 @@ insert into public.ai_agent_settings (organization_id, agent_key, state, stop_sh
 select '00000000-0000-4000-b000-000000000019', d.key, 'on', 50, 10, 30, '00000000-0000-4000-a000-0000000009e6',
        private.now() - interval '1 day', d.version, d.provider, d.region
 from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';
+
+-- BK-a (brief docs/agents/briefs/BK.md; ADR-194; pgTAP 135): one synthetic ordering client of Testorganisation S and
+-- the BS/BL postcode list. Synthetic only: the account, its user, its shift plan and the postcode rows are fixture
+-- values, marked `synthetic`; the place names are not checked against the official directory (ADR-193 (1), (6)).
+-- The shift plan is the client's own label table (PO 2026-11-13 18:40 (2)); its times are fixture values, not a NAVORA
+-- shift definition, and nothing but the label display reads them.
+--   kundebs.test (…9e8): member of the client account «Testheim Rhein (synthetisch)» only; no organisation membership.
+insert into public.postcodes (postcode, place_name, region_name, source, source_version) values
+  ('4051', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4052', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4053', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4055', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4056', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4057', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4058', 'Basel', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4125', 'Riehen', 'Basel-Stadt', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4102', 'Binningen', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4123', 'Allschwil', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4132', 'Muttenz', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4142', 'Münchenstein', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13'),
+  ('4410', 'Liestal', 'Basel-Landschaft', 'synthetic', 'BK-a seed 2026-11-13');
+-- BK-b1 (ADR-193 (1), (2), ADR-195): distances between every pair of listed postcodes, symmetric, 0 to itself.
+-- SYNTHETIC: computed here from an invented grid position per postcode (km, never stored, not a coordinate of the place)
+-- times 1.3; the values state nothing about real road distances (Phase B data source: lca P-5).
+insert into public.postcode_distances (from_postcode, to_postcode, distance_km, source, source_version)
+with grid (postcode, x, y) as (values
+  ('4051', 0.0, 0.0), ('4052', 1.5, 0.5), ('4053', 1.0, -1.5), ('4055', -1.5, 0.5), ('4056', -1.5, 1.5),
+  ('4057', 0.5, 2.0), ('4058', 2.0, 1.5), ('4125', 4.0, 3.0), ('4102', -2.0, -2.5), ('4123', -3.5, 0.0),
+  ('4132', 4.5, -2.5), ('4142', 2.5, -4.5), ('4410', 11.0, -8.0))
+select a.postcode, b.postcode,
+       case when a.postcode = b.postcode then 0
+            else greatest(0.1, round((sqrt((a.x - b.x) ^ 2 + (a.y - b.y) ^ 2) * 1.3)::numeric, 1)) end,
+       'synthetic', 'BK-b1 seed 2026-11-14'
+from grid a cross join grid b;
+-- BK-b1 (AUT-117 (d)): Testteam Basel's own reach (fixture: 4051, 10 km, set on the team row above).
+insert into public.team_service_postcodes (team_id, postcode) values ('00000000-0000-4000-a000-0000000001b9', '4051');
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e8', 'authenticated', 'authenticated',
+   'kundebs.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009f8', '00000000-0000-4000-a000-0000000009e8', '00000000-0000-4000-a000-0000000009e8',
+   '{"sub":"00000000-0000-4000-a000-0000000009e8","email":"kundebs.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.client_accounts (id, organization_id, display_name, client_kind) values
+  ('00000000-0000-4000-a000-0000000003c1', '00000000-0000-4000-b000-000000000019', 'Testheim Rhein (synthetisch)', 'home');
+insert into public.client_account_members (client_account_id, user_id) values
+  ('00000000-0000-4000-a000-0000000003c1', '00000000-0000-4000-a000-0000000009e8');
+insert into public.client_shift_plans (client_account_id, label, starts_at, ends_at, source) values
+  ('00000000-0000-4000-a000-0000000003c1', 'Früh', time '07:00', time '15:30', 'synthetic'),
+  ('00000000-0000-4000-a000-0000000003c1', 'Spät', time '14:30', time '23:00', 'synthetic'),
+  ('00000000-0000-4000-a000-0000000003c1', 'Nacht', time '22:00', time '07:00', 'synthetic');

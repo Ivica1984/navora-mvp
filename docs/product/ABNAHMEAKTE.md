@@ -97,6 +97,33 @@ Was die Protokolle zeigen:
 - **Nicht Teil der Abnahme:** B1.1-2 bis B1.1-5 (nach BK, FE-073 (4)); Korrekturbefehl für eine falsche Zuordnung (CGR-202 (a), Gate «freigegeben für reale Personen und Daten»); Freigabe für reale Personen und Daten.
 - **Folge:** BK ist ab jetzt der aktive Block.
 
+### BK-a Auftrag erfassen (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen, bevor BK-c-Angebote und die BK-6-Ausnahme bestehen, CGR-215 (a)). Entscheid 2026-11-14 09:39 auf dem benannten Commit `634ccb7` (`recovery/main` nach #1257).
+- **Umfang:** Auftragsart Schicht, Formular des Auftraggebers, Zusammenfassung, «Bestätigen & Absenden» (#1238 `abd6f82`, #1246 `54aa56e`, #1252 `ad8eaef`, #1257 `634ccb7`); ohne KI.
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 43572223613 auf `634ccb7`: 4/4 `success`.
+  - `ci-repeat` 43572290695 auf `634ccb7`: **20/20 `success`**, erster Versuch; jeder `db`-Versuch 135 Dateien / 4833 Tests «Result: PASS»; jeder `e2e`-Versuch 174 bestanden, 0 instabil, 0 fehlgeschlagen, 0 übersprungen.
+  - In allen zehn `db`-Protokollen: Gleichzeitigkeitsprüfungen «ok», «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; «not ok» nur in der absichtlich roten B0-4-Nachstellung.
+  - Lauf 08:41 bis 08:56 Zürich, im Tagesfenster.
+  - CGR-214 (b) (Audit behält `referrer_requested_start`): beim ersten Lauf grün, Regressionsschutz. CGR-206 (d) Zeitumstellung (600 und 480 Minuten, 02:30 als 03:30 vor der Bestätigung): pgTAP 135.
+- **Abgenommen:** Eine Nachtschicht über Mitternacht ist ein Auftrag; ein unklares Datum wird nie still gefüllt; nichts geht vor «Bestätigen & Absenden» an ein Team; ein zweiter Druck erzeugt keinen zweiten Auftrag; niemand bestätigt für einen Auftraggeber; kein Strassen- oder Koordinatenfeld; «Dringlichkeit fehlt» wird gezeigt, nie still weggelassen. Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 09:39.
+- **Nicht Teil der Abnahme:** KI- und Spracherfassung (BK-d), Filter, Angebote und Teamsicht (BK-b, BK-c), Preis (BK-f), Prüfung «Schichtplan ändert nie die Eignung» (nach BK-b verschoben), Freigabe für reale Personen und Daten.
+- **Folge:** BK-b ist das aktive Teilstück.
+
+### BK-b Harte Prüfung: Distanz, Stufe, Verfügbarkeit (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten: kein Team sieht oder übernimmt einen Auftrag vor BK-c, CGR-215 (a); CR-180, K-8 und alle Matrixzellen bleiben VORGESCHLAGEN beim Clinical Owner, D-27). Entscheid 2026-11-17 02:39 auf dem benannten Commit `ab90875` (`recovery/main` nach #1295).
+- **Umfang:** PLZ-Distanzen und Einsatzgebiet des Teams (#1268, #1270, #1276), Prüfung je Teammitglied für Stufe, Tätigkeit, Nachweis und ganze Schicht (#1273, #1291), Team-Protokoll nach Änderung (#1295, CGR-220).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 43682107812 (push) auf `ab90875`: 4/4 `success`.
+  - `ci-repeat` 43994886883 auf `ab90875`: **20/20 `success`**, erster Versuch; jeder `db`-Versuch 140 Dateien / 4965 Tests «Result: PASS», pgTAP 136 bis 140 «ok»; jeder `e2e`-Versuch 182 bestanden, 0 übersprungen, 0 instabil, 0 fehlgeschlagen.
+  - In allen zehn `db`-Protokollen: Gleichzeitigkeitsprüfungen «ok», «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; «not ok» nur in der absichtlich roten B0-4-Nachstellung.
+  - Lauf 02:21 bis 02:30 Zürich, im Tagesfenster. Der Nachtlauf 43977104731 (3 übersprungen) zählt nicht.
+- **Abgenommen:** Ein bestätigter Auftrag erreicht nur Teams innerhalb ihrer Höchstdistanz und eines allfälligen Radius des Auftraggebers, mit einer einzigen aktiven Person der verlangten Stufe, Tätigkeit und Nachweise, frei für die ganze Schicht; ein Team im Aufbau oder ohne Einsatzgebiet erhält nie ein Angebot; jedes ausgeschlossene Team trägt seinen Grund; ein Team ist nie zugleich angeboten und ausgeschlossen; eine Änderung des Schichtplans ändert nie die Eignung. Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-17 02:39.
+- **Nicht Teil der Abnahme:** Rangfolge, Angebotskarte, Rundruf, Übernahme und «nicht gedeckt» (BK-c); erneute Prüfung bei der Übernahme (CGR-204 (b), CGR-223); KI- und Spracherfassung (BK-d); Freigabe für reale Personen und Daten.
+- **Folge:** BK-c ist das aktive Teilstück.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -118,3 +145,5 @@ Was die Protokolle zeigen:
 - 2026-11-12 15:45 (`po`): angelegt nach FE-071 (Founder-Rückmeldung auf Lieferung 1).
 - 2026-11-13 02:39 (`po`): Blockakte SAFE-D11 (für die Simulation abgenommen auf `29e54ec`); B1-Zeile in §3 nachgeführt.
 - 2026-11-13 18:40 (`po`): Blockakte B1.1 (verkürzt nach FE-073, für die Simulation abgenommen auf `33523a5`, `ci-repeat` 43466210984 20/20); B1-Zeile in §3 nachgeführt.
+- 2026-11-14 09:39 (`po`): Blockakte BK-a (Teilstück von BK, für die Simulation abgenommen auf `634ccb7`, `ci-repeat` 43572290695 20/20).
+- 2026-11-17 02:39 (`po`): Blockakte BK-b (Teilstück von BK, für die Simulation abgenommen auf `ab90875`, `ci-repeat` 43994886883 20/20).

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(29);
+select plan(31);
 
 -- B1.1-1c (FE-073): the seed names list regions only, so this file needs no extra list entry (before B1.1-1c it put the
 -- seed's legacy value on the list here).
@@ -114,6 +114,23 @@ select is(
                  where a.entity_id = e.id and a.changed -> 'urgency_source' ->> 'new' = e.urgency_source
                    and a.actor_id = '00000000-0000-4000-a000-000000000904')),
   12, 'the audit trail records the source on the request, the case and the matching request, with the recording person as actor');
+
+-- CGR-214 (b) (BK amendment 2026-11-14 01:39 (2)): regression guard after migration 0129 re-created the trigger. Added
+-- after the fix (0129 already lists both columns), so these two assertions were green on first run; they were not red
+-- first. Behaviour: every intake request with a referrer date has an audit row whose changed carries that date.
+select is(
+  (select count(*)::int from public.partner_requests p
+   where p.request_title like 'IPA1 %' and p.referrer_requested_start is not null
+     and exists (select 1 from public.audit_events a
+                 where a.table_name = 'partner_requests' and a.entity_id = p.id
+                   and a.changed -> 'referrer_requested_start' ->> 'new' = p.referrer_requested_start::text)),
+  2, 'CGR-214 (b): both intake requests with a referrer date (B, D) write changed -> referrer_requested_start to the audit');
+-- Catalogue: the live trigger still lists every column of 0086:225 (later migrations may add, never drop).
+select ok(
+  (select string_to_array(encode(t.tgargs, 'escape'), '\000')
+          @> array['status', 'urgency', 'region', 'converted_case_id', 'urgency_source', 'referrer_requested_start']
+   from pg_trigger t where t.tgrelid = 'public.partner_requests'::regclass and t.tgname = 'audit_partner_requests'),
+  'CGR-214 (b): audit_partner_requests keeps every column of migration 0086');
 
 -- As the table owner: distinct creation instants and one response deadline, so the order below is defined.
 -- B (latest date) is the oldest, D (earliest date, assessed) the newest; C has no date.

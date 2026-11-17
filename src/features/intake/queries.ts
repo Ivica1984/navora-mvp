@@ -3,7 +3,7 @@ import "server-only";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import type { Database } from "@/lib/supabase/database.types";
-import { intakeOrganization, type Membership } from "./rules";
+import { intakeOrganization, intakeRowsWithUrgencyCheck, type Membership } from "./rules";
 import { getRegionOptions } from "@/features/regions/queries";
 import type { RegionOption } from "@/features/regions/rules";
 
@@ -19,7 +19,8 @@ export type OpenPartnerRequest = {
   partner_type: string | null;
   region: string;
   city: string | null;
-  urgency: string;
+  /** CGR-215 (d): null is shown as «Dringlichkeit fehlt», never dropped (an intake row should always carry one). */
+  urgency: string | null;
   /** IPA1-7: referrer_stated | intake_assessed | unknown (before IPA1-7). */
   urgency_source: string;
   /** IPA1-8: the referrer's requested first-visit date (shown only). */
@@ -60,6 +61,8 @@ export async function getIntakeData(): Promise<{
     )
     .eq("organization_id", organizationId)
     .in("status", ["open", "ready_to_convert"])
+    // BK-a (ADR-194): a client order (order_kind set, status client_confirmed) is never an intake row.
+    .is("order_kind", null)
     .order("created_at", { ascending: false });
   if (error) {
     logEvent("error", "intake.load_failed", errorFields(error));
@@ -74,7 +77,12 @@ export async function getIntakeData(): Promise<{
   }
 
   // RET1: cases each referral may be linked to (explicit choice at intake; no automatic identity matching).
-  const requests = data ?? [];
+  // An intake row should always carry an urgency (check partner_requests_order_shape, migration 0129). CGR-215 (d):
+  // a row without one is still listed («Dringlichkeit fehlt») and the gap is logged as an error event, never dropped.
+  const { rows: requests, missingUrgency } = intakeRowsWithUrgencyCheck(data ?? []);
+  if (missingUrgency.length > 0) {
+    logEvent("error", "intake.urgency_missing", { count: missingUrgency.length });
+  }
   const linkable: Record<string, LinkableCase[]> = {};
   await Promise.all(
     requests.map(async (r) => {

@@ -54,6 +54,7 @@ describe("UX1-13: one product name, German labels", () => {
 
 // One label per page: the menu item, the page's name and every header link to it from another page use PAGE_LABEL.
 const PAGE_FILE: Record<keyof typeof PAGE_LABEL, string> = {
+  order: "src/app/(protected)/order/page.tsx",
   operations: "src/app/(protected)/operations/operations-client.tsx",
   intake: "src/app/(protected)/intake/page.tsx",
   partners: "src/app/(protected)/partners/page.tsx",

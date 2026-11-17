@@ -140,3 +140,53 @@ describe("UX2-1 / UX2-8: the active item (aria-current) follows the route", () =
     expect(activeNavKey("/")).toBeNull();
   });
 });
+
+// UXR-204 (`uxa` 2026-11-14 03:47, BK amendment 2026-11-14 04:39 (2); ADR-194 addendum 05:20): a client-account member
+// with no organisation role and no team has «Auftrag erfassen» (/order) as her one tab. A tab bar that holds only
+// "Mehr" is never shown to her; every staff case keeps its tabs, /order stays under "Mehr" for staff.
+describe("UXR-204: the client's order page is her tab on the phone", () => {
+  const keys = (items: ReadonlyArray<{ key: string }>) => items.map((i) => i.key);
+
+  it("a client member with no role and no team: «Auftrag erfassen» is the only tab, settings under Mehr", () => {
+    const { tabs, more } = shellItemsFor({ roles: [], inTeam: false, clientAccount: true });
+    expect(keys(tabs)).toEqual(["order"]);
+    expect(tabLabel(tabs[0])).toBe("Auftrag erfassen");
+    expect(hrefs(more)).toEqual(["/settings"]);
+  });
+
+  it("tabs and Mehr together are still exactly her menu (nothing added, nothing twice)", () => {
+    const access: NavAccess = { roles: [], inTeam: false, clientAccount: true };
+    const { tabs, more } = shellItemsFor(access);
+    expect([...hrefs(tabs), ...hrefs(more)].sort()).toEqual(hrefs(menuItemsFor(access)).sort());
+  });
+
+  it("staff cases unchanged: a client member who also has a role or a team keeps her tabs, /order under Mehr", () => {
+    const cases: Array<[NavAccess, string[]]> = [
+      [{ roles: ["nurse"], inTeam: true, clientAccount: true }, ["/field", "/team", "/work"]],
+      [{ roles: ["admin"], inTeam: true, clientAccount: true }, ["/field", "/team", "/work"]],
+      [{ roles: ["guest"], inTeam: false, clientAccount: true }, ["/work"]],
+      [{ roles: ["nurse"], inTeam: false, clientAccount: true }, ["/work"]],
+    ];
+    for (const [access, expected] of cases) {
+      const { tabs, more } = shellItemsFor(access);
+      expect(hrefs(tabs), access.roles.join()).toEqual(expected);
+      expect(hrefs(more), access.roles.join()).toContain("/order");
+    }
+  });
+
+  it("fail closed: without a confirmed client account no /order tab (cra UX1-20 case unchanged)", () => {
+    expect(shellItemsFor({ roles: [], inTeam: false, clientAccount: false }).tabs).toEqual([]);
+    expect(shellItemsFor({ roles: [], inTeam: false }).tabs).toEqual([]);
+    expect(shellItemsFor(NO_ACCESS).tabs).toEqual([]);
+  });
+
+  it("at most three tabs for every combination with a client account (four columns at 390 px)", () => {
+    for (const roles of [["nurse"], ["operations"], ["coach"], ["admin"], ["guest"], []]) {
+      for (const inTeam of [false, true]) {
+        for (const demo of [false, true]) {
+          expect(shellItemsFor({ roles, inTeam, clientAccount: true }, demo).tabs.length).toBeLessThanOrEqual(3);
+        }
+      }
+    }
+  });
+});

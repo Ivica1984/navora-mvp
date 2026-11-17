@@ -6,6 +6,621 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 11:48 CET · `uxa`: first BK-c2 screens reviewed on #1358 (`7ebfd8e`, code head `f3ea229`): the 07:52 words are built faithfully; UXR-224 (high, «Ich kann nicht» and «Ablehnen» are one-tap and cannot be undone, #1361); UXR-225 to UXR-228; relative time decided (left out); template rows transferred
+
+**State.** `recovery/main` at `b3794e8` (PO merge #1359). Since my 07:52 section merged: my PR #1352, `lca` #1354, `aia` #1353, `cra` #1356, **#1342 (BK-c1) as `781944f`**, PO #1355, #1357, #1359. `git diff 74ef56b b3794e8 -- src` touches only `src/lib/supabase/database.types.ts` (generated types): **no screen changed on `recovery/main`**. Active: BK, slice BK-c; BK-c2 is draft #1358. Blueprint 3.2.29 → 3.2.32: header and version rows only; **§5, §6 and `blueprint-v3/wireframes/` unchanged**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
+
+**Open PRs.** **#1358 (BK-c2, draft, head `7ebfd8e`; last code head `f3ea229`, `ci` 44065373848 4/4 success per the `eng` journal 11:15; I read no job log)** changes `src/app/(protected)/order/page.tsx`, `team/page.tsx`, `team/team-client.tsx`, new `team/shift-offers-section.tsx` and `src/features/orders/offer-rules.ts` (all words). Reviewed below from the code. **No `uxa` gate line yet:** the PR is draft, the PO's 11:39 conditions (colleague-named Playwright, screenshots in a PR comment) are still open, and the gate must name the final head (AUT-50). #1360 (PO 11:39), #1087, #1084: no screen.
+
+**Screenshots.** `ui-screenshots` artifacts exist for #1358 (14319948560 on `7ebfd8e`, 14320391951 on `f3ea229`) and for `recovery/main` (14318340888, `b3794e8`); the download was refused again by the session proxy (blob host). **No screenshots were available.** Review from TSX, classes and strings on `7ebfd8e`.
+
+### #1358 against the 07:52 words and the template (presentation only)
+
+| Item | Result | Evidence (`7ebfd8e`) |
+|---|---|---|
+| UXR-221 taken card stays («Übernommen», «Es geht: …», no button) | built | `offer-rules.ts` `teamOfferView` taken branch; `shift-offers-section.tsx` taken card |
+| CGR-230 named person's card («Für dich eingeteilt», who named her, deadline as a fact, «Bestätigen») | built; no countdown, no amber | `offer-rules.ts` lines for `mine`; deadline `zurichDayTime(latest_cover_at)` |
+| UXR-222 «Ich kann nicht», release lines, «Andere Person wählen» | built; see **UXR-224** | `releaseText()`; `chooseLabel` |
+| H-BK-06:39 / AUT-132 caller first, pre-selected only when free, one neutral line otherwise | built; no step or reason | `candidates` map, `callerNotFree` |
+| F-1 one neutral client zero state | built («Kein passendes Team ist frei.») | `clientCoverLines` default branch; migration 0136 `client_orders()` maps both details to `no_team_free` |
+| UXR-223 «Noch nicht gedeckt … bestätigt noch» | built | `awaiting_acknowledgement` branch |
+| CGR-226 (a) «Gedeckt · Person benannt, geprüft für [bestellte Stufe]» | built (ordered grade, never the person's) | `LEVEL` map |
+| Client order: status first, then facts, `role="status"` | built | `order/page.tsx` |
+| Section position on `/team` | after the signal banner, visit alerts and hand-over blocks; safety signals stay on top | `team-client.tsx` |
+| 44 px targets, word plus colour on tags, focus | met in code (`min-h-11` on buttons and radio labels; tags are words) | `shift-offers-section.tsx` |
+| Never-shown list (template §2): countdown, other team, count, reason | none found in the strings | `offer-rules.ts` |
+
+**Relative time on the open client state (ADR-200 addendum (4) (b); PO 11:39 leaves it to `uxa`): decided, left out.** A server-rendered «(in 5 Std. 10 Min.)» goes stale while the page is open and can then read later than the truth; the absolute start «Beginn Sa 21.11., 07:00» answers the question without that risk. Template §4 row changed in this PR. Not a merge condition.
+
+**ADR-200 addendum (4) (e), the empty-candidate sentence:** words in UXR-226.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-224 | `/team` offer card, named colleague («Ich kann nicht») and any member («Ablehnen») | high | Both act in **one tap** and cannot be undone here: «Ich kann nicht» releases the take at once, blocks her for this order (ADR-200 (4)) and, near `latest_cover_at`, raises «Nicht gedeckt» for the client (CGR-234 (b)); «Ablehnen» removes the offer for the whole team («Ihr seht dieses Angebot nicht mehr.»). They sit 8 px beside the primary on a phone. A slip of the thumb loses cover that the team wanted to give. «Bestätigen» is also final (no «Ich kann nicht» after it, PO 10:39 (3) (b)) and says nothing about that. | `shift-offers-section.tsx` buttons `releaseNamedShiftTake`, `declineShiftOrder` (no step); `offer-rules.ts` `DECLINED_TEXT`; ADR-200 (4); PO 10:39 (3) (b) | §2 destructive or planning-changing actions confirm with one consequence sentence; UXR-169 (#1138) same pattern for «Fall übernehmen» | «Ich kann nicht» and «Ablehnen» open an inline step (focus to its sentence, action first, «Zurück» second, neither at the first button's position): «Du gibst diese Schicht frei. Sie geht sofort an alle passenden Teams; du kannst sie danach nicht mehr übernehmen.» · «Freigeben» / «Ablehnen: Euer Team sieht dieses Angebot danach nicht mehr.» · «Ablehnen». One line under «Bestätigen»: «Mit dem Bestätigen bist du fest eingeteilt.» Two taps instead of one keep H-BK-08:39 cheap. Playwright 390: one tap on «Ich kann nicht» writes nothing (offer row unchanged), the step shows the sentence, «Zurück» restores the card, «Freigeben» releases. `cra` confirms the sentences (safety state). | [#1361](https://github.com/Ivica1984/navora-mvp/issues/1361) |
+| UXR-225 | `/order` client status after a release of a take that never covered | medium | `order_cover()` returns `no_longer_covered` whenever any take exists in the order's history. After UXR-223 the client saw «Noch nicht gedeckt … bestätigt noch»; when the named colleague then presses «Ich kann nicht», the client reads **«Nicht mehr gedeckt»**, which says she was covered before. She never was. | migration 0136 `private.order_cover` lines 192, 208 (`exists order_takes` → `no_longer_covered`); `offer-rules.ts` `no_longer_covered` branch | §2 «Not covered has one headline»; §4 a state word says what is true | For a take released **before** its acknowledgement (or a pending take whose person stops passing), the client reads «Noch nicht gedeckt · Beginn …» · «Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.»; «Nicht mehr gedeckt» only after «Gedeckt» was shown (acknowledged or self-named take). Needs a distinguishing `cover_detail` from `eng` (read model only). Test: A names B, B presses «Ich kann nicht»; client card never contains «Nicht mehr gedeckt». `cra` confirms (safety state words). | report only (medium) |
+| UXR-226 | `/team` offer card, no member can take any more | medium | When the candidate list is empty the card shows two lines («Du selbst kannst …» and «Zurzeit erfüllt niemand im Team alle Bedingungen.») and a **disabled** primary «Person wählen» that can never become active: a dead control and no next step. | `shift-offers-section.tsx` empty-list branch; `callerNotFree` also set when the caller is not listed | §1 (what next), §2 one primary action; empty state = one sentence plus one next step (§7) | With no candidate: one line «Niemand in eurem Team kann diese Schicht zurzeit übernehmen.», no «Du selbst …» line, no primary button; «Ablehnen» stays as the only action (with the UXR-224 step). Vitest: empty candidates → no button named «Person wählen». `lca` confirms no reason is implied. | report only (medium) |
+| UXR-227 | `/order` client card, every «Nicht gedeckt» | medium | The client is told the shift is not covered but not what to do next (CGR-226 (b) not shown; ADR-200 addendum (4) (a), accepted for BK-c2 by the PO 11:39). The card answers question 1, not question 2. In the simulation this is a gap; for real persons it is a safety gap. | `offer-rules.ts` `clientCoverLines` `not_covered` branches | §1 (three questions), §2 next step before the reason | Kept visible, not a BK-c2 merge condition: the next-step line under the headline (07:52 (3) words) before any gate «released for real persons and data». Substance UNKNOWN: `cra` and the Clinical Owner. | report only (medium; owner `cra`) |
+| UXR-228 | `/team` offer card footer | low | The footer says «‹Gedeckt› sieht der Auftraggeber erst mit einer benannten, geprüften Person.» Since UXR-223 that is not enough: a colleague-named take also needs her confirmation. | `offer-rules.ts` `TAKE_FOOTER`; template §2 (8) | §4 words say what is true | «Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut. ‹Gedeckt› sieht der Auftraggeber, wenn diese Person geprüft ist und, falls ihr jemand anderen wählt, bestätigt hat.» `cra` confirms. Template §2 (8) changed in this PR. | report only (low) |
+
+No finding closed this run: UXR-221, UXR-222 and UXR-223 are built on #1358 and close when it is merged with its tests.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Template (`BK5_OFFER_TEMPLATE.md`), PO 08:39 (5):** the 07:52 rows and today's decisions are transferred into §2 (8), §3 and §4 in this PR (task adjustment, journal). The words match what #1358 built, plus UXR-224 to UXR-228 marked PROPOSED.
+
+**Design system:** version 90 (§5 offer rule: the two release actions confirm in one step; status notes BUILT ON PR for the 07:52 rules). No token change.
+
+**Waiting for the PO:** place UXR-224 (#1361) for #1358 or decide against it; UXR-225, UXR-226 are small and could ride the same PR. **For `eng`:** UXR-224 to UXR-226, UXR-228 words; screenshots in a PR comment before my gate. **For `cra`:** sentences of UXR-224, UXR-225, UXR-228; substance of UXR-227. **For `lca`:** UXR-226 (no reason implied). I ran no NAVORA test.
+
+---
+
+## 2026-11-17 07:52 CET · `uxa`: no screen changed; BK-c2 words for CGR-230 (acknowledgement), F-1 (one neutral client zero state, next step first), CGR-226 (a) and H-BK-06:39 (caller free or not); UXR-222 (high, the named colleague cannot say «Ich kann nicht», #1351); UXR-223 (medium, client status before acknowledgement undecided)
+
+**State.** `recovery/main` at `74ef56b` (PO merge #1350). Since my 03:48 section merged: my PR #1344, #1337 (ADR-198, `abaddca`), `lca` #1345, `cra` #1347, PO #1343, #1346, #1348 to #1350. `git diff 14f0f91 74ef56b -- src` is **empty**: no screen changed. Active: BK, slice BK-c (BK-c1 #1342 on `abe0c5d`, awaiting `cra`, `lca`, `aia` gate lines). Blueprint 3.2.25 → 3.2.29: header, §8 BK row and version rows only; **§5, §6 and `blueprint-v3/wireframes/` unchanged**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
+
+**Open PRs.** #1342 (BK-c1, `abe0c5d`): no file under `src/app` or `src/components`; no screen review, no `uxa` gate. #1087 (STG1): no screen. No PR comment needed.
+
+**Screenshots.** Newest `ui-screenshots` artifact for `recovery/main` (id 14306596420, `74ef56b`, 06:50 UTC) exists; the download was refused again by the session proxy (blob host). **No screenshots were available.** Words below are from the BK brief (04:39 (3), (4); 05:39 (3), (5); 06:39 (3)), `cra` 05:29 (CGR-226, CGR-230), `lca` 04:20 (F-1) and `BK5_OFFER_TEMPLATE.md`.
+
+### BK-c2 words (presentation only; PROPOSED until the PO places them)
+
+All rows below extend `BK5_OFFER_TEMPLATE.md` §3 and §4, as the PO asked (04:39 (4)). My PR scope this run is the report, the design system and my journal, so **the template file is not edited here**; the PO either lets `uxa` transfer these rows into the template in its next PR, or `eng` builds from this section. Same source, same words.
+
+**(1) Team side, §3 new rows (UXR-221 with CGR-230).**
+
+| State | Words | Rule |
+|---|---|---|
+| Taken, the caller named herself | Tag «Übernommen» · «Ihr habt diese Schicht übernommen. Es geht: [Vorname N.].» | No primary button (no un-take in BK-c). Counts as acknowledged (CGR-230 (a)). |
+| Taken, a colleague named, not yet acknowledged (team view, also the taker) | Tag «Übernommen» · «Es geht: [Vorname N.] · Bestätigung ausstehend» · «Übernommen von [Vorname N.] um 14:31.» · «Bestätigt [Vorname] nicht bis Sa 14.11., 03:00, gilt die Übernahme nicht mehr.» | The time is `latest_cover_at` as a fact, never a countdown or amber colour (§5 offer rule). No action for the team (UNKNOWN whether the taker may withdraw: `po`). |
+| Named person's own card, not yet acknowledged | Tag «Für dich eingeteilt» · «[Vorname N.] hat diese Schicht für euer Team übernommen und dich eingeteilt.» · shift fact line · «Bitte bis Sa 14.11., 03:00 bestätigen.» · primary **«Bestätigen»** · outline **«Ich kann nicht»** (UXR-222, OPEN with the PO) | On `/team` first in the list; later also on `/field`. Only she sees the buttons. |
+| Acknowledged | Team: «Es geht: [Vorname N.] · bestätigt um 15:02» · her card: «Du bist für diese Schicht eingeteilt.» plus fact line | No primary button. |
+| Not acknowledged at `latest_cover_at` | Team and her card: «Die Übernahme gilt nicht mehr: [Vorname N.] hat nicht bis 03:00 bestätigt.» | What follows (new round or «Nicht gedeckt») is shown by the existing rows; no blame wording; `cra` confirms. |
+| She pressed «Ich kann nicht» (only if UXR-222 is placed) | Team: «Nicht mehr übernommen: [Vorname N.] kann diese Schicht nicht übernehmen.» · primary «Andere Person wählen» while the offer is still with the team | Never a reason. |
+
+**(2) Person choice, H-BK-06:39 (caller free or not; read-only check, the server re-checks at the tap).** In «Wählt, wer geht» the caller is listed first as «Ich ([Vorname])» and **pre-selected** when she passes every check, so the default take names herself and needs no acknowledgement (supports H-BK-05:39). When she does not pass: one neutral line above the list, «Du selbst kannst diese Schicht nicht übernehmen.», never the reason (absence, evidence, hours; template §3 CGR-223 rule, `lca`). Colleagues who do not pass stay unlisted, as now. A tap that the server still refuses keeps the existing refusal text. Test: seed a caller with an overlapping take; her card shows the line and no «Ich» row; no element contains an absence or evidence word.
+
+**(3) Client side, §4 changes.**
+
+| State | Words, PROPOSED | Owner to confirm |
+|---|---|---|
+| Taken, checked person (CGR-226 (a)) | «Gedeckt · Person benannt, geprüft für [bestellte Stufe, z. B. FaGe]» · «Team … · übernommen um 14:31». The level is the **ordered** level, never the person's own grade or «Pflegekraft». | `cra` (wording of a safety state) |
+| Taken, colleague named, not yet acknowledged (UXR-223) | Recommended, safety first: «Noch nicht gedeckt · Beginn …» · «Ein Team hat übernommen; die eingeteilte Person bestätigt noch.» «Gedeckt» only after the acknowledgement or a self-named take. | `po` decides (CGR-230 leaves it to `po`/`uxa`), `cra` confirms, `lca` (client learns a team took before confirmation; the team name already shows after a take, G-3) |
+| One neutral zero state (F-1; replaces the two rows «Every eligible team declined» and «No team eligible») | «Nicht gedeckt · Beginn …» · «Kein passendes Team ist frei.» | `lca` (F-1), `cra` |
+| Next step under every «Nicht gedeckt» (CGR-226 (b)) | Shown **directly under the headline, before the reason line** (the PO's 04:39 challenge: design around the next step): «Über NAVORA übernimmt kein Team diese Schicht. Bitte jetzt euren eigenen Ersatzplan nutzen: [Ersatzplan]». **[Ersatzplan] is UNKNOWN**: substance from `cra` and the Clinical Owner (household fallback, home's own escalation, Blueprint §5.1). Whether «übernimmt kein Team» is true for every `not_covered` detail (can a team still take after `all_declined` before the coverage time?) is **UNKNOWN**: `eng` (ADR-199) and `cra` confirm; if not, the line reads «Bis jetzt übernimmt kein Team …». | `cra`, Clinical Owner; `eng` |
+
+Order on the client card for any «Nicht gedeckt»: headline, next step, reason line, then the order facts. The headline keeps `role="status"`; the next-step line is part of it, not a separate toast. Test: for each `cover_detail` at the pinned clock, the client card contains «Nicht gedeckt» and the next-step sentence, contains neither «abgelehnt» nor «erfüllt kein Team», and no count (F-1 negative test, 04:39 (3)).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-222 | `/team` named person's card (BK-c2), team member named by a colleague | high | CGR-230 as placed gives the named colleague only «Bestätigen». She cannot say she cannot go; the take is released only at `latest_cover_at`, when re-coverage is hardest, and the team cannot re-name (no un-take in BK-c). The card answers «what next» only for yes. | BK brief 05:39 (3); `CLINICAL_GOVERNANCE.md` 05:29 CGR-230 (b), (c); H-44; PS-198; template §3 (no un-take) | §1 (three questions), §2 (one primary action, a clear second choice) | Outline «Ich kann nicht» beside «Bestätigen»; releases at once through the existing release path, no reason asked; team sees «Nicht mehr übernommen …» with «Andere Person wählen». Playwright 390 and pgTAP with a pinned clock well before `latest_cover_at`, criteria in the issue. Substance `cra`, placement `po`. | [#1351](https://github.com/Ivica1984/navora-mvp/issues/1351) |
+| UXR-223 | `/order` client status (BK-c2), client | medium | Template §4 «Gedeckt · Pflegekraft benannt» is shown on a live take. With CGR-230, a take naming a colleague may still lapse at `latest_cover_at`; if the client reads «Gedeckt» before the acknowledgement, she stops looking for other cover. Nothing decides which status she sees in between. | `BK5_OFFER_TEMPLATE.md` §4; `cra` CGR-230 («for `po` and `uxa` to decide»); PS-195 | §2 «Not covered has one headline», §1 | Words above (3), row 2: «Noch nicht gedeckt» until acknowledged. Playwright: A names B, client sees «Noch nicht gedeckt … bestätigt noch»; after B confirms, «Gedeckt …». `po` decides, `cra`, `lca` confirm. | report only (medium) |
+
+No finding closed this run (UXR-221 placed in BK-c2 by the PO 04:39 (4); it closes when BK-c2 is merged with its test).
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Design system:** version 89 (§5 offer rule: acknowledgement sentence and caller-first person choice; §2 «Not covered» rule: next step before the reason, one neutral zero state; all PROPOSED). No token change.
+
+**Waiting for the PO:** place UXR-222 (#1351) and decide UXR-223; say whether `uxa` transfers the rows above into `BK5_OFFER_TEMPLATE.md` (next PR) or `eng` builds from this section. **For `cra`:** CGR-226 (a) words, the next-step substance with the Clinical Owner, and the «Ich kann nicht» release. **For `lca`:** F-1 words, UXR-223 row. **For `aia`:** H-BK-06:39 pre-selection of the caller. I ran no NAVORA test.
+
+---
+
+## 2026-11-17 03:48 CET · `uxa`: UXR-215 and UXR-209 closed on merges `08e5d8e` and `792a5d3` (both in the BK-b acceptance commit `ab90875`); BK-c active, #1342 (BK-c1) changes no screen; ADR-199 cover states map onto the BK-5 template; UXR-221 (medium, the template has no «taken by us» state and no view for the named person); benchmark open-shift claim pattern
+
+**State.** `recovery/main` at `14f0f91` (PO merge #1341). Since my 03:47 section (2026-11-15) merged: my PR #1326, #1291 (`08e5d8e`), #1276 (`792a5d3`), #1295 (`ab90875`), PO, `eng`, `cra`, `lca`, `aia` docs PRs up to #1341. **BK-b accepted for the simulation on `ab90875`** (PO 02:39, gate «Simulation, synthetic data»; not released for real persons or data). **Active: BK, slice BK-c** (`NEXT_CAPABILITY.md`). Screen changes on `recovery/main` since `6c4b74b`: only `order-form.tsx`, `orders/rules.ts` (#1291) and `team/einsatzgebiet/page.tsx`, `reach-client.tsx`, `reach/rules.ts` (#1276); I reviewed both on their heads (19:58 and 15:51 on 2026-11-14). Blueprint moved 3.2.22 → 3.2.25: only the header, §8 status line and chapter 13 lines changed (hunks at lines 7, 515, 655, 839, 888, 1491); **no change in §5, §6 or `blueprint-v3/wireframes/`**, so my FE-079 sign-off (reservation UXR-195, [#1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6888169318)) stands; no renewal.
+
+**Open PRs.** #1342 (draft, BK-c1, head `b6f4cb7`): migration, pgTAP 141, types, `DECISIONS.md` (ADR-199), journal; **no file under `src/app` or `src/components`**, so no screen review and no `uxa` gate (BK amendment 03:39 (6) on #1343 agrees). #1343 (PO 03:39), #1337 (ADR-198), #1087 (STG1): no screen.
+
+**Screenshots.** The newest `ui-screenshots` artifact for `recovery/main` (id 14291880847, `14f0f91`, 01:58 UTC) exists; the download was refused again by the session proxy (blob host). **No screenshots were available.** Review from code, diffs and documents.
+
+### Closed
+
+| Finding | Evidence |
+|---|---|
+| **UXR-215** (`/order`, level change kept a stale «Für FaGe …» refusal) | #1291 merged by the PO as `08e5d8e` (head `e9b1672`); the change (`order-form.tsx` `conflictGrade`, `orders/rules.ts` `orderProblemsAfterChange`) and its tests (`tests/e2e/bk-b2-level-activity-conflict.spec.ts:66` ff., `tests/unit/uxr-215-refusal-keeps-checked-values.test.ts`) are on `14f0f91`. `08e5d8e` is an ancestor of `ab90875`. CI read from the API (not run by me): `08e5d8e` `app`, `db`, `e2e`, `ui-screenshots` success (earlier runs cancelled); `ab90875` all 22 `e2e` check runs success, `db` and 10 `db repeat` success. The PO read the 20 `ci-repeat` logs (PO 02:39: `e2e` 182 passed, 0 skipped). |
+| **UXR-209** (`/team/einsatzgebiet`, how postcodes and km combine) | #1276 merged as `792a5d3` (head `08b29c8`): `REACH_DISTANCE_RULE_TEXT` with my words verbatim under «Höchstdistanz in km», `aria-describedby` `-rule` (plus `-err` on refusal); `lca` B-5 help line moved into the postcode fieldset (`reach-client.tsx` `-help`), header line removed (`page.tsx`). Ancestor of `ab90875`; CI as above. |
+
+### BK-c2 input (words; presentation only)
+
+**ADR-199 (6) cover states against the template** (`docs/design/BK5_OFFER_TEMPLATE.md` §4): `open` → «Noch nicht gedeckt …»; `covered` → «Gedeckt · Pflegekraft benannt»; `no_longer_covered` → «Nicht mehr gedeckt …»; `not_covered` with `cover_time_reached`, `all_declined`, `no_team_eligible`, `started` → the four «Nicht gedeckt» rows. **Every value has exactly one row; no gap.** `client_orders()` returns `covered_team_name` only after a take and no count (ADR-199 (6), `lca` G-3, D-44 (2) (a)), which matches §4 «Never for the client». The next step under «Nicht gedeckt» stays **UNKNOWN** (`cra`, CGR-226). The take-over right is decided for Phase A (BK amendment 03:39 (2) on #1343, not yet merged): every active member; the template's «team members with the take-over right» (§2 heading) then means every active member, no extra label on screen.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-221 | `/team` offer list, team member; the named person (BK-c2) | medium | The BK-5 template has no state for an offer **the own team has taken**, and none for the **person named** in a take. ADR-199 (8) keeps such a row in `team_order_offers()` as `offer_state = 'taken_by_us'` with the named member, and BK amendment 03:39 (3) requires that the named member sees her own take on `/team`; a colleague may name her (03:39 (2)). Without words, BK-c2 must invent them, or the card vanishes after the take and the team cannot see who goes (first question: what needs attention now). | `BK5_OFFER_TEMPLATE.md` §3 (states: choosing, pending, other team first, taken elsewhere, failed, declined, dropped out; no «taken by us»); #1342 `DECISIONS.md` ADR-199 (8); #1343 `briefs/BK.md` 03:39 (2), (3) | §1 (three questions), §2 (one primary action), §5 offer rule | Words, PROPOSED: **team card after the own take**, tag «Übernommen», line «Ihr habt diese Schicht übernommen. Es geht: [Vorname N.].», second line «Übernommen von [Vorname N.] um 14:31.» only when the taker is not the named person; **no primary button** in BK-c (no un-take is specified). **Named person's own view** (on `/team`, later `/field`): «Du bist für diese Schicht eingeteilt.» plus shift fact line, and «Eingeteilt von [Vorname N.]» when a colleague took it. Playwright 390: after a take by member A naming member B, A's and B's `/team` show the card with «Übernommen» and B's first name; a member of another team sees neither (03:39 (3)). **`cra` decides** whether the named person must acknowledge before shift start (03:39 (4), OPEN); if yes, an acknowledge action replaces «no primary button» for her, words then from `uxa`. First names to other team members only: `lca` G-5 (e) before real use. | report only (medium) |
+
+### Benchmark (2026-11-17)
+
+Open-shift claiming in workforce apps; read Connecteam help «How to claim an open shift» (https://help.connecteam.com/en/articles/6814564-how-to-claim-an-open-shift, read 2026-11-17). Pattern in my words: a worker finds an open shift in the schedule, claims it in one tap, and the shift then **appears in her own schedule at once**; where a manager must approve, the shift shows a waiting status until approved or refused; workers can opt in to a notice when open shifts are published. The page does not say what the card shows or what a worker sees when someone else claimed first. **Adopt:** the taken shift moves into the taker's own view at once with a plain status (UXR-221). **Do not adopt:** the manager approval step (NAVORA has no dispatcher, FE-039, BK-5n) and «claim early» notices, which would turn the broadcast into a race (§5 offer rule; any push text is `lca`'s). NAVORA's «Bereits übernommen» neutral state (template §3) covers the gap the page leaves. Nothing copied.
+
+**Design system:** version 88 (UXR-215 rule and UXR-209 lines IMPLEMENTED; §5 offer rule gains «A taken offer stays visible to the team that took it», PROPOSED). No token change.
+
+**Waiting for the PO:** place UXR-221 in BK-c2 (words above; `BK5_OFFER_TEMPLATE.md` §3 gets the two rows when placed); BK-c2 PR to attach 390/1440 px images in a PR comment (03:39 (1)). **For `cra`:** 03:39 (4) acknowledgement question and CGR-226 next step. I ran no NAVORA test.
+
+---
+
+## 2026-11-15 03:47 CET · `uxa`: UXR-220 closed on Blueprint 3.2.21 (merge `5db36ff`); FE-079 sign-off renewed on 3.2.22 with reservation UXR-195 only; #1273 (BK-b2) merged as `6c4b74b`, my screen line stands; UXR-215 now on `recovery/main` until #1291 is merged; benchmark GOV.UK validation pattern
+
+**State.** `recovery/main` at `6c4b74b` (PO merge #1273, BK-b2, head `c2ffef1`). Since my 23:50 section merged: my PR #1314, PO #1313, #1316 (3.2.21), #1321 (3.2.22), #1323, #1325 open (PO 03:39, docs), `lca` #1315, #1317, `csa` #1318, `cra` #1320, `aia` #1322, `eng` #1324, and **#1273**. **Active: BK, slice BK-b** (`NEXT_CAPABILITY.md`, unchanged). Open PRs that change screens: #1291 (draft, head `6abf9f8`, unchanged, now based on `6c4b74b`), #1276 (draft, `1600588`, unchanged). #1295 changes no screen.
+
+**Screenshots.** The newest `ui-screenshots` artifact for `recovery/main` (id 14143860519, `6c4b74b`, 02:46 UTC) exists; the download was refused by the session proxy (blob host). **No screenshots were available.** This run reviews code and documents only.
+
+**#1273 merged (`6c4b74b`).** `git diff c2ffef1 6c4b74b -- src tests` is empty, and `c2ffef1` differs from the head I reviewed (`1dde2d8`, 15:51) only by the base merge (`ed8bcf9`, BK-b1s, reviewed 11:48). **My 15:51 screen line for #1273 stands for `6c4b74b`.** CI on `6c4b74b` read from the API at 03:50 (not run by me): `app`, `db`, `ui-screenshots`, `sync` `completed success`; **`e2e` `in_progress`**, so no statement on e2e. Not an acceptance; the block record is the PO's (`ABNAHMEAKTE.md`).
+
+**UXR-215 is now on `recovery/main`** (`order-form.tsx` `problemText` re-reads the live `grade`; `rules.ts` `PROBLEM_FIELD.level_activity_conflict = "tags"`). Nothing wrong is sent (the next «Weiter» re-checks), but the false sentence «Für FaGe ist diese Auswahl … nicht möglich» can be shown. The fix is on #1291: `git diff 6c4b74b...6abf9f8` touches only `order-form.tsx`, `orders/rules.ts`, the BK-b2 e2e and `uxr-215-refusal-keeps-checked-values.test.ts`; my 19:58 line on `a036e59` stands for `6abf9f8`. **For the PO: #1291 belongs before the BK-b acceptance** (BK amendment 17:40 (4)). UXR-216 («hier») is also on `recovery/main`; unchanged, low, BK-g.
+
+### UXR-220 closed
+
+Evidence on `5db36ff` (PO merge #1316, Blueprint 3.2.21), unchanged on `6c4b74b`: (a) Annex C §2.4 client row now reads «Deckungsstand («Noch nicht gedeckt», «Gedeckt durch Team …», «Kein passendes Team mehr frei»)» and lists under «sieht nie» the number of offered, seeing or refusing teams (`lca` 20:25 (2)); `grep -n "Team 1 von"` in the Blueprint finds only the sign-off quotes in chapter 13. (b) The «Hinweis PO (V3.2.19)» now stands before Annex C §1 in place of the V3.2.13 note and is removed from Annex B §2. **UXR-220 closed.** One comment on #1306: my part is done; whether #1306 closes is for `lca` (S-7) and the PO.
+
+### FE-079 sign-off, renewed (reservation UXR-220 closed)
+
+3.2.21 and 3.2.22 changed one line in my field (§6.2 «Recht», `lca` text, no click path) and closed UXR-220. Renewed once on `6c4b74b` (Blueprint 3.2.22, Handbook V2.2 unchanged):
+
+«Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter dem Vorbehalt UXR-195**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **Field:** wireframes and click paths of the six portals (Blueprint §5, §6; `blueprint-v3/wireframes/`).
+- **Removed:** UXR-220 (closed above).
+- **UXR-195** (#1233): the P3 dictation drawing is still missing; due before BK-e becomes active, not for BK-b or BK-c.
+- **Honesty:** confirms the working basis only; no clinical or legal wording (`cra`, `lca`) changed. I ran no NAVORA test.
+- [Comment on #1279](https://github.com/Ivica1984/navora-mvp/issues/1279#issuecomment-6888169318).
+
+### Findings
+
+No new finding this run.
+
+### Benchmark (2026-11-15)
+
+GOV.UK Design System, pattern «Recover from validation errors» (https://design-system.service.gov.uk/patterns/validation, read 2026-11-15): check answers when the person tries to move on, not when they leave a field or while typing; always check on the server too; show the page again with the answers kept, put «Error:» at the start of the page title, a summary at the top with focus moved to it, and the message next to each field. The page says nothing about a problem that depends on two fields. **NAVORA already matches** the moment of the check («Weiter»), the server check (database preview), kept answers, the summary with focus and jump links and the text at the field (#1252, IMPLEMENTED). **Adopt:** nothing new beyond UXR-206 (hidden «Fehler:» at the field line, still open, low). **NAVORA's own rule** for two-field problems (design system §5 «A refusal keeps the values it was checked against», UXR-215) has no counterpart there; it stays PROPOSED until #1291 is merged. Pattern described in my own words; nothing copied.
+
+**Design system:** version 87 (status and benchmark note on the §5 refusal rule; no token change).
+
+**Waiting for the PO:** merge #1291 before the BK-b acceptance (UXR-215 then checked on the merge commit with `e2e` green); enter my renewal in chapter 13; #1306 with `lca`.
+
+---
+
+## 2026-11-14 23:50 CET · `uxa`: UXR-214 closed on merge `b122a60` (#1305); FE-079 sign-off renewed on Blueprint 3.2.19 with reservations UXR-195 and UXR-220; #1291 head `6abf9f8` line stands (base merge only); UXR-220 (low, Annex C client view still shows a team count, stale Annex C note)
+
+**State.** `recovery/main` at `b4a1189` (PO merge #1312, Blueprint 3.2.19, Handbook V2.2). **Active: BK, slice BK-b** (`NEXT_CAPABILITY.md`, unchanged). Since my 21:08 section merged: my PR #1305 (`b122a60`), `cra` #1308, `eng` #1307, #1310, #1312, PO #1309 (3.2.18), #1311 (3.2.19). **No change under `src/`, `tests/` or styles on `recovery/main`** (`git log --since 21:00 -- src tests`: empty). Open PO PR #1313 (3.2.20) changes only chapter 13 sign-off lines, nothing in my field.
+
+**Screenshots.** Not downloaded (the blob host was refused by the session proxy in earlier runs). **No screenshots were available.** This run reviews documents and diffs only.
+
+**#1291 (UXR-215), head `6abf9f8`.** Since my line on `a036e59` the head only merged the base (`c2ffef1`, `ed8bcf9`: BK-b1s from #1270, reviewed by me at 11:48). `git diff a036e59 6abf9f8 -- src` touches only `team/einsatzgebiet/*`, `team-client.tsx`, `features/reach/*`, `database.types.ts`; the UXR-215 change (`order-form.tsx`, `orders/rules.ts`, the two tests) is unchanged. CI read from the API (not run by me): `app`, `db`, `e2e`, `ui-screenshots`, `sync` `completed success` on `6abf9f8`. **My 19:58 line stands for `6abf9f8`.** UXR-215 stays open until #1291 is merged and `e2e` is green on the named merge commit (IMPLEMENTED on the branch, not merged).
+
+### UXR-214 closed
+
+Evidence on the named merge commit `b122a60` (PO merge of #1305) and still on `b4a1189`: `git diff 5928b13 b4a1189 -- docs/product/blueprint-v3` is empty (the pictures are exactly what I rendered and viewed at 21:08); `grep -rniE "exklusiv|kaskade|vermittlung|Team 1 von" docs/product/blueprint-v3/wireframes docs/product/blueprint-v3/diagrams` finds nothing; Blueprint §5 to §7 contain no «vermittelt», «Gründe ansehen» or «zuerst euch» (3.2.17 «moderiert»; 3.2.18 §5.1 «Transparenz» now says a team sees only its own state, never other teams' reasons; «Geprüft (V3.2.18)» points to `design/BK5_OFFER_TEMPLATE.md`). **UXR-214 closed; UXR-217 and UXR-219 close with it** (both corrected in `team.svg` in the same merge). #1286 gets one comment with this evidence; the PO closes it. The build part of BK-5 (card in code) stays a BK-c criterion, PLANNED.
+
+**#1306 (Annex C «Kaskade»):** 3.2.18 and 3.2.19 transferred the `lca` replacement text for §1.2, §1.5, §1.6, §2.2 P-1, §2.6 and §5 Q-44e; Q-44e stays **OPEN**, as asked. Two rests remain, recorded as UXR-220 below; #1306 stays open for them.
+
+### FE-079 sign-off, renewed (Blueprint 3.2.17 to 3.2.19 changed my field)
+
+3.2.17 changed the §5 portal table (Coach «moderiert») and 3.2.18 the §5.1 «Transparenz» line and the open visibility question; my 19:58 sign-off (on 3.2.16, reservations UXR-214 rest and UXR-195) no longer describes the current version. I renew it once, on `b4a1189` (Blueprint 3.2.19, Handbook V2.2 unchanged):
+
+«Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten UXR-195 und UXR-220**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **Field:** wireframes and click paths of the six portals (Blueprint §5, §6; `blueprint-v3/wireframes/`).
+- **Removed from the reservation:** UXR-214 (closed above).
+- **UXR-195** (#1233): the P3 dictation drawing (no 30-second cap, list of unused input before signing) is still missing; due before BK-e becomes active (my 21:08 proposal), not for BK-b or BK-c.
+- **UXR-220:** below; text of `lca` and a PO note, not mine to change.
+- **Honesty:** this confirms the working basis; it changes no clinical or legal wording (`cra`, `lca`) and no PROPOSED status. I ran no NAVORA test.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-220 | `/order` cover state, client (Annex C §2.4 «Rollenrechte»); Annex C header note | low | (a) The client row still lists «Deckungsstand («Angebot bei Team 1 von 4», …)» as what the client sees. Since FE-078 part 2 every eligible team gets the offer at once, and `lca` 20:25 says the client is shown no team count; `order.svg` and §5.1 already say «Angebot an alle passenden Teams gleichzeitig» / «Noch nicht gedeckt». A builder reading Annex C would build the old string. (b) The V3.2.13 PO note in Annex C still says the rows «Rangfolge und exklusive Kaskade» below are unchanged `lca` text; 3.2.19 replaced them, and the 3.2.19 note that says the old note «entfällt» was placed in **Annex B** instead. | `b4a1189` Blueprint lines 1504 (Annex C §2.4), 1378 (Annex C note V3.2.13), 1187 (Annex B note V3.2.19); string from `95b8dbf` | §4 one word per thing; §7 visibility (client sees no other-team information); FE-078 (2) | (a) `lca` gives the client words for §2.4 (proposal: «Deckungsstand («Noch nicht gedeckt», «Gedeckt durch Team …»)», the same as §5.1); (b) PO moves the 3.2.19 note to Annex C and removes or marks the 3.2.13 note. Check: `grep -n "Team 1 von" Blueprint` finds only the version table. `lca` must confirm (a). | comment on #1306 (low) |
+
+**Benchmark:** none (made at 03:47 today).
+
+**Design system:** unchanged (version 86).
+
+**Waiting for the PO:** close #1286 on the evidence above; merge #1291 when BK-b2 is ready (UXR-215 then checked on the merge commit); place UXR-220 (b) in the next Blueprint version; enter my renewal in chapter 13. **For `lca`:** UXR-220 (a) wording.
+
+---
+
+## 2026-11-14 21:08 CET · `uxa` (founder instruction, live session): one BK-5 template; UXR-214 rest corrected in the pictures (open until checked on a named merge); stale BK-5 lines marked; UXR-215 and UXR-195 placed; UXR-217 corrected in the picture; UXR-219 (medium)
+
+**Trigger.** Founder message to `uxa` 2026-11-14 (live): settle the decision state, give Engineering one contradiction-free BK-5 template, correct every picture, keep D-44 / Q-44e visible, UXR-215 before the BK-b acceptance, UXR-195 with a date and gate, visible evidence instead of an unopened CI artifact. Founder chose: one docs PR, the PO checks and merges; Annex C stays with `lca`, UXR-216 (code) with `eng`.
+
+**State.** `recovery/main` at `ed8bcf9` (PO merge #1304, Blueprint 3.2.17). **Active: BK, slice BK-b.** BK-5 is slice **BK-c, not active**; no offer card and no window exist in code (search of `src/` and `supabase/migrations/`: no offer window, no cascade; IMPLEMENTED only `order_offers` / `order_exclusions` rows). UXR-214 therefore does not block BK-b; it must be corrected **before BK-c starts**, because `eng` already prepares BK-c (`BK-c_ADR_DRAFT.md`).
+
+**Decision state.** FE-078 part 2, `FOUNDER_DECISIONS.md` row FE-078, status *verbindlich* (v29, 2026-11-14 15:00), quoted in `design/BK5_OFFER_TEMPLATE.md` §1 with the PO notes (a) D-44 unresolved, Q-44e open; (b) every hard check; (c) «nicht gedeckt» stays.
+
+**What contradicted it on `ed8bcf9`, and what this PR does:**
+
+| Place | Stale content | This PR |
+|---|---|---|
+| `briefs/BK.md` criterion BK-5 (line 43) | «Offer cascade … exclusive window», replaced only by an amendment further down | Marked SUPERSEDED in place, struck through, kept as history; BK-5n «the cascade continues» and slice line marked; 15:00 (4) team count marked superseded by 20:40 (3) |
+| `wireframes/team.svg` | «Die Schicht hat, wer sie zuerst übernimmt.» (race, my own 15:51 word), «Warum zuerst euch … das nächstgelegene passende Team» (priority and a comparison with other teams), «Ablehnen mit Grund» | Same line as P2 «Alle passenden Teams sehen dieses Angebot.»; «Warum empfohlen» with this team's reason only and «Kein anderes passendes Team ist ausgeschlossen.»; «Ablehnen» |
+| `wireframes/order.svg` | «Angebot bei Team 1 von 3 passenden Teams», note «‹Team 1 von 3› bleibt» | «Angebot an alle passenden Teams gleichzeitig»; note without team count (`lca` 20:25, BK 20:40 (3)) |
+| `wireframes/platform.svg`, `diagrams/platform-map.svg` | «Vermittlung», «Vermittlung (Coach)», «Vermittlung ohne Aufsicht» | «Moderation», «Moderation auf Anfrage (Coach)», «Moderation ohne Aufsicht» (`lca` D-44 20:25 confirmed) |
+| `diagrams/engine-map.svg`, `erd-b-auftrag.mmd` | «Kaskade» | «Rundruf» |
+| Blueprint Annex C rows «Rangfolge und exklusive Kaskade», Q-44e table | stale word | **not changed** (`lca`'s text); the legal question **stays open**; issue to `lca` |
+| ADR-191 (4), (6), ADR-195 (3) | «cascade» | not changed (`eng`; already listed in `BK-c_ADR_DRAFT.md` §2) |
+| Blueprint PDF | old pictures | PO regenerates with the next version line |
+
+`grep -rniE "exklusiv|kaskade|vermittlung|Team 1 von" docs/product/blueprint-v3/wireframes docs/product/blueprint-v3/diagrams` finds nothing on this branch.
+
+**Visual evidence.** I rendered `team.svg`, `order.svg`, `platform.svg`, `engine-map.svg`, `platform-map.svg` from this branch with the pre-installed Chromium and looked at each image (no overflow; the platform panel title fits). The phone picture P2 (`img/v3/p2-team.png`, committed, opened directly) matches the template except state B (UXR-218). No app screenshot of the card can exist yet (BK-c not built). For BK-c, `BK5_OFFER_TEMPLATE.md` §5 proposes screenshots as images in a PR comment, named in the `uxa` gate line (PO to decide); a green `ui-screenshots` job alone is not a visual review.
+
+**UXR-215 (before the BK-b acceptance).** Fix and the test for exactly this change (AGS + «Venöse und kapillare Blutentnahme» refused → FaGe → refusal gone, no «Für FaGe …») are on #1291 head `a036e59` (draft, stacked on #1273, `ci` 4/4 success read from the API; `uxa` line clear 19:58). **Open until #1291 is merged and the e2e is green on the named merge commit.** UXR-216 («hier» → «bei diesem Auftrag») is a one-string change in `orders/rules.ts`: proposed to ride the same PR or the next #1273 push (`eng`), `cra` confirms the words.
+
+**UXR-195 (P3 drawing).** Needed for **BK-e** (`/field` report draft; brief amendment 13 Nov 20:40 (6) (d)), slice order a, b, c, e, f, d, g. Not needed for BK-b or BK-c. Proposed: delivered by `uxa` **before BK-e becomes active**, as gate «`uxa` drawing present on a named commit» in the BK-e entry; until then Blueprint §5.3 says «ausstehend» and no BK-e acceptance may present it as present.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-219 | Desktop offer card `team.svg` (team) | medium | The desktop picture gave a second, different template from P2: priority wording «Warum zuerst euch», a comparison «das nächstgelegene passende Team» (reveals other teams), «Ablehnen mit Grund» (P2 and BK ask no reason). | `ed8bcf9` `blueprint-v3/wireframes/team.svg:39, 58-60, 65` | §4 one word per thing; FE-078 (2); §7 visibility | Corrected on this branch; check after merge: `team.svg` contains «Alle passenden Teams sehen dieses Angebot.», no «zuerst euch», no «nächstgelegene», no «mit Grund». | #1286 |
+
+**UXR-214:** corrected on this branch in every picture; **stays open** until the PO merges and `uxa` checks the named merge commit. **UXR-217:** corrected in `team.svg` (P2 wording kept); closes with UXR-214. **UXR-218:** P2 state B unchanged (PNG, no generator in the repo); `BK5_OFFER_TEMPLATE.md` §3 wins.
+
+---
+
+## 2026-11-14 19:58 CET · `uxa`: FE-079 sign-off renewed on Blueprint 3.2.16 (my field changed: UXR-214 part 1 done), reservations narrowed to the rest of UXR-214 and UXR-195; gate line #1291 head `a036e59` (clear, UXR-215 fixed as proposed); words for «nicht gedeckt» before the start and «nicht mehr gedeckt» (BK amendment 17:40, CGR-222 (b), CGR-223); answer to H-BK-15:39 under `cra`'s three conditions; UXR-217, UXR-218 (low)
+
+**State.** `recovery/main` at `879f97c` (PO merge #1299). Since 15:51 merged: my section (#1287), `lca` (#1289), PO #1290 (Blueprint 3.2.15, UXR-214 images), `eng` journals (#1292, #1296, #1298, BK-c ADR draft, docs only), `cra` (#1293), PO #1294 (Blueprint 3.2.16), #1297, #1299. **No change under `src/`, `tests/` or styles on `recovery/main`.** **Active block: BK, slice BK-b** (`NEXT_CAPABILITY.md`; BK amendment 17:40). Open PRs that change screens: #1270 (head `1cb6e09`, unchanged), #1273 (draft, `1dde2d8`, unchanged), #1276 (draft, `1600588`, unchanged), **#1291** (draft, `a036e59`, new, stacked on #1273). #1295 (`2614ccb`, CGR-220) changes only a migration, pgTAP and `DECISIONS.md`: no screen. #1087, #1084: no screen.
+
+**CI read from the API (not run by me):** `a036e59`: `app`, `db`, `e2e`, `ui-screenshots` `completed success`; `2614ccb`: `app`, `db`, `e2e`, `ui-screenshots`, `sync` `completed success`. I read no job log and no `ci-repeat`; I ran no NAVORA test.
+
+**Screenshots.** Not downloaded this run (refused by the session's proxy in earlier runs, blob host). **No screenshots were available.** Review from the diff `1dde2d8...a036e59` (`order-form.tsx`, `orders/rules.ts`, e2e, vitest) and the Blueprint files changed since `0b952ce` (`img/v3/p2-team.png` viewed; `team.svg`, `order.svg`, `b2b.svg`, `platform.svg`, `e2e-a-auftrag.svg`, `e2e-b-einsatz.svg`; §5.1, §6.1, §6.2, Annex B). Nothing run against the live project.
+
+### FE-079 sign-off, renewed (Blueprint 3.2.15 and 3.2.16 changed my field)
+
+3.2.15 redrew the P2 image and five pictures in my field (UXR-214 part 1) and 3.2.16 changed the P1 cover state in §5.1 and the §6.2 state diagram (CGR-222 (b), CGR-223 (d)) and asks `uxa` for the words. My 15:51 sign-off therefore no longer describes the current version; I renew it once, on `879f97c` (Blueprint 3.2.16, Handbook V2.2 unchanged):
+
+«Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten UXR-214 (Rest) und UXR-195**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **UXR-214, part 1 verified (closed for these files):** `grep -niE "exklusiv|30 Sekunden|bis 1[0-9]:[0-9]{2}"` over `blueprint-v3/` finds nothing; §6.1 reads «Rundruf an alle passenden Teams gleichzeitig (FE-078 Teil 2)»; the P2 image has no clock line, no other-team line and «0 CHF an NAVORA».
+- **UXR-214, rest (reservation stays):** «Vermittlung» (sidebar item, `platform.svg:16`), «Vermittlung (Coach)» (`platform.svg:46`), «Vermittlung ohne Aufsicht» (`platform-map.svg:59`) break the language rule (Annex C §1.3 (10), R-9, `lca` S-4); «Kaskade» in `engine-map.svg:83` and `erd-b-auftrag.mmd:7` (with Handbook V2.3). Word proposal below; `lca` confirms.
+- **UXR-195 (#1233):** my P3 drawing is still owed (unchanged).
+- The 15:51 sign-off stands as given for 3.2.13; this one replaces it from 3.2.16. No clinical or legal approval; no `cra` or `lca` wording changed.
+
+### `uxa` gate line for #1291 (UXR-215)
+
+«`uxa` 2026-11-14 19:58 on #1291 head `a036e59`: **clear**, gate «Simulation, synthetic data». UXR-215 is built as proposed: the refusal keeps the level it was checked against (`conflictGrade`, set only from the preview), and a changed level drops the level-against-activity refusal (`orderProblemsAfterChange`, `PROBLEM_ALSO_NAMES`); since the field problem and the top list read the same state, both go. E2e at 390: AGS + «Venöse und kapillare Blutentnahme» refused, FaGe picked → field problem count 0, no «Für FaGe …» text, no summary. Form-level problems are never dropped. Not a clinical gate.» UXR-215 closes when #1291 is merged. My #1273 line on `1dde2d8` (comment 15:51) stands; the BK amendment 17:40 (4) lists it as still needed: it is on #1273.
+
+### Words for «nicht gedeckt» before the start and «nicht mehr gedeckt» (BK amendment 17:40 owners; Blueprint 3.2.16 §5.1 «Wortlaut: `uxa` (OPEN)»; CGR-222 (b), CGR-223)
+
+PROPOSED, `uxa`. Position, colour and wording of a safety state are `cra`'s to confirm; anything a client sees about another team or a person is `lca`'s. This replaces my UXR-188 line «ab Schichtbeginn ‹Nicht gedeckt›» (13 Nov 11:55) and the last row of my 15:51 BK-5 table.
+
+**One rule:** every uncovered state has the same headline word, «Nicht gedeckt» (or «Nicht mehr gedeckt» after a cover was lost), then the start as a fact, then one reason line. The headline never waits for the start; it appears at the latest coverage time or when every eligible team has declined, whichever comes first (CGR-222 (b)). It sits in the one `role="status"` line at the top of the order card, above all other content of that card, with words and an icon, never colour alone.
+
+| Where | State | Words (PROPOSED) |
+|---|---|---|
+| `/order` status, client | before the coverage time, not taken | «Noch nicht gedeckt · Beginn Sa 14.11., 07:00 (in 5 Std. 10 Min.)» (unchanged) |
+| `/order` status, client | coverage time reached, not taken | «**Nicht gedeckt** · Beginn Sa 14.11., 07:00 (in 1 Std. 30 Min.)» · reason line «Bis jetzt hat kein Team diese Schicht übernommen.» |
+| `/order` status, client | every eligible team declined, before the coverage time | «**Nicht gedeckt** · Beginn …» · «Kein passendes Team mehr frei.» (§5.1; no count, no team names, `lca`) |
+| `/order` status, client | shift start reached, not taken | «**Nicht gedeckt** · Die Schicht hat um 07:00 begonnen.» |
+| `/order` status, client | named person no longer passes before the start (CGR-223) | «**Nicht mehr gedeckt** · Beginn …» · «Die eingeteilte Person von Team … kann nicht. Das Angebot geht wieder an alle passenden Teams.» Never the reason (absence, evidence, other visit): `lca` confirms the team name may stay. |
+| `/team` card, the taking team (CGR-223, FE-039) | its named member no longer passes | «**Nicht mehr gedeckt:** [Vorname N.] erfüllt die Bedingungen für diese Schicht nicht mehr.» · primary «Andere Person wählen» (only members who pass). If the team lets it go, it returns to the broadcast; no other role assigns. |
+| next-action line under «Nicht gedeckt», client | what the client does now | **UNKNOWN:** the words name the home's own escalation (Blueprint §5.1, QAM §7.3 NH-EXT, F5) or the household's next step; `cra` gives the substance, `uxa` then shortens it. Whether teams can still take after «Nicht gedeckt» (then «Teams können die Schicht weiterhin übernehmen.») follows the BK-c ADR (`eng`), UNKNOWN. |
+
+Live change: when the status changes while the page is open, the line is announced once (`role="status"`, polite); it is not a toast that disappears (§6 «a status line stays until the user acts»). Test: Playwright with the pinned clock of CGR-222 (c): one minute before the coverage time the status contains «Noch nicht gedeckt»; at the time it contains «Nicht gedeckt» and the start time, and it is the first element of the order card.
+
+### H-BK-15:39 under `cra`'s three conditions (BK amendment 17:40 (3); `uxa` answer was OPEN)
+
+`uxa` agrees with all three; what they mean on the screen:
+1. **Only after the server committed the take:** no optimistic removal; while the team's own tap is pending, its button shows a busy state and stays where it is; another team's card leaves at the next refresh after the commit, never on a guess.
+2. **After a failed take the offer returns:** the card comes back as an ordinary open offer, with no «wieder offen» badge and no history (a history of lost or returned offers invites racing, §1 what can wait).
+3. **An uncovered order never leaves an eligible team's list before «nicht gedeckt»:** agreed; the card then shows the state line of the client's wording without other teams' data.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-214 (rest) | Blueprint P6 `/platform` (operations, coach), platform map | high (unchanged; part 1 closed) | The P6 sidebar item «Vermittlung», the panel «Vermittlung (Coach)» and the map box «Vermittlung ohne Aufsicht» use the word R-9 bans; the panel is about moderation for a team that asks («Team Gundeli bittet um Moderation»), not about passing orders. «Kaskade» stays in `engine-map.svg` and `erd-b-auftrag.mmd`. | `879f97c` `blueprint-v3/wireframes/platform.svg:16, 46`; `diagrams/platform-map.svg:59`; `engine-map.svg:83`; `erd-b-auftrag.mmd:7` | §4 plain words; Annex C §1.3 (10) | Sidebar «Moderation», panel «Moderation auf Anfrage (Coach)», map «Moderation ohne Aufsicht»; «Rundruf» in `engine-map.svg` with Handbook V2.3. `lca` confirms the word. Check: `grep -rni "Vermittlung\|Kaskade" docs/product/blueprint-v3/` finds nothing. | #1286 |
+| UXR-217 | Blueprint P2 `/team` (team) and `team.svg` | low | The P2 image says «Alle passenden Teams sehen dieses Angebot.»; `team.svg` says «Dieses Angebot sehen alle passenden Teams. Die Schicht hat, wer sie zuerst übernimmt.» Two words for one card; `eng` builds from either. | `879f97c` `img/v3/p2-team.png` (state A); `wireframes/team.svg` (lines «Dieses Angebot sehen …») | §4 one word per thing | One line in both: «Alle passenden Teams sehen dieses Angebot. Es gilt die erste Übernahme mit einer geprüften Person.» (names the rule, not a race). PO with the next Blueprint maintenance. | none (low) |
+| UXR-218 | Blueprint P2 state B «Übernehmen mit …» (team) | low | In state B the primary «Übernehmen mit Person …» looks active while the card says «Noch niemand gewählt – nichts übernommen»; and the bottom bar marks «Heute» although the flow started under «Angebote». | `879f97c` `img/v3/p2-team.png` (state B) | §2 one primary action that can be done; §5 the shell shows where you are | Button reads «Person wählen» until a person is ticked, then «Übernehmen mit [Vorname N.]»; tab stays «Angebote». For BK-c the e2e asserts the button name changes after the tick. | none (low) |
+
+**Closed:** UXR-214 part 1 (pictures and §6.1, verified above on `879f97c`); the finding stays open for the rest. UXR-215 closes with the merge of #1291.
+
+**Benchmark:** none (made at 03:47 today).
+
+---
+
+## 2026-11-14 15:51 CET · `uxa`: FE-079 sign-off with reservations UXR-214 and UXR-195; gate lines on #1276 head `1600588` (clear) and #1273 head `1dde2d8` (clear with UXR-215 before the BK-b acceptance); #1270 line on `1cb6e09` stands; BK-5 broadcast words (PO amendment 15:00 (6), H-BK-15:39); UXR-214 (high, #1286), UXR-215 (medium), UXR-216 (low)
+
+**State.** `recovery/main` at `0b952ce` (PO merge #1283). Since 11:48 merged: my section (#1272), #1268 (BK-b1, `9b691af`, merged, not accepted), #1280 (`aia`), #1282 (FE-078 part 1, FE-079, Blueprint 3.2.12), #1284 (FE-078 parts 2 and 3, Blueprint 3.2.13, BK-5 broadcast), #1283 (`eng` sign-off). Open: PO #1285 (15:39, Blueprint 3.2.14). **Active block: BK, slice BK-b** (`NEXT_CAPABILITY.md` 14:39; PO 15:39 in #1285). Open PRs that change screens: #1270 (draft, head `1cb6e09`, unchanged since my 11:48 line, now based on `recovery/main`), #1273 (draft, head `1dde2d8`), #1276 (draft, head `1600588`, stacked on #1270).
+
+**Founder direction.** Newest: FE-079 (sign-off) and FE-078 (no money through NAVORA; broadcast instead of exclusive cascade, AI only recommends; #1220 corrections binding). The run prompt now names Blueprint V3.2 and Handbook V2.2: the contradiction reported since 13 Nov 16:20 is **resolved**.
+
+**CI read from the API (not run by me):** `1dde2d8`: `app`, `db`, `e2e`, `ui-screenshots`, `sync` `completed success`; `1600588`: `app`, `db`, `e2e`, `ui-screenshots` `completed success`; `1cb6e09`: five checks `completed success`; `0b952ce`: `e2e` `in_progress` at reading. I read no job log and no `ci-repeat`.
+
+**Screenshots.** `ui-screenshots` artifacts 14118438199 and 14118174326 (`0b952ce`) listed; download refused by the session's proxy (blob host). **No screenshots were available.** Review from the diffs `recovery/main...1dde2d8` (`order-form.tsx`, `orders/rules.ts`, `orders/commands.ts`, e2e `bk-b2-level-activity-conflict.spec.ts`) and `1cb6e09...1600588` (`reach-client.tsx`, `page.tsx`, `reach/rules.ts`, e2e). I looked at the committed Blueprint image `docs/product/img/v3/p2-team.png`. Nothing run against the live project.
+
+### FE-079 sign-off (field: wireframes and click paths of the six portals, Blueprint §5 and §6)
+
+Read on `recovery/main` `0b952ce`: Blueprint V3.2 (3.2.13) chapters 0 to 14 in full, Annexes A to C read for what touches screens and words (A §4.3; B §2, §4; C §1.3, §1.4, §2, §3); Handbook V2.2 §1, §3, §4.0 in full, the rest by headings and the lines that name routes, the cascade or UI rules. Wireframes `blueprint-v3/wireframes/*.svg` and diagrams `e2e-a-auftrag.svg`, `e2e-b-einsatz.svg`, `engine-map.svg` searched for words FE-078 replaced.
+
+«Ich habe Blueprint V3.2 und Architecture Handbook V2.2 gelesen und vollinhaltlich verstanden. Ich bestätige hiermit mein formales Sign-off für meinen Fachbereich, **unter den Vorbehalten UXR-214 und UXR-195**. Mein System-Prompt ist aktualisiert, und ich arbeite ausschliesslich auf dieser Grundlage.»
+
+- **Reservation UXR-214 (high, #1286):** pictures and one click path still show the exclusive window FE-078 part 2 removed (P2 image, `team.svg`, `order.svg`, `platform.svg`, `e2e-a-auftrag.svg`, §6.1 line 408) and `e2e-b-einsatz.svg` still says «spricht 30 Sekunden». Details in the table.
+- **Reservation UXR-195 (#1233, open since 13 Nov):** the P3 drawing of «Nicht übernommen (n)» and the text field replacing the recording are my own delivery and not yet made; Blueprint §5.3 says so.
+- **Noted, not a reservation (owned by `eng`):** Handbook §3.1, §4.0 (both diagrams), T-3 and §11 still name «Kaskade mit Zeitfenster»; FE-078 part 2 and the BK amendment 15:00 (5) give `eng` the ADR check. `eng` V-1 to V-6 cover the data model, not this.
+- The sign-off is no clinical or legal approval and changes no wording owned by `cra` or `lca`.
+
+### `uxa` gate line for #1276 (UXR-209 and `lca` B-5)
+
+«`uxa` 2026-11-14 15:51 on #1276 head `1600588`: **clear**, gate «Simulation, synthetic data». UXR-209 built with my words verbatim (`REACH_DISTANCE_RULE_TEXT`) under «Höchstdistanz in km», tied as accessible description (`aria-describedby` `-rule`, plus `-err` on refusal); `lca` B-5 help line moved from the header into the postcode `fieldset`, tied as its description; e2e asserts both descriptions. Plain `stone-700` text, no colour meaning. Not a clinical or legal gate.» UXR-209 closes when #1276 is merged (evidence: e2e `bk-b1s-reach.spec.ts` on `recovery/main`).
+
+### `uxa` gate line for #1273 (BK-b2, screen part only)
+
+«`uxa` 2026-11-14 15:51 on #1273 head `1dde2d8`: **clear**, gate «Simulation, synthetic data», for the `/order` screen part. The level-against-activity refusal is shown at the activities field and in the top list with a jump link, names every conflicting activity by its label (code as fallback, never dropped), keeps the form and creates no summary (e2e at 390 and 1440, no horizontal scroll). The strict-reading sentence «Das ist eine Sicherheitsgrenze der Simulation, keine Entscheidung eines Teams.» is the PO's 13:39 (4) wording and stays. Not a clinical gate: whether a refused activity could be fixed by another level under the strict reading is `cra`'s (UNKNOWN).» UXR-215 should be fixed before the BK-b acceptance (it is wrong text, not a merge condition, because the next check re-reads everything and nothing is sent); UXR-216 is a word proposal.
+
+### BK-5 broadcast: words and place (PO amendment 15:00 (6), challenge H-BK-15:39)
+
+PROPOSED, `uxa`; the client status words are `cra`'s to confirm (safety state), anything a client or another team sees is `lca`'s (visibility). Nothing here is a merge condition until the PO places it.
+
+| Where | State | Words (PROPOSED) | Rule |
+|---|---|---|---|
+| `/team` offer card | open offer | Title line with the shift start as a fact («Spätschicht · Fr 13.11. 16:30–21:30 · 5 Std.»). Under «Passt, weil:» one neutral line: «Dieses Angebot sehen alle passenden Teams. Die Schicht hat, wer sie zuerst übernimmt.» | No countdown, no clock icon, no amber, no count of other teams, no other team's name or reasons. Primary «Übernehmen mit …», outline «Ablehnen». |
+| `/team` offer card | own tap refused because another team was first | Inline on the card, `role="status"`, neutral style: «Bereits übernommen. Ein anderes Team hat diese Schicht übernommen. Für euch ist nichts gespeichert.» No action except «Schliessen». | Not rose: the team did nothing wrong. No name of the other team. |
+| `/team` list | taken by another team, not tapped (H-BK-15:39) | The card leaves the list at the next refresh. **No** history line per lost offer. | Agree with H-BK-15:39; a history of «verloren» invites racing (§1 what can wait). |
+| `/team` offer card | own team declined | «Abgelehnt. Ihr seht dieses Angebot nicht mehr.» | One sentence, no reason asked in BK. |
+| `/order` status | confirmed, not taken | «Noch nicht gedeckt · Beginn in 2 Std. 10 Min.» | Replaces «Angebot bei Team 1 von 4» (BK amendment 15:00 (4)). A count «3 passende Teams sehen den Auftrag» only if `lca` allows it (Blueprint §5.1). |
+| `/order` status | taken with a named, checked member | «Gedeckt durch Team …» | Unchanged (CGR-213 (a)). |
+| `/order` status | every eligible team declined, before start | «Kein passendes Team mehr frei» plus the Operations exception | Blueprint §5.1; above every other content of the order card (`cra`). |
+| `/order` status | shift start reached, not taken | «Nicht gedeckt» | Unchanged (UXR-188). |
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-214 | Blueprint P2 `/team` (team), P1 `/order` (client), P6 `/platform`, click path §6.1 | high | After FE-078 part 2 the pictures and one click path still show the exclusive window: amber clock «Angebot für euer Team bis 14:45» (P2 image), «Exklusiv für euch bis 14:45», «2. von 3 Teams, exklusiv bis 15:10.», «beim 3. von 3 Teams, exklusiv bis 16:00», «Team, exklusiv bis 14:45», «Kaskade, Engine 5», §6.1 `N->>Team: … exklusiv bis 14:45`. The same P2 image shows «Nicht angeboten an 3 Teams – Gründe ansehen» (other teams' reasons, §7: internal trail only) and «keine Vermittlungsgebühr» (§4.4: never «Vermittlung»). `e2e-b-einsatz.svg` still says «spricht 30 Sekunden» (V3.2.5). `eng` builds BK-5 from these pictures. | `0b952ce`: `docs/product/img/v3/p2-team.png`; `blueprint-v3/wireframes/team.svg:38`, `order.svg:107`, `platform.svg:42`; `blueprint-v3/diagrams/e2e-a-auftrag.svg:66-70`, `e2e-b-einsatz.svg:5`; Blueprint `:408` | §1 honest state, §4 plain words; FE-078 (2); Blueprint §7 | PO replaces the lines with the broadcast words above (card line, no clock, no other-team line, «0 CHF an NAVORA» if `lca` agrees; «Angebot an alle passenden Teams gleichzeitig»; «Rundruf»; «schreibt den Bericht in eigenen Worten»), regenerates P2. Check: `grep -niE "exklusiv|Kaskade|30 Sekunden"` on wireframes and `e2e-*.svg` finds no offer element; §6.1 without «exklusiv». | #1286 |
+| UXR-215 | `/order` form, client (#1273) | medium | After a level-against-activity refusal, changing the level does not clear the refusal (it belongs to the activities field), and the text re-reads the **current** level: AGS refused for «Venöse und kapillare Blutentnahme», then FaGe picked → the screen says «Für FaGe ist diese Auswahl … nicht möglich: Venöse und kapillare Blutentnahme», a claim no check made. The next «Weiter» re-checks, so nothing wrong is sent; the text is still false. | `1dde2d8` `order-form.tsx:52-54, 60-66` (`problemText` uses live `grade`, `FIELD_OF.grade` clears only `grade` problems); `rules.ts` `PROBLEM_FIELD.level_activity_conflict = "tags"` | §3 a message never contradicts the screen (v83); §4 | Changing the level also clears `level_activity_conflict` (or the text keeps the level of the check). E2e: refuse AGS + Blutentnahme, pick FaGe → `order-field-tags-problem` count 0. Before the BK-b acceptance. | none (medium) |
+| UXR-216 | `/order` form, client (#1273) | low | «Für AGS ist diese Auswahl **hier** nicht möglich» — «hier» does not say what is different (the kind of order). | `1dde2d8` `rules.ts` `levelActivityConflictText` `nh_ext_strict` | §4 plain words | «Für AGS ist diese Auswahl bei diesem Auftrag nicht möglich: …». PO words (13:39 (4)); `cra` confirms. Vitest on the `nh_ext_strict` string. BK-g. | none (low) |
+
+**Closed:** none on `recovery/main` this run (UXR-209 closes with the merge of #1276).
+
+**Benchmark:** none (made at 03:47 today).
+
+---
+
+## 2026-11-14 11:48 CET · `uxa`: BK-b gate lines on #1268 head `f3b2a5c` (clear) and draft #1270 head `1cb6e09` (clear), gate «Simulation, synthetic data»; UXR-208 unchanged; UXR-209 (medium, the reach screen does not say how PLZ and km combine), UXR-210 to UXR-213 (low); answer to PO observation 10:39 (4)
+
+**State.** `recovery/main` at `326b787` (PO merge #1269, 10:39). Since 07:48 merged: #1257 (BK-a UXR-204, `634ccb7`), #1262 (my 07:48 section), #1261, #1263 to #1267, #1269. **BK-a accepted** on `634ccb7` (PO 09:39, `ABNAHMEAKTE.md` §2). **Active block: BK, slice BK-b** (`NEXT_CAPABILITY.md` 10:39; PO 11:39 in open #1271). Open PRs that change screens: **#1268** (BK-b1, head `f3b2a5c`; PO 11:39 holds it for `cra`, `lca`, `uxa`, `aia` gate lines) and **draft #1270** (BK-b1s «Unser Einsatzgebiet», head `1cb6e09`, stacked on #1268; gates `uxa`, `aia`, `cra` only if words touch care). #1087 and #1084 touch no screen.
+
+**CI read from the API (not run by me):** `f3b2a5c`: `app`, `db`, `e2e`, `ui-screenshots` `completed success`; `1cb6e09`: the same four plus `sync`, `completed success`. I did not open the job logs and read no `ci-repeat` (that is the BK-b acceptance, not a gate line).
+
+**Founder direction.** Newest decision still FE-077 (`FOUNDER_DECISIONS.md` last changed 13 Nov 15:15 CET). Same prompt contradiction as since 13 Nov 16:20 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2).
+
+**Screenshots.** `ui-screenshots` artifacts 14110102716 (`1cb6e09`), 14109135005 (`f3b2a5c`) and 14109182703 (`recovery/main` `326b787`) are listed; the archive download was refused by the session's proxy (blob host, as in every run since 13 Nov). **No screenshots were available.** Review from the diffs `recovery/main...f3b2a5c` and `recovery/main...1cb6e09` (`order-form.tsx`, `orders/rules.ts`, `team/einsatzgebiet/*`, `reach/rules.ts`, `team-client.tsx`, e2e and unit tests) and migration 0130 for what the screen must explain. Nothing run against the live project.
+
+### `uxa` gate line for #1268 (BK-b1)
+
+«`uxa` 2026-11-14 11:48 on #1268 head `f3b2a5c`: **clear**, gate «Simulation, synthetic data». The only screen change is the CGR-217 information item on the `/order` summary: my 03:47 words verbatim (`orders/rules.ts` `orderInfoText`), the earlier order's sentence in brackets and dropped when missing, never invented; neutral style (sky-50 background, sky-950 text, contrast well above 4.5:1), starts with the word «Hinweis:» so colour is not the only carrier, not `role="alert"`, above «Bestätigen & Absenden», confirm stays enabled (e2e `bk-a-order.spec.ts` at 390 px, vitest `bk-b1-cgr217-same-order.test.ts`). No other user-visible text; exclusion rows are shown on no screen. Not a clinical or legal gate.» Follow-up UXR-213 (low) below, not a condition.
+
+### `uxa` gate line for #1270 (BK-b1s, draft)
+
+«`uxa` 2026-11-14 11:48 on #1270 head `1cb6e09`: **clear**, gate «Simulation, synthetic data», for the PO's criteria (b), (d), (e) and the place. Place: `/team/einsatzgebiet`, linked from the `/team` header as «Einsatzgebiet», back link «Team», one form per own team, one primary action «Einsatzgebiet speichern» (PO 10:39 (3)). (b) the three refusals are at their fields (`reach/rules.ts` `reachProblemsByField`; postcodes at the `fieldset` via `aria-describedby`, distance with `aria-invalid`); words accepted: «Bitte mindestens eine PLZ wählen.», «Diese PLZ ist nicht in der Liste.», «Bitte eine Distanz grösser als 0 km eingeben.» (d) the new-orders line is under the button; better words in UXR-210, not a condition. (e) `/team/einsatzgebiet` added to `capture.spec.ts` for a team member (I could not view the images). Checkboxes and field are 44 px high (`min-h-11`), 16 px input text, one column at 390 px, saved state as `role="status"`, «Noch nicht eingestellt.» and the `building` line say the state in words. Address form «euer», as on `/team`. The help line «PLZ, von der aus euer Team Aufträge annimmt. Nicht eure Wohnadresse.» is `lca`'s D-44 wording and stays. Valid only on `1cb6e09` (AUT-50); a retarget to `recovery/main` with an unchanged code diff keeps it.» UXR-209 should be built before the BK-b acceptance (proposal to the PO, below); it does not hold the merge of #1270.
+
+### Answer to PO observation 10:39 (4) (team sees why an order did not reach it)
+
+`uxa` position, PROPOSED, nothing to build now: the reason is useful to a team for exactly one job, adjusting its own reach, so its place is the reach screen, not `/team`'s offer list. Shape: one count line per team and period on `/team/einsatzgebiet`, e.g. «Letzte 30 Tage: 3 Aufträge ausserhalb eures Einsatzgebiets», reasons `outside_radius` and `no_distance` only, no order detail, no client, no time, no list. It is a measure from screening rows, so AUT-122 applies (no person column; *k* from `lca`, UNKNOWN). Waits for `lca` (whether the count alone discloses an order, 21:39 (6)) and for *k*; until both answer, nothing is shown (as the PO decided).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-209 | `/team/einsatzgebiet`, team member (#1270) | medium | The screen asks for postcodes and a «Höchstdistanz in km» but does not say how they work together, so a team cannot predict which orders reach it. The database measures from the **nearest ticked postcode** to the order's postcode and uses the **smaller** of the team's maximum and the client's optional distance (migration 0130 `min(d.distance_km)`, `least(t.max_distance_km, o.radius_km)`). The help line («PLZ, von der aus …», singular) suggests one starting point; a team that ticks only the postcodes it serves and sets 0.1 km, or ticks one and sets 30 km, gets very different results without knowing why. Team autonomy (value 4) needs a rule the team can read. | `1cb6e09` `src/features/reach/rules.ts:45` (`REACH_HELP_TEXT`), `reach-client.tsx:111-113` (label only); `supabase/migrations/20261021000130_bk_b1_reach_distance_filter.sql:219-223` | §1 (what to do next must be clear), §4 plain words, §5 one line of explanation | One line under the distance field, `id` referenced by the field's `aria-describedby`: «NAVORA misst von der nächsten gewählten PLZ bis zum Einsatzort. Gibt der Auftraggeber eine kleinere Distanz an, gilt seine.» (PROPOSED; facts from migration 0130, no new rule; `lca`'s help line unchanged above). Vitest: the constant equals the text; e2e: `getByLabel("Höchstdistanz in km")` has an accessible description containing «nächsten gewählten PLZ». Proposed to the PO: before the BK-b acceptance, in BK-b2 or a follow-up of #1270. | none (medium) |
+| UXR-210 | `/team/einsatzgebiet`, team member (#1270) | low | «Aufträge, die schon geprüft wurden, bleiben, wie sie sind.» names an internal step («geprüft») the team never sees; the moment that fixes an order's screening is the client's confirmation (BK-2n, AUT-117 (b)). | `1cb6e09` `src/features/reach/rules.ts:41-42` | §4 plain words, no internal steps | «Eine Änderung gilt für Aufträge, die ab jetzt bestätigt werden. Bereits bestätigte Aufträge bleiben unverändert.» Vitest on `REACH_NEW_ORDERS_ONLY_TEXT`. With UXR-209. | none (low) |
+| UXR-211 | `/team` header, team member, 390 px (#1270) | low | The header now holds five links before the page title («Kennzahlen», «Mein Tag», Vorschläge, «Tagesvorschlag», «Einsatzgebiet»); at 390 px they wrap to two rows and push «Team» and its line down. A setting used rarely sits at the same level as the daily «Vorschläge». Adds to UXR-77 (shell items repeated as header links). | `1cb6e09` `src/app/(protected)/team/team-client.tsx:139-158` | §5 density, UXR-77 rule | Move «Einsatzgebiet» out of the header into one «Team einstellen» line at the end of `/team` (or under «Mehr»), keep the route. E2e at 390: the header has at most three links; `reach-link` still reachable from `/team`. BK-g. | none (low) |
+| UXR-212 | `/team/einsatzgebiet`, team member | low | The postcode list is one flat column of all listed postcodes. With 13 synthetic postcodes it fits; a real list for Basel-Stadt and Basel-Landschaft will be far longer (UNKNOWN count, `lca` P-5 source), putting «Einsatzgebiet speichern» many screens down with no count of what is ticked. | `1cb6e09` `reach-client.tsx:87-109`; `getPostcodeOptions` already reads `region_name` | §5 density, mobile first | Group by `region_name` (heading per region) and show «N PLZ gewählt» in the `legend`. Vitest/e2e: one group heading per region in the seed; the legend count follows a tick. PLANNED before Phase B, not BK-b. | none (low) |
+| UXR-213 | `/order` summary, client (#1268) | low | When the preview returns both the CGR-217 item and a blocking problem, the item («… bestätigen Sie ihn») stands above the red problem list while the button is disabled: the line invites an act the screen does not allow. Rare (same start, end, level, postcode as a confirmed order, plus a problem such as an activity conflict). | `f3b2a5c` `src/app/(protected)/order/order-form.tsx:107-116` | §2 one next action, §3 | Render the information item only when `!blocked` (or below the problem list without its last sentence). Vitest on a pure helper or e2e with a seeded conflict. With UXR-209 or BK-g; `cra` may read it (not a safety signal). | none (low) |
+
+**Closed with evidence:** none this run (UXR-204 was closed by the PO's merge of #1257 as `634ccb7`; recorded here: built and gated 07:48, merged 07:40 UTC).
+
+**Benchmark:** none in this run (one made today at 03:47).
+
+**Still open, unchanged:** UXR-208 (low, next PR touching `/team`: #1270 touches `team-client.tsx` but not the badge; not a condition), UXR-205 to UXR-207 (BK-g), UXR-188 (BK-c gate, `lca`), UXR-190 (high, #1232), UXR-193 to UXR-195 (high, #1233, BK-8), UXR-203 (low, `lca` P-5), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186. AUT-123 «Wieder erfassen» words and place: still OPEN on me (PO 09:39 (8)); for a later run.
+
+### Task adjustment (README rule 11)
+
+Gate lines for the two BK-b PRs came first; AUT-123 words and the 390 px drawings of `/b2b-institution` and `/platform` move to a later run.
+
+---
+
+## 2026-11-14 07:48 CET · `uxa`: BK-a gate line on #1257 head `8d92bfc` (clear), gate «Simulation, synthetic data»; UXR-198 to UXR-202 closed (#1246, #1252 merged); UXR-204 built on #1257; UXR-208 (low, `/team` badge empty when no level is stored, `cra` note 05:26)
+
+**State.** `recovery/main` at `eadaf9f` (PO merge #1260, 06:39). Since 03:47 merged: #1254 (my 03:47 section), #1255 (`lca` 04:20), #1256, **#1246 (BK-a follow-up, `54aa56e`, head `c1eeaa4`)**, #1258 (`cra` 05:26), #1259, **#1252 (BK-a UXR-200, UXR-201, `ad8eaef`, head `cd92240`)**, #1260. **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 06:39): BK-a merged, **not accepted**; the PO run 07:39 (#1261, open) holds **#1257** for a `uxa` gate line on its head. Nothing else in `src/app` or `src/components` is open (#1087 STG1 and #1084 Dependabot touch no screen).
+
+**CI read from the API (not run by me):** `8d92bfc` run 43565105508: `app`, `db`, `e2e`, `ui-screenshots` all `completed success`. I did not open the job logs; no `ci-repeat` was read (block acceptance, not a gate line).
+
+**Founder direction.** Newest decision still FE-077 (`FOUNDER_DECISIONS.md` last changed 13 Nov 15:15). Same prompt contradiction as in every run since 13 Nov 16:20 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2).
+
+**Screenshots.** `ui-screenshots` artifact 14102011800 (`recovery/main` `eadaf9f`) is listed; the archive download was refused by the session's proxy (blob host, as in every run since 13 Nov). **No screenshots were available.** Review from the diff `recovery/main...8d92bfc` (`shell.ts`, `ux2-shell.test.ts`, `bk-a-order.spec.ts`) and `AppShell.tsx`. Nothing run against the live project.
+
+### `uxa` gate line for #1257 (BK-a, UXR-204)
+
+«`uxa` 2026-11-14 07:48 on #1257 head `8d92bfc`: **clear**, gate «Simulation, synthetic data». UXR-204 built as asked: a client-account member with no organisation role and no team gets «Auftrag erfassen» (`/order`) as her one tab (`shell.ts` `clientTabFrom`, only when there is no home tab and none of `TAB_KEYS`, and only an item her menu already holds, so the UX1-20 fail-closed case is unchanged); the bar is then two columns (`AppShell.tsx` `TAB_COLUMNS[2]`, about 195 px each at 390 px), so the label fits on one line next to «Mehr»; `aria-current="page"` on `/order` is asserted in e2e at 390 px, and «Mehr» no longer repeats the item but keeps «Meine Einstellungen». Staff cases keep their tabs (vitest, four cases), at most three tabs for every combination. Code diff since `d9d142d` (cleared by `cra` 05:26) is empty for `src tests supabase e2e .github`. No safety signal, no clinical or legal text moved. Not a clinical or legal gate.»
+
+### Closed with evidence
+
+| ID | Evidence |
+|---|---|
+| UXR-198 | #1246 merged as `54aa56e` (head `c1eeaa4`): «Auftrag erfassen» a destination for client-account members (`nav.ts`, `nav-access.ts`). Phone tab part follows as UXR-204. |
+| UXR-199 | Same merge `54aa56e`: `order-form.tsx` resets to `EMPTY_ORDER_FORM`, focus on the confirmation (`doneRef`), e2e `bk-a-order.spec.ts`. |
+| UXR-202 | Same merge `54aa56e`: `URGENCY_MISSING_BADGE_CLASS` outline with «Dringlichkeit fehlt» on `/intake` (`intake/rules.ts:45-66`). The `/team` badge text part stays open as UXR-208. |
+| UXR-200 | #1252 merged as `ad8eaef` (head `cd92240`, code identical to the gated `57838f4`): problem list at the top, line under each field. UXR-205 to UXR-207 stay open (placed by the PO in BK-g, 04:39 (3)). |
+| UXR-201 | Same merge `ad8eaef`: date notice on leaving the field (`orders/rules.ts`). |
+
+**Built, closes when the PO merges:** UXR-204 (#1257 `8d92bfc`). Evidence in the gate line above.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-208 | `/team` offer card, team member | low | The urgency badge uses the UXR-202 outline class but prints the raw stored value, so an offer with no stored level shows an **empty outlined pill**; only the line below says «Dringlichkeit fehlt». `/intake` already uses `urgencyBadgeText`. A team offer comes from a converted intake case whose urgency is required, so this appears only if that invariant breaks (`cra` note 05:26, no safety finding). | `recovery/main` `eadaf9f` `src/app/(protected)/team/team-client.tsx:331-333` (`{offer.urgency}`) vs. `intake-client.tsx:261-262` (`urgencyBadgeText`); `src/features/intake/rules.ts:64-66` | §3 «a missing level never looks like a stored level» (the badge carries the word); §8 consistency, one component one text | Render `urgencyBadgeText(offer.urgency)` in the `/team` badge; vitest or component test: an offer with `urgency: null` shows a badge with the text «Dringlichkeit fehlt» and the outline class, and the four levels are unchanged. Presentation only; `cra` keeps the colour (CGR-215 (d)). | none (low) |
+
+**Also seen, no finding:** with only one real tab the bar has two columns; the label «Auftrag erfassen» stays `PAGE_LABEL` (no short tab word was made up, consistent with ADR-131 deviation 1 still open); the tab is not shown for a staff member who also holds a client account, so nobody's existing tab order shifts.
+
+**Benchmark:** none in this run (one made today at 03:47, NHS.UK error summary).
+
+**Still open, unchanged:** UXR-205, UXR-206, UXR-207 (low, BK-g), UXR-188 (BK-c gate, `lca`), UXR-190 (high, #1232), UXR-193, UXR-194, UXR-195 (high, #1233, BK-8), UXR-203 (low, `lca` P-5), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+### Task adjustment (README rule 11)
+
+None new: the gate line for #1257 came first; the 390 px drawings of `/b2b-institution` and `/platform` stay for a later run.
+
+---
+
+## 2026-11-14 03:47 CET · `uxa`: BK-a gate lines on #1246 head `c1eeaa4` (clear) and draft #1252 head `57838f4` (clear), gate «Simulation, synthetic data»; UXR-196, UXR-197 closed (#1238 merged); UXR-198, UXR-199, UXR-202 built on #1246, UXR-200, UXR-201 built on #1252; UXR-204 (medium, client has no phone tab), UXR-205 to UXR-207 (low); words for CGR-217 and AUT-121; benchmark NHS.UK error summary
+
+**State.** `recovery/main` at `1d76477` (PO merge #1253, 03:39). Since 23:48 merged: #1243 (my 23:48 section), #1244 (`lca` G-1 to G-6), **#1238 (BK-a, `abd6f82`, head `45e07db`)**, #1247 (`cra` 01:35), #1249, #1250 (`aia` 55: AUT-121, AUT-122), #1251, #1253. **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 01:39): BK-a merged, **not accepted**; acceptance needs #1246, the criteria of BK amendments 00:39 and 01:39 and `ci-repeat` 10/10. Open PRs that change screens: **#1246** (UXR-198, UXR-199, UXR-202, CGR-214 (b); head `c1eeaa4`; lists `uxa` as a gate; PO 03:39 holds it for a `cra` gate line), **#1252** (draft, stacked on #1246: UXR-200, UXR-201; head `57838f4`; lists `uxa` as its gate). Others: #1248 (`cra` duplicate, docs), #1087, #1084, #3. Both screen PRs belong to the active block, so their gate lines come first (README rule 12).
+
+**CI read from the API (not run by me):** `c1eeaa4` run 43540406126 and `57838f4` run 43546167804: `app`, `db`, `e2e`, `ui-screenshots` all `completed success`. I did not open the job logs; no `ci-repeat` was read (that is the block acceptance, not a gate line).
+
+**Founder direction.** Newest decision FE-077 (FE-078 still not in `FOUNDER_DECISIONS.md`, UNKNOWN for me). Same prompt contradiction as in every run since 13 Nov 16:20 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2).
+
+**Screenshots.** `ui-screenshots` artifacts 14094432080 (`57838f4`, #1252) and 14093565351 (`recovery/main` `1fe0017`) are listed; the archive download was refused by the session's proxy (blob host, as in every run since 13 Nov). **No screenshots were available.** Review from the diffs on `c1eeaa4` and `57838f4` and the PR descriptions. Nothing run against the live project.
+
+### `uxa` gate line for #1246 (BK-a follow-up)
+
+«`uxa` 2026-11-14 03:47 on #1246 head `c1eeaa4`: **clear**, gate «Simulation, synthetic data». UXR-199: after «Bestätigen & Absenden» the form state resets to `EMPTY_ORDER_FORM` and focus moves to the confirmation line (`order-form.tsx`, `doneRef`, `tabIndex={-1}`), so a second press cannot send the same values. UXR-198: «Auftrag erfassen» is a destination (`NavKey` `order`, `PAGE_LABEL.order`, check `client_account` from `my_client_accounts`, fail closed for this item only), first in the sidebar and menu; page heading uses the same label. UXR-202: «Dringlichkeit fehlt» has its own outlined badge (white, `ring-1 ring-stone-700`, stone-900 text), never red, position and order unchanged, on `cra`'s 01:35 position. Answer to the OPEN «client tab bar»: on the phone the client now has **no tab** and «Auftrag erfassen» under «Mehr» (UXR-204, medium, a follow-up and not a merge condition: #1246 is better than `recovery/main`, where she has no item at all). No severe or high finding. Screenshots not viewed (download refused); reviewed from code. This line is not a clinical or legal gate: the duplicate-order path is `cra`'s, the own-rows read is `lca`'s.»
+
+### `uxa` gate line for #1252 (draft, stacked on #1246)
+
+«`uxa` 2026-11-14 03:47 on #1252 head `57838f4`: **clear**, gate «Simulation, synthetic data», to be merged only after #1246 as the PR says. UXR-200: a preview with problems keeps the form; a focused list at its top (`role="alert"`, «Bitte diese Angaben prüfen:», field problems as links to their field), one line under each field with `aria-invalid` and `aria-describedby`, a changed field drops its own line, the summary opens only with zero problems (`orderStepAfterPreview`); form-level codes stay in the list and are never dropped. UXR-201: «Datum nicht erkannt» only after leaving the date field (`dateUnknownShown`), hidden again while typing. Three low follow-ups (UXR-205 to UXR-207), none a merge condition. Screenshots not viewed; reviewed from code.»
+
+### Closed with evidence
+
+| ID | Evidence |
+|---|---|
+| UXR-196 | Built as gated 23:48; on `recovery/main` since #1238 merged as `abd6f82` (migration `20261021000129_bk_a_client_order.sql`, `bk-a-order.spec.ts`). Merge CI run 43535200821 4/4 as read by the PO 01:39. |
+| UXR-197 | Same merge `abd6f82` (`features/orders/rules.ts` `shiftLabelLine`, `radiusLine`). The form hint part stays open as UXR-203. |
+
+**Built, closes when the PO merges:** UXR-198, UXR-199, UXR-202 (#1246 `c1eeaa4`); UXR-200, UXR-201 (#1252 `57838f4`). Evidence in the gate lines above.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-204 | Phone shell (390 px), client (client-account member, no organisation role) | medium | With #1246 the client's page is a destination, but on the phone the **tab bar holds no tab, only «Mehr»**: `homeTabFor` returns null because `homePathForRoles([])` is `/operations`, not her landing `/order`, and `TAB_KEYS` (`field`, `team`, `work`) are all team-scoped. Her one page is two taps away behind «Mehr», next to «Meine Einstellungen» and «Abmelden». This is the case the shell rule names as «the set is wrong for that role». | `src/lib/auth/shell.ts` `homeTabFor`, `shellItemsFor`; `src/lib/auth/paths.ts:19-21`; `src/lib/auth/home.ts` (client lands on `/order`, ADR-192 (6)); on `c1eeaa4` | §5 «a role's home is its first tab» (UX2-31), extended v81 | `homeTabFor` also returns the `order` item when `access.clientAccount` and no organisation role (the same condition as `resolveHomePath`). Unit test in `ux2-shell.test.ts`: `shellItemsFor({ roles: [], inTeam: false, clientAccount: true }).tabs` equals `["order"]` and `more` holds «Meine Einstellungen»; staff cases unchanged. Tab label «Auftrag erfassen» fits one column of two at 390 px (or «Aufträge» if the PO prefers a short tab word, UX2-32). Not a #1246 merge condition; PO places it (BK-a follow-up or BK-c). | — (medium) |
+| UXR-205 | `/order` problem list, client (keyboard and screen reader) | low | The links for «Stufe» and «Tätigkeiten» go to the `fieldset` (`tabIndex={-1}`), not to the first option. A keyboard user lands on the group and must press Tab once more before she can choose; the benchmark pattern links to the first option. | #1252 `order-form.tsx` (`fieldset id={orderFieldControlId("grade")} tabIndex={-1}`, same for `tags`); `rules.ts` `orderFieldControlId` | §2 «a form names its problems at their fields» (v81 addition); §6 | Give the first radio or checkbox the control id (or link to `…-first`); e2e: activating the «Stufe» link focuses the first grade radio. | — (low) |
+| UXR-206 | `/order` problem list and field lines, client (screen reader) | low | The list is `role="alert"` **and** receives focus, so some screen readers read it twice; the line under each field is red text without a word that it is an error, so in the field's description it reads like a hint. | #1252 `order-form.tsx` (`problemsRef`, `role="alert"`, `fieldProblem` `<p>` rose-800) | §6 no needless interruption; §3 meaning not in colour alone | Keep focus on the list and drop `role="alert"` (or keep the role and do not move focus, not both); prefix each field line with a visually hidden «Fehler:». Component or e2e: list has `tabindex="-1"` and no `role="alert"`; field line text content starts with «Fehler:». | — (low) |
+| UXR-207 | `/order` problem list, client | low | The list follows the order in which the database found the problems, grouped by field in first-seen order (`Object.keys(grouped.byField)`). With a date in the past and an end equal to the start, «Ende» is listed before «Datum» (`end_equals_start` is appended before `starts_in_past`), against the order of the form. | migration `20261021000129_bk_a_client_order.sql:228`, `:234`; #1252 `order-form.tsx` list map; `rules.ts` `ORDER_FORM_FIELDS` exists but is not used for the order | §2 (v81 addition: the list follows the order of the fields on the screen) | Iterate `ORDER_FORM_FIELDS` instead of `Object.keys`; unit test on the ordering with `["end_equals_start","starts_in_past"]` → date first. | — (low) |
+
+**Also seen, no finding:** #1246 keeps one filled primary per state; the reset keeps the idempotency key per summary; the confirmation line stays a `role="status"`; #1252 field lines sit under each control, the two time fields keep their two-column row at 390 px with the line inside each column; problem texts stay plain «Sie» without codes; no colour carries meaning alone in the list (heading in words).
+
+### Words asked of `uxa` (PROPOSED; for `eng` when the slices are built)
+
+- **CGR-217 (BK-b, information item, never a block):** on the summary, above «Bestätigen & Absenden», in the neutral info style (not `role="alert"`, not red, not amber): «Hinweis: Für dieses Konto ist bereits ein Auftrag mit gleichem Beginn, Ende, Stufe und Ort bestätigt (<sentence of that order>). Ein zweiter Auftrag bedeutet zwei Pflegekräfte für diese Zeit. Wenn das so gemeint ist, bestätigen Sie ihn.» Confirm stays enabled. `cra` may read it (it is not a safety signal).
+- **AUT-121 (BK-g, optional earlier):** one line under the date in the summary: «Datum neu berechnet: «<words>» ist jetzt <Mo 23.11.2026> (beim Öffnen der Seite war es <So 22.11.2026>).» Shown only when the two dates differ.
+
+### Benchmark (once a day; NHS.UK design system, «Error summary», read 2026-11-14)
+
+The NHS.UK form guidance puts one summary of problems at the top of the main content, moves focus to it when the page shows it, links each problem to its answer (for a radio or checkbox group, to the first option; for a multi-part field, to the first part in error) and repeats the same message next to the field, with a hidden «Error:» prefix at the field and «Error:» at the start of the page title. Source: https://service-manual.nhs.uk/design-system/components/error-summary (read 2026-11-14; the GOV.UK page could not be fetched in this session). **NAVORA should adopt:** links to the first option of a group (UXR-205), a hidden «Fehler:» prefix at the field line (UXR-206), and the list in screen order (UXR-207); NAVORA already matches the placement, focus move and same text at the field (#1252). Not adopted: the page-title prefix (NAVORA's form does not reload the page; UNKNOWN whether the title changes; low, not raised). Pattern described in my own words; no design, text or logo copied.
+
+**Still open, unchanged:** UXR-188 (BK-c gate, `lca`), UXR-190 (high, #1232), UXR-193, UXR-194, UXR-195 (high, #1233, BK-8), UXR-203 (low, `lca` P-5), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+### Task adjustment (README rule 11)
+
+None new: the 390 px drawings of `/b2b-institution` and `/platform` stay for a later run; the two BK-a gate lines came first.
+
+---
+
+## 2026-11-13 23:48 CET · `uxa`: BK-a gate on #1238 head `45e07db` (clear for form, summary and wording, gate «Simulation, synthetic data»); UXR-196 and UXR-197 built as asked; UXR-198 to UXR-203 (medium and low, follow-ups, no merge condition); no benchmark
+
+**State.** `recovery/main` at `092b10e` (PO merge #1241, 22:52). Since 20:00 merged: #1234 (my 20:00 section, `e713989`), #1236, #1223, #1237, #1239 (`cra` 21:40, CGR-214 blocking on `3d9fb98`), #1240, #1241 (PO 21:39 and 22:39). **Active block: BK, slice BK-a** (`NEXT_CAPABILITY.md` 21:39). Open PRs: **#1238** (BK-a code, head `45e07db`, changes `src/app/(protected)/order`, `intake-client.tsx`, `src/lib/auth/home.ts`, e2e `bk-a-order.spec.ts`), #1242 (PO 23:39, docs), #1087, #1084, #3. #1238 lists `uxa` as a gate («form, summary 390/1440 px, wording»); no `uxa` gate line on it yet, so this run gives it first (README rule 12).
+
+**CI read from the API (not run by me):** check runs on `45e07db`: `app`, `db`, `e2e`, `ui-screenshots` all `completed success` (run `ci` 43510617229, as also read by `eng` 22:33 and the PO 22:39). The e2e job contains the three `bk-a-order.spec.ts` tests per `eng`'s comment; I did not open the job log.
+
+**Founder direction.** Newest decision FE-077; FE-078 still not recorded (UNKNOWN for me, BK-5 stays the cascade). Same prompt contradiction as 16:20 and 20:00 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2.6). No benchmark (made 03:48 today).
+
+**Screenshots.** `ui-screenshots` artifact 14078217830 (`45e07db`, #1238) and 14080471865 (`recovery/main` `092b10e`) exist; the archive download was refused by the session's proxy (blob host, as in every run today). **No screenshots were available.** Review from the code on `45e07db` and the e2e spec. Nothing run against the live project.
+
+### `uxa` gate line for #1238 (BK-a)
+
+«`uxa` 2026-11-13 23:48 on #1238 head `45e07db`: **clear** for the `/order` form, the summary at 390 and 1440 px and the wording, gate «Simulation, synthetic data». UXR-196 (sentence from the form labels, German dates, duration, no code) and UXR-197 (label line only on a match, with its source; «Distanz: keine Vorgabe»; no «keine Bezeichnung»; confirm stays enabled) are built as proposed and asserted in `bk-a-order.spec.ts` at 390 and 1440 px, including no horizontal scroll. No severe or high finding. UXR-198 to UXR-203 are medium or low follow-ups, none a merge condition; the PO places them. Screenshots not viewed (download refused); reviewed from code. This line is not a clinical or legal gate: CGR-214 (`cra`), the radius wording and global-rows finding (`lca`) stay theirs.»
+
+### Closed with evidence (built on #1238; closes in code when the PO merges it)
+
+| ID | Evidence |
+|---|---|
+| UXR-196 | `0129_bk_a_client_order.sql:177-196` labels (`order_grade_label` AGS/FaGe/HF), `order_local_text` «So 22.11.2026 22:00», `order_duration_text` «(9 Std.)»; `:276-279` sentence «Schichtauftrag · FaGe · … – … (9 Std.) · 4102 Binningen»; e2e `bk-a-order.spec.ts:40-44` asserts the full pattern and no «_»; second test `(4 Std. 10 Min.)`. `rules.ts` `dateLabel` keeps ISO off the screen. |
+| UXR-197 | `features/orders/rules.ts` `shiftLabelLine` («<Label> · aus Ihrem Dienstplan», null when no label), `radiusLine` («Distanz: keine Vorgabe» / «höchstens 5 km»); `order-form.tsx:71`, `:77`; e2e `:45-48` (label line, radius line, confirm enabled) and `:74-76` (no label line, no «keine Bezeichnung», enabled). The radius hint in the form is not built: kept as UXR-203 (low, `lca` P-5). |
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-198 | Shell around `/order`, client (member of a client account, no organisation role) | medium | The client's only page is not a destination of the one shell: `NavKey` and `PAGE_LABEL` have no entry for `/order`, the menu is built from organisation roles only, and `menuItemsFor` always adds «Meine Einstellungen». So the tab bar and sidebar show one item, «Meine Einstellungen», and no item for the page she is on; after opening it she has no tab back to her orders. Whether `/settings` (push for visits) means anything for a client: UNKNOWN (`po`). | `src/lib/auth/nav.ts` `NavKey`, `PAGE_LABEL`, `admits` (`member` = `roles.length > 0`), `menuItemsFor` (settings always added); `nav-access.ts` reads only `organization_memberships` and `team_memberships`; on `45e07db` | §5 one shell, one label per destination, a role's home is its first tab (UX2-31) | Add a destination «Aufträge» (`/order`, its page heading may stay «Auftrag erfassen» or become «Aufträge») admitted by client-account membership (`my_client_accounts()`, the same check as the landing); the client menu shows «Aufträge» first, and «Meine Einstellungen» only if the PO keeps it for clients. Unit test on `menuItemsFor` for a client-only access: exactly the agreed items; staff menus unchanged (existing `nav-access.test.ts`). | — (medium) |
+| UXR-199 | `/order` after «Bestätigen & Absenden», client | medium | After a successful confirm the summary closes and the **form comes back with every value still filled**; the only feedback is a `role="status"` line «Auftrag bestätigt: …» at the top of the form; focus is not moved. A second «Weiter zur Zusammenfassung» → «Bestätigen & Absenden» sends the same shift again with a new idempotency key, so one need can become two open orders (two teams may take it). Whether the database refuses a same-content order: UNKNOWN (`eng`; pgTAP 135 tests «duplicate» for the key). | `order-form.tsx:89-93` (`setDone`, `setSummary(null)`, no reset), `:119` (new `crypto.randomUUID()` per summary), `:124-126` | §2 «a finished step says what it handed on and where the next step is»; §6 focus moves to the new content | After `ok`: clear the form fields, move focus to a confirmation block (heading «Auftrag bestätigt», the sentence, «Stand: noch nicht gedeckt», one secondary «Weiteren Auftrag erfassen»). e2e (BK-a follow-up or BK-c): after confirm the date and time fields are empty and the focused element is the confirmation heading. | — (medium) |
+| UXR-200 | `/order` form → summary, client | medium | Missing or wrong fields are named only **on the summary** («Weiter zur Zusammenfassung» always opens it): an empty form produces a summary with an empty «Tätigkeiten:» line, a list of up to six problems and a disabled confirm; the problems are not tied to their fields (no `aria-invalid`, no `aria-describedby`), and «Ändern» returns to the top of the form. At 390 px the client must remember the list while scrolling the form. | `order-form.tsx:63-83` (summary renders with `problems`), `:85` (disabled), `:113-121` (preview always opens the summary) | §4 «a missing fact is named in words»; §6 errors reachable from where focus lands | When the preview returns problems: stay on the form, show the list at its top (`role="alert"`, focus on it, each item a link to its field), and under each field its own text with `aria-invalid="true"` and `aria-describedby`; the summary opens only with zero problems. e2e at 390 px: empty form → «Weiter…» → summary not visible, «Bitte die Stufe wählen (AGS, FaGe oder HF).» under the Stufe fieldset. | — (medium) |
+| UXR-201 | `/order` date field, client (screen reader users) | low | «Datum nicht erkannt…» is a `role="alert"` that appears while typing: «S», «So», «Son» … each count as unknown, so a screen reader announces an error on nearly every keystroke and sighted users see red text before they finish the word. | `order-form.tsx:143` (`resolution.kind === "unknown"` rendered on every change); `rules.ts` `resolveOrderDate` returns `unknown` for partial words | §6 no needless interruption; §4 | Show the message after blur (or on «Weiter»), in a polite live region, tied to the field by `aria-describedby`. Unit or e2e: typing «Son» shows no alert; leaving the field with «Son» shows it. | — (low) |
+| UXR-202 | `/intake` request card badge «Dringlichkeit fehlt», operations | medium | CGR-215 (d) is built (a row without urgency stays listed, named in words), but the badge uses the **same neutral grey as «niedrig»** (`bg-stone-200 text-stone-800`). The word is there, so meaning is not in colour alone, yet at a glance in a list a missing urgency reads like a low one, the opposite of what CGR-215 (d) wants the intake person to notice. Presentation of this signal is `cra`'s to confirm. | `features/intake/rules.ts` `URGENCY_BADGE_CLASS.niedrig` and `urgencyBadgeClass` fallback, `urgencyBadgeText`; `intake-client.tsx:262` on `45e07db` | §3 «not a safety signal, so not red» (one urgency map, UX1-23) read together with §4 «a missing fact is named in words»: a missing value must not look like a stored level | Proposal for `cra`: an outlined badge (white background, `border-stone-500`, dark text) with «Dringlichkeit fehlt», distinct from every level; unit test that `urgencyBadgeClass(null)` differs from `urgencyBadgeClass("niedrig")`. Position unchanged (it is not moved below other content). | — (medium) |
+| UXR-203 | `/order` field «Höchstdistanz in km (freiwillig)», client | low | The field does not say what empty means or that a small value can leave the order without a team (the summary does say «Distanz: keine Vorgabe»). My 20:00 proposal for the hint waits for `lca` (P-5). | `order-form.tsx:191-194` | §4 «an optional narrowing field says what empty means and what a small value costs» (PROPOSED v79) | Hint under the field once `lca` confirms the words, linked by `aria-describedby`; e2e: the hint text is the field's description. | — (low) |
+
+**Also seen, no finding:** one primary button per state (form «Weiter zur Zusammenfassung», summary «Bestätigen & Absenden» filled, «Ändern» outline), 44 px targets (`min-h-11` on inputs, radios, checkboxes, buttons), one column with a two-column time row at 390 px, «synthetische Daten» under the heading, problem texts in plain «Sie» without codes, «Stand: noch nicht gedeckt» in words (BK-6, never silent). The «keinem Auftraggeber-Konto zugeordnet» page has no way out but the shell (low, not raised; it applies to no seeded person).
+
+**Still open, unchanged:** UXR-188 (BK-c gate, `lca`), UXR-190 (high, #1232, PO slot), UXR-193 (`aia`/`lca`), UXR-194, UXR-195 (high, #1233, BK-8), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+### Task adjustment (README rule 11)
+
+None beyond 20:00: the 390 px drawings of `/b2b-institution` and `/platform` stay for a later run; the BK-a gate came first.
+
+---
+
+## 2026-11-13 20:00 CET · `uxa`: B1.1 accepted, UXR-189 closed (#1224 merged); UXR-191 and UXR-192 closed on the wireframe side (V3.2.1), their code criteria are BK gates; UXR-190 raised to high (`cra` CGR-212); UXR-195 high (P3 dictation teaches omission, CGR-213 (b)); first BK-a wording (radius, shift label, built order sentence: UXR-196, UXR-197); `uxa` sign-off text for #1208; no benchmark
+
+**State.** `recovery/main` at `58fb736` (PO merge #1228, 19:12). Since 16:20 merged: #1196 (B1.1-1c, `f205cb3`), #1224 (UXR-189 e2e, head `bc344f1`, merge `925946b`), #1221 (Blueprint V3.2.1, wireframe corrections), #1226, #1229 (PO 18:40: **B1.1 accepted** on `33523a5`, gate «Simulation, synthetic data», `ci-repeat` 43466210984 20/20 read from raw logs by the PO), #1228 (`eng` ADR-191 to ADR-193 drafts). **Active block: BK, slice BK-a first** (`NEXT_CAPABILITY.md` 18:40). Open PRs: #1231 (PO 19:40, docs), #1223 (`lca`, FE-078, held), #1087, #1084, #3; none changes `src/app`, `src/components` or e2e.
+
+**Asks to `uxa`.** BK amendment 18:40: radius field wording and label display. ADR-191: wording of the built order sentence (decision 3) and the no-label case (risk (c)); gates `uxa` on the BK-a form and summary at 390 px; ADR-192: `/order` landing. `cra` 17:40: P3 unused-segment block (CGR-213 (b)) and CGR-212 wording. #1208 / #1199: confirm the wireframes. Carried from 16:20: 390 px drawings of `/order`, `/b2b-institution`, `/platform`.
+
+**Founder direction.** `FOUNDER_DECISIONS.md` newest FE-077; FE-078 only in held #1223, so UNKNOWN for me. Same prompt contradiction as 16:20 (prompt names Blueprint V2; I follow FE-077 and Blueprint V3.2). No benchmark (made 03:48 today).
+
+**Screenshots.** Newest `ui-screenshots` artifact 14066629272 (`recovery/main` `58fb736`) exists; the archive download was refused by the session's proxy (blob host, same as 11:55 and 16:20). **No screenshots were available.** Everything below is read from code, ADRs, the brief and the wireframe files on `58fb736` (PNG `img/v3/p3-field.png` looked at). I ran no test; CI and `ci-repeat` states are as the PO and `cra` read them.
+
+### Closed with evidence
+
+| ID | Evidence |
+|---|---|
+| UXR-189 | #1224 merged (`bc344f1` → `925946b`): `tests/e2e/b1-1-1-regions.spec.ts:73-` one test each at 390 and 1440 px; `cra` read «✓» for both in e2e job 131991779716; the PO read both «✓» in every `e2e` attempt of `ci-repeat` 43466210984 (20/20) for the B1.1 acceptance on `33523a5`. Built as I asked at 11:55 and 16:20. |
+| UXR-191 (wireframes) | Blueprint V3.2.1 (#1221, `7b51331`): `team.svg` now «Übernehmen mit …» and «‹Gedeckt› sieht der Auftraggeber erst mit einer benannten, …»; `order.svg` «Gedeckt · Pflegekraft benannt». The code criteria are BK acceptance conditions (amendment 16:39), PLANNED for BK-c; I check them at the BK-c gate. #1217 closed by the PO. |
+| UXR-192 (wireframes) | `git grep -i krankmeldung -- docs/product/blueprint-v3 docs/product/img src tests` on `58fb736`: no hit (text files; PNGs: PO check 16:34). Blueprint §5.4 now states examples never carry an absence reason. Fixture check is a BK-a gate item. #1218 closed by the PO. |
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-190 (re-rated) | `/field` visit card «Ort», nurse | **high** (was medium) | `cra` CGR-212 confirms that a missing street is a safety signal (H-01: late or missed visit). With the B1.1-1c seed **every** seed visit has a postcode and no street, so every card reads complete («Ort 4052») and none shows «Adresse fehlt – im Team klären». Not a block-acceptance item for B1.1 (accepted); it is a pre-existing `/field` defect outside BK, so it needs a PO slot (README rule 12: safety fix named in *Active now*, or BK-e where `/field` is touched anyway). | `field-client.tsx:471` (place joins `address`, `plz`, `ort`), `:533` (hint only when all three empty) on `58fb736`; ADR-189; `CLINICAL_GOVERNANCE.md` 17:40 CGR-212 | §1 (what needs attention now); §4 «a missing fact is named in words» | When the street is empty: «4052 Basel · Strasse fehlt – im Team klären» as a muted text line (not colour alone) under the place; unit test on the place builder for (street, plz), (plz only), (nothing). Wording as `cra` CGR-212 accepted. Whether a visit without a street may be planned: UNKNOWN, `po` (DOOR1 intake). | #1232 |
+| UXR-195 | `/field` report dictation, wireframe P3 (`img/v3/p3-field.png` state B, `blueprint-v3/wireframes/field.svg`), Blueprint §5.3; nurse (BK-8, BK-e) | high | The screen teaches the omission that CGR-208 and the BK amendment 13:40 forbid: (1) a hard cap «0:18 / 0:30», «30 Sekunden reichen – sprich frei», «Sprachnotiz (höchstens 30 Sek.)» after a five-hour ward shift; §5.3 heading «ein Tipp, dreissig Sekunden, eine Unterschrift»; (2) the draft lists three sentences sourced at 0:02, 0:04, 0:12 (PNG) or 0:04, 0:11 (SVG) of an 18-second note and shows nothing for the rest: no list of what was **not** taken over before «Freigeben & Signieren» / «Prüfen und signieren»; (3) the PNG draft has a sparkle icon but no «vorgeschlagen von <Agent>» (the SVG has it). Engineering builds BK-8 from these pictures. | `img/v3/p3-field.png` state B; `field.svg` text lines 31-49; Blueprint V3.2 `:337-343`, `:409`, `:830`; Annex B guarantee 14 (V3.2.2, `:991`); `cra` CGR-213 (b); `briefs/BK.md` amendment 13:40 | §2 proposals and confirmation (source and author on every proposal); §2 «an attesting act follows what it attests»; §1 (what needs attention before signing) | Wireframe and §5.3: no time cap shown (a running time «0:18» only; any cap is `aia`'s to propose, not a UX value); a block «Nicht in den Entwurf übernommen (n)» above the sign button listing each unused segment with its time («0:13–0:18») and two actions per item «Einfügen» / «Bewusst weglassen»; the sign button stays disabled with the text «Erst alle nicht übernommenen Stellen klären» while n > 0; «vorgeschlagen von Berichts-Assistent» on the draft in both sets. Component test (BK-8): a draft with one unused segment renders the block and a disabled sign button; after «Bewusst weglassen» it is enabled. Wording and position `cra`; cap `aia`; D-35 rule A unchanged (UXR-193). | #1233 |
+| UXR-196 | BK-a built order sentence (ADR-191 decision 3), read wherever `partner_requests.need_summary` / `request_title` is shown (Operations intake lists today); operations, later client | medium | The example built sentence «Schichtauftrag · fage_efz · 2026-11-22 22:00–2026-11-23 07:00 · 4102» shows a database code (`fage_efz`) and ISO dates to people. Today's intake screens print `need_summary` as text, so the sentence becomes user text the moment it is stored. | `docs/engineering/DECISIONS.md` ADR-191 decision 3 (PROPOSED) on `58fb736` | §4 no internal codes; plain Swiss German; dates as on every other screen | Build the sentence from the same labels as the form: «Schichtauftrag · FaGe · So 22.11.2026 22:00 – Mo 23.11.2026 07:00 (9 Std.) · 4102 Binningen». Never a code, never ISO. Test (BK-a, pgTAP or unit): the built sentence for the 22:00–07:00 fixture equals that string and contains no `_`. Whether the sentence is acceptable under P-7: `lca`. | — (medium) |
+| UXR-197 | BK-a order form and summary at 390 px, client (`/order`) | medium | Two BK-a fields have no agreed words yet and the drafts point two ways: (a) the optional radius (BK amendment 18:40 (1)(b)): nothing says what leaving it empty means or that a small value can leave the order uncovered; (b) the shift label (amendment (2)): ADR-191 risk (c) wants a visible «keine Bezeichnung» when no label of the client's plan matches; the PO says «shows no label and asks nothing extra». A placeholder for an absent label reads as a missing field and invites the client to «fix» a valid order. | `briefs/BK.md` amendment 18:40 points 1 (b)-(c), 2 (b)-(c); ADR-191 decision 4 and risk (c) | §4 polite form outside the team; §2 «a value carried from another record is marked where it is entered»; §1 nothing that is not a task looks like one | Proposal below («BK-a: form and summary at 390 px»). Test (BK-a e2e at 390 and 1440 px): the 22:00–07:00 fixture with a matching plan shows «Nacht · aus Ihrem Dienstplan»; with no matching label shows the time line and no label line, no «keine Bezeichnung», and «Bestätigen & Absenden» is enabled; the radius field is empty by default and the summary shows «Distanz: keine Vorgabe». Radius words `lca` (P-5); label substance is PO 18:40. | — (medium) |
+
+**Still open, unchanged:** UXR-188 (`order.svg:98`, `:106-107`: «Angebot bei Team 1 von 3 passenden», «Das 1. Team hat abgelehnt» still tell the client about another team's refusal; BK-c gate, `lca`), UXR-193 (dictation vs D-35 rule A, `aia`/`lca`), UXR-194 (labels; P3 PNG «Einsatz starten» and «Freigeben & Signieren» vs SVG «Einchecken» and «Prüfen und signieren» still differ), UXR-169, UXR-170 (#1138, #1139), UXR-171 to UXR-180, UXR-182, UXR-183, UXR-186.
+
+### BK-a: form and summary at 390 px (proposal for the BK-a gate; PLANNED, nothing built)
+
+One column, client view, «Sie». Order top to bottom; every required field empty, no default (BK-1b):
+
+1. Heading «Neuer Auftrag»; one line «Nichts wird gesendet, bevor Sie bestätigen.»
+2. **Wann** (fieldset): «Beginn» date + time, «Ende» date + time. Directly under, a computed line, `aria-live="polite"`: «So 22.11.2026 22:00 – Mo 23.11.2026 07:00 · 9 Std.» If the client's synthetic shift plan has a label whose start and end equal the times: a second muted line «Nacht · aus Ihrem Dienstplan». No match: no second line at all (PO 18:40 (2)(c)); no «keine Bezeichnung». End before or equal to start: «Ende liegt vor dem Beginn – bitte prüfen» as text at the field, `aria-describedby`, and the order stays unsendable.
+3. **Wo**: «Postleitzahl» (BS/BL list only; a postcode outside: «Diese Postleitzahl liegt ausserhalb von Basel-Stadt und Basel-Landschaft»); household kind only: street on its own field with the line «Die Adresse sieht nur das Team, das den Auftrag übernimmt.» (`lca` P-2 wording).
+4. **Wer**: «Qualifikation» as three radio options «AGS», «FaGe», «HF», none checked.
+5. **Was**: activity tags as checkboxes from the list; each tag with «erforderlich» as a second checkbox only where BK-2 uses it.
+6. **Distanz (freiwillig)**, collapsed under «Weitere Angaben» with its state in the summary line («Distanz: keine Vorgabe»): «Höchstens … km vom Einsatzort», hint «Leer lassen: jedes Team fährt so weit, wie es selbst angibt. Eine kleine Zahl kann heissen, dass kein Team passt.» `lca` (P-5) confirms the words.
+7. Primary «Weiter zur Übersicht» (one filled button).
+
+Summary (BK-1d): one read-only list, one row per field, each with «Ändern» (44 px), the computed time line and duration as in 2, «Distanz: keine Vorgabe» or «höchstens 5 km», and at the end one primary «Bestätigen & Absenden». After the write: the status line of §2 «an open need states its cover first» («Noch nicht gedeckt · Beginn in …»), focus to the heading, never a toast only.
+
+### `uxa` sign-off text for Blueprint §13 (for the PO to enter; I do not edit the Blueprint)
+
+«`uxa` 2026-11-13 20:00: wireframes P1 to P6 confirmed for the layout (state first, reasons without score, cover line on top, confirm before send) with the open corrections UXR-188, UXR-193, UXR-194, UXR-195 (`UX_REVIEW.md` 16:20 and 20:00); UXR-191 and UXR-192 corrected in V3.2.1; 390 px versions OPEN (rule §5 «desktop portals at 390 px stack»); no clinical or legal approval.»
+
+### Task adjustment (README rule 11)
+
+The 390 px drawings of `/order`, `/b2b-institution`, `/platform` (#1208 point 2) move again: the active block is BK-a, so I wrote the BK-a form and summary at 390 px in words above (that is the `/order` capture half) and leave the other two portals, which belong to later slices, for a later run.
+
+---
+
 ## 2026-11-13 16:20 CET · `uxa`: gate line `uxa: #1196 d234605 clear` (seed regions and postcodes read from code; stray-row e2e, my B1.1 acceptance condition of 11:55, still missing: UXR-189); UXR-187 closed (#1181 merged); first `uxa` read of the FE-076 wireframes (#1208): UXR-190 to UXR-193; no benchmark
 
 **State.** `recovery/main` at `bb22c07` (PO 15:10, FE-077: Blueprint V3.2 and Handbook V2.2 are the only sources, README rule 13). Since 11:55 merged: #1190 (my PR), #1181 (B1.1-1b, `4c963f2`), #1184 (CGR-203, test only, `dc23980`), PO and role docs. Open PRs that touch screens or e2e: **#1196** (B1.1-1c, head `d234605`, PO update of 15:10; `ci` run 43440908024: `app` 131937951470, `db` 131937951654, `e2e` 131937951767, `ui-screenshots` 131937951736 all `completed success`, read from the check runs; `mergeable_state` `clean`). #1216 (`aia` docs) and #1087 (STG1) change no screen.

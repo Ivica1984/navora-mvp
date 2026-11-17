@@ -11,6 +11,11 @@ export type NavAccess = {
   roles: ReadonlyArray<string>;
   /** At least one own `team_memberships` row (the team-scoped pages read nothing for anybody else). */
   inTeam: boolean;
+  /**
+   * BK-a (UXR-198): the caller is a member of at least one client account (`public.my_client_accounts`, own rows
+   * only). Absent or false when unknown or the read failed (fail closed: no /order item).
+   */
+  clientAccount?: boolean;
 };
 
 /** The database predicates the page checks use (supabase/migrations, `private.*`). */
@@ -18,7 +23,8 @@ export type PageCheck =
   | { kind: "role"; predicate: "is_org_admin" | "is_intake_role" | "is_coordinator"; roles: ReadonlyArray<string> }
   | { kind: "team_member" }
   | { kind: "team_member_or_role"; predicate: "is_coordinator"; roles: ReadonlyArray<string> }
-  | { kind: "member" };
+  | { kind: "member" }
+  | { kind: "client_account" };
 
 /** private.is_org_admin (0035). */
 export const ADMIN_ROLES: ReadonlyArray<string> = ["admin"];
@@ -28,6 +34,7 @@ export const INTAKE_PAGE_ROLES: ReadonlyArray<string> = ["admin", "operations"];
 export const COORDINATOR_ROLES: ReadonlyArray<string> = ["admin", "coach", "operations"];
 
 export type NavKey =
+  | "order"
   | "operations"
   | "intake"
   | "partners"
@@ -44,6 +51,7 @@ export type NavKey =
  * but has a label because /field and its own header name it. tests/unit/ux1-strings.test.ts checks the uses.
  */
 export const PAGE_LABEL = {
+  order: "Auftrag erfassen",
   operations: "Ausnahmen",
   intake: "Aufnahme",
   partners: "Partneranfragen",
@@ -72,6 +80,15 @@ export type NavItem = {
 // the OPS1 exceptions there); the first-MVP pages /teams and /visits are no longer in the menu (routes stay until UX2).
 // UX2-1 (ADR-131): /team joins the map so that the shell's tab bar and sidebar read one source.
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
+  {
+    // BK-a (UXR-198, BK amendment 2026-11-14 00:39 (1)(b)): the client's order page. Only a member of a client account
+    // sees it; the page and its commands check the membership again in the database (private.is_client_member).
+    key: "order",
+    label: PAGE_LABEL.order,
+    href: "/order",
+    check: { kind: "client_account" },
+    source: "public.my_client_accounts / public.confirm_client_order: private.is_client_member (own client_account_members)",
+  },
   {
     key: "operations",
     label: PAGE_LABEL.operations,
@@ -155,6 +172,8 @@ export function admits(check: PageCheck, access: NavAccess): boolean {
       return access.inTeam || hasAny(access.roles, check.roles);
     case "member":
       return access.roles.length > 0;
+    case "client_account":
+      return access.clientAccount === true;
   }
 }
 

@@ -83,11 +83,15 @@ describe("menu role lists = the database predicates (UX1-3, no drift)", () => {
     expect(newestDefinition("public.field_visits")).toMatch(/team_memberships/);
     // /team (UX2-1, ADR-131): the offers of the caller's own teams.
     expect(newestDefinition("public.team_offers")).toMatch(/team_memberships/);
+    // /order (BK-a, UXR-198): the caller's own client accounts; confirming checks the membership again.
+    expect(newestDefinition("public.my_client_accounts")).toMatch(/private\.is_client_member\(/);
+    expect(newestDefinition("private.is_client_member")).toMatch(/client_account_members/);
+    expect(newestDefinition("public.confirm_client_order")).toMatch(/private\.is_client_member\(/);
   });
 
   it("covers exactly the menu routes (no item without a target, no first-MVP page)", () => {
     expect(NAV_ITEMS.map((i) => i.href).sort()).toEqual(
-      ["/admin", "/analytics", "/field", "/intake", "/operations", "/partners", "/settings", "/team", "/work"].sort(),
+      ["/admin", "/analytics", "/field", "/intake", "/operations", "/order", "/partners", "/settings", "/team", "/work"].sort(),
     );
     // UX1-4: /teams and /visits (first MVP) are not menu items; "Qualitätsmanagement" (no target) is gone.
     expect(NAV_ITEMS.some((i) => i.href === "/teams" || i.href === "/visits")).toBe(false);
