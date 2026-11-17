@@ -6,6 +6,62 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 15:55 CET · `uxa`: #1358 re-read on `58aaf14` (draft): UXR-224, UXR-225/F-2, UXR-226, UXR-228 met on the branch; final words for CGR-235 (c) and the UXR-225 (a) detail (UXR-230, UXR-231); one exit per state on the named person's card (UXR-229); «Zuweisung» outside BK (UXR-232); screenshots still unreachable, proposal to the PO
+
+**State.** `recovery/main` at `1bf6a43` (PO merge #1372). Since my 11:48 section merged (#1362, `e0d7930`): PO #1360, #1365, #1367, #1370, #1372; `lca` #1363, #1364, #1368; `cra` #1366; `aia` #1369, #1371. `git diff b3794e8 1bf6a43 -- src tests` is **empty**: no screen changed on `recovery/main`. Active: BK, slice BK-c; founder focus (FE-084 (7)): finish and merge #1358. Blueprint 3.2.32 → 3.2.37: §3 (Rechtsform, FE-082 to FE-084; KI with synthetic data, FE-085), §4.4, the §6.2 paragraph «Recht», Annex C (R-11, R-12, §1.7 reference cases) and version rows. **No wireframe, no click path in §5 or §6 and nothing in `blueprint-v3/wireframes/` changed**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
+
+**Open PRs.** **#1358 (BK-c2, draft, head `58aaf14`)**: since my 11:48 read (`7ebfd8e`) it changes `src/app/(protected)/team/shift-offers-section.tsx`, `src/features/orders/offer-rules.ts`, two e2e specs and one vitest file. `ci` 44101481743 on `58aaf14`: 4/4 success as reported by `eng` (PR comment 14:33 UTC); **I read no job log.** Reviewed below from the code. **No `uxa` gate line yet:** the PR is draft and the gate must name the head that leaves draft (AUT-50). #1373 (PO), #1087, #1084: no screen.
+
+**Screenshots.** `ui-screenshots` artifacts exist for #1358 (14335519617, `58aaf14`) and `recovery/main` (14335981417, `1bf6a43`); the download was refused again by the session proxy (blob host, empty archive). **No screenshots were available.** Review from TSX, classes and strings on `58aaf14`.
+
+### PO 12:39 and 13:39 criteria on `58aaf14` (presentation only; PLANNED until merged)
+
+| Item | Result | Evidence (`58aaf14`) |
+|---|---|---|
+| UXR-224 (#1361): inline step for «Ich kann nicht» and «Ablehnen», first tap writes nothing, focus to the sentence, «Zurück» | met on the branch: action first, «Zurück» second; the step replaces the button row. See note (a) on the position of «Freigeben». | `shift-offers-section.tsx` `ConfirmStep` lines 55–87, 149–156, 207–213; `offer-rules.ts` `CANNOT_STEP`, `DECLINE_STEP` |
+| UXR-224 final line under «Bestätigen» | met («Mit dem Bestätigen bist du fest eingeteilt.»); `cra` confirmed it only together with CGR-235 (a) | `ACK_FINAL_LINE`, line 178 |
+| UXR-225 (b) with `lca` F-2: after «Gedeckt», no person, no cause | met («Die Übernahme gilt nicht mehr. …») | `clientCoverLines` `no_longer_covered` |
+| UXR-225 (a): never «Nicht mehr gedeckt» before «Gedeckt» was shown | met (headline «Noch nicht gedeckt»); the detail sentence is **UXR-230** | `take_fell_away` branch |
+| UXR-226: no candidate → one line, no «Du selbst …», no primary | met; «Ablehnen» stays with its step | `nobodyLine`, `chooseLabel: null`, line 216 |
+| UXR-228 footer | met, word for word (template §2 (8)) | `TAKE_FOOTER` |
+| CGR-235 (a): the way back after «Bestätigen» | built; words decided below, **UXR-229** | `ACK_WAY_BACK_LINE`, lines 140–147, 179 |
+| `eng` named deviation: the way-back line also on her own self-named take | **accepted.** Who goes has the same way back, however she was named; the line is shown only to her. | `teamOfferView` self-named branch |
+| 44 px targets, words on tags, `role="alert"` on errors, link «Mein Tag» uses `PAGE_LABEL.field` (UX1-13) | met in code (`min-h-11` on every button and the link) | lines 72, 80, 144 |
+
+**Note (a), position of the second action (no finding).** After «Ich kann nicht» the step's «Freigeben» stands roughly where «Bestätigen» stood. It carries its own consequence sentence above it and focus moves to that sentence, so an accidental second tap is unlikely to release; **not proven** (UNKNOWN until a test shows it). A Playwright double-click on «Ich kann nicht» that writes nothing would prove it (optional, `eng`).
+
+### Words owed by `uxa` (PO 13:39 (1), (3); `cra` 13:28; `eng` 13:20 (b))
+
+**CGR-235 (a), the way back (final words, `cra` confirms):**
+- *Before «Bestätigen»* (one line under the two buttons, replaces `ACK_FINAL_LINE` and the way-back line; no link): «Mit dem Bestätigen bist du fest eingeteilt. Kannst du danach doch nicht, erfasse in ‹Mein Tag› eine Abwesenheit.»
+- *After «Bestätigen» and on her self-named take* (line plus the existing link): «Kannst du doch nicht, erfasse in ‹Mein Tag› eine Abwesenheit. Die Schicht wird dann sofort neu angeboten.» · link «Mein Tag».
+- Never a reason, never shown to colleagues or the taker (as built).
+
+**UXR-225 (a), take fell away before «Gedeckt» (final words, `lca` states whether F-2 covers them):** headline unchanged «Noch nicht gedeckt · Beginn …» · detail «Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.» (the same sentence as after «Gedeckt»; one sentence for every take that falls away, true for «Ich kann nicht», a lapse and a trigger release).
+
+**CGR-235 (c), cover time reached after a take fell away (final words, `cra` and `lca` confirm):** headline unchanged «Nicht gedeckt · Beginn …» · detail «Zurzeit ist für diese Schicht niemand benannt.» for `cover_time_reached` in every case. It is true whether no team ever took the shift or a take fell away, it names no person and no cause, and it needs no new `cover_detail`. The next step for the client stays UXR-227 (open, `cra`).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-229 | `/team` offer card, named colleague **before** «Bestätigen» | medium | Her card shows the button «Ich kann nicht» **and** the line «Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.» Two different ways out for one decision; the line speaks as if she had already committed («doch nicht») and points to another page while the right action is on the card. She may record an absence (a personal fact) where one tap would do. | `offer-rules.ts` unacknowledged `mine` branch `wayBack: ACK_WAY_BACK_LINE`; `shift-offers-section.tsx` line 179 | §1 (one next step), §2 one primary per card; §5 offer rule (one exit per state, new in v91) | Before «Bestätigen»: `wayBack` null; the line under the buttons reads the combined sentence above (no link). After «Bestätigen» and on her self-named take: the two-sentence line plus the link «Mein Tag». Vitest: unacknowledged own card → no `shift-offer-way-back`, ack note contains «danach»; acknowledged own card → way-back line and link `/field`, no «Ich kann nicht». `cra` confirms (CGR-235 (a) words). | report only (medium; answers PO 13:39 (1)) |
+| UXR-230 | `/order` client status, a take that fell away before «Gedeckt» | medium | The detail «Die eingeteilte Person kann nicht.» is also shown when the take lapsed (no confirmation by `latest_cover_at`) or fell away by a trigger (absence, lost proof). Then it is not true, and it states a cause about a person to an outside client (F-2 spirit). | `clientCoverLines` `take_fell_away` branch; `cra` 13:28 («not true for a release by a trigger»); `eng` 13:20 (b) | §4 a state word says what is true; `lca` F-2 (no person, no cause) | Detail «Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.» Vitest: `open/take_fell_away` detail equals the `no_longer_covered` detail and contains no «Person». `lca` confirms F-2 covers it. | report only (medium) |
+| UXR-231 | `/order` client status, `not_covered/cover_time_reached` after an acknowledged take fell away | medium | The client who read «Gedeckt» now reads «Nicht gedeckt» with «Bis jetzt hat kein Team diese Schicht übernommen.» A team did take it; the sentence is false and makes the client doubt every earlier state (CGR-235 (c), S3). | `clientCoverLines` `cover_time_reached`; pgTAP 145 case (1) gives exactly this state | §4 a state word never claims a past it did not have (v90) | Detail «Zurzeit ist für diese Schicht niemand benannt.» for every `cover_time_reached`. Vitest on the mapping; Playwright not needed. `cra` and `lca` confirm. Next step: UXR-227. | report only (medium; answers PO 13:39 (3)) |
+| UXR-232 | `/operations` KPI card; team escalation label; planning refusal | low | Three user texts outside BK use «Zuweisung» for platform routing, which FE-082/FE-083 (`lca` G-5, W-1 (5)) forbid in texts for clients and teams: «Offene Teamzuweisungen» (context «Klientenfälle ohne Team»), «Keine Antwortfrist für diese Zuweisungsart», «Kein Team zugewiesen.». Referral words («Zuweiser», «Zuweisende Stelle», analytics «Zuweisung bis erster Einsatz») are the allowed medical term. UNKNOWN for `lca`: visit status «Zugewiesen» (`visits/types.ts:104`, the team plans its own visit) and «Coach zuweisen» (`teams-client.tsx:330`). | `operations-client.tsx:173`; `features/team/rules.ts:72`; `features/planning/rules.ts:55` | §4 language rule «No platform routing words» (new in v91) | Words: «Fälle ohne Team» · «Keine Antwortfrist für diese Anfrageart» · «Der Fall hat noch kein Team.» Vitest over user strings: no `/zuweis/i` outside an allow-list of referral files. Not BK; for the PO to place after BK-c (no feature merge outside the active block). `lca` confirms. | report only (low) |
+
+**Closed this run:** none. UXR-221 to UXR-224, UXR-226 and UXR-228 are met on the branch `58aaf14` and close when #1358 is merged with its tests (#1361 then too); UXR-225 closes with UXR-230.
+
+**Screenshots, PO 11:39 (3) (proposal, PO decides).** No agent role can read a CI artifact (`eng` 14:33, my runs since 2026-11-16: 403 on the blob host), and ADR-103 keeps screenshots out of the repository. Either the owner downloads `ui-screenshots` 14335519617 (or the one of the leave-draft head) and attaches the 390/1440 images to #1358, or the PO accepts for the gate «Simulation, synthetic data» the code review plus the Playwright assertions at 390 and 1440, and moves the visual check to the BK-c acceptance (owner looks once). My gate line will name which basis it used. I do not relax it silently.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Design system:** version 91 (§5 offer rule: one exit per state; status of the 11:48 sentences BUILT ON PR; §4 «No platform routing words», IMPLEMENTED on the offer screens, OPEN elsewhere, UXR-232). No token change.
+
+**Waiting for the PO:** place UXR-229 to UXR-231 for #1358 (they are the words asked in 13:39 (1) and (3)); decide the screenshot basis. **For `eng`:** the three sentences; optional double-click test (note (a)). **For `cra`:** UXR-229, UXR-231 words; UXR-227 substance. **For `lca`:** UXR-230, UXR-231 under F-2; UXR-232 words and the two UNKNOWN strings. I ran no NAVORA test.
+
+---
+
 ## 2026-11-17 11:48 CET · `uxa`: first BK-c2 screens reviewed on #1358 (`7ebfd8e`, code head `f3ea229`): the 07:52 words are built faithfully; UXR-224 (high, «Ich kann nicht» and «Ablehnen» are one-tap and cannot be undone, #1361); UXR-225 to UXR-228; relative time decided (left out); template rows transferred
 
 **State.** `recovery/main` at `b3794e8` (PO merge #1359). Since my 07:52 section merged: my PR #1352, `lca` #1354, `aia` #1353, `cra` #1356, **#1342 (BK-c1) as `781944f`**, PO #1355, #1357, #1359. `git diff 74ef56b b3794e8 -- src` touches only `src/lib/supabase/database.types.ts` (generated types): **no screen changed on `recovery/main`**. Active: BK, slice BK-c; BK-c2 is draft #1358. Blueprint 3.2.29 → 3.2.32: header and version rows only; **§5, §6 and `blueprint-v3/wireframes/` unchanged**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
