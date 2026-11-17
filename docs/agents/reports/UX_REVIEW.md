@@ -6,6 +6,46 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 17:48 CET · `uxa`: gate line on #1358 `9a7fc56` (clear; UXR-229 to UXR-232 follow-up); words for the BK-c3 reason line (UXR-233); first hourly run (FE-088 (1))
+
+**State.** `recovery/main` at `9112e13` (PO merge #1382). Merged since my 15:55 section (#1375, `ff6fb3b`): PO #1374, #1376, #1378, #1379, #1380, #1382; owner-directed #1087 (STG1); `lca` #1377. Under `src` only `tests/unit/stg1-staging-deploy.test.ts` changed (#1087): **no screen changed on `recovery/main`.** Blueprint 3.2.38 changed only Chapter 13 (`lca` renewal) and the version table; **no wireframe, no click path in §5 or §6**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal. New founder decisions: FE-087 (merge procedure #1358: CI, not draft, `cra` and `uxa` gate lines; the PO checks through CI, not on staging; screenshot condition replaced) and FE-088 (`cra` and `uxa` hourly while the BK slice is active; criteria not reduced). My run prompt still says «every 4 hours»; I follow FE-088 (README rule 10), cadence only.
+
+**Open PRs.** **#1358 (BK-c2), head `9a7fc56`, not draft.** `git diff 58aaf14 9a7fc56 -- src supabase tests e2e` = only the STG1 unit test (a `recovery/main` merge); the screens are the ones I reviewed at 15:55. Check runs on `9a7fc56` (run 44108460972): `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success`. **This run I read the job logs** (the log endpoint answered; the artifact still did not): `e2e` 134127182553 «188 passed (6.7m)», with `bk-c2-colleague-take.spec.ts` (two cases) and `bk-c2-take-status.spec.ts` (one case) each at 390 and 1440 px; `ui-screenshots` 134127182590 «11 passed (1.7m)». `cra-gate … 9a7fc56 clear` (17:29), `lca-gate … 9a7fc56 clear` (16:21). **#1381** (`eng`, docs only): BK-c3 ADR draft; asks `uxa` for the reason words (below). #1383 (PO), #1084, #3: no screen.
+
+**Screenshots.** Artifact 14340091214 (`ui-screenshots`, `9a7fc56`): download refused by the session proxy (blob host, empty file). **No screenshots were available.** FE-087 (1) replaced the screenshot condition by CI and gate lines; my gate basis is the code plus the Playwright assertions at 390 and 1440 px, as proposed at 15:55. The owner's own look on staging after the merge (FE-087 (3)) remains the visual check.
+
+### Gate line #1358 (posted, [comment 6954695186](https://github.com/Ivica1984/navora-mvp/pull/1358#issuecomment-6954695186))
+
+`uxa-gate: #1358 9a7fc56 clear` (gate «Simulation, synthetic data»). #1361 (UXR-224) met; UXR-221 to UXR-223, UXR-225 (b), UXR-226, UXR-228 met. **UXR-229, UXR-230, UXR-231 and UXR-232 are follow-up, not merge conditions**: none touches patient safety or data protection in the simulation (the client state word is true; only a detail sentence is imprecise, and no real client reads it). They stay due **before any real client** and I propose they ride the BK-c3 PR (`eng` #1381 §4 already offers that). Not relaxed: they stay open findings in this report until met.
+
+### Words for BK-c3 (`eng` #1381 §3.1; PLANNED, `cra` and `lca` confirm where named)
+
+Reason line on the own team's offer card, under the facts line; shown only to the members of that team, never to the client, never to another team (D-44 (2) (a), as #1381 §3.4):
+
+| Code | Words (clause) | Note |
+|---|---|---|
+| `within_reach` | **no clause** | true on every offer row, so it explains nothing; the km stay in the facts line (BK-4 example) |
+| `member_free` | «jemand von euch ist frei» | names no person; UNKNOWN whether it is true on almost every row (offers go to teams with an eligible member); if so, show it only when it is the only clause, else drop it (`eng` states the share in the seed) |
+| `knows_client` | «ihr wart schon hier im Einsatz» | one sentence for a home and a private household; names no client, no date, no person; `lca` confirms (continuity fact about a client account) |
+| `holds_all_tags` | «alle Tätigkeiten mit Nachweis» | only if step 2 checks evidence for every tag (#1381 §1, UNKNOWN); a qualification claim: `cra` confirms |
+| `language` | no clause | no source (#1381 §3.1) |
+
+Line: «Empfohlen für euch: » + clauses joined by « · », in code order. FE-078 (1) words «Empfohlen für euch, weil …»; the colon form avoids building German subordinate clauses from codes; if the PO prefers the founder's «weil», the clauses become «jemand von euch frei ist», «ihr schon hier im Einsatz wart» (PO decides). No clause → no line (K-2). Unknown code → nothing. No percentage, no rank, no star, no colour (§3: a reason is not a severity). Text style: `text-sm` secondary, not a badge.
+
+**List order (#1381 §3.2):** from the presentation side I support **proposal A** (`starts_at` first): the first question on `/team` is «what needs attention now», and the nearest shift is that; a fit order could push a shift that starts soon below a later one. The decision is the PO's; `cra` CGR-196 if B.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-233 | `/team` offer card, team member (BK-c3, PLANNED) | low | The BK-c3 draft lists `within_reach` as a reason clause; it is true for every offer row and would make every card read alike, so the reason line stops explaining (and `member_free` may do the same). A reason that is always present adds load and no meaning. | #1381 `docs/engineering/probes/BK-c3_ADR_DRAFT.md` §3.1 table, rows `within_reach`, `member_free` | §1 (what can wait), §5 density; K-2 (a reason only from a distinguishing fact) | No clause for `within_reach`; `member_free` only when it is the sole clause or when `eng` shows it is not true for every row. Vitest: an offer whose only fact is `within_reach` renders no reason line; the mapping above word for word. | report only (low; `eng` #1381) |
+
+**Closed this run:** none. UXR-221 to UXR-224, UXR-226 and UXR-228 close when #1358 is merged (merge commit named; #1361 closed by the PO), UXR-225 with UXR-230.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Design system:** version 92 (§5: status note on #1358 `9a7fc56` gate; new PROPOSED sentence «A reason line explains, it does not repeat»). No token change.
+
 ## 2026-11-17 15:55 CET · `uxa`: #1358 re-read on `58aaf14` (draft): UXR-224, UXR-225/F-2, UXR-226, UXR-228 met on the branch; final words for CGR-235 (c) and the UXR-225 (a) detail (UXR-230, UXR-231); one exit per state on the named person's card (UXR-229); «Zuweisung» outside BK (UXR-232); screenshots still unreachable, proposal to the PO
 
 **State.** `recovery/main` at `1bf6a43` (PO merge #1372). Since my 11:48 section merged (#1362, `e0d7930`): PO #1360, #1365, #1367, #1370, #1372; `lca` #1363, #1364, #1368; `cra` #1366; `aia` #1369, #1371. `git diff b3794e8 1bf6a43 -- src tests` is **empty**: no screen changed on `recovery/main`. Active: BK, slice BK-c; founder focus (FE-084 (7)): finish and merge #1358. Blueprint 3.2.32 → 3.2.37: §3 (Rechtsform, FE-082 to FE-084; KI with synthetic data, FE-085), §4.4, the §6.2 paragraph «Recht», Annex C (R-11, R-12, §1.7 reference cases) and version rows. **No wireframe, no click path in §5 or §6 and nothing in `blueprint-v3/wireframes/` changed**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
