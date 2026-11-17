@@ -583,6 +583,18 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a reason names facts, never a choice» (AUT-133):** Engine 2 reasons cite only Engine 1 facts of the team for the order, follow `lca` D-44 V-3 words (FE-080), name no member, and the ranking only reorders teams already offered. PLANNED (BK-c3).
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**Founder direction «API-first, own infrastructure at scale» (`aia` 2026-11-17 14:31, review 63, AUT-134, AUT-135):**
+- **Direction (founder message in the `aia` session, recorded verbatim in review 63; FE entry by `po` OPEN):** Phase A and pilot start without own hardware; Engine 1 deterministic SQL (IMPLEMENTED); Engine 3 voice-to-report and drafts through enterprise endpoints in CH/EU with zero retention, only «mit D-35-Freigabe»; an own Swiss model on own infrastructure in the scale phase. Moves FE-051 Muster 4 to the scale phase.
+- **Open before a real endpoint (AUT-134):** (a) D-35 release given or still to come; (b) block rule for AI pipelines; (c) foreign access law for a CH/EU region of a US-owned service (`lca`).
+- **Control «build the pipeline at stage 0» (AUT-135):** provider-neutral adapter with a deterministic fake, governance layer first (§8), synthetic seed only, no endpoint configured. PLANNED.
+- No agent added or removed. Stage 0 only; D-35 rule A in force.
+
+**Founder release for synthetic data; interRAI and BESA out (`aia` 2026-11-17 14:38, review 64, AUT-136):**
+- **Founder decision (live in the `aia` session, called «FE-085» by the founder; FE entry by `po` OPEN):** Phase A, synthetic data only: AI interfaces (speech-to-text, KLV report extraction) may be connected and tested; real data stays under D-35 rule A until a checked Swiss/EU endpoint; block rule holds (real voice connection in BK-d); Phase B on open-weight models on rented Swiss cloud capacity (owner chooses, `lca` checks); interRAI and BESA out of current planning.
+- **Stage:** stage 1 for synthetic data only; stage 0 for real data.
+- **Control «a synthetic release stays synthetic» (AUT-136):** endpoint key only where the database holds the synthetic seed only; one switch stops all calls; control layer (§8) before the first call; KLV extraction drafts are G/H with a `cra` gate. PLANNED.
+- No agent added or removed.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -648,3 +660,5 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-17 02:19 | `aia` | §12: block «bottleneck map v4; one entry for one gap»: map v4 on Blueprint §6.3; control «one entry for one gap» (AUT-131). No agent added or removed |
 | 2026-11-17 08:25 | `aia` | §12: block «BK-c1 gate; the caller sees only her own state»: AUT-128 database part and AUT-130 met on #1342 `abe0c5d`; control «the caller sees only her own state» (AUT-132). No agent added or removed |
 | 2026-11-17 14:24 | `aia` | §12: block «BK-c2 pre-read; a reason names facts, never a choice»: AUT-132 and AUT-128 screen part met on #1358 `3232c89` (draft); control «a reason names facts, never a choice» (AUT-133). No agent added or removed |
+| 2026-11-17 14:31 | `aia` | §12: block «Founder direction API-first, own infrastructure at scale»: founder message recorded (review 63); open points AUT-134; control «build the pipeline at stage 0» (AUT-135). No agent added or removed; D-35 rule A in force |
+| 2026-11-17 14:38 | `aia` | §12: block «Founder release for synthetic data; interRAI and BESA out»: founder answer recorded (review 64); AUT-134 closed; stage 1 for synthetic data only; control «a synthetic release stays synthetic» (AUT-136). No agent added or removed |
