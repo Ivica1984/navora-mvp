@@ -4096,3 +4096,21 @@ The trigger, not each command, is the guard, so no other write path can bypass i
 - **Residual (recorded, not hidden):** a privileged database role that writes only the reach columns directly gets no trigger row. The app has no write grant on them (pgTAP 140 asserts the column privilege); such a role can also disable any trigger, so the session-value hole is closed and nothing weaker is introduced.
 - **Tests:** pgTAP 140 (12 assertions; 1 to 5 red on `22ccbdc`): condition reads no session value; with the session value set, a direct `priority` update writes one row carrying `priority` (`cra`'s test); a mixed update writes one row with both keys; `set_team_reach` writes exactly one row (also for a postcode-only change in the same transaction); no app column privilege on the reach columns; a no-change update still writes its row. pgTAP 136 (AUT-117 (d) counts) and 077 (AUD1-1 classification) unchanged.
 - **Gates:** `cra` (CGR-220, PS-190 close), `aia` (audit control). No words, no UI, no clinical rule.
+
+### ADR-198 — ci-repeat labels itself acceptance evidence or not by its Zurich start and end (PO H-BK-00:39)
+
+**Date:** 2026-11-17 · **Status:** IMPLEMENTED in the PR for this ADR (CI decides) · **Owner:** `eng` · **Block:** BK (BK-b acceptance tooling; no product behaviour) · **Builds on:** ADR-113 (e2e run-day guard), ADR-168 (B0-2 ci-repeat), FE-071 (4)
+
+**Context:** the BK-b acceptance repeat 43977104731 (2026-11-17 00:11 Zurich, 20/20 jobs green) is not acceptance evidence: three e2e acceptance tests skipped themselves by their night guards (`durchgang-ambulant.spec.ts:185` before 02:20, `field.spec.ts:154` and `:328` before 00:30). Nothing in the run said so; only reading the raw logs did. The PO proposed (journal 2026-11-17-0039-po, H-BK-00:39) that `ci-repeat` refuse to start, or mark itself, outside the window 02:20–22:20 Zurich.
+
+**Decision (mark, not refuse):**
+1. `scripts/ci-repeat-window.mjs`: `verdict(start, end)` is inside only if start and end fall on the same Zurich day, the start is at or after 02:20 and the end before 22:20 (Europe/Zurich wall clock, `Intl`, so CET/CEST and the DST days are handled). A missing or unreadable start is outside (fail closed).
+2. The generator (`scripts/ci-repeat.mjs`) adds two jobs to `ci-repeat.yml`: `window-start` records the start as a job output; every `db` and `e2e` attempt `needs` it, so no attempt starts before the recorded time (the recorded start is never later than a test start). `window` (`needs` all attempts, `if: always()`) writes the verdict into the run summary and as an annotation: `::warning … NOT acceptance evidence: <reason>` outside, `::notice … Inside` inside.
+3. The verdict is a label: it never fails or skips a job, and no test, guard or step of `db`/`e2e` changes (B0-2's byte-identity test still holds). Inside the window is necessary, not sufficient: the summary says acceptance also needs every attempt green with 0 skipped in the raw logs.
+4. Refusing was rejected: a night repeat is still a useful probe (it found nothing wrong at 00:11 but could have), and a refused run would look like a red run in the list.
+
+**Why 02:20 and 22:20:** 02:20 is the latest night guard of the acceptance specs (BD-2, CGR-180 run window); 22:20 is the PO's end bound, which keeps the run well clear of the ADR-113 midnight wait (20 min margin). A later spec with a later guard needs this window moved; the window lives in one constant (`WINDOW`).
+
+**Tests:** vitest `tests/unit/ci-repeat-window.test.ts` (clock in CET/CEST, both boundaries, midnight crossing, spring DST day, missing start, report wording, CLI exit 0 on outside and exit 2 on a bad mode, workflow wiring). The B0-2 tests (`b0-2-ci-repeat.test.ts`) keep passing unchanged against the re-rendered file; the generator now also refuses a `ci.yml` job that already has `needs`.
+
+**Rollback:** revert the PR; `ci-repeat.yml` is re-rendered by the generator.
