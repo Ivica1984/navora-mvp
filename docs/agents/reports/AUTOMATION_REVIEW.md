@@ -31,6 +31,55 @@
 
 ---
 
+## 2026-11-17 14:31 CET · aia review 63: founder message «KI-Entwicklung und Infrastruktur» (live in the `aia` session, addressed to `po` and `eng`) recorded verbatim for the PO; fit with FE-051, FE-024/D-35 rule A, FE-074 and the block rule; three points need a founder answer before Engineering builds against a real AI endpoint (AUT-134, medium); stage 0 build path proposed (AUT-135, low)
+
+**Why this section:** the founder wrote to «Product Owner» and «Engineering Agent» in this `aia` session at about 14:30 CET. Roles coordinate only through the repository (nobody relays messages), so `po` and `eng` will not see it unless it is in the repository. I record it here for the PO to enter in `FOUNDER_DECISIONS.md` (the PO's file; same pattern as FE-043/FE-044/FE-080: not heard by the PO). I change no founder decision, no brief and no code.
+
+**Read:** `recovery/main` at `7d6338f`; `FOUNDER_DECISIONS.md` FE-010, FE-024, FE-051, FE-074, FE-080; `OPEN_DECISIONS.md` D-35 row. **Active block:** BK, slice BK-c (unchanged); I ask for no merge outside it. Nothing here is a measurement; I ran no test.
+
+### 1 The message (verbatim, as received)
+
+> ich halte für unser Architecture Handbook V2.2 und die langfristige Plattform-Planung eine grundlegende strategische Weichenstellung zur KI-Entwicklung und Infrastruktur verbindlich fest:
+> 1. KI-Entwicklung heute (Phase A & Start Phase B): API-First ohne eigene Hardware
+> * In der aktuellen Phase A (und für den ersten Pilotbetrieb) kaufen wir KEINE eigene Nvidia-Hardware.
+> * Engineering programmiert alle KI-Funktionen vollständig selbständig als moderne API-gestützte Architektur:
+>    1. On-Platform Matching: Läuft als deterministischer SQL-Algorithmus direkt auf Postgres/Supabase.
+>    2. Voice-to-Report & Dokumentation: Anbindung an hocheffiziente KI-Schnittstellen (z. B. Whisper für Sprache 21, LLM via Enterprise-Endpoints im Schweizer/EU-Rechenzentrum mit 0-Data-Retention und D-35-Freigabe 22).
+>    3. Kosten: Reines «Pay-as-you-go» (Bruchteile von Rappen pro Schichtdiktat).
+> 2. Das Langzeitziel: Die spezialisierte Schweizer Pflege-KI («Swiss Care AI»)
+> * Sobald NAVORA hunderte Teams und Heime bedient, bauen wir eine eigene, hochspezialisierte Pflege-KI:
+>    * Ein offenes Modell (z. B. Llama/Mistral) 23, das speziell auf Schweizer Pflegeterminologie, BESA/interRAI-Konzepte, KLV 7 und Schweizerdeutsch-Dialekte trainiert wird.
+> * Erst in dieser Skalierungsphase investieren wir gezielt in eigene Nvidia-KI-Serverinfrastruktur in einem Schweizer Tier-4-Rechenzentrum.
+> * Das strategische Ziel: Vollständige Schweizer Datensouveränität, null Abhängigkeit von US-Konzernen und ein maßgeschneidertes Modell, das den Schweizer Gesundheitsmarkt unkopierbar beherrscht.
+>
+> Engineering hat damit die volle Freigabe, alle KI-Pipelines im Code softwareseitig sofort auszubauen. Wir warten auf keine Hardware!
+
+(The numbers 21, 22, 23, 7 stand in the message as written; no source list came with it.)
+
+### 2 Fit with what is already decided
+
+- **Agrees (no change needed):** no own hardware in Phase A; matching as a deterministic SQL rule in Postgres is what Engine 1 is today (IMPLEMENTED: `private.order_member_step`, BK-c1 `781944f`; no `kind = 'ai'`, no model call). Voice-to-report with human sign-off agrees with FE-028 and the B2B suite (FE-079 point 3). «Pay-as-you-go» cost per dictation: **UNKNOWN**, not measured or priced by me.
+- **Changes an earlier direction:** FE-051 (07.11.) chose **Muster 4** (own language model in a Swiss NAVORA data centre) as the path for real data and **did not choose** an external AI service. The new message puts external enterprise endpoints first for the pilot and own infrastructure only at scale. Under README rule 10 the newer founder decision overrides; the PO should record that FE-051 Muster 4 moves to the scale phase.
+- **Kept, by the message's own words:** «mit D-35-Freigabe». D-35 rule A (FE-010, FE-024: no client or staff data to any AI service until a new formal founder decision) stays in force; the message names a release but does not give it. Provider, region and contract stay an owner decision through a new package on `lca` conditions 1 to 10 (D-35 row).
+
+### 3 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-134 | AI infrastructure direction for Engine 2 and Engine 3 (voice-to-report), founder → `po`, `eng` | **OPEN.** Message above; FE-051 Muster 4; FE-024 rule A; README rule 12 (one active block, BK) | Three founder answers through the PO before any real endpoint is called: **(a) D-35:** is this message the formal release of stage 1/2, or a direction with the release still to come (my reading: still to come, «mit D-35-Freigabe»)? **(b) Block rule:** does «sofort ausbauen» lift README rule 12 for AI pipelines, or are they built in block order (voice is not in BK-c)? **(c) Sovereignty now versus later:** an EU or Swiss region of a US-owned service may still fall under foreign access law; whether that fits «null Abhängigkeit von US-Konzernen» and nDSG Art. 16 is for `lca`. A middle path exists without buying hardware: open-weight speech and language models run on rented Swiss-hosted capacity (no provider named by me, D-35). | L now; G or H once a draft touches care documentation | stage 0 until (a); gate `lca` (processor, region, foreign access), `cra` (voice drafts, G/H), owner | — (decision, not a care measure) | medium | – |
+| AUT-135 | Build path for the AI pipelines in Phase A, `eng` | **PLANNED.** AUT-115 lock: no `kind = 'ai'` row and no model call in `src`, `supabase`, `scripts` today | **Stage 0 path that needs no release:** one provider-neutral adapter interface (speech-to-text, draft) with a deterministic fake used in CI; the governance layer first (proposal ledger, provenance per value, named confirmer, no accept-all, correction rate per agent and field, stop rule; AI Operating Model Review §8); evaluation only on the synthetic seed; real endpoint configuration absent until AUT-134 (a). So code can grow now without data leaving NAVORA | L | stage 0; `eng` (how), `po` (block placement), `lca` (none until a real endpoint) | correction rate per agent and field on the synthetic seed; share of drafted values with provenance (target: all); team level only | low | – |
+
+### 4 Long-term «Swiss Care AI»: points to clear before it is planned
+
+- **Training data:** fine-tuning on Swiss care records needs real health data; legal basis, consent and DSFA are **UNKNOWN** (`lca`; FE-051 already ties Muster 4 to a legal opinion and DSFA).
+- **Licences:** interRAI instruments and BESA are owned works; training «auf BESA/interRAI-Konzepte» needs a licence check (**UNKNOWN**, `lca`); D-36 option A (interRAI by name only) stays. KLV Art. 7 is federal law (public).
+- **Dialect dictation:** consent of everyone present stays a hard rule (no dictation of a conversation without it).
+- **Fit with team autonomy:** the model drafts for a named confirmer; it never assigns, ranks persons or changes a care plan (my hard rules; AUT-133).
+
+### 5 Stage tracking
+
+Stage 0 only. Stage 1 entry conditions: AUT-115 lock holds; D-35 rule A holds; provider not chosen. New: the founder direction (this section) names API-first for stage 1/2, pending AUT-134 (a).
+
 ## 2026-11-17 14:24 CET · aia review 62: BK-c2 #1358 pre-read on draft head `3232c89` (no gate line yet: the PR is draft and the head still moves); AUT-132 met on the branch (the caller's own «frei» from the one step, colleague list only at step 4, caller first, no reason shown); AUT-128 screen part met on the branch (`/team` reads only `team_order_offers` and `order_take_candidates`); CGR-235 (a) way back through the absence record supported (one release path, AUT-130); one advisory finding for BK-c3 (AUT-133, low: ranking reasons follow the `lca` V-3 words and FE-080, they never read as NAVORA assigning)
 
 **Read:** `recovery/main` at `f8cab84` (since review 61 at `74ef56b`): journals 0839-po to 1339-po, 0930-cra, 1328-cra, 1148-uxa, 1222/1242/1257/1327-lca; `FOUNDER_DECISIONS.md` (FE-080); `decisions/D-44.md` V-3 (wording rules); Blueprint V3.2 version lines 3.2.30 to 3.2.35; `briefs/BK.md` PO amendments 08:39 to 13:39. Draft PR #1358 at `3232c89` (branch `feature/hourly-update-2026-11-17-1010-bk-c2`): migration 0136 (sections 3, 7, 8, 9, 10), `src/features/orders/team-queries.ts`, `offer-rules.ts` (AUT-132 lines), 0135 `recheck_member_takes` and its triggers; journal 1430-eng on the branch; check runs on `3232c89` through the API.
