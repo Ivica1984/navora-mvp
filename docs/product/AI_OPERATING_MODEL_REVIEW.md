@@ -595,6 +595,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a synthetic release stays synthetic» (AUT-136):** endpoint key only where the database holds the synthetic seed only; one switch stops all calls; control layer (§8) before the first call; KLV extraction drafts are G/H with a `cra` gate. PLANNED.
 - No agent added or removed.
 
+**BK-c3 gate; a reason line must add what the card does not show (`aia` 2026-11-17 20:25, review 65, AUT-137):**
+- **Gate:** #1388 `8744acd` clear for «Simulation, synthetic data». Engine 2 is a rule (AUT-115): codes from stored facts of the own team, no AI call, no `ai_suggestions` row.
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** ranking part IMPLEMENTED on the branch (row set and order A unchanged; no ranking between teams in Phase A). Closes on merge.
+- **Control «a reason names facts, never a choice» (AUT-133):** IMPLEMENTED on the branch, now read as «stored facts of the own team» (PO 17:39 (3) adds `knows_client`, a scheduling fact, not an Engine 1 step); before real persons a delivery record or words that say only what is stored (CGR-238 (a)).
+- **Control «a reason line adds what the card does not show» (AUT-137):** drop the sole `member_free` clause, which repeats the candidate list; count first on the synthetic seed. PLANNED (`uxa`, PO).
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -662,3 +669,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-17 14:24 | `aia` | §12: block «BK-c2 pre-read; a reason names facts, never a choice»: AUT-132 and AUT-128 screen part met on #1358 `3232c89` (draft); control «a reason names facts, never a choice» (AUT-133). No agent added or removed |
 | 2026-11-17 14:31 | `aia` | §12: block «Founder direction API-first, own infrastructure at scale»: founder message recorded (review 63); open points AUT-134; control «build the pipeline at stage 0» (AUT-135). No agent added or removed; D-35 rule A in force |
 | 2026-11-17 14:38 | `aia` | §12: block «Founder release for synthetic data; interRAI and BESA out»: founder answer recorded (review 64); AUT-134 closed; stage 1 for synthetic data only; control «a synthetic release stays synthetic» (AUT-136). No agent added or removed |
+| 2026-11-17 20:25 | `aia` | §12: block «BK-c3 gate; a reason line must add what the card does not show»: AUT-128 ranking part and AUT-133 met on #1388 `8744acd`; AUT-133 read as «stored facts of the own team»; control AUT-137. No agent added or removed |

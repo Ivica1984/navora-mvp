@@ -31,6 +31,49 @@
 
 ---
 
+## 2026-11-17 20:25 CET · aia review 65: `aia` gate line on BK-c3 #1388 `8744acd` **clear** for «Simulation, synthetic data»; Engine 2 stays a rule (AUT-115: no AI call, no `ai_suggestions` row); AUT-128 ranking part and AUT-133 met on the head (row set and order A unchanged, codes only, no number, rank, member or other team, client sees nothing); one documented PO deviation from AUT-133 (`knows_client` is a stored scheduling fact, not an Engine 1 step) supported; one advisory finding (AUT-137, low: the sole «jemand von euch ist frei» line repeats the candidate list on almost every card)
+
+**Read:** `recovery/main` at `7a05451` (since review 64 at `7d6338f`): journals 14:42 to 19:39 (`po`, `eng`, `cra`, `uxa`, `lca`), `NEXT_CAPABILITY.md` *Active now* 19:39, Blueprint 3.2.37 to 3.2.41 (diff of §3.2, §6.3, §8, Kap. 13), ADR-201 on the PR head; PR #1388 head `8744acd`: migration `20261021000137_bk_c3_offer_reasons.sql` in full, `src/features/orders/offer-rules.ts`, `src/app/(protected)/team/shift-offers-section.tsx`, `tests/unit/bk-c3-offer-reasons.test.ts`, header and assertions of pgTAP 146, the diff of `tests/e2e/bk-c2-take-status.spec.ts`; PR comments of `cra` 19:26, `eng` 19:43, `uxa` 19:48; `ci` run 44156252301 on `8744acd`, jobs API and raw job logs.
+
+**Measured versus estimated:** nothing here is a measurement of care work. Code facts are readings of the diff; I ran no NAVORA test. CI (read from the raw job logs of run 44156252301 on `8744acd`): `app` success (Test Files 130 passed (130); `bk-c3-offer-reasons.test.ts` 8 tests); `db` success (Files=146, Tests=5182, Result: PASS; the two «failed» strings in the log are names of pass assertions of 079 and of the #922 history test); `e2e` success (188 passed (5.1m)); `ui-screenshots` success; `staging` success but writes nothing (`STAGING_DB_URL` not set; proves nothing about staging). **Active block (README rule 12):** BK, slice BK-c, sub-slice BK-c3; the gate line serves the merge of #1388 inside it. I ask for no merge outside it. **Contradictions (README rule 10):** none new with `FOUNDER_DECISIONS.md`. The FE-078 (1) deviation («orders the list» against «explains only» in Phase A) is `eng`'s report, decided by the PO 17:39 (2); I add nothing. My prompt's read list still names archived documents and «interRAI-supported care delivery» (overridden by FE-085, reported in review 64).
+
+### 1 Gate line (posted on #1388)
+
+- **`aia-gate: #1388 8744acd clear (Simulation, synthetic data)`.**
+  - (a) **AUT-115, D-35 rule A:** Engine 2 is a rule. `private.order_offer_reasons` is SQL over stored facts; no AI call, no model, no `ai_suggestions` row, no provider. Nothing leaves the database.
+  - (b) **AUT-128, ranking part:** the reasons add or remove no row (pgTAP 146 criterion (2)). The list order stays A (`order by 4, 1, 2`, criterion (6)). No ranking between teams is stored, returned or shown (ADR-201 item 5).
+  - (c) **AUT-133:** the database returns codes, never words or a number (criterion (3): no rank, score, count, position or percent column). The line names no member and no other team (vitest «never carries a number, a rank, a percentage or another team»). Another team and the client read no reason (criterion (4); `client_orders()` has no reason column). The function is `private`, `security definer`, revoked from API roles, and reached only through `team_order_offers()` (`is_team_member` inside). The words «Empfohlen für euch: …» contain none of the V-3 words «Zuweisung», «Disposition», «Vermittlung», «Routing»; `lca` still confirms the continuity sentence (ADR-201 item 8, OPEN, not my gate).
+  - (d) **CGR-238 (c) / UXR-234** fixed at `7d44f29`: no line without `member_free`, none next to the nobody line (vitest cases).
+  - (e) **No human act added:** no field, approval, confirmation or step. A read-only line on the card that exists already.
+- **Not part of the gate:** CGR-238 (a), (b) (delivery record, team versus person continuity; before real persons, PO with Clinical Owner); the `knows_client` window (OPEN); AUT-137 below.
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-137 | Reason line on the open offer card on `/team` (BK-c3, Engine 2 explanation), team member | **IMPLEMENTED on the PR head, not merged.** The sole-clause line «Empfohlen für euch: jemand von euch ist frei» shows whenever `member_free` holds and no other clause does (UXR-233, ADR-201 item 6). After CGR-238 (c), every line needs `member_free`, and `member_free` means the card also lists at least one candidate under «Wählt, wer geht» (the same step 4, `order_take_candidates`). The e2e seed card shows exactly this line (spec `bk-c2-take-status.spec.ts`); ADR-201 item 8 expects «almost all» open rows to carry only `member_free` (UNKNOWN, not counted). Estimate, not measured: one extra line per card to read that repeats the visible list; a line on every card is read less, including the rarer `knows_client` line that carries the decision value | **Simplify (rule):** show the reason line only when it holds a distinguishing clause (today `knows_client`); drop the sole `member_free` clause, because the candidate list already says that someone is free. Count first on the synthetic seed. Same codes, no new rule; `uxa` decides the words, the PO the placement after BK-c acceptance. Not a condition of my gate | L | stage 0; `uxa` (words), PO (placement) | share of open offer cards with a reason line, and share with a distinguishing clause, on the synthetic seed (team level, never per person); target: every shown line carries a clause the card does not already show | low | – |
+
+### 3 Updated, supported, closed
+
+- **AUT-133: met on `8744acd`,** with one documented PO deviation. My rule said a reason cites «only Engine 1 facts». `knows_client` is a stored scheduling fact of the own team (ended, acknowledged, never released take for the same client account; PO 17:39 (3)), not an Engine 1 step. **Supported:** it is continuity of care for the client and asks no act. The rule now reads «stored facts of the own team for this order, never a choice, a person or a rank». Before real persons, CGR-238 (a) applies: the line must rest on a delivery record, or say only what is stored. AUT-133 closes when #1388 is merged.
+- **AUT-128: ranking part met on `8744acd`** (no ranking in Phase A; reasons never change the row set). With the database part (review 61) and the screen part (review 62) met, AUT-128 closes when #1388 is merged. The FE-079 reservation AUT-128 ends with it.
+- **CGR-238 (c), UXR-234: supported and met** (see §1 (d)).
+- **Challenge review of BK-c3 (challenge duty):** no added administration, hierarchy or coordination. The slice adds one read-only line and no field, approval or role, so no challenge.
+- Open, unchanged: AUT-125, AUT-126, AUT-127, AUT-129, AUT-131, AUT-135, AUT-136 and the list in review 60.
+
+### 4 Stage tracking
+
+- **Stages:** stage 1 for synthetic data only (FE-085, Blueprint 3.2.37); stage 0 for real data (D-35 rule A). BK-c3 adds no agent, no ledger entry and no model call.
+- **Before the first AI call (BK-d, AUT-135, AUT-136):** environment guard, stop switch and the §8 control layer are still PLANNED.
+- **FE-079:** my sign-off on #1279 stands. Blueprint 3.2.38 to 3.2.41 leave Kap. 13 unchanged and do not change my field, so no renewal. Reservations still open: AUT-127, AUT-129. AUT-128 ends with the merge of #1388.
+
+**Top bottlenecks (map v4, 02:19, estimate, unchanged):**
+- Documentation per visit or shift (BK-e) holds the most recoverable direct-care time.
+- On the order path, BK-c1 to BK-c3 let a team see, explain and take an order in one step. No minute is measured yet. The first team-level measure (time from offer to take on the synthetic seed) becomes possible after BK-c acceptance.
+- Weekly map refresh due 2026-11-24.
+
+**Issues/comments:** gate comment on #1388. No issue (no `high` finding).
+
 ## 2026-11-17 14:38 CET · aia review 64: founder answer to AUT-134, called «FE-085» by the founder (live in the `aia` session), recorded verbatim for the PO; AUT-134 closed by founder decision; AUT-135 confirmed as the build path; interRAI and BESA out of current planning (the two sources and the code already contain neither); four guard points for the PO and `eng` (AUT-136, medium)
 
 **Why this section:** the founder answered review 63 in this session at about 14:37 CET, addressed to `aia` and `po`. Recorded here because roles coordinate only through the repository; the FE number is the PO's to assign (the founder wrote «FE-085»; `FOUNDER_DECISIONS.md` on `7d6338f` ends at FE-080, `lca` notes FE-083 in D-44). Added to the still open PR #1371 (one `aia` PR at a time), which the founder asks the PO to merge.
