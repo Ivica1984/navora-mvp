@@ -6,6 +6,37 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 18:48 CET · `uxa`: BK-c2 merged (#1358, `25d7cdf`): UXR-221 to UXR-224, UXR-226 and UXR-228 closed; no new finding
+
+**State.** `recovery/main` at `57e0d6d` (PO merge #1384). Merged since my 17:48 section: **#1358 (BK-c2) as `25d7cdf`** on head `9a7fc56`, PO #1383, `eng` #1381 (BK-c3 ADR draft, docs only), my #1384. `git diff 9a7fc56 25d7cdf -- src tests e2e` is **empty**: the screens on `recovery/main` are the ones I gated at 17:48. Check runs on `25d7cdf` read this run: `app`, `db`, `e2e`, `ui-screenshots`, `sync`, `staging` all `success` (I read no job log this run; the `staging` job sent nothing, PO 17:39 finding). On `57e0d6d` (docs only) `e2e` was still running at this run. #1361 closed 2026-11-17 16:51 UTC by the PO. No new founder decision since FE-088. Blueprint 3.2.39 (merged) and 3.2.40 (#1386, open) change §6.3 step 3 status and the version table only; **no wireframe, no click path in §5 or §6**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
+
+**Open PRs.** #1385 (`eng`, journal only), #1386 (PO), #1084 (dependabot), #3: no screen. No BK-c3 code PR yet.
+
+**Screenshots.** Artifact 14353817621 (`ui-screenshots`, `57e0d6d`): download refused by the session proxy (blob host, 403). **No screenshots were available.** Closure basis below is the merged code, unchanged from my 15:55 and 17:48 code reviews, and the green merge-commit check runs.
+
+### Findings
+
+No new finding.
+
+**Closed this run (evidence: `recovery/main` `25d7cdf`, PR #1358; code as reviewed on `58aaf14` and `9a7fc56`):**
+
+| ID | Closed by | Evidence |
+|---|---|---|
+| UXR-221 | taken card stays («Übernommen», «Es geht: …», no button) | `src/features/orders/offer-rules.ts` `teamOfferView`; `tests/e2e/bk-c2-take-status.spec.ts` |
+| UXR-222 | «Ich kann nicht», release lines, «Andere Person wählen» | `offer-rules.ts` `releaseText()`; `tests/e2e/bk-c2-colleague-take.spec.ts` |
+| UXR-223 | «Noch nicht gedeckt … bestätigt noch» | `offer-rules.ts` `awaiting_acknowledgement` branch; `tests/unit/bk-c2-offer-states.test.ts` |
+| UXR-224 (#1361) | inline confirm step for «Ich kann nicht» and «Ablehnen» | `src/app/(protected)/team/shift-offers-section.tsx`; #1361 closed with the merge commit |
+| UXR-226 | no candidate → one line, no primary | `offer-rules.ts`; `bk-c2-offer-states.test.ts` |
+| UXR-228 | footer word for word | `TAKE_FOOTER` |
+
+**Still open:** UXR-225 (closes with UXR-230), UXR-227, UXR-229 to UXR-233 (follow-up, proposed for the BK-c3 PR per PO 17:39; due before any real client), and the earlier open findings in this report.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Design system:** version 93 (§5 status note: BK-c2 sentences IMPLEMENTED). No token change.
+
+**Waiting:** `eng` (BK-c3 PR with UXR-229 to UXR-231, UXR-233); `cra` (`holds_all_tags` words; UXR-231); `lca` (`knows_client` words; UXR-230 to UXR-232); `po` (list order A recorded at 17:39; «weil» or colon form still open).
+
 ## 2026-11-17 17:48 CET · `uxa`: gate line on #1358 `9a7fc56` (clear; UXR-229 to UXR-232 follow-up); words for the BK-c3 reason line (UXR-233); first hourly run (FE-088 (1))
 
 **State.** `recovery/main` at `9112e13` (PO merge #1382). Merged since my 15:55 section (#1375, `ff6fb3b`): PO #1374, #1376, #1378, #1379, #1380, #1382; owner-directed #1087 (STG1); `lca` #1377. Under `src` only `tests/unit/stg1-staging-deploy.test.ts` changed (#1087): **no screen changed on `recovery/main`.** Blueprint 3.2.38 changed only Chapter 13 (`lca` renewal) and the version table; **no wireframe, no click path in §5 or §6**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal. New founder decisions: FE-087 (merge procedure #1358: CI, not draft, `cra` and `uxa` gate lines; the PO checks through CI, not on staging; screenshot condition replaced) and FE-088 (`cra` and `uxa` hourly while the BK slice is active; criteria not reduced). My run prompt still says «every 4 hours»; I follow FE-088 (README rule 10), cadence only.
