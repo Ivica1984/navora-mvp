@@ -98,6 +98,8 @@ async function clientReads(page: Page, when: string, state: string | RegExp, det
   await signOut(page);
 }
 
+const WAY_BACK = "Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.";
+
 /** kolleginbs opens /team: a card waiting for her is listed first; hers carries the two actions. */
 async function namedCard(page: Page, when: string, signedIn = false) {
   if (!signedIn) await signIn(page, "kolleginbs.test@navora.test");
@@ -110,6 +112,8 @@ async function namedCard(page: Page, when: string, signedIn = false) {
   await expect(lines.nth(1)).toHaveText(/^Bitte bis \S\S \d\d\.\d\d\., \d\d:\d\d bestätigen\.$/);
   await expect(card.getByRole("button")).toHaveText(["Bestätigen", "Ich kann nicht"]);
   await expect(card.getByTestId("shift-offer-ack-note")).toHaveText("Mit dem Bestätigen bist du fest eingeteilt.");
+  // CGR-235 (a) (PO 13:39 (1)): the way back is named before she confirms.
+  await expect(card.getByTestId("shift-offer-way-back")).toHaveText(WAY_BACK);
   await expect(card).not.toContainText(FORBIDDEN);
   await expect(card.getByRole("timer")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -134,6 +138,10 @@ for (const width of [390, 1440]) {
     await expect(done.getByRole("button")).toHaveCount(0);
     await expect(done.getByTestId("shift-offer-tag")).toHaveText("Für dich eingeteilt");
     await expect(done.getByTestId("shift-offer-line")).toHaveText(["Du bist für diese Schicht eingeteilt."]);
+    // CGR-235 (a): the confirmed card names the way back (absence record on /field) and offers no release.
+    await expect(done.getByTestId("shift-offer-way-back")).toHaveText(WAY_BACK);
+    await expect(done.getByRole("link", { name: "Abwesenheit erfassen" })).toHaveAttribute("href", "/field");
+    await expect(done.getByRole("button", { name: "Ich kann nicht" })).toHaveCount(0);
     await signOut(page);
 
     // The taker's team view shows the confirmation as a fact.
@@ -141,6 +149,7 @@ for (const width of [390, 1440]) {
     await page.goto("/team");
     const seen = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
     await expect(seen.getByTestId("shift-offer-line")).toHaveText([/^Es geht: Kollegin B\. · bestätigt um \d\d:\d\d$/]);
+    await expect(seen.getByTestId("shift-offer-way-back")).toHaveCount(0);
     await signOut(page);
 
     await clientReads(page, when, "Gedeckt · Person benannt, geprüft für HF", /^Team Testteam Basel · übernommen um \d\d:\d\d$/);

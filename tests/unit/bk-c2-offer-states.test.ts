@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ACK_FINAL_LINE,
+  ACK_WAY_BACK_LINE,
   CANNOT_STEP,
   DECLINE_STEP,
   NOBODY_LINE,
@@ -137,6 +138,26 @@ describe("team side (template §3, UXR-221, CGR-230, UXR-222, AUT-132, CGR-234 (
     const r = row({ offer_state: "taken_by_us", taken_member_id: COLLEAGUE, taken_by: ME, taken_at: "2026-11-20T13:31:00Z", acknowledged_at: "2026-11-20T14:02:00Z" });
     expect(teamOfferView(r, ME, NAMES, [])).toMatchObject({ lines: ["Es geht: Beat B. · bestätigt um 15:02"], actions: false });
     expect(teamOfferView(r, COLLEAGUE, NAMES, [])).toMatchObject({ lines: ["Du bist für diese Schicht eingeteilt."], actions: false, mine: true });
+  });
+
+  it("CGR-235 (a): a confirmed person's own card names the way back (absence record), and offers no «Ich kann nicht»", () => {
+    expect(ACK_WAY_BACK_LINE).toBe("Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.");
+    const r = row({ offer_state: "taken_by_us", taken_member_id: COLLEAGUE, taken_by: ME, taken_at: "2026-11-20T13:31:00Z", acknowledged_at: "2026-11-20T14:02:00Z" });
+    const mine = teamOfferView(r, COLLEAGUE, NAMES, []);
+    expect(mine).toMatchObject({ kind: "taken", actions: false, mine: true, wayBack: ACK_WAY_BACK_LINE });
+    expect(JSON.stringify(mine)).not.toMatch(/Ich kann nicht|Freigeben/);
+    // A self-named take counts as acknowledged (CGR-230 (a)): the same way back for the person herself.
+    const self = teamOfferView(row({ offer_state: "taken_by_us", taken_member_id: ME, taken_by: ME, taken_at: "2026-11-20T13:31:00Z", acknowledged_at: "2026-11-20T13:31:00Z" }), ME, NAMES, []);
+    expect(self).toMatchObject({ kind: "taken", mine: true, wayBack: ACK_WAY_BACK_LINE });
+  });
+
+  it("CGR-235 (a) negative: colleagues never see her way-back line; before confirming it stands under «Bestätigen» only", () => {
+    const acked = row({ offer_state: "taken_by_us", taken_member_id: COLLEAGUE, taken_by: ME, taken_at: "2026-11-20T13:31:00Z", acknowledged_at: "2026-11-20T14:02:00Z" });
+    expect(teamOfferView(acked, ME, NAMES, [])).toMatchObject({ mine: false, wayBack: null });
+    const open = teamOfferView(row({ offer_state: "taken_by_us", taken_member_id: COLLEAGUE, taken_by: ME, taken_at: "2026-11-20T13:31:00Z" }), COLLEAGUE, NAMES, []);
+    expect(open).toMatchObject({ actions: true, mine: true, wayBack: ACK_WAY_BACK_LINE });
+    const teamView = teamOfferView(row({ offer_state: "taken_by_us", taken_member_id: COLLEAGUE, taken_by: ME, taken_at: "2026-11-20T13:31:00Z" }), ME, NAMES, []);
+    expect(teamView).toMatchObject({ mine: false, wayBack: null });
   });
 
   it("after «Ich kann nicht» the team sees the release and may choose again while the offer is still with it", () => {
