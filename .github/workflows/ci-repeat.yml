@@ -18,8 +18,34 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
+  window-start:
+    name: repeat window start (ADR-198)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      started: ${{ steps.start.outputs.started }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Record the run start (Europe/Zurich)
+        id: start
+        run: node scripts/ci-repeat-window.mjs start
+
+  window:
+    name: repeat window verdict (ADR-198)
+    needs: [window-start, db, e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Acceptance window verdict (label only, never fails the run)
+        env:
+          REPEAT_STARTED: ${{ needs.window-start.outputs.started }}
+        run: node scripts/ci-repeat-window.mjs verdict
+
   db:
     name: db repeat ${{ matrix.attempt }} (migrations · seed · pgTAP)
+    needs: [window-start]
     strategy:
       fail-fast: false
       matrix:
@@ -152,6 +178,7 @@ jobs:
 
   e2e:
     name: e2e repeat ${{ matrix.attempt }} (auth · protected routes · Playwright)
+    needs: [window-start]
     strategy:
       fail-fast: false
       matrix:
