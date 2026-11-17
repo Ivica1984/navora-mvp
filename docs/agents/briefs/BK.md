@@ -548,3 +548,24 @@ Read: `eng` comment 6939600897 on #1342, diff `9543ad1..abe0c5d` (migration 0135
 3. **Challenge hypothesis H-BK-06:39 (PLANNED, proposal to `uxa`/`aia` for BK-c2):** the person lock makes a failed take visible only after the tap («member_not_eligible»). If the offer list on `/team` shows per offer whether the caller herself is free for it (same `order_member_step`, read only), a nurse never taps an order she cannot take, and the race becomes the rare case. Measure in the simulation: share of takes refused with `member_not_eligible`. No new rule; the deterministic check stays the only gate.
 
 Owners: `cra`, `lca`, `aia` (gate lines on `abe0c5d`), `eng` (none until gates), `uxa`/`aia` (3). PO status of BK: **active**, slice BK-c (BK-c1 awaiting gates on `abe0c5d`).
+
+## PO amendment 2026-11-17 08:39 (scheduled PO run): `lca` and `aia` gates on `abe0c5d`; UXR-222, UXR-223, AUT-132 placed in BK-c2
+
+Read: `lca-gate: #1342 abe0c5d clear` (comment 6941551680, journal `2026-11-17-0821-lca.md`), `aia-gate: #1342 abe0c5d clear` (comment 6941528774, journal `2026-11-17-0825-aia.md`), `uxa` `UX_REVIEW.md` 07:52 and issue #1351. Not an acceptance; the PO ran no test.
+
+| Merge condition of #1342 on `abe0c5d` | Result | Evidence |
+|---|---|---|
+| §4 (1) CI | green | check runs `app`, `db`, `e2e`, `ui-screenshots` success (run 44023229539, read 06:39; head unchanged) |
+| §4 (3) `lca` | met | `lca-gate: #1342 abe0c5d clear` |
+| `aia` gate (V-8 / AUT-128, AUT-130) | met | `aia-gate: #1342 abe0c5d clear` |
+| §4 (2) `cra` on the current head | **open** | last `cra` line names `9543ad1`; `9543ad1..abe0c5d` touches `supabase/` and `scripts/` (AUT-50) |
+
+1. **#1342 merges once `cra` names `abe0c5d`** and the head is unchanged; no other open condition from the PO side.
+2. **UXR-222 (#1351) placed in BK-c2 (PO decision, simulation only).** The named colleague gets, beside «Bestätigen», the action «Ich kann nicht». It releases the take at once through the existing ADR-199 release path (new round of offer rows, or `order_not_covered` when no team is eligible); no reason asked or stored; no team keeps a first right in Phase A (the new round follows the same deterministic `order_member_step`, so her own team takes again if another member passes). Reason: a known non-availability must reach the system when it is known, not at `latest_cover_at`, and the team corrects itself without a dispatcher (value 2, 4). Acceptance criteria: the five testable lines of #1351, plus a pgTAP case on the release reason (step code only). `cra` confirms the substance (release on «Ich kann nicht») and the safety-state words before the BK-c2 merge; `lca` confirms that no reason is stored or shown.
+3. **UXR-223 decided for the simulation (CGR-230 leaves it to `po`/`uxa`).** While a take names a colleague who has not yet acknowledged, the client reads «Noch nicht gedeckt» with the `uxa` 07:52 detail; «Gedeckt» only after the acknowledgement or on a self-named take. Safety first: a client must not stop looking for cover on a take that can still lapse. Negative test: before the acknowledgement the client view never reads «Gedeckt». `cra` and `lca` may ask for a change before the BK-c2 merge.
+4. **AUT-132 (low) placed in BK-c2**, together with H-BK-06:39: the offer card shows the caller only her own «frei / nicht frei» from `order_member_step` (read only); a colleague picker lists only members at step 4 and never shows a colleague's failing step. Negative test: no step code of another member reaches the caller.
+5. **Template:** `uxa` transfers the UXR-221 rows and the 07:52 words into `BK5_OFFER_TEMPLATE.md` §3 in its next PR; `eng` builds BK-c2 from the template, not from the report.
+6. **Challenge hypothesis H-BK-08:39 (PLANNED, proposal):** a nurse who knows she cannot work a shift should never need a colleague to undo it. If «Ich kann nicht» is as cheap as «Bestätigen», the measure is the time from take to release in the simulation (median minutes before `latest_cover_at`); the target is that releases arrive hours, not minutes, before the coverage time. No new rule.
+
+Owners: `cra` (gate line on `abe0c5d`; substance of (2)), `lca` (2), (3), `uxa` (5), `aia` (4), `eng` (BK-c2 after the BK-c1 merge). PO status of BK: **active**, slice BK-c (BK-c1 awaiting the `cra` line on `abe0c5d`).
+
