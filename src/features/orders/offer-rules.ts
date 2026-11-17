@@ -3,7 +3,7 @@
 // and UX_REVIEW.md 07:52 (`uxa`, PROPOSED; placed by the PO for the simulation). The database decides every state;
 // these functions only word what `team_order_offers()` and `client_orders()` return. No rule is made here.
 
-/** One row of `public.team_order_offers()` (migration 0136). */
+/** One row of `public.team_order_offers()` (migration 0137). */
 export type TeamOrderOfferRow = {
   order_id: string;
   team_id: string;
@@ -27,6 +27,8 @@ export type TeamOrderOfferRow = {
   caller_free: boolean | null;
   release_kind: string | null;
   released_member_id: string | null;
+  /** BK-c3 (ADR-201): clause codes for an open row only, never words or a number; empty when no fact holds. */
+  reasons?: string[] | null;
 };
 
 /** One row of `public.order_take_candidates()`: members at step 4 only, never a step (AUT-132). */
@@ -89,6 +91,8 @@ export type TeamOfferView =
       preselected: string | null;
       /** The primary button's label before a person is ticked; null = no primary button (UXR-226). */
       chooseLabel: "Person wählen" | "Andere Person wählen" | null;
+      /** BK-c3: «Empfohlen für euch: …» from stored facts of this team only; null = no line (K-2). */
+      reasonLine: string | null;
     }
   | { kind: "taken"; tag: "Übernommen" | "Für dich eingeteilt"; lines: string[]; actions: boolean; mine: boolean; wayBack: string | null }
   | { kind: "released"; line: string };
@@ -117,6 +121,25 @@ export const ACK_FINAL_LINE = "Mit dem Bestätigen bist du fest eingeteilt.";
  * Words PROPOSED (`cra` 13:28 example); `uxa` owns the final words.
  */
 export const ACK_WAY_BACK_LINE = "Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.";
+
+/**
+ * BK-c3 (PO 17:39; ADR-201). Words: UX_REVIEW.md «Words for BK-c3» (`uxa`, PROPOSED) with UXR-233. Clause order is the
+ * key order below. `member_free` is shown only when it is the sole clause (it is true on almost every open row).
+ * No clause → no line; an unknown code shows nothing. No number, no rank, no other team.
+ */
+export const REASON_PREFIX = "Empfohlen für euch: ";
+export const REASON_WORDS: Record<string, string> = {
+  knows_client: "ihr wart schon hier im Einsatz",
+  member_free: "jemand von euch ist frei",
+};
+
+export function reasonLine(codes: string[] | null | undefined): string | null {
+  const known = (codes ?? []).filter((c) => Object.prototype.hasOwnProperty.call(REASON_WORDS, c));
+  const distinguishing = known.filter((c) => c !== "member_free");
+  const shown = distinguishing.length > 0 ? Object.keys(REASON_WORDS).filter((c) => distinguishing.includes(c)) : known.slice(0, 1);
+  if (shown.length === 0) return null;
+  return REASON_PREFIX + shown.map((c) => REASON_WORDS[c]).join(" · ");
+}
 
 function releaseText(kind: string | null, member: string, latestCoverAt: string | null): string | null {
   switch (kind) {
@@ -198,6 +221,7 @@ export function teamOfferView(
     candidates: list,
     preselected: row.caller_free && callerListed ? callerId : null,
     chooseLabel: nobody ? null : releaseLine ? "Andere Person wählen" : "Person wählen",
+    reasonLine: reasonLine(row.reasons),
   };
 }
 
