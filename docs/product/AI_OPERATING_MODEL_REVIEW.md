@@ -564,6 +564,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «one member step for every check» (AUT-130):** the re-check at the take (CGR-204 (b)) and the no-double-take rule (CGR-224) call the same member step; an accepted take is one more availability source inside it. PLANNED (BK-c).
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**Bottleneck map v4; one entry for one gap (`aia` 2026-11-17 02:19, review 60, AUT-131):**
+- **Map v4** follows Blueprint V3.2 §6.3: two of seven order-path steps built (one client act in total); no direct care time returned before BK-c (estimate).
+- **Control «one entry for one gap» (AUT-131):** when the ward cannot cover its own shift, the BK order is opened from the ward's shift plan, not typed again; the required level is always entered by the home, never derived. PLANNED (B9, after BK).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -626,3 +631,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-14 14:22 | `aia` | §12: block «BK-b1 gate; a team setting sees its effect; one reading in the form»: controls «a distance never leaves NAVORA» (`lca` B-2 (b), checked on #1268), «a team setting shows its effect, never a suggestion» (AUT-125), «the form offers what the guard accepts, from one reading» (AUT-126). No agent added or removed |
 | 2026-11-14 20:25 | `aia` | §12: block «FE-079 sign-off; BK-b1s and CGR-220 gates»: controls «a document names the BK form of an engine first» (AUT-127), «a ranking is tested on the rows the team sees» (AUT-128), agent contract lines (AUT-129). No agent added or removed |
 | 2026-11-15 02:17 | `aia` | §12: block «BK-b2 gates; one member step for confirm and take»: controls «eligibility is private and names a step, never a person» (checked on #1273) and «one member step for every check» (AUT-130). No agent added or removed |
+| 2026-11-17 02:19 | `aia` | §12: block «bottleneck map v4; one entry for one gap»: map v4 on Blueprint §6.3; control «one entry for one gap» (AUT-131). No agent added or removed |

@@ -31,6 +31,87 @@
 
 ---
 
+## 2026-11-17 02:19 CET · aia review 60: bottleneck map v4 (weekly refresh, first map on Blueprint V3.2 and the BK order path, nursing-home ward column kept); BK-b is merged in full (#1273, #1291, #1276, #1295), not yet accepted, and adds **no human act** (the hard check runs in the database); the order path still frees no direct care time because no team can see or take an order (BK-c), so the top "unblocking" item is unchanged; one advisory finding (AUT-131, low: the ward's own uncovered shift and the home's BK order are two entries for one gap); #1337 (ADR-198, CI tooling) read, no `aia` finding; FE-079 sign-off unchanged, reservations AUT-127 to AUT-129 open
+
+**Read:** `recovery/main` at `bbaed7c` (since review 59 at `35d764a`, 58 commits): journals 0240-po to 0610-eng (2026-11-15) and 0010-eng, 0020-lca, 0039-po, 0128-cra, 0139-po (2026-11-17); diffs of `briefs/BK.md` (amendments 02:40, 05:39), `NEXT_CAPABILITY.md`, Blueprint 3.2.22 → 3.2.24 (chapter 13 and Annex C §1.2 only); migrations 0129 to 0134 by name; open PR #1337 (head `16bf358`, `scripts/ci-repeat-window.mjs`, `tests/unit/ci-repeat-window.test.ts`); review 39 (map v3); one published review (Moore et al. 2020, below), read 2026-11-17. Review 59 merged (#1322, `d3ebc82`); no `aia/…` PR open.
+
+**Measured versus estimated:** nothing here is a measurement of care work. Act counts named "measured" are the earlier synthetic BD runs (#1069: 61 product acts; #1109: 75 product acts, review 48); every minute or rank is an **estimate**. I ran no NAVORA test; CI states are the PO's and `eng`'s readings in their journals. **Active block (README rule 12):** BK, slice BK-b (all PRs merged; acceptance OPEN, waits for the day-window `ci-repeat` on `ab90875`). I ask for no merge outside it; AUT-131 is preparation for a later block (B9) and asks for nothing now. **Contradictions (README rule 10):** none new with `FOUNDER_DECISIONS.md`. My prompt's step 2 still lists archived documents (`CARE_OPERATING_MODEL.md`, `STRATEGY.md` and others) to read; FE-077/FE-079 make them history only, so no requirement below is derived from them (known, owner step). **Task adjustment (README rule 11):** no BK-b head is open, so no gate line is due; this run does the weekly map due today. FE-079: my field (Engines 1 to 3, Blueprint §3, §5.3, §6.3) is unchanged in 3.2.23 and 3.2.24, so no renewal is due; the sign-off of 2026-11-14 20:25 stands on #1279 with reservations AUT-127 (§6.3 rows 1 and 7 unchanged), AUT-128 (order-path team view PLANNED), AUT-129 (Handbook contract lines missing).
+
+### 1 Bottleneck map v4 (weekly refresh; v3 review 39, 2026-11-10)
+
+**What is new in v4:** (1) the map now follows Blueprint V3.2 §6.3 (the BK order path, the same for a home, a hospital ward and a household) instead of the archived FE-052 block list; (2) BK-a and BK-b are the first built steps of the client side; (3) one published review read this week.
+
+**Evidence:** code on `recovery/main` (migrations 0129 order and confirm; 0130/0131 reach and distance; 0132/0133 per-member step, one reading of the matrix; 0134 audit by change); Blueprint §6.3 status column and the BK target «höchstens ein Handgriff beim Auftraggeber, einer im Team, drei bei der Pflegekraft»; measured synthetic act tables #1069 and #1109 (home care BD path); **Moore EC, Tolley CL, Bates DW, Slight SP et al., «A systematic review of the impact of health information technology on nurses' time», J Am Med Inform Assoc 2020;27(5):798-807** (PubMed 32159770, abstract read 2026-11-17): in two weighted averages, EHR implementations **increased** nurses' documentation time (+22 % and +46 %); medication administration time fell 33 % after barcode medication administration. Setting: hospitals, care homes, community clinics, not Swiss home care. What it tells NAVORA: a digital record alone does not return care time; only removing the act does. A Swiss home-care direct-care share stays **UNKNOWN**.
+
+**A. The BK order path (Blueprint §6.3; client = home, hospital ward or household)**
+
+| §6.3 step | Human acts today in NAVORA (code) | BK target | Status | What still costs time outside NAVORA (estimate) | Verdict | Unblocks | Finding |
+|---|---|---|---|---|---|---|---|
+| 1 Capture | client: one form, one summary, **one** confirm (0129) | 1 client act | **IMPLEMENTED** (BK-a accepted, simulation) | none in the path; typed fields instead of a phone call | done at stage 0 (form); BK-d extraction only on synthetic data | – | AUT-120, AUT-123 |
+| 2 Hard check | **none** (0130 to 0134 in the database; reason per step, never per person) | 0 | **IMPLEMENTED**, merged, not accepted | none | eliminated by rule | BK-b acceptance (day-window repeat) | AUT-125, AUT-126, AUT-130 |
+| 3-4 Rank, broadcast | teams **cannot see** an order offer (offer rows exist, no team view) | 0 | **PLANNED** (BK-c) | the whole chain stays outside NAVORA: a home with a gap phones agencies or its own staff (BK brief «Problem») | eliminate (broadcast, FE-078 part 2) | BK-c | AUT-128 |
+| 5 Take, «gedeckt» | – | 1 team act | **PLANNED** (BK-c, BK-5a) | as above | rule (re-check at the tap, one member step) | BK-c | AUT-130 |
+| 6-8 Shift, report, sign | `/field` F1-F4, F6/F7 exist, not linked to an order | ≤ 3 carer acts after the shift | visit **IMPLEMENTED**; link and draft **PLANNED** (BK-e) | a report per shift | report places her own words (pattern 3), no audio in BK | BK-e | AUT-114, AUT-118 |
+| 9 Invoice | – | 0 (draft by rule) | facts **IMPLEMENTED** (J5); draft **PLANNED** (BK-f) | someone writes the invoice | rule from signed facts | BK-f; `lca` (D-44) | AUT-119 |
+| ∞ Not covered | – | 0 | **PLANNED** (BK-6) | calls until someone says yes | monitor with a fixed latest cover time (K-8 PROPOSED) | BK-c, BK-6 | – |
+
+**Reading:** of seven steps, two are built and they cost the client **one act in total**. The value-1 gain (direct care time) needs the chain closed at step 3-5; until BK-c, every built step is preparation (estimate; unchanged since review 59).
+
+**B. Home care (Spitex team), re-ranked**
+
+| Rank | Step (role) | Moved since 2026-11-10 (status) | What still costs a person time | Verdict | Unblocks | Finding |
+|---|---|---|---|---|---|---|
+| 1 | Documentation per visit (nurse) | E-3 is settled in BK as pattern 3 (her own words placed, no audio at stage 0; AUT-114, AUT-118); BK-e PLANNED | one report per visit | eliminate re-typing; place her own segments; every unplaced segment listed (CGR-208) | BK-e; Clinical Owner for real data | AUT-72 (#912), AUT-114 |
+| 2 | Travel and day order (nurse) | team reach and PLZ distance **IMPLEMENTED for orders** (0130/0131): fewer offers far away; day order and route unchanged (OPEN) | she orders her own day and route | day-order rule (AUT-5); reach only filters | B3 depth (after BK) | AUT-5, AUT-125 |
+| 3 | Referral, GP order, relatives (primary nurse) | BK-a gives a client one form and one act; the home-care referral (B1) keeps its own path | re-typing the referral; phone for GP orders | one order form for every client type (FE-074) | B1.1-2 to -5 (after BK); D-22 | AUT-6, AUT-123 |
+| 4 | Absence and short-notice cover (team) | broadcast logic (§6.2) is the model; dropout after the take PLANNED (CGR-223) | calls to find cover | reuse the BK broadcast for an uncovered own visit | BK-c, then B3 | AUT-51 (closed) |
+| 5 | Assessment → care plan (RN) | unchanged | frequency typed twice (AUT-95) | one structure, text beside it | B2/B7 | AUT-95 |
+| 6 | Who takes which visit (team) | unchanged (PLAN3 built, not block-accepted) | moves for early visits | rule (PLAN3) | B3 | AUT-1 |
+| 7 | Working time, billing, quality, analytics | unchanged | one confirmation a day | as v3 | as v3 | AUT-8, AUT-59 |
+
+Rank 1 and 2 swap against v3: documentation is now the larger recoverable share by the published direction (Moore 2020: documentation is the time that digital tools move most, in both directions) and because BK-e will build it first; travel stays large but has no slice before B3. **Estimate, not measured.**
+
+**C. Nursing-home ward (simulated, FE-031)**
+
+| Rank | Step | Status | Verdict | Finding |
+|---|---|---|---|---|
+| W0 (new) | **A shift gap the ward cannot fill itself** (ward leader phones agencies) | BK path, client = home: steps 1-2 IMPLEMENTED, 3-9 PLANNED | eliminate (broadcast to eligible teams, one act each side) | **AUT-131** |
+| W1 | Reassessment periods and their coordination | OPEN (no brief; interRAI by name only, D-36 A) | eliminate the coordination; classification only from the licensed specification | – |
+| W2 | Shift handover | OPEN | «since your last shift» per resident; talk stays for judgement | – |
+| W3 | Documentation per shift | as home-care rank 1 | as rank 1 | AUT-72 |
+| W4 | Shift allocation and roster | PLANNED (NH-A1 approved, not built) | rule (own shifts, continuity default) | AUT-69 to AUT-71 |
+| W5 | Absence on the ward | OPEN | uncovered list plus a cover rule; priority is the Clinical Owner's | AUT-131 |
+| W6 | Billing per resident day | OPEN | rule from recorded days | – |
+
+**What the refresh shows (estimate):** the only built items since 2026-11-10 are client-side steps 1-2 of BK; they remove a phone call on paper but return no minute until teams can take an order. Minutes per step stay **UNKNOWN**; the BK-12 protocol (acts per step, AUT-74) is the first place a Phase A number will appear. Next refresh 2026-11-24.
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-131 | Ward W0/W5: a ward shift nobody of the ward team covers, then an order to outside teams (ward team; home as client) | **PLANNED gap, not a defect.** NH-A1 (approved, not built) plans an uncovered list on the ward; BK-a (built) lets the home order a shift by form (0129). Nothing links them: when B9 builds the ward, the same gap (date, start, end, level) would be typed a second time into the order form | **Rule, no new step:** an uncovered ward shift offers «als Auftrag ausschreiben», which opens the BK-a summary filled from the ward's own shift plan (date, times, label from the plan, PO 18:40 (2)(b)); the home checks and confirms with the existing one act. The required level is **not** filled by NAVORA: the home enters it (staffing is the home's decision; no clinical rule set). For B9 only | L | Stage 0; gate: PO (B9/NH-A4 brief), `cra` (level stays entered, never derived), `uxa` (wording) | acts per uncovered ward shift from gap to «gedeckt» (BK-12 protocol), per ward, never per person | low | — |
+
+### 3 Updated, supported, closed
+
+- **#1337 (ADR-198, `ci-repeat` labels itself acceptance evidence or not), head `16bf358`: read, no finding.** It is a deterministic monitor over CI evidence, adds no act for a care team, weakens no test (fails closed on an unknown start). The new head ends the window at 22:05 and a unit test checks every minute against `durchgangSlots`, which is the drift test the PO asked for (CGR-228, H-BK-01:39). Not my gate; `cra` and the PO decide.
+- **PO H-BK-01:39 (one clock fact, not two copies): supported** (same control as AUT-126 and AUT-130: one source, read wherever it is used).
+- **AUT-130:** placed as a BK-c criterion (BK brief 02:40 (2)); stays open until BK-c tests it.
+- **AUT-128:** BK-c criterion (20:40 (2)); open. **AUT-127, AUT-129:** open (Blueprint §6.3 rows 1 and 7 unchanged in 3.2.24; Handbook V2.2 unchanged).
+- **AI readiness (§8):** nothing merged since review 59 proposes, drafts or ranks (#1273, #1291, #1276, #1295 checked in review 59; merged heads carry the same patch-ids per `cra` 05:28 and 01:28). No `kind = 'ai'` added.
+- **Unchanged:** AUT-115 (lock stays), AUT-118, AUT-119, AUT-123, AUT-124, AUT-125.
+- Closed with evidence: none.
+
+### 4 Stage tracking
+
+Stage 0 only (D-35 rule A). Stage 1 entry conditions unchanged since review 55: no provider decision (owner), no proposer in BK, the correction-rate view not built (AUT-129).
+
+### 5 Issues
+
+- None opened (no `high` finding). No PR comment (#1337 has no `aia` finding).
+- **Top bottleneck (estimate):** recoverable time is largest in documentation per visit/shift (BK-e), but nothing on the order path returns a minute until BK-c lets a team see and take an order (AUT-128).
+
+---
+
 ## 2026-11-15 02:17 CET · aia review 59: `aia` gate lines on the four BK-b drafts: #1273 `c2ffef1`, #1291 `6abf9f8`, #1276 `1600588`, #1295 `b0b0da4`, all **clear** for «Simulation, synthetic data»; Engine 1 per member stays a private, deterministic hard rule that names a step, never a person; one advisory finding (AUT-130, low: the take re-check reuses the same member step); the PO's proposals «gate line on the first green head» and the leaner sign-off cadence (P-13) are supported
 
 **Read:** `recovery/main` at `35d764a` (since review 58 at `879f97c`): journals 2040-po to 0140-po (2040-po, 2139-po, 2240-po, 2339-po, 0039-po, 0140-po); open PRs #1273, #1291, #1276, #1295 (diffs `merge-base..head`, migrations 0132, 0133, 0134 headers and bodies, `orders/rules.ts`, `orders/commands.ts`, `order-form.tsx`, `reach/rules.ts`, `reach-client.tsx`; check runs read through the API); Blueprint 3.2.22 §6.3 and chapter 13 (my reservation rows). Review 58 merged (#1302, `500946c`); no `aia/…` PR open.
