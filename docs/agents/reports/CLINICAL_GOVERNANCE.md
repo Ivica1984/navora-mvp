@@ -16,6 +16,62 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 01:28 CET: **#1276 and #1295 are merged on the code I cleared. CGR-220 is closed.** Read on `recovery/main` `d111bca`. I recomputed the patch-ids over `src supabase tests e2e` myself: #1276 merge `792a5d3` against its first parent `ddba8d8` gives `da25ecea…`, the same as my cleared head `08b29c8`; #1295 merge `ab90875` against `a0f3b56` gives `4da97377…`, the same as my cleared head `296e6ba`. Neither touches `package.json`, `.github` or `scripts`. `ci` push run 43682107812 on `ab90875` is 4/4 success, and its `db` log (job 132714752309, read by me) reads «140_bk_b_cgr220_teams_audit_by_change.test.sql … ok», «Files=140, Tests=4965 … Result: PASS». **One new open PR in scope: #1337** (ADR-198, `ci-repeat` labels itself acceptance evidence or not). It weakens no check; **gate line `#1337 933a279 clear`**, with one **new advisory finding CGR-228 (S3)**: the label's window end (22:20) is later than the BD-2 night guard (about 22:04). **BK-b acceptance is not given** and I support the PO's reading: `ci-repeat` 43977104731 on `ab90875` ran at night with 3 e2e tests skipped. My field did not change in Blueprint 3.2.24 (chapter 13 only) or in Handbook V2.2, so my FE-079 sign-off of 2026-11-15 01:30 on #1279 stands (reservation CGR-221, Handbook part). No renewal is due.
+
+### What I read
+
+- Merges since my 05:28 section: #1331 (mine), #1330, #1276 (`792a5d3`), #1332, #1295 (`ab90875`, PO run 06:39 without journal; recorded by the PO 00:39), #1335, #1334, #1336.
+- Code diff `ddba8d8..d111bca`: only #1276 (UXR-209 rule line at the postcode field, `src/features/reach/rules.ts`, `reach-client.tsx`, unit and e2e tests) and #1295 (migration 0134, pgTAP 140). Both were reviewed by me on their earlier heads; the merged code is byte-equal by patch-id.
+- Migration 0134 read again: the trigger is skipped only when nothing but `max_distance_km` / `reach_changed_at` changed and at least one of them did; `set_team_reach` no longer makes a no-change update; no session value is read.
+- Blueprint diff `ddba8d8..d111bca` (3.2.24): chapter 13 (`lca` renewal) only. Annex B §1 (20 guarantees) and the qualification matrix are untouched; the Handbook is unchanged. `FOUNDER_DECISIONS.md`, `OPEN_DECISIONS.md`, README, COORDINATION: unchanged.
+- `NEXT_CAPABILITY.md` (00:39): Block BK, slice BK-b, unchanged. Brief BK: PO amendment 05:39 places CGR-227 with STR-39 as a BK-g criterion (item 2) and adopts my rule on completed `ci` runs for the acceptance record (item 3). My two asks of 05:28 to `po` are answered.
+- Open PR #1337 (`eng` 01:27, head `933a279`; code commit `fb4fb3a`, the second commit is the journal only): `.github/workflows/ci-repeat.yml`, `scripts/ci-repeat-window.mjs`, `scripts/ci-repeat.mjs`, `tests/unit/ci-repeat-window.test.ts`, ADR-198. #1087, #1084: not in *Active now*, unchanged.
+- Journals: `po` 0039, `eng` 0010 and 0127 (on #1337), `lca` 0020.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-228 | #1337 (ADR-198) `ci-repeat` window label | advisory, S3 | The label reads «inside the e2e acceptance window» when the run starts at or after 02:20 and ends before 22:20 Zurich on one day. BD-2 already skips when it starts after 22:04: `durchgangSlots()` returns null once the care visit would end after 23:40 (`aFrom` = next 5 min + 5, + 45 + 15 + 30). So a run that ends between 22:05 and 22:19 can be labelled «inside» with BD-2 skipped. G-13 (CGR-198) already states the guard as «about 22:00». The label is advisory only, so no check is weakened; but a label that is wrong at the edge invites the misreading it was built to stop. IMPLEMENTED on the PR, not merged. | `scripts/ci-repeat-window.mjs` `WINDOW = { from: "02:20", until: "22:20" }`; `tests/e2e/support/durchgang-time.ts:96-111` (`EARLIEST_RUN_MINUTE` 140, `LAST_SLOT_END_MINUTE` 1420); `tests/e2e/durchgang-ambulant.spec.ts:188`; `field.spec.ts:159`, `:402` (00:30) | Either set `WINDOW.until` to the latest start BD-2 accepts (22:05 exclusive) or derive it from `durchgang-time.ts`; and a unit test that, for every minute `t` in [`WINDOW.from`, `WINDOW.until`), `durchgangSlots(t)` is non-null and `t >= 00:30`. The acceptance record still reads 0 skipped in all ten raw logs (FE-071 (4)), whatever the label says. |
+
+### Findings closed with evidence
+
+- **CGR-220 closed:** the `audit_teams` trigger skips by what changed, never by a session value.
+  - Code: `supabase/migrations/…0134_bk_b_cgr220_teams_audit_by_change.sql` (trigger `when` clause; `max_distance_km` in the audited columns; `set_team_reach` no-change guard), on `recovery/main` since `ab90875`.
+  - Test: pgTAP `140_bk_b_cgr220_teams_audit_by_change.test.sql`.
+  - CI: `db` job 132714752309 in `ci` push 43682107812 on `ab90875`, «140 … ok», «Result: PASS». The ten `db` attempts of `ci-repeat` 43977104731 read «Files=140 … Result: PASS» (read by `eng` 00:10 and the PO 00:39; I read the push job only).
+  - Residual (ADR-197): a privileged database role writing only the reach columns gets no trigger row; the app has no write grant on them. Accepted as a residual for the simulation; PS-190 closed.
+- **UXR-209 / `lca` B-5 (#1276):** presentation only (rule line and help line at the postcode field); no care rule in it. My `08b29c8` line covers the merged code.
+
+### Status of open findings
+
+- **CGR-227:** placed in brief BK, PO amendment 05:39 (2), as a BK-g criterion. I close it myself when BK-g meets it.
+- **CGR-211, CGR-222 (c), CGR-223 (a) to (c), CGR-224, CGR-225:** BK-c acceptance conditions, placed in brief BK; BK-c not active. `aia` AUT-128 / `eng` V-8 (no team view of `order_offers`) is the same BK-c gap.
+- **CGR-226:** placed (BK 21:39 (4)); the words are with `uxa`.
+- **CGR-221:** Handbook part only; stays my sign-off reservation (Handbook V2.3, PLANNED).
+- **CGR-204 (b), (c), CGR-205, CGR-207 to CGR-210, CGR-212, CGR-213 (b), CGR-215 (b), (c):** unchanged.
+
+### Gate status
+
+All gates below are «Simulation, synthetic data».
+
+- `cra-gate: #1337 933a279 clear` (advisory CGR-228). No `db` or `e2e` step, test or guard changes; the window jobs never fail a run; a missing start counts as outside (fail closed); attempts `needs` the start job, so no attempt starts before the recorded start. `ci` on `fb4fb3a` was green per `eng` 01:27; `ci` on `933a279` was still running when I read it (run 43987600510), so I make no CI claim for that head.
+- **Block rule:** #1337 is acceptance tooling, not a feature; whether it merges in BK-b is the PO's call. As `eng` notes, `ci-repeat` runs the workflow file of the tested commit, so the BK-b repeat on `ab90875` will not carry the label and is read by hand as before.
+- **BK-b acceptance, my conditions (unchanged from 05:28, now complete in content):**
+  - Code: all BK-b PRs merged; acceptance commit named by `eng`: `ab90875`.
+  - `ci` on `ab90875`: push 43682107812 completed success (4/4). That is the run to cite.
+  - `ci-repeat` 10/10 with **0 skipped** in all ten `e2e` raw logs and «Result: PASS» in all ten `db` logs, on `ab90875`, read from the logs. 43977104731 is **not** that record (3 skipped, night guards); a day-window run is still OPEN.
+  - The record keeps the note on offer rows written before BK-b2 (PO 13:39 (6)) and says: not released for real persons or data; CR-180, K-8 and the matrix cells stay PROPOSED with the Clinical Owner (D-27).
+
+### Decisions requested
+
+- **`eng`:** CGR-228 on #1337 (window end, unit test against the guards). Handbook V2.3 broadcast text (CGR-221 rest).
+- **`po`:** BK-b acceptance only on the day-window `ci-repeat` as above. Note: the PO 06:39 run of 2026-11-15 merged #1295 without a journal (recorded by the PO 00:39); the merge record comment exists, so I find no clinical gap, only the audit gap the PO named.
+- **Clinical Owner:** K-8, the household fallback, CR-180 and «D» on a shift order: still UNKNOWN.
+- Earlier asks are unchanged.
+
+---
+
 ## 2026-11-15 05:28 CET: **#1273 and #1291 are merged on the code I cleared. CGR-216, CGR-218 and CGR-219 are closed, and CGR-204 (a) is met.** Read on `recovery/main` `ddba8d8`. `git diff c2ffef1 6c4b74b` and `git diff e9b1672 08e5d8e` over `src supabase tests e2e` are both empty. I recomputed the patch-id for #1291 myself: old head `6abf9f8` and new head `e9b1672` both give `e822681e…`. `ci` on merge `6c4b74b` is green, and the `db` log reads «138 … ok», «139 … ok», «Files=139, Tests=4953 … Result: PASS». **#1276 and #1295 have moved again by merge-up only.** I recomputed the patch-ids: #1276 `1600588` → `08b29c8` gives `da25ecea…` on both, and #1295 `b0b0da4` → `296e6ba` gives `4da97377…` on both. Neither PR touches `package.json`, `.github` or `scripts` (only docs outside the code paths), and all four jobs are green. **New gate lines:** `#1276 08b29c8 clear` and `#1295 296e6ba clear`. **No new finding.** My field did not change in Blueprint 3.2.22 and 3.2.23 (chapter 13, Annex A, Annex C only) or in Handbook V2.2. So my FE-079 sign-off of 01:30 on #1279 stands, and no renewal is due.
 
 ### What I read
