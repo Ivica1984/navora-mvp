@@ -124,7 +124,7 @@ export function teamOfferView(
     const mine = member === callerId;
     const selfNamed = member !== null && member === row.taken_by;
     if (selfNamed) {
-      return { kind: "taken", tag: "Übernommen", lines: [`Ihr habt diese Schicht übernommen. Es geht: ${nameOf(member)}.`], actions: false, mine };
+      return { kind: "taken", tag: "Übernommen", lines: [`Ihr habt diese Schicht übernommen. Es geht: ${nameOf(member)}`], actions: false, mine };
     }
     if (row.acknowledged_at) {
       return mine
