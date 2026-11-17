@@ -110,7 +110,7 @@ export function radiusLine(km: number | null | undefined): string {
   return `Distanz: höchstens ${String(km).replace(".", ",")} km`;
 }
 
-/** BK-6: never silent. Until BK-c derives cover from offers, every confirmed order is «noch nicht gedeckt». */
+/** BK-6: never silent. Superseded on `/order` by `clientCoverLines` (BK-c2, offer-rules.ts); kept for its BK-a test. */
 export function coverStateText(state: string): string {
   switch (state) {
     // BK-c adds the offer states («Angebot bei Team 1 von 4», «… hat übernommen · Pflegekraft noch nicht benannt»).

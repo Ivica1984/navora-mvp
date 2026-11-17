@@ -1,5 +1,6 @@
 import { getClientOrderPage } from "@/features/orders/queries";
-import { coverStateText, radiusLine, shiftLabelLine } from "@/features/orders/rules";
+import { radiusLine, shiftLabelLine } from "@/features/orders/rules";
+import { clientCoverLines } from "@/features/orders/offer-rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import OrderForm from "./order-form";
 
@@ -32,14 +33,22 @@ export default async function OrderPage() {
         <h2 className="text-lg font-bold">Ihre Aufträge ({data.orders.length})</h2>
         {data.orders.length === 0 && <p className="text-sm text-secondary">Noch kein Auftrag bestätigt.</p>}
         <ul className="grid gap-2" data-testid="client-orders">
-          {data.orders.map((o) => (
-            <li key={o.id} className="grid gap-1 rounded-lg border border-stone-200 bg-white p-3 text-sm">
-              <p className="break-words font-semibold">{o.sentence}</p>
-              {shiftLabelLine(o.shift_label) && <p>{shiftLabelLine(o.shift_label)}</p>}
-              <p>{radiusLine(o.radius_km)}</p>
-              <p data-testid="order-cover-state" className="font-semibold">Stand: {coverStateText(o.cover_state)}</p>
-            </li>
-          ))}
+          {data.orders.map((o) => {
+            // BK-c2 (F-1, UXR-223, CGR-226 (a); template §4): the status first, then the order facts. The database
+            // decides the state (`client_orders()`); no team count, no other team, no decline or exclusion reason.
+            const cover = clientCoverLines(o);
+            return (
+              <li key={o.id} className="grid gap-1 rounded-lg border border-stone-200 bg-white p-3 text-sm">
+                <div role="status" className="grid gap-0.5">
+                  <p data-testid="order-cover-state" className="font-semibold">{cover.headline}</p>
+                  {cover.detail && <p data-testid="order-cover-detail">{cover.detail}</p>}
+                </div>
+                <p className="break-words font-semibold">{o.sentence}</p>
+                {shiftLabelLine(o.shift_label) && <p>{shiftLabelLine(o.shift_label)}</p>}
+                <p>{radiusLine(o.radius_km)}</p>
+              </li>
+            );
+          })}
         </ul>
       </section>
     </main>

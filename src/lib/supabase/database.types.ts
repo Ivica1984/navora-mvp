@@ -1407,14 +1407,14 @@ isOneToOne: false
                   ]
                 },"order_takes": {
                   Row: {
-                    "id": string,"member_id": string,"order_id": string,"organization_id": string,"release_reason": string | null,"released_at": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
+                    "acknowledged_at": string | null,"id": string,"member_id": string,"order_id": string,"organization_id": string,"release_reason": string | null,"released_at": string | null,"released_by": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: string,"member_id": string,"order_id": string,"organization_id": string,"release_reason"?: string | null,"released_at"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
+                    "acknowledged_at"?: string | null,"id"?: string,"member_id": string,"order_id": string,"organization_id": string,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
                   }
                   Update: {
-                    "id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"release_reason"?: string | null,"released_at"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
+                    "acknowledged_at"?: string | null,"id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
                   }
                   Relationships: [
                     {
@@ -2777,6 +2777,9 @@ isOneToOne: false
 "accept_my_invitations":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"acknowledge_take":
+{ Args: { "p_idempotency_key": string,"p_order_id": string }; Returns: Json
+                           },
 "acknowledge_working_time_notice":
 { Args: { "p_idempotency_key": string,"p_text_version": string }; Returns: Json
                            },
@@ -3123,6 +3126,11 @@ isOneToOne: false
               "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
             }[]
                            },
+"order_take_candidates":
+{ Args: { "p_order_id": string,"p_team_id": string }; Returns: {
+              "is_caller": boolean,"user_id": string
+            }[]
+                           },
 "org_audit_read_log":
 { Args: { "p_organization_id": string }; Returns: {
               "entity_id": string,"entity_type": string,"purpose": string,"read_at": string,"reader_id": string,"rows_returned": number
@@ -3237,6 +3245,9 @@ isOneToOne: false
                            },
 "register_push_subscription":
 { Args: { "p_auth": string,"p_endpoint": string,"p_idempotency_key": string,"p_p256dh": string }; Returns: Json
+                           },
+"release_named_take":
+{ Args: { "p_idempotency_key": string,"p_order_id": string }; Returns: Json
                            },
 "remove_planned_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
@@ -3412,7 +3423,7 @@ isOneToOne: false
                            },
 "team_order_offers":
 { Args: Record<PropertyKey, never>; Returns: {
-              "activity_tags": (string)[],"distance_km": number,"duration_minutes": number,"ends_at": string,"grade": string,"limit_km": number,"offer_state": string,"order_id": string,"place_name": string,"postcode": string,"required_tags": (string)[],"sentence": string,"starts_at": string,"taken_member_id": string,"team_id": string
+              "acknowledged_at": string,"activity_tags": (string)[],"caller_free": boolean,"distance_km": number,"duration_minutes": number,"ends_at": string,"grade": string,"latest_cover_at": string,"limit_km": number,"offer_state": string,"order_id": string,"place_name": string,"postcode": string,"release_kind": string,"released_member_id": string,"required_tags": (string)[],"sentence": string,"starts_at": string,"taken_at": string,"taken_by": string,"taken_member_id": string,"team_id": string
             }[]
                            },
 "team_plan_status":

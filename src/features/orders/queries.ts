@@ -16,6 +16,13 @@ export type ClientOrder = {
   activity_tags: string[];
   required_tags: string[];
   cover_state: string;
+  /** BK-c2 (ADR-200 (5)): the client's detail (F-1: `no_team_free`; UXR-223: `awaiting_acknowledgement`). */
+  cover_detail: string | null;
+  starts_at: string;
+  latest_cover_at: string | null;
+  covered_team_name: string | null;
+  taken_at: string | null;
+  grade: string | null;
 };
 
 export type ClientOrderPage = {
