@@ -99,8 +99,8 @@ async function clientReads(page: Page, when: string, state: string | RegExp, det
 }
 
 /** kolleginbs opens /team: a card waiting for her is listed first; hers carries the two actions. */
-async function namedCard(page: Page, when: string) {
-  await signIn(page, "kolleginbs.test@navora.test");
+async function namedCard(page: Page, when: string, signedIn = false) {
+  if (!signedIn) await signIn(page, "kolleginbs.test@navora.test");
   await page.goto("/team");
   await expect(page.getByTestId("shift-offer-card").first().getByTestId("shift-offer-tag")).toHaveText("Für dich eingeteilt");
   const card = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
@@ -148,6 +148,8 @@ for (const width of [390, 1440]) {
   });
 
   test(`at ${width} px the named colleague presses «Ich kann nicht» (two steps): the order is offered again and the client reads «Noch nicht gedeckt»; the team declines in two steps`, async ({ page }) => {
+    // Five sign-ins and two confirm steps in one path: longer than the 30 s default (no assertion is relaxed).
+    test.setTimeout(90_000);
     await page.setViewportSize({ width, height: 900 });
     const when = await orderShift(page, zurichDay(Date.now(), width === 390 ? 34 : 35));
     await takeNamingColleague(page, when, width, "cannot");
@@ -163,8 +165,8 @@ for (const width of [390, 1440]) {
     await expect(step.getByTestId("shift-offer-step-sentence")).toBeFocused();
     await expect(card.getByRole("button")).toHaveText(["Freigeben", "Zurück"]);
     await snap(page, `bk-c2-cannot-step-${width}.png`);
-    await page.reload();
-    card = await namedCard(page, when);
+    // Already signed in: re-open /team (a fresh server read) instead of signing in again.
+    card = await namedCard(page, when, true);
     await card.getByRole("button", { name: "Ich kann nicht" }).click();
     await card.getByRole("button", { name: "Zurück" }).click();
     await expect(card.getByRole("button")).toHaveText(["Bestätigen", "Ich kann nicht"]);
