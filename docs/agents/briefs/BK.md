@@ -728,3 +728,28 @@ PO did not run tests locally; facts from the GitHub API.
 5. **AI gate line:** FE-087 names `cra` and `uxa`; an `aia` gate line is welcome but not a merge condition for #1358 (`aia` pre-read 13:25 found AUT-128, AUT-130, AUT-132 met on the branch; no blocking AUT finding open).
 
 PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 #1358 ready, waiting for two gate lines).
+
+## PO amendment 2026-11-17 17:39 (scheduled PO run): BK-c3 scope from the `eng` draft #1381; #1358 still waits for the `uxa` line
+
+PO did not run tests locally; facts from the GitHub API.
+
+| Criterion (#1358, head `9a7fc56`) | Result | Evidence |
+|---|---|---|
+| CI green, not draft, `mergeable_state` clean | met (unchanged since 16:40) | `ci` 44108460972; `GET /pulls/1358` |
+| `lca` gate line | met, 16:21 | PR comment |
+| `cra` gate line (CGR-235) | **met**: `cra-gate: #1358 9a7fc56 clear` (17:29) | PR comment; `CLINICAL_GOVERNANCE.md` 17:29 (merged with #1382) |
+| `uxa` gate line (#1361) | **met**: `uxa-gate: #1358 9a7fc56 clear` (17:48) | PR comment |
+| Merge | **#1358 merged `25d7cdf`** (head `9a7fc56`); #1361 closed | merge record comment on #1358 |
+
+**BK-c3 decisions (PO, product scope; answers to draft §5; no clinical rule set):**
+
+1. BK-c3 = reason line per (order, own team) from stored facts plus, at most, the order of the team's own list. **No ranking between teams** is stored, returned or shown (FE-078 (2), ADR-199 (8), D-44 (2) (a)). This supersedes the cascade wording of BK-3 «the best-ranked team receives the offer first».
+2. **List order A** (`starts_at` first, then ids) in Phase A (`cra` CGR-236 (a)). B (lexicographic, AUT-113 (1)) PLANNED, only after the Clinical Owner rules on continuity against time to start (CGR-196, K-8). **Deviation:** FE-078 (1) «orders the list and explains it»; in Phase A the ranking explains only. Reported, not changed.
+3. `knows_client`: ended, acknowledged, never released take of the same team for the same `client_account_id`; no time window in Phase A; window before real persons OPEN (PO with Clinical Owner).
+4. `holds_all_tags` only if step 2 checks evidence for every tag (CGR-236 (b) pgTAP); else dropped.
+5. Language and practice experience: out of BK-c3 (no data source; staff data, `lca` Annex C). FE-073 (3) stands; separate later item, `lca` first.
+6. Price line out until `lca` AUT-119 (c).
+
+**BK-c3 acceptance criteria added (positive / negative):** pgTAP 146 (1) each clause present with its fact and absent without it; (2) row set of `team_order_offers()` unchanged by reasons (AUT-128 / V-8); (3) no `rank`, `score` or count column; (4) other team and client read no reason; (5) released, lapsed and not-ended takes give no `knows_client`; (6) order A asserted. vitest: unknown clause code shows nothing. Playwright 390/1440: reason line on the seeded team card. Gates: `cra`, `uxa` (words), `aia` (rule only, AUT-115), `lca` only if a staff-data field is added (none planned).
+
+PO status of BK: **active**, slice BK-c (BK-c1 and BK-c2 merged, not accepted; BK-c3 scoped, PR may open; BK-c accepted only after BK-c3 on a named commit with `ci-repeat` 10/10).
