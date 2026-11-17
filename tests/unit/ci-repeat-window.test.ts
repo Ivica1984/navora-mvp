@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { REPEAT_JOBS, WINDOW_START, WINDOW_VERDICT, jobBlock } from "../../scripts/ci-repeat.mjs";
 import { WINDOW, report, verdict, zurich } from "../../scripts/ci-repeat-window.mjs";
+import { durchgangSlots, hhmm } from "../e2e/support/durchgang-time";
 
 // ADR-198 (PO hypothesis H-BK-00:39): a ci-repeat run labels itself acceptance evidence or not by its Zurich start and
 // end time, because the e2e acceptance specs skip themselves at night (ADR-113) and a skipped test is not a verifying
@@ -27,8 +28,8 @@ describe("ADR-198 Zurich clock", () => {
 });
 
 describe("ADR-198 window verdict", () => {
-  it("the window is 02:20 to 22:20 Zurich", () => {
-    expect(WINDOW).toEqual({ from: "02:20", until: "22:20" });
+  it("the window is 02:20 to 22:05 Zurich (CGR-228: ends where BD-2 starts to skip)", () => {
+    expect(WINDOW).toEqual({ from: "02:20", until: "22:05" });
   });
 
   it("the night repeat 43977104731 (start 00:11 Zurich) is outside: started before 02:20", () => {
@@ -43,10 +44,17 @@ describe("ADR-198 window verdict", () => {
     expect(verdict("2026-11-17T01:20:00Z", "2026-11-17T01:35:00Z")).toMatchObject({ inside: true, reason: "" });
   });
 
-  it("an end at 22:19 is inside, at 22:20 outside (end boundary)", () => {
-    expect(verdict("2026-11-17T20:00:00Z", "2026-11-17T21:19:00Z").inside).toBe(true);
-    const late = verdict("2026-11-17T20:00:00Z", "2026-11-17T21:20:00Z");
-    expect(late).toMatchObject({ inside: false, reason: "ended at or after 22:20 Zurich" });
+  it("an end at 22:04 is inside, at 22:05 outside (end boundary, CGR-228)", () => {
+    expect(verdict("2026-11-17T20:00:00Z", "2026-11-17T21:04:00Z").inside).toBe(true);
+    const late = verdict("2026-11-17T20:00:00Z", "2026-11-17T21:05:00Z");
+    expect(late).toMatchObject({ inside: false, reason: "ended at or after 22:05 Zurich" });
+  });
+
+  it("CGR-228 case: a run that ends 22:10 to 22:19 (BD-2 already skipping) is outside", () => {
+    for (const m of [10, 15, 19]) {
+      const v = verdict("2026-11-17T20:00:00Z", `2026-11-17T21:${m}:00Z`);
+      expect(v).toMatchObject({ inside: false, reason: "ended at or after 22:05 Zurich" });
+    }
   });
 
   it("a run that crosses midnight Zurich is outside", () => {
@@ -66,6 +74,55 @@ describe("ADR-198 window verdict", () => {
   it("a missing or invalid start counts as outside (fail closed)", () => {
     for (const s of [undefined, "", "garbage"]) {
       expect(verdict(s, "2026-11-17T10:00:00Z")).toMatchObject({ inside: false, reason: "start time unknown" });
+    }
+  });
+});
+
+// CGR-228 (`cra` 01:28, PO 01:39): the window and the e2e night guards are the same clock fact. These tests read the
+// guards (BD-2 through `durchgangSlots`, the F3/F7 field specs `< 00:30`, UX2 `> 23:15`) at every minute of a Zurich day
+// and fail when a guard moves without the window.
+const minuteOf = (hm: string) => Number(hm.slice(0, 2)) * 60 + Number(hm.slice(3, 5));
+/** An instant whose Zurich wall time is minute `min` of 2026-11-17 (CET, UTC+1, no DST change that day). */
+const atZurichMinute = (min: number) => Date.UTC(2026, 10, 17, 0, 0) - 60 * 60_000 + min * 60_000;
+/** Every time guard of the e2e acceptance specs is open at Zurich minute `min`. */
+function guardsOpen(min: number): boolean {
+  const bd2 = durchgangSlots(atZurichMinute(min)) !== null; // tests/e2e/durchgang-ambulant.spec.ts
+  const field = hhmm(min) >= "00:30"; // tests/e2e/field.spec.ts (F3, F7)
+  const ux2 = min <= 23 * 60 + 15; // tests/e2e/ux2-move-flow.spec.ts
+  return bd2 && field && ux2;
+}
+
+describe("CGR-228 window against the e2e guards, every minute of the day", () => {
+  it("the minute helper reads the intended Zurich wall time", () => {
+    expect(zurich(new Date(atZurichMinute(0)))).toEqual({ day: "2026-11-17", hm: "00:00" });
+    expect(zurich(new Date(atZurichMinute(minuteOf("22:05"))))).toEqual({ day: "2026-11-17", hm: "22:05" });
+  });
+
+  it("every guard is open at every minute t in [from, until)", () => {
+    const closed: string[] = [];
+    for (let t = minuteOf(WINDOW.from); t < minuteOf(WINDOW.until); t++) if (!guardsOpen(t)) closed.push(hhmm(t));
+    expect(closed).toEqual([]);
+  });
+
+  it("the window is maximal: a guard is closed at from − 1 and at until (drift in either direction fails)", () => {
+    expect(guardsOpen(minuteOf(WINDOW.from) - 1)).toBe(false);
+    expect(guardsOpen(minuteOf(WINDOW.until))).toBe(false);
+  });
+
+  it("outside the window no minute counts as safe before from, and none after until is reachable as inside", () => {
+    for (let t = 0; t < minuteOf(WINDOW.from); t++) expect(guardsOpen(t)).toBe(false);
+    for (let t = minuteOf(WINDOW.until); t < 24 * 60; t++) expect(guardsOpen(t)).toBe(false);
+  });
+
+  it("a run that starts and ends inside the window had every guard open for every test start", () => {
+    const open = Array.from({ length: 24 * 60 }, (_, t) => guardsOpen(t));
+    const from = minuteOf(WINDOW.from);
+    const until = minuteOf(WINDOW.until);
+    for (let s = from; s < until; s += 7) {
+      for (let e = s; e < until; e += 11) {
+        expect(verdict(new Date(atZurichMinute(s)).toISOString(), new Date(atZurichMinute(e)).toISOString()).inside).toBe(true);
+        expect(open.slice(s, e + 1).every(Boolean)).toBe(true);
+      }
     }
   });
 });

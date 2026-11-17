@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // ADR-198 (PO hypothesis H-BK-00:39, journal 2026-11-17-0039-po): a ci-repeat run marks itself as acceptance evidence
 // or not, by the Zurich time it started and ended. The e2e acceptance tests guard themselves at night (ADR-113, the
-// BD-2 run-through and the F3/F7 field specs skip before 02:20 / 00:30 Zurich); a skipped test is not a verifying run
-// (FE-071 (4)). A repeat run that starts before 02:20 or ends at or after 22:20 Zurich, or crosses midnight, is
+// BD-2 run-through and the F3/F7 field specs skip before 02:20 / 00:30 Zurich, BD-2 again from 22:05, UX2 after 23:15);
+// a skipped test is not a verifying run (FE-071 (4)). A repeat run that starts before 02:20 or ends at or after 22:05
+// Zurich, or crosses midnight, is
 // therefore labelled "NOT acceptance evidence" in its summary and with a warning annotation, so a night run cannot be
 // mistaken for the 10/10 record. Inside the window is necessary, not sufficient: the reader still reads the skip and
 // pass counts in the raw logs. This script never fails a job and never changes a test (it weakens no check).
@@ -15,8 +16,15 @@
 import { appendFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
-/** Zurich wall-clock window for acceptance runs: start at or after `from`, end before `until`, same Zurich day. */
-export const WINDOW = Object.freeze({ from: "02:20", until: "22:20" });
+/**
+ * Zurich wall-clock window for acceptance runs: start at or after `from`, end before `until`, same Zurich day.
+ * CGR-228 (`cra` 01:28, PO 01:39): `until` is the first minute at which BD-2 skips (`durchgangSlots` in
+ * tests/e2e/support/durchgang-time.ts returns null from 22:05, because the care visit would end after 23:40). Every
+ * test of a run starts between the run's start and end, so an end before 22:05 keeps every guard open. This window is
+ * not a second rule: tests/unit/ci-repeat-window.test.ts checks every minute of the day against the e2e guards and
+ * fails when a guard moves without the window (both edges are maximal, so drift in either direction is caught).
+ */
+export const WINDOW = Object.freeze({ from: "02:20", until: "22:05" });
 
 const FMT = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Zurich",
