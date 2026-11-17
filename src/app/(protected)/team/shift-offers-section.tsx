@@ -191,6 +191,7 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
       <span data-testid="shift-offer-tag" className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-900">{view.tag}</span>
       {view.releaseLine && <p data-testid="shift-offer-release">{view.releaseLine}</p>}
       {facts}
+      {view.reasonLine && <p data-testid="shift-offer-reasons" className="text-sm text-secondary">{view.reasonLine}</p>}
       <p data-testid="shift-offer-broadcast">{view.broadcast}</p>
       <fieldset className="grid gap-1" aria-describedby={view.callerNotFree ? `${groupId}-self` : undefined}>
         <legend className="font-semibold">Wählt, wer geht</legend>

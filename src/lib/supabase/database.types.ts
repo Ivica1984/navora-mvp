@@ -3423,7 +3423,7 @@ isOneToOne: false
                            },
 "team_order_offers":
 { Args: Record<PropertyKey, never>; Returns: {
-              "acknowledged_at": string,"activity_tags": (string)[],"caller_free": boolean,"distance_km": number,"duration_minutes": number,"ends_at": string,"grade": string,"latest_cover_at": string,"limit_km": number,"offer_state": string,"order_id": string,"place_name": string,"postcode": string,"release_kind": string,"released_member_id": string,"required_tags": (string)[],"sentence": string,"starts_at": string,"taken_at": string,"taken_by": string,"taken_member_id": string,"team_id": string
+              "acknowledged_at": string,"activity_tags": (string)[],"caller_free": boolean,"distance_km": number,"duration_minutes": number,"ends_at": string,"grade": string,"latest_cover_at": string,"limit_km": number,"offer_state": string,"order_id": string,"place_name": string,"postcode": string,"reasons": (string)[],"release_kind": string,"released_member_id": string,"required_tags": (string)[],"sentence": string,"starts_at": string,"taken_at": string,"taken_by": string,"taken_member_id": string,"team_id": string
             }[]
                            },
 "team_plan_status":
