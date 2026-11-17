@@ -363,6 +363,11 @@ begin
     perform private.end_command('refused');
     return jsonb_build_object('result', 'refused', 'reason', 'order_started');
   end if;
+  -- CGR-229 (PO 2026-11-17 05:39 (2) (a)): serialise every take naming the same person, across orders and teams,
+  -- BEFORE the re-check. The order lock above covers one order only; two overlapping orders naming her are two rows.
+  -- Held to the end of the transaction, so the re-check of the second session sees the first take as committed
+  -- (step 3, her live take of another overlapping order). Lock order is always order row, then person: no cycle.
+  perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || p_member_id::text, 0));
   step := private.order_member_step(o.id, p_team_id, p_member_id);  -- CGR-204 (b): the fresh hard re-check
   if step < 4 then
     perform private.end_command('refused');
