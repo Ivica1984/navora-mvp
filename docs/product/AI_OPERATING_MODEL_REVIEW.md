@@ -589,6 +589,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «build the pipeline at stage 0» (AUT-135):** provider-neutral adapter with a deterministic fake, governance layer first (§8), synthetic seed only, no endpoint configured. PLANNED.
 - No agent added or removed. Stage 0 only; D-35 rule A in force.
 
+**Founder release for synthetic data; interRAI and BESA out (`aia` 2026-11-17 14:38, review 64, AUT-136):**
+- **Founder decision (live in the `aia` session, called «FE-085» by the founder; FE entry by `po` OPEN):** Phase A, synthetic data only: AI interfaces (speech-to-text, KLV report extraction) may be connected and tested; real data stays under D-35 rule A until a checked Swiss/EU endpoint; block rule holds (real voice connection in BK-d); Phase B on open-weight models on rented Swiss cloud capacity (owner chooses, `lca` checks); interRAI and BESA out of current planning.
+- **Stage:** stage 1 for synthetic data only; stage 0 for real data.
+- **Control «a synthetic release stays synthetic» (AUT-136):** endpoint key only where the database holds the synthetic seed only; one switch stops all calls; control layer (§8) before the first call; KLV extraction drafts are G/H with a `cra` gate. PLANNED.
+- No agent added or removed.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -655,3 +661,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-17 08:25 | `aia` | §12: block «BK-c1 gate; the caller sees only her own state»: AUT-128 database part and AUT-130 met on #1342 `abe0c5d`; control «the caller sees only her own state» (AUT-132). No agent added or removed |
 | 2026-11-17 14:24 | `aia` | §12: block «BK-c2 pre-read; a reason names facts, never a choice»: AUT-132 and AUT-128 screen part met on #1358 `3232c89` (draft); control «a reason names facts, never a choice» (AUT-133). No agent added or removed |
 | 2026-11-17 14:31 | `aia` | §12: block «Founder direction API-first, own infrastructure at scale»: founder message recorded (review 63); open points AUT-134; control «build the pipeline at stage 0» (AUT-135). No agent added or removed; D-35 rule A in force |
+| 2026-11-17 14:38 | `aia` | §12: block «Founder release for synthetic data; interRAI and BESA out»: founder answer recorded (review 64); AUT-134 closed; stage 1 for synthetic data only; control «a synthetic release stays synthetic» (AUT-136). No agent added or removed |

@@ -31,6 +31,63 @@
 
 ---
 
+## 2026-11-17 14:38 CET · aia review 64: founder answer to AUT-134, called «FE-085» by the founder (live in the `aia` session), recorded verbatim for the PO; AUT-134 closed by founder decision; AUT-135 confirmed as the build path; interRAI and BESA out of current planning (the two sources and the code already contain neither); four guard points for the PO and `eng` (AUT-136, medium)
+
+**Why this section:** the founder answered review 63 in this session at about 14:37 CET, addressed to `aia` and `po`. Recorded here because roles coordinate only through the repository; the FE number is the PO's to assign (the founder wrote «FE-085»; `FOUNDER_DECISIONS.md` on `7d6338f` ends at FE-080, `lca` notes FE-083 in D-44). Added to the still open PR #1371 (one `aia` PR at a time), which the founder asks the PO to merge.
+
+**Read:** `recovery/main` `7d6338f`; a search of Blueprint V3.2, Handbook V2.2, `src` and `supabase` for «interRAI» and «BESA» (0 hits each); `OPEN_DECISIONS.md` D-36 row. Nothing here is a measurement; I ran no test.
+
+### 1 The message (verbatim, as received)
+
+> Ich erlasse hiermit den verbindlichen Founder-Entscheid FE-085 und löse alle Punkte endgültig auf:
+> 1. Radikale Entschlackung: interRAI und BESA fliegen komplett raus!
+> * Du hast vollkommen recht: interRAI und BESA sind geschützte Werke, die komplizierte Lizenzprüfungen und Verträge erfordern.
+> * Mein Grundsatzbeschluss: Wir brauchen interRAI und BESA aktuell ÜBERHAUPT NICHT!
+> * NAVORA konzentriert sich auf das, was der Markt jetzt sofort braucht: Unkomplizierte Schichtübernahmen (Heim/Spital), KLV Art. 7 Grundpflege (Bst. c) und Behandlungspflege (Bst. b) 1.
+> * Streicht interRAI und BESA vollständig aus der aktuellen KI- und Architektur-Planung. Damit sparen wir Monate an juristischem Leerlauf!
+> 2. Zu deiner Frage 1 (D-35 Freigabe für Phase A):
+> * JA, diese Nachricht ist die OFFIZIELLE FREIGABE für Phase A: Da wir in Phase A ausschliesslich mit 100 % synthetischen Testdaten (fiktive Heime, erfundene Schichten) arbeiten, gilt D-35 Rule A für diese Testdaten als freigegeben!
+> * Engineering darf die KI-Schnittstellen für Sprach-Transkription (Whisper) 21 und KLV-Berichtsextraktion mit diesen Testdaten anbinden und testen.
+> * Für reale Personendaten in Phase B bleibt D-35 in Kraft, bis ein geprüfter Schweizer/EU-Endpunkt steht 22.
+> 3. Zu deiner Frage 2 (Gilt die Block-Regel weiter?):
+> * JA, die Block-Regel gilt eisern! «Sofort ausbauen» heisst nicht, dass jetzt wild drauflosgebaut wird.
+> * Engineering geht exakt nach deinem Vorschlag (AUT-135) vor: Es bereitet die anbieterneutrale Schnittstelle mit Mocks und der Kontrollschicht (Quellenbezug, Human-in-the-Loop Signatur) vor.
+> * Die echte Anbindung von Voice-to-Report erfolgt streng dann, wenn das entsprechende Teilstück von Block BK (`BK-d: Schriftausführung /field`) aktiv an der Reihe ist.
+> 4. Zu deiner Frage 3 (Datensouveränität & Schweizer Cloud):
+> * Dein vorgeschlagener Mittelweg ist perfekt und genehmigt:
+> Für den späteren Realbetrieb (Phase B) mieten wir Rechenleistung für Open-Source-Modelle (wie Llama/Mistral) 23 bei einem Schweizer Cloud-Anbieter (z. B. Exoscale/Infomaniak in Zürich/Genf).
+> * Damit verlassen keine Daten die Schweiz, wir haben 0 % Abhängigkeit von US-Recht, und wir müssen heute trotzdem keine teure Nvidia-Hardware kaufen!
+>
+> Umsetzungsanweisung:
+> * PO mergt PR #1371.
+> * PO nimmt FE-085 in `FOUNDER_DECISIONS.md` auf.
+> * Engineering bereitet AUT-135 (anbieterneutrale KI-Schnittstelle) genau nach deinem Architekturplan vor.
+
+(Greeting and closing lines left out; the numbers 1, 21, 22, 23 stand as written, no source list came with it.)
+
+### 2 What it settles
+
+- **AUT-134 (a) closed by founder decision:** Phase A, synthetic data only: connecting and testing AI interfaces (speech-to-text, KLV report extraction) is released. Real personal data in Phase B: D-35 rule A stays until a checked Swiss/EU endpoint exists. (Note: rule A never covered synthetic data; what is new is that a call to an **external** AI service with synthetic data is released.)
+- **AUT-134 (b) closed:** the block rule holds. AUT-135 now (adapter, mocks, control layer); real voice-to-report connection only when BK-d (`/field` written execution) is active.
+- **AUT-134 (c) closed by founder direction:** Phase B on open-weight models on rented capacity of a Swiss cloud provider; the founder names candidates «z. B.»; the choice and contract stay with the owner, `lca` checks the contract (D-35 package conditions 1 to 10). I name and choose no provider.
+- **interRAI and BESA out of current planning:** Blueprint V3.2, Handbook V2.2, `src` and `supabase` contain neither name today (search, 0 hits), so nothing changes in the two sources or the code. They remain in older role documents (e.g. D-36, `OPEN_DECISIONS.md`, my earlier review sections, which I never edit). My prompt's objective «interRAI-supported care delivery» is overridden (README rule 10; reported). D-36 (interRAI licence) becomes moot: the PO's to close.
+
+### 3 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-136 | AI interfaces in Phase A after the founder release, `po`, `eng`, `cra`, `lca` | **PLANNED.** Founder answer above; FE-062 (production built as if real data ran on it); AUT-115 lock (no model call in code today) | Four guard points so the release stays a synthetic-data release: **(1) environment guard:** an external AI endpoint is reachable only from an environment whose database holds the synthetic seed only; the key is absent in any environment meant for real data; one switch stops all calls; **(2) placement:** the PO names where the AUT-135 work sits under README rule 12 (preparation inside BK, or a named exception), since the founder keeps the block rule «eisern»; **(3) control layer before the first call:** proposal ledger, source per value, named confirmer with signature, no accept-all, correction rate per agent and field, stop rule (AI Operating Model Review §8); **(4) clinical content:** a «KLV-Berichtsextraktion» draft is device level G or H: `cra` gate; whether care under KLV Art. 7 Abs. 2 Bst. b and c without a named assessment instrument meets the duty to assess need (KLV Art. 8; Bst. a «Abklärung, Beratung und Koordination» is not in the founder's list) is **UNKNOWN**: `cra` and `lca` must answer; I set no rule | L for (1)-(3); G or H for (4) | stage 1 for synthetic data only (founder release); gates `cra` (4), `lca` (1), (4), `po` (2) | number of AI calls from an environment with non-synthetic data (target: 0, by test); share of drafted values with a source (target: all); correction rate per agent and field, team level only | medium | – |
+
+### 4 Updated, closed
+
+- **AUT-134:** closed by founder decision (above).
+- **AUT-135:** confirmed by the founder as the build path; PLANNED, `eng`, placement by the PO (AUT-136 (2)).
+- **AUT-115 (lock):** narrowed by founder decision: external AI calls are allowed for synthetic data in Phase A under AUT-136 guards; the lock stays for real data.
+
+### 5 Stage tracking
+
+Stage 1 **for synthetic data only** released by the founder (this section). Real data: stage 0 (D-35 rule A) until a checked Swiss/EU endpoint, `lca` contract check and owner choice. No model call in the code yet.
+
 ## 2026-11-17 14:31 CET · aia review 63: founder message «KI-Entwicklung und Infrastruktur» (live in the `aia` session, addressed to `po` and `eng`) recorded verbatim for the PO; fit with FE-051, FE-024/D-35 rule A, FE-074 and the block rule; three points need a founder answer before Engineering builds against a real AI endpoint (AUT-134, medium); stage 0 build path proposed (AUT-135, low)
 
 **Why this section:** the founder wrote to «Product Owner» and «Engineering Agent» in this `aia` session at about 14:30 CET. Roles coordinate only through the repository (nobody relays messages), so `po` and `eng` will not see it unless it is in the repository. I record it here for the PO to enter in `FOUNDER_DECISIONS.md` (the PO's file; same pattern as FE-043/FE-044/FE-080: not heard by the PO). I change no founder decision, no brief and no code.
