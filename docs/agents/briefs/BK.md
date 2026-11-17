@@ -706,3 +706,25 @@ Read: `aia` `AUTOMATION_REVIEW.md` reviews 63, 64 (merged #1371 as `9b18f00`); o
 5. **D-36 and D-37 set aside by FE-085** (interRAI out of current planning); recorded in `OPEN_DECISIONS.md` and `decisions/INDEX.md`; no BK change (BK contains no interRAI content).
 
 Owners: `eng` (#1358 first; AUT-135 on a branch only), `aia` (AUT-136 guard tests in the BK-d brief), `cra`/`lca` (3 (d)), `lca` (3 (c)), owner (provider). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 in draft #1358).
+
+
+## PO amendment 2026-11-17 16:40 (scheduled PO run): FE-087 merge procedure for #1358; follow-up items
+
+PO did not run tests locally; facts from the GitHub API.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Not draft | met | `GET /pulls/1358` |
+| CI green on head `9a7fc56` | met: `app`, `db` (incl. pgTAP 145), `e2e`, `ui-screenshots`, `staging` success | `ci` 44108460972, check runs API (`head_sha` = `9a7fc56`) |
+| `mergeable_state` | clean | `GET /pulls/1358` |
+| `lca` gate line | `lca-gate: #1358 9a7fc56 clear` (16:21) | PR comment 6952397890; `decisions/D-44.md` 16:21 |
+| `cra` gate line (CGR-235) | **open**: none on `9a7fc56` (pre-read 13:28 on `2721f3f`) | PR comments |
+| `uxa` gate line (#1361) | **open**: advisory 15:55 on `58aaf14` only; diff `58aaf14..9a7fc56` under `src supabase tests e2e` is only `tests/unit/stg1-staging-deploy.test.ts` (from #1087 via the `recovery/main` merge); no BK-c2 code change (PO `git diff --stat`); AUT-50 still needs a line naming `9a7fc56` | PR comments |
+
+1. **FE-087 recorded** (`FOUNDER_DECISIONS.md` v34). It replaces the staging check of FE-086 (second entry) (2) and the screenshot condition PO 11:39 (3). The PO merges #1358 when CI is green on the head, the PR is not a draft, and the `cra` (CGR-235) and `uxa` (#1361) gate lines name that head, with the remaining `PO_MERGE_PROCESS.md` §4 conditions (head SHA in the merge call, no open review thread, no blocking finding).
+2. **PO decision (follows from FE-087):** the BK-c2 merge criteria of PO 14:30 are reduced to the founder's list. **CGR-235 (c)** (client detail words after «Gedeckt») and **`uxa` UXR-229 to UXR-231** (words PROPOSED; `lca` confirmed UXR-230/231 from its side as follow-up) are **follow-up in BK-c3 or before any real client**, unless `cra` or `uxa` state in their gate line that one of them is a condition; then it stays a merge condition. UXR-232 likewise. CGR-235 (b) stays the BK-c acceptance criterion (pgTAP 145 exists on the branch). UXR-227, `lca` H-2/H-5 stay conditions before any real use.
+3. **Ask to `cra` and `uxa`:** gate line on `9a7fc56` in your next run (`cra-gate: #1358 9a7fc56 clear` or a stop with finding ID; `uxa` likewise). `eng` keeps the head still until then (comment 16:25).
+4. **After the merge (FE-087 (3)):** merge-commit CI must be green, else a revert PR from `eng`; `eng` applies migration 0136 to `navora-staging`; the founder tests `/team` live. #1361 (UXR-224) is closed by the PO only after the merge, with the merge commit.
+5. **AI gate line:** FE-087 names `cra` and `uxa`; an `aia` gate line is welcome but not a merge condition for #1358 (`aia` pre-read 13:25 found AUT-128, AUT-130, AUT-132 met on the branch; no blocking AUT finding open).
+
+PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 #1358 ready, waiting for two gate lines).
