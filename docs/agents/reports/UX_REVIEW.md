@@ -6,6 +6,43 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 20:48 CET · `uxa`: #1388 (BK-c3) read on `8744acd`: UXR-234 met; `uxa-gate: #1388 8744acd clear`; UXR-235 (AUT-137: the sole «jemand von euch ist frei» line repeats the candidate list)
+
+**State.** `recovery/main` at `6520a22` (PO merge #1391). Merged since my 19:48 section: role docs #1391 (mine), #1392, #1394, #1395, #1396; no screen changed on `recovery/main` (`git diff 590a738 6520a22 -- src tests` empty). Open: **#1388 (BK-c3)**, head `8744acd` (fix commit `7d44f29`, `recovery/main` `7a05451` merged in), not draft. Check runs on `8744acd` (API): `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success`. Job logs read by me: `app` «Test Files 130 passed (130)», `e2e` «188 passed». `db` log not read by me (`aia` 20:25 and `cra` 20:27 read it: Files=146, PASS). #1084 (dependabot), #3: no screen.
+
+**Screenshots.** Artifact 14361586785 (`ui-screenshots`, `8744acd`): download refused by the session proxy (blob host, empty file). **No screenshots were available.** Review from the code and the test assertions.
+
+**#1388 read on `8744acd` (IMPLEMENTED on the branch, PROPOSED until merged).**
+
+| Item | Result | Evidence (`8744acd`) |
+|---|---|---|
+| UXR-234 / CGR-238 (c): no line without `member_free`, also not with `knows_client` alone | met | `src/features/orders/offer-rules.ts` `reasonLine()`: `if (!known.includes("member_free")) return null`; vitest «shows no line without member_free…» |
+| UXR-234: no line on a card with the nobody line | met | `teamOfferView`: `reasonLine: nobody ? null : reasonLine(row.reasons)`; vitest «shows no line on a card where nobody of the team can go» (three inputs) |
+| Words, colon form, placement, open card only, no number or rank (UXR-233, my 19:48 table) | unchanged since `5c6f850`, still met | `git diff 5c6f850 8744acd -- src` touches only the two lines above and a comment |
+| UXR-229, UXR-230, UXR-231 | not in the PR; follow-up before any real client (unchanged, not relaxed) | as 19:48 |
+
+**Gate.** `uxa-gate: #1388 8744acd clear` (gate «Simulation, synthetic data»). The reason line is a secondary fact line, not a safety signal; it sits under the facts and above the broadcast line, carries no colour and no number, and now appears only where the team can act. UXR-229 to UXR-232 and the new UXR-235 are follow-up, not merge conditions. This gate holds for this head only; a new commit under `src` needs a new read.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-235 | `/team` open offer card, team member (BK-c3) | low | When `member_free` is the only clause, the card says «Empfohlen für euch: jemand von euch ist frei» directly above the person choice that already lists the free members. Because `member_free` holds on almost every open row (comment in `offer-rules.ts` at `REASON_PREFIX`), the line will stand on most cards and say nothing the card does not already show; a line that is always there is read as decoration and loses its weight for the rare card where a distinguishing fact holds. My UXR-233 kept this sole clause; on the built card I withdraw that part and support `aia` AUT-137. | `8744acd` `reasonLine()`: `known.slice(0, 1)` when no distinguishing clause; vitest «shows member_free only when it is the sole clause»; `aia` journal 2026-11-17 20:25 (AUT-137, e2e seed card shows the line) | DESIGN_SYSTEM §5 «A reason line explains, it does not repeat»; §1 (what can wait stays quiet) | `reasonLine(["member_free"])` returns `null`; `member_free` stays a precondition (UXR-234) but is never a clause; a line appears only with a distinguishing clause (today `knows_client`). Vitest: `reasonLine(["member_free"])` → `null`, `reasonLine(["member_free","knows_client"])` → «Empfohlen für euch: ihr wart schon hier im Einsatz». Playwright: the seeded card with candidates and only `member_free` shows no «Empfohlen für euch». Presentation only; `cra` need not confirm (no safety signal, no clinical word); `lca` unaffected (no new fact shown). Placement: `po`, after BK-c acceptance, not in #1388 at this head. | none (low) |
+
+**Closed this run:** UXR-234 met on `8744acd` (closes in the report when #1388 is merged on this head, like UXR-233).
+
+**Still open:** UXR-225 (with UXR-230), UXR-227, UXR-229 to UXR-235, and the earlier open findings in this report.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**FE-079:** my sign-off on #1279 (reservation UXR-195) stands; Blueprint 3.2.41 changed no part of my field. No renewal.
+
+**Design system:** version 95 (§5: status note, «A recommendation only where the team can act» BUILT ON PR #1388 `8744acd`; «A reason line explains, it does not repeat» amended: `member_free` is a precondition, never a clause, UXR-235). No token change.
+
+**Waiting:** `po` (merge #1388 on `8744acd` when every gate line is there; place UXR-235 with AUT-137 after BK-c acceptance; place UXR-229 to UXR-231); `cra` (UXR-229, UXR-231 words; UXR-227); `lca` (UXR-230 to UXR-232). I ran no NAVORA test.
+
+---
+
 ## 2026-11-17 19:48 CET · `uxa`: #1388 (BK-c3) read on `5c6f850`: reason words built word for word, UXR-233 met on the branch; UXR-234 (a recommendation on a card nobody can staff, CGR-238 (c)); no gate line yet (PO 19:39 (1) changes the head)
 
 **State.** `recovery/main` at `b54c215` (PO merge #1387). Merged since my 18:48 section: `eng` #1385 (journal), `cra` #1389, my #1387; no screen changed on `recovery/main`. Open: **#1388 (BK-c3)**, head `5c6f850`, not draft, `mergeable_state` clean; check runs on `5c6f850` read via the API: `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success` (no job log read this run). PO #1390 (open): CGR-238 (c) placed **inside** #1388, colon form stands, Blueprint 3.2.41 (version row only; **no wireframe or click path in §5 or §6** changed, so my FE-079 sign-off on #1279, reservation UXR-195, stands; no renewal). #1084, #3: no screen. No new founder decision since FE-088.
