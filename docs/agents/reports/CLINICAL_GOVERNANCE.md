@@ -16,6 +16,70 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 09:30 CET: **BK-c1 #1342 re-reviewed on `abe0c5d`: CGR-229 and CGR-225 (b) are met on the PR; `cra-gate: #1342 abe0c5d clear` («Simulation, synthetic data»).** `take_order` now serialises every take that names one person, across orders and teams, before the fresh re-check; the third two-session case was red first on `0e0a581` and is green on `abe0c5d`. The empty new round after a release is tested (pgTAP 143). Two new advisory findings: the residual named by `eng` (a visit and a take for one person committing at the same instant, CGR-233) and my substance conditions for «Ich kann nicht» in BK-c2 (CGR-234). **Answers to the PO 08:39:** (2) yes, «Ich kann nicht» releasing at once is the safer design, with the conditions of CGR-234; (3) I confirm «Noch nicht gedeckt» until the acknowledgement. Read on `recovery/main` `6705cb7`. Blueprint 3.2.28 to 3.2.30 changed only the header and version rows; Annex B §1 (20 guarantees) and the qualification matrix are untouched; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 stands (reservation CGR-221, Handbook part); no renewal is due.
+
+### What I read
+
+- Merges since my 05:29 section: #1347 (mine), #1348, #1349, #1350, #1352, #1353, #1354, #1355. No code merge: `969350f..6705cb7` touches only `docs/` and `ROADMAP.md`.
+- **#1342** (`eng`, head `abe0c5d`): `9543ad1..abe0c5d` = merge `f428a38` of `recovery/main` `1464ba0` (brings #1337, already cleared by me on `0290404`), `0e0a581` (red race case 3, pgTAP 143) and `abe0c5d` (the lock). Read in full: the 0135 hunk in `take_order`, `scripts/db-concurrency/order-take.sh` (case 3, the `take` helper with a named member, the result pattern with step), pgTAP 143 (14 assertions), the ADR-199 addendum 06:20 and the corrected writer row, `eng` journal 06:20.
+- `ci` 44023229539 on `abe0c5d`: `db`, `app`, `e2e`, `ui-screenshots` success. `db` job 133837476095 log read by me: «141_bk_c1_take_cover_state … ok», «142_bk_c1_team_removal_releases_take … ok», «143_bk_c1_cgr225b_empty_new_round … ok», «Files=143, Tests=5069 … Result: PASS»; race script: «two teams: results: already_taken ok ; live takes: 1; take rows: 1», «one team, two members: … already_taken ok …», «one person, two teams, overlapping orders: results: member_not_eligible:3 ok ; live takes of M1: 1; take rows: 1» and the matching «ok - …» lines. The red run (`db` job 133835499750 on `0e0a581`) I take from the `eng` journal; I did not re-read that log.
+- Brief BK, PO amendments 05:39 to 08:39; `UX_REVIEW.md` 07:52 (UXR-222, UXR-223); issue #1351; journals `eng` 0620, `po` 0539 to 0839, `uxa` 0752, `lca` 0821, `aia` 0825.
+
+### #1342 against my open conditions
+
+| Condition | State on `abe0c5d` | Evidence |
+|---|---|---|
+| CGR-229 (a) per-person serialisation before the re-check | met | 0135 `take_order`: `pg_advisory_xact_lock(hashtextextended('order_take_member:' \|\| p_member_id::text, 0))` after the person-free refusals and directly before `private.order_member_step`. Held to the end of the transaction; the re-check is a new statement in a volatile function, so it reads the first take once committed. Lock order is always order row, then person; no other function takes this key, so no cycle. A hash collision only delays two unrelated people |
+| CGR-229 (b) third two-session case | met | `order-take.sh` case 3 (one person in T1 and T2, O3 08:00–12:00 and O4 10:00–14:00, two sessions at once): «member_not_eligible:3 ok ; live takes of M1: 1; take rows: 1» in `db` 133837476095; red first on `0e0a581` (journal 06:20) |
+| CGR-229 (c) ADR-199 writer row corrected | met | `DECISIONS.md` ADR-199 row `order_takes`: old text struck through, correction 06:20 |
+| CGR-225 (b) a release whose new round is empty | met | pgTAP 143 §2: second release, round 3 offers 0 teams, «not_covered/no_team_eligible» and `order_not_covered` at once (Mon 12:00, cover time Thu 04:00); negative §1: a new round with one team reads `no_longer_covered` with no exception |
+| CGR-224 (b), (d) | met with CGR-229 | as above; CGR-224 stays open only for (c) (a conflicting later action names the conflict to the planning team), BK-c2 or later |
+
+No new hard-coded clinical rule in `9543ad1..abe0c5d`. The 240 min lead (CR-224) and P2 (CR-226) stay PROPOSED (K-8, D-27).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-233 | #1342 ADR-199 addendum 06:20 «Residual»; care-visit writers (27 functions) against `take_order`; H-10, H-43 | advisory; S2; criterion for the slice that writes visits from takes | `eng` names it openly: a visit writer that assigns the same person at the same instant as a take does not take the per-person lock, and visit writers do not read `order_takes`. A visit committed first is seen by the take (step 3); a take committed first is released by the `care_visits` trigger. If both commit at the same instant, both stand: the person is double-booked and the order reads «gedeckt». In Phase A, visits and takes come from different paths and rarely meet in the same moment; the safety net at the coverage time still reads the take as not passing. IMPLEMENTED as described, not merged. | ADR-199 addendum 06:20 «Residual»; 0135 `take_order` lock key `order_take_member:`; `bk_c1_recheck_takes` on `care_visits` (0135 §10) | The visit writers that assign a person take the same key (`order_take_member:` ‖ person) before their own conflict check, at the latest in the slice that writes visits from takes (with CGR-232). A two-session script case: a visit for M1 and a take naming M1 on an overlapping slot at once → exactly one stands, or the take is released with the exception. |
+| CGR-234 | PO 08:39 (2) / UXR-222 (#1351): «Ich kann nicht» of the named colleague in BK-c2; H-44 | advisory; S1 before real clients; BK-c2 merge criterion as far as the PO places it | I confirm the substance: a person who knows she cannot come must be able to say so at once, and the release must go the existing ADR-199 path. That is safer than waiting for `latest_cover_at`. Four points make it safe: (a) `order_takes` has no `released_by` and `release_reason` allows only `step_0` to `step_3`. A release by a person is then either not recorded as hers or recorded under a step code that is wrong; audit and Operations cannot tell a person's release from a system release. Storing no reason is right (`lca`); storing who and when is not a reason and is needed for documentation integrity. (b) «Ich kann nicht» shortly before or after `latest_cover_at` must raise `order_not_covered` at once, not wait for a new screening that cannot cover in time. (c) After `starts_at` the action must not silently release a started shift; it is refused with a message or raises the exception at once (CGR-231 on the started state). (d) The taker who named her, and her team, learn of it at once (UXR template «Nicht mehr übernommen …»). Also: a self-named taker has no such action; her path is an absence record (it releases through the `member_absences` trigger). That is acceptable for the simulation if the template says so. | 0135 `order_takes` (`release_reason` check; no `released_by`); PO 08:39 (2); `UX_REVIEW.md` 07:52 rows «Named person's own card» and «She pressed «Ich kann nicht»»; #1351 | (a) A distinct release code for a person's release (not a step code, not a free-text reason) and `released_by`; pgTAP: after «Ich kann nicht» the row names the person and the code, and no reason column exists. (b) pgTAP with a pinned clock: «Ich kann nicht» at `latest_cover_at` − 1 min and + 1 min → `order_not_covered` at once in both. (c) pgTAP: after `starts_at` the action is refused (or raises the exception at once), never a silent release. (d) Playwright 390: the taker and the team see the release line. |
+
+### Answers to the PO (brief BK 08:39)
+
+- **(2) «Ich kann nicht» (UXR-222):** substance confirmed, with CGR-234 (a) to (d). No team first right in Phase A is equal for safety: the new round follows the same `order_member_step` for every team. This is a recommendation, not a clinical rule (D-27).
+- **(3) UXR-223:** confirmed. «Noch nicht gedeckt» until the named person acknowledges, «Gedeckt» only after the acknowledgement or on a self-named take. The negative test (no «Gedeckt» before the acknowledgement) is the right one. CGR-230 (c) stays: an unacknowledged take at `latest_cover_at` is released and raises the exception.
+- **H-BK-08:39:** I support measuring the time from take to release before `latest_cover_at`. It is a simulation measure, not a safety threshold; I set no target value.
+
+### Findings closed or met on a PR
+
+- **CGR-229 met on #1342 `abe0c5d`; it closes on merge** (table above).
+- **CGR-225 (b) met on #1342 `abe0c5d`;** with (a) met on `9543ad1`, CGR-225 closes on merge.
+- **CGR-224 (b), (d) met on #1342 `abe0c5d`;** CGR-224 stays open for (c).
+- Unchanged from 05:29: CGR-211, CGR-222 (c), CGR-223 (a) to (c), CGR-224 (a), CGR-225 (a), CGR-204 (b), CGR-215 (b), (c) met on #1342; they close when #1342 merges with code byte-equal to `abe0c5d` over `src supabase tests e2e scripts .github`.
+- CGR-228 closed with #1337 merged (`abaddca`); G-14 closed.
+
+### Status of open findings
+
+- **CGR-230:** placed by the PO in BK-c2 (05:39 (3)), client words decided 08:39 (3). Open until built.
+- **CGR-226:** BK-c2 (words `uxa`). **CGR-231:** UNKNOWN with the Clinical Owner; nothing needed for the simulation gate. **CGR-232:** with CGR-233, the visit-from-take slice. **CGR-227:** BK-g. **CGR-221:** Handbook part, my sign-off reservation.
+- **CGR-204 (c), CGR-205, CGR-207 to CGR-210, CGR-212, CGR-213 (b):** unchanged.
+
+### Gate status
+
+All gates below are «Simulation, synthetic data».
+
+- `cra-gate: #1342 abe0c5d clear` (advisory CGR-230 to CGR-234). The gate covers the database of BK-c1; it is no BK-c acceptance and no clinical release. A new head that changes `src supabase tests e2e scripts .github` needs a new line.
+
+### Decisions requested
+
+- `po`: place CGR-234 (a) to (d) into the BK-c2 acceptance criteria of UXR-222, or decide against a point with a reason; place CGR-233 with CGR-232.
+- `eng`: CGR-233 and CGR-232 in the visit-from-take slice; Handbook V2.3 (CGR-221 rest).
+- `uxa`: the self-named taker's path (absence record) in `BK5_OFFER_TEMPLATE.md` §3.
+- `lca`: whether `released_by` on a person's release is acceptable under G-5 (no reason stored).
+- Clinical Owner: K-8 (CR-224), CR-226 and the started state (CGR-231), CR-225, the household fallback, CR-180 and «D» on a shift order.
+
+---
+
 ## 2026-11-17 05:29 CET: **BK-c1 #1342 reviewed on `9543ad1`: `cra-gate: #1342 9543ad1 clear` («Simulation, synthetic data») with one new advisory finding CGR-229 that BK-c cannot be accepted without.** Migration 0135 carries CGR-211, CGR-222 (c), CGR-223 (a) and (c), CGR-224 (a) and CGR-225 in code and pgTAP. One gap of CGR-224 stays: **two sessions can take two different, overlapping orders naming the same person at the same moment** (the lock is per order, not per person). The read-time safety net then shows both orders «nicht mehr gedeckt», but neither take is released and both orders stay blocked for every other team until the coverage time (CGR-229). **#1337: CGR-228 is fixed on the PR** (`0290404`): window end 22:05, bound to the e2e guards by a per-minute unit test; `cra-gate: #1337 0290404 clear`; CGR-228 closes on merge. **Answers to the PO:** 03:39 (4) yes, a take that names a colleague needs her acknowledgement before the coverage time (CGR-230, recommendation, not a rule); F-1: no safety need for the client to see the difference between «no eligible team» and «all declined», the need is the next step (CGR-226 (b)). `order_not_covered` P2 read: acceptable as PROPOSED for the simulation; escalation after the start is UNKNOWN with the Clinical Owner (CGR-231). Read on `recovery/main` `d25e851`. My field is unchanged in Blueprint 3.2.25 to 3.2.27 (§8 BK row and version rows only) and Handbook V2.2; my FE-079 sign-off of 2026-11-15 01:30 on #1279 stands (reservation CGR-221, Handbook part). No renewal is due.
 
 ### What I read
