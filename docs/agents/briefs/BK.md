@@ -687,3 +687,22 @@ Owners: `eng` (1 on #1358; (2) before BK-c acceptance; screenshots; leave draft)
 Founder FE-084 (7): PO and Engineering focus on finishing and merging #1358 (BK-c2). No new scope. What #1358 still needs before the PO can merge it (all from the 11:39, 12:39 and 13:39 amendments, unchanged): leave draft; screenshots 390/1440 in a PR comment; UXR-224, UXR-225/F-2 with CGR-235 (c), UXR-226, UXR-228, CGR-235 (a) on the head; gate lines of `cra`, `lca`, `aia`, `uxa` on the same head; `ci` 4/4 green on that head. CGR-235 (b) before BK-c acceptance.
 
 Wording rule now binding for every screen (FE-083, FE-084 (4); Blueprint Anhang C §1.3 (10)): the platform says «Pflegeauftrag» / «Auftrag», never «Zuweisung», «Disposition», «Vermittlung»; the medical «Zuweisung» of a case stays allowed. `lca` checks it in its gate line on #1358 (V-3/G-5). The data model stays neutral to the legal form (no field fixing a person's AHV status; D-44 `lca` 13:53 (i)). Genossenschaft, employer role and payroll are not part of BK (PLANNED, after BK).
+
+## PO amendment 2026-11-17 14:39 (scheduled PO run): FE-085, placement of AUT-135; #1358 still draft
+
+Read: `aia` `AUTOMATION_REVIEW.md` reviews 63, 64 (merged #1371 as `9b18f00`); own live PR #1370 merged as `84655da`; PR #1358 (draft, head `e68a490`). Not a review of code, not an acceptance; the PO ran no test.
+
+| Check | Result | Evidence |
+|---|---|---|
+| #1371 head `a0f7ac2` | 4/4 green, merged | `ci` 44094859298 (check runs API) |
+| #1370 head `cd585db` | 4/4 green, merged | `ci` 44093639460 (check runs API) |
+| #1358 head `e68a490` | draft; `ci` 44095130870 running (app success, db/e2e/screenshots in progress at reading) | check runs API |
+| Gate lines on #1358 | none (draft) | PR comments |
+
+1. **FE-085 recorded** in `FOUNDER_DECISIONS.md` v32 (founder messages in the `aia` session, not heard by the PO). No change to BK-c scope or to the BK-c2 merge criteria.
+2. **AUT-135 placement (PO decision under README rule 12, `aia` AUT-136 (2)):** AUT-135 is **preparation for BK-d** (AI capture on synthetic data). `eng` may build on a branch now: the provider-neutral adapter interface, a deterministic fake used in CI, the control layer (proposal ledger, source per value, named confirmer with signature, no accept-all, correction rate per agent and field, stop rule) and red tests. **No merge into `recovery/main` before BK-d is the active slice** (no competing feature merge; FE-085 (3) «Blockregel gilt eisern»). BK-c2 and BK-c3 keep priority for `eng`.
+3. **Conditions before the first real call to an external AI interface (synthetic data only, part of the BK-d brief):** (a) `aia` AUT-136 (1): the key exists only in an environment whose database holds only the synthetic seed; one switch stops every call; a test proves no call from an environment with non-synthetic data; (b) AUT-136 (3): the control layer above is merged and tested first; (c) the provider and its terms are chosen by the owner, `lca` reads the terms (also for test data); the PO names no provider; (d) any «KLV-Berichtsextraktion» draft is device level G or H: `cra` gate; whether care under KLV Art. 7 Abs. 2 Bst. b and c without a named assessment instrument meets the duty to assess need (KLV Art. 8) is **UNKNOWN** and goes to `cra` and `lca` (AUT-136 (4)); no rule is set by the PO.
+4. **Naming deviation (not changed automatically):** FE-085 (3) calls the slice «BK-d: Schriftausführung /field»; this brief has BK-d = AI capture of the order (BK-1a/b) and BK-e = `/field` link and report draft. PO reading: the real voice-to-report connection waits until the slice that contains it is active (BK-d for capture, BK-e for the report draft), never earlier. The founder may correct the reading.
+5. **D-36 and D-37 set aside by FE-085** (interRAI out of current planning); recorded in `OPEN_DECISIONS.md` and `decisions/INDEX.md`; no BK change (BK contains no interRAI content).
+
+Owners: `eng` (#1358 first; AUT-135 on a branch only), `aia` (AUT-136 guard tests in the BK-d brief), `cra`/`lca` (3 (d)), `lca` (3 (c)), owner (provider). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 in draft #1358).
