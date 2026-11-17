@@ -6,10 +6,9 @@ import { zurichDay } from "./support/durchgang-time";
 //   kundebs.test  client of «Testheim Rhein (synthetisch)»: orders one HF shift and reads its status;
 //   pflegebs.test registered nurse of Testteam Basel, the only member with the HF grade: takes it naming herself;
 //   assistbs.test care assistant of Testteam Basel: sees the team's take, has no action;
+//   kolleginbs.test second registered nurse of Testteam Basel (seed addition, PO 11:39 (2)): listed, not chosen here;
 //   pflege.test   member of Testteam Nord (org A): never sees the card.
-// The take that names a colleague (CGR-230 «Bestätigen», UXR-222 «Ich kann nicht») needs a second eligible member of
-// one team; the seed has none yet. That path is covered by pgTAP 144 and the vitest of the card words; its Playwright
-// case is PLANNED with a named seed addition (ADR-200 addendum 11:15).
+// The take that names a colleague (CGR-230 «Bestätigen», UXR-222 «Ich kann nicht») is tests/e2e/bk-c2-colleague-take.spec.ts.
 // Each width uses its own Zurich day 30/31 days ahead (no clock change in that window in November/December), so
 // pflegebs is free (step 3) and every run adds one synthetic order per width; no assertion counts orders.
 const PASSWORD = "navora-local-only";
@@ -68,8 +67,12 @@ for (const width of [390, 1440]) {
     await expect(card.getByTestId("shift-offer-tag")).toHaveText("Neues Angebot");
     await expect(card.getByTestId("shift-offer-broadcast")).toHaveText("Alle passenden Teams sehen dieses Angebot.");
     await expect(card.getByRole("radio", { name: "Ich (Pflegekraft)" })).toBeChecked();
-    // AUT-132: a colleague who does not pass is not listed; no step or reason of anybody is shown.
-    await expect(card.getByRole("radio")).toHaveCount(1);
+    // AUT-132: the eligible colleague is listed after her; the care assistant (no HF grade) is not listed; no step or
+    // reason of anybody is shown. (Changed from one radio to two with the seed addition of PO 11:39 (2); the negative
+    // for the member who does not pass is now asserted by name.)
+    await expect(card.getByRole("radio")).toHaveCount(2);
+    await expect(card.getByRole("radio", { name: "Kollegin B." })).not.toBeChecked();
+    await expect(card.getByRole("radio", { name: "Pflegekraft A." })).toHaveCount(0);
     await expect(card).not.toContainText(FORBIDDEN);
     await expect(card.getByRole("timer")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

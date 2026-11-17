@@ -920,3 +920,31 @@ insert into public.client_shift_plans (client_account_id, label, starts_at, ends
   ('00000000-0000-4000-a000-0000000003c1', 'Früh', time '07:00', time '15:30', 'synthetic'),
   ('00000000-0000-4000-a000-0000000003c1', 'Spät', time '14:30', time '23:00', 'synthetic'),
   ('00000000-0000-4000-a000-0000000003c1', 'Nacht', time '22:00', time '07:00', 'synthetic');
+
+-- BK-c2 seed addition (brief docs/agents/briefs/BK.md §PO amendment 2026-11-17 11:39 (2); ADR-200 addendum 12:15;
+-- e2e tests/e2e/bk-c2-colleague-take.spec.ts). Synthetic only: one more registered nurse of Testteam Basel with the
+-- same grade and the same fixture evidence as pflegebs, so a take can name a colleague (CGR-230 «Bestätigen»,
+-- UXR-222 «Ich kann nicht») on the screens. Fixture path as above (verified, synthetic, no recorded_by). Not a real
+-- name, no address. Team reach is unchanged: pflegebs already holds this grade, so no order reaches a team it did not
+-- reach before; only the take candidate list of Testteam Basel grows by her (named in the PR).
+--   kolleginbs.test (…9ec): registered nurse of Testteam Basel; signs in.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009ec', 'authenticated', 'authenticated',
+   'kolleginbs.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009fc', '00000000-0000-4000-a000-0000000009ec', '00000000-0000-4000-a000-0000000009ec',
+   '{"sub":"00000000-0000-4000-a000-0000000009ec","email":"kolleginbs.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001b9', '00000000-0000-4000-a000-0000000009ec', 'registered_nurse');
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'Kollegin Basel S', '00000000-0000-4000-a000-0000000009ec');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'grade', 'nurse_hf_fh', 'verified', true, null),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'practice_licence', null, 'verified', true, null);
