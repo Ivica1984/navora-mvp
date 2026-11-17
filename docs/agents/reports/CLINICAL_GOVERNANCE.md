@@ -16,6 +16,41 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 20:27 CET: `cra-gate: #1388 8744acd clear` (gate «Simulation, synthetic data» only). CGR-238 (c) met in code and test on the final head; `db`, `e2e`, `app`, `ui-screenshots` green on `8744acd`, read from the job logs. No new finding. Read on `recovery/main` `7a05451`. Blueprint 3.2.41 changed only the version rows (§14 row on CGR-238 (c)); Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
+
+### What I read
+
+- Merges since my 19:26 section: #1389 (mine), #1385 (`eng` journal), #1387 (`uxa` docs), #1390 (`po` 19:39 docs; Blueprint 3.2.41, brief `BK.md` §PO 19:39). No code, migration or test on `recovery/main` changed.
+- **#1388** (`eng`, out of draft, head `8744acd`, mergeable `clean`): `git diff 3f8c5d4 8744acd -- src tests` read in full: `9ab9399` red tests first, `7d44f29` build, `4a5e150` merge of `recovery/main` (docs only), `8744acd` journal and status row. Migration 0137 and pgTAP 146 are unchanged since my 19:26 read.
+- Check runs on `8744acd` (API): `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed success. Job logs read: `app` vitest `tests/unit/bk-c3-offer-reasons.test.ts` 8 tests passed, Test Files 130 passed (130); `db` pgTAP `Files=146, Tests=5182`, `Result: PASS`.
+
+### #1388 against CGR-238 (c) (head `8744acd`)
+
+| Condition | State | Evidence |
+|---|---|---|
+| No reason line when `member_free` is absent, also not with `knows_client` alone | met in code and test | `offer-rules.ts` `reasonLine`: `if (!known.includes("member_free")) return null;`; vitest «shows no line without member_free …»: `reasonLine(["knows_client"])` and `(["knows_client","rank_1"])` → `null` |
+| No reason line on a card with the nobody line (UXR-226 state) | met in code and test | `teamOfferView`: `reasonLine: nobody ? null : reasonLine(row.reasons)`; vitest «shows no line on a card where nobody of the team can go»: empty candidate list with `["member_free","knows_client"]`, `["knows_client"]`, `["member_free"]` → `nobodyLine` set, `reasonLine` `null` |
+| CGR-236 (a) to (d) still hold | unchanged | 0137 and pgTAP 146 not changed since `3f8c5d4` |
+
+**Gate:** `cra-gate: #1388 8744acd clear`, gate «Simulation, synthetic data» only. Not a release for real persons: CGR-238 (a) (clause rests on scheduling facts, not a delivery record) and (b) (team vs person continuity, Clinical Owner, CGR-196) stay OPEN, S2 before real persons, as the PO recorded (brief `BK.md` §PO 19:39). Staging: 0136 and 0137 not on `navora-staging` (`STAGING_DB_URL` not set; founder action), not a merge condition for a simulation slice.
+
+### Findings
+
+No new finding this run. No new hard-coded clinical rule; CR-228 updated (the clause now shows only together with `member_free`).
+
+### Answers and decisions requested
+
+- **PO:** #1388 may merge on `8744acd` as far as my field goes (with `uxa` and `aia` lines on the same head). BK-c acceptance then needs a named integrated commit with `ci` green and `ci-repeat` 10/10 from the job logs (FE-072); my merged-head check follows in the next run.
+- Waiting: `lca` (CGR-237 (1)); Clinical Owner (K-8, CR-224 to CR-228, CGR-196, CGR-237 instrument, CGR-238 (b)); founder (CGR-237 (3), staging secret); `uxa` (UXR-229 to UXR-231 final words, CGR-238 (a)).
+
+### Findings closed
+
+| Finding | State | Evidence |
+|---|---|---|
+| CGR-238 (c) | **met on `8744acd`** (closes when #1388 merges on this head) | `offer-rules.ts` `reasonLine` and `teamOfferView`; vitest `bk-c3-offer-reasons.test.ts` (2 new cases), `app` job log on `8744acd` |
+
+---
+
 ## 2026-11-17 19:26 CET: no gate line this run. #1388 (BK-c3, draft, head `3f8c5d4`) meets CGR-236 (a) to (d) in code and in pgTAP 146 as read; CI on the head is still running (`db`, `e2e`, `ui-screenshots` in progress at 19:26), so no `cra-gate` is given (a running job is not evidence, FE-072). One new advisory finding, CGR-238, on what the `knows_client` clause asserts. Read on `recovery/main` `33353d4`. Blueprint 3.2.39 and 3.2.40 changed §6.3 step 3 (BK-c3 scope), §8 row BK and the version rows; Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
 
 ### What I read
