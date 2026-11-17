@@ -138,6 +138,7 @@ Was die Protokolle zeigen:
 | B8 | BILL1 und J5-v4 nicht gebaut; D-18 Phase B, D-22 offen | Bau als Simulationsregel (FE-069) |
 | B9 | NH-A1 bis NH-A5 nicht gebaut; BD-H | Bau; BD-H grün |
 | B10 | **AN3 widersprüchlich:** Code integriert (Migration 0108, pgTAP 109, Analyseansicht), die `eng`-Zeile steht auf `in-review`, die PO-Warteschlange führt AN3 noch als genehmigt und nicht begonnen (*Next up* Rang 2). AN3-C1 bis AN3-C3 nicht gebaut. | Der PO prüft AN3 gegen den Brief auf dem dann aktuellen Commit und bereinigt die Zeile; C1-C3 mit Tests. Bis dahin ist AN3 nicht abgenommen, gleichgültig was eine Zeile sagt |
+| BK-c | Lauf auf `ad21dd2` vollständig grün (`ci` 44163100048; `ci-repeat` 44166631679: `db` 10/10 «Files=146, Tests=5182 … Result: PASS», 0 übersprungen; `e2e` 10/10 «188 passed», 0 übersprungen/instabil/fehlgeschlagen; im Tagesfenster). **Ohne Test:** drei am 14.11. 00:39 gesetzte Datenschutzkriterien (`lca` G-2 (i), (ii) Audit-Klassen bei Haushalten; G-3 (2) kein `partner_name` an Teams vor der Übernahme, im Code erfüllt; G-6 eine Person als Auftraggeberin in einem und Mitglied in einem anderen Netz). PO-Entscheid 17.11. 21:39: `changes-requested` | Test-PR (pgTAP 147), `cra`- und `lca`-Zeile, neuer `ci-repeat` auf dem Merge-Commit im Tagesfenster 02:20–22:05; dann Abnahme mit Gate «Simulation, synthetische Daten» |
 | B11/B12 | Staging-Migration (#1087) wartet auf das Owner-Secret; B0-6 | Owner-Handlungen |
 
 ## Änderungsprotokoll
@@ -147,3 +148,4 @@ Was die Protokolle zeigen:
 - 2026-11-13 18:40 (`po`): Blockakte B1.1 (verkürzt nach FE-073, für die Simulation abgenommen auf `33523a5`, `ci-repeat` 43466210984 20/20); B1-Zeile in §3 nachgeführt.
 - 2026-11-14 09:39 (`po`): Blockakte BK-a (Teilstück von BK, für die Simulation abgenommen auf `634ccb7`, `ci-repeat` 43572290695 20/20).
 - 2026-11-17 02:39 (`po`): Blockakte BK-b (Teilstück von BK, für die Simulation abgenommen auf `ab90875`, `ci-repeat` 43994886883 20/20).
+- 2026-11-17 21:39 (`po`): §3 Zeile BK-c (Abnahmeprüfung auf `ad21dd2`: Lauf grün, drei Datenschutzkriterien ohne Test, `changes-requested`).
