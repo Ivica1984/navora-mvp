@@ -127,16 +127,17 @@ for (const width of [390, 1440]) {
     await snap(page, `bk-c2-confirm-named-${width}.png`);
     await card.getByRole("button", { name: "Bestätigen" }).click();
     const done = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
-    await expect(done.getByTestId("shift-offer-tag")).toHaveText("Für dich eingeteilt");
-    await expect(done.getByTestId("shift-offer-line")).toHaveText("Du bist für diese Schicht eingeteilt.");
+    // The tag is the same before and after; wait for the two actions to go (the refreshed card), then read its one line.
     await expect(done.getByRole("button")).toHaveCount(0);
+    await expect(done.getByTestId("shift-offer-tag")).toHaveText("Für dich eingeteilt");
+    await expect(done.getByTestId("shift-offer-line")).toHaveText(["Du bist für diese Schicht eingeteilt."]);
     await signOut(page);
 
     // The taker's team view shows the confirmation as a fact.
     await signIn(page, "pflegebs.test@navora.test");
     await page.goto("/team");
     const seen = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
-    await expect(seen.getByTestId("shift-offer-line")).toHaveText(/^Es geht: Kollegin B\. · bestätigt um \d\d:\d\d$/);
+    await expect(seen.getByTestId("shift-offer-line")).toHaveText([/^Es geht: Kollegin B\. · bestätigt um \d\d:\d\d$/]);
     await signOut(page);
 
     await clientReads(page, when, "Gedeckt · Person benannt, geprüft für HF", /^Team Testteam Basel · übernommen um \d\d:\d\d$/);
