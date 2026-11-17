@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { TeamShiftOffer } from "@/features/orders/team-queries";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import {
   ACK_FINAL_LINE,
   CANNOT_STEP,
@@ -141,7 +142,7 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
         )}
         {view.wayBack && !view.actions && (
           <Link href="/field" className="flex min-h-11 w-fit items-center rounded-lg px-2 text-sm font-semibold text-emerald-900 underline underline-offset-4">
-            Abwesenheit erfassen
+            {PAGE_LABEL.field}
           </Link>
         )}
         {error && <p role="alert" data-testid="shift-offer-error" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">{error}</p>}

@@ -140,7 +140,7 @@ for (const width of [390, 1440]) {
     await expect(done.getByTestId("shift-offer-line")).toHaveText(["Du bist für diese Schicht eingeteilt."]);
     // CGR-235 (a): the confirmed card names the way back (absence record on /field) and offers no release.
     await expect(done.getByTestId("shift-offer-way-back")).toHaveText(WAY_BACK);
-    await expect(done.getByRole("link", { name: "Abwesenheit erfassen" })).toHaveAttribute("href", "/field");
+    await expect(done.getByRole("link", { name: "Mein Tag" })).toHaveAttribute("href", "/field");
     await expect(done.getByRole("button", { name: "Ich kann nicht" })).toHaveCount(0);
     await signOut(page);
 
