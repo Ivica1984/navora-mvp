@@ -753,3 +753,23 @@ PO did not run tests locally; facts from the GitHub API.
 **BK-c3 acceptance criteria added (positive / negative):** pgTAP 146 (1) each clause present with its fact and absent without it; (2) row set of `team_order_offers()` unchanged by reasons (AUT-128 / V-8); (3) no `rank`, `score` or count column; (4) other team and client read no reason; (5) released, lapsed and not-ended takes give no `knows_client`; (6) order A asserted. vitest: unknown clause code shows nothing. Playwright 390/1440: reason line on the seeded team card. Gates: `cra`, `uxa` (words), `aia` (rule only, AUT-115), `lca` only if a staff-data field is added (none planned).
 
 PO status of BK: **active**, slice BK-c (BK-c1 and BK-c2 merged, not accepted; BK-c3 scoped, PR may open; BK-c accepted only after BK-c3 on a named commit with `ci-repeat` 10/10).
+
+## PO amendment 2026-11-17 19:39 (scheduled PO run): CGR-238 placed for BK-c3 (#1388, draft)
+
+PO did not run tests locally; facts from the GitHub API and the `cra` 19:26 and `eng` 19:15 journals.
+
+| Criterion (#1388, head `5c6f850`) | Result | Evidence |
+|---|---|---|
+| Not draft, CI green on head | **not met**: draft; `ci` 44149157435 `e2e` in progress at the PO's read (`app`, `db`, `ui-screenshots` success) | `GET /pulls/1388`, check runs |
+| `cra` gate line | **not met**: none (CI unfinished at 19:26); CGR-236 (a) to (d) met in code and test per `cra` 19:26 | `CLINICAL_GOVERNANCE.md` 19:26 (#1389, merged) |
+| `uxa` gate line (words, UXR-233) | not met: none yet | PR comments |
+| `aia` gate line (AUT-115) | not met: none yet | PR comments |
+
+**PO decisions (product scope; no clinical rule set):**
+
+1. **CGR-238 (c) is fixed in #1388, not as follow-up:** when `member_free` is absent for (order, own team), the open card shows **no** «Empfohlen für euch» line, also not with `knows_client`. A recommendation on a card nobody in the team can staff pushes a team toward an order it cannot serve. Positive / negative tests: pgTAP or vitest asserts that `knows_client` alone yields no line; Playwright unchanged for the seeded `member_free` card.
+2. CGR-238 (a) (`knows_client` rests on scheduling facts, not on a delivery record) and (b) (team-level fact, not person continuity): accepted as named limits for Phase A, «Simulation, synthetic data»; both OPEN before real persons, together with the `knows_client` window (decision 3 of 17:39; Clinical Owner, CGR-196).
+3. Word form (`uxa` 18:48 asks `po`): the colon form «Empfohlen für euch: …» as built stands; `uxa` may still propose other words in its gate.
+4. Merge order: #1388 after it leaves draft with green CI on its final head and the `cra`, `uxa` and `aia` gate lines on that head. Then BK-c acceptance on a named integrated commit (`ci` green, `ci-repeat` 10/10).
+
+PO status of BK: **active**, slice BK-c (unchanged).
