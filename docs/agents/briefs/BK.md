@@ -661,3 +661,23 @@ Read: PR #1358 (draft, head `cb84250`; `ci` 44074369513 4/4 success per check ru
 **Challenge (PLANNED) H-BK-12:39:** «Ich kann nicht» is today the only way a named colleague can hand a shift back, and it sends the shift to every team. In a self-organised team the natural move is a swap inside the team first: «Ich kann nicht · Kollegin fragen» would re-offer only to the own team's members who pass every check, and to all teams only if nobody takes it before a team-set time. Fewer orders leave the team (value 2 continuity, 3 income, 4 autonomy), no dispatcher. Not in BK-c (no new rule: the timing would be a team setting, never invented); `cra` (does a team-internal round delay cover?), `uxa` (words), `lca` (none expected beyond H-5). Measure in Phase A: share of «Ich kann nicht» releases re-taken by the same team.
 
 Owners: `eng` (1–4 on #1358; screenshots), `uxa` (words of 1–4 and gate), `cra` (sentences 1, 2, 4; CGR-226 (b); PO 10:39 (3)(b)), `lca` (3; gate line), `aia` (BK-c3). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 in draft #1358).
+
+## PO amendment 2026-11-17 13:39 (scheduled PO run): `cra` CGR-235 placed; #1358 still draft
+
+Read: `cra` `CLINICAL_GOVERNANCE.md` 13:28 (merged #1366 as `8a25928`); `lca` `decisions/D-44.md` 12:42, 12:57, 13:27 (merged #1364 as `17ede43`); PR #1358 (draft, head `7f6ae8d`). Not a review of code, not an acceptance; the PO ran no test.
+
+| Check | Result | Evidence |
+|---|---|---|
+| `ci` on `recovery/main` `245f68c` (PO merge #1365) | green | push 44077837467 success |
+| `ci` on merge commits `8a25928`, `17ede43` | running at publication | 44085501981, 44085528030 |
+| #1358 head `7f6ae8d` | 4/4 green, still draft | `ci` 44083848265 (check runs API) |
+| `cra` pgTAP read on #1358 (`2721f3f`) | 144 files, 5139 tests PASS (read by `cra`, not by the PO) | `cra` journal 13:28 |
+| Gate lines on #1358 | none (draft) | PR comments |
+
+1. **CGR-235 (a) placed in BK-c2 (PO decision, product scope, simulation).** A person who confirmed a take sees on her card where to go if she cannot come after all: one line pointing to her absence report, no new release button (the confirmation stays final, 12:39 (1)). Words owned by `uxa`; `cra` confirms; no new rule. Test: Vitest or Playwright 390, a confirmed card shows the line and no «Ich kann nicht». Why: a confirmed person with no visible way out may simply not come (value 2; safety precondition).
+2. **CGR-235 (b) is a BK-c acceptance criterion** (not a BK-c2 merge criterion): pgTAP for an acknowledged colleague take that falls away after `latest_cover_at` (answers PO 10:39 (3)(b)). `eng` may add it in BK-c2 or BK-c3; BK-c is not accepted without it.
+3. **CGR-235 (c) with UXR-225 (a):** the client detail after «Gedeckt» stays as decided 12:39 (2) (no person, no cause); final words `uxa`, `lca` states whether F-2 covers them before its gate line. S3, BK-c2.
+4. **H-BK-12:39 stays PLANNED:** `cra` names four bounds for a team-internal round and no time value; the bound waits for the Clinical Owner (K-8). No brief before that.
+5. **`lca` D-44 W/T/V (founder tasks of 2026-11-17)** recorded as FE-080 (Richtung) in `FOUNDER_DECISIONS.md`. No change to BK. The `lca` V-3 wording rules (no «Zuweisung», «Disposition», «Vermittlung», no hour price in order screens) are checked by `lca` in its gate line on #1358; `lca` found the current texts neutral.
+
+Owners: `eng` (1 on #1358; (2) before BK-c acceptance; screenshots; leave draft), `uxa` (words of 1 and 3), `cra` (confirm 1; gate line), `lca` (3; V-3 in gate line), `aia` (BK-c3 unchanged). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 in draft #1358).
