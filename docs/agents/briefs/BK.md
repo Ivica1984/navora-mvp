@@ -681,3 +681,9 @@ Read: `cra` `CLINICAL_GOVERNANCE.md` 13:28 (merged #1366 as `8a25928`); `lca` `d
 5. **`lca` D-44 W/T/V (founder tasks of 2026-11-17)** recorded as FE-080 (Richtung) in `FOUNDER_DECISIONS.md`. No change to BK. The `lca` V-3 wording rules (no «Zuweisung», «Disposition», «Vermittlung», no hour price in order screens) are checked by `lca` in its gate line on #1358; `lca` found the current texts neutral.
 
 Owners: `eng` (1 on #1358; (2) before BK-c acceptance; screenshots; leave draft), `uxa` (words of 1 and 3), `cra` (confirm 1; gate line), `lca` (3; V-3 in gate line), `aia` (BK-c3 unchanged). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 in draft #1358).
+
+## PO amendment 2026-11-17 14:30 (live session with the founder, FE-084): focus BK-c2
+
+Founder FE-084 (7): PO and Engineering focus on finishing and merging #1358 (BK-c2). No new scope. What #1358 still needs before the PO can merge it (all from the 11:39, 12:39 and 13:39 amendments, unchanged): leave draft; screenshots 390/1440 in a PR comment; UXR-224, UXR-225/F-2 with CGR-235 (c), UXR-226, UXR-228, CGR-235 (a) on the head; gate lines of `cra`, `lca`, `aia`, `uxa` on the same head; `ci` 4/4 green on that head. CGR-235 (b) before BK-c acceptance.
+
+Wording rule now binding for every screen (FE-083, FE-084 (4); Blueprint Anhang C §1.3 (10)): the platform says «Pflegeauftrag» / «Auftrag», never «Zuweisung», «Disposition», «Vermittlung»; the medical «Zuweisung» of a case stays allowed. `lca` checks it in its gate line on #1358 (V-3/G-5). The data model stays neutral to the legal form (no field fixing a person's AHV status; D-44 `lca` 13:53 (i)). Genossenschaft, employer role and payroll are not part of BK (PLANNED, after BK).
