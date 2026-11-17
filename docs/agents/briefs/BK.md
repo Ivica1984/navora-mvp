@@ -451,3 +451,43 @@ Owners: `eng` (2 in the BK-c ADR and tests), `cra` (reads 2), `aia` (reads 2). P
 3. **BK-b acceptance record (adopted from `cra` 05:28):** the record cites only completed `ci` runs whose four jobs (`app`, `db`, `e2e`, `ui-screenshots`) ended `success`; a cancelled run on the same commit (for example the `pull_request` run 43673483807 on `08e5d8e`, cancelled next to the green `push` run 43673480338) is named as cancelled and not counted. `ci-repeat` 10/10 (`db`, `e2e`) is read from raw job logs as before.
 
 Owners: `eng` (#1295 merge-up, then the BK-b acceptance commit and `ci-repeat`), `cra` (closes CGR-227 itself when BK-g meets it), `csa` (reads 2). PO status of BK: **active**, slice BK-b.
+
+## PO acceptance 2026-11-17 02:39 (scheduled PO run): slice BK-b accepted for the simulation
+
+**Decision: `accepted`**, gate **«Simulation, synthetic data»**. Not released for real persons or data: no team sees or takes an order before BK-c (CGR-215 (a)); CR-180, K-8 and every matrix cell stay PROPOSED with the Clinical Owner (D-27). Named integrated commit: **`ab90875`** (`recovery/main` after #1295; BK-b code merges #1268 `9b691af`, #1270, #1273 `6c4b74b`, #1291, #1276 `792a5d3`, #1295 `ab90875`). The PO did not run any test locally; every result below is read from GitHub Actions job logs or from the repository at `ab90875`.
+
+**Run evidence.**
+- Push `ci` 43682107812 on `ab90875`: `app`, `db`, `e2e`, `ui-screenshots` all `success` (jobs API, read by the PO this run and at 00:39). No cancelled run on this commit is counted (amendment 05:39 (3)).
+- `ci-repeat` **43994886883** on `repeat/bk-b-accept-ab90875-day` (head `ab90875`), attempt 1, 02:21:00 to 02:30:26 Zurich (inside the day window; every job started 02:21:02 or later): **20/20 jobs `success`**, none cancelled or re-run.
+- Raw log content of all 20 jobs downloaded and read by the PO:
+  - every `db` attempt: «All tests successful. Files=140, Tests=4965 … Result: PASS»; pgTAP 136, 137, 138, 139, 140 «ok» in all ten;
+  - every `db` attempt: concurrency checks «ok», «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; the only «not ok» lines sit inside the B0-4 «before #922» reproduction (expected red by design, one per log);
+  - every `e2e` attempt: «182 passed», **0 skipped, 0 flaky, 0 failed** (no `skipped`, `flaky` or `failed` count line); `bk-b1s-reach.spec.ts` and `bk-b2-level-activity-conflict.spec.ts` «✓» in all ten.
+- The night repeat 43977104731 (00:11–00:21, 3 skipped) does not count and is not part of this record.
+
+**Evidence table (criterion | result | evidence at `ab90875`).**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| BK-2 PLZ distance within the team maximum and, if set, the client radius (smaller one applies) | met | pgTAP 136 «order without radius: offered are …», «client radius 4: T2 … is excluded», «PO 18:40 (1)(c): the smaller of team maximum and client radius applies», «a team whose maximum is 1 km short (4 of 5) is excluded» |
+| BK-2 distance is the minimum over the team's postcodes (ADR-193 (3)) | met | pgTAP 136 «ADR-193 (3): distance is the minimum over the team» |
+| BK-2 level allowed for every tag (matrix PROPOSED), one reading at confirm and screening (CGR-216, CGR-218 (A), CGR-219) | met | pgTAP 138 «CGR-216 (a) …» rows; pgTAP 139 «one reading: whatever such a member passes, confirm accepts (no hidden second rule)», grid over every client kind × grade × activity × required; e2e `bk-b2-level-activity-conflict.spec.ts` |
+| BK-2 availability for the whole slot, one member carries the team (CGR-204) | met | pgTAP 138 «qualified member away for part of the slot … not offered», «a team that passes only by combining two members is not offered»; V7 half-open slot, V8 withdrawn absence, V11 open visit, V6 access ended |
+| BK-2 every excluded team carries its reason | met | pgTAP 136 reasons `no_service_area`, no maximum distance, `building`; pgTAP 138 «the reason check lists the BK-b2 reasons» |
+| BK-2n a team failing any hard filter is never offered | met | pgTAP 138 «BK-2n: no team is both offered and excluded»; pgTAP 136 «the building team has no offer row (fail-closed)» |
+| PO 09:39 (3) `building` teams excluded with their reason | met | pgTAP 136 two rows |
+| PO 09:39 (5) empty service area refused; never-set reach excluded | met | pgTAP 136 «an empty service area is refused …», «a team without service postcode is excluded with its reason» |
+| PO 09:39 (7) / moved from BK-a: changing a client's shift plan never changes eligibility | met | pgTAP 136 «PO 09:39 (7): changing the client …» |
+| AUT-117 (a) to (d): who sets the reach, no retroactive change of offer rows, date stored, seed complete | met | pgTAP 136 AUT-117 rows; pgTAP 137; e2e `bk-b1s-reach.spec.ts` |
+| P-4, P-5, P-8 (`lca`): no street or coordinate, rows name a team never a person, postcode only from the list | met | pgTAP 136 first rows |
+| CGR-217 same-order info item | met | `tests/unit/bk-b1-cgr217-same-order.test.ts`; pgTAP 136 `same_order_already_confirmed` |
+| UXR-209 / `lca` B-5 help lines on the reach screen | met | `tests/unit/bk-b1s-uxr209-reach-rule.test.ts` (#1276) |
+| CGR-220 teams audit trigger skips by what changed, never by a session value | met | pgTAP 140 «ok» in all ten logs; `cra` closed CGR-220 (01:28) |
+| The per-member check is private | met | pgTAP 138 «no public function exposes who is eligible», «a member of an excluded team (V2) reads no offer row of another team» |
+| Gates per PR (`cra`, `lca`, `uxa`, `aia` where named) | met | merge records on #1268, #1270, #1273, #1291, #1276, #1295; `cra` 01:28 «Blocked: nothing» |
+
+**Business value.** A confirmed order now reaches, deterministically and with a reason for every exclusion, exactly the teams that are near enough, have one free member of the right level for the whole slot, and are not still being set up. This is the dispatcher's mental filter, removed and made auditable (value 5, less administration; patient safety: a missing qualification can never be ranked into an offer). No direct care time is returned yet: teams cannot see or take the order until BK-c (`aia` map v4, AUT-128).
+
+**Not part of this acceptance:** ranking, offer card, broadcast, take and «nicht gedeckt» (BK-c); re-check at the take and when a member stops passing (CGR-204 (b), CGR-223, BK-c); zero-reach statement before confirm (H-BK-14:39, BK-c candidate); AI or voice capture (BK-d); release for real persons and data.
+
+**Consequence: BK-c is the active slice** (slice order b, c, e, f, d, g). Start per FE-071 (2): `eng` writes the BK-c ADR and red tests first, covering at least the criteria placed in this brief: CGR-211, CGR-222 (c), CGR-223 (a)–(c), H-BK-15:39 (i)–(iii), `eng` V-8 / `aia` AUT-128 (team view equals `order_offers`), `lca` D-44 (2) (a) (no team count to the client), CGR-215 (b), (c), the BK-5 template (`docs/design/BK5_OFFER_TEMPLATE.md`) and BK-5a, BK-5n, BK-6. Any open clinical or legal point cuts the slice smaller; it is not built as an assumed rule.
