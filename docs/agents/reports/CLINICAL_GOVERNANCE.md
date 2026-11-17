@@ -16,6 +16,87 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 13:28 CET: **BK-c2 #1358 (draft) read on `2721f3f`: CGR-230 and CGR-234 (a) to (d) are met on the PR in code and pgTAP; no gate line yet (the PO asks for gates when it leaves draft).** Migration 0136 gives a take that names a colleague an acknowledgement, a lapse at `latest_cover_at` with its own code, and «Ich kann nicht» with its own code `member_cannot` and `released_by`, refused after the acknowledgement and after the start. pgTAP 144 covers each case with a pinned clock; `db` job 134034367409 read by me: «144_bk_c2_acknowledge_release … ok», «Files=144, Tests=5139 … Result: PASS». **I confirm the safety-state sentences the PO 12:39 asks of me (UXR-224, UXR-225, UXR-228), with one condition:** «Mit dem Bestätigen bist du fest eingeteilt.» must not leave a confirmed person without a visible way back. After the acknowledgement her only path is an absence record on `/field`, and the card does not say so (CGR-235 (a)). **PO 10:39 (3)(b) answered:** yes, an acknowledged take that falls away before the start needs the same immediate path; the code already gives it through the ADR-199 triggers, but no test pins it for an acknowledged take of a colleague after `latest_cover_at`, and the client then reads «Bis jetzt hat kein Team diese Schicht übernommen.» after it read «Gedeckt» (CGR-235 (b), (c)). **H-BK-12:39:** a team-internal round first can delay cover; it is safe only inside bounds that I name, with no time value (below). Read on `recovery/main` `245f68c`. Blueprint 3.2.31 to 3.2.34 changed the header, the §8 BK row and version rows only; Annex B §1 (20 guarantees) and the qualification matrix are untouched; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 stands (reservation CGR-221, Handbook part); no renewal is due.
+
+### What I read
+
+- Merges since my 09:30 section: #1356 (mine), #1342 (`781944f`, BK-c1 on my cleared head `abe0c5d`), #1357, #1359, #1360, #1362, #1363, #1365. `6705cb7..245f68c` touches outside `docs/` and `ROADMAP.md` only through #1342.
+- Brief BK, PO amendments 09:39, 10:39, 11:39, 12:39; journals `po` 0939 to 1239, `uxa` 1148, `lca` 1222; PR #1358 comments up to 11:43 UTC.
+- **#1358** (`eng`, draft, head `2721f3f`): migration `20261021000136_bk_c2_acknowledge_release.sql` read in full; pgTAP 144 read in full; the changed lines of pgTAP 141 and 143 (each old assertion kept for Operations, one client line added, plans 74 → 76 and 14 → 15; nothing removed); `src/features/orders/offer-rules.ts` read in full (every team and client sentence); the confirm step in `shift-offers-section.tsx`.
+- `ci` on `2721f3f`: `app`, `db`, `ui-screenshots`, `sync` success; `e2e` in progress at my read (job 134034367642). `db` log read by me (above). The colleague-path Playwright result I have not read.
+
+### #1358 against my open conditions
+
+| Condition | State on `2721f3f` | Evidence |
+|---|---|---|
+| CGR-230 (a) a self-named take counts as acknowledged | met | 0136 §4 `take_order` insert `acknowledged_at = case when p_member_id = uid then now()`; backfill only for self-named takes; pgTAP 144 §3 |
+| CGR-230 (b) the named person sees the shift and confirms | met (database) | `acknowledge_take` (refused for the taker, another team, after the start, after the lapse); `team_order_offers()` `taken_member_id`, `acknowledged_at`; pgTAP 144 §4; screen and e2e on the PR, e2e not read by me |
+| CGR-230 (c) unacknowledged at `latest_cover_at` → release, new round, exception | met | `order_cover` returns `not_covered/not_acknowledged` from `latest_cover_at` at read time; `lapse_unacknowledged_take` materialises it in every order command, and by `pg_cron` where present; pgTAP 144 §6 (03:59 awaiting, no exception; 04:00 exception, release code `not_acknowledged` with no person, round 2 with T2) |
+| CGR-230 (d) Operations sees an unacknowledged take | met | `order_cover` state `pending_acknowledgement`; pgTAP 144 §4 «Operations reads the take as pending acknowledgement» |
+| CGR-234 (a) own release code and `released_by`, no reason | met | `release_reason` check adds `member_cannot`, `not_acknowledged`; `order_takes_released_by_check` ties `released_by` to `member_cannot` only; no reason column (pgTAP 144 §0 column list); audit trigger carries both new columns |
+| CGR-234 (b) at `latest_cover_at` ± 1 min, no team eligible → exception at once | met | pgTAP 144 §7 (03:59, empty round 2, `not_covered/no_team_eligible`, exception at once) and §6 (04:00 lapse) |
+| CGR-234 (c) after `starts_at` never a silent release | met | `release_named_take` refuses `order_started` before any write; the lapse never touches a started order; pgTAP 144 §8 |
+| CGR-234 (d) the taker and her team see the release | met (database) | `team_order_offers()` `release_kind`, `released_member_id`, and the `released` row when the new round offers the team nothing; pgTAP 144 §5; screen words `releaseText()` |
+| PO 08:39 (2): her «Ich kann nicht» blocks her for this order only | met | `order_member_step` step 3 on a `member_cannot` row of the same order; pgTAP 144 §5 |
+| UXR-225 (a), (b) with `lca` F-2 | met (database) | `client_orders()` `ever_covered`; pgTAP 144 §10 and §9 (no «nicht mehr gedeckt» on a never-acknowledged order) |
+
+No new clinical threshold. The lapse reuses CR-224 (240 min, PROPOSED, K-8). CR-225 is now in code on the PR. The new product rule about who may release and when is CR-227 (new, PROPOSED).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-235 | #1358 `2721f3f`: a confirmed person who later cannot go; PO 10:39 (3)(b); UXR-224 line under «Bestätigen»; H-44, H-17 | advisory; (a) S1 before real clients, recommended inside BK-c2 with UXR-224; (b) before the BK-c acceptance; (c) S3 | (a) After «Bestätigen», `release_named_take` refuses with `already_acknowledged`, and the card shows only «Du bist für diese Schicht eingeteilt.» The new line «Mit dem Bestätigen bist du fest eingeteilt.» is correct, but read alone it says there is no way back. Her real path is an absence record on `/field`, which releases the take through the ADR-199 trigger. If she does not know that, the worst outcome is a silent no-show: the client reads «Gedeckt» until the start. (b) The immediate path for an acknowledged take that falls away exists in code: no live take, then `offs = 0` gives `no_team_eligible`, or `now ≥ latest_cover_at` gives `cover_time_reached`, both `not_covered` with the exception. pgTAP 141 §10 and 143 test it for self-named takes; no test pins it for an acknowledged take of a colleague after `latest_cover_at`. (c) In that case the client, who read «Gedeckt», then reads «Nicht gedeckt · Beginn …» with «Bis jetzt hat kein Team diese Schicht übernommen.» The state is right; the detail is not true. IMPLEMENTED on the PR, not merged. | 0136 §8 `release_named_take` (`already_acknowledged`); `offer-rules.ts` `ACK_FINAL_LINE`, `teamOfferView` acknowledged branch, `clientCoverLines` `cover_time_reached`; 0136 §5 `order_cover`; 0135 `bk_c1_recheck_takes` on `member_absences`; `src/app/(protected)/field/absence-section.tsx` | (a) A second line on the confirmed person's card, and under «Bestätigen», that names the way back without a reason, for example «Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.» Words are `uxa`'s; a vitest that the confirmed card carries the line. (b) pgTAP: M1 names M2, M2 acknowledges; an absence of M2 is recorded after `latest_cover_at` and before `starts_at` → no live take, `not_covered`, `order_not_covered` at once; the same at `latest_cover_at` − 1 min with no team eligible. (c) The client detail after a covered take fell away does not say no team took it (words `uxa`, `lca`); a vitest on the mapping. |
+
+### Answers to the PO (brief BK)
+
+- **12:39 (1) UXR-224 sentences: confirmed as safety-state words, with CGR-235 (a).**
+  - «Du gibst diese Schicht frei. Sie geht sofort an alle passenden Teams; du kannst sie danach nicht mehr übernehmen.» True to the code: release at once, new round, and she is blocked for this order (step 3). When no team passes, the order goes to Operations at once instead; the sentence does not promise cover, so I accept it.
+  - «Euer Team sieht dieses Angebot danach nicht mehr.» True for the round; confirmed.
+  - «Mit dem Bestätigen bist du fest eingeteilt.» Confirmed only together with a line that names the way back (CGR-235 (a)).
+  - The two-tap step itself is the right control: one slip near `latest_cover_at` would cost cover.
+- **12:39 (2) UXR-225 sentences:**
+  - (b) «Nicht mehr gedeckt · Beginn …» with «Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.»: confirmed.
+  - (a) The headline «Noch nicht gedeckt · Beginn …» is correct.
+  - The detail on the branch reads «Die eingeteilte Person kann nicht. …». It is not a safety concern, but it is not true when the take fell away because a trigger found her no longer eligible. It is also the kind of statement about a person that `lca` F-2 names. I leave the words to `uxa` and `lca`; the second sentence alone would carry the safety meaning.
+- **12:39 (4) UXR-228 footer:** «Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut. ‹Gedeckt› sieht der Auftraggeber, wenn diese Person geprüft ist und, falls ihr jemand anderen wählt, bestätigt hat.» True to `take_order` (re-check in the same transaction) and `order_cover` (covered only at step 4 and acknowledged). Confirmed. «alle Bedingungen» means the PROPOSED simulation checks, not a clinical release; that is fine for Phase A.
+- **10:39 (3)(b): yes.** An acknowledged take that falls away before `starts_at` needs the same immediate `order_not_covered` path as CGR-234 (b). The code gives it (CGR-235 (b) above); a test is needed before the BK-c acceptance, not before the BK-c2 merge. Placing the person's own path in B3 (absence) is fine for safety, provided she can see it (CGR-235 (a)).
+- **10:39 (3)(c): confirmed.** Blocking her for that order only is right. She stays free for other orders, and the release reaches every other passing member and team at once.
+- **CGR-226 (b), UXR-227:** unchanged. The next-step line under «Nicht gedeckt» is UNKNOWN in substance and stays with the Clinical Owner before any gate «released for real persons and data». I write no line.
+- **H-BK-12:39 (team-internal round first):** yes, it can delay cover. Every minute the shift stays inside one team is a minute other passing teams cannot take it. For the simulation I see it as safe only inside four bounds:
+  - (i) The internal round ends no later than a time derived from `latest_cover_at`. It never runs past it, and the bound is a setting with a PROPOSED default that goes to the Clinical Owner with K-8. No value from me.
+  - (ii) If no other member of the team passes (empty candidate list), the release goes to all teams at once.
+  - (iii) The release paths of CGR-234 (b) and CGR-235 (b) raise the exception at once regardless of the internal round.
+  - (iv) The client reading does not change during the internal round.
+  
+  Measure in Phase A: the time from release to re-take, inside and outside the team. No target value.
+
+### Findings closed or met on a PR
+
+- **Closed with #1342 merged (`781944f`):** CGR-229, CGR-225, CGR-211, CGR-222 (c), CGR-223, CGR-224 (a), (b), (d), CGR-204 (b), CGR-215 (b), (c). The merge was on my cleared head `abe0c5d` (PO merge record, PR #1342 comment 6943080778, expected head `abe0c5d`). Merge-commit CI 44048826903 was 4/4 green per the PO 10:39. I checked it myself: `git diff abe0c5d 781944f -- src supabase tests e2e scripts .github` is empty, so the merged code equals the cleared head. CGR-224 stays open for (c).
+- **Met on #1358 `2721f3f` (closes on merge on byte-equal code):** CGR-230 (a) to (d), CGR-234 (a) to (d).
+
+### Status of open findings
+
+- **CGR-224 (c):** a later conflicting action names the conflict to the planning team; not in BK-c2 (the release reaches the team as «Nicht mehr gedeckt: … erfüllt die Bedingungen … nicht mehr», which partly covers it). Open.
+- **CGR-226:** (a) met by the client words on #1358 (the ordered level); (b) UNKNOWN with the Clinical Owner (UXR-227).
+- **CGR-231:** UNKNOWN with the Clinical Owner. **CGR-232, CGR-233:** the visit-from-take slice. **CGR-227:** BK-g. **CGR-221:** Handbook part, my sign-off reservation.
+- **CGR-204 (c), CGR-205, CGR-207 to CGR-210, CGR-212, CGR-213 (b):** unchanged.
+
+### Gate status
+
+- **#1358:** no gate line. It is a draft, `e2e` was running at my read, and the PO asks all gates on the head that leaves draft (10:39 (4), AUT-50). On the database part I see nothing blocking. I will write `cra-gate: #1358 <head> clear` on that head if CGR-235 (a) is placed or decided against with a reason. Its gate stays «Simulation, synthetic data».
+
+### Decisions requested
+
+- `po`: place CGR-235 (a) in BK-c2 with UXR-224 (or decide against with a reason); place CGR-235 (b) as a BK-c acceptance test; (c) with `uxa`.
+- `eng`: CGR-235 (b) pgTAP; (a) and (c) once the words are given.
+- `uxa`: words for CGR-235 (a) and (c); the UXR-225 (a) detail with `lca`.
+- `lca`: whether the UXR-225 (a) detail «Die eingeteilte Person kann nicht.» is caught by F-2.
+- Clinical Owner: K-8 (CR-224, also the bound of any team-internal round), CR-225, CR-226 and the started state (CGR-231), CGR-226 (b), the household fallback, CR-180 and «D» on a shift order.
+
+---
+
 ## 2026-11-17 09:30 CET: **BK-c1 #1342 re-reviewed on `abe0c5d`: CGR-229 and CGR-225 (b) are met on the PR; `cra-gate: #1342 abe0c5d clear` («Simulation, synthetic data»).** `take_order` now serialises every take that names one person, across orders and teams, before the fresh re-check; the third two-session case was red first on `0e0a581` and is green on `abe0c5d`. The empty new round after a release is tested (pgTAP 143). Two new advisory findings: the residual named by `eng` (a visit and a take for one person committing at the same instant, CGR-233) and my substance conditions for «Ich kann nicht» in BK-c2 (CGR-234). **Answers to the PO 08:39:** (2) yes, «Ich kann nicht» releasing at once is the safer design, with the conditions of CGR-234; (3) I confirm «Noch nicht gedeckt» until the acknowledgement. Read on `recovery/main` `6705cb7`. Blueprint 3.2.28 to 3.2.30 changed only the header and version rows; Annex B §1 (20 guarantees) and the qualification matrix are untouched; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 stands (reservation CGR-221, Handbook part); no renewal is due.
 
 ### What I read
