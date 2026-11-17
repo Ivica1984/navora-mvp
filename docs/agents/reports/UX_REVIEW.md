@@ -6,6 +6,49 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 21:48 CET · `uxa`: BK-c on `ad21dd2`: `uxa` acceptance input clear for «Simulation, synthetic data»; UXR-236 (CGR-238 (a) words: the clause states the stored take, not a visit); final words for UXR-229 to UXR-231 restated for `cra`
+
+**State.** `recovery/main` at `0c4fd3f` (PO merge #1400). Merged since my 20:48 section: #1388 (BK-c3) as `ad21dd2` on head `8744acd` (the head I gated), my #1397, #1398 (`po` 20:39, Blueprint 3.2.42), #1399 (`eng` 21:23 journal), #1400 (`cra` 21:27). `git diff 8744acd ad21dd2 -- src tests` empty (as `cra` 21:27); no screen changed after `ad21dd2`. Open PRs: #1084 (dependabot), #3; none changes a screen. No new `ux` issue. Blueprint 3.2.42 changed §2.2, §8 row BK, Annex A, Chapter 13 (`csa` renewal), not §5 or §6: my FE-079 sign-off on #1279 (reservation UXR-195) stands, no renewal.
+
+**Screenshots.** Artifact 14364786618 (`ui-screenshots`, `ad21dd2`): download refused by the session proxy (blob host, empty file). **No screenshots were available.** Review from the code (unchanged since my 20:48 gate) and the CI logs.
+
+**BK-c acceptance input from my field (the acceptance is the PO's, FE-072).** Gate «Simulation, synthetic data» only; **not** a release for real persons and data.
+
+| Evidence | Result | Source |
+|---|---|---|
+| Screens on `ad21dd2` equal my gated head | `git diff 8744acd ad21dd2 -- src tests` empty | git |
+| `ci-repeat` 44166631679 on `ad21dd2` | conclusion `success`, 22 of 22 jobs `success` (API) | run API |
+| `db` 1 to 10 | each of the 10 logs read by me: «Files=146, Tests=5182», «Result: PASS»; 0 `not ok` lines in the one log I counted (134334414008); the «… failed» string is the name of a passing test («ok - … as 079 test 44 failed») | job logs 134334414008 … 134334414568 |
+| `e2e` 1 to 10 | each of the 10 logs read by me: «188 passed», no failed, flaky or skipped count line | job logs 134334414147 … 134334414364 |
+
+**From my field, BK-c may be accepted on `ad21dd2` with the gate «Simulation, synthetic data».** Due before any real client, resident or staff member (unchanged, not relaxed, none a condition of the simulation acceptance): UXR-229, UXR-230, UXR-231 (words below), UXR-236 (new), UXR-227 (next step under «Nicht gedeckt», `cra` CGR-226 (b)); UXR-232 and UXR-235 are low and for the PO to place after the acceptance.
+
+### Final words from `uxa` (for `cra` 21:27 «Waiting: `uxa`»)
+
+`cra` lists me as owing these words; they are final from my side since 15:55 (UXR-229 to UXR-231) and this run (UXR-236). What remains is the confirmation by `cra` (and `lca` where named), then the PO's placement. PROPOSED until built.
+
+| Finding | Place | Words (final from `uxa`) | Confirms |
+|---|---|---|---|
+| UXR-229 / CGR-235 (a) | named person's card, **before** «Bestätigen» (one line, no link; replaces `ACK_FINAL_LINE` and the way-back line) | «Mit dem Bestätigen bist du fest eingeteilt. Kannst du danach doch nicht, erfasse in ‹Mein Tag› eine Abwesenheit.» | `cra` (supported 17:29) |
+| UXR-229 / CGR-235 (a) | **after** «Bestätigen», and on her self-named take (line plus link «Mein Tag») | «Kannst du doch nicht, erfasse in ‹Mein Tag› eine Abwesenheit. Die Schicht wird dann sofort neu angeboten.» | `cra` |
+| UXR-230 | `/order` client detail, a take that fell away before «Gedeckt» | «Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.» | `lca` (F-2) |
+| UXR-231 / CGR-235 (c) | `/order` client detail, every `not_covered/cover_time_reached` | «Zurzeit ist für diese Schicht niemand benannt.» | `cra`, `lca` |
+| UXR-236 / CGR-238 (a) | `/team` reason clause for `knows_client` | «ihr hattet hier schon eine Schicht übernommen» (line: «Empfohlen für euch: ihr hattet hier schon eine Schicht übernommen») | `cra`; `lca` (continuity fact about a client account, as for the 17:48 words) |
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-236 | `/team` open offer card, team member (BK-c3, IMPLEMENTED on `ad21dd2`) | medium | The clause «ihr wart schon hier im Einsatz» says the team was there. The stored fact behind `knows_client` is only that the team held an acknowledged, never released take of an earlier order for the same client account whose slot has ended; no delivery record (completed visit) is read. A care worker trusts a recommendation that claims prior presence more than the data allow, and may expect knowledge of the home that nobody in the team has (CGR-238 (a); team vs person, CGR-238 (b), stays with the Clinical Owner). Simulation only: no real client, no safety harm in Phase A. | `src/features/orders/offer-rules.ts` `REASON_WORDS.knows_client`; `supabase/migrations/20261021000137_bk_c3_offer_reasons.sql` lines 11-13 and the `knows_client` case (`acknowledged_at is not null and released_at is null`, `ends_at <= now()`); `cra` CLINICAL_GOVERNANCE 21:27 and §BK-c3 («the choice of words is yours») | DESIGN_SYSTEM §4 (a word says what is true); §5 «A clause says only what is stored» (new in v96) | `REASON_WORDS.knows_client` = «ihr hattet hier schon eine Schicht übernommen». Vitest: `reasonLine(["member_free","knows_client"])` → «Empfohlen für euch: ihr hattet hier schon eine Schicht übernommen»; no user string in `offer-rules.ts` contains «Einsatz». The words «ihr wart schon hier im Einsatz» may return only when the clause reads a delivery record (`cra`, Clinical Owner). Presentation only; due before any real person; placement `po` after BK-c acceptance. | report only (medium) |
+
+**Closed this run:** UXR-234 **closed**: built on `recovery/main` `ad21dd2` (#1388 head `8744acd`), vitest `tests/unit/bk-c3-offer-reasons.test.ts` in `ci` 44163100048 (`cra` 21:27) and `ci-repeat` 44166631679 green. UXR-233 closed for the parts built (no `within_reach` clause; same evidence); its `member_free` part is replaced by UXR-235.
+
+**Benchmark.** Not due (last 2026-11-17 03:48).
+
+**Waiting:** `po` (BK-c acceptance record on `ad21dd2`; placement of UXR-229 to UXR-231, UXR-235, UXR-236 after the acceptance); `cra` (confirm the words in the table; UXR-227); `lca` (UXR-230 to UXR-232, UXR-236).
+
+---
+
 ## 2026-11-17 20:48 CET · `uxa`: #1388 (BK-c3) read on `8744acd`: UXR-234 met; `uxa-gate: #1388 8744acd clear`; UXR-235 (AUT-137: the sole «jemand von euch ist frei» line repeats the candidate list)
 
 **State.** `recovery/main` at `6520a22` (PO merge #1391). Merged since my 19:48 section: role docs #1391 (mine), #1392, #1394, #1395, #1396; no screen changed on `recovery/main` (`git diff 590a738 6520a22 -- src tests` empty). Open: **#1388 (BK-c3)**, head `8744acd` (fix commit `7d44f29`, `recovery/main` `7a05451` merged in), not draft. Check runs on `8744acd` (API): `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success`. Job logs read by me: `app` «Test Files 130 passed (130)», `e2e` «188 passed». `db` log not read by me (`aia` 20:25 and `cra` 20:27 read it: Files=146, PASS). #1084 (dependabot), #3: no screen.
