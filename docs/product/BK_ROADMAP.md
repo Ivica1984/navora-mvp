@@ -33,7 +33,7 @@
 | BK-b | Reichweite, harte Filter | gemergt (#1268, #1270, #1273) | ja | abgenommen 17.11. (Simulation) |
 | BK-c1 | Übernahme, Deckungsstand (DB) | gemergt `781944f` | ja (0135) | offen (BK-c als Ganzes) |
 | BK-c2 | Bildschirme `/team` und Kundenstatus | **gemergt** `25d7cdf` (#1358, Kopf `9a7fc56`; `lca`, `cra`, `uxa` frei) | **0136 fehlt** (`eng` spielt ein, FE-088 (7)) | offen |
-| BK-c3 | Begründung je eigenem Team (Reihenfolge nach Beginn, keine Rangfolge zwischen Teams; PO 17:39) | ADR-Entwurf #1381 (nur Doku); PR darf jetzt öffnen | – | – |
+| BK-c3 | Begründung je eigenem Team (Reihenfolge nach Beginn, keine Rangfolge zwischen Teams; PO 17:39) | **gemergt** `ad21dd2` (#1388, Kopf `8744acd`; `cra`, `uxa`, `aia`, `lca` frei; Stand 17.11. 20:52) | **0137 fehlt** (wie 0136; `STAGING_DB_URL` nicht gesetzt) | offen (BK-c-Abnahme: `ci-repeat` 10/10 auf benanntem Commit) |
 | BK-e | `/field`-Verknüpfung, Berichtsentwurf aus Diktat | nicht begonnen | – | – |
 | BK-f | Rechnungsentwurf an die Auftraggeberin | nicht begonnen | – | – |
 | BK-d | KI-Erfassung des Auftrags (Text oder Diktat) | nicht begonnen; AUT-135 darf auf einem Branch vorbereitet werden | – | – |
@@ -44,7 +44,7 @@
 | Frage | Teilschritt | Abhängigkeiten | Verantwortlich | Prüf-Gate | Zeitfenster (Schätzung) |
 |---|---|---|---|---|---|
 | Übernahme und Zusage auf Staging klickbar | BK-c2 (#1358) | `cra`- und `uxa`-Zeile auf `9a7fc56`; danach 0136 auf Staging mit Nachweis | `cra`, `uxa`, `po` (Merge), `eng` (0136) | FE-087 + `PO_MERGE_PROCESS.md` §4 | Merge Di 17.11. abends bis Mi 18.11. vormittags; 0136 im nächsten `eng`-Lauf danach. Risiko: Das Einspielen brauchte zuletzt eine Bestätigung, die ablief (Journal `eng` 15:42). |
-| KI-gestützte Rangfolge und Erklärung | BK-c3 | BK-c2 gemergt; ADR | `eng`; `aia`, `cra`, `uxa`, `lca` | Freigabezeilen; danach Abnahme BK-c (`ci-repeat` 10/10) | **Regelbasiert** mit Begründung: PR Mi/Do, Merge Do 19./Fr 20.11. Mit echtem Modell: **nicht schätzbar**, es fehlt die Anbieterwahl. |
+| KI-gestützte Rangfolge und Erklärung | BK-c3 | BK-c2 gemergt; ADR | `eng`; `aia`, `cra`, `uxa`, `lca` | Freigabezeilen; danach Abnahme BK-c (`ci-repeat` 10/10) | **Regelbasiert** mit Begründung: **gemergt Di 17.11. 20:52** (`ad21dd2`, IMPLEMENTED, nicht abgenommen). Mit echtem Modell: **nicht schätzbar**, es fehlt die Anbieterwahl. |
 | Auftraggeberin strukturiert Text oder Diktat mit KI und bestätigt selbst | BK-d | BK-c, BK-e, BK-f abgenommen (Reihenfolge, §5); Adapter AUT-135; AUT-136 | `eng`, `aia`, `lca`, `uxa` | `aia` (Kontrollschicht), `lca` (Anbieter und Daten) | Mit Testersatz frühestens Ende KW 48 (ca. 27.11.). Mit echtem Modell: **nicht schätzbar**. |
 | Pflegekraft prüft KI-Berichtsentwurf aus Diktat und gibt frei | BK-e | BK-c abgenommen; AUT-135 und AUT-136; Unterschrift (vorhanden seit `signed_visit_reports`) | `eng`, `cra` (Geräteklasse G/H), `aia`, `uxa` | `cra`-Gate pflichtig | Mit Testersatz: PR ab Mo 23.11., Merge ca. 24.–25.11. Mit echtem Modell: **nicht schätzbar**. |
 | Geprüfter Rechnungsentwurf | BK-f | BK-e; Preismodell des Teams (AUT-119 (b)); `lca` AUT-119 (c) und ArG-Frage | `eng`, `lca`, `csa` | `lca`-Gate | Synthetischer Entwurf ohne Zuschläge, vom Team geprüft: ca. 25.–27.11. Zuschläge erst nach `lca`-Antwort. |
