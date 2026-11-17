@@ -469,23 +469,31 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
             echo "::notice title=staging::no migration or ci.yml change, no dry run"
           fi
+      # Owner D-2 (2026-11-17): the founder will not handle repository secrets; without STAGING_DB_URL the job warns and
+      # writes nothing (staging is then kept current by `eng` through the Supabase connection, ADR-190 amendment); a
+      # secret that names another project still fails.
       - name: Secret present and pointing at navora-staging? (never printed)
+        id: secret
         if: steps.scope.outputs.run == 'true'
         run: |
-          if [ -z "$STAGING_DB_URL" ]; then echo "::error title=staging secrets::missing repository secret: STAGING_DB_URL"; exit 1; fi
+          if [ -z "$STAGING_DB_URL" ]; then
+            echo "::warning title=staging secrets::repository secret STAGING_DB_URL not set; nothing sent to navora-staging"
+            echo "ok=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "ok=true" >> "$GITHUB_OUTPUT"
           case "$STAGING_DB_URL" in
             *"postgres.$STAGING_PROJECT_REF:"*|*"@db.$STAGING_PROJECT_REF.supabase.co"*) echo "::notice title=staging secrets::present, project navora-staging" ;;
             *) echo "::error title=staging secrets::STAGING_DB_URL does not name the project navora-staging"; exit 1 ;;
           esac
       - uses: supabase/setup-cli@v1
-        if: steps.scope.outputs.run == 'true'
+        if: steps.secret.outputs.ok == 'true'
         with:
           version: 2.121.0
       - name: Dry run against navora-staging (pull request, writes nothing)
-        if: steps.scope.outputs.run == 'true' && github.event_name == 'pull_request'
+        if: steps.secret.outputs.ok == 'true' && github.event_name == 'pull_request'
         run: supabase db push --dry-run --db-url "$STAGING_DB_URL"
       - name: Apply migrations to navora-staging (push to recovery/main only)
-        if: steps.scope.outputs.run == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/recovery/main'
+        if: steps.secret.outputs.ok == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/recovery/main'
         run: |
           supabase db push --db-url "$STAGING_DB_URL"
           echo "::notice title=staging::migrations applied to navora-staging at $(git rev-parse --short HEAD)"

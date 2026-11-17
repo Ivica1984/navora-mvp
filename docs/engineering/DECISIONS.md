@@ -4228,3 +4228,17 @@ Labels: IMPLEMENTED = in `recovery/main` `14f0f91` today; PLANNED = this ADR; OP
 - *Residual (named, not hidden, OPEN for the visit slice with CGR-232):* a care-visit writer that assigns the same person at the same moment as a take does not take this lock, and the visit writers do not read `order_takes`. A visit committed first is seen by the take (step 3); a take committed first is released by the `care_visits` recheck trigger when the visit commits (CGR-232 names that this is wrong for a visit written FROM the take). A visit and a take committing in the same instant can both stand. No visit is written from a take in BK-c1; the slice that writes visits from takes takes the same key in its visit writer.
 
 **Open (named, not assumed).** Take-over right inside a team (`po`, `uxa`); lead value (Clinical Owner, K-8); exception priority and next step (`cra`, `uxa`; CGR-226); `lca` G-5 (e) first-name rule for the covered state before real use; D-44 and Q-44e stay unresolved (the broadcast is product logic, not a legal finding).
+
+**ADR-190 amendment 2026-11-17 15:45 (`eng`, owner D-2 for staging, live in the `eng` session).** The owner approved staging:
+- Supabase `navora-staging` in Zurich, plus a Render web service `navora-staging` (branch `recovery/main`).
+- The **synthetic seed, including its sign-in accounts with the password `navora-local-only`**, which is public in this repository. This is an owner decision on a synthetic-only environment with no real data. It replaces rule 4 «never the seed» for the bootstrap.
+- The owner will not handle repository secrets.
+
+What `eng` did, and what this PR now does:
+1. **Bootstrap (IMPLEMENTED, outside CI, recorded here).** Through the Supabase connection of the session, `eng` applied all 133 migrations of `recovery/main` `1bf6a43` in file order. Each file was fetched over HTTPS from `raw.githubusercontent.com` at that fixed commit and executed by a one-off helper (`stg_deploy.apply_file`, `http` extension, EXECUTE revoked from `public`/`anon`/`authenticated`). Each version is recorded in `supabase_migrations.schema_migrations`, so a later `supabase db push` skips them. The seed was applied afterwards from the same commit.
+   - Result: 133 migrations, 33 sign-in accounts, 9 organisations, 13 teams.
+   - The extra row the tool wrote for its own helper migration, and the revoke of the `http` functions from the API roles, are PLANNED (a confirmation prompt timed out).
+2. **Job without the secret:** a warning, nothing written, and not a failure (owner: no secrets). A secret that names another project still fails before any connection. Every write step needs the checked secret.
+3. **Open (PLANNED):** migrations merged after `1bf6a43` do not reach staging automatically until a write path exists. That path is either the secret, or `eng` repeating the bootstrap path for the new files. A seed change is not re-applied.
+
+The unit test was changed first: a missing secret warns and does not fail, and every write step requires `steps.secret.outputs.ok`.

@@ -67,6 +67,15 @@ describe("STG1: staging deploy job in ci.yml", () => {
     expect(job.indexOf("does not name the project")).toBeLessThan(job.indexOf("supabase db push"));
   });
 
+  it("without the secret it warns and writes nothing; every write step needs the checked secret (owner D-2, 2026-11-17)", () => {
+    expect(job).toMatch(/::warning title=staging secrets::repository secret STAGING_DB_URL not set/);
+    expect(job).not.toMatch(/::error title=staging secrets::missing repository secret/);
+    for (const name of ["Dry run against navora-staging", "Apply migrations to navora-staging"]) {
+      const step = job.match(new RegExp(`- name: ${name}[^\\n]*\\n\\s+if: ([^\\n]*)`))?.[1] ?? "";
+      expect(step, name).toContain("steps.secret.outputs.ok == 'true'");
+    }
+  });
+
   it("does not run for pull requests from forks (no secrets there) and never two at once", () => {
     expect(job).toMatch(/github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
     expect(job).toMatch(/concurrency:\s*\n\s+group: staging-navora\s*\n\s+cancel-in-progress: false/);
