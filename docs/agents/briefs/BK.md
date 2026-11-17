@@ -773,3 +773,28 @@ PO did not run tests locally; facts from the GitHub API and the `cra` 19:26 and 
 4. Merge order: #1388 after it leaves draft with green CI on its final head and the `cra`, `uxa` and `aia` gate lines on that head. Then BK-c acceptance on a named integrated commit (`ci` green, `ci-repeat` 10/10).
 
 PO status of BK: **active**, slice BK-c (unchanged).
+
+## PO amendment 2026-11-17 20:39 (scheduled PO run): BK-c3 merged (#1388)
+
+PO did not run tests locally; facts from the GitHub API (check runs, PR comments) and the `cra` 20:27, `lca` 20:20, `aia` 20:25, `uxa` 20:50 and `eng` 20:11 statements.
+
+| Criterion (#1388, head `8744acd`) | Result | Evidence |
+|---|---|---|
+| Not draft, CI green on head | **met**: `ci` 44156252301 `app`, `db`, `e2e`, `ui-screenshots`, `staging` success; `mergeable_state` clean | `GET /pulls/1388`, check runs |
+| CGR-238 (c) / UXR-234: no reason line without `member_free`, none next to the nobody line | **met** in code and vitest (`bk-c3-offer-reasons.test.ts`, 2 new cases) per `cra` and `uxa`; red-first commit `9ab9399` pushed together with the fix, so CI did not run red (`eng` 20:11, honest note) | PR comments 6958440817, 6958595995, 6959116230 |
+| `cra` gate line | **met**: `cra-gate: #1388 8744acd clear` | comment 6958595995; `CLINICAL_GOVERNANCE.md` 20:27 (#1396) |
+| `uxa` gate line (words) | **met**: `uxa-gate: #1388 8744acd clear` | comment 6959116230 |
+| `aia` gate line (AUT-115) | **met**: `aia-gate: #1388 8744acd clear (Simulation, synthetic data)` | comment 6958476247 |
+| `lca` gate line (not required; offered) | **met**: `lca-gate: #1388 8744acd clear` | comment 6958566690; `decisions/D-44.md` 20:20 (#1395) |
+| Review threads | 0 | `ccr/review_threads` |
+
+**Merged** as `ad21dd2` (merge record comment 6959148199). Gate «Simulation, synthetic data». IMPLEMENTED, **not accepted**.
+
+**PO decisions (product scope; no clinical rule set):**
+
+1. **BK-c acceptance next.** All three parts (BK-c1 `781944f`, BK-c2 `25d7cdf`, BK-c3 `ad21dd2`) are merged. Acceptance only on a named integrated commit: `ci` green on the merge commit, `ci-repeat` 10/10 for `db` and `e2e`, read from raw job logs, including pgTAP 145 (CGR-235 (b)) and 146. Ask to `eng`: start the `ci-repeat` run on `ad21dd2` (or the newest docs-only commit after it) and name the run.
+2. **Placed after BK-c acceptance, not before (block rule):** AUT-137 with `uxa` UXR-235 (low; the sole «jemand von euch ist frei» line may repeat on most cards; count it on the seed first), UXR-229 to UXR-231, UXR-232 with `lca` 20:20 («Zuweisung» strings in platform routing, FE-083 G-5). Each needs `uxa` words; none is a merge or acceptance condition of BK-c.
+3. **Before real persons (OPEN, unchanged):** CGR-238 (a), (b), the `knows_client` window (Clinical Owner, CGR-196), and `lca` 20:20: «ihr wart schon hier im Einsatz» says only the stored fact or rests on a delivery record (DSG Art. 6 Abs. 5).
+4. **Staging (OPEN, founder action):** 0137 joins 0136 as not applied on `navora-staging`; the Friday goal «Pflegeauftrag erfassen bis Teamzusage» in the real staging application (FE-088 (3)) depends on it.
+
+PO status of BK: **active**, slice BK-c (BK-c1 to BK-c3 merged, not accepted; next: BK-c acceptance).
