@@ -67,7 +67,7 @@ SQL
 confirm() {  # $1 days ahead → prints the order id
   psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 <<SQL
 begin;
-select set_config('request.jwt.claims', '{"sub":"$CLIENT","role":"authenticated"}', true);
+set local request.jwt.claims to '{"sub":"$CLIENT","role":"authenticated"}';  -- SET prints nothing (psql -At)
 set local role authenticated;
 select public.confirm_client_order('$ACC', ((now() + interval '$1 days') at time zone 'Europe/Zurich')::date, time '08:00',
   time '12:00', '4102', 'fage_efz', array['C1'], array['C1'], null, gen_random_uuid()) ->> 'order_id';
@@ -78,7 +78,7 @@ SQL
 take() {  # $1 user, $2 order, $3 team → prints result or refusal reason
   psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 <<SQL
 begin;
-select set_config('request.jwt.claims', '{"sub":"$1","role":"authenticated"}', true);
+set local request.jwt.claims to '{"sub":"$1","role":"authenticated"}';
 set local role authenticated;
 select coalesce(r ->> 'reason', r ->> 'result') from public.take_order('$2', '$3', '$1', gen_random_uuid()) r;
 -- hold the transaction a moment so the two takes overlap
