@@ -3937,6 +3937,63 @@ The trigger, not each command, is the guard, so no other write path can bypass i
 - **Rollback:** revert the PR; the seed and tests return to the B1.1-1b state.
 - **Gates:** `cra` (matching-pair and T5 coverage: the Testteam Ost merge above; T5 attention rules unchanged, no status, slot or time changed); `uxa` (`ui-screenshots` difference: region names, postcode on field cards); `lca` not needed (no migration, no audit change; fixture cleanup deletes only its own rows and their audit rows, as the race scripts do).
 
+### ADR-190 — STG1: migrations to the Supabase project `navora-staging` only from CI, after four green jobs; never the seed
+
+**Date:** 2026-11-11 17:08 Europe/Zurich · **Status:** PLANNED until CI is green on the PR head and the first push to `recovery/main` has applied the migrations · **Base:** `recovery/main` `51dc964` · **Block:** none. **Owner exception to FE-054**, live in the `eng` session on 2026-11-11 («jetzt als Ausnahme»): infrastructure for D-2 staging, built while BD stays the active block.
+
+**Context.** The owner made these changes live on 2026-11-11 (record on PR #1069):
+- The old project `jwmfxrmougneeceldhsa` is deleted (FD-27).
+- `eng` created the new Supabase project `navora-staging` (`qpmdryxkktbqqkqpsnkj`, Zurich `eu-central-2`, Free plan) on the owner's instruction. This deviates from D-2, which said «staging on Pro»; the owner chose Free to start.
+- The owner added two repository secrets, `SUPABASE_ACCESS_TOKEN` and `STAGING_DB_PASSWORD`. Their values are not visible to `eng`.
+
+D-2 (po design): migrations and seed reach staging only from CI; synthetic data only; staging is no production clearance.
+
+**Decision.**
+1. **A new job `staging` in `ci.yml`.** It is not one of the four required checks of the ruleset «Schutz Hauptversion».
+   - It runs after `app`, `db`, `e2e` and `ui-screenshots` (`needs`). It runs only on a push to `recovery/main`, or on a same-repository pull request; fork PRs never get it, since they have no secrets.
+   - Concurrency group `staging-navora`, never cancelled, so two merges never write at once.
+2. **Push to `recovery/main`:** `supabase link` to the fixed project ref, then `supabase db push`, which applies the pending migrations in order. This is the only write path to staging.
+3. **Pull request:** if it changes `supabase/migrations/` or `ci.yml`, `supabase db push --dry-run` lists the pending migrations and writes nothing. Otherwise the job only leaves a notice.
+4. **Never the seed** (no `--include-seed`, no `db reset`). `supabase/seed.sql` holds sign-in accounts with the password `navora-local-only`, which is public in this repository. Staging sign-in accounts are a follow-up PR (PLANNED), with passwords from a secret and synthetic people only. Until then, staging has the schema and the reference rows the migrations insert (catalogues, tariff and billing rules), and **no account and no client data**.
+5. **Secrets** are used only as job `env` values and are never printed. A step checks that both are present (by name) and fails with the missing name.
+
+**Tests (written first).** `tests/unit/stg1-staging-deploy.test.ts` reads `ci.yml` and checks:
+- `needs` is exactly the four jobs;
+- only the project ref `qpmdryxkktbqqkqpsnkj`, and the deleted live ref appears nowhere;
+- exactly one non-dry `db push`, only under push to `recovery/main`; the dry run only on a PR;
+- no seed and no reset;
+- secrets only as env values and never echoed;
+- no fork PRs, and the concurrency group is never cancelled.
+
+The real proof is the dry run on this PR's own CI run (`ci.yml` changes), and the first push run after the merge.
+
+**Risks (UNKNOWN until the first run).**
+- GitHub runners have no IPv6. If `supabase link`/`db push` cannot reach the database host, the job fails visibly. The fix is then a pooler connection string as one more secret; no grant or policy changes.
+- A failed `staging` job turns the `ci` run red on `recovery/main`, even when the four required jobs are green. The B0-1 merge-run checker would count it. This is accepted on purpose: a failed staging deploy is a real signal. The PO may decide otherwise.
+
+**Clinical review gate:** none; infrastructure only, no rule, no data.
+**No data:** synthetic only, and no rows beyond the migrations. The live project no longer exists.
+**Rollback:** remove the job. The staging project can be emptied by the owner in the Supabase dashboard.
+
+**ADR-189 amendment 2026-11-11 23:10 (`eng`, after the first CI runs of #1087).**
+- Run 43055658103, first attempt: both secrets missing. The owner then added them.
+- Second attempt: `supabase link` was refused with `Missing required permission(s): api_gateway_keys_read`. The owner's Supabase account token is scoped and cannot read the API keys.
+
+**Decision.** No Supabase account token at all. The job uses one repository secret, `STAGING_DB_URL`: the **Session pooler** connection string of `navora-staging` (IPv4, so it also avoids the runners' missing IPv6). It runs `supabase db push --db-url` (PR: `--dry-run`).
+- This is less privilege: the secret opens only this one database, not the owner's Supabase account.
+- A step refuses a string that does not name the project `qpmdryxkktbqqkqpsnkj` before any connection, and never prints it.
+- `SUPABASE_ACCESS_TOKEN` and `STAGING_DB_PASSWORD` are no longer used. The owner may delete them, and should revoke the account token in Supabase.
+
+The unit test was changed first: exactly one secret line, no account token and no `supabase link`, and the project-name check comes before the first `db push`.
+
+**Renumbered 2026-11-12 21:20 (`eng`, merge of `recovery/main` into #1087):** this ADR was written as ADR-184 on the PR branch; `recovery/main` assigned ADR-184 to SAFE-D11 (Δ11) first, so STG1 is ADR-185. The journal file `2026-11-11-1710-eng.md` still says ADR-184 (journal files are never edited).
+
+**Renumbered again 2026-11-13 00:20 (`eng`, merge of `recovery/main` `a2b7d69` into #1087):** `recovery/main` assigned ADR-185 to the SAFE-D11 follow-up (#1151) first, so STG1 is now ADR-186. The journal files `2026-11-11-1710-eng.md` (ADR-184) and `2026-11-12-2111-eng.md` (ADR-185) keep the older numbers (journal files are never edited). No content of this ADR changed.
+
+**Renumbered a third time 2026-11-13 11:20 (`eng`, merge of `recovery/main` `e63f3b6` into #1087):** `recovery/main` assigned ADR-186 to B1.1-1 (#1164) first, and the open PRs #1181 and #1184 use ADR-187 and ADR-188, so STG1 is now ADR-189. Older journal files keep ADR-184, ADR-185 and ADR-186 (journal files are never edited). No content of this ADR changed.
+
+**Renumbered a fourth time 2026-11-13 17:40 (`eng`, merge of `recovery/main` `bb332c3` into #1087):** `recovery/main` assigned ADR-187, ADR-188 and ADR-189 to B1.1-1b (#1181), CGR-203 (#1184) and B1.1-1c (#1196) first, so STG1 is now ADR-190. The comments in `ci.yml` and `tests/unit/stg1-staging-deploy.test.ts` follow; older journal files keep the older numbers (journal files are never edited). No content of this ADR changed.
+
 ### ADR-191 — BK T-1 (draft): the order is a `partner_requests` row with shift fields; no table `orders`; the search runs without a case
 
 **Date:** 2026-11-13 18:16 Europe/Zurich · **Block:** BK, preparation only (README rule 12; FE-077 issue #1213 item 1). BK is not active; nothing here is built or merged as code. · **Status:** PROPOSED (draft for `cra`, `lca`, `uxa`, `aia` and the PO; becomes the BK-a design once BK is active). ADR-190 is taken by STG1 on the open PR #1087; numbering continues at 191.
@@ -4223,3 +4280,17 @@ Red first on `7052975` (vitest, e2e assertions only), then the build. Words: `cr
 3. **Deviation named for `uxa`:** (c) extends the line to a self-named take (the PO criterion names «a person who confirmed a take»; a self-named take is a confirmed take in the database). If `uxa` wants it on the colleague path only, it is one condition in `teamOfferView`.
 4. **Tests:** vitest `bk-c2-offer-states.test.ts`: positive (confirmed card and self-named card carry the line; no «Ich kann nicht»/«Freigeben» in the view), negative (the taker's and colleagues' views carry `wayBack: null`; before confirming the line is on her card only). Playwright: `bk-c2-colleague-take.spec.ts` case 1 at 390/1440 (line before confirming, line and link `/field` after, no «Ich kann nicht» button, the taker's view has none); `bk-c2-take-status.spec.ts` (self-named: the going person sees it, the colleague does not). No assertion removed or relaxed.
 5. **Not here:** CGR-235 (b) (pgTAP: acknowledged colleague take, absence after `latest_cover_at`) is a BK-c acceptance criterion (PO 13:39 (2)); planned for BK-c3 or a later BK-c2 head, OPEN. CGR-235 (c) client detail after a covered take fell away (`cover_time_reached` after «Gedeckt»): words `uxa`/`lca`, OPEN.
+
+**ADR-190 amendment 2026-11-17 15:45 (`eng`, owner D-2 for staging, live in the `eng` session).** The owner approved staging:
+- Supabase `navora-staging` in Zurich, plus a Render web service `navora-staging` (branch `recovery/main`).
+- The **synthetic seed, including its sign-in accounts with the password `navora-local-only`**, which is public in this repository. This is an owner decision on a synthetic-only environment with no real data. It replaces rule 4 «never the seed» for the bootstrap.
+- The owner will not handle repository secrets.
+
+What `eng` did, and what this PR now does:
+1. **Bootstrap (IMPLEMENTED, outside CI, recorded here).** Through the Supabase connection of the session, `eng` applied all 133 migrations of `recovery/main` `1bf6a43` in file order. Each file was fetched over HTTPS from `raw.githubusercontent.com` at that fixed commit and executed by a one-off helper (`stg_deploy.apply_file`, `http` extension, EXECUTE revoked from `public`/`anon`/`authenticated`). Each version is recorded in `supabase_migrations.schema_migrations`, so a later `supabase db push` skips them. The seed was applied afterwards from the same commit.
+   - Result: 133 migrations, 33 sign-in accounts, 9 organisations, 13 teams.
+   - The extra row the tool wrote for its own helper migration, and the revoke of the `http` functions from the API roles, are PLANNED (a confirmation prompt timed out).
+2. **Job without the secret:** a warning, nothing written, and not a failure (owner: no secrets). A secret that names another project still fails before any connection. Every write step needs the checked secret.
+3. **Open (PLANNED):** migrations merged after `1bf6a43` do not reach staging automatically until a write path exists. That path is either the secret, or `eng` repeating the bootstrap path for the new files. A seed change is not re-applied.
+
+The unit test was changed first: a missing secret warns and does not fail, and every write step requires `steps.secret.outputs.ok`.
