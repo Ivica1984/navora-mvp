@@ -883,14 +883,14 @@ isOneToOne: false
                   ]
                 },"cover_settings": {
                   Row: {
-                    "cover_enabled": boolean,"fallback_lead_hours": number,"id": string,"offer_lead_hours": number,"organization_id": string | null
+                    "cover_enabled": boolean,"fallback_lead_hours": number,"id": string,"offer_lead_hours": number,"order_latest_cover_lead_minutes": number,"organization_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "cover_enabled"?: boolean,"fallback_lead_hours": number,"id"?: string,"offer_lead_hours": number,"organization_id"?: string | null
+                    "cover_enabled"?: boolean,"fallback_lead_hours": number,"id"?: string,"offer_lead_hours": number,"order_latest_cover_lead_minutes"?: number,"organization_id"?: string | null
                   }
                   Update: {
-                    "cover_enabled"?: boolean,"fallback_lead_hours"?: number,"id"?: string,"offer_lead_hours"?: number,"organization_id"?: string | null
+                    "cover_enabled"?: boolean,"fallback_lead_hours"?: number,"id"?: string,"offer_lead_hours"?: number,"order_latest_cover_lead_minutes"?: number,"organization_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -1309,16 +1309,48 @@ isOneToOne: false
       referencedColumns: ["organization_id","user_id"]
     }
                   ]
-                },"order_exclusions": {
+                },"order_declines": {
                   Row: {
-                    "created_at": string,"id": string,"order_id": string,"organization_id": string,"reason": string,"team_id": string
+                    "declined_at": string,"declined_by": string,"id": string,"order_id": string,"organization_id": string,"round": number,"team_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"order_id": string,"organization_id": string,"reason": string,"team_id": string
+                    "declined_at"?: string,"declined_by": string,"id"?: string,"order_id": string,"organization_id": string,"round": number,"team_id": string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"order_id"?: string,"organization_id"?: string,"reason"?: string,"team_id"?: string
+                    "declined_at"?: string,"declined_by"?: string,"id"?: string,"order_id"?: string,"organization_id"?: string,"round"?: number,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_declines_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "partner_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_declines_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_declines_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_exclusions": {
+                  Row: {
+                    "created_at": string,"id": string,"order_id": string,"organization_id": string,"reason": string,"round": number,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"order_id": string,"organization_id": string,"reason": string,"round"?: number,"team_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"order_id"?: string,"organization_id"?: string,"reason"?: string,"round"?: number,"team_id"?: string
                   }
                   Relationships: [
                     {
@@ -1343,14 +1375,14 @@ isOneToOne: false
                   ]
                 },"order_offers": {
                   Row: {
-                    "created_at": string,"distance_km": number,"id": string,"limit_km": number,"order_id": string,"organization_id": string,"team_id": string
+                    "created_at": string,"distance_km": number,"id": string,"limit_km": number,"order_id": string,"organization_id": string,"round": number,"team_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"distance_km": number,"id"?: string,"limit_km": number,"order_id": string,"organization_id": string,"team_id": string
+                    "created_at"?: string,"distance_km": number,"id"?: string,"limit_km": number,"order_id": string,"organization_id": string,"round"?: number,"team_id": string
                   }
                   Update: {
-                    "created_at"?: string,"distance_km"?: number,"id"?: string,"limit_km"?: number,"order_id"?: string,"organization_id"?: string,"team_id"?: string
+                    "created_at"?: string,"distance_km"?: number,"id"?: string,"limit_km"?: number,"order_id"?: string,"organization_id"?: string,"round"?: number,"team_id"?: string
                   }
                   Relationships: [
                     {
@@ -1367,6 +1399,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "order_offers_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_takes": {
+                  Row: {
+                    "id": string,"member_id": string,"order_id": string,"organization_id": string,"release_reason": string | null,"released_at": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"member_id": string,"order_id": string,"organization_id": string,"release_reason"?: string | null,"released_at"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
+                  }
+                  Update: {
+                    "id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"release_reason"?: string | null,"released_at"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_takes_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "partner_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_takes_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_takes_team_id_fkey"
       columns: ["team_id"]
 isOneToOne: false
       referencedRelation: "teams"
@@ -2789,7 +2853,7 @@ isOneToOne: false
                            },
 "client_orders":
 { Args: Record<PropertyKey, never>; Returns: {
-              "activity_tags": (string)[],"client_account_id": string,"confirmed_at": string,"cover_state": string,"duration_minutes": number,"ends_at": string,"grade": string,"id": string,"place_name": string,"postcode": string,"radius_km": number,"required_tags": (string)[],"sentence": string,"shift_label": string,"starts_at": string
+              "activity_tags": (string)[],"client_account_id": string,"confirmed_at": string,"cover_detail": string,"cover_state": string,"covered_team_name": string,"duration_minutes": number,"ends_at": string,"grade": string,"id": string,"latest_cover_at": string,"place_name": string,"postcode": string,"radius_km": number,"required_tags": (string)[],"sentence": string,"shift_label": string,"starts_at": string,"taken_at": string
             }[]
                            },
 "client_visit_overlap":
@@ -2871,6 +2935,9 @@ isOneToOne: false
                            },
 "decide_team_candidate":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_proposal_id": string,"p_reason": string }; Returns: Json
+                           },
+"decline_order":
+{ Args: { "p_idempotency_key": string,"p_order_id": string,"p_team_id": string }; Returns: Json
                            },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
@@ -3289,6 +3356,9 @@ isOneToOne: false
 "take_open_visit":
 { Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_visit_id": string }; Returns: Json
                            },
+"take_order":
+{ Args: { "p_idempotency_key": string,"p_member_id": string,"p_order_id": string,"p_team_id": string }; Returns: Json
+                           },
 "take_signal":
 { Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
                            },
@@ -3338,6 +3408,11 @@ isOneToOne: false
 "team_open_visits":
 { Args: { "p_from": string }; Returns: {
               "case_id": string,"client_name": string,"is_needs_assessment": boolean,"known_by": string,"known_by_me": boolean,"may_take": boolean,"overlaps_my_visit": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"services_provided": (string)[],"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
+"team_order_offers":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "activity_tags": (string)[],"distance_km": number,"duration_minutes": number,"ends_at": string,"grade": string,"limit_km": number,"offer_state": string,"order_id": string,"place_name": string,"postcode": string,"required_tags": (string)[],"sentence": string,"starts_at": string,"taken_member_id": string,"team_id": string
             }[]
                            },
 "team_plan_status":
