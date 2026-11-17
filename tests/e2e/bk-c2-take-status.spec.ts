@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { zurichDay } from "./support/durchgang-time";
 
-// BK-c2 screens (brief docs/agents/briefs/BK.md 04:39 (3), (4); 08:39 (3), (4); ADR-200; BK5_OFFER_TEMPLATE.md §2–§5,
+// BK-c2 screens (brief docs/agents/briefs/BK.md 04:39 (3), (4); 08:39 (3), (4); ADR-200; BK-c3 reason line PO 17:39, ADR-201; BK5_OFFER_TEMPLATE.md §2–§5,
 // UX_REVIEW.md 07:52). Synthetic local-only accounts from supabase/seed.sql (Testorganisation S, simulation):
 //   kundebs.test  client of «Testheim Rhein (synthetisch)»: orders one HF shift and reads its status;
 //   pflegebs.test registered nurse of Testteam Basel, the only member with the HF grade: takes it naming herself;
@@ -66,6 +66,9 @@ for (const width of [390, 1440]) {
     const card = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
     await expect(card.getByTestId("shift-offer-tag")).toHaveText("Neues Angebot");
     await expect(card.getByTestId("shift-offer-broadcast")).toHaveText("Alle passenden Teams sehen dieses Angebot.");
+    // BK-c3 (PO 17:39, ADR-201): the reason line from stored facts, own team only. Testteam Basel has no ended take for
+    // Testheim Rhein in the seed (every e2e take is 30+ days ahead), so `member_free` is the sole clause (UXR-233).
+    await expect(card.getByTestId("shift-offer-reasons")).toHaveText("Empfohlen für euch: jemand von euch ist frei");
     await expect(card.getByRole("radio", { name: "Ich (Pflegekraft)" })).toBeChecked();
     // AUT-132: the eligible colleague is listed after her; the care assistant (no HF grade) is not listed; no step or
     // reason of anybody is shown. (Changed from one radio to two with the seed addition of PO 11:39 (2); the negative
@@ -83,6 +86,7 @@ for (const width of [390, 1440]) {
     await expect(taken.getByTestId("shift-offer-tag")).toHaveText("Übernommen");
     await expect(taken.getByTestId("shift-offer-line")).toHaveText("Ihr habt diese Schicht übernommen. Es geht: Pflegekraft B.");
     await expect(taken.getByRole("button")).toHaveCount(0);
+    await expect(taken.getByTestId("shift-offer-reasons")).toHaveCount(0);  // BK-c3: reasons explain an open offer only
     // CGR-235 (a): a self-named take counts as acknowledged; the going person sees her way back, nobody else does.
     await expect(taken.getByTestId("shift-offer-way-back")).toHaveText("Kannst du doch nicht, erfasse eine Abwesenheit; die Schicht wird sofort neu angeboten.");
     await signOut(page);
