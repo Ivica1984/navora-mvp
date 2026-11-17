@@ -576,6 +576,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «the caller sees only her own state» (AUT-132):** a pre-tap «frei / nicht frei» comes from the same step and shows only the caller's own result; a colleague list shows only members who pass, never a colleague's failing step. PLANNED (BK-c2).
 - No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
 
+**BK-c2 pre-read; a reason names facts, never a choice (`aia` 2026-11-17 14:24, review 62, AUT-133):**
+- **Pre-read:** #1358 draft `3232c89`; no gate line before it leaves draft. It proposes, drafts and ranks nothing.
+- **Control «the caller sees only her own state» (AUT-132):** IMPLEMENTED on the branch (`caller_free` from `order_member_step`; `order_take_candidates` step 4 only, no step, no score).
+- **Control «a ranking is tested on the rows the team sees» (AUT-128):** screen part IMPLEMENTED on the branch; ranking part PLANNED (BK-c3).
+- **Control «a reason names facts, never a choice» (AUT-133):** Engine 2 reasons cite only Engine 1 facts of the team for the order, follow `lca` D-44 V-3 words (FE-080), name no member, and the ranking only reorders teams already offered. PLANNED (BK-c3).
+- No agent added or removed. Stage 0 only; stage 1 entry conditions unchanged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -640,3 +647,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-15 02:17 | `aia` | §12: block «BK-b2 gates; one member step for confirm and take»: controls «eligibility is private and names a step, never a person» (checked on #1273) and «one member step for every check» (AUT-130). No agent added or removed |
 | 2026-11-17 02:19 | `aia` | §12: block «bottleneck map v4; one entry for one gap»: map v4 on Blueprint §6.3; control «one entry for one gap» (AUT-131). No agent added or removed |
 | 2026-11-17 08:25 | `aia` | §12: block «BK-c1 gate; the caller sees only her own state»: AUT-128 database part and AUT-130 met on #1342 `abe0c5d`; control «the caller sees only her own state» (AUT-132). No agent added or removed |
+| 2026-11-17 14:24 | `aia` | §12: block «BK-c2 pre-read; a reason names facts, never a choice»: AUT-132 and AUT-128 screen part met on #1358 `3232c89` (draft); control «a reason names facts, never a choice» (AUT-133). No agent added or removed |

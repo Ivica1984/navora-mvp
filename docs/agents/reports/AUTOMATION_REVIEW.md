@@ -31,6 +31,39 @@
 
 ---
 
+## 2026-11-17 14:24 CET · aia review 62: BK-c2 #1358 pre-read on draft head `3232c89` (no gate line yet: the PR is draft and the head still moves); AUT-132 met on the branch (the caller's own «frei» from the one step, colleague list only at step 4, caller first, no reason shown); AUT-128 screen part met on the branch (`/team` reads only `team_order_offers` and `order_take_candidates`); CGR-235 (a) way back through the absence record supported (one release path, AUT-130); one advisory finding for BK-c3 (AUT-133, low: ranking reasons follow the `lca` V-3 words and FE-080, they never read as NAVORA assigning)
+
+**Read:** `recovery/main` at `f8cab84` (since review 61 at `74ef56b`): journals 0839-po to 1339-po, 0930-cra, 1328-cra, 1148-uxa, 1222/1242/1257/1327-lca; `FOUNDER_DECISIONS.md` (FE-080); `decisions/D-44.md` V-3 (wording rules); Blueprint V3.2 version lines 3.2.30 to 3.2.35; `briefs/BK.md` PO amendments 08:39 to 13:39. Draft PR #1358 at `3232c89` (branch `feature/hourly-update-2026-11-17-1010-bk-c2`): migration 0136 (sections 3, 7, 8, 9, 10), `src/features/orders/team-queries.ts`, `offer-rules.ts` (AUT-132 lines), 0135 `recheck_member_takes` and its triggers; journal 1430-eng on the branch; check runs on `3232c89` through the API.
+
+**Measured versus estimated:** nothing here is a measurement of care work. Code facts are readings of the branch; I ran no NAVORA test. CI on `3232c89` (run 44091257923, read through the API at 14:2x): `db` success, `ui-screenshots` success, `app` **failure**, `e2e` in progress. The `app` failure is on `eng`'s draft and not in my files; `eng` reads it (its 14:30 journal says the result follows in a PR comment). **Active block (README rule 12):** BK, slice BK-c, sub-slice BK-c2; this pre-read serves #1358 inside it. I ask for no merge outside it. **Contradictions (README rule 10):** none new with `FOUNDER_DECISIONS.md`; FE-080 agrees with FE-078 and my field (below). My prompt's read list still names archived documents (known; FE-077/FE-079 followed). **Task adjustment (README rule 11):** the PO names an `aia` gate line on #1358 «same head» once it leaves draft; it is still draft (screenshots 390/1440 in a PR comment open, `app` red), so I give a pre-read now and the gate line on the final head. Map v4 stands (next refresh 2026-11-24). FE-079: sign-off of 2026-11-14 20:25 stands on #1279; Blueprint 3.2.30 to 3.2.35 do not change my field (Engine 1, 2, 3); no renewal due. Reservations AUT-127, AUT-128 (ranking part only), AUT-129 open.
+
+### 1 Pre-read of #1358 at `3232c89` (advisory; not a gate line)
+
+- **AUT-132: met on the branch.** `team_order_offers()` returns `caller_free` = `order_member_step(order, team, auth.uid()) = 4` for the caller only (0136 §10); `order_take_candidates()` returns members of the own team at step 4 only, `user_id` and `is_caller`, never a step, caller first then a fixed id order, no score (0136 §9). `offer-rules.ts` shows one neutral line «Du selbst kannst diese Schicht nicht übernehmen.» without a reason and preselects the caller only when she passes. The take keeps its re-check (BK-c1).
+- **AUT-128, screen part: met on the branch.** `/team` reads only `team_order_offers` and `order_take_candidates` (plus display names for ids those two return); no list of other teams, no count, no rank. Ranking part (BK-c3) stays open.
+- **AUT-130 / one release path: holds.** «Ich kann nicht» (`release_named_take`) and the lapse (`lapse_unacknowledged_take`) release and call `screen_order_reach` (the ADR-199 path); after «Bestätigen» the way back is the absence record (CGR-235 (a)), which fires the BK-c1 trigger on `member_absences` → `recheck_member_takes` → the same path. No second release rule. CGR-235 (b) (pgTAP after `latest_cover_at`) is still open, as the PO placed it.
+- **Engine 1 stays a private hard rule:** the new functions are `security definer`, private helpers revoked from app roles; no `kind = 'ai'`, no model call, no external call in the diff. The acknowledgement (CGR-230) is a clinical-safety step, not administration; its form is one tap and an automatic lapse at the latest cover time, which is the lean form (no manual chase).
+- **Gate line:** given on the head at which #1358 leaves draft, if the points above still hold there (AUT-50).
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-133 | «Warum empfohlen» and the team order on `/team` and `/order` (BK-c3, Engine 2 explanation), team member and client | **PLANNED, not built.** FE-080 (founder direction 17.11.: software for self-organised teams, no intermediary, no agency) and `lca` D-44 V-3 (no «Zuweisung», «Disposition», «Vermittlung», «Routing» in texts for clients and teams; «Das Team bestimmt, wer geht»). BK-c3 adds the first ranking and reasons in the order path (brief `BK.md`, BK-3, BK-4). No reason text exists yet | **Rule for the words and the shape of a reason:** a reason names fit facts of the team for this order (distance, required tags met, time free), never a choice, an assignment or a person; the order only reorders teams already offered (AUT-128), never removes one; the client sees no ranking of teams or persons; no reason line names a member. Same facts as Engine 1 steps, no new rule, no score shown | L | stage 0 (deterministic facts first); `uxa` (words), `lca` (V-3 check in the gate line), `cra` (none unless a clinical fact enters a reason) | share of reason lines on the synthetic seed that cite only Engine 1 facts (target: all), checked in the BK-c3 tests; number of teams in the offer list before and after ranking (equal) | low | – |
+
+### 3 Updated, supported, closed
+
+- **AUT-132:** met on the `3232c89` branch; closes when #1358 is merged into `recovery/main`.
+- **AUT-128:** screen part met on the branch; open only for the ranking (BK-c3). FE-079 reservation narrowed to the ranking.
+- **AUT-130:** closed with the merge of #1342 (`781944f`, 09:39); still holds on #1358 (above).
+- **CGR-235 (a) (PO 13:39 (1)): supported.** A way back through the absence record keeps one release path and no release button after confirming; fewer states for the team to learn.
+- **FE-080: supported for my field.** Engine 1 (hard rules) and Engine 2 (ranking) already let the team decide (FE-039); AUT-133 carries the words into BK-c3. «Payroll-as-a-Service» (D-44 T-1 to T-4) is legal and founder work; when it is decided, its time basis should come from the visit record in the care graph, not from a second entry (bottleneck map, step Billing; PLANNED, no proposal before a founder decision).
+- Open, unchanged: AUT-125, AUT-126, AUT-127, AUT-129, AUT-131 and the list in review 60.
+
+### 4 Stage tracking
+
+Stage 0 only. Stage 1 entry conditions unchanged (AUT-115 lock, D-35 rule A, no provider). BK-c2 adds no agent, no proposal ledger entry, no model call.
+
 ## 2026-11-17 08:25 CET · aia review 61: `aia` gate line on BK-c1 #1342 `abe0c5d` **clear** for «Simulation, synthetic data»; V-8 / AUT-128 met in the database (the team view is exactly the offer rows of the current round), AUT-130 met (one member step, a live take is one more availability source); one advisory finding for BK-c2 (AUT-132, low: show the caller only her own «free / not free», list colleagues only when they pass)
 
 **Read:** `recovery/main` at `74ef56b` (since review 60 at `bbaed7c`): journals 0233-eng to 0739-po; `briefs/BK.md` amendments 03:39 to 06:39; PR #1342 head `abe0c5d` (`1464ba0..abe0c5d`: migration 0135 in full for `order_takes`, `order_declines`, `order_member_step`, `client_orders`, `take_order`, `decline_order`, `team_order_offers`, `recheck_member_takes`; pgTAP 141 §3, §8, §9; workflow diffs); check runs on `abe0c5d` through the API; open PR #1352 (`uxa`) description only.
