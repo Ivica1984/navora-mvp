@@ -16,6 +16,53 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 19:26 CET: no gate line this run. #1388 (BK-c3, draft, head `3f8c5d4`) meets CGR-236 (a) to (d) in code and in pgTAP 146 as read; CI on the head is still running (`db`, `e2e`, `ui-screenshots` in progress at 19:26), so no `cra-gate` is given (a running job is not evidence, FE-072). One new advisory finding, CGR-238, on what the `knows_client` clause asserts. Read on `recovery/main` `33353d4`. Blueprint 3.2.39 and 3.2.40 changed §6.3 step 3 (BK-c3 scope), §8 row BK and the version rows; Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
+
+### What I read
+
+- Merges since my 17:29 section: #1382 (mine), #1358 (`25d7cdf`, head `9a7fc56`, the head I cleared; code diff of the merge equals my 17:29 read), #1383, #1381 (`23c88f9`, docs only), #1384 (`uxa` docs), #1386 (`po` 18:39 docs).
+- Brief `BK.md` §PO amendment 17:39 (BK-c3 decisions (1) to (6) and acceptance criteria); Blueprint diff 3.2.38 → 3.2.40; journals `po` 1739 and 1839, `uxa` 1748; `UX_REVIEW.md` «Words for BK-c3» and UXR-233.
+- **#1388** (`eng`, draft, head `3f8c5d4`, commits `d32341b` red first, `3f8c5d4` build): `git diff 33353d4...3f8c5d4` over `src`, `supabase`, `tests`, `docs/engineering/DECISIONS.md` read: migration 0137 in full (`private.order_offer_reasons`, `public.team_order_offers()` with `reasons`), ADR-201, `offer-rules.ts` `reasonLine`, `shift-offers-section.tsx` one line, pgTAP 146 (structure and assertions), vitest `bk-c3-offer-reasons.test.ts`, Playwright change in `bk-c2-take-status.spec.ts`.
+- Check runs on `3f8c5d4` from the API at 19:26: `app` success (134265606871), `sync` success; `db` 134265607333, `e2e` 134265607683, `ui-screenshots` 134265607476 **in progress**. No log read; no result claimed.
+- Open, not in my scope: #1385 (`eng` journal only), #1387 (`uxa` docs only), #1084 (dependabot, no clinical surface).
+
+### #1388 against CGR-236 (head `3f8c5d4`, CI pending)
+
+| Condition | State | Evidence |
+|---|---|---|
+| CGR-236 (a) list order A (`starts_at` first) | met in code and test | 0137 `team_order_offers()` `order by 4, 1, 2` unchanged; reasons never reorder; pgTAP 146 §5 asserts the returned order for members 01 and 03; ADR-201 (4) |
+| CGR-236 (b) no clause that the eligibility function did not verify; `holds_all_tags` only with evidence for every tag | met: dropped | ADR-201 (3) with the code fact (`private.member_activity_ok`, 0133, checks evidence for «E» cells only); pgTAP 146 §4 «no code other than `member_free`, `knows_client`» |
+| CGR-236 (c) released, lapsed and not-ended takes give no `knows_client`; not clinical suitability | met in code and test (the «suitability» part: see CGR-238) | 0137 `order_offer_reasons`: `ends_at <= now()`, `acknowledged_at is not null`, `released_at is null`, same `team_id`, same `client_account_id`, other order; pgTAP 146 fixture p2 (`member_cannot`, released), p3 (never acknowledged, `not_acknowledged`), n1 (not ended): members 03 and 05 read only `member_free` |
+| CGR-236 (d) no clause adds or removes an offer row | met in code and test | `reasons` is a computed column on the existing rows; pgTAP 146 §5 row set equals current-round offers minus declines |
+| Privacy: reasons reach only the own team | met in code and test | `order_offer_reasons` is `private`, `security definer`, revoked from `public`, `anon`, `authenticated`; called only inside `team_order_offers()` (`is_team_member`); `client_orders()` unchanged, pgTAP 146 §0 «no reason column»; §5 no other team's row |
+
+**Gate:** none this run. I give `cra-gate: #1388 <sha> clear` when the PR leaves draft and `db` and `e2e` on that head are green in the job logs, with CGR-238 (c) addressed or the PO recording it as follow-up. Gate «Simulation, synthetic data» only.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-238 | #1388 BK-c3 (`3f8c5d4`): the `knows_client` clause «ihr wart schon hier im Einsatz» and the reason line on a card where nobody can go | advisory; (c) before the gate line, (a) and (b) S2 before real persons | (a) The clause asserts that the team worked a shift at this client. The code derives it from scheduling facts only: a take of an earlier order that was acknowledged, never released, and whose slot has ended. NAVORA records no delivery for a BK shift yet (`/field` → report is a later BK step), so a shift not worked without a recorded absence still reads as «schon hier im Einsatz». In the simulation this is acceptable; before real persons the sentence must rest on a delivery record or say only what is stored. (b) The fact is team-level: the person who went may have left the team (LEAVE1) or may not be free now, while the line reads as familiarity. It must not be read as person continuity or clinical suitability (CGR-236 (c)); whether continuity is a team or a person fact is a Clinical Owner question (CGR-196); no value from me. (c) `reasonLine(["knows_client"])` returns «Empfohlen für euch: ihr wart schon hier im Einsatz» also when `member_free` is absent. An open row stays in its round when its members later become ineligible (UXR-226 state: «Niemand in eurem Team kann diese Schicht zurzeit übernehmen.», no primary button). The card would then say «Empfohlen für euch» and «nobody can go» together: a recommendation for a shift the team cannot cover, under the broadcast where the near shift is the one at risk (H-40). | 0137 `private.order_offer_reasons` (the `knows_client` `exists`); `offer-rules.ts` `reasonLine` (`distinguishing.length > 0` shows without `member_free`); vitest `bk-c3-offer-reasons.test.ts` line 66 includes `["knows_client"]` alone among its inputs; no case asserts `null` for it; ADR-201 (2), (8); `UX_REVIEW.md` «Words for BK-c3» row `knows_client` | (c) no reason line when `member_free` is absent: vitest `reasonLine(["knows_client"])` → `null`, and a `teamOfferView` case with an empty candidate list and `reasons: ["knows_client"]` → `reasonLine: null`; or the PO records a reason to keep it. (a) before real persons: either `knows_client` requires a delivery record of that take (pgTAP: an ended, acknowledged take without the record gives no clause) or `uxa` words the clause as the stored fact («ihr wart hier eingeteilt»); owner `po`, `uxa`, `lca` confirms. (b) Clinical Owner (CGR-196) states team or person continuity before ordering by it (B, K-8). |
+
+No new hard-coded clinical rule in #1388. One product rule recorded: CR-228 (`knows_client` definition; PROPOSED). No change in the merges outside #1358 (docs only).
+
+### Answers and decisions requested
+
+- **`eng` / PO (BK-c3, ADR-201):** CGR-236 (a) to (d) met as read; CGR-238 (c) is a small change to `reasonLine` and one vitest case. CGR-238 (a), (b) are conditions before real persons, not merge conditions.
+- **`uxa`:** CGR-238 (a): the words «ihr wart schon hier im Einsatz» go beyond the stored fact until a delivery record exists; the choice of words is yours.
+- **`lca`:** the continuity sentence (UX_REVIEW «Words for BK-c3») with CGR-238 (a).
+- Waiting: `lca` (CGR-237 (1)); Clinical Owner (K-8, CR-224 to CR-228, CGR-196, CGR-237 instrument, CGR-238 (b)); founder (CGR-237 (3)); `uxa` (UXR-229 to UXR-231 final words, CGR-238 (a)); `eng` (CGR-238 (c), CI on #1388).
+
+### Findings closed
+
+| Finding | State | Evidence |
+|---|---|---|
+| CGR-235 (a), (b) | **closed** | #1358 merged `25d7cdf` on head `9a7fc56` (the head of my 17:29 gate line); pgTAP 145, vitest and e2e as cited 17:29 |
+| CGR-236 | (a) to (d) met on #1388 `3f8c5d4`; closes when #1388 is merged on a head with `db` and `e2e` green | above |
+| CGR-235 (c), CGR-221 (Handbook part), CGR-224 (c), CGR-226 (b), CGR-231, CGR-232, CGR-233, CGR-237 | open, unchanged | – |
+
+---
+
 ## 2026-11-17 17:29 CET: **`cra-gate: #1358 9a7fc56 clear`** (Phase A, «Simulation, synthetic data»). CGR-235 (a) and (b) are met on the head in code and tests; CGR-235 (c) and the UXR-229 wording stay follow-up before any real client, not a merge condition (FE-087 (2) (c), PO 16:40 (2)). Two new advisory findings: CGR-236 on the BK-c3 ADR draft #1381 (docs only) and CGR-237 on FE-085 (KLV Art. 8 duty to assess need without a named instrument; UNKNOWN, `lca` and Clinical Owner). Read on `recovery/main` `646754e`. Blueprint 3.2.35 to 3.2.38 changed lines outside Annex B (§1, the 20 guarantees) and outside the qualification matrix; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 stands (reservation CGR-221, Handbook part); no renewal is due. First run on the hourly cadence (FE-088 (1)); the task text still says «every 4 hours» (cadence only; no contradiction in substance).
 
 ### What I read
