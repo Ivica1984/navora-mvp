@@ -612,3 +612,28 @@ Read: PR #1358 (draft, head `6de96b0`, `ci` 44057327890 running at the PO read; 
 
 Owners: `eng` (#1358 migration and screens), `cra` (3 (b), (c)), `lca` (G-5, G-3), `uxa`, `aia`. PO status of BK: **active**, slice BK-c (BK-c1 merged, merge-commit CI green; BK-c2 in draft #1358).
 
+
+## PO amendment 2026-11-17 11:39 (scheduled PO run): BK-c2 screens on #1358; what must be on the PR before it leaves draft
+
+Read: PR #1358 (draft, head `7ebfd8e`, docs-only on top of `f3ea229`; `ci` 44066772979 running at the PO read); journal `2026-11-17-1115-eng.md` and ADR-200 addendum 11:15 (PROPOSED) on the branch. Not a review of code, not an acceptance; the PO ran no test.
+
+| Check | Result | Evidence |
+|---|---|---|
+| `ci` on `recovery/main` `b3794e8` (PO merge #1359) | green | push 44059683782, PR 44059694935 success |
+| #1358 red-first for the screens (FE-071 (2)) | met per PR text | `5677cc5` adds only `tests/unit/bk-c2-offer-states.test.ts`; implementation `6c81179` after |
+| #1358 last code head `f3ea229` | 4/4 green per `eng` | `ci` 44065373848 (`app`, `db` 144 files PASS, `e2e` 184 passed, `ui-screenshots`); job logs not read by the PO this run |
+| Changed existing test `bk-a-order.spec.ts` | named, not weakened (PO reading) | the BK-a placeholder «Stand: noch nicht gedeckt» replaced by the created order's own card and the F-1 words |
+| #1358 merge conditions | not yet | draft; CI running on `7ebfd8e`; no gate line |
+
+1. **Required on #1358 before it leaves draft (PO decision, product scope, simulation only):** the Playwright path of a take naming a colleague is a BK-c2 acceptance test, not optional. Positive: the taker names a colleague of the same team, the colleague sees «Für dich eingeteilt» first and confirms; a second case where she presses «Ich kann nicht» and the order is offered again. Negative: a member of another team never sees her card; the client reads «Noch nicht gedeckt» until the confirmation. pgTAP 144 and vitest do not replace it, because the visible path is what the slice delivers.
+2. **Seed addition approved for this (synthetic only):** one more synthetic member with the same grade in one team, named in the PR. `eng` states in the PR which other BK specs' orders then reach that team and that their assertions are unchanged; any changed assertion is named, as for `bk-a-order.spec.ts`. No real name, no real address.
+3. **Screenshots 390/1440 as images in a PR comment** (PO 2026-11-16 21:39 (5)) stay required before `uxa` gates; produced from CI artefacts is enough.
+4. **Deviations in ADR-200 addendum (4), PO position (PLANNED until merged):**
+   - No next-step line under «Nicht gedeckt»: **accepted for BK-c2** (cut smaller, FE-070 (3)); the line waits for `cra`/Clinical Owner (CGR-226 (b)). No invented line.
+   - No relative time on the open client state: left to `uxa` in its gate; not a merge condition unless `uxa` asks.
+   - No team name on «Nicht mehr gedeckt»: stands for the simulation (UXR-223, PO 10:39 (3)(d)).
+   - Price line and «Warum empfohlen»: BK-c3, as placed (`aia`).
+   - First names visible to the own team only: stands for Phase A; `lca` G-5 (e) before any real use.
+5. **Challenge (PLANNED) H-BK-11:39:** the changed BK-a test shows an order no team could take because no member holds the grade. A team should see this as a fact about itself, not only the client as «Kein passendes Team ist frei»: «Diesen Monat 3 Aufträge nicht möglich: Stufe FaGe fehlt im Team». That turns lost orders into the team's own staffing decision (value 4 team autonomy, 3 income) without a dispatcher telling them. Not in BK-c; brief candidate after BK, aggregate counts only, no client data; `lca` and `aia` to check. Measure: share of not-covered orders whose only exclusion reason is grade (no target value).
+
+Owners: `eng` (1–3 on #1358), `uxa` (relative time, words, screenshots), `cra` (CGR-226 (b); PO 10:39 (3)(b) still open), `lca` (G-5 (e)), `aia` (BK-c3). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 in draft #1358).
