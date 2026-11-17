@@ -126,6 +126,8 @@ export const ACK_WAY_BACK_LINE = "Kannst du doch nicht, erfasse eine Abwesenheit
  * BK-c3 (PO 17:39; ADR-201). Words: UX_REVIEW.md «Words for BK-c3» (`uxa`, PROPOSED) with UXR-233. Clause order is the
  * key order below. `member_free` is shown only when it is the sole clause (it is true on almost every open row).
  * No clause → no line; an unknown code shows nothing. No number, no rank, no other team.
+ * CGR-238 (c) / UXR-234 (PO 19:39): no line at all when `member_free` is absent (also not with `knows_client` alone),
+ * and none on a card that shows the nobody line (`teamOfferView`).
  */
 export const REASON_PREFIX = "Empfohlen für euch: ";
 export const REASON_WORDS: Record<string, string> = {
@@ -135,6 +137,7 @@ export const REASON_WORDS: Record<string, string> = {
 
 export function reasonLine(codes: string[] | null | undefined): string | null {
   const known = (codes ?? []).filter((c) => Object.prototype.hasOwnProperty.call(REASON_WORDS, c));
+  if (!known.includes("member_free")) return null;
   const distinguishing = known.filter((c) => c !== "member_free");
   const shown = distinguishing.length > 0 ? Object.keys(REASON_WORDS).filter((c) => distinguishing.includes(c)) : known.slice(0, 1);
   if (shown.length === 0) return null;
@@ -221,7 +224,7 @@ export function teamOfferView(
     candidates: list,
     preselected: row.caller_free && callerListed ? callerId : null,
     chooseLabel: nobody ? null : releaseLine ? "Andere Person wählen" : "Person wählen",
-    reasonLine: reasonLine(row.reasons),
+    reasonLine: nobody ? null : reasonLine(row.reasons),
   };
 }
 
