@@ -16,6 +16,42 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 23:26 CET: `cra-gate: #1403 863c778 clear` (gate «Simulation, synthetic data» only). The new head of #1403 adds only the `eng` journal 22:14 and one line in `IMPLEMENTATION_STATUS.md`; `git diff 6007fd5 863c778 -- src supabase tests e2e` is empty, so my 22:26 reading of pgTAP 147 carries over unchanged. `lca` has given its gate line on the same head (#1406, D-44 23:20) and confirmed the G-6 reading. CGR-239: the fix is on the `lca` branch of #1406 (head `ebd1ed4`) and meets my check; it closes once #1406 is on `recovery/main`. No new finding. Read on `recovery/main` `024461a`. Blueprint 3.2.44 changed only the header, §8 row BK and the version row; Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
+
+### What I read
+
+- Merges since my 22:26 section: #1402 (`uxa` role docs), #1404 (mine), #1405 (`po` 22:39: brief `BK.md` §PO note 22:39, `NEXT_CAPABILITY.md` *Active now*, Blueprint 3.2.44, `ROADMAP.md`). `git diff 166fb21 024461a -- src supabase tests e2e` is empty.
+- Open PRs: #1403 (`eng`, BK-c, test only; head `863c778`), #1406 (`lca` 23:20: D-44 gate on #1403, D-18 CGR-239 fix, journal), #1084 (Dependabot, out of my scope). No review comment addressed to me.
+- CI on `863c778` (check-run API): `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed `success`. I did not read the raw `db` log this run.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1403 BK-c pgTAP 147 (test only) | `863c778` | `cra-gate: #1403 863c778 clear` (simulation, synthetic data). Docs-only delta to `6007fd5`. |
+| #1406 `lca` 23:20 (docs) | `ebd1ed4` | no finding from my field. The D-44 23:20 reading of G-2 (household *client account*), G-3 (2) and G-6 (no read model joins the client and the member role) is consistent with my 22:26 table; the ArG dual-employer part of G-6 stays UNKNOWN (legal adviser, before BK-f). |
+| BK-c acceptance | `ad21dd2` + #1403 | `changes-requested` (PO). My 21:27 acceptance input carries over to the merge commit of #1403 if the new `ci-repeat` is 10/10 for `db` and `e2e` with pgTAP 147 «ok» in every `db` log, read from raw logs (FE-072); I will read them in the run after it. |
+
+### Findings
+
+No new finding. No new hard-coded clinical rule. Registers unchanged.
+
+| ID | Status |
+|---|---|
+| CGR-239 (advisory, S3) | fix verified on #1406 head `ebd1ed4`: `grep -n "D-18/1[24]" decisions/D-18.md` there shows D-18/12 only in the CGR-180 (2) part (lines 508, 521) and D-18/14 only in the 20:20 part (lines 652, 654); `ADVISER_CATALOGUE.md` rows 42, 44 unchanged. Stays open until #1406 is merged; I close it in the first run after the merge. |
+
+### Answers and decisions requested
+
+- **PO:** from my field #1403 may merge on `863c778` (both gate lines now present); then `ci-repeat` on the merge commit after 02:20 Zurich. Please merge #1406 so CGR-239 can close.
+- The PO proposal (test-only PRs with criteria already worded by `lca` merge on `cra` alone, `lca` confirms before acceptance) is a process question for the owner; from my field it is acceptable for Phase A only if a test-only PR really changes nothing under `src/` or `supabase/migrations/` and the `cra` gate names that diff as empty. No recommendation beyond that.
+- Waiting (unchanged): Clinical Owner (K-8, CR-224 to CR-228, CGR-196, CGR-226 (b), CGR-238 (b)); founder (CGR-237 (3), `STAGING_DB_URL`); `uxa` (UXR-229 to UXR-231, CGR-235 (c), CGR-238 (a) words); legal adviser (Q-44a, Q-44e, D-18/12, D-18/14).
+
+### Findings closed
+
+None this run.
+
+---
+
 ## 2026-11-17 22:26 CET: `cra-gate: #1403 6007fd5 clear` (gate «Simulation, synthetic data» only). #1403 is the test-only PR the PO asked for in the BK-c acceptance review of 21:39 (`changes-requested`): pgTAP 147 pins `lca` D-44 G-2 (i), (ii), G-3 (2) and G-6 on the existing code. No migration, grant, seed or app code changed. `app`, `db`, `e2e`, `ui-screenshots` green on `6007fd5`. No new finding; no finding closed. Read on `recovery/main` `7fccdae`. Blueprint 3.2.43 changed the header, §8 row BK and the version rows; Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
 
 ### What I read
