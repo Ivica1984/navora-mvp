@@ -4121,4 +4121,25 @@ Labels: IMPLEMENTED = in `recovery/main` `14f0f91` today; PLANNED = this ADR; OP
 
 **Tests.** pgTAP 141 (74 assertions; red on `63af13f`). PLANNED in the same PR: `scripts/db-concurrency/order-take.sh` (two sessions take the same order at once → one live take, the loser `already_taken`; run by `db` and `ci-repeat`), and the unit test for the `open` label mapping. e2e and screenshots: BK-c2.
 
+**Addendum 2026-11-17 04:25 (`eng`, PO 03:39 point 4): writer list and race script.**
+
+*Writer list of the availability and level sources of `private.order_member_step`* (read on the branch, migrations 0003–0135 and `src/`; IMPLEMENTED facts). The app has no direct write grant on any of these tables except `care_visits (status)` (0004); every other write runs through a security-definer function or a migration.
+
+| source read by the member step | runtime writers | covered by |
+|---|---|---|
+| `team_memberships` (`private.user_in_team`) | inserts (`add_team_member`, `accept_my_invitations`, `decide_team_candidate`; they can only make a member pass), `set_member_qualification` (0018, 0046 patch: column `qualification`, not read by the member step), **`remove_team_member` (0035 → 0036 → 0037, 0065 patch): delete, no `member_access_events` row**; `on delete cascade` from `teams` and `auth.users` | **gap found** (pgTAP 142 §1, red on `66e219c`): new trigger `bk_c1_recheck_takes` after delete or update of `team_id`, `user_id` |
+| `member_access_events` (`private.access_ended`) | LEAVE1 `end_member_access`, `restore_member_access` (0074, 0076, 0078); append-only | trigger (insert) |
+| `member_qualification_evidence` (`qual_evidence_state`, `member_activity_ok`) | QUAL1 commands (0120: `confirm_my_qualification` and the evidence insert path); append-only (QUAL1-2) | trigger (insert) |
+| `member_absences` | ABS1 `record_absence`, `change_absence` (0046, 0048) | trigger (insert, update) |
+| `care_visits` (open visits) | 27 migration functions (planning, cover, take, ABS1, LEAVE1, PLAN3, VIS1 …); app `update (status)` | trigger (insert, update of status, people, date, times) |
+| `order_takes` (overlapping live take) | `take_order` (checks step 3 itself), `recheck_member_takes` (release only) | not needed: a new take never makes another take ineligible (refused at step 3) |
+| `client_accounts.client_kind`, `qual_matrix_cells`, `qual_activities`, `postcodes`, `regions` | migrations only (0120, 0127, 0129); no runtime writer | read-time safety net only |
+| time (`valid_until` of evidence) | none | checked at the take against `ends_at`; time passing cannot change it |
+
+*Safety net sharpened.* On `b6f4cb7` a live take whose member no longer passes read `no_longer_covered` forever: no `order_not_covered` exception, not even at or after `latest_cover_at` (contradicting (9)). Now `private.order_cover` treats it like a released take for the time-based states (`cover_time_reached`, `started`), so any path the triggers miss still reaches Operations (pgTAP 142 §2). Remaining (named): such a stale live take still blocks other teams with `already_taken` until a trigger path releases it; with the writer list complete no runtime path is known that leaves one (UNKNOWN for future writers; a new writer of these tables must add itself to this table).
+
+*Race script (IMPLEMENTED on the branch).* `scripts/db-concurrency/order-take.sh`, run by `db` (`ci`) and `ci-repeat`: two teams take one order in two real sessions, and two members of one team take another order at once (PO 03:39 (2)); each case expects exactly one `ok`, one `already_taken` and exactly one take row. Committed synthetic fixture (Testorganisation S, fixed ids), removed again.
+
+*PO 03:39 (2) take-over right* is what 0135 already does (every active member of an offered team; the named member may be a colleague who passes `order_member_step`; Operations, coach and client never take: `not_team_member`); pgTAP 141 §6 covers the refusals; no code change.
+
 **Open (named, not assumed).** Take-over right inside a team (`po`, `uxa`); lead value (Clinical Owner, K-8); exception priority and next step (`cra`, `uxa`; CGR-226); `lca` G-5 (e) first-name rule for the covered state before real use; D-44 and Q-44e stay unresolved (the broadcast is product logic, not a legal finding).

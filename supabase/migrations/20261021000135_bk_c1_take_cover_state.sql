@@ -265,8 +265,16 @@ begin
     return;
   end if;
   if k.id is not null then
-    -- Safety net (ADR-199 (5)): a live take whose member no longer passes is never shown as covered.
-    return query select 'no_longer_covered'::text, null::text, null::uuid, null::timestamptz, lat;
+    -- Safety net (ADR-199 (5)): a live take whose member no longer passes is never shown as covered. For the time-based
+    -- states it counts as released (pgTAP 142 §2), so a path no recheck trigger sees still raises the Operations
+    -- exception at the latest coverage time (ADR-199 (9)).
+    if p_at >= o.starts_at then
+      return query select 'not_covered'::text, 'started'::text, null::uuid, null::timestamptz, lat;
+    elsif p_at >= lat then
+      return query select 'not_covered'::text, 'cover_time_reached'::text, null::uuid, null::timestamptz, lat;
+    else
+      return query select 'no_longer_covered'::text, null::text, null::uuid, null::timestamptz, lat;
+    end if;
     return;
   end if;
   rnd := private.order_round(o.id);
@@ -474,6 +482,12 @@ begin
   if tg_table_name = 'care_visits' then
     perform private.recheck_member_takes(new.responsible_user_id);
     perform private.recheck_member_takes(new.covered_by);
+  elsif tg_table_name = 'team_memberships' then
+    -- Writer list (ADR-199 (5), pgTAP 142): `remove_team_member` deletes the row and writes no access event.
+    if tg_op in ('DELETE', 'UPDATE') then perform private.recheck_member_takes(old.user_id); end if;
+    if tg_op = 'UPDATE' and new.user_id is distinct from old.user_id then
+      perform private.recheck_member_takes(new.user_id);
+    end if;
   else
     perform private.recheck_member_takes(new.user_id);
   end if;
@@ -482,8 +496,9 @@ end;
 $$;
 revoke all on function private.recheck_takes_trigger() from public, anon, authenticated;
 
--- The four sources of order_member_step that can turn a passing member into a failing one (absence, access end,
--- evidence, open visit). Team membership removal ends access through LEAVE1 (member_access_events).
+-- The sources of order_member_step that can turn a passing member into a failing one (absence, access end, evidence,
+-- open visit) and, from the writer list (ADR-199 (5), pgTAP 142), team membership: `remove_team_member` deletes the
+-- `team_memberships` row without a `member_access_events` row, so it needs its own trigger.
 drop trigger if exists bk_c1_recheck_takes on public.member_absences;
 create trigger bk_c1_recheck_takes after insert or update on public.member_absences
   for each row execute function private.recheck_takes_trigger();
@@ -496,6 +511,9 @@ create trigger bk_c1_recheck_takes after insert on public.member_qualification_e
 drop trigger if exists bk_c1_recheck_takes on public.care_visits;
 create trigger bk_c1_recheck_takes after insert or update of status, responsible_user_id, covered_by, visit_date,
   time_start, time_end on public.care_visits
+  for each row execute function private.recheck_takes_trigger();
+drop trigger if exists bk_c1_recheck_takes on public.team_memberships;
+create trigger bk_c1_recheck_takes after delete or update of team_id, user_id on public.team_memberships
   for each row execute function private.recheck_takes_trigger();
 
 -- 11. Operations exception `order_not_covered` (ADR-199 (9); BK-6, CGR-215 (c), CGR-222, CGR-225) ------------------------
