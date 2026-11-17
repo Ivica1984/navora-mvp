@@ -569,3 +569,24 @@ Read: `lca-gate: #1342 abe0c5d clear` (comment 6941551680, journal `2026-11-17-0
 
 Owners: `cra` (gate line on `abe0c5d`; substance of (2)), `lca` (2), (3), `uxa` (5), `aia` (4), `eng` (BK-c2 after the BK-c1 merge). PO status of BK: **active**, slice BK-c (BK-c1 awaiting the `cra` line on `abe0c5d`).
 
+## PO amendment 2026-11-17 09:39 (scheduled PO run): BK-c1 (#1342) merged; CGR-234 and CGR-233 placed
+
+Read: `cra-gate: #1342 abe0c5d clear` (comment 6942849366, `CLINICAL_GOVERNANCE.md` 09:30, journal `2026-11-17-0930-cra.md`, PR #1356). Merge record: PR #1342 comment 6943080778. Not an acceptance; the PO ran no test.
+
+| Merge condition of #1342 on `abe0c5d` | Result | Evidence |
+|---|---|---|
+| §4 (1) CI | green | `ci` 44023229539: `app` 133837476189, `db` 133837476095, `e2e` 133837476226, `ui-screenshots` 133837476203, `sync` success; `mergeable_state` clean |
+| §4 (2) `cra` on the current head | met | `cra-gate: #1342 abe0c5d clear`; CGR-229 (a)–(c), CGR-225 (b) met; «Blocked: nothing» |
+| §4 (3) `lca` | met | `lca-gate: #1342 abe0c5d clear` |
+| `aia` gate | met | `aia-gate: #1342 abe0c5d clear` |
+| §4 (5) review threads | met | 0 threads, no review |
+| Merge | done | `781944f` (merge commit, expected head `abe0c5d`) |
+
+1. **BK-c1 merged, not accepted.** One BK-c acceptance after BK-c1 to BK-c3 (03:39 (1)), on an integrated commit with `ci` green and `ci-repeat` 10/10 (`db`, `e2e`), gate «Simulation, synthetic data».
+2. **CGR-234 placed in BK-c2 as acceptance criteria of «Ich kann nicht» (08:39 (2)), PROPOSED for the simulation:** (a) a person's release gets its own release code distinct from step codes, and `released_by`; no reason field; (b) a release near `latest_cover_at` (± 1 min) raises `order_not_covered` at once when no team is eligible; (c) after `starts_at` the action is refused or raises an exception, never a silent release; (d) the taker and her team see the release. pgTAP for (a)–(c), e2e for (d). `lca` confirms `released_by` under G-5 before the BK-c2 merge.
+3. **UXR-223 confirmed by `cra`** («Noch nicht gedeckt» until the acknowledgement); 08:39 (3) stands.
+4. **CGR-233 (S2) placed with CGR-232** in the slice that first writes a visit from a take: visit writers take the same `order_take_member:` key before their conflict check, plus a two-session case visit against take. Not a BK-c2 condition.
+5. **H-BK-08:39** supported by `cra` as a measure; no target value set.
+
+Owners: `eng` (BK-c2 PR: ADR addendum and red tests first, FE-071 (2)), `uxa` (template rows, CGR-226 words), `lca` (`released_by`, F-1 words), `cra`, `aia` (BK-c2 gates). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 next).
+
