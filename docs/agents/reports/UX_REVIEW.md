@@ -6,6 +6,56 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 11:48 CET · `uxa`: first BK-c2 screens reviewed on #1358 (`7ebfd8e`, code head `f3ea229`): the 07:52 words are built faithfully; UXR-224 (high, «Ich kann nicht» and «Ablehnen» are one-tap and cannot be undone, #1361); UXR-225 to UXR-228; relative time decided (left out); template rows transferred
+
+**State.** `recovery/main` at `b3794e8` (PO merge #1359). Since my 07:52 section merged: my PR #1352, `lca` #1354, `aia` #1353, `cra` #1356, **#1342 (BK-c1) as `781944f`**, PO #1355, #1357, #1359. `git diff 74ef56b b3794e8 -- src` touches only `src/lib/supabase/database.types.ts` (generated types): **no screen changed on `recovery/main`**. Active: BK, slice BK-c; BK-c2 is draft #1358. Blueprint 3.2.29 → 3.2.32: header and version rows only; **§5, §6 and `blueprint-v3/wireframes/` unchanged**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
+
+**Open PRs.** **#1358 (BK-c2, draft, head `7ebfd8e`; last code head `f3ea229`, `ci` 44065373848 4/4 success per the `eng` journal 11:15; I read no job log)** changes `src/app/(protected)/order/page.tsx`, `team/page.tsx`, `team/team-client.tsx`, new `team/shift-offers-section.tsx` and `src/features/orders/offer-rules.ts` (all words). Reviewed below from the code. **No `uxa` gate line yet:** the PR is draft, the PO's 11:39 conditions (colleague-named Playwright, screenshots in a PR comment) are still open, and the gate must name the final head (AUT-50). #1360 (PO 11:39), #1087, #1084: no screen.
+
+**Screenshots.** `ui-screenshots` artifacts exist for #1358 (14319948560 on `7ebfd8e`, 14320391951 on `f3ea229`) and for `recovery/main` (14318340888, `b3794e8`); the download was refused again by the session proxy (blob host). **No screenshots were available.** Review from TSX, classes and strings on `7ebfd8e`.
+
+### #1358 against the 07:52 words and the template (presentation only)
+
+| Item | Result | Evidence (`7ebfd8e`) |
+|---|---|---|
+| UXR-221 taken card stays («Übernommen», «Es geht: …», no button) | built | `offer-rules.ts` `teamOfferView` taken branch; `shift-offers-section.tsx` taken card |
+| CGR-230 named person's card («Für dich eingeteilt», who named her, deadline as a fact, «Bestätigen») | built; no countdown, no amber | `offer-rules.ts` lines for `mine`; deadline `zurichDayTime(latest_cover_at)` |
+| UXR-222 «Ich kann nicht», release lines, «Andere Person wählen» | built; see **UXR-224** | `releaseText()`; `chooseLabel` |
+| H-BK-06:39 / AUT-132 caller first, pre-selected only when free, one neutral line otherwise | built; no step or reason | `candidates` map, `callerNotFree` |
+| F-1 one neutral client zero state | built («Kein passendes Team ist frei.») | `clientCoverLines` default branch; migration 0136 `client_orders()` maps both details to `no_team_free` |
+| UXR-223 «Noch nicht gedeckt … bestätigt noch» | built | `awaiting_acknowledgement` branch |
+| CGR-226 (a) «Gedeckt · Person benannt, geprüft für [bestellte Stufe]» | built (ordered grade, never the person's) | `LEVEL` map |
+| Client order: status first, then facts, `role="status"` | built | `order/page.tsx` |
+| Section position on `/team` | after the signal banner, visit alerts and hand-over blocks; safety signals stay on top | `team-client.tsx` |
+| 44 px targets, word plus colour on tags, focus | met in code (`min-h-11` on buttons and radio labels; tags are words) | `shift-offers-section.tsx` |
+| Never-shown list (template §2): countdown, other team, count, reason | none found in the strings | `offer-rules.ts` |
+
+**Relative time on the open client state (ADR-200 addendum (4) (b); PO 11:39 leaves it to `uxa`): decided, left out.** A server-rendered «(in 5 Std. 10 Min.)» goes stale while the page is open and can then read later than the truth; the absolute start «Beginn Sa 21.11., 07:00» answers the question without that risk. Template §4 row changed in this PR. Not a merge condition.
+
+**ADR-200 addendum (4) (e), the empty-candidate sentence:** words in UXR-226.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-224 | `/team` offer card, named colleague («Ich kann nicht») and any member («Ablehnen») | high | Both act in **one tap** and cannot be undone here: «Ich kann nicht» releases the take at once, blocks her for this order (ADR-200 (4)) and, near `latest_cover_at`, raises «Nicht gedeckt» for the client (CGR-234 (b)); «Ablehnen» removes the offer for the whole team («Ihr seht dieses Angebot nicht mehr.»). They sit 8 px beside the primary on a phone. A slip of the thumb loses cover that the team wanted to give. «Bestätigen» is also final (no «Ich kann nicht» after it, PO 10:39 (3) (b)) and says nothing about that. | `shift-offers-section.tsx` buttons `releaseNamedShiftTake`, `declineShiftOrder` (no step); `offer-rules.ts` `DECLINED_TEXT`; ADR-200 (4); PO 10:39 (3) (b) | §2 destructive or planning-changing actions confirm with one consequence sentence; UXR-169 (#1138) same pattern for «Fall übernehmen» | «Ich kann nicht» and «Ablehnen» open an inline step (focus to its sentence, action first, «Zurück» second, neither at the first button's position): «Du gibst diese Schicht frei. Sie geht sofort an alle passenden Teams; du kannst sie danach nicht mehr übernehmen.» · «Freigeben» / «Ablehnen: Euer Team sieht dieses Angebot danach nicht mehr.» · «Ablehnen». One line under «Bestätigen»: «Mit dem Bestätigen bist du fest eingeteilt.» Two taps instead of one keep H-BK-08:39 cheap. Playwright 390: one tap on «Ich kann nicht» writes nothing (offer row unchanged), the step shows the sentence, «Zurück» restores the card, «Freigeben» releases. `cra` confirms the sentences (safety state). | [#1361](https://github.com/Ivica1984/navora-mvp/issues/1361) |
+| UXR-225 | `/order` client status after a release of a take that never covered | medium | `order_cover()` returns `no_longer_covered` whenever any take exists in the order's history. After UXR-223 the client saw «Noch nicht gedeckt … bestätigt noch»; when the named colleague then presses «Ich kann nicht», the client reads **«Nicht mehr gedeckt»**, which says she was covered before. She never was. | migration 0136 `private.order_cover` lines 192, 208 (`exists order_takes` → `no_longer_covered`); `offer-rules.ts` `no_longer_covered` branch | §2 «Not covered has one headline»; §4 a state word says what is true | For a take released **before** its acknowledgement (or a pending take whose person stops passing), the client reads «Noch nicht gedeckt · Beginn …» · «Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.»; «Nicht mehr gedeckt» only after «Gedeckt» was shown (acknowledged or self-named take). Needs a distinguishing `cover_detail` from `eng` (read model only). Test: A names B, B presses «Ich kann nicht»; client card never contains «Nicht mehr gedeckt». `cra` confirms (safety state words). | report only (medium) |
+| UXR-226 | `/team` offer card, no member can take any more | medium | When the candidate list is empty the card shows two lines («Du selbst kannst …» and «Zurzeit erfüllt niemand im Team alle Bedingungen.») and a **disabled** primary «Person wählen» that can never become active: a dead control and no next step. | `shift-offers-section.tsx` empty-list branch; `callerNotFree` also set when the caller is not listed | §1 (what next), §2 one primary action; empty state = one sentence plus one next step (§7) | With no candidate: one line «Niemand in eurem Team kann diese Schicht zurzeit übernehmen.», no «Du selbst …» line, no primary button; «Ablehnen» stays as the only action (with the UXR-224 step). Vitest: empty candidates → no button named «Person wählen». `lca` confirms no reason is implied. | report only (medium) |
+| UXR-227 | `/order` client card, every «Nicht gedeckt» | medium | The client is told the shift is not covered but not what to do next (CGR-226 (b) not shown; ADR-200 addendum (4) (a), accepted for BK-c2 by the PO 11:39). The card answers question 1, not question 2. In the simulation this is a gap; for real persons it is a safety gap. | `offer-rules.ts` `clientCoverLines` `not_covered` branches | §1 (three questions), §2 next step before the reason | Kept visible, not a BK-c2 merge condition: the next-step line under the headline (07:52 (3) words) before any gate «released for real persons and data». Substance UNKNOWN: `cra` and the Clinical Owner. | report only (medium; owner `cra`) |
+| UXR-228 | `/team` offer card footer | low | The footer says «‹Gedeckt› sieht der Auftraggeber erst mit einer benannten, geprüften Person.» Since UXR-223 that is not enough: a colleague-named take also needs her confirmation. | `offer-rules.ts` `TAKE_FOOTER`; template §2 (8) | §4 words say what is true | «Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut. ‹Gedeckt› sieht der Auftraggeber, wenn diese Person geprüft ist und, falls ihr jemand anderen wählt, bestätigt hat.» `cra` confirms. Template §2 (8) changed in this PR. | report only (low) |
+
+No finding closed this run: UXR-221, UXR-222 and UXR-223 are built on #1358 and close when it is merged with its tests.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Template (`BK5_OFFER_TEMPLATE.md`), PO 08:39 (5):** the 07:52 rows and today's decisions are transferred into §2 (8), §3 and §4 in this PR (task adjustment, journal). The words match what #1358 built, plus UXR-224 to UXR-228 marked PROPOSED.
+
+**Design system:** version 90 (§5 offer rule: the two release actions confirm in one step; status notes BUILT ON PR for the 07:52 rules). No token change.
+
+**Waiting for the PO:** place UXR-224 (#1361) for #1358 or decide against it; UXR-225, UXR-226 are small and could ride the same PR. **For `eng`:** UXR-224 to UXR-226, UXR-228 words; screenshots in a PR comment before my gate. **For `cra`:** sentences of UXR-224, UXR-225, UXR-228; substance of UXR-227. **For `lca`:** UXR-226 (no reason implied). I ran no NAVORA test.
+
+---
+
 ## 2026-11-17 07:52 CET · `uxa`: no screen changed; BK-c2 words for CGR-230 (acknowledgement), F-1 (one neutral client zero state, next step first), CGR-226 (a) and H-BK-06:39 (caller free or not); UXR-222 (high, the named colleague cannot say «Ich kann nicht», #1351); UXR-223 (medium, client status before acknowledgement undecided)
 
 **State.** `recovery/main` at `74ef56b` (PO merge #1350). Since my 03:48 section merged: my PR #1344, #1337 (ADR-198, `abaddca`), `lca` #1345, `cra` #1347, PO #1343, #1346, #1348 to #1350. `git diff 14f0f91 74ef56b -- src` is **empty**: no screen changed. Active: BK, slice BK-c (BK-c1 #1342 on `abe0c5d`, awaiting `cra`, `lca`, `aia` gate lines). Blueprint 3.2.25 → 3.2.29: header, §8 BK row and version rows only; **§5, §6 and `blueprint-v3/wireframes/` unchanged**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
