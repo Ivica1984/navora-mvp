@@ -61,7 +61,12 @@ select has_table('public', 'order_takes', 'BK-5a: public.order_takes exists');
 select has_table('public', 'order_declines', 'FE-078 (1): public.order_declines exists');
 select has_column('public', 'order_offers', 'round', 'CGR-223: offer rows carry the screening round');
 select has_column('public', 'order_exclusions', 'round', 'CGR-223: exclusion rows carry the screening round');
-select ok(pg_get_function_result('public.client_orders()'::regprocedure) !~* '(count|anzahl|teams_|n_teams)',
+create function pg_temp.out_cols(fn text) returns setof text language sql as $$
+  select n from pg_proc p, unnest(p.proargnames, p.proargmodes) as a(n, m)
+  where p.oid = fn::regprocedure and a.m = 't'
+$$;
+select is((select count(*)::int from pg_temp.out_cols('public.client_orders()') c
+           where c ~* '(^|_)(count|counts|anzahl|teams|n_teams|ranks?)(_|$)'), 0,
           'D-44 (2) (a): the client read model returns no team count');
 select ok(pg_get_function_result('public.client_orders()'::regprocedure) ~ 'cover_detail',
           'BK-6: the client read model says why an order is not covered (cover_detail)');
@@ -149,7 +154,8 @@ select is(pg_temp.sees('01', 'o1'), array[pg_temp.t('01')], 'V-8: a member of T1
 select is(pg_temp.sees('02', 'o1'), array[pg_temp.t('02')], 'V-8: a member of T2 sees O1 for her own team');
 select is(pg_temp.sees('03', 'o1'), array[pg_temp.t('03')], 'V-8: a member of T3 sees O1 for her own team');
 select is(pg_temp.sees('05', 'o1'), '{}'::uuid[], 'V-8 negative: a member of T4 (no offer row) never sees O1');
-select ok(pg_get_function_result('public.team_order_offers()'::regprocedure) !~* '(count|anzahl|other_team|rank)',
+select is((select count(*)::int from pg_temp.out_cols('public.team_order_offers()') c
+           where c ~* '(^|_)(count|counts|anzahl|teams|other|ranks?|position)(_|$)'), 0,
           'template §2: the team view carries no count, no other team and no ranking position');
 
 -- 4. Client before any take ------------------------------------------------------------------------------------------
@@ -283,13 +289,15 @@ select is(pg_temp.offered('o1', 1), array[pg_temp.t('01'), pg_temp.t('02'), pg_t
 select is(pg_temp.sees('02', 'o1'), array[pg_temp.t('02')], 'H-BK-15:39 (ii): O1 is back in T2''s list');
 select is((select count(*)::int from public.order_takes where order_id = pg_temp.oid('o3') and released_at is null), 1,
           'the take of O3 (no overlap with the absence) stays');
--- grade evidence no longer valid at the slot end (CGR-223 (a), second path)
+-- grade evidence no longer verified for the slot (CGR-223 (a), second path). Evidence is append-only (QUAL1-2), so a
+-- record cannot be shortened after the take (validity at the slot end is checked at the take); the reachable path is a
+-- new record that makes the grade contradictory (`private.qual_evidence_state`, 0120).
 select is(pg_temp.take(pg_temp.m('03')::text, 'o1', '03', '03', 'ffff0000-0000-4000-8141-000000000030') ->> 'result', 'ok',
           'round 2: T3 takes O1 with M3');
 select pg_temp.as_owner();
-update public.member_qualification_evidence set valid_until = timestamptz '2026-11-23 04:00:00+01'
- where user_id = '00000000-0000-4000-a141-000000000003' and requirement = 'grade';
-select is(pg_temp.cs('o1'), 'no_longer_covered', 'CGR-223 (a): grade evidence ending inside the slot releases the take');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a141-000000000003', 'grade', 'ags_eba', 'verified', true, null);
+select is(pg_temp.cs('o1'), 'no_longer_covered', 'CGR-223 (a): a grade that is no longer verified releases the take');
 select is(pg_temp.offered('o1', 3), array[pg_temp.t('02')], 'CGR-223 (c): round 3 offers only the team that still passes');
 
 -- 11. Short notice, zero state, every team declined (CGR-222 (c), CGR-225, BK-6) --------------------------------------
@@ -359,9 +367,10 @@ values ('00000000-0000-4000-c141-000000000001', '00000000-0000-4000-b000-0000000
         timestamptz '2026-11-26 12:00:00+01', '4102', 'fage_efz', array['C1'], array['C1'], null,
         timestamptz '2026-11-12 09:00:00+01', '00000000-0000-4000-a000-0000000009e8');
 select private.screen_unscreened_orders();
-select is((select count(*)::int from public.order_offers where order_id = '00000000-0000-4000-c141-000000000001'
-             and team_id::text like '00000000-0000-4000-b141-%'), 3,
-          'CGR-215 (b): an order confirmed before BK-c is screened by the backfill');
+select is((select array_agg(team_id order by team_id) from public.order_offers
+           where order_id = '00000000-0000-4000-c141-000000000001' and team_id::text like '00000000-0000-4000-b141-%'),
+          array[pg_temp.t('01'), pg_temp.t('02')],
+          'CGR-215 (b): an order confirmed before BK-c is screened by the backfill (T3: M3''s grade is contradictory since §10)');
 select private.screen_unscreened_orders();
 select is((select count(*)::int from public.order_offers where order_id = '00000000-0000-4000-c141-000000000001'),
           (select count(*)::int from public.order_offers where order_id = '00000000-0000-4000-c141-000000000001' and round = 1),
