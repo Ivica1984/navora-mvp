@@ -16,6 +16,62 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-17 21:27 CET: BK-c on the integrated commit `ad21dd2`: **`cra` acceptance input clear for «Simulation, synthetic data»** (my field; the acceptance itself is the PO's, FE-072). The merge of #1388 carries exactly the head I cleared (`git diff 8744acd ad21dd2 -- src supabase tests` empty); push `ci` 44163100048 on `ad21dd2` green; `ci-repeat` 44166631679 on `ad21dd2` 10/10 for `db` and `e2e`, read by me from all 20 raw job logs, pgTAP 145 (CGR-235 (b)) and 146 (CGR-236) «ok» in every `db` log. CGR-236 and CGR-238 (c) close. CGR-237 (1) answered by `lca` (D-18 20:20). One new advisory finding, CGR-239 (a cross-reference in D-18). Read on `recovery/main` `ca6487b`. Blueprint 3.2.42 changed §2.2, §8 row BK, Annex A and Chapter 13 (`csa` renewal); Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
+
+### What I read
+
+- Merges since my 20:27 section: #1388 (`ad21dd2`, BK-c3, head `8744acd`), #1391, #1392 (`csa`), #1394 (`aia`), #1395 (`lca`), #1396 (mine), #1397 (`uxa`), #1398 (`po` 20:39 docs; Blueprint 3.2.42, brief `BK.md` §PO 20:39, `NEXT_CAPABILITY.md` *Active now* 20:39).
+- Code: `git diff 8744acd ad21dd2 -- src supabase tests` is empty; no code, migration or test changed on `recovery/main` after `ad21dd2` (`git diff ad21dd2 ca6487b -- src supabase tests` empty).
+- `decisions/D-18.md` `lca` 20:20 (CGR-237 (1), sources [S29] to [S31]); `ADVISER_CATALOGUE.md` v10 (D-18/14); Blueprint diff 3.2.41 → 3.2.42.
+- Open PRs: #1399 (`eng` journal 21:23, docs only: the evidence list for the BK-c acceptance), #1084 (Dependabot, out of my scope). No review comment addressed to me.
+
+### BK-c acceptance evidence on `ad21dd2` (read from the raw job logs)
+
+| Evidence | Result | Source |
+|---|---|---|
+| Push `ci` on `ad21dd2` | run 44163100048 `success`: `app` (vitest «Test Files 130 passed (130)»), `db` («Files=146, Tests=5182», «Result: PASS»), `e2e` («188 passed»), `ui-screenshots`, `staging`. The `pull_request` run 44163113071 was cancelled by concurrency; not a failure and not used as evidence | job logs |
+| `ci-repeat` `db` 1 to 10 | run 44166631679 (head `ad21dd2`, conclusion `success`): 10/10 jobs `success`; each log «Files=146, Tests=5182 … Result: PASS»; 0 TAP `# SKIP` or `# TODO` lines; `144_bk_c2_acknowledge_release`, `145_bk_c2_cgr235b_acknowledged_take_falls_away` and `146_bk_c3_offer_reasons` «ok» in every log. The «17 failed», «44 failed» strings are names of passing tests (the pre-#922 red reproduction and 079 test 44), not failures | 10 `db` job logs (134334414008 … 134334414568) |
+| `ci-repeat` `e2e` 1 to 10 | 10/10 jobs `success`; each log «188 passed», no failed, flaky or skipped count; BK-c2/BK-c3 specs present in each log | 10 `e2e` job logs (134334414147 … 134334414364) |
+| Window | verdict job: «Inside the e2e acceptance window: start 2026-11-17 21:11, end 2026-11-17 21:22» | job 134341456255 |
+
+My own reading agrees with `eng` 21:23 (#1399). **From my field, BK-c may be accepted on `ad21dd2` with the gate «Simulation, synthetic data».** It is **not** a release for real persons and data. Before real clients, residents or staff (unchanged, all OPEN): CR-224 to CR-228 PROPOSED until the Clinical Owner (K-8, D-27); CGR-226 (b) next-step line under «Nicht gedeckt»; CGR-235 (c) client detail after «Gedeckt» (S3); CGR-238 (a) clause from a delivery record or stated as the stored fact, and (b) team vs person continuity (S2, Clinical Owner, CGR-196); `uxa` UXR-229 to UXR-231 words; 0136 and 0137 not on `navora-staging` (founder action). None of these is a condition of the simulation acceptance.
+
+### CGR-237 after `lca` 20:20
+
+`lca` settled on the texts it read (not legal advice): the assessment of need (KLV Art. 7 Abs. 2 Bst. a) is the basis of every Art. 7 service, so FE-085's focus on Bst. b and c does not remove it; home care (Art. 8a) needs an assessment by a KVV 49 nurse on a form agreed by providers and insurers, with expected time and quality-indicator capability, but no federal text names an instrument; nursing homes (Art. 8b) need an instrument based on time studies, and in Basel-Stadt the residents are assessed with RAI; the duty binds the billing provider, not a software supplier. This confirms the direction of my 17:29 reading and replaces its UNKNOWN on the article text.
+
+| Part | State | Evidence |
+|---|---|---|
+| (1) KLV text and content of an assessment | **answered** by `lca` (D-18 20:20, points 1 to 5); residual UNKNOWN: whether a NAVORA-native home-care form meets Art. 8a Abs. 4-5 and the tariff contract, and whether BS or BL prescribe a home-care instrument (adviser question D-18/14) | `decisions/D-18.md` 20:20; `ADVISER_CATALOGUE.md` v10 |
+| (2) no BK output states or implies an assessed need, a care level or KVG billability | **open**, the only Phase A condition (`lca` agrees); placed best as an assertion in the BK-f synthetic invoice-draft test | – |
+| (3) instrument decision before Phase B | **open**, founder (with D-36 for interRAI). Added from `lca` point «nursing home»: until decided, NAVORA never sets, stores as its own or derives a nursing-home level; the home keeps its Art. 8b assessment outside NAVORA | D-18 20:20 |
+
+No clinical rule set; I name no instrument as required.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-239 | `decisions/D-18.md`, the `lca` 2026-11-11 16:25 section on CGR-180 (2), edited in `lca` 20:20 (`399d902`) | advisory (S3; billing reference integrity) | The UNKNOWN line on `started_before_needs_assessment` (start-of-care window under HSK 2025 and CSS) now says «New catalogue question **D-18/14**». In `ADVISER_CATALOGUE.md` that question is **D-18/12** (row 42, v5); D-18/14 is the new home-care form question of CGR-237 (row 44, v10). The verdict two lines below still says D-18/12. An adviser or the PO following the line would ask the wrong question or think the start-of-care question was answered by the home-care one. | `git log -L508,508:docs/agents/decisions/D-18.md` → `399d902`; `ADVISER_CATALOGUE.md` rows 42, 44 | `lca` restores «D-18/12» on that line (its own file; I do not edit it); check: `grep -n "D-18/1[24]" decisions/D-18.md` shows D-18/12 only in the CGR-180 (2) part and D-18/14 only in the 20:20 part. |
+
+No new hard-coded clinical rule (no code changed).
+
+### Answers and decisions requested
+
+- **PO:** BK-c acceptance on `ad21dd2` is clear from my field for the simulation gate (above). Please name the open conditions before real persons in the `ABNAHMEAKTE.md` entry, as for BK-a and BK-b. Place CGR-237 (2) as an assertion in the BK-f invoice-draft test.
+- **`lca`:** CGR-239 (one reference).
+- Waiting: Clinical Owner (K-8, CR-224 to CR-228, CGR-196, CGR-226 (b), CGR-238 (b)); founder (CGR-237 (3), `STAGING_DB_URL`); `uxa` (UXR-229 to UXR-231, CGR-235 (c) and CGR-238 (a) words); legal adviser (D-18/14, Phase B only).
+
+### Findings closed
+
+| Finding | State | Evidence |
+|---|---|---|
+| CGR-236 (a) to (d) | **closed** | #1388 merged as `ad21dd2` on head `8744acd`; 0137 `team_order_offers()` order A; pgTAP 146 «ok» in `ci` 44163100048 and in `ci-repeat` 44166631679 10/10 |
+| CGR-238 (c) | **closed** | merged on `8744acd` (diff to `ad21dd2` empty); `offer-rules.ts` `reasonLine`, `teamOfferView`; vitest `bk-c3-offer-reasons.test.ts` in `app` job of `ci` 44163100048 |
+| CGR-237 (1) | **answered** (CGR-237 stays open for (2), (3)) | `decisions/D-18.md` `lca` 20:20 |
+
+---
+
 ## 2026-11-17 20:27 CET: `cra-gate: #1388 8744acd clear` (gate «Simulation, synthetic data» only). CGR-238 (c) met in code and test on the final head; `db`, `e2e`, `app`, `ui-screenshots` green on `8744acd`, read from the job logs. No new finding. Read on `recovery/main` `7a05451`. Blueprint 3.2.41 changed only the version rows (§14 row on CGR-238 (c)); Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
 
 ### What I read
