@@ -60,7 +60,11 @@ for (const width of [390, 1440]) {
     const done = page.getByTestId("order-done");
     await expect(done).toContainText("Auftrag bestätigt");
     await expect(page.getByTestId("client-orders")).toContainText(deDate(day) + " 22:00");
-    await expect(page.getByTestId("order-cover-state").first()).toHaveText("Stand: noch nicht gedeckt");
+    // Named change (BK-c2, F-1, template §4): the order's own card. No member of Testteam Basel holds FaGe, so BK-b2
+    // screening offers it to no team; the client reads the one neutral zero state, never the cause.
+    const mine = page.getByTestId("client-orders").locator("li", { hasText: `${deDate(day)} 22:00` }).first();
+    await expect(mine.getByTestId("order-cover-state")).toHaveText(/^Nicht gedeckt · Beginn \S\S \d\d\.\d\d\., 22:00$/);
+    await expect(mine.getByTestId("order-cover-detail")).toHaveText("Kein passendes Team ist frei.");
 
     // UXR-199 (BK amendment 00:39 (1)(a)): the form is cleared, focus is on the confirmation naming the order, and
     // pressing on again without new input cannot send a second order (the summary names the missing fields).

@@ -41,7 +41,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(74);
+select plan(76);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -305,7 +305,9 @@ select is(pg_temp.cs('o5'), 'not_covered/cover_time_reached',
           'CGR-222 (c): an order confirmed inside the coverage lead is «nicht gedeckt» at once');
 select ok(pg_temp.exc('o5'), 'CGR-222 (c): and raises the exception at once');
 select ok(cardinality(pg_temp.offered('o5', 1)) > 0, 'CGR-222 (c): the offers still go out');
-select is(pg_temp.cs('o4'), 'not_covered/no_team_eligible', 'CGR-225: no team passes at confirmation → «nicht gedeckt»');
+select is((select c.cover_state || '/' || c.cover_detail from private.order_cover(pg_temp.oid('o4'), private.now()) c),
+          'not_covered/no_team_eligible', 'CGR-225: no team passes at confirmation → «nicht gedeckt» (Operations detail)');
+select is(pg_temp.cs('o4'), 'not_covered/no_team_free', 'F-1 (BK-c2, PO 04:39 (3)): the client reads the one neutral zero state');
 select ok(pg_temp.exc('o4'), 'CGR-225: the exception is raised at once, not only at the coverage time');
 select pg_temp.act_as(pg_temp.m('01')::text);
 set local role authenticated;
@@ -320,7 +322,9 @@ select pg_temp.act_as(pg_temp.m('03')::text);
 set local role authenticated;
 select public.decline_order(pg_temp.oid('o7'), pg_temp.t('03'), 'eeee0000-0000-4000-8141-000000000073');
 reset role;
-select is(pg_temp.cs('o7'), 'not_covered/all_declined', 'BK-6: every eligible team declined → «nicht gedeckt»');
+select is((select c.cover_state || '/' || c.cover_detail from private.order_cover(pg_temp.oid('o7'), private.now()) c),
+          'not_covered/all_declined', 'BK-6: every eligible team declined → «nicht gedeckt» (Operations detail)');
+select is(pg_temp.cs('o7'), 'not_covered/no_team_free', 'F-1 (BK-c2): the client reads the same neutral zero state');
 select ok(pg_temp.exc('o7'), 'BK-6: and the exception');
 
 -- 12. Exceptions by time to start (CGR-215 (c)) -------------------------------------------------------------------------

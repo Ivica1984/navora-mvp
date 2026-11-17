@@ -12,7 +12,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(15);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -117,8 +117,10 @@ select pg_temp.absent('02');
 select is((select count(*)::int from public.order_takes where order_id = pg_temp.o() and released_at is null), 0,
           'an absence of M2 overlapping the slot releases the second take');
 select is(pg_temp.offers(3), 0, 'round 3 screens every team again and none passes (both members absent)');
-select is(pg_temp.cs(), 'not_covered/no_team_eligible',
-          'CGR-225 (b): an empty new round after a release reads «nicht gedeckt» / no_team_eligible at once');
+select is((select c.cover_state || '/' || c.cover_detail from private.order_cover(pg_temp.o(), private.now()) c),
+          'not_covered/no_team_eligible',
+          'CGR-225 (b): an empty new round after a release reads «nicht gedeckt» / no_team_eligible at once (Operations)');
+select is(pg_temp.cs(), 'not_covered/no_team_free', 'F-1 (BK-c2): the client reads the one neutral zero state');
 select ok(pg_temp.exc(), 'CGR-225 (b): and raises the order_not_covered exception at once (Mon 12:00, cover time Thu 04:00)');
 select is((select count(*)::int from public.order_exclusions where order_id = pg_temp.o() and round = 3
            and team_id::text like '00000000-0000-4000-b143-%'), 2,
