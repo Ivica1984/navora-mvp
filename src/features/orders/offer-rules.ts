@@ -83,17 +83,34 @@ export type TeamOfferView =
       releaseLine: string | null;
       /** H-BK-06:39 / AUT-132: one neutral line when the caller herself is not free; never the reason. */
       callerNotFree: string | null;
+      /** UXR-226: nobody in the team passes; replaces the «Du selbst …» line and the primary button. */
+      nobodyLine: string | null;
       candidates: { userId: string; label: string }[];
       preselected: string | null;
-      /** The primary button's label before a person is ticked. */
-      chooseLabel: "Person wählen" | "Andere Person wählen";
+      /** The primary button's label before a person is ticked; null = no primary button (UXR-226). */
+      chooseLabel: "Person wählen" | "Andere Person wählen" | null;
     }
   | { kind: "taken"; tag: "Übernommen" | "Für dich eingeteilt"; lines: string[]; actions: boolean; mine: boolean }
   | { kind: "released"; line: string };
 
 export const BROADCAST_LINE = "Alle passenden Teams sehen dieses Angebot.";
+// UXR-228 (PO 12:39 (4); template §2 (8), `uxa` 11:48, PROPOSED; `cra` confirms).
 export const TAKE_FOOTER =
-  "Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut; ‹Gedeckt› sieht der Auftraggeber erst mit einer benannten, geprüften Person.";
+  "Beim Übernehmen prüft NAVORA alle Bedingungen für die gewählte Person erneut. ‹Gedeckt› sieht der Auftraggeber, wenn diese Person geprüft ist und, falls ihr jemand anderen wählt, bestätigt hat.";
+
+// UXR-226 (PO 12:39 (3); template §3).
+export const NOBODY_LINE = "Niemand in eurem Team kann diese Schicht zurzeit übernehmen.";
+
+/** UXR-224 (PO 12:39 (1); #1361; template §3): the inline confirm steps. The first tap writes nothing. */
+export type ConfirmStep = { sentence: string; action: string; back: "Zurück" };
+export const CANNOT_STEP: ConfirmStep = {
+  sentence: "Du gibst diese Schicht frei. Sie geht sofort an alle passenden Teams; du kannst sie danach nicht mehr übernehmen.",
+  action: "Freigeben",
+  back: "Zurück",
+};
+export const DECLINE_STEP: ConfirmStep = { sentence: "Euer Team sieht dieses Angebot danach nicht mehr.", action: "Ablehnen", back: "Zurück" };
+/** UXR-224: one line under «Bestätigen». */
+export const ACK_FINAL_LINE = "Mit dem Bestätigen bist du fest eingeteilt.";
 
 function releaseText(kind: string | null, member: string, latestCoverAt: string | null): string | null {
   switch (kind) {
@@ -162,15 +179,17 @@ export function teamOfferView(
   }));
   const callerListed = candidates.some((c) => c.is_caller);
   const releaseLine = releaseText(row.release_kind, nameOf(row.released_member_id), row.latest_cover_at);
+  const nobody = list.length === 0;
   return {
     kind: "offer",
     tag: "Neues Angebot",
     broadcast: BROADCAST_LINE,
     releaseLine,
-    callerNotFree: row.caller_free && callerListed ? null : "Du selbst kannst diese Schicht nicht übernehmen.",
+    callerNotFree: nobody || (row.caller_free && callerListed) ? null : "Du selbst kannst diese Schicht nicht übernehmen.",
+    nobodyLine: nobody ? NOBODY_LINE : null,
     candidates: list,
     preselected: row.caller_free && callerListed ? callerId : null,
-    chooseLabel: releaseLine ? "Andere Person wählen" : "Person wählen",
+    chooseLabel: nobody ? null : releaseLine ? "Andere Person wählen" : "Person wählen",
   };
 }
 
@@ -218,10 +237,15 @@ export function clientCoverLines(o: ClientCoverInput): { headline: string; detai
     }
   }
   if (o.cover_state === "no_longer_covered") {
+    // UXR-225 (b) with `lca` F-2: only after «Gedeckt» was shown (client_orders(), migration 0136); no person, no cause.
     return {
       headline: `Nicht mehr gedeckt · ${begin}`,
-      detail: "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.",
+      detail: "Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.",
     };
+  }
+  if (o.cover_state === "open" && o.cover_detail === "take_fell_away") {
+    // UXR-225 (a): the take fell away before «Gedeckt» was ever shown; the client was never covered.
+    return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams." };
   }
   if (o.cover_state === "open" && o.cover_detail === "awaiting_acknowledgement") {
     return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Ein Team hat übernommen; die eingeteilte Person bestätigt noch." };

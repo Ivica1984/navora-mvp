@@ -4,9 +4,16 @@
 // caller's teams. Every state comes from the database; the card only shows it and sends one command. No countdown, no
 // other team, no reason about a person (BK5_OFFER_TEMPLATE.md §2, §3). Synthetic data only (Phase A).
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TeamShiftOffer } from "@/features/orders/team-queries";
-import { offerPlaceLine, TAKE_FOOTER } from "@/features/orders/offer-rules";
+import {
+  ACK_FINAL_LINE,
+  CANNOT_STEP,
+  DECLINE_STEP,
+  offerPlaceLine,
+  TAKE_FOOTER,
+  type ConfirmStep as ConfirmStepWords,
+} from "@/features/orders/offer-rules";
 import {
   acknowledgeShiftTake,
   declineShiftOrder,
@@ -40,18 +47,57 @@ export default function ShiftOffersSection({ offers }: { offers: TeamShiftOffer[
   );
 }
 
+/**
+ * UXR-224 (PO 12:39 (1); #1361): the inline confirm step. The first tap only opens it (nothing is written); focus moves
+ * to the consequence sentence; «Zurück» restores the card; the step's action sends the command.
+ */
+function ConfirmStep({ words, busy, onConfirm, onBack }: { words: ConfirmStepWords; busy: boolean; onConfirm: () => void; onBack: () => void }) {
+  const sentence = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    sentence.current?.focus();
+  }, []);
+  return (
+    <div data-testid="shift-offer-step" className="grid gap-2 rounded-xl border border-stone-300 bg-stone-50 p-3">
+      <p ref={sentence} tabIndex={-1} data-testid="shift-offer-step-sentence" className="font-semibold outline-none focus-visible:ring-2 focus-visible:ring-emerald-900">
+        {words.sentence}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          aria-busy={busy}
+          onClick={onConfirm}
+          className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60"
+        >
+          {words.action}
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onBack}
+          className="min-h-11 rounded-lg border border-emerald-900 px-4 font-semibold text-emerald-900 disabled:opacity-60"
+        >
+          {words.back}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: (text: string) => void }) {
   const router = useRouter();
   const { row, view } = offer;
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [chosen, setChosen] = useState<string | null>(view.kind === "offer" ? view.preselected : null);
+  const [step, setStep] = useState<"cannot" | "decline" | null>(null);
 
   async function run(op: string, call: () => Promise<OfferCommandResult>) {
     setPending(op);
     setError(null);
     const r = await call();
     setPending(null);
+    setStep(null);
     if (r.status) onNotice(r.status);
     if (!r.ok && r.error) setError(r.error);
     router.refresh();
@@ -90,27 +136,37 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
           </>
         )}
         {error && <p role="alert" data-testid="shift-offer-error" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">{error}</p>}
-        {view.actions && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={pending !== null}
-              aria-busy={pending === "ack"}
-              onClick={() => run("ack", () => acknowledgeShiftTake({ orderId: row.order_id, idempotencyKey: crypto.randomUUID() }))}
-              className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60"
-            >
-              Bestätigen
-            </button>
-            <button
-              type="button"
-              disabled={pending !== null}
-              aria-busy={pending === "cannot"}
-              onClick={() => run("cannot", () => releaseNamedShiftTake({ orderId: row.order_id, idempotencyKey: crypto.randomUUID() }))}
-              className="min-h-11 rounded-lg border border-emerald-900 px-4 font-semibold text-emerald-900 disabled:opacity-60"
-            >
-              Ich kann nicht
-            </button>
-          </div>
+        {view.actions && step === "cannot" && (
+          <ConfirmStep
+            words={CANNOT_STEP}
+            busy={pending !== null}
+            onConfirm={() => run("cannot", () => releaseNamedShiftTake({ orderId: row.order_id, idempotencyKey: crypto.randomUUID() }))}
+            onBack={() => setStep(null)}
+          />
+        )}
+        {view.actions && step === null && (
+          <>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={pending !== null}
+                aria-busy={pending === "ack"}
+                onClick={() => run("ack", () => acknowledgeShiftTake({ orderId: row.order_id, idempotencyKey: crypto.randomUUID() }))}
+                className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60"
+              >
+                Bestätigen
+              </button>
+              <button
+                type="button"
+                disabled={pending !== null}
+                onClick={() => setStep("cannot")}
+                className="min-h-11 rounded-lg border border-emerald-900 px-4 font-semibold text-emerald-900 disabled:opacity-60"
+              >
+                Ich kann nicht
+              </button>
+            </div>
+            <p data-testid="shift-offer-ack-note" className="text-sm text-secondary">{ACK_FINAL_LINE}</p>
+          </>
         )}
       </article>
     );
@@ -128,7 +184,7 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
       <fieldset className="grid gap-1" aria-describedby={view.callerNotFree ? `${groupId}-self` : undefined}>
         <legend className="font-semibold">Wählt, wer geht</legend>
         {view.callerNotFree && <p id={`${groupId}-self`} data-testid="shift-offer-self-not-free" className="text-sm">{view.callerNotFree}</p>}
-        {view.candidates.length === 0 && <p className="text-sm">Zurzeit erfüllt niemand im Team alle Bedingungen.</p>}
+        {view.nobodyLine && <p data-testid="shift-offer-nobody" className="text-sm">{view.nobodyLine}</p>}
         {view.candidates.map((c) => (
           <label key={c.userId} className="flex min-h-11 items-center gap-2">
             <input type="radio" name={groupId} value={c.userId} checked={chosen === c.userId} onChange={() => setChosen(c.userId)} />
@@ -137,28 +193,38 @@ function ShiftOfferCard({ offer, onNotice }: { offer: TeamShiftOffer; onNotice: 
         ))}
       </fieldset>
       {error && <p role="alert" data-testid="shift-offer-error" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">{error}</p>}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={pending !== null || !chosen}
-          aria-busy={pending === "take"}
-          onClick={() =>
-            chosen && run("take", () => takeShiftOrder({ orderId: row.order_id, teamId: row.team_id, memberId: chosen, idempotencyKey: crypto.randomUUID() }))
-          }
-          className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60"
-        >
-          {primary}
-        </button>
-        <button
-          type="button"
-          disabled={pending !== null}
-          aria-busy={pending === "decline"}
-          onClick={() => run("decline", () => declineShiftOrder({ orderId: row.order_id, teamId: row.team_id, idempotencyKey: crypto.randomUUID() }))}
-          className="min-h-11 rounded-lg border border-emerald-900 px-4 font-semibold text-emerald-900 disabled:opacity-60"
-        >
-          Ablehnen
-        </button>
-      </div>
+      {step === "decline" ? (
+        <ConfirmStep
+          words={DECLINE_STEP}
+          busy={pending !== null}
+          onConfirm={() => run("decline", () => declineShiftOrder({ orderId: row.order_id, teamId: row.team_id, idempotencyKey: crypto.randomUUID() }))}
+          onBack={() => setStep(null)}
+        />
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {view.chooseLabel !== null && (
+            <button
+              type="button"
+              disabled={pending !== null || !chosen}
+              aria-busy={pending === "take"}
+              onClick={() =>
+                chosen && run("take", () => takeShiftOrder({ orderId: row.order_id, teamId: row.team_id, memberId: chosen, idempotencyKey: crypto.randomUUID() }))
+              }
+              className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60"
+            >
+              {primary}
+            </button>
+          )}
+          <button
+            type="button"
+            disabled={pending !== null}
+            onClick={() => setStep("decline")}
+            className="min-h-11 rounded-lg border border-emerald-900 px-4 font-semibold text-emerald-900 disabled:opacity-60"
+          >
+            Ablehnen
+          </button>
+        </div>
+      )}
       <p className="text-xs text-secondary">{TAKE_FOOTER}</p>
     </article>
   );

@@ -213,7 +213,7 @@ end;
 $$;
 revoke all on function private.order_cover(uuid, timestamptz) from public, anon, authenticated;
 
--- 6. Client read model (ADR-200 (5); F-1, UXR-223). Same columns as 0135; only the mapping changes. ---------------------
+-- 6. Client read model (ADR-200 (5); F-1, UXR-223, UXR-225/F-2). Same columns as 0135; only the mapping changes. ---------------------
 create or replace function public.client_orders()
 returns table (id uuid, client_account_id uuid, sentence text, starts_at timestamptz, ends_at timestamptz,
                duration_minutes integer, postcode text, place_name text, grade text, activity_tags text[],
@@ -224,8 +224,13 @@ as $$
   select p.id, p.client_account_id, p.request_title, p.starts_at, p.ends_at,
          (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
          p.required_tags, p.radius_km, p.shift_label, p.confirmed_at,
-         case when c.cover_state = 'pending_acknowledgement' then 'open' else c.cover_state end,
+         case when c.cover_state = 'pending_acknowledgement' then 'open'
+              -- UXR-225 (a) with `lca` F-2 (PO 12:39 (2)): «nicht mehr gedeckt» only if the client was ever shown
+              -- «gedeckt», i.e. some take of this order was acknowledged (self-named takes are acknowledged at once).
+              when c.cover_state = 'no_longer_covered' and not ever_covered.yes then 'open'
+              else c.cover_state end,
          case when c.cover_state = 'pending_acknowledgement' then 'awaiting_acknowledgement'
+              when c.cover_state = 'no_longer_covered' and not ever_covered.yes then 'take_fell_away'
               when c.cover_detail in ('no_team_eligible', 'all_declined') then 'no_team_free'   -- F-1
               when c.cover_detail = 'not_acknowledged' then 'cover_time_reached'
               else c.cover_detail end,
@@ -234,6 +239,8 @@ as $$
          case when c.cover_state = 'covered' then c.taken_at end
   from public.partner_requests p
   cross join lateral private.order_cover(p.id, private.now()) c
+  cross join lateral (select exists (select 1 from public.order_takes t
+                                     where t.order_id = p.id and t.acknowledged_at is not null) as yes) ever_covered
   where p.order_kind is not null and private.is_client_member(p.client_account_id)
     and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   order by p.starts_at
