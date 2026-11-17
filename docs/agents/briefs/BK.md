@@ -590,3 +590,25 @@ Read: `cra-gate: #1342 abe0c5d clear` (comment 6942849366, `CLINICAL_GOVERNANCE.
 
 Owners: `eng` (BK-c2 PR: ADR addendum and red tests first, FE-071 (2)), `uxa` (template rows, CGR-226 words), `lca` (`released_by`, F-1 words), `cra`, `aia` (BK-c2 gates). PO status of BK: **active**, slice BK-c (BK-c1 merged; BK-c2 next).
 
+## PO amendment 2026-11-17 10:39 (scheduled PO run): merge-commit CI of BK-c1 green; PO pre-read of ADR-200 (#1358, draft) and the open points it names
+
+Read: PR #1358 (draft, head `6de96b0`, `ci` 44057327890 running at the PO read; ADR-200 PROPOSED, eng 10:15); journal `2026-11-17-1015-eng.md` on the branch. Not a review of code, not an acceptance; the PO ran no test.
+
+| Check | Result | Evidence |
+|---|---|---|
+| §5 merge-commit CI of #1342 (`781944f`) | green | `ci` 44048826903 push: `app` 133921182918, `db` 133921183371, `e2e` 133921183374, `ui-screenshots` 133921183226 all success |
+| #1358 red-first order (FE-071 (2)) | met per PR text | commit `863ff98` tests and ADR-200 only, migration after |
+| #1358 merge conditions | not yet | draft; CI running; no `cra`, `lca`, `aia`, `uxa` line |
+
+1. **No revert needed.** BK-c1 stays merged on `781944f`; not accepted (one BK-c acceptance after BK-c3).
+2. **ADR-200 against the placed criteria (PO reading, PLANNED until merged):** CGR-230 (1), (2); UXR-222 and CGR-234 (a)–(c) (2), (3); F-1 and UXR-223 (5) (client reads «kein Team frei» / «Deckungszeit erreicht» / «wartet auf Bestätigung» with no team name); UXR-221, CGR-234 (d), AUT-132 (6). Nothing in the ADR adds a third action to the named colleague (H-BK-09:39 holds: «Bestätigen», «Ich kann nicht»).
+3. **PO decisions on the open points ADR-200 names (product scope, Phase A simulation only; no clinical rule):**
+   - (a) *Taker withdraws a pending take:* **not in BK-c2.** The named colleague's «Ich kann nicht» and the lapse at `latest_cover_at` already release it; a second release path would add a writer and a word. Re-open only if the simulation shows takes naming the wrong colleague.
+   - (b) *«Ich kann nicht» after the acknowledgement:* **refused in BK-c2, as the ADR proposes.** A confirmed person who later cannot go is a short-notice absence, not a take decision; it belongs to the absence-coordination path (B3), not to BK-c. OPEN for `cra`: does an acknowledged take that falls away before `starts_at` need the same immediate `order_not_covered` path as CGR-234 (b)? Answer before the BK-c acceptance, not before the BK-c2 merge.
+   - (c) *ADR-200 (4) (her «Ich kann nicht» blocks her for that order only):* matches PO 08:39 (2); `cra` confirms the substance in its gate, as the ADR says.
+   - (d) *Team name hidden from the client while the acknowledgement is pending (ADR-200 (5)):* stands for the simulation (UXR-223). `lca` may still ask for it under G-3.
+   - K-8 (240 min lead) and `released_by` under G-5 stay with `cra`/Clinical Owner and `lca`; not decided here.
+4. **Gates on #1358 when it leaves draft:** `cra`, `lca`, `aia` on the database part; `uxa` on the screens (visible words). All on the same head (AUT-50).
+
+Owners: `eng` (#1358 migration and screens), `cra` (3 (b), (c)), `lca` (G-5, G-3), `uxa`, `aia`. PO status of BK: **active**, slice BK-c (BK-c1 merged, merge-commit CI green; BK-c2 in draft #1358).
+
