@@ -111,6 +111,17 @@ Updated by `csa` 2026-10-27 13:55 CET. Month 0 = the partner's letter of intent 
 | **interRAI (D-36, D-37)** | Unchanged: D-36 waits on the owner since 2026-10-27 (19 days); BK has no assessment step (STR-32, #994). | D-36 terms by M3 (2026-12-11) | dimension 6 can pass Phase A unproven |
 | **Team-owned provider (C)** | Unchanged since 2026-11-10: no vehicle, no date; the BS/BL licence and admission durations and L-9 must be in the Q1 2027 adviser mandate (FE-050). Phase B test environment for a Basel home from March 2027 (FE-055 (8)). | adviser catalogue before quotes (December 2026) | `csa` estimate: a missed mandate moves the C path by a year or more |
 
+**Update `csa` 2026-11-17 20:11 CET (FE-080 to FE-088).** Rows above are kept as written; where they conflict, this update wins. Dates are PO or founder targets (`BK_ROADMAP.md` v1: «Schätzungen, keine Zusagen») unless marked as a `csa` estimate.
+
+| Track | Change | When it must happen | Cost of each month of delay |
+|---|---|---|---|
+| **Delivery (block BK)** | BK-a accepted 14.11., BK-b accepted 17.11. (simulation); BK-c1, BK-c2 merged, BK-c3 in #1388 (rule-based reasons, no ranking between teams). Order c → e → f → d → g kept by the PO. Friday 2026-11-20: «Pflegeauftrag erfassen bis Teamzusage» clickable on staging, explicitly not a BK run-through (FE-088 (3)). Staging migrations 0136, 0137 not applied (OPEN, founder action). | BK-g with test substitutes earliest 1.-2.12. (`BK_ROADMAP.md` §3); M9 2027-03-12 | every BK slice moves the nursing-home ward and the home-care flow behind it |
+| **Team-owned provider (C) → cooperative** | Direction decided: Pflege-Genossenschaft as the binding target form, regional Dach-Genossenschaft with team cells (FE-082 to FE-084; `lca` D-44 T-1, G-1 to G-5); no letter to AWA/KIGA before Phase B (FE-081 (1), FE-084 (3)). Legal status: «unresolved: needs legal adviser» for the AVG question (Auftragnehmerin or Verleiherin), Art. 51 KVV admission, result share (`lca` T-1, T-3 (8) (e)). Practical gates: 7 founding members, public deed, Handelsregister, Verwaltung of three, pre-financing of one or two payroll runs (`lca` T-1 (4), T-3 (7) (d)). | questions in the Q1 2027 adviser mandate (FE-050); founding file ready before the Phase B partner agreement (`csa` estimate) | without the adviser answer the cooperative cannot take a real order; without 7 members it cannot be founded. `csa` estimate: a missed Q1 mandate moves the first real cooperative by a year |
+| **interRAI (D-36, D-37)** | **Set aside by FE-085 (1)**; interRAI and BESA out of current planning; D-13 B (instrument-neutral) stays. The needs-assessment duty without a named instrument is UNKNOWN (`cra`, `lca`; FE-085 note (c)). | re-entry trigger proposed (STR-44): before D-42 is drafted | none in Phase A; at Phase B a contract silent on the home's instrument fixes it by default |
+| **AI path** | FE-085 (2): external AI interfaces allowed on 100 % synthetic data; real data stay under D-35 until a checked Swiss/EU endpoint exists; own model only at scale (FE-051 pattern 4 replaced). AUT-135 adapter prepared for BK-d; AUT-136 guards first. The only missing input for a real model is the owner's provider choice (`BK_ROADMAP.md` §0, §8 (1)). My T-6 proposal of 2026-11-15 is obsolete. | provider request escalated now; answer by M4 2026-12-18 (`csa` proposal, STR-45) | each month without it: BK-d, BK-e on test substitutes only, H-1 and H-4 without a model measurement before M9 |
+| **Money flows and payroll** | R-12 approved (FE-084 (4)): NAVORA never controls team accounts; the cooperative pays wages through a Swiss payroll provider; NAVORA sends hours only (`lca` T-2, D-44 brief text). | in the data model of BK-f and GMSEP | without it BK-f could imply a money path the red line forbids |
+| **Fee (D-14)** | Unchanged: amount OPEN. The founder letter uses 120 CHF per member and month (= 7.50 CHF per shift at 16 shifts) as an example; the PO did not adopt it (FE-084 note (c)). | after the Phase A cost measurement (FE-023) | none before Phase B; no amount in any external text |
+
 ## 5 Business model hypotheses (OPEN)
 
 Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
@@ -140,6 +151,13 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 
 **Status note 2026-11-15:** BM-1 direction decided by FE-055 (3) (FTE-weighted F3/F6; F1, F2 forbidden; amount open); BM-12 is mitigated in direction by the FTE weighting and stays a check for brief FEE1. Blueprint Annex A §3.3 uses a fee of 120 CHF per member and month labelled as a founder value; no founder decision contains it (STR-35). No amount in this file or in Annex A is a fee proposal.
 
+| # | Hypothesis | Status | Evidence needed | Source of evidence |
+|---|---|---|---|---|
+| BM-15 | (2026-11-17) A regional cooperative can pre-finance one or two payroll runs from member shares and a credit line without NAVORA holding money, because clients pay weeks after the shift while wages are due monthly (`lca` T-3 (7) (d)) | hypothesis, `csa`; no amount | days to payment of the first clients; size of the member shares; whether a bank grants a line to a new cooperative | Phase B; UNKNOWN until then (owner, adviser) |
+| BM-16 | (2026-11-17) On one basis (gross against gross, full utilisation) the income advantage of a cooperative team over the temporary wage is about **+9 to +15 CHF/h** with the example values; the employer rate and the team costs, not the fee, decide where in that range it lands (STR-42) | arithmetic on example values and placeholders A1, A2, A3 and `lca` T-3 (5); no wage, no promise | sourced employer rate for the cooperative (AHV/IV/EO and ALV read by `lca`; FAK, BVG, UVG, KTG UNKNOWN); team costs of a first cooperative | `lca`, Ausgleichskasse, adviser; Phase B accounts |
+
+**Status note 2026-11-17:** BM-5 and BM-6 now refer to the cooperative (FE-083, FE-084 (2)) instead of an unnamed team-owned provider. BM-4 (surplus): in an employment the surplus reaches the nurse as an annual result share whose status as wage is UNKNOWN (`lca` T-3 (8) (e)); the hypothesis stays OPEN. No amount above is a fee or wage proposal.
+
 ## 6 Open strategic questions for `csa`
 
 1. **How fast can the pilot move from the partner (B) to a team-owned provider (C) without a gap in licence or admission?** *Partial answer, 2026-10-27:* not by a licence transfer, which `lca` reads as impossible (D-12 note 3); only by a new licence and a new OKP admission, two procedures of about 8 weeks each, plus each client's consent to move. Earliest admission about month 4-5 if the file is complete at month 0; latest safe file date about month 7 for the 12-month sunset (§4). What is still unknown is written as STR-15.
@@ -164,7 +182,26 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 15. **New 2026-11-15:** under the broadcast, how does a nursing home keep continuity with a team that knows its ward, without NAVORA choosing a team? OPEN; `csa` proposes measurement first and a client-set preference only if `lca` finds it compatible with Q-44e (STR-39). *Partial evidence:* Florence (benchmark 2026-11-15) answers it with home-chosen tiers and favourites and approval of the person, which NAVORA excludes by design.
 16. **New 2026-11-15:** what does fee collection cost a team and NAVORA once no money runs through NAVORA (BM-13)? UNKNOWN until Phase B.
 
+*Update to question 4 (2026-11-17):* the founder chose one route (FE-083, FE-084 (2)): one regional Dach-Genossenschaft with self-governing team cells (`lca` T-1 (5)). The risk moves from «many providers» to «one Verwaltung»: the network stays lean only if the Verwaltung's task list is closed (STR-46 (a)).
+*Update to question 12 (2026-11-17):* FE-084 (2) names the cooperative as the target form «der Teams»; for a nursing home that answers the KON-1 half (external team) in direction; KON-2 (ward team inside the operator) is not addressed (`STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-17 §4 (5), P-19).
+
+17. **New 2026-11-17:** which assessment instrument does the Phase B nursing home use and have to use, and does NAVORA read, write or ignore it? UNKNOWN; `cra`, `lca`; proposed as the re-entry trigger for dimension 6 (STR-44).
+18. **New 2026-11-17:** who pre-finances the first payroll runs of a new cooperative when no money runs through NAVORA (BM-15)? OPEN; owner, adviser.
+
 ## 7 Benchmarks (one per `csa` run, newest first)
+
+### 2026-11-17 · Home-care worker cooperatives in the US (Cooperative Home Care Associates and the sector)
+
+**Sources:** S. Leadem, «Worker Retention in Homecare: Could Cooperatives Be the Solution?», OnLabor, 2022-06-15, https://onlabor.org/worker-retention-in-homecare-could-cooperatives-be-the-solution; UCLA CTSI, «Researchers reveal how home care cooperatives are a …», 2025-07-16, https://ctsi.ucla.edu/researchers-reveal-how-home-care-cooperatives-are-a; The ICA Group, «Transforming Home Care», https://www.icagroup.org/homecare (undated page). All read 2026-11-17 through a summarising fetch; figures are as reported by these sources, not checked by NAVORA.
+
+**In my words:** Cooperative Home Care Associates in the South Bronx is reported as the largest worker cooperative in the US (over 1 000 worker-owners among about 2 600 employees in 2021); workers can buy a 1 000 USD share after three months, paid from their wages; a training programme with PHI guarantees a job on completion (about 600 graduates a year); the aides are also unionised. For the sector, OnLabor reports 38 % annual turnover in home-care cooperatives against 82 % in the industry (2018 figure) and a wage premium of only 0.52 USD per hour. UCLA interviews (Gusoff et al., 2025) link cooperatives to more say over care and schedules, teamwork, recognition, and pay plus profit sharing. How CHCA's management layer is organised is not described in these sources (UNKNOWN).
+
+**Where NAVORA must exceed it:**
+- **Income, not only ownership.** Ownership alone bought retention, but a wage premium of about half a dollar an hour. NAVORA's lever is the removed intermediary share (Blueprint §2) and utilisation (BM-11), and it must show it on one basis (STR-42, BM-16), never as a net-against-budget figure.
+- **Retention as a measured result.** The strongest cooperative result is turnover. NAVORA should carry member retention per cooperative and team as a Phase B metric next to direct care time (M-13); proposal for the PO's metric list, no new field before Phase B.
+- **A way in.** CHCA grew through a training pipeline with a job guarantee. A Dach-Genossenschaft needs 7 founding members (`lca` T-1 (4)); NAVORA's onboarding of a team (qualification evidence, BK-b) is where the cooperative's entry path must be cheap.
+- **Back office as software.** A cooperative still runs payroll, contracts and insurance centrally. NAVORA must make those duties a closed, software-carried task list (STR-46), so the cooperative keeps a smaller back office than a classic employer, not the same one with an election.
+
 
 ### 2026-11-15 · Florence (UK shift-staffing app for care homes and the NHS)
 
