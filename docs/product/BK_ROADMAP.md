@@ -33,7 +33,7 @@
 | BK-b | Reichweite, harte Filter | gemergt (#1268, #1270, #1273) | ja | abgenommen 17.11. (Simulation) |
 | BK-c1 | Übernahme, Deckungsstand (DB) | gemergt `781944f` | ja (0135) | offen (BK-c als Ganzes) |
 | BK-c2 | Bildschirme `/team` und Kundenstatus | **gemergt** `25d7cdf` (#1358, Kopf `9a7fc56`; `lca`, `cra`, `uxa` frei) | **0136 fehlt** (`eng` spielt ein, FE-088 (7)) | offen |
-| BK-c3 | Begründung je eigenem Team (Reihenfolge nach Beginn, keine Rangfolge zwischen Teams; PO 17:39) | **gemergt** `ad21dd2` (#1388, Kopf `8744acd`; `cra`, `uxa`, `aia`, `lca` frei; Stand 17.11. 20:52) | **0137 fehlt** (wie 0136; `STAGING_DB_URL` nicht gesetzt) | offen (BK-c-Abnahme: `ci-repeat` 10/10 auf benanntem Commit) |
+| BK-c3 | Begründung je eigenem Team (Reihenfolge nach Beginn, keine Rangfolge zwischen Teams; PO 17:39) | **gemergt** `ad21dd2` (#1388, Kopf `8744acd`; `cra`, `uxa`, `aia`, `lca` frei; Stand 17.11. 20:52) | **0137 fehlt** (wie 0136; `STAGING_DB_URL` nicht gesetzt) | offen: `ci-repeat` 44166631679 auf `ad21dd2` 20/20 grün, Abnahme am 17.11. 21:39 zurückgestellt (`changes-requested`): drei Datenschutzkriterien (`lca` G-2, G-3 (2), G-6) ohne Test; Test-PR, dann neuer `ci-repeat` im Tagesfenster ab 02:20 |
 | BK-e | `/field`-Verknüpfung, Berichtsentwurf aus Diktat | nicht begonnen | – | – |
 | BK-f | Rechnungsentwurf an die Auftraggeberin | nicht begonnen | – | – |
 | BK-d | KI-Erfassung des Auftrags (Text oder Diktat) | nicht begonnen; AUT-135 darf auf einem Branch vorbereitet werden | – | – |

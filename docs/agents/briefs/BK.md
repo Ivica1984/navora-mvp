@@ -798,3 +798,59 @@ PO did not run tests locally; facts from the GitHub API (check runs, PR comments
 4. **Staging (OPEN, founder action):** 0137 joins 0136 as not applied on `navora-staging`; the Friday goal «Pflegeauftrag erfassen bis Teamzusage» in the real staging application (FE-088 (3)) depends on it.
 
 PO status of BK: **active**, slice BK-c (BK-c1 to BK-c3 merged, not accepted; next: BK-c acceptance).
+
+## PO review 2026-11-17 21:39 (scheduled PO run): BK-c acceptance review on `ad21dd2`: `changes-requested` (test evidence for three placed privacy criteria)
+
+**Decision: `changes-requested`**, not `accepted`. No code defect was found; three criteria that this brief placed as BK-c criteria (PO 2026-11-14 00:39 (4) (a), (b), (d), from `lca` D-44 G-2, G-3 (2), G-6) have no test on the named commit. The run evidence below is complete and is kept for the acceptance once the tests exist. Gate sought: «Simulation, synthetic data». The PO did not run any test locally; every result is read from GitHub Actions job logs (all 20 `ci-repeat` raw logs, read for the PO this run through the GitHub API job-log endpoint, the zip download being refused by the proxy) or from the repository at `ad21dd2` (`git diff ad21dd2 0c4fd3f -- src supabase tests e2e` empty).
+
+**Run evidence (named integrated commit `ad21dd2`, `recovery/main` after #1388; BK-c code merges #1342 `781944f`, #1358 `25d7cdf`, #1388 `ad21dd2`).**
+- Push `ci` 44163100048 on `ad21dd2`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` `success`. The `pull_request` run 44163113071 was cancelled by concurrency and is not counted. Push `ci` 44167546098 on `ca6487b` (docs only) `success`.
+- `ci-repeat` **44166631679** on `repeat/bk-c-accept-ad21dd2` (head `ad21dd2`), attempt 1: 22 jobs `success`, none cancelled or re-run. Window verdict job 134341456255: «Inside the e2e acceptance window: start 2026-11-17 21:11, end 2026-11-17 21:22 (Europe/Zurich); window 02:20–22:05».
+- Every `db` repeat 1 to 10: «Files=146, Tests=5182 … Result: PASS»; 0 `# SKIP` / `# TODO` lines; `144_bk_c2_acknowledge_release`, `145_bk_c2_cgr235b_acknowledged_take_falls_away`, `146_bk_c3_offer_reasons` «ok» in all ten. The only «not ok» lines are inside the B0-4 «before #922» reproduction (wrapper «ok - before #922: red as on f5f5e09 … 17 failed of 58», then «ok - today: 080 waited for the lock, then passed 59/59»), expected red by design, identical in all ten; «CGR-203 region-map-convert-race: 29 ok, 0 not ok».
+- Every `e2e` repeat 1 to 10: «188 passed», no failed, flaky, skipped or did-not-run count. Non-test lines: one `command.failed 23514 correct_visit_time` server log (an intended refusal case), cache-reservation messages; neither is a test result.
+- `cra` 21:27 (#1400, merged `0c4fd3f`): «`cra` acceptance input clear for "Simulation, synthetic data"», own reading of the same 20 logs. `eng` 21:23 (#1399, merged `f2b890e`) names the same evidence.
+
+**Evidence table (criterion | result | evidence at `ad21dd2`).**
+
+| Criterion (placed in this brief) | Result | Evidence |
+|---|---|---|
+| CGR-211: exactly one live take per order under concurrency; losing tap refused | met | pgTAP 141 «CGR-211: exactly one take row»; `scripts/db-concurrency/order-take.sh` (two sessions) in `db` |
+| CGR-229: per-person race across two overlapping orders | met | `order-take.sh` race case 3, `db` 10/10 |
+| CGR-222 (c): one minute before the latest coverage time open, at it «nicht gedeckt» with the exception; short notice both at once | met | pgTAP 141 four CGR-222 (c) rows |
+| CGR-223 (a)–(c): a named member who stops passing releases the take; client sees it at once; new round screens every team | met | pgTAP 141 CGR-223 rows (absence, grade no longer verified, round 2 and 3); pgTAP 142 (team removal) |
+| H-BK-15:39 (i)–(iii): offer leaves other lists only after the committed take; returns after a failed take | met | pgTAP 141 «H-BK-15:39 (i)», «(ii): O1 is back in T2» |
+| `eng` V-8 / `aia` AUT-128: team view equals `order_offers`, ranking only reorders | met | pgTAP 141 V-8/AUT-128 rows; pgTAP 146 (order A, reasons never remove a row) |
+| `lca` D-44 (2) (a): no team count to the client | met | pgTAP 141 «D-44 (2) (a): the client read model returns no team count»; pgTAP 146 |
+| CGR-215 (b): order confirmed before BK-c is screened by the backfill | met | pgTAP 141 «CGR-215 (b) …» |
+| CGR-215 (c): Operations exceptions ordered by time to start | met | pgTAP 141 «CGR-215 (c) …» |
+| CGR-224: no overlapping second take of the same person; positive and negative | met | pgTAP 141 three CGR-224 rows, «nothing stored for O2» |
+| CGR-225: zero state at confirmation raises the exception at once | met | pgTAP 141 two CGR-225 rows; pgTAP 143 (empty new round) |
+| AUT-130: one member step; an overlapping live take is a source of `order_member_step` | met | pgTAP 141 two AUT-130 rows |
+| BK-5a, BK-5n, BK-6: «gedeckt durch» only after take; nobody takes for another team; client reads why not covered | met | pgTAP 141 BK-5a, BK-5n, BK-6 rows; e2e `bk-c2-take-status.spec.ts` |
+| PO 03:39 (2), (3): any active member takes for her team; named member sees her take; other team never does | met | pgTAP 144 «another team never sees the take»; e2e `bk-c2-colleague-take.spec.ts` |
+| CGR-230, CGR-234, UXR-222, UXR-223, UXR-225, F-2: acknowledgement, «Ich kann nicht», client reads «noch nicht gedeckt» until acknowledged | met | pgTAP 144; `tests/unit/bk-c2-offer-states.test.ts`; both BK-c2 e2e specs |
+| CGR-235 (a), (b): way back on the confirmed card; acknowledged take falling away after the coverage time | met | pgTAP 145 «ok» 10/10; e2e `bk-c2-take-status.spec.ts` |
+| F-1: one neutral zero state for the client | met | pgTAP 141, 143, 144 F-1 rows |
+| CGR-236, CGR-238 (c), UXR-233, UXR-234: order A, reasons only from verified facts, no line without `member_free` | met | pgTAP 146; `tests/unit/bk-c3-offer-reasons.test.ts` |
+| UXR-191 (1)–(3) (offer card only for a team with one passing member; «Übernehmen mit …»; «Gedeckt» only after naming) | met | BK-b pgTAP 138 (one member carries the team) with V-8 above; e2e «Übernehmen mit Kollegin B.»; pgTAP 144 UXR-223; `uxa-gate` on #1358 and #1388 |
+| Gate lines per PR (`cra`, `lca`, `aia`, `uxa` where named) | met | merge records on #1342, #1358, #1388 |
+| **PO 14.11. 00:39 (4) (a), `lca` G-2 (i), (ii):** for an order of a household client no street, contact or `activity_tags` key is an audited key of class `code`; catalogue assertion | **not evidenced** | no test found (`grep` of `supabase/tests`, pgTAP 077 has no household case). By construction no street or contact field exists and `activity_tags` is not an audited key (D-44 G-2), but the brief asks for the assertion. BK-c fixtures already use `client_kind = 'household'` accounts for shift orders (pgTAP 141 to 145), so the case is live in the simulation |
+| **(b), `lca` G-3 (2):** the offer read model for a household client's order returns no `partner_name` before «Übernehmen» | **met in code, not evidenced by a test** | `public.team_order_offers()` (0137) has no partner column (PO read of the function); no test pins it |
+| **(d), `lca` G-6:** one person, client in one network and team member in another, sees as client none of the other network's team-side data, and the reverse | **not evidenced** | no test found; pgTAP 135 §3 covers a client-only user, not the dual role |
+
+**Change request to `eng` (test-only, one PR, Block BK slice BK-c; no migration, no `src/` change unless a test turns red):**
+1. pgTAP `147_bk_c_privacy_criteria` (name free) with: (a) a catalogue assertion that for orders of a `household` client account no address, contact or `activity_tags` key is an audited key of class `code` (G-2 (i), (ii)); (b) for an order of a household client whose `display_name` is a synthetic person name, no row of `public.team_order_offers()` and no team-side read before the take carries that name or `partner_name` (G-3 (2)); positive case: after the take the client sees the taking team (pgTAP 141 row stays); (c) one synthetic user who is a client account member in network A and an active team member in network B: as client reads no `order_offers`, `order_takes`, `order_declines` or team row of B; as member reads no `client_orders()` row of A (G-6). Negative and positive rows each.
+2. If any row is red, the fix is a separate commit in the same PR with the red commit first (FE-071 (2)), and `cra` and `lca` gate lines on the final head.
+3. After the merge: a new `ci-repeat` on the merge commit **inside the day window 02:20–22:05 Zurich** (window verdict job), read from raw logs. The acceptance then names that commit.
+
+**Deviations decided (recorded, not silent):**
+- **CGR-226 (b)** (next-step line under «Nicht gedeckt»): the 2026-11-14 21:39 (4) sentence «BK-c acceptance needs both» is superseded by PO 2026-11-17 11:39 (cut smaller, FE-070 (3)); the line waits for `cra`/Clinical Owner and is a condition **before real clients**, not of the simulation acceptance (`cra` 21:27 agrees). «Pflegekraft benannt» words: met by the BK-c2 `uxa` gate.
+- **H-BK-14:39** (zero-reach statement before confirm) stays a candidate; not part of BK-c.
+- **`lca` G-3 (1)** (rebuild the order sentence on change) applies to the first slice with a command that changes start, end, level or postcode; BK-c has none.
+- **CGR-232, CGR-233** stay placed in the slice that first writes a visit from a take (PO 05:39 (4), 09:39 (4)).
+
+**Business value (for the acceptance once evidenced).** A confirmed order reaches every eligible team at once; one member takes it for her team, the named colleague confirms, the client sees «gedeckt» only then, and a person who drops out sends the order straight back to every team that still passes. No dispatcher, no coordinator role, no central assignment (values 4 and 5; FE-039). The three missing tests protect a private household's identity and the separation of a person's two roles; in the simulation the risk is nil, but these are exactly the assertions the release for real persons would rest on, so they are written now, while the code is fresh (privacy before speed).
+
+**Before real persons (OPEN, unchanged, not conditions of the simulation acceptance):** CR-224 to CR-228 PROPOSED (Clinical Owner, K-8, D-27); CGR-226 (b); CGR-235 (c); CGR-238 (a), (b) and the `knows_client` window (CGR-196); `lca` 20:20 on «ihr wart schon hier im Einsatz»; UXR-229 to UXR-231; G-5 real use and G-6 second point (`lca`: needs owner / adviser); 0136 and 0137 on `navora-staging` (founder: `STAGING_DB_URL`).
+
+Owners: `eng` (1–3), `lca` (gate on the test PR; may object to the G-2 reading), `cra` (gate on the test PR). PO status of BK: **active**, slice BK-c (BK-c1 to BK-c3 merged; acceptance `changes-requested` for test evidence).
