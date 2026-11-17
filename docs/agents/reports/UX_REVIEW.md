@@ -6,6 +6,44 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-17 19:48 CET · `uxa`: #1388 (BK-c3) read on `5c6f850`: reason words built word for word, UXR-233 met on the branch; UXR-234 (a recommendation on a card nobody can staff, CGR-238 (c)); no gate line yet (PO 19:39 (1) changes the head)
+
+**State.** `recovery/main` at `b54c215` (PO merge #1387). Merged since my 18:48 section: `eng` #1385 (journal), `cra` #1389, my #1387; no screen changed on `recovery/main`. Open: **#1388 (BK-c3)**, head `5c6f850`, not draft, `mergeable_state` clean; check runs on `5c6f850` read via the API: `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success` (no job log read this run). PO #1390 (open): CGR-238 (c) placed **inside** #1388, colon form stands, Blueprint 3.2.41 (version row only; **no wireframe or click path in §5 or §6** changed, so my FE-079 sign-off on #1279, reservation UXR-195, stands; no renewal). #1084, #3: no screen. No new founder decision since FE-088.
+
+**Screenshots.** Artifact 14357918221 (`ui-screenshots`, `5c6f850`): download refused by the session proxy (blob host, empty file). **No screenshots were available.** Review from the code and the Playwright assertions at 390 and 1440 px.
+
+**#1388 read (IMPLEMENTED on the branch, PROPOSED until merged).**
+
+| Item | Result | Evidence (`5c6f850`) |
+|---|---|---|
+| Words «Empfohlen für euch: » · «jemand von euch ist frei» · «ihr wart schon hier im Einsatz» | met, word for word, colon form (PO 19:39 (3)) | `src/features/orders/offer-rules.ts` `REASON_PREFIX`, `REASON_WORDS`; `tests/unit/bk-c3-offer-reasons.test.ts` |
+| UXR-233: no clause for `within_reach`; `member_free` only as the sole clause | met | `reasonLine()`; vitest «shows member_free only when it is the sole clause», «within_reach» → null |
+| Unknown code → nothing; no number, rank, «Team», «zuerst», «besser» | met | vitest «shows nothing…», «never carries a number…» |
+| Placement: under the facts, before the broadcast line, `text-sm text-secondary`, not a badge, no colour | met (§3: a reason is not a severity; `text-secondary` ≥ 4.5:1, `globals.css:10`) | `src/app/(protected)/team/shift-offers-section.tsx` new line after `{facts}` |
+| Open card only; none on the taken card | met | vitest «open offer card only»; `tests/e2e/bk-c2-take-status.spec.ts` at 390 and 1440 |
+| CGR-238 (c): no line without `member_free` | **not yet built**: `reasonLine(["knows_client"])` returns the line | `reasonLine()`: `distinguishing.length > 0` shows `knows_client` without `member_free` (UXR-234) |
+| UXR-229, UXR-230, UXR-231 (ride BK-c3, PO 13:39, 17:39) | **not in the PR**; stay follow-up, due before any real client (my 17:48 gate statement; not a merge condition, not relaxed) | `git diff recovery/main...5c6f850 -- src` touches only the reason line |
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-234 | `/team` open offer card, team member (BK-c3) | medium | When `knows_client` holds and `member_free` does not, the card says «Empfohlen für euch: ihr wart schon hier im Einsatz» next to the line that nobody of the team can go and with no primary button (UXR-226 state). The card recommends what the team cannot do: the reason line contradicts the card's own next step and teaches the team to ignore the line (PO 19:39 challenge). Same defect as CGR-238 (c), seen from the screen. | `#1388` `5c6f850` `offer-rules.ts` `reasonLine()` (no `member_free` precondition) and `teamOfferView` (`reasonLine: reasonLine(row.reasons)` independent of `nobody`) | §1 question 2 (the next action), §2 one primary per card; §5 «A recommendation only where the team can act» (new in v94) | `reasonLine` returns null when `member_free` is absent (PO 19:39 (1)); and `teamOfferView` sets `reasonLine` null whenever the no-candidate line is shown, so the two never stand on one card even if the database and the candidate list disagree for a moment. Vitest: `reasonLine(["knows_client"])` → null; an open row with `reasons: ["member_free","knows_client"]` and an empty candidate list → `reasonLine` null and `nobodyLine` set. Playwright unchanged. | report only (medium; already placed inside #1388 by the PO 19:39 (1), `eng` to build; PR comment) |
+
+**Gate.** No `uxa` gate line on `5c6f850`: the PO placed CGR-238 (c) in #1388, so this head is not the final head. My gate on the final head needs UXR-234 met with its tests and CI green there; UXR-229 to UXR-231 are not conditions for it (follow-up, gate «Simulation, synthetic data» only).
+
+**Closed this run:** none (UXR-233 closes when #1388 is merged).
+
+**Still open:** UXR-225 (with UXR-230), UXR-227, UXR-229 to UXR-234, and the earlier open findings in this report.
+
+**Benchmark:** not due (made 2026-11-17 03:48).
+
+**Design system:** version 94 (§5: status note, UXR-233 BUILT ON PR #1388; new PROPOSED sentence «A recommendation only where the team can act», UXR-234). No token change.
+
+**Waiting:** `eng` (UXR-234 / CGR-238 (c) in #1388 with tests; UXR-229 to UXR-231 in a later PR before any real client); `cra` (UXR-229, UXR-231 words; UXR-227); `lca` (`knows_client` words, UXR-230 to UXR-232); `po` (place UXR-229 to UXR-231 after BK-c3 if not in #1388). I ran no NAVORA test.
+
+---
+
 ## 2026-11-17 18:48 CET · `uxa`: BK-c2 merged (#1358, `25d7cdf`): UXR-221 to UXR-224, UXR-226 and UXR-228 closed; no new finding
 
 **State.** `recovery/main` at `57e0d6d` (PO merge #1384). Merged since my 17:48 section: **#1358 (BK-c2) as `25d7cdf`** on head `9a7fc56`, PO #1383, `eng` #1381 (BK-c3 ADR draft, docs only), my #1384. `git diff 9a7fc56 25d7cdf -- src tests e2e` is **empty**: the screens on `recovery/main` are the ones I gated at 17:48. Check runs on `25d7cdf` read this run: `app`, `db`, `e2e`, `ui-screenshots`, `sync`, `staging` all `success` (I read no job log this run; the `staging` job sent nothing, PO 17:39 finding). On `57e0d6d` (docs only) `e2e` was still running at this run. #1361 closed 2026-11-17 16:51 UTC by the PO. No new founder decision since FE-088. Blueprint 3.2.39 (merged) and 3.2.40 (#1386, open) change §6.3 step 3 status and the version table only; **no wireframe, no click path in §5 or §6**, so my FE-079 sign-off (reservation UXR-195, #1279) stands; no renewal.
