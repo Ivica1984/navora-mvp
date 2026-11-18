@@ -30,7 +30,7 @@
 | Prüfpunkt | Stand | Nachweis |
 |---|---|---|
 | Automatisches Einspielen | **IMPLEMENTED seit heute:** der Founder hat `STAGING_DB_URL` gesetzt (laut `eng` 15:27); jeder Push auf `recovery/main` spielt nach grünen Pflichtjobs die Migrationen auf `navora-staging` ein (ADR-190); auf einem PR nur Probelauf | `ci.yml` Job `staging`; Probelauf #1421 Job 134863645473 «würde 0136 bis 0148 einspielen» |
-| Datenbank `navora-staging` | zuletzt bis **0135** (von `eng` heute lesend festgestellt); **0136, 0137 fehlten**. Erster Push mit funktionierendem Secret: PO-Merge #1459 `e6ac4f2` (15:45); ob dessen `staging`-Job 0136 und 0137 eingespielt hat, stellt der PO aus dem Log fest und `eng` bestätigt die Version | Job auf `e6ac4f2`; `dfb1ad3` scheiterte noch am alten Passwort (134858056538) |
+| Datenbank `navora-staging` | bis heute 15:47 nur bis **0135**; **0136 und 0137 jetzt eingespielt** durch den `staging`-Job des Pushes `e6ac4f2` (PO-Merge #1459). Damit entspricht die Datenbank `recovery/main` (höchste Migration 0137). 0138–0148 kommen erst mit #1421 | Job 134884613655: «Applying migration 20261021000136 … 20261021000137 … Finished supabase db push», «migrations applied to navora-staging at e6ac4f2b» (vom PO im Log gelesen); `eng` bestätigt in #1461 |
 | App-Commit auf Render | **UNKNOWN für den PO**; `eng` meldet ihn (Auto-Deploy von `recovery/main`) | – |
 | Klickpfad «Auftrag erfassen → Angebot beim Team → Team übernimmt → Auftraggeber sieht den richtigen Status» auf Staging | **nicht nachgewiesen**. Im Code IMPLEMENTED (BK-a bis BK-c, für die Simulation abgenommen); mit 0136/0137 auf Staging erstmals vollständig möglich | `eng` prüft und meldet (Issue «STAGE-SYNC», FE-089 (1)) |
 
