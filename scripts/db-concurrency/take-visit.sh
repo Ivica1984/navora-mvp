@@ -6,10 +6,16 @@
 # refuse for an overlap: they return the server's `member_overlap` fact (PLAN3-16, ADR-161). `take_order` refuses a
 # member with an overlapping open visit (step 3, CGR-204 (a)). Both readings must be serialisable per member:
 #   Case 1, take first: the take (and its visit) is uncommitted when the member takes an overlapping open visit.
-#           The hand path must wait for the take and then report `member_overlap: true` (it may not read «no overlap»
-#           while a live take and its visit for her exist once both have committed).
+#           The race must end in the serial outcome «take, then hand» (0135 §10, 0138 §3; CGR-255): the hand write's
+#           automatic re-check (`bk_c1_recheck_takes` → `private.recheck_member_takes`) waits for the take, sees it
+#           committed and releases it with `step_3`; the take visit is `cancelled`; the open visit is hers; the hand
+#           path then reads `member_overlap: false`. No refusal is asked of the hand path (CGR-137).
+#   Case 1s, serial control: the same two commands one after the other (take committed first, no sleep); same values.
 #   Case 2, visit first: the member's take of an open visit is uncommitted when a take naming her for an overlapping
 #           order runs. The take must wait and then refuse with step 3 (`member_not_eligible:3`) and write nothing.
+#   Case 2s, serial control: the same two commands one after the other (hand path committed first); same values.
+# Invariant after every case (CGR-255): no live take of M1 before its start beside another non-cancelled visit of M1
+# whose interval overlaps the order slot (a race result must equal a serial result, PO 13:39 H-BK-13:39).
 # Without one shared person lock (`order_take_member:`) both cases end in an outcome no serial order produces.
 # Commits its own synthetic fixture rows (fixed ids, Testorganisation S) and removes them again. Synthetic data only.
 # Usage: DB_URL=... take-visit.sh
@@ -23,6 +29,8 @@ M1=00000000-0000-4000-a0e1-000000000001
 CASE1=00000000-0000-4000-c0e1-000000000001
 V1=00000000-0000-4000-c0e1-0000000000f1
 V2=00000000-0000-4000-c0e1-0000000000f2
+V3=00000000-0000-4000-c0e1-0000000000f3
+V4=00000000-0000-4000-c0e1-0000000000f4
 psql_q() { psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 "$@"; }
 START=$(psql "$DB_URL" -X -At -c "select clock_timestamp()")
 
@@ -54,7 +62,7 @@ trap cleanup EXIT
 cleanup
 
 # Fixture: team T1 with M1 (FaGe evidence verified), service postcode 4102, 10 km; one running case of T1 with two open
-# (memberless) visits with activity C1, each inside the slot of one order (orders 6 and 7 days ahead, 08:00–12:00).
+# (memberless) visits with activity C1, each inside the slot of one order (orders 6 to 9 days ahead, 08:00–12:00).
 psql_q <<SQL
 insert into public.client_accounts (id, organization_id, display_name, client_kind)
   values ('$ACC', '$ORG', 'Haushalt BK-e1b Race-Fixture (synthetisch)', 'household');
@@ -77,10 +85,15 @@ insert into public.care_visits (organization_id, id, case_id, team_id, visit_dat
   ('$ORG', '$V1', '$CASE1', '$T1', ((now() + interval '6 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
    array['Grundpflege'], false, 'planned', 30),
   ('$ORG', '$V2', '$CASE1', '$T1', ((now() + interval '7 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
+   array['Grundpflege'], false, 'planned', 30),
+  ('$ORG', '$V3', '$CASE1', '$T1', ((now() + interval '8 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
+   array['Grundpflege'], false, 'planned', 30),
+  ('$ORG', '$V4', '$CASE1', '$T1', ((now() + interval '9 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
    array['Grundpflege'], false, 'planned', 30);
 -- QUAL1-6: the matrix activity of both visits is the orders' tag C1 (as the take visit, 0138), and only C minutes (KLV-A
 -- minutes would add A1 by CGR-149), so the FaGe M1 may perform them in the simulation organisation.
-insert into public.visit_activities (organization_id, visit_id, activity_code) values ('$ORG', '$V1', 'C1'), ('$ORG', '$V2', 'C1');
+insert into public.visit_activities (organization_id, visit_id, activity_code) values ('$ORG', '$V1', 'C1'), ('$ORG', '$V2', 'C1'),
+  ('$ORG', '$V3', 'C1'), ('$ORG', '$V4', 'C1');
 SQL
 
 confirm() {  # $1 days ahead → prints the order id (08:00–12:00)
@@ -118,46 +131,83 @@ commit;
 SQL
 }
 
+q() { psql "$DB_URL" -X -At -c "$1"; }
+
+invariant() {  # → count of live takes of M1 before their start beside another non-cancelled overlapping visit of M1
+  q "select count(*) from public.order_takes k join public.partner_requests p on p.id = k.order_id
+     join public.care_visits x on x.responsible_user_id = k.member_id and x.status <> 'cancelled'
+                              and x.order_take_id is distinct from k.id
+    where k.member_id = '$M1' and k.released_at is null and p.starts_at > now()
+      and private.visit_interval(x) && tstzrange(p.starts_at, p.ends_at, '[)')"
+}
+
 tmp=$(mktemp -d)
 O1=$(confirm 6)
 O2=$(confirm 7)
-[ -n "$O1" ] && [ -n "$O2" ] || { echo "not ok - fixture orders not confirmed"; exit 1; }
-offers=$(psql "$DB_URL" -X -At -c "select count(*) from public.order_offers where order_id in ('$O1', '$O2') and team_id = '$T1'")
-[ "$offers" = "2" ] || { echo "not ok - expected T1 offered on both orders (got $offers)"; exit 1; }
+O3=$(confirm 8)
+O4=$(confirm 9)
+[ -n "$O1" ] && [ -n "$O2" ] && [ -n "$O3" ] && [ -n "$O4" ] || { echo "not ok - fixture orders not confirmed"; exit 1; }
+offers=$(q "select count(*) from public.order_offers where order_id in ('$O1', '$O2', '$O3', '$O4') and team_id = '$T1'")
+[ "$offers" = "4" ] || { echo "not ok - expected T1 offered on all four orders (got $offers)"; exit 1; }
 fail=0
+
+# «take, then hand» (case 1 and 1s): $1 label, $2 order, $3 visit, $4 take result, $5 hand result.
+check_take_then_hand() {
+  local rel tvc r inv
+  rel=$(q "select count(*) from public.order_takes where order_id = '$2' and member_id = '$M1'
+           and released_at is not null and release_reason = 'step_3'")
+  tvc=$(q "select string_agg(v.status, ',' order by v.status) from public.care_visits v
+           join public.order_takes k on k.id = v.order_take_id where k.order_id = '$2'")
+  r=$(q "select count(*) from public.care_visits where id = '$3' and responsible_user_id = '$M1' and status <> 'cancelled'")
+  inv=$(invariant)
+  echo "$1: take: $4; open visit: $5; take released step_3: $rel; take visit: ${tvc:-none}; open visit assigned: $r; invariant violations: $inv"
+  if [ "$4" = "ok" ] && [ "$5" = "ok:false" ] && [ "$rel" = "1" ] && [ "$tvc" = "cancelled" ] && [ "$r" = "1" ] && [ "$inv" = "0" ]; then
+    echo "ok - CGR-255 $1: serial outcome «take, then hand» (take released step_3, take visit cancelled, open visit hers, member_overlap false)"
+  else
+    echo "not ok - CGR-255 $1: expected take ok, open visit ok:false, take released step_3, take visit cancelled, open visit hers, invariant 0"
+    fail=1
+  fi
+}
+
+# «hand, then take» (case 2 and 2s): $1 label, $2 order, $3 visit, $4 hand result, $5 take result.
+check_hand_then_take() {
+  local rows r inv
+  rows=$(q "select count(*) from public.order_takes where order_id = '$2'")
+  r=$(q "select count(*) from public.care_visits where id = '$3' and responsible_user_id = '$M1' and status <> 'cancelled'")
+  inv=$(invariant)
+  echo "$1: open visit: $4; take: $5; take rows: $rows; open visit assigned: $r; invariant violations: $inv"
+  if [ "$4" = "ok:false" ] && [ "$5" = "member_not_eligible:3" ] && [ "$rows" = "0" ] && [ "$r" = "1" ] && [ "$inv" = "0" ]; then
+    echo "ok - CGR-233 $1: serial outcome «hand, then take» (take refused with step 3, no take row)"
+  else
+    echo "not ok - CGR-233 $1: expected open visit ok:false, take member_not_eligible:3, no take row, invariant 0"
+    fail=1
+  fi
+}
+
+pick_take() { grep -E '^[a-z_]+(:[0-9])?$' "$1" || true; }
+pick_hand() { grep -E '^[a-z_]+:(true|false|null)$' "$1" || true; }
 
 # Case 1: take first (held 2 s), the hand path 0.7 s later.
 take "$O1" 2 > "$tmp/t1" &
 sleep 0.7
 take_open "$V1" 0 > "$tmp/p1" &
 wait
-t1=$(grep -E '^[a-z_]+(:[0-9])?$' "$tmp/t1" || true)
-p1=$(grep -E '^[a-z_]+:(true|false|null)$' "$tmp/p1" || true)
-tv=$(psql "$DB_URL" -X -At -c "select count(*) from public.care_visits v join public.order_takes k on k.id = v.order_take_id
-  where k.order_id = '$O1' and k.released_at is null and v.responsible_user_id = '$M1' and v.status = 'planned'")
-r1=$(psql "$DB_URL" -X -At -c "select count(*) from public.care_visits where id = '$V1' and responsible_user_id = '$M1'")
-echo "case 1 (take first): take: $t1; open visit: $p1; live take visits of M1: $tv; open visit assigned: $r1"
-if [ "$t1" = "ok" ] && [ "$p1" = "ok:true" ] && [ "$tv" = "1" ] && [ "$r1" = "1" ]; then
-  echo "ok - CGR-233 case 1: the hand path waits for the take and reports member_overlap true"
-else
-  echo "not ok - CGR-233 case 1: expected take ok, open visit ok:true (the hand path read «no overlap» beside a live take visit)"
-  fail=1
-fi
+check_take_then_hand "case 1 (take first, race)" "$O1" "$V1" "$(pick_take "$tmp/t1")" "$(pick_hand "$tmp/p1")"
+
+# Case 1s: serial control, the take committed first, then the hand path (no sleep).
+take "$O3" 0 > "$tmp/t3"
+take_open "$V3" 0 > "$tmp/p3"
+check_take_then_hand "case 1s (take, then hand, serial)" "$O3" "$V3" "$(pick_take "$tmp/t3")" "$(pick_hand "$tmp/p3")"
 
 # Case 2: the hand path first (held 2 s), the take naming her 0.7 s later.
 take_open "$V2" 2 > "$tmp/p2" &
 sleep 0.7
 take "$O2" 0 > "$tmp/t2" &
 wait
-p2=$(grep -E '^[a-z_]+:(true|false|null)$' "$tmp/p2" || true)
-t2=$(grep -E '^[a-z_]+(:[0-9])?$' "$tmp/t2" || true)
-rows=$(psql "$DB_URL" -X -At -c "select count(*) from public.order_takes where order_id = '$O2'")
-r2=$(psql "$DB_URL" -X -At -c "select count(*) from public.care_visits where id = '$V2' and responsible_user_id = '$M1'")
-echo "case 2 (visit first): open visit: $p2; take: $t2; take rows: $rows; open visit assigned: $r2"
-if [ "$p2" = "ok:false" ] && [ "$t2" = "member_not_eligible:3" ] && [ "$rows" = "0" ] && [ "$r2" = "1" ]; then
-  echo "ok - CGR-233 case 2: the take waits for the hand path and refuses with step 3, writing nothing"
-else
-  echo "not ok - CGR-233 case 2: expected open visit ok:false, take member_not_eligible:3 and no take row"
-  fail=1
-fi
+check_hand_then_take "case 2 (visit first, race)" "$O2" "$V2" "$(pick_hand "$tmp/p2")" "$(pick_take "$tmp/t2")"
+
+# Case 2s: serial control, the hand path committed first, then the take (no sleep).
+take_open "$V4" 0 > "$tmp/p4"
+take "$O4" 0 > "$tmp/t4"
+check_hand_then_take "case 2s (hand, then take, serial)" "$O4" "$V4" "$(pick_hand "$tmp/p4")" "$(pick_take "$tmp/t4")"
 exit $fail

@@ -44,7 +44,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(155);
+select plan(157);
 
 -- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
 -- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
@@ -791,6 +791,16 @@ select ok(position('order_take_member:' in pg_get_functiondef('private.member_vi
           and position('order_take_member:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure))
               < position('plan3_busy:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure)),
           'CGR-233: private.member_visit_overlap takes the order_take_member lock before plan3_busy and before reading');
+
+-- CGR-255 (ADR-203 (20)): the automatic release of a take (`private.recheck_member_takes`, run by the
+-- `bk_c1_recheck_takes` trigger at every hand write) reads her live takes under the same person lock, so in the race
+-- «take first» it waits for the take, sees it committed and releases it (the serial outcome; race in take-visit.sh).
+select ok(position('order_take_member:' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)) > 0
+          and position('order_take_member:' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure))
+              < position('from public.order_takes' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)),
+          'CGR-255: private.recheck_member_takes takes the order_take_member lock before it reads her live takes');
+select ok(position('take_visit_under_way' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)) > 0,
+          'CGR-244 kept: the automatic release still never touches a take whose visit is under way');
 
 select * from finish();
 rollback;
