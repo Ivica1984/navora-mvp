@@ -1,6 +1,6 @@
 # BK-Roadmap: vom Pflegeauftrag bis zur Rechnung
 
-**Besitzer:** Product Owner (`po`) · **Version:** 1, 2026-11-17 17:15 (Europe/Zurich) · **Auftrag:** FE-088 (6) · **Quellen:** Brief `docs/agents/briefs/BK.md`, Blueprint V3.2 §8, `FOUNDER_DECISIONS.md` FE-085, FE-087, FE-088 · **Kennzeichnung:** IMPLEMENTED, PLANNED, OPEN, UNKNOWN. Termine sind Schätzungen des PO, keine Zusagen. Der PO hat keine Tests ausgeführt.
+**Besitzer:** Product Owner (`po`) · **Version:** 2, 2026-11-18 15:45 (Europe/Zurich) (~~1, 2026-11-17 17:15~~) · **Auftrag:** FE-088 (6), FE-089 · **Quellen:** Brief `docs/agents/briefs/BK.md`, Blueprint V3.2 §8, `FOUNDER_DECISIONS.md` FE-085, FE-087, FE-088 · **Kennzeichnung:** IMPLEMENTED, PLANNED, OPEN, UNKNOWN. Termine sind Schätzungen des PO, keine Zusagen. Der PO hat keine Tests ausgeführt.
 
 ## 0. Kurzfassung
 
@@ -24,6 +24,15 @@
 **Nicht bedienbar:** Übernahme, «Bestätigen» und «Ich kann nicht» auf `/team`, Kundenstatus «Gedeckt» (#1358, nicht gemergt), Rangfolge, KI-Erfassung, Berichtsentwurf, Rechnung.
 
 **Vorschlag an `eng` (Nachweis statt «Render ist bereit»):** Nach jedem Deploy prüft ein CI-Schritt Commit und höchste Migration von Staging und führt einen kurzen Playwright-Klickpfad gegen `navora-staging.onrender.com` aus. Das Ergebnis steht in der PR- oder Merge-Notiz.
+
+## 1a. Staging-Stand 2026-11-18 15:45 (FE-089 (1); aktueller Stand, §1 ist Verlauf)
+
+| Prüfpunkt | Stand | Nachweis |
+|---|---|---|
+| Automatisches Einspielen | **IMPLEMENTED seit heute:** der Founder hat `STAGING_DB_URL` gesetzt (laut `eng` 15:27); jeder Push auf `recovery/main` spielt nach grünen Pflichtjobs die Migrationen auf `navora-staging` ein (ADR-190); auf einem PR nur Probelauf | `ci.yml` Job `staging`; Probelauf #1421 Job 134863645473 «würde 0136 bis 0148 einspielen» |
+| Datenbank `navora-staging` | zuletzt bis **0135** (von `eng` heute lesend festgestellt); **0136, 0137 fehlten**. Erster Push mit funktionierendem Secret: PO-Merge #1459 `e6ac4f2` (15:45); ob dessen `staging`-Job 0136 und 0137 eingespielt hat, stellt der PO aus dem Log fest und `eng` bestätigt die Version | Job auf `e6ac4f2`; `dfb1ad3` scheiterte noch am alten Passwort (134858056538) |
+| App-Commit auf Render | **UNKNOWN für den PO**; `eng` meldet ihn (Auto-Deploy von `recovery/main`) | – |
+| Klickpfad «Auftrag erfassen → Angebot beim Team → Team übernimmt → Auftraggeber sieht den richtigen Status» auf Staging | **nicht nachgewiesen**. Im Code IMPLEMENTED (BK-a bis BK-c, für die Simulation abgenommen); mit 0136/0137 auf Staging erstmals vollständig möglich | `eng` prüft und meldet (Issue «STAGE-SYNC», FE-089 (1)) |
 
 ## 2. Stand im Code
 
@@ -87,14 +96,31 @@ Vorschläge, damit jeder Teilschritt sichtbar näher ans Ziel führt (Founder en
 | Risiko | Nacharbeit, wenn BK-c3 Schnittstellen ändert; dann verwirft `eng-2` den Entwurf |
 | Versuch | 1 Woche (bis 2026-11-25), danach Auswertung durch den PO |
 
-## 7. Rhythmus `cra` und `uxa` (FE-088 (1))
+## 7. Rhythmus der Prüfrollen (FE-089 ersetzt FE-088 (1))
 
-- **Umgesetzt 2026-11-17 ca. 17:10:** `cra` `26 * * * *`, `uxa` `47 * * * *` (vorher alle 4 Stunden). Befristet auf das aktive BK-Teilstück.
-- **Messgrösse:** Zeit von «Kopf stabil und bereit» bis zur Freigabezeile, je Rolle und PR. Ausgangswert #1358 `9a7fc56`: stabil 16:06; `lca` 16:24 (18 Min.); `cra` und `uxa` offen.
-- **Empfehlung zum weiteren Rhythmus:** spätestens 2026-11-21.
+- **Seit 2026-11-18 ca. 15:25 pausiert:** «NAVORA Clinical & Regulatory Architect», «NAVORA UX/UI Design Architect», «NAVORA Legal & Compliance Agent». Aktiv: PO, Engineering, AI & Automation, Wochenstatus Engineering; Chief Strategy Architect wöchentlich (keine Aufgabe, die den aktiven PR verändert).
+- **Pflicht-Reviews:** erst wenn `eng` den stabilen Endstand (Commit, Testresultate, Prüffragen) meldet und alle CI-Jobs grün sind, startet der PO die benötigte Rolle einmal (Aufgabe der PO-Rolle, Abschnitt «BK BUILD PHASE»). Pausiert heisst nie zustimmend.
+- **Messgrösse:** Zeit von «Endstand gemeldet» bis Freigabezeile, je Rolle und PR.
+- **Neubewertung:** bis 2026-11-25 oder bei der BK-e-Abnahme, was zuerst eintritt.
 
 ## 8. Offen beim Owner/Founder
 
-1. Anbieter für einen KI-Endpunkt mit synthetischen Daten (FE-085 (4)); ohne ihn kein Termin für echte KI.
+1. Anbieter für einen KI-Endpunkt mit synthetischen Daten, Schlüsselablage und Ausgabenlimit (FE-085 (4), §9); ohne ihn kein Termin für echte KI.
 2. Entscheid über den `eng-2`-Versuch (§6).
 3. Vorschläge §5 (1)–(3).
+
+## 9. Erste echte KI-Funktion (Entwurf PO, PLANNED; Entscheidungsvorlage mit `aia` bis 2026-11-19 12:00)
+
+Kennzeichnung heute: **kein KI-Modell ist angeschlossen.** BK-a bis BK-c sind feste Regeln; BK-e2 (Berichtsentwurf) ist als Testersatz geplant.
+
+| Punkt | Vorschlag des PO (von `aia` zu prüfen) |
+|---|---|
+| Funktion | **Auftrag aus Freitext** (BK-d): die Auftraggeberin schreibt z. B. «Brauche Sonntag Nachtdienst, FaGe, 22:00–07:00, 4102 Binningen»; das Modell schlägt die Felder des Auftragsformulars vor; die Auftraggeberin prüft und bestätigt jedes Feld; danach der bestehende Weg (BK-a) und die festen Abgleichsregeln (BK-b) |
+| Nutzen | weniger Erfassungsarbeit bei der Auftraggeberin; für den Founder als Auftraggeber direkt sichtbar; geringstes klinisches Risiko der KI-Kandidaten (kein Pflegebericht, keine Zuteilung; die Regeln danach bleiben fest) |
+| Datenweg | Browser → Server der App (Render) → Modell-Endpunkt des vom Founder gewählten Anbieters (CH/EU, keine Speicherung beim Anbieter, FE-085 (A)) → Vorschlag mit Quellstelle je Feld → bestehende Vorschlagsprotokollierung (AIG1) → Bestätigung durch die Auftraggeberin. Nur `navora-staging`, nur synthetische Daten |
+| Kontrolle und Abschaltung | Schlüssel nur in der Staging-Umgebung; Server lehnt ab, wenn er nicht gegen `navora-staging` läuft (AUT-136 (1)); ein Schalter stellt auf das normale Formular zurück; kein Feld wird ohne Bestätigung übernommen; kein Feld ohne Quellstelle |
+| Kostenbegrenzung | Höchstzahl Aufrufe pro Tag und Länge pro Aufruf in der App; Ausgabenlimit im Anbieterkonto durch den Founder |
+| Testkriterien | in CI nur Testersatz (kein Schlüssel in CI); Prüfsatz synthetischer Auftragstexte mit erwarteten Feldern (inkl. Nacht über Mitternacht, fehlende Angabe, unklares Datum); bestanden, wenn kein erfundener Wert, jede Angabe mit Quellstelle oder leer, Datum und Zeit richtig in der vereinbarten Quote; Schalter-Test; ein Live-Lauf auf Staging mit Protokoll. Schwellen setzt `aia` |
+| Platz in der BK-Reihenfolge | PO-Vorschlag: nach BK-e1b und BK-e2 (Testersatz) **BK-d vor BK-f**, sobald Anbieter und Schlüssel feststehen; sonst bleibt c → e → f → d → g |
+| Zeitfenster (Schätzung) | Vorlage 19.11. 12:00; frühester Live-Lauf auf Staging KW 49 (30.11.–4.12.), nur wenn Anbieterwahl und Schlüssel bis ca. 24.11. vorliegen |
+| Founder-Entscheid nötig | Anbieter und Endpunkt; wer den Schlüssel in Render hinterlegt (nie in Repository, Issue oder Dokument); Ausgabenlimit. `lca` liest die Anbieterbedingungen bei einem gezielten Gate-Start |
