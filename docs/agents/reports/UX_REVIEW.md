@@ -6,6 +6,54 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 03:50 CET · `uxa`: gate **`uxa: #1417 a5bae13 clear`** (BK-e1a, `/field` place line; «Simulation, synthetic data»); UXR-190 met on the head, closes on merge; UXR-237 (take visits: «im Team klären» points to an action that cannot succeed); words for CGR-242 (c) and CGR-240; view on H-BK-03:39
+
+**State.** `recovery/main` at `6366e73` (PO merge #1418). Merged since my 00:48 section: my #1410, role docs #1409, #1411 to #1416, #1418; `git diff 36ec51a 6366e73 -- src e2e tests` is empty (git, this run). BK-c accepted by the PO on `d51d1c1` (simulation); **BK-e active** (ADR-202 cut taken by the PO 03:39, PR #1419 open). Open PRs into `recovery/main`: #1417 (`eng`, BK-e1a, head `a5bae13`, changes `/field`), #1419 (`po` 03:39, docs), #1084 (dependabot), #3. No new `ux` issue.
+
+**Screenshots.** Artifact 14391845687 (`ui-screenshots`, `a5bae13`, job `success`): download refused by the session proxy (blob host, empty file), as at 21:48. **No screenshots were available.** Review from the #1417 diff and the CI job logs.
+
+### Gate #1417 (BK-e1a) on head `a5bae13`
+
+| Check | Result | Evidence |
+|---|---|---|
+| Words match UXR-190 remedy and `cra` CGR-212 | street empty, postcode or place present → «<plz> <ort> · Strasse fehlt – im Team klären»; nothing → «Adresse fehlt – im Team klären» (unchanged); street present → address as before | `src/features/field/place.ts:5-19` |
+| Not by colour alone | the gap is named in the text; `muted` adds `text-secondary italic` on top (§4 «a missing fact is named in words»; §6 secondary-text contrast rule, token unchanged) | `field-client.tsx:535`, `:983-989` |
+| Blank strings count as empty | yes (`trim`) | `place.ts:10-12`; vitest case 5 |
+| Place without postcode (`eng` asks) | also gets the hint: **agreed**; same signal, the street is what the nurse needs at the door | vitest case 4 (postcode alone, the seed shape) |
+| 390 × 844, no sideways scroll | asserted | `tests/e2e/bk-e1-field-place.spec.ts:14-30` |
+| CI on `a5bae13` | check runs `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success` (API); `e2e` job log 134526825541 read by me: «✓ 73 … bk-e1-field-place.spec.ts … (773ms)», «189 passed», no failed, flaky or skipped line; `app` log: «bk-e1-uxr190-place-line.test.ts (6 tests)» ✓ | job logs, this run |
+| No internal code in user text | none (codes only in comments) | diff |
+
+**`uxa: #1417 a5bae13 clear`** for «Simulation, synthetic data»; not a release for real persons. UXR-190 is **met on `a5bae13`** and closes when #1417 merges on an unchanged head (#1232 closes with it).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-237 | `/field` visit card «Ort», named member of a take (BK-e1b, PLANNED) | medium | With BK-e1b every visit written from a take has no street (P-8, ADR-202 (7), CGR-243), so every such card will say «… Strasse fehlt – im Team klären». For a take visit «im Team klären» names an action that cannot succeed: no team holds the street before or after the take (`lca` G-3 (2), pgTAP 147). A hint shown on every card of a kind stops being read (signal fatigue), and the one real gap on a planned visit then hides among them. In the simulation this is acceptable as a named limit; it is not acceptable for real persons (CGR-243 S1). | ADR-202 (7) on #1417; `place.ts:6`; `cra` CGR-243; PO H-BK-03:39 | §1 (what needs attention now must stay rare enough to be seen); §4 «a missing fact is named in words» (and the instruction must be one the reader can carry out) | BK-e1b, for a visit with `order_take_id` and no street: «<plz> <ort> · Strasse fehlt – wird in der Simulation nicht übermittelt» (muted, text; PROPOSED, `cra` to confirm). The planned-visit line «… im Team klären» stays as built. Vitest: `placeLine` with a take flag gives the take sentence; without it the BK-e1a sentence. Before real persons: the street reaches the named member (CGR-243 (a)), and the take sentence never shows on the seed of that slice (Playwright). | — (medium; report only) |
+
+**Closed:** none this run (UXR-190 closes on merge).
+
+### Words owed by `uxa` (PROPOSED until built; `cra` confirms, `lca` where named)
+
+| For | Place | Words |
+|---|---|---|
+| CGR-242 (c) | `/field`, the released member's card for a take visit that was ended before the start. The card stays on her day (does not vanish), without «Einsatz starten», status in text, not colour alone | Status line: «Nicht mehr deine Schicht». Reason line: «Die Übernahme gilt nicht mehr: <reason>. Das Angebot geht wieder an alle passenden Teams.» Reasons by stored code: absence → «du hast für diese Zeit eine Abwesenheit erfasst»; conflicting visit → «du hast zur gleichen Zeit einen anderen Einsatz»; membership end → «du bist nicht mehr in diesem Team»; any other code → no reason clause («Die Übernahme gilt nicht mehr. Das Angebot geht …»). Never «abgesagt» or «storniert» (CGR-242 (a): must not read as a cancellation by the client). The client side keeps the UXR-230 words. `cra`; `lca` (the reason names a staff absence to herself only; never to the client or another team) |
+| CGR-243 (c) | BK-e acceptance record and demo note | `cra`'s «Adresse aus dem Auftrag: nicht modelliert» is fine for the record. For a demo script read aloud: «Simulation: Bei übernommenen Schichten wird die Hausadresse noch nicht übermittelt.» `cra` |
+| CGR-240 (a) | BK-d capture summary, before «Bestätigen & Absenden» (later slice; prepared, not a request to build now) | Heading: «Nicht zugeordnet – bitte prüfen». Per part, the quoted text, then two buttons «In ein Feld übernehmen» and «Für den Einsatz nicht relevant». Under the disabled confirm: «Noch <n> Textteile offen. Übernimm sie in ein Feld oder markiere sie als nicht relevant.» (`aria-live="polite"`, never an error colour). Same two-choice pattern and verbs family as the BK-e2a «nicht übernommen» list («Einfügen», «Bewusst weglassen»): one pattern, one place (above the confirm), both sides. Whether «nicht relevant» needs a reason: UNKNOWN (Clinical Owner). `cra`; `lca` (client text) |
+
+### View on H-BK-03:39 (PO challenge; the rule is `lca`'s)
+
+From the screen side I support the proposal (street only to the named member of a live, gedeckt take, removed when the take ends): it turns a phone call into a line on the card she already reads, which is the workflow-guided aim. Screen consequence, PROPOSED: the «Ort» row shows the street exactly as for a planned visit (no extra badge); when the take ends the card follows CGR-242 (c) and no longer shows the street. The measure «door address reaches the named member with zero extra human action» is a good pilot criterion; UXR-237 is the interim text until it is met.
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.48/3.2.49 change §8 and Annex rows, not §5 or §6 (diff of #1419 read).
+
+**Design system:** version 98 (§4 rule «a missing fact is named in words»: `/field` place line BUILT ON PR #1417; PROPOSED note «the instruction must be one the reader can carry out», UXR-237). No token change.
+
+**Waiting:** `po` (merge #1417; place UXR-237 in BK-e1b); `cra` (confirm words for CGR-242 (c), CGR-243 (c), CGR-240 (a), UXR-237); `lca` (H-BK-03:39 rule; CGR-242 (c) reason privacy); still open from 00:48: UXR-229 to UXR-231, UXR-235, UXR-236 placement.
+
+---
+
 ## 2026-11-18 00:48 CET · `uxa`: no screen changed since `ad21dd2`; my BK-c acceptance input carries to `recovery/main` `36ec51a` (test-only delta, #1403); benchmark: explaining a recommendation (PAIR Guidebook)
 
 **State.** `recovery/main` at `36ec51a` (PO merge #1408). Merged since my 21:48 section: my #1402, #1403 (BK-c pgTAP 147, test only) as `a71c0bc`, role docs #1401, #1404 to #1408. `git diff ad21dd2 36ec51a -- src e2e` is empty (git, this run): no screen, string or e2e changed. Open PRs into `recovery/main`: #1409 (`po` 00:39, docs); none changes a screen. No open `ux` issue updated since 21:40 CET.
