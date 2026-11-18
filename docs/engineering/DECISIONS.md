@@ -4325,7 +4325,7 @@ Context: brief `BK.md` §PO amendment 2026-11-18 02:39 (BK-e active; criteria 1�
 7. **Finding reported (deviation, not changed):** orders store a place only, no address (ADR-193 (1), P-8). A visit written from a take will therefore always show «<plz> <ort> · Strasse fehlt – im Team klären» after BK-e1a. Where the carer gets the door address for a take-based visit (client portal, team note, DOOR1 intake) is OPEN for `po` with `lca` (P-8) and `uxa`; BK-e1b builds nothing for it.
 8. **Reviews:** `cra` (mandatory), `uxa`, `aia`, `lca` per PR as listed in the brief. BK-e1a changes one visible line on `/field` (`uxa`, `cra`).
 
-### ADR-204 — CI: one Docker Hub retry after an image-registry rate limit (PROPOSED, `eng` 2026-11-18 15:40, owner instruction in the live session)
+### ADR-204 — CI: one Docker Hub retry after an image-registry rate limit (PROPOSED, `eng` 2026-11-18 15:27, owner instruction in the live session)
 
 Context: on 2026-11-18 `e2e` and `ui-screenshots` of `ci` 44242595626 stopped in «Start local Supabase» with «error from registry: Rate exceeded» from `public.ecr.aws` (the Supabase CLI default registry, job 134593805851). The classifier of ADR-174 only knew the Docker Hub shape («toomanyrequests: …»), so the job was not even named as infrastructure. The owner created a Docker Hub account and set the repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (read-only token, 90 days) in the live session and asked `eng` to use them. No test, clinical or safety rule changes.
 
