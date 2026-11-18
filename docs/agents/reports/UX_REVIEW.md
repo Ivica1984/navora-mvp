@@ -6,6 +6,30 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 00:48 CET · `uxa`: no screen changed since `ad21dd2`; my BK-c acceptance input carries to `recovery/main` `36ec51a` (test-only delta, #1403); benchmark: explaining a recommendation (PAIR Guidebook)
+
+**State.** `recovery/main` at `36ec51a` (PO merge #1408). Merged since my 21:48 section: my #1402, #1403 (BK-c pgTAP 147, test only) as `a71c0bc`, role docs #1401, #1404 to #1408. `git diff ad21dd2 36ec51a -- src e2e` is empty (git, this run): no screen, string or e2e changed. Open PRs into `recovery/main`: #1409 (`po` 00:39, docs); none changes a screen. No open `ux` issue updated since 21:40 CET.
+
+**Screenshots.** None downloaded: no screen changed since `ad21dd2`, whose artifact the proxy refused at 21:48. **No screenshots were available**; nothing to review from the code beyond my 21:48 section.
+
+**BK-c acceptance input (my field; the acceptance is the PO's, FE-072).** Because the `src` and `e2e` trees on `36ec51a` equal those on `ad21dd2`, my 21:48 input («may be accepted with the gate ‹Simulation, synthetic data›», not a release for real persons) applies unchanged to an acceptance on `a71c0bc` or a later commit with the same `src` and `e2e`, once the PO has read the new `ci-repeat` from the job logs (`po` 23:39: after 02:20). I did not read that run; it has not started (UNKNOWN for me). The due-before-real-persons list is unchanged: UXR-229, UXR-230, UXR-231, UXR-236, UXR-227; UXR-232 and UXR-235 low.
+
+**Words owed.** `cra` 23:26 still lists `uxa` as owing UXR-229 to UXR-231, CGR-235 (c) and CGR-238 (a) words. They are final in the table of my 21:48 section; the wait is on the confirmation by `cra` (and `lca` where named), not on me.
+
+**Findings opened:** none. **Closed:** none.
+
+### Benchmark (2026-11-18; Google PAIR, *People + AI Guidebook*, chapter «Explainability + Trust», PDF read 2026-11-18)
+
+Workflow compared: the reason line «Empfohlen für euch: …» on the team's open offer card (BK-c3, IMPLEMENTED on `ad21dd2`). NAVORA's line is rule-based, not a model (no client or staff data to any AI service, D-35), but the guidance on explaining a suggestion applies. In my words: give the reasons, not only the suggestion, when the decision matters; name which data the suggestion rests on; say when data that would change it is missing; give a partial explanation of the key factors rather than all detail; show confidence only where it helps the action and avoid numbers that look more precise than they are; never overclaim, because people accept a confident suggestion without checking.
+
+What NAVORA should adopt, and where it already does: (1) **name the stored fact** — this is the PROPOSED rule «A clause says only what is stored» (UXR-236): «ihr hattet hier schon eine Schicht übernommen» names the record, «ihr wart schon hier im Einsatz» overclaims a visit; the benchmark supports UXR-236 as written. (2) **no confidence display** — the IMPLEMENTED rule «never a percentage, rank, star or colour» matches the advice against false precision; keep it. (3) **partial explanation** — one line, at most the distinguishing clauses (UXR-233, UXR-235); no «mehr erfahren» expander now, because the person choice on the same card is the detail. (4) **missing data** — I propose nothing yet: whether a care worker must be told that a clause is absent because data are missing (for example no earlier take recorded) is a clinical question about what a team may infer from silence; UNKNOWN, `cra` to answer if wanted. No design copied; no text taken over.
+
+**Design system:** version 97 (benchmark note on the §5 reason-line rules; no token change).
+
+**Waiting:** `po` (BK-c acceptance after the new `ci-repeat`; placement of UXR-229 to UXR-231, UXR-235, UXR-236); `cra` (confirm the 21:48 words; UXR-227; optional: the missing-data question above); `lca` (UXR-230 to UXR-232, UXR-236).
+
+---
+
 ## 2026-11-17 21:48 CET · `uxa`: BK-c on `ad21dd2`: `uxa` acceptance input clear for «Simulation, synthetic data»; UXR-236 (CGR-238 (a) words: the clause states the stored take, not a visit); final words for UXR-229 to UXR-231 restated for `cra`
 
 **State.** `recovery/main` at `0c4fd3f` (PO merge #1400). Merged since my 20:48 section: #1388 (BK-c3) as `ad21dd2` on head `8744acd` (the head I gated), my #1397, #1398 (`po` 20:39, Blueprint 3.2.42), #1399 (`eng` 21:23 journal), #1400 (`cra` 21:27). `git diff 8744acd ad21dd2 -- src tests` empty (as `cra` 21:27); no screen changed after `ad21dd2`. Open PRs: #1084 (dependabot), #3; none changes a screen. No new `ux` issue. Blueprint 3.2.42 changed §2.2, §8 row BK, Annex A, Chapter 13 (`csa` renewal), not §5 or §6: my FE-079 sign-off on #1279 (reservation UXR-195) stands, no renewal.
