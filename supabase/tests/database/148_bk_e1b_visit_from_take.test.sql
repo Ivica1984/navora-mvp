@@ -41,7 +41,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(141);
+select plan(146);
 
 -- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
 -- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
@@ -397,6 +397,9 @@ begin
   return res;
 end;
 $$;
+-- CGR-252 (PO 09:39 (2)): every refused take_visit command writes exactly one refusal row and nothing else. The audit
+-- window opens here and closes before the owner's fixture writes of §12 (asserted at the end of the §12 commands).
+create temp table aud252 as select coalesce(max(id), 0) as last_id from public.audit_events;
 -- O2 (M2 named, taken by M1, both T1) is the live planned take visit here (O1 was released in §7).
 create temp table cov as select pg_temp.cs('o2') as before;
 select is(pg_temp.cancel('02', 'o2', 'ffff0000-0000-4000-8148-000000000060'), 'take_visit',
@@ -529,6 +532,27 @@ select is(pg_temp.cover_violations(), null, 'cover property after take_open_visi
 select is(pg_temp.cmd('03', 'o4', 'reschedule', 'ffff0000-0000-4000-8148-000000000080') ->> 'result', 'take_visit',
           'CGR-249: reschedule_visit refuses a take visit on the way with take_visit');
 select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-249: the visit on the way is unchanged');
+-- CGR-252: the window of §11 and §12 holds exactly the 14 refusals, in order, one row each, and no other write.
+create function pg_temp.k_of(vid uuid) returns text language sql as $$
+  select m.k from made m where (pg_temp.visit(m.k) ->> 'id')::uuid = vid order by m.k limit 1
+$$;
+create function pg_temp.m_of(uid uuid) returns text language sql as $$
+  select n from (values ('01'), ('02'), ('03')) x(n) where pg_temp.m(n) = uid
+$$;
+select is((select string_agg(a.command || ':' || coalesce(pg_temp.k_of(a.entity_id), '?') || ':'
+                             || coalesce(pg_temp.m_of(a.actor_id), '?'), ',' order by a.id)
+           from public.audit_events a where a.id > (select last_id from aud252)),
+          'cancel_visit:o2:02,cancel_visit:o2:01,cancel_visit:o4:03,'
+          'move_visit_to_today:o2:02,move_visit_to_today:o2:01,reschedule_visit:o2:02,reschedule_visit:o2:01,'
+          'move_visit_to_today:o3:03,reschedule_visit:o3:03,remove_planned_visit:o2:02,remove_planned_visit:o2:01,'
+          'take_open_visit:o2:01,propose_visit_responsible:o2:01,reschedule_visit:o4:03',
+          'CGR-252: each refused take_visit command wrote exactly one row (command, visit, member), and no other row');
+select is((select count(*)::int from public.audit_events a where a.id > (select last_id from aud252)
+             and a.table_name = 'care_visits' and a.idempotency_key is null
+             and a.changed = '{"outcome": {"old": null, "new": "take_visit"}}'::jsonb), 14,
+          'CGR-252: every refusal row is the VIS1-10 form: care_visits, outcome take_visit, no idempotency key');
+select is((select count(*)::int from public.audit_events a where a.id > (select last_id from aud252)), 14,
+          'CGR-252: no other write was audited during the refused commands of §11 and §12');
 -- The property itself catches a moved take visit (the control is real): move O3 as the owner, check, move back.
 update public.care_visits set visit_date = date '2026-11-22' where id = (pg_temp.visit('o3') ->> 'id')::uuid;
 select is(pg_temp.cover_violations(), 'o3:0', 'cover property: a moved take visit with «gedeckt» is reported');
@@ -539,6 +563,27 @@ update public.care_visits set suspended_at = now() where id = (pg_temp.visit('o3
 select is(pg_temp.cover_violations(), 'o3:0', 'CGR-251: cover property reports a «gedeckt» order whose take visit is suspended');
 update public.care_visits set suspended_at = null where id = (pg_temp.visit('o3') ->> 'id')::uuid;
 select is(pg_temp.cover_violations(), null, 'CGR-251: cover property holds again once the visit is no longer suspended');
+-- CGR-251 (`cra` 08:27, PO 08:39 (2)): a take visit covered by another person (covered_by) is no visit «gedeckt» for
+-- the named member either. Probed inside a sub-transaction that is always rolled back, so the cover triggers on
+-- covered_by (ADM2, QUAL1, bk_c1_recheck_takes) leave no trace on the fixture.
+create function pg_temp.probe_covered_by(k text) returns text language plpgsql as $$
+declare r text;
+begin
+  begin
+    update public.care_visits set covered_by = pg_temp.m('03') where id = (pg_temp.visit(k) ->> 'id')::uuid;
+    r := coalesce(pg_temp.cover_violations(), 'none');
+    raise exception 'probe rollback' using errcode = 'P0252';
+  exception
+    when sqlstate 'P0252' then null;
+    when others then r := 'error: ' || sqlerrm;
+  end;
+  return r;
+end;
+$$;
+select is(pg_temp.probe_covered_by('o3'), 'o3:0',
+          'CGR-251: cover property reports a «gedeckt» order whose take visit carries covered_by');
+select ok(pg_temp.cover_violations() is null and (pg_temp.visit('o3') ->> 'covered_by') is null,
+          'CGR-251: after the rolled-back probe the visit has no covered_by and the property holds');
 
 -- UXR-242 (PO 07:39 (4)): can a take exist on an order without postcode and place? Not through the commands: the only
 -- order writer, `confirm_client_order`, refuses a missing or empty postcode and one outside the BS/BL list (the place
