@@ -183,7 +183,7 @@ describe("ADR-204: Docker Hub fallback after a registry limit", () => {
     const dir = mkdtempSync(join(tmpdir(), "adr204-"));
     const log = join(dir, "start.log");
     writeFileSync(log, ECR_RATE);
-    const env = { PATH: process.env.PATH ?? "" };
+    const env = { PATH: process.env.PATH ?? "", NODE_ENV: "test" } as NodeJS.ProcessEnv;
     expect(execFileSync("node", [SCRIPT, "--fallback", log], { encoding: "utf8", env: { ...env, ...creds } }).trim()).toBe("docker.io");
     expect(execFileSync("node", [SCRIPT, "--fallback", log], { encoding: "utf8", env }).trim()).toBe("");
     writeFileSync(log, BIND_NEW);

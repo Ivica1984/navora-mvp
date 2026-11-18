@@ -64,7 +64,7 @@ export function formatAnnotation({ kind, ports }) {
 /**
  * ADR-204: the registry to retry from once, or "" for no retry. Only a registry limit, only with both Docker Hub
  * secrets set, and never a second time (the registry is already the fallback). Every other failure: no retry (ADR-174).
- * @param {{ kind: string }} c
+ * @param {{ kind: string, ports?: number[] }} c
  * @param {Record<string, string | undefined>} env
  */
 export function fallbackRegistry(c, env) {
