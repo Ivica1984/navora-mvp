@@ -99,11 +99,20 @@ select ok((select prosrc ~ 'private\.member_visit_overlap\(' from pg_proc
            where oid = 'private.plan3_confirm_overlaps(uuid, uuid)'::regprocedure),
   'PLAN3-16: the PLAN3-14 confirm (AIG1 day plan) still reads the same member-overlap definition');
 
+-- The form's read before saving (same fact), before m1 has any visit on D + 1 ----------------------------------------------
+select is(pg_temp.slot(pg_temp.d() + 1, '06:00', '06:30'), 'true'::jsonb,
+  'CGR-256: the form reads a 06:00 slot on D+1 as busy (night of D, team B)');
+select is(pg_temp.slot(pg_temp.d() + 1, '07:30', '08:00'), 'false'::jsonb, 'CGR-256: the form reads 07:30 on D+1 as free');
+select is(pg_temp.slot(pg_temp.d() + 1, '07:00', '07:30'), 'false'::jsonb, 'CGR-256: touching ends do not overlap');
+
 -- The cra pair: a hand visit on D + 1 beside the night of D --------------------------------------------------------------------
 create temp table r1 as select pg_temp.plan(pg_temp.d() + 1, '06:00', '06:30', 1) as r;
 select is((select r ->> 'result' from r1), 'ok', 'CGR-256: a 06:00 visit on D+1 for m1 is saved, never refused');
 select is((select r -> 'member_overlap' from r1), 'true'::jsonb,
   'CGR-256: 06:00 on D+1 meets her 22:00–07:00 night of D: member_overlap true');
+-- The other direction, while the 06:00 visit of D + 1 is her only other visit: the night reads it.
+select is(private.member_visit_overlap(pg_temp.v(1), pg_temp.u('m1')), true,
+  'CGR-256: the 22:00–07:00 visit of D reads her 06:00 visit of D+1 as an overlap');
 create temp table r2 as select pg_temp.plan(pg_temp.d() + 1, '07:30', '08:00', 2) as r;
 select is((select r ->> 'result' || ':' || (r ->> 'member_overlap') from r2), 'ok:false',
   'CGR-256: 07:30 on D+1 is after the night: member_overlap false');
@@ -112,19 +121,9 @@ select is((select r ->> 'result' || ':' || (r ->> 'member_overlap') from r3), 'o
   'CGR-256: 07:00 on D+1 only touches the night''s end: member_overlap false');
 select is((select r ->> 'result' || ':' || (r ->> 'member_overlap') from (select pg_temp.plan(pg_temp.d(), '23:00', '23:30', 4) as r) s),
   'ok:true', 'control: 23:00 on D (same day as the night) stays true');
-
--- The form's read before saving (same fact) ----------------------------------------------------------------------------------
-select is(pg_temp.slot(pg_temp.d() + 1, '06:00', '06:30'), 'true'::jsonb,
-  'CGR-256: the form reads a 06:00 slot on D+1 as busy (night of D, team B)');
-select is(pg_temp.slot(pg_temp.d() + 1, '07:30', '08:00'), 'false'::jsonb, 'CGR-256: the form reads 07:30 on D+1 as free');
-select is(pg_temp.slot(pg_temp.d() + 1, '07:00', '07:30'), 'false'::jsonb, 'CGR-256: touching ends do not overlap');
 select ok((select r::text !~ (pg_temp.v(1)::text || '|' || pg_temp.c('B')::text || '|' || pg_temp.team('B')::text
                              || '|22:00|07:00|Team CGR-256 B') from r1),
   'CGR-256: nothing of the night (id, case, team, time) reaches the asking team, only yes/no');
-
--- The other direction: the night itself reads her morning visit of D + 1 -------------------------------------------------------
-select is(private.member_visit_overlap(pg_temp.v(1), pg_temp.u('m1')), true,
-  'CGR-256: the 22:00–07:00 visit of D reads her 06:00 visit of D+1 as an overlap');
 select is(private.member_visit_overlap((select (r ->> 'visit_id')::uuid from r1), pg_temp.u('m2')), false,
   'a different member is never read (m2 has no visit)');
 
