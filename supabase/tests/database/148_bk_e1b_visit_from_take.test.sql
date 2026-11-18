@@ -44,7 +44,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(154);
+select plan(155);
 
 -- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
 -- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
@@ -783,6 +783,14 @@ select ok((pg_temp.drop_signal('o7')).id is null
                       and s.signal_kind = 'take_member_dropped' and s.ended_at is not null),
           'CGR-246 (CR-041): the withdrawal removes the cause, so the episode ends with it');
 select is(pg_temp.cover_violations(), null, 'CGR-250 (c): cover property after change_absence');
+
+-- CGR-233 (ADR-203 (19)): the one member-overlap reading of every hand-assignment path takes the take's person lock
+-- before the plan3_busy lock and before it reads, so a take and a hand assignment of one member serialise. The race
+-- itself runs in two real sessions in scripts/db-concurrency/take-visit.sh (pgTAP cannot open a second session).
+select ok(position('order_take_member:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure)) > 0
+          and position('order_take_member:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure))
+              < position('plan3_busy:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure)),
+          'CGR-233: private.member_visit_overlap takes the order_take_member lock before plan3_busy and before reading');
 
 select * from finish();
 rollback;
