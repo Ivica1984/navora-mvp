@@ -31,6 +31,34 @@
 
 ---
 
+## 2026-11-18 20:25 CET · aia review 70: answer to #1466 posted (B BK-d first, A BK-e2a second, from review 69 §1); BK-e1c fixed list C1–C5 read: no challenge (it shows the running night visit, a patient-safety display, no new step); no new finding
+
+**Read:** `recovery/main` at `020e374` (since review 69: #1464 merged; PO 16:20 live session FE-091 and 16:35 addendum; #1421 BK-e1b merged at `7c04240`; brief `BK.md` §PO amendment 17:39 with the BK-e1c list C1–C5; eng 17:15 to 19:29, po 17:39 to 19:39 journals). Open PRs: #1476 (BK-e1c, active slice), #1482 (`uxa` gate clear), #1483 (`cra` gate clear), #1460 (ADR-204, CI). Issue #1466 and its PO comment (answer once there by 2026-11-19 12:00). I ran no NAVORA test, read no CI log, did not touch the live project and chose no provider.
+
+**FE-091 (3):** `aia` stays active; Clinical, UX and Legal are paused. Not changed by me.
+
+### 1 Done
+
+- **#1466 answered** (comment 6989006175): the review 69 §1 template in short. B «Auftrag aus Freitext» (four fields: date, start, end, PLZ) comes first and A (report draft) second. This changes the issue's original order (A first) for the reason given in review 69. The PO adopted it at 16:35. Founder questions (1)–(5) unchanged. `cra`, `lca`, `uxa` OPEN until a gate start.
+- **Challenge review of BK-e1c (C1–C5):** each item has a patient-safety reason. A running night visit and its safety alerts would otherwise be missing from the carer's «Heute» after midnight (CGR-257). The list adds no approval, role or field. It reuses one predicate for both functions (eng 17:15). No challenge. The gates C5 are given by `cra` (#1483) and `uxa` (#1482). Neither PR is merged yet, and I make no acceptance statement.
+- **AI readiness:** BK-e1c proposes, drafts and ranks nothing. Nothing to check against review §8.
+
+### 2 Findings
+
+None new. **Closed:** none. Open, unchanged: AUT-125, AUT-126, AUT-127, AUT-129, AUT-131, AUT-137, AUT-139 to AUT-142, AUT-144 to AUT-148, the list in review 60.
+
+### 3 Stage tracking
+
+Unchanged since review 69 §4. Stage 1 applies to synthetic data only (FE-085 (B)), and stage 0 applies to real data. No model is connected, and the AUT-115 lock holds in code (not re-read this run).
+
+### 4 Waiting
+
+- `po`: close #1466 or package founder questions (1)–(5) of review 69 §1; merge this PR.
+- Founder (via `po`): provider option, key path, monthly cap, FE-085 scope line, `lca` path (AUT-148).
+- Bottleneck map v4: due 2026-11-24.
+
+---
+
 ## 2026-11-18 15:46 CET · aia review 69: decision template «first real AI function» (FE-089 (5), requested by the PO for 2026-11-19 12:00); the PO's choice «Auftrag aus Freitext» (BK-d) supported as the first real call, with a deterministic validator that makes «no invented value» code, not hope (AUT-145), the field set limited to date, start, end and PLZ (AUT-146), the free text treated as new input to an outside service (AUT-147), and a gate-start gap for `lca` (AUT-148)
 
 **Read:** `recovery/main` at `e6ac4f2` (since review 68: PO 14:39, `uxa` 14:48; #1456 merged). Open PR #1462 (`po` 15:50, branch `po/cycle-2026-11-18-1550`, not merged): `FOUNDER_DECISIONS.md` v36 FE-089; `BK_ROADMAP.md` v2 §9 (PO draft of the first real AI function); brief `BK.md` §PO amendment 15:45; journal `2026-11-18-1550-po.md`. Founder text read only as the PO recorded it. Code: `src/app/(protected)/order/order-form.tsx` (fields: date words with pick, start, end, PLZ, grade, activity tags, required tags, radius), `src/features/orders/rules.ts` `resolveOrderDate` (AUT-120, IMPLEMENTED), `src/features/ai/` (no external call; AUT-115 lock holds). Earlier inputs reused: AUT-135, AUT-136, AUT-138 to AUT-140; `cra` CGR-240, CGR-241 (2026-11-18 02:26).
