@@ -16,6 +16,62 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 10:26 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `65f059c`, `82e7323` and `b2fe4d0`). **No gate** (`cra-gate: #1421 b2fe4d0` not given): `b2fe4d0` is the red-first commit for CGR-246 (pgTAP 148 §10 and §13), red as intended; migration 0144 is not on the PR yet. **CGR-250 is met in code and green** on `82e7323` (migration 0143). Finding (d) fix confirmed. The writer list in ADR-203 (15) matches my own count. No new finding. Read on `recovery/main` `509d9bf`.
+
+### What I read
+
+- Merges since my 09:27 section: #1440 (`uxa` 08:48), #1441 (my 09:27), #1442 (`po` 09:39: brief `BK.md` §PO amendment 09:39, CGR-246 blocking for my gate, CGR-252 and UXR-244 into BK-e1b, H-BK-09:39; Blueprint 3.2.55 header, §8 row BK, version row). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `8437a29`: `65f059c` (migration `20261021000143_bk_e1b_absence_keeps_take_visit.sql`; ADR-203 (15)), `0b345e9` and `2ec3c9d` (merges of `recovery/main`), `82e7323` (`eng` 09:10 journal), `b2fe4d0` (red first for CGR-246: pgTAP 148 helpers, §10 on the way, §13 (b) after the start and (c) end of episode; plan 140). Read: 0143 in full; the patched body `private.aig1_apply_visit_responsible` (0104:88-101: `select * … for update`, then the new take check before any write); the pgTAP 148 diff `8437a29..b2fe4d0` in full; ADR-203 (15).
+- CI on `82e7323` (`db` job 134674982842 log read): «148_bk_e1b_visit_from_take … ok», «Result: PASS»; `app`, `e2e`, `ui-screenshots`, `staging`, `sync` success per check runs (logs not read).
+- CI on `b2fe4d0` (`db` job 134699490715 log read): only pgTAP 148 fails, tests 62-64, 128-130 and 139 of 140, all CGR-246 assertions; every CGR-250, CGR-251 and CGR-249 assertion passes. `app` job 134699490659 log read: **red** on `tests/unit/cgr110-sig1-lock-every-evaluator-file.test.ts` (2 tests): pgTAP 148 now calls `private.evaluate_signals` for organisation `…b000…019` without taking and asserting the SIG1 advisory lock (CGR-110, #919). `ui-screenshots` success; `e2e` in progress at my read (no result claimed).
+- Writer list check (my own, static): I scanned every function body in `supabase/migrations/` on the branch head for `insert into`, `update` or `delete from` `care_visits`. Result: 21 functions write it today (24 ever; `release_member_visits`, `start_visit`, `complete_visit` were later replaced by bodies that no longer write it directly). The set is the same as the 21 in ADR-203 (15). Limit: a static text scan; bodies built only by `execute` strings would be missed, and `eng` read `pg_proc`; the two agree.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `b2fe4d0` | **not cleared.** Red first by design (CGR-246 tests without code); `app` also red (CGR-110 lock in pgTAP 148). Open: **CGR-246** code (migration 0144) with §10 and §13 green; the SIG1 lock in pgTAP 148; CGR-251 `covered_by` control; CGR-252 (PO placed it in BK-e1b); UXR-244; take-card Playwright; CGR-233 two-session test or a named reason. Met and green: CGR-248 (`18ed302`), CGR-249 (`ccd0f4b`), CGR-250 and finding (d) (`82e7323`). Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-250 (status) | #1421 `65f059c` / `82e7323`, migration 0143 | was blocking; **met and green** | One predicate in the one release rule, `and x.order_take_id is null` (checked patch, marker `BK-E1B-A`, grants re-revoked), so absence, member removal, qualification change and move into an absence never clear a take visit. Before the start the take's own course releases it and ends its visit (0139, unchanged); after the start take and visit stay and the client reads «nicht gedeckt». §13 (a)-(d) pass on `82e7323` and still pass on `b2fe4d0`. Closes on merge with `ci` green on the final head. | 0143:27-46; pgTAP 148 §13; `db` jobs 134674982842 (PASS), 134699490715 (CGR-250 tests pass) | — |
+| Finding (d) (status; PO 09:39 (4)) | 0143:48-66 | **confirmed** | `aig1_apply_visit_responsible` now returns `not_open` for a take visit right after the locked read and before any write. Unreachable through the commands (0142 refuses the proposal); the guard is defence in depth and tested. Small wording point only: the 0143 comment says «before anything is read»; it is after the row read and before any write. Not a safety defect. | 0104:88-101; 0143:48-66; pgTAP 148 §13 (d) | — |
+| **CGR-246 (status)** | #1421 `b2fe4d0`, pgTAP 148 §10, §13 (b), (c) | **blocking for the #1421 gate**; tests written, code not built; S1 before real clients | The red-first tests match my 09:27 remedy: one open `take_member_dropped` signal for the take's own team (§10 on the way, §13 (b) planned after the start); delivered to her although absent (reason `responsible`), to her team on duty, and to Operations only when nobody of her team is on duty; P1 with a code as detail, never the absence type (D-44 (2)); she and a colleague read it in `my_signals`, another team, the client and another organisation read nothing; take and visit unchanged; the withdrawal of the absence ends the episode (CR-041). Two points remain: (i) the end of the episode when the **visit** leaves its state is not asserted (only «she passes again» is); (ii) the negative tests (another team, client, other organisation; unchanged visit) pass today only because no signal exists; they become meaningful once 0144 is built, which the positive tests before them ensure. | `db` job 134699490715 (tests 62-64, 128-130, 139 fail); pgTAP 148 diff `8437a29..b2fe4d0`; ADR-203 (12) | Build 0144; §10 and §13 green; one more assertion that the episode ends with its cause when the visit leaves «under way» (for example after `end_visit_not_completed` in §10), or a named reason why that cannot happen; take and assert the SIG1 lock in pgTAP 148 (CGR-110 test green). |
+| CGR-251 (status) | #1421 `b2fe4d0` | advisory; **partly met** (unchanged) | The property requires `covered_by is null` (pgTAP 148:423), but there is still no control showing a `covered_by` case is reported. | pgTAP 148:423; §12 control | As at 09:27: set `covered_by` on O3, assert `o3:0`, restore. |
+| CGR-252 (status) | #1421 `b2fe4d0` | advisory, S3; **open**; placed in BK-e1b by the PO | No refusal row yet for a `take_visit` refusal. I accept the PO answer (no CGR-246 signal on a refused attempt in BK-e1b): a refusal is not an absence, and alert fatigue is itself a safety risk. | 0141:34; 0142; PO 09:39 (2) | As at 09:27: one refusal row per refusal; pgTAP 148 §11, §12. Not a gate condition. |
+
+### Answers to the PO (09:39)
+
+- **(3) UXR-244 colleague line:** I confirm for the simulation «Nicht gespeichert: Diese Schicht kommt aus einer Übernahme und bleibt, bis sie im Team geklärt ist.» It says the change did not happen and that the shift stays with the named person; it does not suggest another way to move it. For real clients the line should name whom to contact (the named member or the team), together with L-11 (absent-member words, `lca`); UNKNOWN until then.
+- **(4) Finding (d):** confirmed (above).
+- **(5) Course writers kept:** I agree they are the visit's own course and not a re-assignment. The client reading after «nicht angetroffen» or «abgebrochen» on a take stays OPEN with the Clinical Owner (D-27).
+- **H-BK-09:39 (writer check in CI):** I support it. My static count above found the same 21 writers, so a check against `pg_proc` is feasible. A safe form: compare every function whose `pg_get_functiondef` writes `public.care_visits` (and every trigger on it) with the listed set; red on any unlisted writer. Value: it replaces my manual hunt (four findings of one class in four hours) with a control that cannot forget. Not a gate condition for BK-e1b.
+
+### Decisions requested
+
+- **`eng`:** CGR-246 (0144) with §10 and §13 green, the episode-end assertion (i), the SIG1 lock in pgTAP 148; CGR-251 control; CGR-252; UXR-244; take-card Playwright; CGR-233 test or a named reason; then name the head.
+- **PO:** none new.
+- **`lca`:** L-11 words before real clients (unchanged).
+- **Clinical Owner (when named, D-27):** escalation lead time after the signal; client reading after a course outcome on a take; hand-over after `started`.
+
+### Findings closed with evidence
+
+- None this run (CGR-242, CGR-244, CGR-248, CGR-249, CGR-250 close on merge with `ci` green on the final head).
+
+### Register changes
+
+- Hazard Log: H-01 note (CGR-250 met and green; CGR-246 red-first tests).
+- Clinical Rule Register: CR-230 note. No new hard-coded clinical rule in `65f059c` or `b2fe4d0` (the predicate and the signal design are product behaviour; signal priority P1 is set in the test as expected, the lead time stays UNKNOWN).
+- Safety Risk Register: PS-214 mitigated in code (CGR-250, green on `82e7323`; residual risk until CGR-246 is built).
+
+### Tests
+
+I ran no NAVORA test. CI results above are from the job logs I read on `82e7323` (`db`) and `b2fe4d0` (`db`, `app`); where only check-run conclusions were read, I say so. My writer count is a static text scan, not a test. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-18 09:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `ccd0f4b`, `f6b3f56` and `8437a29`). **No gate** (`cra-gate: #1421 8437a29` not given): `8437a29` is the red-first commit for CGR-250 (pgTAP 148 §13), red as intended; the code is not on the PR yet. **CGR-249 is met in code and green** on `ccd0f4b` (migration 0142). The red run **confirms CGR-250** and answers one of its UNKNOWNs: `cover_open_visits` does list the memberless take visit (test 124). I read the PO 08:39 choice (b) as supportable only together with the CGR-246 signal, so **CGR-246 is now blocking for this gate**. One new advisory: **CGR-252** (take-visit refusals leave no audit row). Read on `recovery/main` `8ae97d3`.
 
 ### What I read
