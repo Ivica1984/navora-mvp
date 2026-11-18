@@ -86,6 +86,7 @@ import type { SignalRow } from "@/features/signals/rules";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
 import { placeLine } from "@/features/field/place";
+import { TAKE_ENDED_STATUS, takeEndedText } from "@/features/field/take-end";
 
 type Props = {
   day: string;
@@ -471,6 +472,8 @@ function VisitCard({
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
   // BK-e1 / UXR-190 (ADR-202 (1)): a postcode without a street says so in text, not by colour alone.
   const place = placeLine(visit.address, visit.plz, visit.ort);
+  // BK-e1b / CGR-242 (c): a take visit ended before the start stays on her day, in text, never as «abgesagt».
+  const takeEnded = takeEndedText(visit.system_end_reason);
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
   const needs = visit.care_needs?.length ? visit.care_needs.join(", ") : null;
   const events = parseEvents(visit.events);
@@ -527,9 +530,14 @@ function VisitCard({
           )}
         </div>
         <span data-testid="visit-status" className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${visit.suspended ? "bg-amber-100 text-amber-900" : STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
-          {visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
+          {takeEnded ? TAKE_ENDED_STATUS : visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
         </span>
       </div>
+      {takeEnded && (
+        <p data-testid="take-ended" className="mt-2 text-sm text-stone-800">
+          {takeEnded}
+        </p>
+      )}
 
       <dl className="mt-3 grid gap-1 text-sm">
         <Row label="Ort" value={place.text} muted={place.missing} testId="visit-place" />

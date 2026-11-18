@@ -17,6 +17,13 @@
 --     `starts_at` no automatic step releases the take or changes the visit. No lead-time rule is built (UNKNOWN,
 --     Clinical Owner).
 --   * CGR-200 / CGR-206 (a) / criterion 4: a 22:00–07:00 take becomes one visit of 9 h (Europe/Zurich).
+--   * CGR-242 (a), (c) (PO 04:39; migration 0139): the ended visit carries the stored system reason, writes no
+--     «cancelled» timeline event and no status note (never counted as a cancellation), and /field returns the reason
+--     to the named member only.
+--   * CGR-242 (f): «Ich kann nicht» before the start on a take awaiting the acknowledgement writes and ends nothing.
+--   * CGR-244 (PO 04:39): a take whose visit is under way before the start (F1 «unterwegs») is never released: her
+--     absence keeps the take and the visit, the client still reads «gedeckt»; «Ich kann nicht» is refused with the
+--     visible reason `visit_under_way`.
 -- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
 -- OPEN). Synthetic data only; rolled back.
 --
@@ -25,7 +32,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(37);
+select plan(57);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -45,6 +52,7 @@ select has_column('public', 'care_visits', 'order_take_id', 'ADR-202 (2): a visi
 select ok(exists (select 1 from pg_indexes i where i.schemaname = 'public' and i.tablename = 'care_visits'
                   and i.indexdef ilike '%unique%' and i.indexdef ilike '%(order_take_id)%'),
           'ADR-202 (2): at most one visit per take (unique index)');
+select has_column('public', 'care_visits', 'system_end_reason', 'CGR-242 (a): a visit can carry a stored system end reason');
 select has_function('private', 'order_take_visit', 'ADR-203: the one visit writer from a take exists');
 select ok(coalesce(position('order_take_member:' in
             (select string_agg(p.prosrc, ' ') from pg_proc p join pg_namespace n on n.oid = p.pronamespace
@@ -88,9 +96,11 @@ set local role authenticated;
 select pg_temp.co('o1', date '2026-11-19', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000001');  -- self-named
 select pg_temp.co('o2', date '2026-11-20', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000002');  -- colleague, ack
 select pg_temp.co('o3', date '2026-11-21', time '22:00', time '07:00', 'dddd0000-0000-4000-8148-000000000003');  -- overnight
+select pg_temp.co('o4', date '2026-11-23', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000004');  -- CGR-244
+select pg_temp.co('o5', date '2026-11-24', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000005');  -- CGR-242 (f)
 reset role;
 select pg_temp.as_owner();
-select is((select count(*)::int from made where r ->> 'result' = 'ok'), 3, 'the three fixture orders are confirmed');
+select is((select count(*)::int from made where r ->> 'result' = 'ok'), 5, 'the five fixture orders are confirmed');
 
 -- Helpers ---------------------------------------------------------------------------------------------------------------
 create function pg_temp.take(actor text, k text, team text, member text, key text) returns jsonb language plpgsql as $$
@@ -148,14 +158,14 @@ begin
   return n;
 end;
 $$;
-create temp table fv (member text, visit_id uuid, plz text, ort text);
+create temp table fv (member text, visit_id uuid, plz text, ort text, status text, system_end_reason text);
 grant all on fv to authenticated;
 create function pg_temp.field(member text, d date) returns void language plpgsql as $$
 begin
   delete from fv where fv.member = $1;
   perform pg_temp.act_as(pg_temp.m(member)::text);
   set local role authenticated;
-  insert into fv select member, x.visit_id, x.plz, x.ort from public.field_visits(d) x;
+  insert into fv select member, x.visit_id, x.plz, x.ort, x.status, x.system_end_reason from public.field_visits(d) x;
   reset role;
   perform pg_temp.as_owner();
 end;
@@ -164,6 +174,29 @@ create function pg_temp.sees(member text, k text, d date) returns boolean langua
 begin
   perform pg_temp.field(member, d);
   return exists (select 1 from fv where fv.member = $1 and fv.visit_id = (pg_temp.visit(k) ->> 'id')::uuid);
+end;
+$$;
+
+create function pg_temp.release(actor text, k text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.release_named_take(pg_temp.oid(k), key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.depart(actor text, k text, key text) returns text language plpgsql as $$
+declare res text;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.depart_visit((pg_temp.visit(k) ->> 'id')::uuid, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
 end;
 $$;
 
@@ -215,6 +248,9 @@ select is((select tstzrange(p.starts_at, p.ends_at, '[)') from public.partner_re
           'criterion 4: visit interval equals the order slot');
 
 -- 7. CGR-242 positive: release after «gedeckt», before the start → visit cancelled in the same transaction ------------
+-- Recorded while a command name is set, as the absence command does: without the 0139 rule this would write a
+-- «cancelled» timeline event for the visit.
+select set_config('navora.command', 'bk_e1b_test_absence', true);
 insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000001',
    timestamptz '2026-11-19 07:00:00+01', timestamptz '2026-11-19 13:00:00+01', '00000000-0000-4000-a148-000000000001');
@@ -223,6 +259,20 @@ select ok((pg_temp.live('o1')).id is null,
 select is(pg_temp.visit('o1') ->> 'status', 'cancelled', 'CGR-242: the visit of the released take is cancelled in the same transaction');
 select is(pg_temp.visits_of('o1'), 1, 'CGR-242: and never deleted');
 select isnt(pg_temp.cs('o1'), 'covered', 'CGR-242: the order leaves «gedeckt» for the client');
+select set_config('navora.command', '', true);
+select is(pg_temp.visit('o1') ->> 'system_end_reason', 'take_released_absence',
+          'CGR-242 (a): the visit carries the stored system reason (her own absence released the take)');
+select ok(not exists (select 1 from public.visit_events e where e.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid
+                      and e.event_type = 'cancelled'),
+          'CGR-242 (a): no «cancelled» timeline event, so no count reads it as a cancellation');
+select ok(not exists (select 1 from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid),
+          'CGR-242 (a): no cancellation note with a client or team reason');
+select ok(pg_temp.sees('01', 'o1', date '2026-11-19')
+          and (select f.status || ' ' || f.system_end_reason from fv f
+               where f.member = '01' and f.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid) = 'cancelled take_released_absence',
+          'CGR-242 (c): /field still lists the ended visit to the released member, with the reason code');
+select ok(not pg_temp.sees('02', 'o1', date '2026-11-19'),
+          'CGR-242 (c) / lca: a member of the same team who was not named never reads it or its reason');
 
 -- 8. CGR-242 negative: after the start no automatic step releases or changes anything -----------------------------------
 select pg_temp.clock('2026-11-20 09:00:00+01');
@@ -231,6 +281,34 @@ insert into public.member_absences (organization_id, team_id, user_id, starts_at
    timestamptz '2026-11-20 10:00:00+01', timestamptz '2026-11-20 13:00:00+01', '00000000-0000-4000-a148-000000000002');
 select ok((pg_temp.live('o2')).member_id = pg_temp.m('02'), 'CGR-242 negative: after starts_at the take is not released automatically');
 select is(pg_temp.visit('o2') ->> 'status', 'planned', 'CGR-242 negative: after starts_at the visit is unchanged');
+
+-- 9. CGR-242 (f): «Ich kann nicht» before the start on a take awaiting the acknowledgement -----------------------------
+select is(pg_temp.take('01', 'o5', '01', '02', 'ffff0000-0000-4000-8148-000000000050') ->> 'result', 'ok', 'M1 takes O5 naming M2');
+select is(pg_temp.release('02', 'o5', 'ffff0000-0000-4000-8148-000000000051') ->> 'result', 'ok',
+          'M2 says «Ich kann nicht» before the start');
+select ok((pg_temp.live('o5')).id is null, 'CGR-242 (f): the take is released');
+select is(pg_temp.visits_of('o5'), 0, 'CGR-242 (f): no visit was written and none is left behind');
+
+-- 10. CGR-244: a take whose visit is under way before the start is never released ----------------------------------------
+select is(pg_temp.take('03', 'o4', '02', '03', 'ffff0000-0000-4000-8148-000000000040') ->> 'result', 'ok',
+          'M3 takes O4 naming herself');
+select is(pg_temp.visits_of('o4'), 1, 'the take writes its visit');
+select pg_temp.clock('2026-11-23 07:30:00+01');
+select is(pg_temp.depart('03', 'o4', 'ffff0000-0000-4000-8148-000000000041'), 'ok',
+          'precondition: M3 sets «unterwegs» before the start (F1 has no time guard)');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'precondition: the visit is on the way');
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000002', '00000000-0000-4000-a148-000000000003',
+   timestamptz '2026-11-23 07:00:00+01', timestamptz '2026-11-23 13:00:00+01', '00000000-0000-4000-a148-000000000003');
+select ok((pg_temp.live('o4')).member_id = pg_temp.m('03'), 'CGR-244: her absence does not release the take while her visit is under way');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-244: the visit is unchanged');
+select ok(pg_temp.visit('o4') ->> 'system_end_reason' is null, 'CGR-244: no system end reason');
+select is(pg_temp.cs('o4'), 'covered', 'CGR-244: the client still reads «gedeckt»');
+select is(pg_temp.release('03', 'o4', 'ffff0000-0000-4000-8148-000000000042'),
+          jsonb_build_object('result', 'refused', 'reason', 'visit_under_way'),
+          'CGR-244: «Ich kann nicht» is refused with the visible reason visit_under_way');
+select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
+          'CGR-244: after the refusal the take is live and the visit still on the way');
 
 select * from finish();
 rollback;
