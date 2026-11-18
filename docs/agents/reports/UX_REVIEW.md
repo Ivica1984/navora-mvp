@@ -6,6 +6,41 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 04:48 CET · `uxa`: UXR-190 closed (#1417 on `recovery/main`, `e2e` read); draft #1421 (BK-e1b) read on `bc82f77`, no gate (draft): UXR-238 (released take visit shows «Abgesagt»), UXR-239 (take card title «Klient:in ohne Namen»), UXR-237 now concrete on the head; view on H-BK-04:39
+
+**State.** `recovery/main` at `7ebf37a` (PO merge #1423). Merged since my 03:50 section: #1417 (BK-e1a) as `3d9f1e6` on head `a5bae13`, my #1420, role docs #1422, #1423. Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, **draft**, head `bc82f77`), #1424 (`po` 04:39, docs; Blueprint 3.2.50 changes the header, §8 row BK and the version row, not §5 or §6), #1084, #3. No `ux` issue updated since 03:50.
+
+**Screenshots.** Artifact 14395478149 (`ui-screenshots`, `7ebf37a`): download refused by the session proxy (blob host, empty file), as in my last runs. **No screenshots were available.** Review from code and CI job logs.
+
+### Closed with evidence
+
+- **UXR-190** (`/field` place line hides a missing street): **closed**. The remedy is on `recovery/main` (`src/features/field/place.ts`, merged with #1417 as `3d9f1e6`). Evidence: `e2e` job 134559434253 on `2b916e0` (contains `3d9f1e6`), log read by me: «✓ 73 … tests/e2e/bk-e1-field-place.spec.ts:14:5 › BK-e1 UXR-190: a visit card with a postcode and no street shows «Strasse fehlt» at 390 px», «189 passed». (The `ci` run on `3d9f1e6` itself was cancelled by a later merge; the later commit carries the same code.) Issue #1232 can be closed by the PO.
+
+### Draft #1421 (BK-e1b) on head `bc82f77`: screen reading (no gate; draft, `cra` not clear)
+
+Screen diff against `recovery/main`: none in `src/app`/`src/components` (only `database.types.ts`); the screen effect comes from migration 0138. `public.field_visits` now returns a take visit to its named member only, with `plz`/`ort` from the order (0138 §4). It still lists `cancelled` visits (no status filter in the reader, 0014:541-572; `rules.ts:300` counts them as not open), and its return type has **no take flag and no release reason** (types diff: only `care_visits.order_take_id` added, the `field_visits` Returns unchanged). So the screen cannot tell a take visit from a planned visit today. This answers the «whether a cancelled take visit is still listed» UNKNOWN in `cra` CGR-242 (c): **it is listed**, for the absence and conflicting-visit release paths (membership end drops it through the team join).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-238 | `/field` visit card, named member whose take was released before the start (BK-e1b, #1421 draft) | high | `end_take_visit` sets the visit `cancelled`; the card stays on her day and the status badge reads **«Abgesagt»**, grey, with no reason line (no `visit_status_notes` row is written, ADR-203 (5)). «Abgesagt» is the word the app uses for a cancellation by the client or the team (`lifecycle/rules.ts:29-31`); CGR-242 (a) says a system end must never read as that. She cannot tell why her shift went away or that the order is offered to all teams again; she may call the client to ask. | `bc82f77`: 0138 `end_take_visit` (update `status` only); `src/features/visits/types.ts:110` (`cancelled` → «Abgesagt»); `field-client.tsx:154`, `:521`; 0014:541-572 (no status filter) | §1 (what happened and what to do next, at a glance); §4 a state is named in words that are true for this reader | `field_visits` returns for a take visit a take flag and, for the named member only, the take's `release_reason` code (CGR-242 (a) stored reason). Card for a cancelled take visit: badge «Nicht mehr deine Schicht», reason line from my 03:50 words (CGR-242 (c)); no «Abgesagt» anywhere on that card; no action button. Vitest: label function with take flag + `cancelled` never returns «Abgesagt». Playwright at 390 × 844: seed a gedeckt take, record her absence, `/field` shows «Nicht mehr deine Schicht» and the reason, no «Abgesagt», no «Einsatz starten». `cra` confirms the words; `lca` the reason is shown to her only. | — (already a BK-e1b condition: CGR-242 (c), PO 03:39 (3) and 04:39; no open issue found for CGR-242 or BK-e1b; a new issue would duplicate the brief condition; comment on #1421) |
+| UXR-239 | `/field` visit card title, named member of a take (BK-e1b) | medium | A take visit has no case (`case_id` null), so the card heading reads **«Klient:in ohne Namen»** (`field-client.tsx:521`) and the accessible name «Klient:in» (`:515`) on every take card. That reads as missing data on every card of a kind, like UXR-237, and gives her nothing to recognise the order by. | `bc82f77`: 0138 `write_take_visit` (no case); `field-client.tsx:515`, `:521` | §1; §4 a missing fact is named in words and only where it is a real gap | For a take visit the heading names the kind instead of a gap: «Übernommene Schicht» with the place line below (PROPOSED). Which identifier of the client the named member may see after «gedeckt» (name, initials, order number): UNKNOWN, `lca` (P-8, CGR-243, proposed BK-e3). Vitest: heading function with take flag never returns «ohne Namen». | — (medium; report) |
+
+**UXR-237** (take place line «Strasse fehlt – im Team klären»): now concrete on `bc82f77`: the reader copies `plz`/`ort` from the order and no street (0138 §4), so every take card gets the BK-e1a sentence. Remedy unchanged; it needs the same take flag as UXR-238. Waits for `cra` (PO 04:39).
+
+### View on H-BK-04:39 (ordered activities as a tick list on the card; PO challenge)
+
+From the screen side I support it: confirming each ordered activity where it is done turns an after-shift admin screen into a tap on the card she already has open. Screen conditions (PROPOSED): one row per ordered activity, the activity text in full (never cut), a 44 px tap target per row; two states per row, «erledigt» and «nicht erledigt» (whether «nicht erledigt» needs a reason: UNKNOWN, Clinical Owner via `cra`); no «alle erledigt» button (CGR-245, no bulk confirm); an offline tick shows «gespeichert auf dem Gerät» until sent (§2 offline state); the signed report lists the ticks read-only, and any row not ticked appears in the BK-e2a «nicht übernommen» list above the signature, not hidden. Whether a tick counts as clinical confirmation is `cra`'s. Measure (≤ 3 admin actions after the shift) is a good pilot criterion.
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.50 does not touch §5 or §6.
+
+**Design system:** version 99 (§4 rule «a missing fact is named in words»: BK-e1a place line IMPLEMENTED; PROPOSED note «a state that a system caused is never named with a person's word», UXR-238). No token change.
+
+**Waiting:** `eng` (#1421: take flag and release reason in `field_visits`, UXR-238 with CGR-242 (c); UXR-237 and UXR-239 after `cra`/`lca`); `po` (merge this PR; close #1232; place UXR-239); `cra` (words UXR-237, UXR-238 = CGR-242 (c), H-BK-04:39 tick validity); `lca` (UXR-239 identifier; reason visibility).
+
+---
+
 ## 2026-11-18 03:50 CET · `uxa`: gate **`uxa: #1417 a5bae13 clear`** (BK-e1a, `/field` place line; «Simulation, synthetic data»); UXR-190 met on the head, closes on merge; UXR-237 (take visits: «im Team klären» points to an action that cannot succeed); words for CGR-242 (c) and CGR-240; view on H-BK-03:39
 
 **State.** `recovery/main` at `6366e73` (PO merge #1418). Merged since my 00:48 section: my #1410, role docs #1409, #1411 to #1416, #1418; `git diff 36ec51a 6366e73 -- src e2e tests` is empty (git, this run). BK-c accepted by the PO on `d51d1c1` (simulation); **BK-e active** (ADR-202 cut taken by the PO 03:39, PR #1419 open). Open PRs into `recovery/main`: #1417 (`eng`, BK-e1a, head `a5bae13`, changes `/field`), #1419 (`po` 03:39, docs), #1084 (dependabot), #3. No new `ux` issue.
