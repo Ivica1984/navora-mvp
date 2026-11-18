@@ -321,6 +321,8 @@ export type NextVisitLike = {
   time_start: string | null;
   responsible_me: boolean | null;
   suspended: boolean | null;
+  /** BK-e1c (0149): a running night visit of the previous day, listed on this day. */
+  carried_from_previous_day?: boolean | null;
 };
 
 const RUNNING = new Set(["on_the_way", "started", "paused"]);
@@ -337,6 +339,9 @@ export function pickNextVisit<T extends NextVisitLike>(visits: ReadonlyArray<T>)
   const mine = open.filter((v) => v.responsible_me === true);
   const pool = mine.length > 0 ? mine : open;
   if (pool.length === 0) return null;
+  // BK-e1c / UXR-248: a running night visit carried over from the previous day comes first (it is already under way).
+  const carried = pool.find((v) => v.carried_from_previous_day === true && RUNNING.has(v.status ?? ""));
+  if (carried) return carried;
   const running = pool.find((v) => RUNNING.has(v.status ?? ""));
   if (running) return running;
   return [...pool].sort((a, b) => timeKey(a.time_start).localeCompare(timeKey(b.time_start)))[0];
