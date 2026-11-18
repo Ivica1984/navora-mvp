@@ -85,6 +85,7 @@ import SignalBanner from "@/components/signals/SignalBanner";
 import type { SignalRow } from "@/features/signals/rules";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
+import { placeLine } from "@/features/field/place";
 
 type Props = {
   day: string;
@@ -468,7 +469,8 @@ function VisitCard({
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
-  const place = [visit.address, [visit.plz, visit.ort].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+  // BK-e1 / UXR-190 (ADR-202 (1)): a postcode without a street says so in text, not by colour alone.
+  const place = placeLine(visit.address, visit.plz, visit.ort);
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
   const needs = visit.care_needs?.length ? visit.care_needs.join(", ") : null;
   const events = parseEvents(visit.events);
@@ -530,7 +532,7 @@ function VisitCard({
       </div>
 
       <dl className="mt-3 grid gap-1 text-sm">
-        <Row label="Ort" value={place || "Adresse fehlt – im Team klären"} muted={!place} />
+        <Row label="Ort" value={place.text} muted={place.missing} testId="visit-place" />
         {/* DOOR1-1 (migration 0072): what the nurse needs at the door, recorded at intake; never blank. The access line
             is the one "Zugang" row below (DOOR1-13, 0080). */}
         {visit.case_id && (
