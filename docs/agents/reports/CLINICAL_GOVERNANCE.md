@@ -16,6 +16,46 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 12:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `d8db695` and `2346b34`). **No gate** (`cra-gate: #1421 2346b34` not given): `eng` has not named the final BK-e1b head (take-card Playwright and CGR-233 still open, `eng` 11:10 comment) and `e2e` was still running on `2346b34` at my last read. **CGR-253 is met in code and green** (migration 0146, pgTAP 148 §10, §13 (b); `db` PASS). I confirm the two card lines **for the simulation only**, with one new advisory finding **CGR-254** (what the lines ask people to do is not yet something NAVORA can record or a clinician has decided). Read on `recovery/main` `e89fc8f`.
+
+### What I read
+
+- Merges since my 11:26 section: #1446 (`uxa` 10:48), #1447 (my 11:26), #1448 (`po` 11:39: brief `BK.md` §PO amendment 11:39, CGR-253 choice (b) «no take for any caller», UXR-246 link part, H-BK-11:39; Blueprint 3.2.57 header, §8 row BK, version row). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `b1c3fc5`: `1792b9c` (merge of `recovery/main`), `d8db695` (red first: pgTAP 148 plan 154; Vitest `bk-e1b-cgr253-uxr245-drop-card.test.ts`), `2346b34` (migration `20261021000146_bk_e1b_take_member_dropped_not_takeable.sql`, marker `BK-E1B-T`; `SignalBanner.tsx`; `rules.ts`; ADR-203 (18)). Read in full: 0146, the pgTAP 148 diff `8d4a1ff..2346b34`, the `src/` and `tests/` diff. Read for the card text: 0144 §1 (operating rule `next_step` «Im Team klären, wer übernimmt.»), `exception-center.tsx:91` (OPS1 shows `next_step`).
+- Open PR #1449 (`lca` 12:22, D-44 card words): read; docs only, out of my gate scope; I rely on it below and do not re-derive it.
+- CI on `2346b34`: `db` job 134766577125 log read: «148_bk_e1b_visit_from_take … ok», «Files=148, Tests=5367», «Result: PASS» (the «not ok» lines belong to the B0-4 negative control «before #922», expected red, reported `ok`). `app`, `ui-screenshots`, `sync` success per check runs (logs not read). `e2e` **in progress** at my last read. The red run of `d8db695` I did not read.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `2346b34` | **not cleared, not blocked by a clinical finding.** No blocking `cra` finding is open. Missing for a gate line: the final head named by `eng` (take-card Playwright; CGR-233 test or a named reason, as listed by the PO), and `e2e` success on it. Met and green: CGR-246 (raise, recipients, codes-only detail, end on withdrawal), CGR-248, CGR-249, CGR-250, CGR-251, CGR-252, **CGR-253**. Open, not blocking: CGR-246 (i), **CGR-254** (new, advisory). Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-253 (status)** | #1421 `2346b34`, migration 0146 | was blocking; **met in code and green** | IMPLEMENTED: `take_signal` refuses `take_member_dropped` for every caller with `kind_not_takeable`, after the recipient check (a non-recipient still reads `not_recipient`, no fact leaks); no `signal_takes` row, `taken_by` null. pgTAP 148 asserts the refusal for Operations (fallback recipient, O4), the named member on the way (O4), the named member after the start (O7) and a colleague on duty (O7); no row; the signal stays open for both recipients; after the untaken threshold the step reaches Operations with reason `untaken` and the take stays with her. The card offers no «Ich übernehme» for this kind for any recipient (`signalTakeable`), every other kind keeps it (Vitest). `signal_take_stops` is left as is, which is now harmless for this kind because no take of it can exist. PS-216 mitigated in code. Closes on merge with `ci` green on the final head. | 0146:45-57 (patch after `not_recipient`); pgTAP 148 §10 (`take_drop` O4, three assertions), §13 (b) (O7, five assertions incl. `escalated_at` and delivery to 9e5 with `untaken`); `rules.ts` `NOT_TAKEABLE_KINDS`, `signalTakeable`; `SignalBanner.tsx:86-94`; `db` job 134766577125 | — (take-card Playwright: the PO's existing slice item, not a new condition from me) |
+| **CGR-254** (new) | #1421 `2346b34`, card lines (`rules.ts` `TAKE_DROP_NAMED_LINE`, `TAKE_DROP_TEAM_LINE`, `kind_not_takeable`) and operating rule `next_step` (0144 §1) | **advisory for the simulation gate**; S1 before real clients | The lines are true to the system state, but two of them ask people for an action that NAVORA cannot record and that no clinician has decided. (a) **Colleague** («Bitte sofort im Team klären, wer hingeht.», also `kind_not_takeable`): no person command can move a take visit (CGR-249), so a colleague who goes does the visit outside NAVORA: no `started`/`completed` under her name, no qualification or delegation check for her (QUAL1), documentation and billing under the absent member or on paper. (b) **Named member** («… Die Schicht bleibt bei dir, bis sie geklärt ist.»): the signal is raised for every cause `order_member_step < 4` (absence, access or contract end, qualification or delegation no longer passing). For the last cause the sentence can be read as «you still go», which would be care by a person who no longer passes the check. Whether she may continue a visit already `started` when she drops out is **UNKNOWN** (Clinical Owner, as named at 11:26). I concur with `lca` 12:22 (#1449, D-44 (2)) that the sentence must separate the system record from any duty; `lca`'s proposed wording («steht im System noch bei dir … Dein Team ist informiert und klärt, wer hingeht.») has no clinical objection from me. (c) **Operations** (fallback recipient and recipient of the `untaken` step) has no card line, and OPS1 shows the operating rule's «Im Team klären, wer übernimmt.»: when nobody of the team is on duty this points to nobody, and «übernimmt» invites the take that 0146 now refuses. | `rules.ts` (`TAKE_DROP_*`, `signalNextStep` returns null for `operations_fallback`); 0144 §1 `next_step`; `exception-center.tsx:91`; CGR-249 (0142); #1449 D-44 12:22 (2) | Simulation: none required. Before real clients (with H-BK-10:39, Clinical Owner first): (a) the in-team hand-over exists and the colleague line names it, or the line does not ask a colleague to go; (b) the named-member line states the system record only (as `lca` proposes) and, for a qualification or delegation cause, the Clinical Owner decides whether any line tells her not to perform the care; (c) a line for Operations and an operating `next_step` without «übernimmt», words by `uxa`. Test: Vitest per recipient and cause step; no new threshold. |
+
+### Answer to the PO
+
+- **Card lines (PO 11:39, «`cra` confirms»):** confirmed **for the simulation** (gate «Simulation, synthetic data»), under CGR-254. Not confirmed for real persons: CGR-254 (a)-(c) and the L-11 question (`lca`). This is no clinical approval (D-27).
+- **H-BK-11:39 (closed by default for a new signal kind or visit origin):** I support it. From my field the default that matters is: a new P1 kind has no take and never stops the step to Operations until a test shows that the take leads to a person who can act in NAVORA; and a new visit origin is excluded from release, move, cover and cancel until each path is opened with a test. The five findings of this morning (CGR-246, CGR-248, CGR-249, CGR-250, CGR-253) would each have been a red inventory row instead of a review finding. I add no rule: which kinds may be taken stays a PO and Clinical Owner choice (CR-233).
+
+### Decisions requested
+
+- **`eng`:** name the final BK-e1b head (take-card Playwright, CGR-233 test or reason); CGR-246 (i) if cheap.
+- **PO:** carry CGR-254 (a)-(c) with H-BK-10:39 and the `lca` L-11 item to the slice that ends simulation-only status of this card; whether UXR-246's name part enters BK-e1b (`lca` released it).
+- **`uxa`:** Operations line and an operating `next_step` without «übernimmt» (CGR-254 (c)); named-member line per `lca` (CGR-254 (b)).
+- **Clinical Owner (when named, D-27):** CGR-254 (b) (may she continue a started visit; does a qualification or delegation cause need a «do not perform» line); escalation lead time after the signal (CR-232); hand-over before and after `started`.
+
+### Findings closed with evidence
+
+- None closed in this section. CGR-246, CGR-251, CGR-252 and CGR-253 close on merge with `ci` green on the final head (CGR-246 now together with CGR-253, which is met).
+
+---
+
 ## 2026-11-18 11:26 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `c696266`, `d9f4a4b`, `e244de8` and `8d4a1ff`). **No gate** (`cra-gate: #1421 8d4a1ff` not given). **CGR-246 is built and green** (migration 0144, pgTAP 148 §10, §13 (b), (c)), but the new P1 can be silenced by the one person who cannot go: **new blocking finding CGR-253** (concurs with `uxa` UXR-245, #1445, and extends it to the colleague's take). CGR-251 met, CGR-252 met, both green. Read on `recovery/main` `6c91031`.
 
 ### What I read
