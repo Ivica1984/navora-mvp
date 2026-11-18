@@ -948,3 +948,47 @@ insert into public.member_profiles (organization_id, user_id, display_name, upda
 insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until) values
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'grade', 'nurse_hf_fh', 'verified', true, null),
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'practice_licence', null, 'verified', true, null);
+
+-- BK-e1c seed addition (brief docs/agents/briefs/BK.md §PO amendment 2026-11-18 17:39, C1; e2e
+-- tests/e2e/bk-e1c-night-visit-day-two.spec.ts; ADR-203 amendment BK-e1c). Synthetic only, an organisation of its own,
+-- so no fixture or count of another organisation changes (pgTAP 002 counts one more confirmed account). Not a real name,
+-- no address. Local and CI only: the `staging` job applies migrations, never this seed.
+--   nacht.test (…9ca): registered nurse of Testteam Nacht; signs in. Her night visit of yesterday 22:00–07:00 (Testfall N1)
+--   was started at 22:01 and is still running, so today's /field shows it first with «Einsatz abschliessen».
+-- Written as the table owner, in the order the commands would write it: memberships, contract, the visit, its event.
+insert into public.organizations (id, name) values ('00000000-0000-4000-b000-00000000001a', 'Testorganisation Nacht');
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000001ca', private.now() - interval '200 days', 'Testteam Nacht', 'Basel-Stadt', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test Nacht', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, plz, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000002ca', private.now() - interval '100 days', 'Testfall N1', 'Testfall', 'N1', 'Basel-Stadt', '4052', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam Nacht', '00000000-0000-4000-a000-0000000001ca', private.now() - interval '99 days');
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009ca', 'authenticated', 'authenticated',
+   'nacht.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009da', '00000000-0000-4000-a000-0000000009ca', '00000000-0000-4000-a000-0000000009ca',
+   '{"sub":"00000000-0000-4000-a000-0000000009ca","email":"nacht.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000009ca', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001ca', '00000000-0000-4000-a000-0000000009ca', 'registered_nurse');
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000009ca', 'Pflegekraft Nacht', '00000000-0000-4000-a000-0000000009ca');
+insert into public.member_contract_events (organization_id, user_id, start_date, end_date, actor_id, created_at) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000009ca',
+   (private.now() at time zone 'Europe/Zurich')::date - 100, null,
+   '00000000-0000-0000-0000-000000000000', private.now() - interval '30 days');
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, responsible_user_id) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000005ca', private.now() - interval '2 days',
+   '00000000-0000-4000-a000-0000000002ca', '00000000-0000-4000-a000-0000000001ca',
+   (private.now() at time zone 'Europe/Zurich')::date - 1, '22:00', '07:00', array['Grundpflege'], false, 'started', 540,
+   '00000000-0000-4000-a000-0000000009ca');
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, occurred_at, actor_id, command) values
+  ('00000000-0000-4000-b000-00000000001a', '00000000-0000-4000-a000-0000000005ca', '00000000-0000-4000-a000-0000000001ca',
+   'started', 'planned', 'started', (((private.now() at time zone 'Europe/Zurich')::date - 1) + time '22:01') at time zone 'Europe/Zurich',
+   '00000000-0000-4000-a000-0000000009ca', 'start_visit');
