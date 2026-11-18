@@ -16,6 +16,46 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 11:26 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `c696266`, `d9f4a4b`, `e244de8` and `8d4a1ff`). **No gate** (`cra-gate: #1421 8d4a1ff` not given). **CGR-246 is built and green** (migration 0144, pgTAP 148 §10, §13 (b), (c)), but the new P1 can be silenced by the one person who cannot go: **new blocking finding CGR-253** (concurs with `uxa` UXR-245, #1445, and extends it to the colleague's take). CGR-251 met, CGR-252 met, both green. Read on `recovery/main` `6c91031`.
+
+### What I read
+
+- Merges since my 10:26 section: #1443 (my 10:26), #1444 (`po` 10:39: H-BK-10:39; Blueprint 3.2.56 header, §8 row BK, version row). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `b2fe4d0`: `c696266` (migration `20261021000144_bk_e1b_take_member_dropped_signal.sql`; pgTAP 019, 039, 061 inventories; ADR-203 (16)), `d9f4a4b` (pgTAP 148 takes and asserts the SIG1 lock of organisation 019, CGR-110), `f0f16a0` (`eng` journal), `f1ec65c` (merge of `recovery/main`), `e244de8` (red first: CGR-252 refusal rows, CGR-251 `covered_by` control; plan 146), `8d4a1ff` (migration `20261021000145_bk_e1b_take_visit_refusal_rows.sql`; ADR-203 (17)). Read in full: 0144, 0145, the pgTAP 148 diff `b2fe4d0..8d4a1ff`. Read for the take path: `public.take_signal` (0080:119-160, last body), `private.signal_take_stops` (0063:171-180, unchanged since), `private.signal_take_lapsed` (0092:213-223), `SignalBanner.tsx:70-76`; issue #1445 (`uxa` UXR-245).
+- CI on `8d4a1ff`: `db` job 134732859458 log read: «148_bk_e1b_visit_from_take … ok», «Result: PASS» (the «not ok» lines in that log belong to the B0-4 negative control «before #922», expected red, reported as `ok`). `app`, `ui-screenshots`, `sync` success per check runs (logs not read). `e2e` success per check run at my second read (log not read).
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `8d4a1ff` | **not cleared.** Blocking: **CGR-253** (the absent member, or a colleague who cannot move the visit, can take the `take_member_dropped` P1 and so stop the step to Operations). Open, not blocking: CGR-246 (i) episode end when the visit leaves its state; UXR-244; take-card Playwright; CGR-233 test or a named reason (as named by the PO). Met and green: CGR-246 raise, recipients, D-44 detail and end on withdrawal; CGR-248, CGR-249, CGR-250, CGR-251, CGR-252. All five check runs success on `8d4a1ff`. Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-253** (new; concurs with UXR-245) | #1421 `8d4a1ff`, migration 0144 with `take_signal` | **blocking for the #1421 gate**; S1 before real clients | IMPLEMENTED: 0144 delivers `take_member_dropped` to the named member herself even when absent (reason `responsible`). `take_signal` accepts any recipient, and `signal_take_stops` returns `true` for every kind outside `no_show` and `visit_interrupted` (0063:175, not patched). Absence is no lapse (`signal_take_lapsed` reads access end and contract end only). So (a) the absent member can tap «Ich übernehme» on the signal about her own drop-out: the step to Operations stops, the signal reads as taken for her team and, in the fallback case, for Operations, while nobody goes and the client reads «nicht gedeckt». (b) A colleague's take also stops the step, although no person command can move a take visit (CGR-249): the signal reads as handled while the visit stays with the absent member. Before 0144 no absent person received any SIG1 signal, so (a) is a new path this PR opens. The operating rule's next step «Im Team klären, wer übernimmt.» invites a take that NAVORA cannot record. Not tested: pgTAP 148 never calls `take_signal` on this kind. | 0144 §1, §4; 0080:133-156; 0063:171-180; 0092:213-223; `SignalBanner.tsx:70-76`; #1445 | (a) For `take_member_dropped`, `take_signal` by the take's named member is refused with a stated reason (no `signal_takes` row; the step to Operations runs as before); she still reads the signal. (b) PO choice, with the Clinical Owner before real clients: either a take of this kind never stops the step to Operations (`stops_escalation = false`, banner says Operations follows) until an in-team hand-over action exists (H-BK-10:39), or the banner offers no «Ich übernehme» for this kind and shows the next step only. pgTAP 148: `take_signal` as M3 on O4 refused, no row, signal untaken; as a colleague, `stops_escalation` as chosen; the SIG1-5 step reaches Operations when nobody's take stops it. No threshold is set by this remedy. |
+| **CGR-246 (status)** | #1421 `c696266` / `d9f4a4b`, migration 0144 | was blocking; **met and green for raise, recipients, codes-only detail and end on withdrawal**; (i) open, advisory S3 | IMPLEMENTED: one derived P1 row per live take whose member no longer passes while the visit is `on_the_way`, `started`, `paused`, or `planned` at or after the start; signal kind added; recipients are the SIG1 rule plus the named member while in the team with access; Operations fallback decided without her; detail is the step code only; take and visit unchanged. pgTAP 148 §10 (Operations fallback), §13 (b) (team on duty), (c) (end on withdrawal) pass; SIG1 lock asserted (CGR-110). (i) The end of the episode when the visit leaves its state is still not asserted; it runs through the same derived-row close as the withdrawal (status is part of the same `where`), so I lower it to advisory. The clinical half of CGR-246 depends on CGR-253: a signal that can be silenced does not yet meet my 09:27 remedy. | 0144:65-102; pgTAP 148:367-382, 702-735; `db` job 134732859458 | (i) one assertion: after `end_visit_not_completed` (or completion) of O4 in §10 the `take_member_dropped` episode has `ended_at`; not a gate condition. |
+| CGR-251 (status) | #1421 `e244de8` / `8d4a1ff` | advisory; **met and green** | The `covered_by` control is real: a rolled-back probe sets `covered_by` on O3, the property reports `o3:0`, and afterwards the visit has no `covered_by`. Closes on merge. | pgTAP 148 `probe_covered_by`; `db` job 134732859458 | — |
+| CGR-252 (status) | #1421 `8d4a1ff`, migration 0145 | advisory S3; **met and green** | Each of the six `take_visit` refusals writes one `audit_events` row through `write_visit_refusal` (outcome `take_visit`, no key), only after the caller's access check; pgTAP 148 asserts exactly the 14 expected rows in order and no other write. Closes on merge. PS-215 mitigated. | 0145 §1-§6 and guards; pgTAP 148 `aud252` | — |
+
+### Answer to the PO (H-BK-10:39)
+
+I support the direction: a signal the team cannot act on in NAVORA pushes the gap back to phone calls, and CGR-253 (b) is the same gap seen from the alert side. Does a hand-over before `started` need a clinical rule beyond the qualification and delegation checks? **UNKNOWN**, owner: Clinical Owner (D-27). What I can name without inventing a rule: the hand-over must pass the same checks as the take itself (step 4 for the colleague, QUAL1, delegation), must leave an audit row with both persons, and must give the colleague the order's care information she would have had at the take. Whether a hand-over note on the client's current state or a minimum lead time is needed is a clinical question I do not answer. Until the slice exists, the signal should not read as handled (CGR-253).
+
+### Decisions requested
+
+- **`eng`:** CGR-253 (a) with pgTAP; (b) once the PO has chosen; CGR-246 (i) if cheap; then name the final head.
+- **PO:** CGR-253 (b): «take never stops the step» or «no take button for this kind» for the simulation; Clinical Owner before real clients.
+- **`uxa`:** card words for CGR-253 (b) (UXR-245).
+- **Clinical Owner (when named, D-27):** escalation lead time after the signal; client reading after a course outcome on a take; hand-over after `started`; whether a hand-over before `started` needs more than the qualification and delegation checks.
+
+### Findings closed with evidence
+
+- None closed in this section (CGR-246, CGR-251, CGR-252 close on merge with `ci` green on the final head; CGR-246 only together with CGR-253).
+
+---
+
 ## 2026-11-18 10:26 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `65f059c`, `82e7323` and `b2fe4d0`). **No gate** (`cra-gate: #1421 b2fe4d0` not given): `b2fe4d0` is the red-first commit for CGR-246 (pgTAP 148 §10 and §13), red as intended; migration 0144 is not on the PR yet. **CGR-250 is met in code and green** on `82e7323` (migration 0143). Finding (d) fix confirmed. The writer list in ADR-203 (15) matches my own count. No new finding. Read on `recovery/main` `509d9bf`.
 
 ### What I read
