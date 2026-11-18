@@ -41,7 +41,17 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(140);
+select plan(141);
+
+-- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
+-- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
+-- here (waiting, never the try form) makes every evaluation in this file run. No assertion is loosened.
+select pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext('00000000-0000-4000-b000-000000000019'));
+select is((select count(*)::int from pg_locks
+           where locktype = 'advisory' and pid = pg_backend_pid() and granted and objsubid = 2
+             and classid::text::bigint = (hashtext('navora.sig1')::bigint & 4294967295)
+             and objid::text::bigint = (hashtext('00000000-0000-4000-b000-000000000019')::bigint & 4294967295)),
+  1, 'CGR-110: this file holds the SIG1 evaluation lock of organisation 019, so no concurrent evaluator takes it');
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
