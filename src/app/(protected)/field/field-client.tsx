@@ -86,6 +86,7 @@ import type { SignalRow } from "@/features/signals/rules";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
 import { placeLine } from "@/features/field/place";
+import { TAKE_HEADING, visitHeading } from "@/features/field/heading";
 import { TAKE_ENDED_STATUS, takeEndedText } from "@/features/field/take-end";
 
 type Props = {
@@ -471,7 +472,9 @@ function VisitCard({
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
   // BK-e1 / UXR-190 (ADR-202 (1)): a postcode without a street says so in text, not by colour alone.
-  const place = placeLine(visit.address, visit.plz, visit.ort);
+  const place = placeLine(visit.address, visit.plz, visit.ort, visit.from_take);
+  // BK-e1b / UXR-239: a take card names the kind, never «ohne Namen»; UXR-237: the place line names the simulation limit.
+  const heading = visitHeading(visit.client_name, visit.from_take);
   // BK-e1b / CGR-242 (c): a take visit ended before the start stays on her day, in text, never as «abgesagt».
   const takeEnded = takeEndedText(visit.system_end_reason);
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
@@ -515,13 +518,13 @@ function VisitCard({
       data-testid={focusOnMount ? "moved-visit" : undefined}
       aria-describedby={describedBy}
       id={focused ? "einsatz-korrektur" : undefined}
-      aria-label={cardAccessibleName(time, visit.client_name ?? "Klient:in", sameSlot)}
+      aria-label={cardAccessibleName(time, visit.from_take ? TAKE_HEADING : visit.client_name ?? "Klient:in", sameSlot)}
       className="scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg font-bold tabular-nums">{time}</p>
-          <h2 className="text-base font-semibold">{visit.client_name ?? "Klient:in ohne Namen"}</h2>
+          <h2 className="text-base font-semibold">{heading}</h2>
           {sameSlot && (
             // VIS2-3 (ADR-121): tells two cards of one client at one time apart; a fact, `info`, nothing refused.
             <p data-testid="same-slot-line" data-tone="info" className="mt-1 text-sm text-stone-700">
