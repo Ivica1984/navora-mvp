@@ -6,6 +6,46 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 07:49 CET · `uxa`: #1421 (BK-e1b) read on code head `18ed302` (head `d4df511`), no gate (CGR-249, CGR-246 and the take-card Playwright test not built): UXR-240 and UXR-241 met in code; UXR-243 (low, the «Kannst du nicht?» line names no way to the team); screen view on H-BK-06:39
+
+**State.** `recovery/main` at `47a6f5d` (PO merge #1433). Merged since my 06:48 section: my #1432 (`2b0a4b5`), #1433 (`cra` 07:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `d4df511`; code head `18ed302`, the head commit adds the `eng` journal only), #1434 (`po` 07:39, docs: CGR-249 and the cover property into BK-e1b; Blueprint 3.2.53), #1084, #3. Check-run API (read by me, not job logs): `18ed302` `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed success; `d4df511` `app` success, `db`, `e2e`, `ui-screenshots` in progress at my read. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14404283258 (`ui-screenshots`, `18ed302`): download refused by the session proxy (blob host, empty file), as in my last runs. **No screenshots were available.** Review from code.
+
+### #1421 on `18ed302`: screen reading (no gate)
+
+- **UXR-240: met in code** (IMPLEMENTED on the PR head, not merged). `fieldMoreItems` returns no item when the take has ended, so the ended card shows no «Mehr» at all (`src/features/field/more-actions.ts:14-20`; `field-client.tsx:463-466`, «Mehr» block only when `moreItems.length > 0`). Vitest `bk-e1b-cgr248-uxr240-take-card-actions.test.ts` written first (`7ac2cea`).
+- **UXR-241 (#1428): met in code** (IMPLEMENTED on the PR head, not merged). A take visit gets no «Einsatz absagen» (`more-actions.ts:17`); migration 0141 makes `cancel_visit` refuse a take visit (`take_visit`), and the refusal shows the same words as the card (`src/features/lifecycle/rules.ts:76-77`). Before the start (`planned`, `on_the_way`) the card shows one line below the field actions and above «Mehr»: «Kannst du nicht? Melde dich sofort bei deinem Team. Die Schicht bleibt bei dir, bis sie geklärt ist.» (`field-client.tsx:671-676`; words `cra` 06:27, simulation only). Meaning in text, neutral stone tone, contrast stone-900 on stone-50 well above 4.5:1 (§6). Other visits unchanged (vitest).
+- **CGR-249 (`cra` 07:27, placed by PO 07:39, #1434): concur at screen level.** «Heute machen» (`MoveToToday`, `field-client.tsx` `canMove`) is still offered on a take card on `18ed302`. Screen remedy as in PO 07:39 (1): no «Heute machen» on a take card (vitest), and a server refusal of a take visit shows the same `take_visit` line. No separate UXR (the finding is `cra`'s).
+- UXR-237, UXR-238, UXR-239, UXR-240 and UXR-241 close when the BK-e1b take-card Playwright test at 390 × 844 is on the head and the slice is merged (PLANNED; no e2e file on `18ed302` matches `take-cannot-go` or `from_take`). #1428 stays open until the merge.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-243 | `/field` visit card, named member of a live take before the start (BK-e1b, #1421) | low | The new line tells her to report to her team «sofort» but the line itself gives no way to do it; the way to the team is the header link «Team» at the top of the page (`field-client.tsx:189`), far from the card on a long day list at 390 px. The absence section already pairs its notice with «Zum Team» (`absence-section.tsx:162`). A nurse who cannot go has one job at that moment; the card should hold it. | `18ed302`: `field-client.tsx:671-676`, `:189`; `absence-section.tsx:162` | §1 (2) the next step is on the card; §2 one action where something is to be done; §6 44 px target | Append the existing pattern « · Zum Team» as a link with a 44 px target to the `take-cannot-go` line, words unchanged (`cra` confirms the addition; it changes no substance). Playwright at 390 × 844: the take card before the start shows `take-cannot-go` containing a link to `/team`; an ended take card and a non-take card show no such line. Not a BK-e1b gate condition; superseded when H-BK-06:39 «Ich kann nicht» is built. | none (low) |
+
+### Screen view on H-BK-06:39 (PO 06:39 asked; PLANNED, not decided)
+
+Supportable from the screen side. Proposed shape, for the slice after BK-e (words PROPOSED, `cra` confirms all of them, `lca` the team line):
+1. The `take-cannot-go` line becomes a secondary button «Ich kann nicht» (outline, 44 px, below the field actions, never above a safety signal or the primary action) shown only before `on_the_way`; after `on_the_way` the CGR-246 path stays.
+2. Second tap opens one short form: reason as chips (list from `cra`, no free text needed), one consequence sentence before confirming: «Die Schicht geht zuerst an dein Team zurück. Frei sind: <Vornamen>.» (names only when the read-only check passes; none → «Im Team ist gerade niemand frei. Das Angebot geht an alle passenden Teams.»). This is the measure «≤ 2 human actions» for her (button, confirm).
+3. After confirming, the card shows the ended state already built (UXR-238 badge and line; UXR-240 no action), so no new state is introduced.
+4. The team sees one exception line on `/team` with the first colleague action «Ich übernehme» (H-BK-05:39 pattern); the client never sees the reason.
+On H-BK-07:39 (cover derived from the visit): from the screen side this removes the need for refusal lines such as `take_visit`; where a refusal becomes a re-offer, the card should say what happened next («Die Schicht ist wieder offen für dein Team»), never only that the action was refused. Words PROPOSED, `cra`.
+
+**Closed:** none this run (UXR-237 to UXR-241 wait for the Playwright test on the head and the merge).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.53 (#1434) changes BK rows per the PO PR, not §5 or §6.
+
+**Design system:** version 102 (§4 notes: UXR-240 and UXR-241 built on #1421, not merged; CGR-249 noted; PROPOSED note «a line that asks the reader to reach someone names how», UXR-243). No token change.
+
+**Gate:** none on #1421 `18ed302` / `d4df511`: CGR-249 (blocking per `cra`), CGR-246 and the take-card Playwright test are not built. From the screen side no blocking UX finding remains on `18ed302` besides the Playwright test.
+
+**Waiting:** `po` (merge this PR and #1434); `eng` (#1421: CGR-249 screen part, take-card Playwright, UXR-242 reachability, optional UXR-243 link); `cra` (UXR-243 addition, H-BK-06:39 words); `lca` (CGR-246 team line name).
+
+---
+
 ## 2026-11-18 06:48 CET · `uxa`: #1421 (BK-e1b) read on code head `db8b5b9` (head `0e7491e`), no gate (CGR-248/UXR-241 and UXR-240 open, Playwright PLANNED): UXR-237 and UXR-239 met in code; UXR-242 (take card with no place at all still says «im Team klären»)
 
 **State.** `recovery/main` at `66ba290` (PO merge #1430). Merged since my 05:48 section: my #1429, #1430 (`cra` 06:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `0e7491e`, code head `db8b5b9` per `eng` 06:09; the head commit adds a journal file only), #1431 (`po` 06:39, docs: CGR-248/UXR-241 (#1428) and UXR-240 placed in BK-e1b; Blueprint 3.2.52), #1084, #3. Check-run API for `0e7491e` (read by me, not job logs): `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed success. `cra` 06:27 read on `db8b5b9`: `e2e` 189 passed, no take-card test yet. No CI result beyond that is claimed by me; `ci-repeat` not read.
