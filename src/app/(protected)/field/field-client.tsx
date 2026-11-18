@@ -82,6 +82,7 @@ import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 import type { TeamVisitAlert } from "@/features/team/queries";
 import SignalBanner from "@/components/signals/SignalBanner";
+import { carriedLine } from "@/features/field/carried";
 import type { SignalRow } from "@/features/signals/rules";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
@@ -478,6 +479,7 @@ function VisitCard({
   const place = placeLine(visit.address, visit.plz, visit.ort, visit.from_take);
   // BK-e1b / UXR-239: a take card names the kind, never «ohne Namen»; UXR-237: the place line names the simulation limit.
   const heading = visitHeading(visit.client_name, visit.from_take);
+  const carried = carriedLine(visit.carried_from_previous_day, visit.status, visit.time_start);
   // BK-e1b / CGR-242 (c): a take visit ended before the start stays on her day, in text, never as «abgesagt».
   const takeEnded = takeEndedText(visit.system_end_reason);
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
@@ -527,6 +529,10 @@ function VisitCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg font-bold tabular-nums">{time}</p>
+          {carried && (
+            // BK-e1c (UXR-248, CGR-257): a night visit of the day before, still running, on today's card; a fact, `info`.
+            <p data-testid="visit-carried" data-tone="info" className="text-sm font-semibold text-stone-700">{carried}</p>
+          )}
           <h2 className="text-base font-semibold">{heading}</h2>
           {sameSlot && (
             // VIS2-3 (ADR-121): tells two cards of one client at one time apart; a fact, `info`, nothing refused.

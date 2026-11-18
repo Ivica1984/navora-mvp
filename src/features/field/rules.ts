@@ -321,6 +321,8 @@ export type NextVisitLike = {
   time_start: string | null;
   responsible_me: boolean | null;
   suspended: boolean | null;
+  /** BK-e1c (migration 0149): a night visit of the day before, still running or completed on this day. */
+  carried_from_previous_day?: boolean | null;
 };
 
 const RUNNING = new Set(["on_the_way", "started", "paused"]);
@@ -329,7 +331,8 @@ const STARTABLE = new Set(["planned", ...RUNNING]);
 /**
  * UX1-6: the visit shown first ("Als Nächstes"). Only visits she can still act on count (planned or running, not
  * suspended by a case pause). Her own (responsible: du) come before the team's; within them a running visit comes
- * first, then the earliest start; a visit without a start time comes last. No candidate: null (the list stays in time
+ * first (BK-e1c: a night visit carried from the day before before any other), then the earliest start; a visit
+ * without a start time comes last. No candidate: null (the list stays in time
  * order). This picks what is shown first; it assigns nothing.
  */
 export function pickNextVisit<T extends NextVisitLike>(visits: ReadonlyArray<T>): T | null {
@@ -337,6 +340,9 @@ export function pickNextVisit<T extends NextVisitLike>(visits: ReadonlyArray<T>)
   const mine = open.filter((v) => v.responsible_me === true);
   const pool = mine.length > 0 ? mine : open;
   if (pool.length === 0) return null;
+  // BK-e1c (UXR-248, CGR-257): a night visit still running from the day before is first, before any other running one.
+  const carried = pool.find((v) => v.carried_from_previous_day === true && RUNNING.has(v.status ?? ""));
+  if (carried) return carried;
   const running = pool.find((v) => RUNNING.has(v.status ?? ""));
   if (running) return running;
   return [...pool].sort((a, b) => timeKey(a.time_start).localeCompare(timeKey(b.time_start)))[0];

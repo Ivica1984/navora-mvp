@@ -12,6 +12,7 @@ import { getAbsenceView } from "@/features/absence/queries";
 import { getMySignals } from "@/features/signals/queries";
 import { recordPushTap } from "@/features/push/queries";
 import { getMyAssessmentsToConfirm } from "@/features/assessment/queries";
+import { carriedVisits, withCarriedCaseRows, withCarriedRows } from "@/features/field/carried";
 import FieldClient from "./field-client";
 
 // F1: the nurse's day. Mobile-first; visits of her own teams only (public.field_visits).
@@ -54,6 +55,26 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getOpenTeamOfferCount(),
   ]);
 
+  // BK-e1c (ADR-203 amendment, UXR-248, CGR-257): a night visit of the day before still running today is on this day
+  // (field_visits, migration 0149). Its notes, report, quality, status notes, door notes, «Seit dem letzten Einsatz» and
+  // alert history are dated by the visit: read them for the day before too and keep only the carried visits' rows.
+  // Safety alerts already come for the carried visit from field_safety_alerts (same predicate). Display only.
+  const carried = carriedVisits(visits);
+  const carriedIds = new Set(carried.map((v) => v.visit_id));
+  const carriedCaseIds = new Set(carried.flatMap((v) => (v.case_id ? [v.case_id] : [])));
+  const before = carried.length > 0 ? shiftDay(day, -1) : null;
+  const [notesB, reportsB, qualityB, statusNotesB, sinceLastB, doorNotesB, alertHistoryB] = before
+    ? await Promise.all([
+        getFieldNotes(before),
+        getFieldReports(before),
+        getFieldQuality(before),
+        getVisitStatusNotes(before),
+        getSinceLast(before),
+        getDoorNotes(before),
+        getSafetyAlertHistory(before),
+      ])
+    : [[], [], [], [], [], [], []];
+
   return (
     <FieldClient
       day={day}
@@ -62,21 +83,21 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       previousDay={shiftDay(day, -1)}
       nextDay={shiftDay(day, 1)}
       visits={visits}
-      notes={notes}
-      reports={reports}
-      quality={quality}
+      notes={withCarriedRows(notes, notesB, carriedIds)}
+      reports={withCarriedRows(reports, reportsB, carriedIds)}
+      quality={withCarriedRows(quality, qualityB, carriedIds)}
       qualityTypes={qualityTypes}
-      statusNotes={statusNotes}
+      statusNotes={withCarriedRows(statusNotes, statusNotesB, carriedIds)}
       countersign={countersign}
       returned={returned}
       cover={cover}
-      sinceLast={sinceLast}
+      sinceLast={withCarriedRows(sinceLast, sinceLastB, carriedIds)}
       openFollowups={visitAlerts.filter((a) => a.exception_type === "visit_interrupted")}
       absence={{ today, ...absence }}
       signals={signals}
-      doorNotes={doorNotes}
+      doorNotes={withCarriedRows(doorNotes, doorNotesB, carriedIds)}
       safetyAlerts={safetyAlerts}
-      alertHistory={alertHistory}
+      alertHistory={withCarriedCaseRows(alertHistory, alertHistoryB, carriedCaseIds)}
       teamOpenReports={teamOpenReports}
       focusAt={parseFocusInstant(zeit)}
       moved={moved}
