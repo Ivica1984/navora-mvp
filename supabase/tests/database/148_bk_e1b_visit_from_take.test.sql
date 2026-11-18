@@ -32,7 +32,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(61);
+select plan(69);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -321,6 +321,36 @@ select is(pg_temp.release('03', 'o4', 'ffff0000-0000-4000-8148-000000000042'),
           'CGR-244: «Ich kann nicht» is refused with the visible reason visit_under_way');
 select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
           'CGR-244: after the refusal the take is live and the visit still on the way');
+
+-- 11. CGR-248 / UXR-241 (PO 06:39 (2)): no person command ends a take visit while its take stays live ------------------
+-- `cancel_visit` refuses a visit written from a take (order_take_id not null) with the stated reason `take_visit`;
+-- visit, take and client cover stay unchanged. The cancellation of a visit not from a take is unchanged (pgTAP 023,
+-- 031, 055 keep passing). Her way out before «unterwegs» stays the release with a reason (CGR-242, §7).
+create function pg_temp.cancel(actor text, k text, key text) returns text language plpgsql as $$
+declare res text;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;  -- read as the table owner, before the role switch
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.cancel_visit(vid, 'team_cancelled', null, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create temp table cov as select pg_temp.cs('o1') as before;
+select is(pg_temp.cancel('01', 'o1', 'ffff0000-0000-4000-8148-000000000060'), 'take_visit',
+          'CGR-248: the named member cannot cancel her take visit; the stated reason is take_visit');
+select is(pg_temp.visit('o1') ->> 'status', 'planned', 'CGR-248: the take visit stays planned');
+select ok((pg_temp.live('o1')).member_id = pg_temp.m('01'), 'CGR-248: the take stays live with her');
+select is(pg_temp.cs('o1'), (select before from cov), 'CGR-248: the client cover is unchanged by the refusal');
+select is((select count(*)::int from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid
+             and n.kind = 'cancelled'), 0, 'CGR-248: no cancellation note is written');
+select is(pg_temp.cancel('02', 'o1', 'ffff0000-0000-4000-8148-000000000061'), 'take_visit',
+          'CGR-248: a colleague of the same team cannot cancel it either');
+select is(pg_temp.cancel('03', 'o4', 'ffff0000-0000-4000-8148-000000000062'), 'take_visit',
+          'CGR-248: a take visit on the way is refused as well');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-248: the visit on the way is unchanged');
 
 select * from finish();
 rollback;
