@@ -302,6 +302,9 @@ export function offerCommandText(reason: string | null | undefined): string {
       return "Die gewählte Person kann diese Schicht zurzeit nicht übernehmen. Bitte eine andere Person wählen.";
     case "order_started":
       return "Die Schicht hat bereits begonnen.";
+    case "visit_under_way":
+      // CGR-244 (0139): her visit of this take is on the way or started; the take stays (never a silent release).
+      return "Du bist für diese Schicht schon unterwegs. Die Übernahme bleibt bestehen; bitte im Team klären.";
     case "not_offered":
     case "not_team_member":
     case "member_not_in_team":

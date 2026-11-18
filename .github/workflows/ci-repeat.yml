@@ -145,6 +145,8 @@ jobs:
           scripts/ci-step.sh concurrency-take scripts/db-concurrency/open-visit-take.sh
           # BK-c1 (ADR-199 (3), PO 03:39 point 4): two sessions take the same shift order; one wins, the other already_taken.
           scripts/ci-step.sh concurrency-order-take scripts/db-concurrency/order-take.sh
+          # BK-e1b CGR-233 (ADR-203 (19)): a take writing her visit racing a hand assignment of an overlapping visit.
+          scripts/ci-step.sh concurrency-take-visit scripts/db-concurrency/take-visit.sh
           # CGR-110 (ADR-137): a concurrent SIG1 evaluation lock makes evaluate_signals skip; 062 now waits for it.
           scripts/ci-step.sh concurrency-sig1-lock scripts/db-concurrency/sig1-evaluation-lock.sh
           # CGR-201 (ADR-187, PO 06:39 point 3): «Zuordnen» racing a new case with the same legacy region, both orders.

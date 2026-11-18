@@ -555,14 +555,14 @@ isOneToOne: false
                   ]
                 },"care_visits": {
                   Row: {
-                    "billable": boolean | null,"case_id": string | null,"cover_team_id": string | null,"covered_at": string | null,"covered_by": string | null,"created_at": string,"id": string,"is_needs_assessment": boolean,"notes": string | null,"organization_id": string,"plan_generated": boolean,"plan_slot_date": string | null,"plan_slot_start": string | null,"planned_minutes_a": number | null,"planned_minutes_b": number | null,"planned_minutes_c": number | null,"responsible_user_id": string | null,"services_provided": (string)[] | null,"status": string | null,"suspended_at": string | null,"suspended_by": string | null,"team_id": string | null,"team_member_name": string | null,"time_end": string | null,"time_start": string | null,"visit_date": string | null
+                    "billable": boolean | null,"case_id": string | null,"cover_team_id": string | null,"covered_at": string | null,"covered_by": string | null,"created_at": string,"id": string,"is_needs_assessment": boolean,"notes": string | null,"order_take_id": string | null,"organization_id": string,"plan_generated": boolean,"plan_slot_date": string | null,"plan_slot_start": string | null,"planned_minutes_a": number | null,"planned_minutes_b": number | null,"planned_minutes_c": number | null,"responsible_user_id": string | null,"services_provided": (string)[] | null,"status": string | null,"suspended_at": string | null,"suspended_by": string | null,"system_end_reason": string | null,"team_id": string | null,"team_member_name": string | null,"time_end": string | null,"time_start": string | null,"visit_date": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id": string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
+                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"order_take_id"?: string | null,"organization_id": string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"system_end_reason"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
                   }
                   Update: {
-                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id"?: string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
+                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"order_take_id"?: string | null,"organization_id"?: string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"system_end_reason"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
                   }
                   Relationships: [
                     {
@@ -582,6 +582,12 @@ isOneToOne: false
       columns: ["cover_team_id"]
 isOneToOne: false
       referencedRelation: "teams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_visits_order_take_id_fkey"
+      columns: ["order_take_id"]
+isOneToOne: false
+      referencedRelation: "order_takes"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "care_visits_organization_id_fkey"
@@ -3009,7 +3015,7 @@ isOneToOne: false
                            },
 "field_visits":
 { Args: { "p_date": string }; Returns: {
-              "address": string,"care_goals": (string)[],"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"is_needs_assessment": boolean,"ort": string,"pause_reason": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"plz": string,"responsible_me": boolean,"responsible_set": boolean,"services_provided": (string)[],"status": string,"suspended": boolean,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+              "address": string,"care_goals": (string)[],"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"from_take": boolean,"is_needs_assessment": boolean,"ort": string,"pause_reason": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"plz": string,"responsible_me": boolean,"responsible_set": boolean,"services_provided": (string)[],"status": string,"suspended": boolean,"system_end_reason": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "final_report_visits":
