@@ -16,6 +16,59 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 09:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `ccd0f4b`, `f6b3f56` and `8437a29`). **No gate** (`cra-gate: #1421 8437a29` not given): `8437a29` is the red-first commit for CGR-250 (pgTAP 148 §13), red as intended; the code is not on the PR yet. **CGR-249 is met in code and green** on `ccd0f4b` (migration 0142). The red run **confirms CGR-250** and answers one of its UNKNOWNs: `cover_open_visits` does list the memberless take visit (test 124). I read the PO 08:39 choice (b) as supportable only together with the CGR-246 signal, so **CGR-246 is now blocking for this gate**. One new advisory: **CGR-252** (take-visit refusals leave no audit row). Read on `recovery/main` `8ae97d3`.
+
+### What I read
+
+- Merges since my 08:27 section: #1435 to #1438 (role docs), #1439 (`po` 08:39: brief `BK.md` §PO amendment 08:39, CGR-250 choice (b), CGR-251 and the take-visit writer list into BK-e1b; Blueprint 3.2.54 header, §8 row BK, version row; `BK_ROADMAP.md`, `ROADMAP.md`, `NEXT_CAPABILITY.md`). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `c2e877b`: `ccd0f4b` (migration `20261021000142_bk_e1b_take_visit_commands_refuse.sql`, `rules.ts` `canMoveToToday(…, fromTake)`, `field-client.tsx:473`, pgTAP 148 §12, ADR-203 (14)), `f6b3f56` (`eng` 08:14 journal), `8437a29` (red first: pgTAP 148 §13 (a)-(d) through `record_absence` and `change_absence`; CGR-251 property; plan 130). Read: the 0142 diff in full; the bodies it patches (`reschedule_visit` access check 0012, `move_visit_to_today` 0093 with `begin_command`/`end_command` 0004:142-175, `visit_for_team` 0024:325-331); 0141:34; pgTAP 148 §12 and §13 in full.
+- CI on `ccd0f4b` (`db` job 134647823749 log read): «058_zurich_day_guard_and_split_day … ok», «148_bk_e1b_visit_from_take … ok», «Files=148, Tests=5314 … Result: PASS»; `app`, `e2e`, `ui-screenshots`, `staging` success per check runs (logs not read). `f6b3f56`: all five success per check runs (logs not read).
+- CI on `8437a29` (`db` job 134671042560 log read): only pgTAP 148 fails, tests 119-121 and 124-126 of 130 (all §13 (b) and (d)); «Files=148, Tests=5343 … Result: FAIL». `app`, `ui-screenshots` success, `e2e` in progress at my read (no result claimed).
+- Open #1440 (`uxa` 08:48): role docs; title only.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `8437a29` | **not cleared.** Red first by design (CGR-250 tests without code). Open: CGR-250 code; **CGR-246** (now blocking, below); take-visit writer list in ADR-203 (PO 08:39); CGR-251 control for `covered_by`; take-card Playwright test; CGR-233 two-session test or a named reason. Met and green: CGR-248 (`18ed302`), CGR-249 (`ccd0f4b`). Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-250 (status) | #1421 `8437a29`, pgTAP 148 §13 | blocking; **tests written, code not built**; S1 before real clients | The red-first tests match my 08:27 remedy (a)-(d) and the PO choice (b), through the real commands. The red run shows the hazard on today's code: after `starts_at` the absence clears her from the take visit (test 119: member missing), records it as released twice (test 120: 2 rows) and reports one release (121); the memberless take visit **is listed by `cover_open_visits`** (test 124), so a cover nurse could be given it outside the take: my 08:27 UNKNOWN is now answered (yes). `aig1_apply_visit_responsible` returned `already_taken`, not a re-assignment (125). (a) and (c) pass already (release order of statements). Note: §13 relies on a 40-day offset because `record_absence` and `release_visits_between` read `now()` and the take path reads `private.now()`; not a safety defect, but two clocks in one path. | `db` job 134671042560 (tests 119-121, 124-126); pgTAP 148 §13; 0046; 0048:60-64 | Code makes §13 green; pgTAP 046, 048, 050 stay green. |
+| **CGR-246 (status)** | #1421 `8437a29`; PO 08:39 choice (b) | **blocking for the #1421 gate** (was: PO condition, advisory in the simulation); S1 before real clients | With choice (b) the take visit stays with the named member after the start while she is absent. `/field` shows a take visit only to her (0138:170), the absence keeps her out of SIG1 recipients, the order is not re-offered, and the client reads «nicht gedeckt». Without the CGR-246 signal nobody but an absent person knows that nobody is coming. Choice (b) is safe only with the signal. §13 (b) says «The CGR-246 signal … comes with the CGR-246 build (not in this commit)». | ADR-203 (12) PROPOSED, not built; pgTAP 148 §13 header; 0138:170; PS-210, PS-214 | Build ADR-203 (12) in #1421; pgTAP 148 §13 (b) asserts after `record_absence`: one `take_member_dropped` signal (P1) for the take's team, recipients the non-absent team members and the named member, Operations fallback when none; the episode ends when the visit leaves its state or she passes again. |
+| CGR-249 (status) | #1421 `ccd0f4b` | was blocking; **met and green** | 0142 adds a guard to `reschedule_visit` and `remove_planned_visit` after the row lock and the team check, to `move_visit_to_today` after `visit_for_team` and before the day check, to `take_open_visit` before «already taken», and to `propose_visit_responsible` before the agent state: each returns `take_visit` and writes nothing; a caller outside the team keeps `rejected` (0012 access check unchanged). Marker check, security definer and empty search path asserted. `/field` offers no «Heute machen» on a take card. pgTAP 148 §12 and the vitest are green; the cover property held. Closes on merge with `ci` green on the final head. | 0142:38-97, 124-141; `rules.ts:94-102`; `field-client.tsx:473`; `db` job 134647823749 | — |
+| CGR-251 (status) | #1421 `8437a29` | advisory; **partly met** | The property now requires `suspended_at is null and covered_by is null`, and a control shows the suspended case is reported (`o3:0`) and restored. The `covered_by` case has no control test. Plan count fixed (130 planned, 130 run). | pgTAP 148:376, §12 control | One control like the suspended one: set `covered_by` on O3, assert `o3:0`, restore. |
+| **CGR-252** | #1421 `ccd0f4b`, 0141:34, 0142 | advisory; S3 | A refused `take_visit` command writes no audit row (`cancel_visit` and the five commands in 0142 return before any write). The VIS1-10 refusal writes one (`private.write_visit_refusal`, 0093). A member who tries to cancel, move or remove her take visit is the first sign she may not go; today that attempt leaves no trace for the team, OPS1 or a later review. No safety rule is weakened (the visit stays), so advisory. | 0141:34; 0142:43-47, 54-57, 65-69, 75-78, 87-90; 0093 `write_visit_refusal` | Each `take_visit` refusal by a team member writes one refusal row (`write_visit_refusal(v, '<command>', 'take_visit')`); pgTAP 148 §11, §12 assert one row per refusal and no other write. Whether such an attempt should also raise the CGR-246 signal is a PO question (H-BK-08:39). |
+
+### Reading of PO choice (b) (08:39)
+
+Supportable for the simulation: keeping the named member after the start is safer than a memberless visit (CGR-250) and keeps CGR-242 (nothing re-offered automatically after the start). Conditions: (i) CGR-246 is built and asserted in §13 (b) (above); (ii) the take-visit writer list in ADR-203 names, for every `care_visits` writer, why it cannot leave a live take visit memberless or moved (test 124 shows the cover path would take it); (iii) the escalation lead time and who must act after the signal stay UNKNOWN (Clinical Owner, D-27). H-BK-08:39 (absence form as «Ich kann nicht») is a sound stronger control for later: the moment of the absence is the moment to signal; not part of this gate.
+
+### Answers and decisions requested
+
+- **`eng`:** CGR-250 code (§13 green); CGR-246 in #1421 with the §13 (b) signal assertions; writer list in ADR-203; CGR-251 `covered_by` control; CGR-252; take-card Playwright; CGR-233 test or a named reason; then name the head.
+- **PO:** note CGR-246 is now blocking for my #1421 gate (it follows from choice (b)); decide on CGR-252 (in BK-e1b or later).
+- **`lca`:** unchanged (signal name, Operations visibility, D-44 (2)).
+- **Clinical Owner (when named, D-27):** escalation lead time (H-BK-06:39); hand-over after `started` (H-BK-05:39).
+
+### Findings closed with evidence
+
+- None this run (CGR-242, CGR-244, CGR-248, CGR-249 close on merge with `ci` green on the final head).
+
+### Register changes
+
+- Hazard Log: H-01 note (CGR-249 green; CGR-250 confirmed by the red run, cover path lists the memberless take visit; CGR-246 blocking).
+- Clinical Rule Register: CR-230 note. No new hard-coded clinical rule in `ccd0f4b` or `8437a29` (the guards are product behaviour).
+- Safety Risk Register: PS-213 mitigated in code (CGR-249, green on `ccd0f4b`); PS-214 note (confirmed; cover path); **PS-215** new (CGR-252).
+
+### Tests
+
+I ran no NAVORA test. CI results above are from the job logs I read on `ccd0f4b` and `8437a29`; where only check-run conclusions were read, I say so. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-18 08:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `18ed302` and `c2e877b`). **No gate** (`cra-gate: #1421 c2e877b` not given): `c2e877b` is the red-first commit for CGR-249 (pgTAP 148 §12, vitest), red as intended; the code (migration 0142) is not on the PR yet. CGR-248 is now **green** on `18ed302` (pgTAP 058 «ok»). I find one more person path that changes a take visit while its take stays live: **CGR-250 (blocking for this gate)**, the absence command clears the named member of a `planned` take visit after `starts_at`, so nobody sees or can take it. Read on `recovery/main` `683bb23`.
 
 ### What I read

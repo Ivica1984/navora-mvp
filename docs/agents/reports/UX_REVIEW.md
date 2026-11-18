@@ -6,6 +6,37 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 08:48 CET · `uxa`: #1421 (BK-e1b) read on code head `ccd0f4b` (head `f6b3f56`), no gate (CGR-250, CGR-251, CGR-246 and the take-card Playwright test not built): CGR-249 screen part met in code; UXR-242 closed (not reachable); UXR-244 (low, `take_visit` refusal reads «Planung konnte nicht gespeichert werden.»)
+
+**State.** `recovery/main` at `f87e290` (PO merge #1438). Merged since my 07:49 section: my #1435 (`8ffcfaf`), #1436 (`aia`), #1437 (`lca`), #1438 (`cra` 08:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `f6b3f56`; code head `ccd0f4b`, the head commit adds the `eng` journal only), #1439 (`po` 08:39, docs: CGR-250 choice (b), CGR-251, writer list into BK-e1b; Blueprint 3.2.54), #1084, #3. Check-run API (read by me, not job logs): `ccd0f4b` and `f6b3f56` `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed success. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14407918452 (`ui-screenshots`, `f6b3f56`): download refused by the session proxy (blob host, empty file), as in my last runs. **No screenshots were available.** Review from code.
+
+### #1421 on `ccd0f4b`: screen reading (no gate)
+
+- **CGR-249, screen part: met in code** (IMPLEMENTED on the PR head, not merged). `canMoveToToday(…, fromTake)` returns false for a take visit (`src/features/field/rules.ts:94-102`; `field-client.tsx:473`), so a take card shows no «Heute machen». Migration 0142 makes `move_visit_to_today`, `reschedule_visit`, `remove_planned_visit`, `take_open_visit` and `propose_visit_responsible` refuse a take visit with `take_visit`. Vitest `bk-e1b-cgr249-take-card-no-move.test.ts` written first (`c2e877b`). Concur with the PO 07:39 (1) remedy at screen level for the button.
+- **UXR-242: closed** (evidence: `eng` 08:14, pgTAP 148 on `ccd0f4b`: `confirm_client_order` refuses a missing, empty or unlisted postcode and a member cannot write orders directly; `db` success on `ccd0f4b` per the check-run API). I agree with PO 08:39: a take visit without a place cannot exist, so no change is needed.
+- **`take_visit` on `/team` (`eng` 08:14 deviation 2, PO 08:39 asked):** see UXR-244. From my reading the `/team` «Verschieben» and «Entfernen» controls sit on visits of a case (`team-client.tsx:1165-1173`, data from `public.team_cases`, «Running cases … with upcoming visits», `src/features/team/queries.ts:23-26`), and a take visit is written with `case_id` null (0138:84-87), so a colleague is not offered those controls on a take visit. Reachability on `/team`: UNKNOWN from code reading; `eng` to state it.
+- UXR-237 to UXR-241 close when the BK-e1b take-card Playwright test at 390 × 844 is on the head and the slice is merged (PLANNED; no e2e file on `ccd0f4b` matches `take-cannot-go`). #1428 stays open until the merge. UXR-243 is placed in BK-e3 by PO 08:39 (#1439, not merged); it stays open.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-244 | `/field` «Heute machen» and `/team` «Verschieben» / «Entfernen», a member or colleague on a take visit (BK-e1b, #1421) | low | The new server result `take_visit` of the plan commands is not mapped: `planResult` turns any result other than `ok`, `duplicate` and `rejected` into «Planung konnte nicht gespeichert werden.» (`src/features/team/commands.ts:151`), and `moveVisitToToday` uses it too (`:234`). The vitest case «the server refusal `take_visit` of a move reads as the take line» checks only `LIFECYCLE_MESSAGES.take_visit` (the `cancel_visit` path), not the move path, so it passes while a refused move would show the generic line. No button reaches it as built (hidden on `/field`; not offered on `/team` per my reading above), so the impact is low; it matters for H-BK-07:39 and any later screen that reaches these commands. | `ccd0f4b`: `commands.ts:151,234`; `tests/unit/bk-e1b-cgr249-take-card-no-move.test.ts` (third case); `lifecycle/rules.ts:77` | §4 a refusal names its reason in words; PO 07:39 (1) «a server refusal of a take visit shows the same `take_visit` line» | In `planResult`, map `take_visit` to one line: for the named member on `/field` the existing take line (`TAKE_CANNOT_GO_LINE`); for a colleague on `/team` a line in colleague words, PROPOSED «Nicht gespeichert: Diese Schicht kommt aus einer Übernahme und bleibt, bis sie im Team geklärt ist.» (`cra` confirms). Vitest: `planResult("reschedule_visit", {result: "take_visit"}, null)` and the `move_visit_to_today` path return that line, never «Planung konnte nicht gespeichert werden.». Not a BK-e1b gate condition if `eng` states that `/team` never lists a take visit. | none (low) |
+
+**Closed:** UXR-242 (above).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.54 (#1439) changes BK rows per the PO PR, not §5 or §6.
+
+**Design system:** version 103 (§4 notes: CGR-249 screen part built on #1421, not merged; UXR-242 closed; PROPOSED note «a server refusal is shown in its own words on every screen that can receive it», UXR-244). No token change.
+
+**Gate:** none on #1421 `ccd0f4b` / `f6b3f56`: CGR-250, CGR-251, CGR-246 and the take-card Playwright test are not built (PO 08:39). From the screen side no blocking UX finding remains on `ccd0f4b` besides the Playwright test; UXR-244 is not blocking.
+
+**Waiting:** `po` (merge this PR and #1439); `eng` (#1421: CGR-250, CGR-251, CGR-246, take-card Playwright, UXR-244 mapping and `/team` reachability); `cra` (UXR-244 colleague line); `lca` (CGR-246 team line name).
+
+---
+
 ## 2026-11-18 07:49 CET · `uxa`: #1421 (BK-e1b) read on code head `18ed302` (head `d4df511`), no gate (CGR-249, CGR-246 and the take-card Playwright test not built): UXR-240 and UXR-241 met in code; UXR-243 (low, the «Kannst du nicht?» line names no way to the team); screen view on H-BK-06:39
 
 **State.** `recovery/main` at `47a6f5d` (PO merge #1433). Merged since my 06:48 section: my #1432 (`2b0a4b5`), #1433 (`cra` 07:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `d4df511`; code head `18ed302`, the head commit adds the `eng` journal only), #1434 (`po` 07:39, docs: CGR-249 and the cover property into BK-e1b; Blueprint 3.2.53), #1084, #3. Check-run API (read by me, not job logs): `18ed302` `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed success; `d4df511` `app` success, `db`, `e2e`, `ui-screenshots` in progress at my read. I ran no NAVORA test.
