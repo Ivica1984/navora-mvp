@@ -338,16 +338,17 @@ begin
   return res;
 end;
 $$;
-create temp table cov as select pg_temp.cs('o1') as before;
-select is(pg_temp.cancel('01', 'o1', 'ffff0000-0000-4000-8148-000000000060'), 'take_visit',
+-- O2 (M2 named, taken by M1, both T1) is the live planned take visit here (O1 was released in §7).
+create temp table cov as select pg_temp.cs('o2') as before;
+select is(pg_temp.cancel('02', 'o2', 'ffff0000-0000-4000-8148-000000000060'), 'take_visit',
           'CGR-248: the named member cannot cancel her take visit; the stated reason is take_visit');
-select is(pg_temp.visit('o1') ->> 'status', 'planned', 'CGR-248: the take visit stays planned');
-select ok((pg_temp.live('o1')).member_id = pg_temp.m('01'), 'CGR-248: the take stays live with her');
-select is(pg_temp.cs('o1'), (select before from cov), 'CGR-248: the client cover is unchanged by the refusal');
-select is((select count(*)::int from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid
+select is(pg_temp.visit('o2') ->> 'status', 'planned', 'CGR-248: the take visit stays planned');
+select ok((pg_temp.live('o2')).member_id = pg_temp.m('02'), 'CGR-248: the take stays live with her');
+select is(pg_temp.cs('o2'), (select before from cov), 'CGR-248: the client cover is unchanged by the refusal');
+select is((select count(*)::int from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o2') ->> 'id')::uuid
              and n.kind = 'cancelled'), 0, 'CGR-248: no cancellation note is written');
-select is(pg_temp.cancel('02', 'o1', 'ffff0000-0000-4000-8148-000000000061'), 'take_visit',
-          'CGR-248: a colleague of the same team cannot cancel it either');
+select is(pg_temp.cancel('01', 'o2', 'ffff0000-0000-4000-8148-000000000061'), 'take_visit',
+          'CGR-248: the taker, a colleague of the same team, cannot cancel it either');
 select is(pg_temp.cancel('03', 'o4', 'ffff0000-0000-4000-8148-000000000062'), 'take_visit',
           'CGR-248: a take visit on the way is refused as well');
 select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-248: the visit on the way is unchanged');

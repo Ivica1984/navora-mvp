@@ -7,7 +7,8 @@
 --   for every caller, before anything is written: visit, take, client cover and status notes stay unchanged. The
 --   member's way out before «unterwegs» stays the release with a reason (CGR-242, `release_named_take`).
 -- Unchanged: signature, grants, reason list, the CSR1 / CGR-34 responsible_absent rule and every visit not from a take.
--- Idempotent (create or replace); no data change.
+-- The body is the 0054 body as rewritten by 0067 (ADR-081: private.now(), private.at_zurich). Idempotent (create or
+-- replace); no data change.
 
 create or replace function public.cancel_visit(p_visit_id uuid, p_reason_code text, p_reason text, p_idempotency_key uuid)
 returns text
@@ -34,7 +35,7 @@ begin
   if v.status not in ('planned', 'on_the_way') then return private.end_command('wrong_state'); end if;   -- before it starts
   -- CSR1 / CGR-34: the CGR-32 condition, read before the status changes; stored, never taken from the caller.
   absent := v.status = 'planned'
-            and v.visit_date < (now() at time zone 'Europe/Zurich')::date
+            and v.visit_date < private.at_zurich(private.now())::date  -- ADR-081 form (0067 rewrote 0054)
             and private.visit_responsible_absent(v.id);
   insert into public.visit_status_notes (organization_id, visit_id, kind, reason_code, note, actor_id, idempotency_key,
                                          responsible_absent)
