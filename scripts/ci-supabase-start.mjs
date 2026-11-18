@@ -11,6 +11,7 @@
 //   node scripts/ci-supabase-start.mjs --range                 prints "54320-54329" (for sysctl)
 //   node scripts/ci-supabase-start.mjs --check-config <toml>   exit 1 if a port in config.toml is outside the range
 //   node scripts/ci-supabase-start.mjs --classify <log>        prints the infrastructure annotation (or nothing), exit 0
+//   node scripts/ci-supabase-start.mjs --fallback <log>        prints the registry for the one ADR-204 retry (or nothing)
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
@@ -28,7 +29,9 @@ export function configPorts(toml) {
 //   failed to bind host port 0.0.0.0:54324/tcp: address already in use
 //   failed to bind host port for 0.0.0.0:54324:172.18.0.7:8025/tcp: address already in use
 const BIND = /failed to bind host port (?:for )?[0-9a-f.:[\]]*?:(\d+)(?::[0-9.]+:\d+)?\/tcp: address already in use/g;
-const REGISTRY = /toomanyrequests: (?:Rate exceeded|Data limit exceeded)/;
+// Docker Hub: «toomanyrequests: …». public.ecr.aws (the Supabase CLI default): «error from registry: Rate exceeded»
+// (job 134593805851, 2026-11-18; ADR-204).
+const REGISTRY = /toomanyrequests: (?:Rate exceeded|Data limit exceeded)|error from registry: Rate exceeded/;
 const SQL = /\bERROR:|SQLSTATE/;
 
 /**
@@ -53,9 +56,23 @@ export function formatAnnotation({ kind, ports }) {
     return `::error title=infrastructure: runner port in use (${ports.join(", ")})::Docker could not bind ${ports.join(", ")} on the runner (ADR-174). ${tail}`;
   }
   if (kind === "registry-limit") {
-    return `::error title=infrastructure: registry limit::The image registry refused the pull (toomanyrequests). ${tail}`;
+    return `::error title=infrastructure: registry limit::The image registry refused the pull (rate limit). ${tail}`;
   }
   return "";
+}
+
+/**
+ * ADR-204: the registry to retry from once, or "" for no retry. Only a registry limit, only with both Docker Hub
+ * secrets set, and never a second time (the registry is already the fallback). Every other failure: no retry (ADR-174).
+ * @param {{ kind: string, ports?: number[] }} c
+ * @param {Record<string, string | undefined>} env
+ */
+export function fallbackRegistry(c, env) {
+  const set = (v) => typeof v === "string" && v.trim() !== "";
+  if (c?.kind !== "registry-limit") return "";
+  if (!set(env?.DOCKERHUB_USERNAME) || !set(env?.DOCKERHUB_TOKEN)) return "";
+  if (set(env?.SUPABASE_INTERNAL_IMAGE_REGISTRY)) return "";
+  return "docker.io";
 }
 
 function main(argv) {
@@ -77,7 +94,12 @@ function main(argv) {
     if (line) process.stdout.write(`${line}\n`);
     return 0;
   }
-  process.stderr.write("usage: ci-supabase-start.mjs --range | --check-config <toml> | --classify <log>\n");
+  if (cmd === "--fallback" && file) {
+    const reg = fallbackRegistry(classifyStartFailure(readFileSync(file, "utf8")), process.env);
+    if (reg) process.stdout.write(`${reg}\n`);
+    return 0;
+  }
+  process.stderr.write("usage: ci-supabase-start.mjs --range | --check-config <toml> | --classify <log> | --fallback <log>\n");
   return 2;
 }
 

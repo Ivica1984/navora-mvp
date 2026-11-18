@@ -74,6 +74,9 @@ jobs:
           version: 2.121.0
       - name: Start local Supabase
         if: steps.detect.outputs.present == 'true'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: scripts/ci-supabase-start.sh
       - name: Apply migrations from scratch
         if: steps.detect.outputs.present == 'true'
@@ -220,6 +223,9 @@ jobs:
         run: scripts/ci-e2e-day-guard.sh wait
       - name: Start local Supabase (applies migrations + synthetic seed)
         if: steps.scope.outputs.full == 'true'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: scripts/ci-supabase-start.sh
       - name: Export local Supabase URL and key (names only are logged)
         if: steps.scope.outputs.full == 'true'
