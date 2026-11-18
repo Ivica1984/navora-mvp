@@ -22,8 +22,8 @@
 --     to the named member only.
 --   * CGR-242 (f): «Ich kann nicht» before the start on a take awaiting the acknowledgement writes and ends nothing.
 --   * CGR-244 (PO 04:39): a take whose visit is under way before the start (F1 «unterwegs») is never released: her
---     absence keeps the take and the visit, the client still reads «gedeckt»; «Ich kann nicht» is refused with the
---     visible reason `visit_under_way`.
+--     absence keeps the take and the visit (the client view follows the unchanged ADR-199 (5) safety net: not
+--     «gedeckt»); «Ich kann nicht» is refused with the visible reason `visit_under_way`.
 -- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
 -- OPEN). Synthetic data only; rolled back.
 --
@@ -32,7 +32,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(58);
+select plan(59);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -298,13 +298,18 @@ select pg_temp.clock('2026-11-23 07:30:00+01');
 select is(pg_temp.depart('03', 'o4', 'ffff0000-0000-4000-8148-000000000041'), 'ok',
           'precondition: M3 sets «unterwegs» before the start (F1 has no time guard)');
 select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'precondition: the visit is on the way');
+select is(pg_temp.cs('o4'), 'covered', 'precondition: on the way, the client reads «gedeckt»');
 insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000002', '00000000-0000-4000-a148-000000000003',
    timestamptz '2026-11-23 07:00:00+01', timestamptz '2026-11-23 13:00:00+01', '00000000-0000-4000-a148-000000000003');
 select ok((pg_temp.live('o4')).member_id = pg_temp.m('03'), 'CGR-244: her absence does not release the take while her visit is under way');
 select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-244: the visit is unchanged');
 select ok(pg_temp.visit('o4') ->> 'system_end_reason' is null, 'CGR-244: no system end reason');
-select is(pg_temp.cs('o4'), 'covered', 'CGR-244: the client still reads «gedeckt»');
+-- Deviation from the `cra` CGR-244 case («client still gedeckt»), recorded for `cra` (ADR-203 (10)): the ADR-199 (5)
+-- safety net in private.order_cover is unchanged, so a live take whose member no longer passes is never shown as
+-- covered. Here: not covered, the take is NOT re-broadcast (it stays live). Not changed by `eng` (safety rule).
+select is(pg_temp.cs('o4'), 'not_covered',
+          'CGR-244 with ADR-199 (5): the client is not shown «gedeckt» while the absence conflicts; the take is not re-broadcast');
 select is(pg_temp.release('03', 'o4', 'ffff0000-0000-4000-8148-000000000042'),
           jsonb_build_object('result', 'refused', 'reason', 'visit_under_way'),
           'CGR-244: «Ich kann nicht» is refused with the visible reason visit_under_way');
