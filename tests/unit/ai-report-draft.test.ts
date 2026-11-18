@@ -8,6 +8,7 @@ import {
   createModelProvider,
   ModelConfigError,
 } from "@/lib/ai/report-draft/model-provider";
+import { ANTHROPIC_HOST, createAnthropicProvider } from "@/lib/ai/report-draft/anthropic-provider";
 import { RULE_ORIGIN_LABEL, ruleProvider } from "@/lib/ai/report-draft/rule-provider";
 import { MAX_INPUT_CHARS, segmentInput } from "@/lib/ai/report-draft/segment";
 import type { DraftInput, Provider, ProviderOutput } from "@/lib/ai/report-draft/contract";
@@ -253,5 +254,95 @@ describe("buildReportDraft", () => {
     const d = await buildReportDraft({ text: "x".repeat(MAX_INPUT_CHARS + 1), facts: [] }, p);
     expect(d).toEqual({ ok: false, error: "input_too_long", origin: "model" });
     expect(p.propose).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Founder decision 2026-11-18 ca. 23:58 (live session with `eng`): Claude through the Anthropic API directly,
+ * synthetic data, staging only. Exception to FE-085 (A) for Phase A synthetic data; real persons keep D-35.
+ */
+describe("createAnthropicProvider (Claude, founder decision 2026-11-18)", () => {
+  it("allows exactly the Anthropic API host", () => {
+    expect(ANTHROPIC_HOST).toBe("api.anthropic.com");
+    expect(() => createAnthropicProvider({ apiKey: "", model: "c", fetch: vi.fn() })).toThrow(/api_key_missing/);
+    expect(() => createAnthropicProvider({ apiKey: "k", model: "", fetch: vi.fn() })).toThrow(/model_missing/);
+  });
+
+  it("sends only segments and facts to the messages API and parses the JSON text", async () => {
+    const answer = { lines: [{ text: "Klientin wach.", sources: ["s1"] }], unplaced: ["s2"] };
+    const fetch = vi.fn(async () =>
+      new Response(JSON.stringify({ content: [{ type: "text", text: JSON.stringify(answer) }] }), { status: 200 }),
+    );
+    const p = createAnthropicProvider({ apiKey: "k", model: "claude-x", fetch });
+    expect(p.kind).toBe("model");
+    expect(p.label).toMatch(/^KI-Entwurf · Claude claude-x · synthetische Daten/);
+    const i = input("Klientin wach. Verband gewechselt.");
+    expect(await p.propose(i)).toEqual(answer);
+
+    const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.anthropic.com/v1/messages");
+    const h = init.headers as Record<string, string>;
+    expect(h["x-api-key"]).toBe("k");
+    expect(h["anthropic-version"]).toBe("2023-06-01");
+    const body = JSON.parse(String(init.body));
+    expect(body.model).toBe("claude-x");
+    expect(body.temperature).toBe(0);
+    expect(body.messages).toHaveLength(1);
+    expect(JSON.parse(body.messages[0].content)).toEqual({ segments: i.segments, facts: i.facts });
+  });
+
+  it("accepts a JSON answer wrapped in a code fence, refuses anything else", async () => {
+    const answer = { lines: [], unplaced: [] };
+    const fenced = createAnthropicProvider({
+      apiKey: "k",
+      model: "c",
+      fetch: vi.fn(async () => new Response(JSON.stringify({ content: [{ type: "text", text: "```json\n" + JSON.stringify(answer) + "\n```" }] }))),
+    });
+    expect(await fenced.propose(input("A."))).toEqual(answer);
+    const junk = createAnthropicProvider({
+      apiKey: "k",
+      model: "c",
+      fetch: vi.fn(async () => new Response(JSON.stringify({ content: [{ type: "text", text: "Hier ist der Bericht." }] }))),
+    });
+    await expect(junk.propose(input("A."))).rejects.toThrow(/model_output_invalid/);
+    const down = createAnthropicProvider({ apiKey: "k", model: "c", fetch: vi.fn(async () => new Response("x", { status: 529 })) });
+    await expect(down.propose(input("A."))).rejects.toThrow(/model_http_529/);
+  });
+});
+
+describe("resolveReportDraftProvider with AI_MODEL_PROVIDER=anthropic (staging only)", () => {
+  const env = {
+    AI_REPORT_DRAFT_MODE: "model",
+    AI_MODEL_PROVIDER: "anthropic",
+    AI_MODEL_API_KEY: "k",
+    AI_MODEL_NAME: "claude-x",
+    NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co",
+  };
+
+  it("uses Claude on staging in a simulation org", () => {
+    const r = resolveReportDraftProvider(env, { simulationOrg: true, fetch: vi.fn() });
+    expect(r.provider?.kind).toBe("model");
+    expect(r.provider?.label).toMatch(/Claude/);
+  });
+
+  it("stays on the rule substitute outside staging, with the stop switch, or outside a simulation org", () => {
+    const cases: Array<[Record<string, string>, boolean, string]> = [
+      [{ ...env, NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321" }, true, "not_staging"],
+      [{ ...env, NEXT_PUBLIC_SUPABASE_URL: "https://jwmfxrmougneeceldhsa.supabase.co" }, true, "live_project"],
+      [{ ...env, AI_KILL_SWITCH: "on" }, true, "kill_switch"],
+      [env, false, "not_simulation_org"],
+      [{ ...env, AI_MODEL_API_KEY: "" }, true, "api_key_missing"],
+    ];
+    for (const [e, simulationOrg, reason] of cases) {
+      const r = resolveReportDraftProvider(e, { simulationOrg, fetch: vi.fn() });
+      expect(r.provider?.kind, reason).toBe("rule");
+      expect(r.modelBlocked, reason).toBe(reason);
+    }
+  });
+
+  it("refuses an unknown provider name", () => {
+    const r = resolveReportDraftProvider({ ...env, AI_MODEL_PROVIDER: "other" }, { simulationOrg: true, fetch: vi.fn() });
+    expect(r.provider?.kind).toBe("rule");
+    expect(r.modelBlocked).toBe("provider_unknown");
   });
 });
