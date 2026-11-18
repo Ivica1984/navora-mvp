@@ -33,6 +33,9 @@
 --     path raises the P1 signal `take_member_dropped` to her own team and to her, even when she is absent; never to
 --     another team, the client or another organisation; Operations of the organisation read the OPS1 row with a code
 --     as detail, never the absence type; take and visit stay unchanged; the episode ends with its cause.
+--   * CGR-253 / UXR-245 (PO 11:39 (1), choice (b); migration 0146): `take_signal` on a `take_member_dropped` signal is
+--     refused for every caller (the named member, a colleague, Operations) with the reason `kind_not_takeable`; no
+--     `signal_takes` row, the signal stays untaken, and the SIG1 step to Operations runs at its time as without a take.
 -- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
 -- OPEN). Synthetic data only; rolled back.
 --
@@ -41,7 +44,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(146);
+select plan(154);
 
 -- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
 -- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
@@ -339,6 +342,21 @@ begin
 end;
 $$;
 
+-- CGR-253 helper: `take_signal` on the open take_member_dropped signal of an order's take visit, as `uid`.
+create function pg_temp.take_drop(uid text, k text, key text) returns jsonb language plpgsql as $$
+declare
+  res jsonb;
+  sid uuid := (pg_temp.drop_signal(k)).id;
+begin
+  perform pg_temp.act_as(uid);
+  set local role authenticated;
+  res := public.take_signal(sid, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+
 -- 10. CGR-244: a take whose visit is under way before the start is never released ----------------------------------------
 select is(pg_temp.take('03', 'o4', '02', '03', 'ffff0000-0000-4000-8148-000000000040') ->> 'result', 'ok',
           'M3 takes O4 naming herself');
@@ -380,6 +398,16 @@ select is((select d.exception_type || ' ' || d.detail || ' ' || r.priority
           'CGR-246 / D-44 (2): the OPS1 row is P1 with a code as detail, never the absence type');
 select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
           'CGR-246: the signal changes neither take nor visit (CGR-244)');
+-- CGR-253 (PO 11:39 (1)(a)): nobody can take this kind, also not Operations (here a recipient by the fallback).
+select is(pg_temp.take_drop('00000000-0000-4000-a000-0000000009e5', 'o4', 'ffff0000-0000-4000-8148-000000000043'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (a): Operations cannot take a take_member_dropped signal (kind_not_takeable)');
+select is(pg_temp.take_drop(pg_temp.m('03')::text, 'o4', 'ffff0000-0000-4000-8148-000000000044'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (a): the named member herself (absent, on the way) cannot take it');
+select ok(not exists (select 1 from public.signal_takes t where t.signal_id = (pg_temp.drop_signal('o4')).id)
+          and (pg_temp.drop_signal('o4')).taken_by is null,
+          'CGR-253 (a): no signal_takes row, the signal stays untaken');
 
 -- 11. CGR-248 / UXR-241 (PO 06:39 (2)): no person command ends a take visit while its take stays live ------------------
 -- `cancel_visit` refuses a visit written from a take (order_take_id not null) with the stated reason `take_visit`;
@@ -713,6 +741,27 @@ select ok(not pg_temp.sees_drop(pg_temp.m('03')::text, 'o7')
           and not pg_temp.sees_drop('00000000-0000-4000-a000-000000000903', 'o7'),
           'CGR-246 (b) / D-44 (2): another team, the client and another organisation read nothing');
 select is(pg_temp.slot('o7'), (select s from o7_slot), 'CGR-246 (b): the signal leaves the take visit unchanged');
+-- CGR-253 / UXR-245 (PO 11:39 (1)(a), choice (b)): no «Ich übernehme» for this kind, for any recipient.
+select is(pg_temp.take_drop(pg_temp.m('02')::text, 'o7', 'ffff0000-0000-4000-8148-000000000107'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (a): the named member (absent, after the start) cannot take her own take_member_dropped signal');
+select is(pg_temp.take_drop(pg_temp.m('01')::text, 'o7', 'ffff0000-0000-4000-8148-000000000108'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (b): a colleague of her team on duty cannot take it either');
+select ok(not exists (select 1 from public.signal_takes t where t.signal_id = (pg_temp.drop_signal('o7')).id)
+          and (pg_temp.drop_signal('o7')).taken_by is null
+          and pg_temp.sees_drop(pg_temp.m('02')::text, 'o7') and pg_temp.sees_drop(pg_temp.m('01')::text, 'o7'),
+          'CGR-253: no signal_takes row; the signal stays open and untaken for both recipients');
+-- The SIG1 step to Operations runs as without any take: the untaken threshold (`signal_untaken`, 15 min, PROVISIONAL
+-- D-28; not set here) passes and Operations (9e5) receives it with the reason `untaken`.
+select pg_temp.clock(pg_temp.zurich((select d + 1 from d250), time '09:16'));
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o7')).escalated_at is not null
+          and exists (select 1 from public.signal_deliveries d where d.signal_id = (pg_temp.drop_signal('o7')).id
+                      and d.recipient_id = '00000000-0000-4000-a000-0000000009e5' and d.reason = 'untaken'),
+          'CGR-253 (a): after the untaken threshold the step reaches Operations (reason untaken), as without a take');
+select ok((pg_temp.drop_signal('o7')).taken_by is null and (pg_temp.live('o7')).member_id = pg_temp.m('02'),
+          'CGR-253: after the step the signal is still untaken and the take still live with her');
 -- (d) no cover or proposal path reaches it
 select ok(not exists (select 1 from private.cover_open_visits('00000000-0000-4000-b000-000000000019') x
                       where x.id = (pg_temp.visit('o7') ->> 'id')::uuid)
