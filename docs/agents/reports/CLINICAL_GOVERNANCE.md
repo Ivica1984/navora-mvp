@@ -16,6 +16,64 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 05:26 CET: re-review of draft **#1421** (BK-e1b, visit from the take; `eng`, head `7c69725`, CI `db`, `e2e`, `ui-screenshots` in progress at my read, `app` success). **No gate yet** (draft; no `db` result on the head). In code and pgTAP on `7c69725`: **CGR-242 (a), (c), (f)** and **CGR-244** are built as asked (migration 0139). One residual gap: a take kept because her visit is already «unterwegs» stays silent when she becomes unavailable (**CGR-246**). **CGR-247** (advisory, S1 before real persons): a take visit has no client identifier. **CGR-212 closed** on `recovery/main` `f7315b6`. Read on `recovery/main` `f7315b6`.
+
+### What I read
+
+- Merges since my 04:27 section: #1417 (BK-e1a) as `3d9f1e6`, #1420 (`uxa`), #1422 (`lca`), #1423 (mine), #1424 (`po` 04:39: brief `BK.md` §PO amendment 04:39, Blueprint 3.2.50 header, §8 row BK and version row only, `BK_ROADMAP.md`). `git diff b31db81 f7315b6 -- docs/product docs/architecture`: Blueprint (3 lines) and `BK_ROADMAP.md` only; Annex B §1 (20 guarantees), the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** new commits since `cc12710`: `4d0d032` (Zurich clock through `private.at_zurich`, ADR-081), `b4aed89` (merge of `recovery/main`), `a13eba9` (migration `20261021000139_bk_e1b_take_end_reason_and_guard.sql`, pgTAP 148 now plan 58, `src/features/field/take-end.ts`, `/field` card, `offer-rules.ts` text, vitest `bk-e1b-cgr242c-take-end.test.ts`), `7c69725` (pgTAP fix). CI on `4d0d032` was green per the `eng` PR comment (`db` «Files=148 … PASS», `e2e` 189 passed); I did not read those logs and that head does not contain 0139. On `7c69725` (check-runs, this run): `app` success; `db`, `e2e`, `ui-screenshots` in progress. **No result for 0139 is claimed.**
+- Open #1425 (`uxa` 04:48, docs): UXR-238 (released take visit read «Abgesagt»), UXR-239 (heading «Klient:in ohne Namen»), UXR-237 words, view on H-BK-04:39. Read for the word confirmations asked of me.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `7c69725` | **not cleared.** Draft; `db` and `e2e` running. CGR-242 (a), (c), (f) and CGR-244 are met in code and pgTAP (below), pending green `db`. I clear the final non-draft head when `db` and `e2e` are green on it and the PO has placed CGR-246 (in BK-e1b, or as a named Phase A limit in the acceptance record). Gate «Simulation, synthetic data» only. |
+| #1417 BK-e1a | merged `3d9f1e6` | gate `a5bae13` was given 03:26; CGR-212 closed below. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-242** (status) | #1421 `7c69725` | advisory; BK-e1b condition; S1 before real clients | **Built.** (a) `care_visits.system_end_reason` with a check (only on `cancelled` take visits), written by `end_take_visit` from the stored `release_reason` and an overlapping own absence; `write_visit_event` writes no «cancelled» timeline event for it, the audit trigger records the column; (c) `field_visits` returns the code, the card shows «Nicht mehr deine Schicht» and «Die Übernahme gilt nicht mehr: <reason>. Das Angebot geht wieder an alle passenden Teams.», never «Abgesagt» (this also meets UXR-238); (f) «Ich kann nicht» on a take awaiting the acknowledgement writes and leaves no visit. Closes when merged with `db` green. Lead time for a re-opened order stays UNKNOWN (Clinical Owner). | 0139 §1-§3, §5; `take-end.ts`; `field-client.tsx` (`take-ended`); pgTAP 148 §7 (reason `take_released_absence`, no `visit_events` «cancelled», no status note, only the named member reads it), §9 | green `db` (pgTAP 148) and `app` (vitest) on the final head |
+| **CGR-244** (status) | #1421 `7c69725` | advisory; BK-e1b condition; S1 before real clients | **Built.** `private.take_visit_under_way` (any status other than `planned`/`cancelled`); `recheck_member_takes` skips such a take; `release_named_take` refuses with `visit_under_way` before any other check after the named-member test. **Correction to my 04:27 text:** the hand path was not a live path before 0139: every take that has a visit is self-named or acknowledged, and `release_named_take` already refused both (`self_named`, `already_acknowledged`, 0136:325-331). The automatic path (absence, membership end) was the real one and is now closed. | 0139 §4; pgTAP 148 §10 (absence while `on_the_way`: take live, visit unchanged, no reason; hand release refused) | green `db` on the final head |
+| **CGR-246** | #1421 `7c69725`, `recheck_member_takes` (0139 §4) | **advisory** in the simulation; proposed BK-e1b condition; **S1 before real clients** | The take is kept while her visit is under way, which is right (it follows CGR-10/CGR-18: a visit on the way is never released, 0046 header (2)), but the kept take is **silent**: `recheck_member_takes` computes `step < 4` and drops it. A member who records an absence (or whose access ends) after tapping «unterwegs» before the start leaves the client reading «gedeckt» (pgTAP 148 §10 asserts this), `visit_overdue` does not fire (status is not `planned`), and the first alert is `visit_stuck` after the PROVISIONAL threshold from the status change (0038:115-131, D-28). F1 has no way back from `on_the_way` (0024:110-117), so an early or mistaken «unterwegs» locks the take until the start. The refusal text for `visit_under_way` («… bitte im Team klären») names no action the system supports. | 0139 §4; pgTAP 148 §10; 0038:115-131; 0024:110-117; `offer-rules.ts` `visit_under_way`; H-01; PS-210 | When a kept take's named member no longer passes (`step < 4`) and her visit is under way, raise an immediate visible signal to her team and to her (an existing exception type or a new one; no threshold invented); pgTAP: gedeckt take, `on_the_way`, her absence → signal for the own team, none for another team, take and visit unchanged. What the client reads in that state and who acts: UNKNOWN (Clinical Owner, PO). If the PO defers it, the BK-e acceptance record names it as a Phase A limit. |
+| **CGR-247** | #1421 `7c69725`, `write_take_visit` (0138); UXR-239 | **advisory**; **S1 before real persons**; not a BK-e1b condition in the simulation | A take visit has no case (`case_id` null) and no client identifier the named member may read; the card heading reads «Klient:in ohne Namen». With real persons the carer cannot confirm at the door that she is with the right person (wrong-person care or documentation, H-47). This is the identification half of CGR-243 (address). | 0138 `write_take_visit`; `field-client.tsx:515`, `:521`; UXR-239; CGR-243; H-47 | Before real persons: the named member of a live gedeckt take reads an identifier sufficient for positive identification, from a named source, removed when the take ends; pgTAP on who reads it. Which identifier: UNKNOWN (`lca`, Clinical Owner). In the simulation the `uxa` heading «Übernommene Schicht» is acceptable and the record names the gap. |
+
+### Word confirmations asked of me (PO 04:39, `uxa` 03:50 and 04:48)
+
+- **CGR-242 (c) / UXR-238:** the built words match `uxa` 03:50 and do not read as a cancellation by the client or the team; confirmed from the clinical side. The reason names her own absence to herself only (`lca` confirms visibility).
+- **UXR-237** («<plz> <ort> · Strasse fehlt – wird in der Simulation nicht übermittelt»): confirmed **for the simulation only**; before real persons CGR-243 (a) stands (the street reaches the named member).
+- **UXR-239** («Übernommene Schicht»): acceptable in the simulation; CGR-247 for real persons.
+- **CGR-243 (c), CGR-240 (a)** words: no objection; CGR-240 (a): whether «nicht relevant» needs a reason stays UNKNOWN (Clinical Owner).
+
+### View on H-BK-04:39 (ordered activities as a tick list on the card)
+
+From the safety side the proposal can meet CGR-245, if: (i) each tick is a per-item act of the performing person, stored with author and time (device time and server time when offline); (ii) nothing is pre-ticked and there is no «alle erledigt» (CGR-213 (b) (i)); (iii) «nicht erledigt» is an explicit state, and an untouched item is listed above the signature, never silently dropped or signed as done; (iv) the signed report copies the ticks read-only. pgTAP: an unticked ordered tag is never in the signed services. **Whether a tick satisfies the documentation duty for a performed service, and whether «nicht erledigt» needs a reason, is not mine to decide: UNKNOWN, Clinical Owner (D-27).**
+
+### Answers and decisions requested
+
+- **`eng`:** read `db` and `e2e` on the final head; CGR-246 signal and pgTAP if the PO places it; CGR-233 two-session test or a named reason; then out of draft and name the head.
+- **PO:** place CGR-246 (BK-e1b condition, or named Phase A limit); carry CGR-247 beside CGR-243 into the proposed address slice (BK-e3) as a before-real-persons condition.
+- **`lca`:** which client identifier the named member may read (CGR-247, UXR-239).
+- **Clinical Owner (when named, D-27):** what the client reads and who acts when a kept take's member is absent (CGR-246); tick as documentation (H-BK-04:39); lead time for a re-opened order (CGR-242).
+
+### Findings closed with evidence
+
+- **CGR-212** (`/field` hides a missing street): **closed.** Remedy merged with #1417 as `3d9f1e6` (`src/features/field/place.ts`). On `recovery/main` `f7315b6` (this run, job logs read): `e2e` job 134563648358 «✓ 73 … tests/e2e/bk-e1-field-place.spec.ts:14:5 › BK-e1 UXR-190: a visit card with a postcode and no street shows «Strasse fehlt» at 390 px», «189 passed (7.3m)»; `db` job 134563648445 «Files=147, Tests=5213 … Result: PASS». The `ci` run on `3d9f1e6` itself was cancelled by later merges; `f7315b6` contains it. PS-182 closed.
+
+### Register changes
+
+- Hazard Log: H-01 note (0139 built; CGR-246 cause; CGR-212 closed); **H-47** new (take visit without client identifier, CGR-247).
+- Clinical Rule Register: CR-230 note; **CR-231** new (PROPOSED): system end reasons and «no release while the take visit is under way», 0139.
+- Safety Risk Register: PS-182 closed; PS-206, PS-208 mitigated in code (CI pending); **PS-210** (CGR-246), **PS-211** (CGR-247) new.
+
+### Tests
+
+I ran no NAVORA test. CI on `7c69725` was in progress (`app` success only); no result for 0139 is claimed. The `4d0d032` green result is the `eng` comment, not read by me. The `f7315b6` results above are from job logs I read. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-18 04:27 CET: review of draft **#1421** (BK-e1b, visit from the take; `eng`, head `cc12710`, stacked on #1417, CI running at my read). **No gate yet** (`cra-gate: #1421 cc12710` not given): the head meets CGR-232, CGR-242 (b), (d) and the «after the start» half of (e), and keeps CGR-243 as the named Phase A limit, but CGR-242 (a) (system reason) and (c) (text on `/field`) are not built, and one new path leaves a live visit on a released take (**CGR-244**). **CGR-245** (advisory, for BK-e2): ordered activity tags are pre-written as services of the visit. #1417 gate unchanged. Read on `recovery/main` `b31db81`.
 
 ### What I read
