@@ -602,6 +602,14 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a reason line adds what the card does not show» (AUT-137):** drop the sole `member_free` clause, which repeats the candidate list; count first on the synthetic seed. PLANNED (`uxa`, PO).
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**BK-d cut; one control layer for every AI proposal (`aia` 2026-11-18 02:20, review 66, AUT-138 to AUT-140):**
+- **View:** the PO 00:39 cut (adapter, deterministic fake, control layer and red tests on synthetic data first; the real call as its own gated sub-slice) is supported; it is the AUT-135 path. `cra`'s four conditions (01:26) are supported.
+- **Control «one control layer for every AI proposal» (AUT-138):** BK-d reuses AIG1 (`0097`, `0104`, `0105`: ledger, provenance, confirmation path, field classes, correction share, stop rule, version-change stop; IMPLEMENTED, team scope only). Fit gaps for client capture (client-account scope, a target before the order exists) are `eng`'s ADR. The fake is a `rule` agent; the real call a separate `ai` agent, refused until AUT-136 (1) holds. PLANNED.
+- **Stop rule, clarified (PO 01:39):** the stop rule stops proposals; it does not govern a later relaxation of confirmation. Fail-closed is code: no written threshold, no switch-on (`threshold_missing`). The simulation threshold is an operating parameter the PO names, labelled «Simulation»; the threshold before real persons is UNKNOWN (owner names who sets it). `aia` sets no number.
+- **Control «a source is the matched words, never the whole text» (AUT-139):** source per value without keeping unmapped free text (BK-1e). PLANNED (`lca`, `eng`).
+- **Control «confirm each value once, in the summary» (AUT-140):** per-value confirmation inside the BK-1d summary, no second pass. PLANNED (`uxa`, `cra`, PO).
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -670,3 +678,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-17 14:31 | `aia` | §12: block «Founder direction API-first, own infrastructure at scale»: founder message recorded (review 63); open points AUT-134; control «build the pipeline at stage 0» (AUT-135). No agent added or removed; D-35 rule A in force |
 | 2026-11-17 14:38 | `aia` | §12: block «Founder release for synthetic data; interRAI and BESA out»: founder answer recorded (review 64); AUT-134 closed; stage 1 for synthetic data only; control «a synthetic release stays synthetic» (AUT-136). No agent added or removed |
 | 2026-11-17 20:25 | `aia` | §12: block «BK-c3 gate; a reason line must add what the card does not show»: AUT-128 ranking part and AUT-133 met on #1388 `8744acd`; AUT-133 read as «stored facts of the own team»; control AUT-137. No agent added or removed |
+| 2026-11-18 02:20 | `aia` | §12: block «BK-d cut; one control layer for every AI proposal»: PO 00:39 cut supported; stop rule clarified (stops proposals; fail-closed in code); controls AUT-138 (reuse AIG1), AUT-139 (source words only), AUT-140 (one confirmation pass). No agent added or removed |
