@@ -84,9 +84,9 @@ begin
   insert into public.care_visits (organization_id, team_id, case_id, visit_date, time_start, time_end, status,
                                   responsible_user_id, order_take_id, services_provided)
     values (k.organization_id, k.team_id, null,
-            (o.starts_at at time zone 'Europe/Zurich')::date,
-            (o.starts_at at time zone 'Europe/Zurich')::time,
-            (o.ends_at at time zone 'Europe/Zurich')::time,
+            private.at_zurich(o.starts_at)::date,
+            private.at_zurich(o.starts_at)::time,
+            private.at_zurich(o.ends_at)::time,
             'planned', k.member_id, k.id, o.activity_tags)   -- BK-7: the order's tags, no retyping
     returning id into vid;
   -- The order's activities, in the matrix catalogue only (QUAL1-6); the QUAL1 recheck on insert stays in force.
