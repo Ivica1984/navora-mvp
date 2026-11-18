@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  assistAllowed,
   assistFromDraft,
   composeSummary,
   decideLine,
@@ -22,10 +23,10 @@ import type { Provider } from "@/lib/ai/report-draft/contract";
  * Synthetic text only.
  */
 
-function draft(text: string, out?: { lines: { text: string; sources: string[] }[] }) {
+function draft(text: string, out?: { lines: { text: string; sources: string[] }[]; unplaced?: string[] }) {
   const segments = segmentInput(text);
   const input = { segments, facts: [{ id: "f1", text: "Einsatz 07:02–07:48" }] };
-  const checked = checkDraft(input, out ?? { lines: [], unplaced: [] });
+  const checked = checkDraft(input, { lines: out?.lines ?? [], unplaced: out?.unplaced ?? [] });
   return assistFromDraft({ ok: true, origin: "rule", label: ruleProvider.label, segments, ...checked });
 }
 
@@ -44,7 +45,7 @@ describe("report assist: decisions", () => {
     expect(b.lines.map((l) => l.decision)).toEqual(["taken", "open"]);
     expect(openCount(b)).toBe(1);
     // the module offers no bulk decision
-    expect(Object.keys(assistModule).filter((k) => /all/i.test(k))).toEqual([]);
+    expect(Object.keys(assistModule).filter((k) => /(accept|take|decide|apply)all/i.test(k))).toEqual([]);
   });
 
   it("an unplaced segment is inserted or deliberately left out, never dropped silently", () => {
@@ -135,5 +136,16 @@ describe("report assist: no model call without the AI ledger (AUT-138, ADR-207 (
   it("leaves the rule substitute and «off» unchanged", () => {
     expect(withLedgerGuard({ provider: ruleProvider }, false)).toEqual({ provider: ruleProvider });
     expect(withLedgerGuard({ provider: null }, false)).toEqual({ provider: null });
+  });
+});
+
+describe("report assist: who may ask for a draft", () => {
+  const base = { status: "draft", i_am_performer: true, performer_access_ended: false };
+  it("only the performer on an open draft", () => {
+    expect(assistAllowed(base)).toBe(true);
+    expect(assistAllowed(null)).toBe(false);
+    expect(assistAllowed({ ...base, i_am_performer: false })).toBe(false);
+    expect(assistAllowed({ ...base, status: "signed" })).toBe(false);
+    expect(assistAllowed({ ...base, performer_access_ended: true })).toBe(false);
   });
 });

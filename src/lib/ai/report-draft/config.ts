@@ -19,7 +19,9 @@ export type ModelBlockedReason =
   | "credentials_in_url"
   | "host_not_allowed"
   | "api_key_missing"
-  | "model_missing";
+  | "model_missing"
+  /** AUT-138: the AIG1 ledger for model proposals is not built yet (ADR-207 (3)). Set by the /field caller. */
+  | "ledger_missing";
 
 export type ResolvedProvider = { provider: Provider | null; modelBlocked?: ModelBlockedReason };
 

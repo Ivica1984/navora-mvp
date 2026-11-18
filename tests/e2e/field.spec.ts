@@ -249,6 +249,28 @@ test.describe("field tool (F1)", () => {
     await expect(report.getByTestId("report-status")).toHaveText("Entwurf");
     const review = report.getByRole("form", { name: "Bericht prüfen und unterschreiben" });
     await expect(review.getByTestId("report-facts")).toContainText("Leistungen");
+
+    // BK-e2a part 2 (ADR-207): «Entwurf aus Notizen». Locally and in CI only the rule substitute runs, labelled as
+    // what it is; every line is decided on its own and signing waits while one is open (CGR-213 (b), `uxa` variant).
+    const assist = review.getByTestId("report-assist");
+    await assist.locator("summary").click();
+    await assist.getByTestId("report-assist-notes").fill("Synthetisch: Klientin wach und gesprächig. Trinkt gut.");
+    await assist.getByTestId("report-assist-propose").click();
+    await expect(assist.getByTestId("report-assist-origin")).toContainText("regelbasiert, keine KI · synthetische Daten");
+    await expect(assist.getByRole("button", { name: /alle/i })).toHaveCount(0);
+    await expect(review.getByTestId("report-assist-sign-wait")).toBeVisible();
+    await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeDisabled();
+    const lines = assist.getByTestId("report-assist-line");
+    for (const line of await lines.all()) {
+      const text = await line.locator("p").first().innerText();
+      await line.getByRole("button", { name: text.startsWith("Synthetisch") || text.startsWith("Trinkt") ? "Übernehmen" : "Verwerfen" }).click();
+    }
+    await expect(assist.getByTestId("report-assist-line").filter({ hasText: "Trinkt gut." })).toHaveAttribute("data-decision", "taken");
+    await assist.getByTestId("report-assist-apply").click();
+    await expect(review.getByLabel("Zusammenfassung (optional)")).toHaveValue(/Klientin wach und gesprächig\.\nTrinkt gut\./);
+    await expect(review.getByTestId("report-assist-sign-wait")).toHaveCount(0);
+    await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeEnabled();
+
     await review.getByLabel("Zusammenfassung (optional)").fill("Synthetischer Bericht: Grundpflege wie geplant.");
 
     await review.getByRole("button", { name: "Bericht unterschreiben" }).click();
