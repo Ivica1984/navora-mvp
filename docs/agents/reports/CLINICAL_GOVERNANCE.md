@@ -16,6 +16,56 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 04:27 CET: review of draft **#1421** (BK-e1b, visit from the take; `eng`, head `cc12710`, stacked on #1417, CI running at my read). **No gate yet** (`cra-gate: #1421 cc12710` not given): the head meets CGR-232, CGR-242 (b), (d) and the «after the start» half of (e), and keeps CGR-243 as the named Phase A limit, but CGR-242 (a) (system reason) and (c) (text on `/field`) are not built, and one new path leaves a live visit on a released take (**CGR-244**). **CGR-245** (advisory, for BK-e2): ordered activity tags are pre-written as services of the visit. #1417 gate unchanged. Read on `recovery/main` `b31db81`.
+
+### What I read
+
+- Merges since my 03:26 section: #1418 (mine), #1419 (`po` 03:39: brief `BK.md` §PO amendment 03:39, `NEXT_CAPABILITY.md`, `BK_ROADMAP.md`, `ROADMAP.md`, Blueprint 3.2.49: header, §8 row BK and version row only). `git diff 6130ce3 b31db81 -- src supabase tests e2e scripts` is empty. Annex B §1 (20 guarantees) and the qualification matrix unchanged; Handbook V2.2 unchanged. No FE-079 renewal due.
+- **Open PR #1421** (`eng`, draft, created 04:18 Zurich; head `cc12710`): migration `20261021000138_bk_e1b_visit_from_take.sql` (190 lines), pgTAP 148 (37 tests), ADR-203 (PROPOSED), `/field` place line from #1417. Red first on `e3ac2fd` (`ci` 44229461462: `db` failed only in 148, «column v.order_take_id does not exist»; PR comment). On `cc12710`: `app`, `db`, `e2e`, `ui-screenshots` **in progress**; no result read, none claimed.
+- Code facts checked against 0135/0136: acknowledgement after the start refused (0136:268); release by hand after the start refused (0136:311-313); automatic releases only for orders not started (0135:469, 0136:88). So a late acknowledgement cannot leave a «gedeckt» order without a visit. The missed-visit alert `visit_overdue` (0038:95-111) has no `case_id` condition, so a take visit (`case_id` null) is still alerted. F1 `planned → on_the_way` has no time guard (0024:112).
+- Open PR #1420 (`uxa` 03:50, docs): gate on #1417, words for CGR-242 (c) and CGR-240 (a). Not a gate item for me; I use its words when BK-e1b builds (c).
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1417 BK-e1a | `a5bae13` | `cra-gate: #1417 a5bae13 clear` (03:26) stands; no code change since. |
+| #1421 BK-e1b | `cc12710` | **not cleared.** Draft, CI running. Open conditions: CGR-242 (a), (c); CGR-244. I clear a later head when these are in code and pgTAP and `db` and `e2e` are green on it. Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-242** (status) | #1421 `cc12710` | **advisory**; condition for BK-e1b (PO 03:39 (3)); S1 before real clients | Partly met. **Met on the head:** one transaction (trigger `bk_e1b_take_visit` on `order_takes`), never deleted (pgTAP 148 §7 «never deleted»), client leaves «gedeckt» (§7), a new take writes a new visit (unique index `care_visits_one_per_take`, lookup by `order_take_id = k.id`), nothing automatic after `starts_at` (§8). **Not met:** (a) `end_take_visit` sets `status = 'cancelled'` with **no system reason**; the audit row records only the status change, so a report or count cannot tell a system end from a client cancellation. (c) No `/field` text for the released member; whether a cancelled take visit is still listed is UNKNOWN from the diff. (f) covers the absence path only. | 0138 `end_take_visit` (update `status` only); pgTAP 148 lines 217-235; PO 03:39 (3) «`cancelled` with a system reason» | (a) a stored reason (e.g. the take's `release_reason`, linked or copied), pgTAP asserts it, and cancelled take visits are excluded from any client-cancellation count; (c) `/field` row with `uxa`'s words (#1420), vitest or Playwright; (f) one more case for `release_named_take` before the start. |
+| **CGR-244** | #1421 `cc12710`, `end_take_visit` | **advisory**; condition for BK-e1b in the simulation; S1 before real clients | A release before `starts_at` cancels the visit **only if it is still `planned`**. F1 «unterwegs» has no time guard, so a member can be `on_the_way` (or `started`, `paused`) before the order's start. If her take is then released (her absence or membership end via `recheck_member_takes`, or her own `release_named_take`), the take is released and the order is broadcast again, but her visit stays live and hers: the client reads «nicht gedeckt» while she is on the way, a second carer may take it, and the patched step 3 (CGR-232) no longer counts her visit as a conflict because it belongs to a take of the same order. This is CGR-242 (e) «after F1» not built. | 0138 `end_take_visit` (`where … status = 'planned'`); 0024:112 (`planned → on_the_way`, no time check); 0135:458-480; 0136:311-334; H-01 | Every release path (automatic and by hand) refuses while the take's visit is not `planned` (as `order_started` today, a visible reason, never silent). pgTAP: gedeckt take, visit set `on_the_way` before the start, then her absence → take live, visit unchanged, client still «gedeckt»; the same for `release_named_take` → refused. |
+| **CGR-245** | #1421 `cc12710`, `write_take_visit`; BK-e2a/e2b | **advisory**; S2; condition for BK-e2 (report), not for BK-e1b | The order's `activity_tags` are written into `services_provided` of a visit that has not happened (and every tag, also one outside the activity catalogue; only `visit_activities` is filtered by `qual_activities`). The signed report copies `services_provided` as «services» (0095:180). Unless BK-e2 changes this, an ordered activity can be signed as performed without the carer confirming it, which is the documentation-integrity cause of H-20. The same pre-fill exists on the planning paths (0025:222, 0030:179), so this is not new to BK-e1b; it becomes visible with the first report from a take. | 0138 `write_take_visit` (`services_provided` = `o.activity_tags`); `20261021000095_obs1_observation_authorship.sql:180`; CGR-208; H-20 | BK-e2a/e2b: ordered activities are shown as «geplant» and confirmed or removed per item before signing; pgTAP «an unconfirmed ordered tag is never in the signed services»; no bulk confirm (CGR-213 (b) condition (i)). |
+
+### Views (advisory, not findings)
+
+- **CGR-232:** met on `cc12710` in code (step 3 skips the visit of a take of the same order) and pgTAP 148 («step 3 does not count the visit written from the same take», result 4). Closes when #1421 is merged with `db` green.
+- **CGR-233:** the writer takes `order_take_member:<member>` before its write (trigger and both helpers, re-entrant). Source check only; the two-session script is PLANNED in the PR. Open until that test or a named reason why one session suffices.
+- **CGR-243:** pgTAP 148 §4 asserts postcode and place from the order and no street. The Phase A limit is kept as the PO named it; S1 before real clients stands. The PO's address proposal (03:39 (4)) is `lca`'s first.
+- **Backfill (0138 §5):** writing visits for existing «gedeckt» takes of orders not yet started is consistent with BK-7; synthetic data only.
+
+### Answers and decisions requested
+
+- **`eng`:** on #1421 build CGR-242 (a), (c), (f) and CGR-244 with the pgTAP cases above, then name the head; CGR-233 two-session test or a reason.
+- **PO:** keep CGR-244 beside CGR-242 as a BK-e1b condition; carry CGR-245 into the BK-e2a/e2b conditions.
+- **`uxa`:** the words in #1420 for CGR-242 (c) are the input for `eng`.
+- **Clinical Owner (when named, D-27):** lead time and recipient for a re-opened order close to its start (CGR-242) remain UNKNOWN; whether a carer may set «unterwegs» before the start is a care-organisation question I do not answer.
+
+### Findings closed with evidence
+
+None (CGR-232 and CGR-212 close on merge).
+
+### Register changes
+
+- Hazard Log H-01: note on #1421 (CGR-242 partly met, CGR-244; missed-visit alert covers take visits).
+- Clinical Rule Register: **CR-230** (new, PROPOSED): visit from the take, 0138.
+- Safety Risk Register: **PS-208** (CGR-244), **PS-209** (CGR-245) new; PS-206 partly mitigated on #1421.
+
+---
+
 ## 2026-11-18 03:26 CET: **`cra-gate: #1417 a5bae13 clear`** (BK-e1a, `/field` place line; gate «Simulation, synthetic data» only). The card now says «<plz> <ort> · Strasse fehlt – im Team klären» whenever the street is empty; CGR-212 is met on the head and closes on merge. BK-c accepted by the PO on `d51d1c1`; my spot read of `ci-repeat` 44215240768 agrees. ADR-202 (BK-e cut) read: two new advisory findings for BK-e1b, **CGR-242** (a take released after «gedeckt» must not leave a cancelled visit that nobody covers) and **CGR-243** (a visit from a take never has a street). **CGR-213 (b): my review position for the BK-e2 gate is the `uxa` variant**, unchanged from 2026-11-13 21:40, with its four conditions; it is not a documentation rule (D-27). Read on `recovery/main` `cfac41e`.
 
 ### What I read
