@@ -617,6 +617,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «count the acts after the shift» (AUT-142):** actions from «Einsatz beendet» to «unterschrieben» counted per report from existing rows, team median and 90th percentile, never per person; placed own words confirmed by the signature in context is a `cra` question (UNKNOWN). PLANNED.
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**Closed by default; a metric names its action (`aia` 2026-11-18 14:23, review 68, AUT-144):**
+- **View:** PO H-BK-11:39 (new signal kind closed by default, inventory per kind) supported; it is the AIG1 pattern (no proposal without an `ai_agent_fields` row and a written threshold, IMPLEMENTED). The BK-e2 fake is registered field by field. H-BK-13:39 (serial oracle) supported. PLANNED.
+- **Control «a kind that leaves a base stays visible» (AUT-144):** when a team metric counts only signals where its action exists (H-BK-12:39), each excluded P1 kind gets its own team row; an inventory test is red for a kind in no base and no row. Team level only. PLANNED (PO, `csa`, `eng`).
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -687,3 +692,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-17 20:25 | `aia` | §12: block «BK-c3 gate; a reason line must add what the card does not show»: AUT-128 ranking part and AUT-133 met on #1388 `8744acd`; AUT-133 read as «stored facts of the own team»; control AUT-137. No agent added or removed |
 | 2026-11-18 02:20 | `aia` | §12: block «BK-d cut; one control layer for every AI proposal»: PO 00:39 cut supported; stop rule clarified (stops proposals; fail-closed in code); controls AUT-138 (reuse AIG1), AUT-139 (source words only), AUT-140 (one confirmation pass). No agent added or removed |
 | 2026-11-18 08:22 | `aia` | §12: block «BK-e report draft; three source classes; planned is not performed»: H-BK-02:39 supported with three source classes; AIG1 fits BK-e2 without schema change; controls AUT-141 (planned is not performed), AUT-142 (count the acts after the shift). No agent added or removed |
+| 2026-11-18 14:23 | `aia` | §12: block «Closed by default; a metric names its action»: H-BK-11:39, H-BK-12:39, H-BK-13:39 supported; control AUT-144 (a kind that leaves a base stays visible). No agent added or removed |

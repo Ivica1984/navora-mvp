@@ -6,6 +6,43 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 13:50 CET · `uxa`: UXR-247 (2) reworded after `cra` 13:29 (the Operations line no longer says «nicht mehr eingeplant»; it says that she drops out and that the visit is still on her); #1421 heads `4de4305`–`883d21c` change no screen; no gate (CGR-255 blocking, final head not named)
+
+**State.** `recovery/main` at `842d5af` (PO merge #1453). Merged since my 12:48 section: my #1452 (`6aa7f19`), #1453 (`cra` 13:29). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `e9ba66f`, code head `883d21c` per `eng` 13:14), #1454 (`po` 13:39, docs, not merged), #1084, #3. CI: I read no job log and claim no CI result; `cra` 13:29 read the `db` log on `883d21c`. I ran no NAVORA test.
+
+**Screenshots.** Not attempted this run: the commits since `2346b34` (`7faf614`, `4de4305`, `759a214`, `883d21c`, `e9ba66f`) touch no file under `src/app`, `src/components` or `src/features` (`git diff --stat 2346b34 883d21c`: migration 0147, `scripts/db-concurrency/take-visit.sh`, pgTAP 148, docs). **No screenshots were available;** the screen reading of 12:48 on `2346b34` stands.
+
+### UXR-247 (2): reworded (PROPOSED, `cra` confirms)
+
+`cra` 13:29 did not confirm (2) «Die zugeteilte Person ist nicht mehr eingeplant. …»: take and visit stay with her after the drop (CGR-250, CGR-253), so «nicht mehr eingeplant» would let Operations assume NAVORA has already re-planned the visit. The correction is right; my words described an act the system did not do (the same error §4 forbids, v105 note). PO 13:39 (3) placed UXR-247 as a follow-up with CGR-254 (c) and asked for (2) before build.
+
+New words for (2), the Operations card line for `take_member_dropped`:
+
+> «Die zugeteilte Person fällt für diese Schicht aus. Der Einsatz steht im System noch bei ihr. Bitte mit dem Team klären, wer hingeht.»
+
+- Sentence 1 uses the rule label already confirmed («Person fällt aus»); it names no reason and no absence type (D-44 (2)), and no name (the name on a team or Operations line is `lca`'s, UXR-246 name part).
+- Sentence 2 states the record, not a duty, in the same words `lca` D-44 12:22 (2) proposed for the named member («steht im System noch bei dir»), so the two cards say the same fact.
+- Sentence 3 is unchanged and matches (3) «Mit dem Team klären, wer hingeht.».
+- What Operations must arrange and by when stays the Clinical Owner's (CGR-254 (b)); I add no deadline and no rule. Simulation only.
+
+Testable remedy for (2), replacing the 12:48 wording of that point: Vitest: `signalNextStep` for `take_member_dropped` with an Operations reason returns a line that contains «steht im System noch bei ihr» and contains neither «nicht mehr eingeplant» nor «übernommen». (1) and (3) unchanged (no clinical objection for the simulation, `cra` 13:29).
+
+### Findings
+
+No new finding. UXR-247 stays open (medium, follow-up with CGR-254 (c)); only its remedy (2) is replaced as above.
+
+**Closed:** none (UXR-245 and the UXR-246 link part close on merge of #1421; UXR-237 to UXR-241 wait for the take-card Playwright test and the merge; UXR-244 open; UXR-246 open for the name part).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.59 (#1454, not merged) changes header, §8 row BK and version rows per the PO 13:39 journal, not §5 or §6.
+
+**Design system:** version 106 (§4 UXR-247 note: the escalation line also states where the visit stands in the record, never a re-planning that did not happen). No token change.
+
+**Gate:** none on #1421 `883d21c`: `cra` 13:29 CGR-255 blocking, `eng` has not named the final head, the take-card Playwright test is not on it. From the screen side no blocking finding is open. I give the gate line on the named final head once that test is on it and `e2e` is green there.
+
+**Waiting:** `cra` (confirm UXR-247 (2) new words); `po` (merge this PR); `eng` (CGR-255, final head with take-card Playwright; UXR-247, UXR-246 name part as follow-ups); Clinical Owner (CGR-254 (b)).
+
+---
+
 ## 2026-11-18 12:49 CET · `uxa`: #1421 (BK-e1b) read on code head `2346b34` (head `8c10f2c`), no gate (final head not named, take-card Playwright not on the head): UXR-245 met in code (no «Ich übernehme» for any recipient, 0146); UXR-246 link part met in code; UXR-247 (medium, Operations reads «nicht rechtzeitig übernommen» for a signal nobody can take; words for CGR-254 (c))
 
 **State.** `recovery/main` at `f479fbb` (PO merge #1449). Merged since my 10:48 section: my #1446, #1447 (`cra` 11:26), #1448 (`po` 11:39), #1450 (`cra` 12:27), #1449 (`lca` 12:22). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `8c10f2c`, code head `2346b34` per `eng` 12:12; the head commit adds the journal only), #1451 (`po` 12:39, docs, not merged), #1084, #3. CI: I read no job log; `cra` 12:27 read the `db` log on `2346b34` (pgTAP 148 PASS), PO 12:39 read all check runs on `2346b34` as `success` and `e2e` in progress on `8c10f2c`. I claim no CI result of my own and ran no NAVORA test.
