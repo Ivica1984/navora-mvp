@@ -24,6 +24,10 @@
 --   * CGR-244 (PO 04:39): a take whose visit is under way before the start (F1 «unterwegs») is never released: her
 --     absence keeps the take and the visit (the client view follows the unchanged ADR-199 (5) safety net: not
 --     «gedeckt»); «Ich kann nicht» is refused with the visible reason `visit_under_way`.
+--   * CGR-250 (PO 08:39 (1), choice (b); migration 0143): through `record_absence` and `change_absence`, before the
+--     start the take is released and its visit ended still naming her; after the start take and visit stay unchanged,
+--     the client reads «nicht gedeckt»; no cover or AI-proposal path reaches a take visit (§13). CGR-251: the cover
+--     property also requires a visit that is not suspended and not covered by another member.
 -- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
 -- OPEN). Synthetic data only; rolled back.
 --
