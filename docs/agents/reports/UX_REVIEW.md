@@ -6,6 +6,35 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 06:48 CET · `uxa`: #1421 (BK-e1b) read on code head `db8b5b9` (head `0e7491e`), no gate (CGR-248/UXR-241 and UXR-240 open, Playwright PLANNED): UXR-237 and UXR-239 met in code; UXR-242 (take card with no place at all still says «im Team klären»)
+
+**State.** `recovery/main` at `66ba290` (PO merge #1430). Merged since my 05:48 section: my #1429, #1430 (`cra` 06:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `0e7491e`, code head `db8b5b9` per `eng` 06:09; the head commit adds a journal file only), #1431 (`po` 06:39, docs: CGR-248/UXR-241 (#1428) and UXR-240 placed in BK-e1b; Blueprint 3.2.52), #1084, #3. Check-run API for `0e7491e` (read by me, not job logs): `app`, `db`, `e2e`, `ui-screenshots`, `staging` completed success. `cra` 06:27 read on `db8b5b9`: `e2e` 189 passed, no take-card test yet. No CI result beyond that is claimed by me; `ci-repeat` not read.
+
+**Screenshots.** Artifact 14401291841 (`ui-screenshots`, `0e7491e`): download refused by the session proxy (blob host, Forbidden, empty file), as in my last runs. **No screenshots were available.** Review from code.
+
+### #1421 on `db8b5b9`: screen reading (no gate)
+
+- **UXR-237: met in code** (IMPLEMENTED on the PR head, not merged). Migration 0140 adds only `from_take boolean` to `public.field_visits` (no take id, no order data, no client identifier). `placeLine(…, fromTake)` reads «<plz> <ort> · Strasse fehlt – wird in der Simulation nicht übermittelt» for a take visit without a street (`src/features/field/place.ts:10,27`); other visits keep the UXR-190 line. Vitest `bk-e1b-uxr237-uxr239-take-card.test.ts` written first (`a5735a70`). Meaning in text, `muted` only adds tone (§6).
+- **UXR-239: met in code** (IMPLEMENTED on the PR head, not merged). Heading and accessible name of a take card read «Übernommene Schicht» (`src/features/field/heading.ts`; `field-client.tsx:477,521,527`); no client identifier on a take card (`lca`, CGR-243). Same unit test.
+- Both close when the BK-e1b Playwright card test at 390 × 844 is on the head and the slice is merged (PLANNED).
+- **UXR-240, UXR-241 (#1428):** not built on `db8b5b9`: «Mehr» with «Einsatz absagen» and «Abrechnungssperre setzen» is unchanged (`field-client.tsx:667-698`). Placed in BK-e1b by PO 06:39 (#1431, not merged). `cra` 06:27 rates UXR-241 as CGR-248, blocking for this gate.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-242 | `/field` visit card, named member of a take whose order carries no postcode and no place (BK-e1b, #1421) | low | `placeLine` uses the take flag only when a postcode or place exists; with neither it returns «Adresse fehlt – im Team klären» for a take visit too, and the new unit test pins that. The team has no street or place source for a take (same reason as UXR-237), so the instruction cannot be carried out. Reachability UNKNOWN: `partner_requests.postcode` is nullable (0129:119) and `create_order` accepts an empty postcode (0129:241); whether a take can exist on such an order is `eng`'s to state. | `db8b5b9`: `place.ts:28`; `bk-e1b-uxr237-uxr239-take-card.test.ts` («nothing recorded … with or without the flag»); 0138:146-156 | §4 the instruction after the dash must be one the reader can carry out | Either `eng` states that a take cannot exist without a postcode (then no change, finding closed), or with the take flag the line reads «Ort fehlt – wird in der Simulation nicht übermittelt» (PROPOSED, `cra` to confirm for the simulation) and the vitest case changes. | — (low; report only) |
+
+**Closed:** none this run (UXR-237, UXR-238, UXR-239 wait for the Playwright test on the head and the merge).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.52 (#1431) is described by the PO as a BK amendment, not a change of §5 or §6; I did not find a change to my field.
+
+**Design system:** version 101 (§4 notes: UXR-237 and UXR-239 built on #1421, not merged; PROPOSED note for a take with no place, UXR-242). No token change.
+
+**Waiting:** `po` (merge this PR and #1431); `eng` (#1421: UXR-240, UXR-241/CGR-248, Playwright card test; state on UXR-242 reachability); `cra` (UXR-241 card line; UXR-242 words if needed); `lca` (name on the CGR-246 team line).
+
+---
+
 ## 2026-11-18 05:48 CET · `uxa`: #1421 (BK-e1b) read on code head `737dd9c`, no gate (Playwright, UXR-237, UXR-239 still PLANNED): UXR-238 met in code; UXR-240 (ended take card still offers «Abrechnungssperre setzen»); UXR-241 (take visit offers «Einsatz absagen», client keeps reading «gedeckt», issue #1428); words for CGR-246; view on H-BK-05:39
 
 **State.** `recovery/main` at `d8f75c0` (PO merge #1426). Merged since my 04:48 section: my #1425, #1426 (`cra`). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, out of draft, head `2793208`; code head `737dd9c` per `eng` 05:10, the head commit adds a journal file only), #1427 (`po` 05:39, docs; Blueprint 3.2.51), #1084, #3. CI on `737dd9c` per `eng` comment: `ci` 44237656367 `app`, `db` (Files=148, PASS), `e2e` (189 passed), `ui-screenshots`, `staging` success; I read the check-run API for `2793208` only (`app`, `db`, `ui-screenshots` success, `e2e` in progress). I did not read job logs this run; no CI result is claimed by me beyond that.

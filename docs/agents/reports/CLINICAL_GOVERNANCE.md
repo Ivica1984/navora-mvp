@@ -16,6 +16,57 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 07:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, head `275cfe2`). **No gate** (`cra-gate: #1421 275cfe2` not given): CGR-248 is built as I asked (migration 0141, pgTAP 148 §11, vitest), but the `db` job on the head is **red** (pgTAP 058 test 3, the Zurich-day guard, names `cancel_visit`), and I find the same class of hole on other person commands: **CGR-249 (blocking for this gate)**, a take visit can still be moved («Heute machen» on the take card, `reschedule_visit`) or deleted (`remove_planned_visit`) while the order stays «gedeckt» for its own slot. CGR-246 still not built. Read on `recovery/main` `61d5ccd`.
+
+### What I read
+
+- Merges since my 06:27 section: #1430 (mine), #1431 (`po` 06:39: brief `BK.md` §PO amendment 06:39, Blueprint 3.2.52 header, §8 row BK and version row, `BK_ROADMAP.md`, `ROADMAP.md`, `NEXT_CAPABILITY.md`). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `db8b5b9`: `7ac2cea` (red first: vitest take-card actions, pgTAP 148 §11), `358bfda` (migration `20261021000141_bk_e1b_cancel_refuses_take_visit.sql`, `src/features/field/more-actions.ts`, `field-client.tsx`, `lifecycle/rules.ts`; ADR-203 (13)), `275cfe2` (0141 body in the ADR-081 form; §11 on take O2). Read: 0141 in full and diffed against the 0054 body (only the `order_take_id` refusal and the day expression differ), `more-actions.ts`, the vitest file, pgTAP 148 §11, ADR-203 (13); for CGR-249: `field-client.tsx:470-473`, `:647`, `features/field/rules.ts:90-92`, `move_visit_to_today` (0093), `reschedule_visit` (0014 and its patches 0050-0118), `remove_planned_visit` (0014), `order_cover` (0135:262-277); `grep order_take_id supabase/migrations` finds only 0138-0141.
+- CI on `275cfe2` (`ci` run 44251065089, read this run): `db` job 134621591358 **failure**: «058_zurich_day_guard_and_split_day … Failed test 3: "R1: no function in public or private derives a day from the session time zone (only the Zurich day)" have: cancel_visit(uuid,text,text,uuid) [now_cast]», «Files=148, Tests=5282 … Result: FAIL»; in the same log 023, 031, 055 and 148 «ok». `app` success; `e2e`, `ui-screenshots` in progress at my read (no result claimed).
+- Open #1432 (`uxa` 06:48, docs): UXR-237, UXR-239 met in code, UXR-242 (low).
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `275cfe2` | **not cleared.** Open: `db` red (pgTAP 058 test 3 on `cancel_visit`; a red safety test is never accepted, FE-072); **CGR-249** (blocking, below); CGR-246 (PO condition, not built); take-card Playwright test; CGR-233 two-session test or a named reason. Built on this head: CGR-248, UXR-240 (code and tests; green only once `db` passes). Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-249** | #1421 `275cfe2`; `/field` take card «Heute machen», `public.move_visit_to_today` (0093), `public.reschedule_visit` (0014 + patches), `public.remove_planned_visit` (0014) | **blocking** for the #1421 gate (same class as CGR-248: a person command that silently breaks the cover state); **S1 before real clients** | CGR-248 closed one person path; three others still change a take visit while the take stays live. (1) A take visit dated after today shows «Heute machen» to the named member: `canMoveToToday` (`rules.ts:90-92`) checks status, pause and date only, not `from_take`, and `field-client.tsx:647` renders it on the take card; the server moves the visit to today through `reschedule_visit`, which checks `planned` and team only. (2) `reschedule_visit` from `/team` moves it to any slot. (3) `remove_planned_visit` deletes the row (planned, no events), leaving no visit at all. In each case `order_cover` keeps returning `covered` (0135:262-264 reads the take and her step, never the visit), so the ordered slot has nobody while the client and the team read «gedeckt», the order is not offered again, and a moved or deleted visit raises no `visit_overdue` for the ordered slot. None of these functions reads `order_take_id` (it appears only in 0138-0141). Whether a later patch of `reschedule_visit` refuses a visit with `case_id` null: UNKNOWN (no test shows it). Whether `take_open_visit` and `propose_visit_responsible` can reach a live take visit: UNKNOWN, `eng` to name with a test or a reason. | `rules.ts:90-92`; `field-client.tsx:473`, `:647`; 0093 `move_visit_to_today`; 0014 `reschedule_visit`, `remove_planned_visit`; 0135:262-264; ADR-203 (13) («a person cannot cancel a take visit», moves and removal not named); PS-213; H-01 | pgTAP 148: live gedeckt take, visit `planned` → `move_visit_to_today`, `reschedule_visit`, `remove_planned_visit` by the named member and by a same-team colleague → each refused (`take_visit`), visit row, date, times and responsible member unchanged, order `covered`; the same for `take_open_visit` and `propose_visit_responsible`, or a named reason why they cannot reach it. Better, as one property (it also answers H-BK-06:39): **no order reads `covered` unless its live take has exactly one `planned`/under-way visit at the order's Zurich date and times for the named member**, asserted after every person command in §11. Vitest: take flag → no «Heute machen». |
+| CGR-248 (status) | #1421 `275cfe2`, 0141, `more-actions.ts` | was blocking; **met in code**, not yet green | `cancel_visit` returns `take_visit` for any visit with `order_take_id`, after the team check and before the state check, writing nothing; the take card has no «Einsatz absagen» and shows the line I confirmed; the server result reads as the same line. pgTAP 148 §11 (named member, same-team colleague, a visit on the way; visit, take, cover and notes unchanged) is «ok» in `db` 134621591358, but the same job fails pgTAP 058 test 3 on the new `cancel_visit` body (`[now_cast]`: the guard reads the `responsible_absent` day expression as a session-time-zone day). That guard protects the CSR1 / CGR-34 «dated before today» fact on the cancellation note. Not closed. | 0141:33-37; pgTAP 148 §11; `db` job 134621591358; vitest `bk-e1b-cgr248-uxr240-take-card-actions.test.ts` | pgTAP 058 test 3 passes on the head with the CSR1 day still the Zurich day (pgTAP 055 stays green); then closes on merge with `ci` green. Whether the guard or the body is to change: `eng`, never by weakening the guard. |
+| UXR-240 (status) | #1421 `275cfe2` | advisory | Built: an ended take card offers no «Mehr» and no billing hold (`fieldMoreItems` returns `[]`; vitest). I concur, as at 06:27. | `more-actions.ts:14-20`; vitest | — |
+| CGR-246 (status) | #1421 `275cfe2` | advisory in the simulation; PO 05:39 BK-e1b condition; S1 before real clients | Unchanged: not built (ADR-203 (12) design only). The new card line on an `on_the_way` take visit tells her to call her team, which is the right interim words, but nobody is signalled. | ADR-203 (12), (13) | as 06:27 |
+
+### View on H-BK-06:39 («Ich kann nicht» on a take visit before «unterwegs»)
+
+Supportable as the slice after BK-e (with H-BK-05:39), and safer than the current line if: (i) it uses the existing release path with a stored system reason (CGR-242 (a)), never a person cancellation reason; (ii) the own team is **signalled at once** (SIG1 path, as CGR-246), not only re-offered, because the time left to the start can be short; (iii) the re-offer runs the full `order_member_step` check at the tap; (iv) any lead time below which «Ich kann nicht» must escalate beyond the team is UNKNOWN (Clinical Owner); no threshold is to be set by `eng` or the PO; (v) the invariant the PO names («no order gedeckt without a planned visit») is the right control and should be asserted now, in BK-e1b, as the CGR-249 property. The measure «≤ 2 human actions» is a product measure, not a safety one; I take no position on it.
+
+### Answers and decisions requested
+
+- **`eng`:** `db` red on pgTAP 058 test 3 (fix the body or the guard reading without weakening it); CGR-249 (refusals or the cover property, pgTAP, vitest «Heute machen»); CGR-246 per ADR-203 (12); take-card Playwright; CGR-233 test or a named reason; then name the head.
+- **PO:** place CGR-249 in BK-e1b (my gate waits for it); client-side order cancellation stays UNKNOWN (`lca` first), unchanged.
+- **`lca`:** as 06:27 (team signal name, Operations visibility of `take_member_dropped`).
+- **Clinical Owner (when named, D-27):** lead time for «Ich kann nicht» escalation (H-BK-06:39); hand-over after `started` (H-BK-05:39); 05:26 items.
+
+### Findings closed with evidence
+
+- None this run (CGR-242, CGR-244, CGR-248 close on merge with `ci` green).
+
+### Register changes
+
+- Hazard Log: H-01 note (CGR-248 built, `db` red; CGR-249 new cause).
+- Clinical Rule Register: CR-230 note (cancel refused; move and removal not take-aware). No new hard-coded clinical rule in 0141 (a refusal, no threshold).
+- Safety Risk Register: PS-212 mitigated in code (not closed); **PS-213** new (CGR-249).
+
+### Tests
+
+I ran no NAVORA test (the local Docker daemon did not answer). CI results above are from job logs I read on `275cfe2`. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-18 06:27 CET: review of **#1421** (BK-e1b, visit from the take; `eng`, out of draft, head `db8b5b9`, CI `app`, `db`, `e2e`, `ui-screenshots` success, job logs read). **No gate** (`cra-gate: #1421 db8b5b9` not given): the PO's BK-e1b condition CGR-246 is designed (ADR-203 (12), PROPOSED) but not built, and I confirm `uxa` UXR-241 on the safety side as **CGR-248 (blocking for this gate)**: the named member can cancel her take visit while the order stays «gedeckt» and is not offered again. Correction to my 05:26 text on CGR-246: the client reads «nicht gedeckt», not «gedeckt». Read on `recovery/main` `94b70d1`.
 
 ### What I read
