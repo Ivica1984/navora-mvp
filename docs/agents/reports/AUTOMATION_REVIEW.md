@@ -31,6 +31,47 @@
 
 ---
 
+## 2026-11-18 14:23 CET · aia review 68: views on H-BK-11:39 (closed by default: supported, AIG1 already works this way), H-BK-12:39 (each team metric names its action: supported, with one condition) and H-BK-13:39 (serial oracle: supported); a signal kind that leaves the take-rate base must not leave the dashboard (AUT-144, medium); AUT-143 closed
+
+**Read:** `recovery/main` at `cbc91cb` (since review 67 at `683bb23`, 38 commits): brief `BK.md` §PO amendments 08:39 to 13:39 (CGR-249 to CGR-256, UXR-244 to UXR-247, H-BK-11:39, H-BK-12:39, H-BK-13:39; item 8 of 08:39 places AUT-141 to AUT-143); journals `po` 08:39 to 13:39; #1421 branch `feature/hourly-update-2026-11-18-bk-e1b` at `c8c9bf3`: `eng` journal 12:12 (deviation 2, analytics base). Code: `src/features/analytics/hypotheses.ts` (`signal_taken_share`, `signal_minutes_to_take`), the SQL that fills them (`20261021000060_sig1_safety_signal_delivery.sql`, patched in 0061 and 0068).
+
+**Measured versus estimated:** nothing here is a measurement of care work; code facts are readings. I ran no NAVORA test, read no CI log and started no database. **Active block (README rule 12):** BK, slice BK-e; BK-e1b #1421 open, no gate; it needs no `aia` gate line. I ask for no merge. No question to `aia` is open from the PO (13:39: «nothing new asked»); this section is the automation review of the changed brief (step 4c).
+
+### 1 Views on the PO challenges (PLANNED, not gate conditions)
+
+- **H-BK-11:39 (a new signal kind or visit origin is closed by default; each permission opened with a test; pgTAP inventory per kind):** supported. It is the pattern AIG1 already uses for AI proposals: no agent field proposes without a row in `ai_agent_fields` and a written threshold (`threshold_missing`, review 66 §2; IMPLEMENTED in 0097, 0104, 0105). One pattern for both keeps `cra` reviewing tables, not code paths. Consequence for BK-e2: the report-draft fake is registered field by field and proposes nothing for a field without its row (closed by default); no new mechanism.
+- **H-BK-12:39 (each team metric names the action it measures; count only signals where that action exists):** supported, with one condition (AUT-144): a signal kind that leaves a base must appear as its own team count, or the dashboard stops showing the case with the highest risk. Team level only, as today (`hypotheses.ts`: «Nie pro Person»).
+- **H-BK-13:39 (serial oracle for every two-session script):** supported. It turns a judgement the reviewer makes per expected value into one deterministic rule (race result equals one serial result, plus the invariant): «rule» before «people» in my design order. It removes review rounds, not care work, so it carries no direct-care estimate. HOW `eng`; invariant list `cra`.
+
+### 2 Findings
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-144 | Team dashboard «P1-Signale übernommen», team and Operations (AN2, SIG1; H-BK-12:39; BK-e1b deviation 2) | **IMPLEMENTED:** `signal_taken_share` counts all P1 signals of the month as its base (`hypotheses.ts` definition; SQL in 0060, patched 0061, 0068). **On #1421 (not merged):** `take_member_dropped` can never be taken (`kind_not_takeable`, 0146), so the rate falls by construction (`eng` 12:12 deviation 2; open, `po`/`csa`). If the kind simply leaves the base, the dashboard no longer shows the one P1 case where a client may be left without the visit and nobody can take it in NAVORA (CGR-254, H-BK-10:39 open). | **Monitor:** (1) per metric, name the action and count only signals where it exists (H-BK-12:39); (2) every kind that leaves a base gets its own team row: count per month and, once an action exists (H-BK-10:39), minutes to it; until then minutes to the signal's end as recorded; (3) a pgTAP or Vitest inventory: each signal kind is either in a base or in its own row, red for a kind in neither (the H-BK-11:39 inventory, one more column). No new data: all from existing signal rows. | L (team operations figure; no clinical content) | Stage 0 (deterministic); gate PO (which metrics), `csa` view (H-BK-12:39); `cra` only if the own row gets a target | Inventory test green; no P1 kind absent from the dashboard; never per person | medium | – |
+
+### 3 Updated, supported, closed
+
+- **AUT-143 closed:** the PO named the 2026-11-18 hypothesis H-BK-18-02:39 (brief `BK.md` §PO amendment 08:39 item 8). Evidence: that line.
+- **AUT-141, AUT-142:** placed by the PO as BK-e2 design direction and counting rule (same item 8); stay open until the BK-e2 brief section and its red tests exist.
+- **CGR-249 (my review 67 evidence):** met and green per `cra` 09:27; nothing further from `aia`.
+- Open, unchanged: AUT-125, AUT-126, AUT-127, AUT-129, AUT-131, AUT-135 to AUT-140, the list in review 60.
+- **Bottleneck map:** v4 (2026-11-17 02:19) stands; weekly refresh due 2026-11-24; no new estimate this run.
+- **FE-079:** sign-off on #1279 stands; Blueprint 3.2.54 to 3.2.59 change §8 row BK and version rows only; my field (Engines 1–3) unchanged. Reservations AUT-127, AUT-129 stand.
+- **Contradictions with `FOUNDER_DECISIONS.md`:** none found.
+
+### 4 Stage tracking
+
+Unchanged since review 67: stage 1 for synthetic data only, stage 0 for real data. BK-e builds no external call. Missing for the first external call on synthetic data: provider and terms (owner), `lca` reading, AUT-136 (1) environment guard and stop switch, the control layer merged, device class per field (`cra`); before real persons also the keyboard-dictation policy (owner).
+
+### 5 Waiting
+
+- `po`: AUT-144 with the H-BK-12:39 follow-up (after BK-e1b); simulation threshold for the BK-e2 fake and criterion 7 wording (review 67); merge of this PR.
+- `csa`: view on H-BK-12:39, now with AUT-144.
+- `eng`: inventory column for AUT-144 when H-BK-11:39 and H-BK-12:39 are built; BK-e2 ADR (review 67).
+- `cra`: AUT-141, AUT-142 (review 67).
+
+---
+
 ## 2026-11-18 08:22 CET · aia review 67: BK-e is the active slice; views on H-BK-02:39 (report draft from recorded facts: supported, three source classes), H-BK-04:39 to H-BK-07:39 (supported); BK-e2 fits AIG1 with no schema change; signed «services» copy the planned list (AUT-141, medium); the ≤ 3 actions target needs a counting rule and a `cra` reading on placed own words (AUT-142, medium); a reused hypothesis ID (AUT-143, low)
 
 **Read:** `recovery/main` at `683bb23` (since review 66 at `7e1c078`, 42 commits): brief `BK.md` §PO acceptance 02:39 (BK-c accepted for the simulation on `d51d1c1`) and §PO amendments 02:39 to 07:39 (BK-e active; H-BK-02:39 to H-BK-07:39); ADR-202 in `docs/engineering/DECISIONS.md`; journals `po` 02:39 to 07:39, `cra` 02:26 to 07:27, `uxa` 03:50 to 06:48, `lca` 04:20, `eng` 02:37 and 03:12; `CLINICAL_GOVERNANCE.md` CGR-213 (b) position (uxa variant). #1421 branch at `d4df511` (BK-e1b): migration `20261021000138_bk_e1b_visit_from_take.sql`. Code: `20261021000016_signed_visit_reports.sql` (`private.visit_report_snapshot`), `20261021000014_care_plan_billable_planning.sql`, `20261021000046_abs1_absence.sql` (`take_open_visit`), `20261021000097_aig1_ai_governance_foundation.sql` (`ai_suggestions`, `propose_visit_responsible`), `20261021000135_bk_c1_take_cover_state.sql`.
