@@ -1,0 +1,45 @@
+name: staging-smoke
+# Founder path against the real staging app (probe branches smoke/** only; never merged as is).
+on:
+  push:
+    branches: ['smoke/**']
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-fund
+      - name: Install Chromium (retry)
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            sleep 15
+          done
+          exit 1
+      - name: Wake the free Render instance
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://navora-staging.onrender.com/login || true)
+            echo "attempt $i: $code"; [ "$code" = "200" ] && exit 0; sleep 15
+          done
+          exit 1
+      - name: Founder path
+        env:
+          STAGING_TEST_PASSWORD: navora-local-only
+          SMOKE_OFFSET: ${{ github.run_attempt }}
+        run: mkdir -p staging-shots && npx playwright test -c tests/staging/playwright.staging.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: staging-founder-path
+          path: |
+            staging-shots/
+            test-results/
+          retention-days: 7
