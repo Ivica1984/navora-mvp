@@ -7,6 +7,7 @@ import {
   RESERVED_PORTS,
   classifyStartFailure,
   configPorts,
+  fallbackRegistry,
   formatAnnotation,
 } from "../../scripts/ci-supabase-start.mjs";
 
@@ -30,6 +31,8 @@ const BIND_OLD =
   'failed to start docker container "supabase_db_navora-mvp": Error response from daemon: driver failed programming external connectivity on endpoint supabase_db_navora-mvp (4409e013cdf2): failed to bind host port for 0.0.0.0:54322:172.18.0.3:5432/tcp: address already in use';
 const RATE = "Error response from daemon: toomanyrequests: Rate exceeded";
 const DATA = "Error response from daemon: toomanyrequests: Data limit exceeded";
+// The shape public.ecr.aws (the Supabase CLI default registry) sent on 2026-11-18 (job 134593805851).
+const ECR_RATE = "Error response from daemon: error from registry: Rate exceeded\nRetrying after 4s: public.ecr.aws/supabase/gotrue:v2.197.0";
 
 describe("B0 runner ports: classification of a failed `supabase start`", () => {
   it("names a host-port bind failure as infrastructure, with the port (current Docker message)", () => {
@@ -117,12 +120,73 @@ describe("B0 runner ports: wiring in ci.yml and ci-repeat.yml", () => {
     expect((REPEAT.match(/run: scripts\/ci-supabase-start\.sh\s*$/gm) ?? []).length).toBe(2);
   });
 
-  it("the wrapper keeps the exit status of `supabase start` (no retry, no hidden failure)", () => {
+  it("the wrapper keeps the exit status of `supabase start` (no hidden failure; one start call site)", () => {
     const sh = readFileSync(WRAPPER, "utf8");
     expect(sh).toMatch(/set -uo pipefail/);
     expect(sh).toContain("ip_local_reserved_ports");
     expect(sh).toMatch(/exit "\$status"/);
     expect(sh).not.toMatch(/\|\|\s*true\s*$/m);
     expect((sh.match(/^\s*supabase start\b/gm) ?? []).length).toBe(1);
+  });
+
+  // ADR-204 (owner, live session 2026-11-18): a start refused by the registry limit is retried ONCE from Docker Hub
+  // with the owner's account, and only then. Every other failure keeps ADR-174: no retry.
+  it("ADR-204: the only retry is the Docker Hub fallback decided by --fallback, at most once", () => {
+    const sh = readFileSync(WRAPPER, "utf8");
+    expect(sh).toContain('--fallback "$out"');
+    expect(sh).toContain("SUPABASE_INTERNAL_IMAGE_REGISTRY");
+    expect(sh).toMatch(/docker login --username "\$DOCKERHUB_USERNAME" --password-stdin/);
+    expect(sh).not.toMatch(/echo "\$DOCKERHUB_TOKEN"/); // the token never goes to the log
+    expect((sh.match(/^\s*start_stack "\$@"/gm) ?? []).length).toBe(2); // first try + the one fallback
+    expect(sh).not.toMatch(/\b(?:while|until)\b/); // no loop
+  });
+
+  it("ADR-204: every Supabase start step gets the two Docker Hub secrets, nothing else", () => {
+    for (const [name, text, n] of [["ci.yml", CI, 3], ["ci-repeat.yml", REPEAT, 2]] as const) {
+      const steps = text.split(/\n(?=\s*- name:)/).filter((s) => /run: scripts\/ci-supabase-start\.sh\s*$/m.test(s));
+      expect(steps.length, name).toBe(n);
+      for (const st of steps) {
+        expect(st, name).toContain("DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}");
+        expect(st, name).toContain("DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}");
+      }
+    }
+  });
+});
+
+describe("ADR-204: Docker Hub fallback after a registry limit", () => {
+  const creds = { DOCKERHUB_USERNAME: "navora-ci", DOCKERHUB_TOKEN: "dckr_pat_synthetic" };
+
+  it("the public.ecr.aws message «error from registry: Rate exceeded» is a registry limit (missed before)", () => {
+    expect(classifyStartFailure(`${ECR_RATE}\nfailed to pull image`)).toEqual({ kind: "registry-limit", ports: [] });
+  });
+
+  it("a registry limit with both secrets set falls back to docker.io", () => {
+    expect(fallbackRegistry({ kind: "registry-limit", ports: [] }, creds)).toBe("docker.io");
+  });
+
+  it("no fallback without both secrets (blank counts as missing)", () => {
+    expect(fallbackRegistry({ kind: "registry-limit", ports: [] }, {})).toBe("");
+    expect(fallbackRegistry({ kind: "registry-limit", ports: [] }, { ...creds, DOCKERHUB_TOKEN: "  " })).toBe("");
+    expect(fallbackRegistry({ kind: "registry-limit", ports: [] }, { DOCKERHUB_TOKEN: "x" })).toBe("");
+  });
+
+  it("no fallback for any other failure: a port collision, a migration error, unknown output", () => {
+    expect(fallbackRegistry({ kind: "runner-port-in-use", ports: [54324] }, creds)).toBe("");
+    expect(fallbackRegistry({ kind: "not-infrastructure", ports: [] }, creds)).toBe("");
+  });
+
+  it("never a second fallback: once the registry is already docker.io, nothing more", () => {
+    expect(fallbackRegistry({ kind: "registry-limit", ports: [] }, { ...creds, SUPABASE_INTERNAL_IMAGE_REGISTRY: "docker.io" })).toBe("");
+  });
+
+  it("the --fallback CLI reads the log and the environment and prints the registry or nothing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr204-"));
+    const log = join(dir, "start.log");
+    writeFileSync(log, ECR_RATE);
+    const env = { PATH: process.env.PATH ?? "" };
+    expect(execFileSync("node", [SCRIPT, "--fallback", log], { encoding: "utf8", env: { ...env, ...creds } }).trim()).toBe("docker.io");
+    expect(execFileSync("node", [SCRIPT, "--fallback", log], { encoding: "utf8", env }).trim()).toBe("");
+    writeFileSync(log, BIND_NEW);
+    expect(execFileSync("node", [SCRIPT, "--fallback", log], { encoding: "utf8", env: { ...env, ...creds } }).trim()).toBe("");
   });
 });
