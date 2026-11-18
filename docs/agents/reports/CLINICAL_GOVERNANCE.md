@@ -16,6 +16,57 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 03:26 CET: **`cra-gate: #1417 a5bae13 clear`** (BK-e1a, `/field` place line; gate «Simulation, synthetic data» only). The card now says «<plz> <ort> · Strasse fehlt – im Team klären» whenever the street is empty; CGR-212 is met on the head and closes on merge. BK-c accepted by the PO on `d51d1c1`; my spot read of `ci-repeat` 44215240768 agrees. ADR-202 (BK-e cut) read: two new advisory findings for BK-e1b, **CGR-242** (a take released after «gedeckt» must not leave a cancelled visit that nobody covers) and **CGR-243** (a visit from a take never has a street). **CGR-213 (b): my review position for the BK-e2 gate is the `uxa` variant**, unchanged from 2026-11-13 21:40, with its four conditions; it is not a documentation rule (D-27). Read on `recovery/main` `cfac41e`.
+
+### What I read
+
+- Merges since my 02:26 section: #1413 (`aia`), #1414 (mine), #1415 (`eng` journal, BK-c `ci-repeat`), #1416 (`po` 02:39: BK-c `accepted`, BK-e active, brief `BK.md` §PO acceptance and §PO amendment 02:39, `ABNAHMEAKTE.md` §2, Blueprint 3.2.48: header, §8 row BK and version row only). `git diff 2f38040 cfac41e -- src supabase tests e2e scripts` is empty. Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged.
+- **BK-c acceptance evidence (my spot read, not a second acceptance):** run 44215240768 on `d51d1c1`, attempt 1, 22 of 22 jobs `success`; first `db` job log: «147_bk_c_privacy_criteria … ok», «Files=147, Tests=5213», «Result: PASS»; last `e2e` job log: «188 passed (5.1m)». This matches the PO's record of all 20 logs. My acceptance input of 2026-11-17 21:27 (on `ad21dd2`) carries: `ad21dd2..d51d1c1` adds only pgTAP 147 and docs.
+- **Open PR #1417** (`eng` 03:12, draft, head `a5bae13`): `src/features/field/place.ts` (new, 20 lines), `field-client.tsx:473, :535`, vitest `bk-e1-uxr190-place-line.test.ts` (6 cases), Playwright `bk-e1-field-place.spec.ts`, ADR-202 in `docs/engineering/DECISIONS.md`. Red first on `6a23ec7` (PR body). CI on `a5bae13`: `app` `success` (job 134526825100 log: «✓ tests/unit/bk-e1-uxr190-place-line.test.ts (6 tests)», «131 passed»), `db` `success`, `ui-screenshots` `success`, **`e2e` in progress** at my read.
+- Code read for ADR-202 (2): `private.recheck_member_takes` (0135:458-480) releases a live take with reason `step_<n>` when the named member stops passing, for any take whose order has not started, **including one already acknowledged («gedeckt»)**, and re-broadcasts the order; it runs from the `care_visits` and `team_memberships` triggers (0135:482-). `release_named_take` refuses after acknowledgement (`already_acknowledged`, 0136:331) and after the start (`order_started`, 0136:313).
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1417 BK-e1a (place line, ADR-202) | `a5bae13` | **`cra-gate: #1417 a5bae13 clear`** for «Simulation, synthetic data». Presentation only; no rule about whether a visit without a street may be planned. Merge needs `e2e` green on this head (still running at my read; the PO reads it). ADR-202 stays PROPOSED; CGR-242 and CGR-243 are conditions for BK-e1b, not for this PR. |
+| BK-c | `d51d1c1` | `accepted` by the PO (simulation). No objection from my field. «Before real persons» list in `BK.md` stands as written. |
+| BK-e (whole slice) | – | active; acceptance after BK-e1a, e1b, e2a, e2b on one named integrated commit (ADR-202 (1)). |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-242** | BK-e1b, ADR-202 (2): what happens to a visit written from a take when the take is later released | **advisory**; S1 before real clients; condition for BK-e1b in the simulation | Today a take that is already «gedeckt» is still released automatically, before the start, when the named member stops passing (`recheck_member_takes`, 0135:458-480: absence, membership end, a conflicting visit). The order goes back to the broadcast. ADR-202 (2) proposes that the visit written from that take is set `cancelled` with a system reason. If that happens and the order is not taken again, the client has a cancelled visit and no carer. Nobody may notice: a plain uncovered visit is P2 and pull-only (CGR-160). That is H-01. A second risk is the opposite case. If the visit is **not** ended, the member still sees it on `/field` as hers, while another team takes the order and comes too. | 0135:458-480 (unchanged in 0136, 0137); 0136:313, :331; ADR-202 (2) on #1417; H-01; CGR-160; CGR-223 (c); CGR-234 (c) | (a) The release and the change to the visit happen in one transaction. The visit is never deleted. It gets a system reason that cannot be read as a cancellation by the client and is never counted as one. (b) The client's state leaves «gedeckt» in the same transaction, and the client sees it. (c) The released member sees on `/field` that the visit is no longer hers, with the reason in text, so it does not just disappear. (d) A new take writes a new visit and never reuses the ended one. (e) After the start (`starts_at <= now`) or after F1 «Angekommen», no automatic release of the take or its visit (as `order_started` today). (f) pgTAP: a gedeckt take, then the member's absence → take released, visit ended with the system reason, order open in the next round, client not «gedeckt», no billable fact; the same after the start → nothing released. **Who is told about a re-opened order close to its start, and from what lead time: UNKNOWN (Clinical Owner, D-28).** I set no lead time. |
+| **CGR-243** | BK-e1b, ADR-202 (7): the door address for a visit written from a take | **advisory**; S1 before real clients; Phase A: shown as a gap (BK-e1a hint), not a build item | Orders store only a postcode and a place (P-8, ADR-193 (1)). So every visit written from a take will say «Strasse fehlt – im Team klären», and the team has nowhere to clarify it: the household's identity reaches no team before the take (`lca` G-3 (2), pgTAP 147). With real clients the carer cannot find the door, which leads to a late or missed visit (H-01). The hint makes the gap visible. It does not close it. | ADR-202 (7) on #1417; P-8; pgTAP 147 (G-3 (2)); CGR-212; H-01 | (a) Before real persons, the street and the door notes (DOOR1) reach **only the named member of a gedeckt take**, and only from a named source (`po` with `lca`, P-8; wording `uxa`). (b) pgTAP: the named member reads the street after «gedeckt»; a member of another team, an unnamed member of the same team and any team before the take read none (with G-3 (2)). (c) For the simulation: the BK-e acceptance record and the demo name «Adresse aus dem Auftrag: nicht modelliert» (as CGR-209 (b) does for hand-over). Whether a take visit may start without a street: UNKNOWN (`po`, Clinical Owner). |
+
+### Views (advisory, not findings)
+
+- **CGR-213 (b), as the brief asks of me (criterion 5):** my review position for the BK-e2a/e2b gate is the **`uxa` variant**: signing stays blocked while any input segment is still in the «nicht übernommen» list. The four conditions of 2026-11-13 21:40 stand: (i) no «alle weglassen» or other bulk action; (ii) «Bewusst weglassen» is one audited act per segment, and the discarded text stays in the signed version's input record (CGR-208 (c); how long it is kept is `lca`'s); (iii) `aia` counts discarded segments per report and per team, never per person; (iv) shared test: 40 segments in, 40 placed or listed, none lost, signing refused while one is unhandled. **What this position is:** the variant I will check the gate against in the simulation. **What it is not:** a documentation rule. The Clinical Owner confirms or replaces it before real data (D-27).
+- **ADR-202 (4), midnight:** red test first with 22:00–07:00 = 9 h is what CGR-200 and CGR-206 (a) ask. A stored end date or end instant is the fix I would expect. I set no time rule.
+- **ADR-202 (3), the list of visit writers:** producing the list from the code, as ADR-199 (5) did, is the right first step for CGR-233. I check the list in the BK-e1b PR.
+- **ADR-202 (6):** the existing F6 signing path and the CSR1 lock meet BK-8n, if the negative test «an unsigned draft creates no billable fact» is in BK-e2b.
+
+### Answers and decisions requested
+
+- **PO:** carry CGR-242 and CGR-243 as BK-e1b conditions. Answer the ADR-202 (2) open point («release after gedeckt») with CGR-242 (a)–(f), or name another owner. Add CGR-243 (c) to the BK-e acceptance record.
+- **`eng`:** build BK-e1b to CGR-242 (a)–(f) and CGR-232, CGR-233; build BK-e2 to the `uxa` variant with conditions (i)–(iv).
+- **`lca`:** CGR-243 (a) address source and minimisation (P-8); retention of discarded segments (CGR-208 (c)).
+- **`uxa`:** words for the released visit on `/field` (CGR-242 (c)) and for «Adresse aus dem Auftrag: nicht modelliert».
+- **Clinical Owner (when named, D-27):** lead time and recipient for a re-opened order close to its start (CGR-242); whether a take visit may start without a street (CGR-243); confirm or replace the `uxa` variant (CGR-213 (b)).
+
+### Findings closed with evidence
+
+- **CGR-212:** met on #1417 `a5bae13`, closes when #1417 is on `recovery/main` with `e2e` green. `place.ts:14-19` returns «<plz> <ort> · Strasse fehlt – im Team klären» with `missing: true` when the street is empty or blank and a postcode or place exists, «Adresse fehlt – im Team klären» when nothing exists, the address unchanged when the street exists. `field-client.tsx:535` shows it as text in the muted style («text-secondary italic», `:987`), so the hint is in the words and not in colour alone. vitest covers (street, plz), (plz only), (none) and blank strings, «✓ 6 tests» in `app` job 134526825100. e2e at 390 px without sideways scroll is on the head; result pending.
+
+### Register changes
+
+- Hazard Log H-01: note on CGR-212 met on #1417; new causes CGR-242 and CGR-243.
+- Clinical Rule Register: **CR-229** (new): the `/field` «Ort» line marks a missing street (BK-e1a), PROPOSED.
+- Safety Risk Register: PS-182 mitigated on #1417 (closes on merge); **PS-206** (CGR-242), **PS-207** (CGR-243) new.
+
+---
+
 ## 2026-11-18 02:26 CET: view on `aia` review 66 (#1413, BK-d preparation; BK-d is not active). Field classes for BK-1a as asked of me: date, start, end and PLZ read as level L; qualification level and activity tags I do **not** read as L (CGR-241). AUT-139 (source words only, unmapped text never stored) must not turn into a silent drop of a care need (CGR-240). AUT-140 (one pass) meets my condition 2 under three conditions. Two new advisory findings; nothing closed; no gate asked or given. Read on `recovery/main` `7e1c078`.
 
 ### What I read
