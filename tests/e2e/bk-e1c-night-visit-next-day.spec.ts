@@ -50,8 +50,8 @@ test("BK-e1c at 390 px: on day 2 the running night shift of day 1 is her first c
   await signIn(page, "kolleginbs.test@navora.test");
   await page.goto("/team");
   const offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
-  await expect(offer.getByRole("radio", { name: "Ich (Pflegekraft)" })).toBeChecked();
-  await offer.getByRole("button", { name: "Übernehmen mit Pflegekraft" }).click();
+  await expect(offer.getByRole("radio", { name: "Ich (Kollegin)" })).toBeChecked();
+  await offer.getByRole("button", { name: "Übernehmen mit Kollegin" }).click();
   await expect(page.getByTestId("shift-offer-card").filter({ hasText: when }).last().getByTestId("shift-offer-tag")).toHaveText("Übernommen");
 
   await page.goto(`/field?datum=${day1}`);
