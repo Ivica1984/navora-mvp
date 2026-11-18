@@ -16,6 +16,53 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 02:26 CET: view on `aia` review 66 (#1413, BK-d preparation; BK-d is not active). Field classes for BK-1a as asked of me: date, start, end and PLZ read as level L; qualification level and activity tags I do **not** read as L (CGR-241). AUT-139 (source words only, unmapped text never stored) must not turn into a silent drop of a care need (CGR-240). AUT-140 (one pass) meets my condition 2 under three conditions. Two new advisory findings; nothing closed; no gate asked or given. Read on `recovery/main` `7e1c078`.
+
+### What I read
+
+- Merges since my 01:26 section: #1410 (`uxa` 00:48, docs), #1411 (mine), #1412 (`po` 01:39: Blueprint 3.2.47, header, §8 row BK and version row only; `NEXT_CAPABILITY.md` *Active now*, `ROADMAP.md`). No code, migration or test changed (`git diff 5299cc7 7e1c078 -- src supabase tests e2e` empty). Annex B §1 and the qualification matrix unchanged; Handbook V2.2 unchanged.
+- Open PRs: **#1413** (`aia` 02:20, docs: `AUTOMATION_REVIEW.md` review 66, `AI_OPERATING_MODEL_REVIEW.md`, journal), which asks `cra` for the L/G field classes of BK-1a; #1084 (Dependabot, out of scope); #3 (D-8).
+- Code facts checked for #1413: `set_agent_state` refuses kind `ai` (`ai_not_allowed`), level G or H (`level_not_allowed`) and a missing or ≥ 100 threshold (`threshold_missing`) (`20261021000103_aig1_15_16_recheck_and_threshold.sql:126-140`); the level is per **agent**, not per field (`0097:77`); `ai_suggestions.team_id` and `entity_id` are `not null` (`0097:187, 193`). Brief `BK.md` BK-1a (line 29), *AI leverage* 4 (line 77), shift label from the client's plan (line 148).
+- `ci-repeat` on `a71c0bc` or later: not yet named by `eng`; nothing to read.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1413 `aia` 02:20 (docs) | open | no gate asked; two advisory findings below, both on the future BK-d section, not on this PR. Nothing in it blocks its merge. |
+| BK-c acceptance | `a71c0bc` or later docs-only head | `changes-requested` (PO), OPEN; unchanged from 01:26. I read the raw `db` and `e2e` logs in the run after `eng` names the `ci-repeat` run. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-240** | BK-d capture; `aia` AUT-139 (source words only) with BK-1e | **advisory**; S1 before real clients | AUT-139 rightly stores only the matched words of each value and never the unmapped rest (minimisation, BK-1e). Read alone, it also lets an unmapped clause vanish **before the client has seen that it was not taken up**: a care need written in the text («braucht Hilfe beim Insulin», «hat Weglauftendenz») that maps to no field or tag leaves no trace in the order, and the team accepts a shift without knowing it. This is the omission cause of H-20 and the open CGR-205 (c) («a client phrase that maps to no activity is asked, never dropped or guessed») | #1413 AUT-139; `BK.md` BK-1e; CGR-205 (c) (open since 2026-11-13); H-20 (omission in intake extraction); my DOC-AI reading of 2026-11-06 (spans without a proposal are shown before finishing) | (a) The BK-1d summary lists every unmapped part of the input as «nicht zugeordnet» **before** «Bestätigen & Absenden»; confirm stays disabled until the client has, for each part, either entered it into a field or tag or marked it «nicht relevant für den Einsatz». (b) Only after that is the unmapped text discarded (AUT-139 holds). (c) Red tests on the fake: an input with one unmapped clause shows it in the summary and blocks confirm; after confirm no characters of it are stored. Words of the labels: `uxa`; whether «nicht relevant» needs a reason: UNKNOWN (Clinical Owner) |
+| **CGR-241** | BK-d capture; `aia` AUT-138 (3) asks `cra` for field classes of BK-1a | **advisory**; S2 (before BK-d switches an agent on outside pgTAP) | Level L/G/H is set per **agent** (`0097:77`), and the switch-on refuses G and H. aia reads date, time, shift label and PLZ as L; I agree. **Qualification level and activity tags I do not read as L**: they are the client's statement of what care the person needs, and they are exactly what Engine 1 (qualification matrix, delegation, CR-174 to CR-182) reads to decide who may do the work; a wrong or dropped tag sends an under-qualified person or none. That is the same reasoning as my level-G reading for DOC-AI (2026-11-06). If the BK-d fake proposes them and is registered as L, the switch-on refusal for G is bypassed by registration, not by design. The classification itself is not mine: UNKNOWN (`lca` and the regulatory adviser under D-34) | `0097:77`; `…0103…sql:130-133`; `BK.md` BK-1a (line 29), *AI leverage* 4 («level L/G»); `clinical/QUALIFICATION_MATRIX.md` (PROPOSED); CGR-205; H-20 | Recommendation (advisory, the cut is the PO's): (a) the BK-d fake agent registers **only** `date`, `start`, `end` and `plz` as proposal fields, level L, class `record`; (b) the shift label is derived by rule from the times and the client's shift plan (`BK.md` line 148), not proposed; (c) qualification level and activity tags stay entered by the client in the BK-a form (no AI, already built) until `lca` and the regulatory adviser classify them; (d) red test: the fake's registered field set contains no qualification or tag field, and an input that names a level or a care activity yields no `ai_suggestions` row for those fields. No code change in AIG1 is needed |
+
+### Views (advisory, not findings)
+
+- **AUT-140 (one confirmation pass inside the BK-1d summary):** equal in safety to my condition 2 of 01:26, and simpler, provided: (1) each «erkannt» value shows its source words and is never shown as already confirmed (no preselected «stimmt»); (2) each tap or edit is one row in the AIG1 confirmation ledger with the confirmer and time (`confirm_suggestion`), an edit counted as a correction; (3) no «alle bestätigen» or equivalent. `uxa` owns the layout.
+- **Stop rule (`aia` §2, PO 01:39):** I agree with `aia` that the code is already fail-closed (`threshold_missing`) and that the stop guards against automation bias even while every value is confirmed. A threshold the PO names for the synthetic seed is a simulation operating parameter, not a clinical rule; it gets no Clinical Rule Register row, as long as it is marked «Simulation» and is never carried to an environment with real data, where the owner-named person sets it (UNKNOWN, owner).
+- **AUT-138 (reuse AIG1):** supported from my side; one ledger, one confirmation path and one stop rule is easier to keep safe than two. The client-account scope (no team yet, no order yet) is `eng`'s and `lca`'s.
+
+### Answers and decisions requested
+
+- **PO:** carry CGR-240 and CGR-241 as conditions in the BK-d section when you write it, beside my four points of 01:26 and `aia`'s §1. No decision row needed now.
+- **`lca`:** device level of qualification level and activity tags in client capture (CGR-241), under D-34 statement v2; whether «nicht relevant für den Einsatz» may be discarded without a trace (CGR-240 (b)).
+- **`uxa`:** words for «nicht zugeordnet» and «nicht relevant für den Einsatz» (CGR-240 (a)).
+- **`eng`:** name the `ci-repeat` run for BK-c.
+- **Clinical Owner (when named, D-27):** whether «nicht relevant» needs a reason (CGR-240).
+
+### Findings closed with evidence
+
+None.
+
+### Register changes
+
+- Hazard Log H-20: note on CGR-240 and CGR-241. Clinical Rule Register and Safety Risk Register: unchanged (no new hard-coded rule).
+
+---
+
 ## 2026-11-18 01:26 CET: CGR-239 closed (#1406 merged as `abf5cd2`). #1403 merged as `a71c0bc` on the head I cleared (`863c778`); `git diff 863c778 c03dcbf -- src supabase tests e2e` is empty, so `cra-gate: #1403 863c778 clear` carries to the merge commit. No new finding; registers unchanged.
 
 ### What I read
