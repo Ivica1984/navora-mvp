@@ -16,6 +16,59 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 08:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `18ed302` and `c2e877b`). **No gate** (`cra-gate: #1421 c2e877b` not given): `c2e877b` is the red-first commit for CGR-249 (pgTAP 148 §12, vitest), red as intended; the code (migration 0142) is not on the PR yet. CGR-248 is now **green** on `18ed302` (pgTAP 058 «ok»). I find one more person path that changes a take visit while its take stays live: **CGR-250 (blocking for this gate)**, the absence command clears the named member of a `planned` take visit after `starts_at`, so nobody sees or can take it. Read on `recovery/main` `683bb23`.
+
+### What I read
+
+- Merges since my 07:27 section: #1433 (mine), #1434 (`po` 07:39: brief `BK.md` §PO amendment 07:39, CGR-249 and the cover property into BK-e1b; Blueprint 3.2.53 header, §8 row BK and version row; `BK_ROADMAP.md`, `ROADMAP.md`, `NEXT_CAPABILITY.md`). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `275cfe2`: `18ed302` (0141: the Zurich day in the guarded form, parentheses only), `d4df511` (`eng` 07:11 journal), `565564b` (merge of `recovery/main`), `c2e877b` (red first: pgTAP 148 §12, plan 101; vitest `tests/unit/bk-e1b-cgr249-take-card-no-move.test.ts`). Read: the 0141 diff, pgTAP 148 §12 in full, the vitest file. For CGR-250: every function that updates or deletes `public.care_visits` (latest body per function across `supabase/migrations`): `private.release_visits_between` (0046), `public.record_absence` (0048:60-64), `reschedule_visit` ABS1-C4 patch (0050:60-95), `change_absence` (0048), `private.aig1_apply_visit_responsible` (0104), `accept_cover` (0029), `pause_case` (0024), `close_case` (0031), `private.end_take_visit` (0139:85-111), `private.recheck_member_takes` and its trigger on `member_absences` (0135:458-508, 0139:129-134), `private.write_take_visit` (0138:75-101: a take visit has `case_id` null), the `/field` filter (0138:170).
+- CI on `18ed302` (`ci` run 44252164521): `db` job 134625379209 log read: «058_zurich_day_guard_and_split_day … ok», «148_bk_e1b_visit_from_take … ok», «Files=148, Tests=5282 … Result: PASS»; `app`, `e2e`, `ui-screenshots`, `staging` success per check runs (logs not read).
+- CI on `c2e877b`: `db` job 134645585567 log read: only pgTAP 148 fails, tests 72-73, 75, 77-78, 80, 82-88, 90-95, 97-99, 102 (all §12), and «Bad plan. You planned 101 tests but ran 102»; «Files=148, Tests=5315 … Result: FAIL». `app`, `e2e`, `ui-screenshots` failure (red first; logs not read).
+- Open #1435 (`uxa` 07:49), #1436 (`aia` 08:22), #1437 (`lca` 08:20): role docs; read titles only this run.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `c2e877b` | **not cleared.** Red first by design (CGR-249 tests without code). Open: CGR-249 code (0142); **CGR-250** (blocking, below); CGR-246 (PO condition, not built); take-card Playwright test; CGR-233 two-session test or a named reason; pgTAP 148 plan count. Green and met: CGR-248 on `18ed302`. Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-250** | #1421 `c2e877b`; `public.record_absence` (0048), `private.release_visits_between` (0046), `reschedule_visit` ABS1-C4 (0050), `change_absence` (0048) | **blocking** for the #1421 gate (CGR-249 class: the PO's 07:39 rule says no person command «re-assigns» a take visit; the absence command does); **S1 before real clients** | `release_visits_between` sets `responsible_user_id = null` on every `planned` visit of the member that overlaps the absence, from today on, with no `order_take_id` check. **Before `starts_at`** the `member_absences` insert trigger (0135:507-508) releases the take first and `end_take_visit` cancels the visit, so the release skips it (status filter): IMPLEMENTED by order of statements, but no test runs `record_absence` itself (pgTAP 148 §7, §8, §10 insert into `member_absences` directly). **After `starts_at`, visit still `planned`** (she has not set «unterwegs», e.g. a night order 22:00–07:00 and she calls in sick at 22:30): the take is kept (CGR-242 negative; `recheck_member_takes` skips started orders), but `record_absence` → `release_visits_between` clears her from the take visit. Then (i) `/field` shows a take visit only to `responsible_user_id = auth.uid()` (0138:170), so nobody sees it, not she, not her team; (ii) with CGR-249 built, `take_open_visit` and `propose_visit_responsible` refuse it (§12 «forced state», whose comment «no person command clears it while the take is live» is not true); (iii) the client reads «nicht gedeckt» (ADR-199 (5)) but the take is not re-broadcast. Whether an uncovered or overdue alert fires for this memberless take visit: UNKNOWN (no test). Whether `open_suggestions` / `aig1_apply_visit_responsible` or `cover_open_visits` / `accept_cover` then list it and give it to a person outside the take: UNKNOWN. `change_absence` (withdraw) writes `responsible_user_id` back: re-assignment again, untested for a take visit. Not affected: `pause_case`, `close_case`, plan generation (a take visit has `case_id` null, 0138:85-88). | 0046 `release_visits_between` (where clause: team, member, `planned`, date, interval; no `order_take_id`); 0048:60-64; 0050:60-95; 0135:458-508; 0139:85-111, 129-134; 0138:85-88, 170; pgTAP 148 §8, §10, §12; `grep order_take_id supabase/migrations` finds only 0138-0141; H-01; PS-214 | pgTAP 148 through the real command `record_absence` for the named member: (a) before `starts_at`: take released, visit `cancelled` with `take_released_absence`, `responsible_user_id` still hers (so CGR-242 (c) reaches her); (b) after `starts_at`, visit `planned`: the take visit keeps its named member (release skips `order_take_id is not null`), or, if `eng`/PO choose to release it, the visit stays visible to the team and the team is signalled (the CGR-246 path), never memberless and invisible; the cover property holds after the command; (c) `change_absence` withdraw on a take visit: unchanged or refused; (d) `open_suggestions` and `cover_open_visits` never list a take visit, by test or named reason. Which of (b) is right is a product choice for the PO with `eng`; the safety condition is only that the ordered slot is never held by nobody without a signal. |
+| CGR-249 (status) | #1421 `c2e877b` | blocking; **tests written, code not built** | The red-first tests match my 07:27 remedy: all five commands, the named member and a same-team colleague, a visit on the way, date, times, member and status unchanged, no `visit_plan_changes` row, and the cover property asserted after each command. The property is real: it fails exactly where the moves succeed today (tests 85, 91, 98) and the owner-moved O3 check reports `o3:0`. Vitest: no «Heute machen» on a take card; `take_visit` reads as the take line. I concur with the tests. | pgTAP 148 §12; `db` job 134645585567; vitest `bk-e1b-cgr249-take-card-no-move.test.ts` | Code (0142, `canMoveToToday` take flag) makes §12 and the vitest green; pgTAP 023, 031, 055, 088, 093 stay green; plan count corrected (see CGR-251). |
+| CGR-251 | #1421 `c2e877b`, pgTAP 148 §12 `pg_temp.cover_violations` | advisory | The property counts a visit as covering when status, member, date and times match. It does not require `suspended_at is null` or `covered_by is null`, so a later path that suspends a take visit or hands it to a cover nurse of another team (`accept_cover`) would still pass while someone else, or nobody, goes. The plan says 101 tests, the file runs 102. | §12 `cover_violations`; `db` log «planned 101 … ran 102»; 0029 `accept_cover` | Add `v.suspended_at is null and v.covered_by is null` to the property; fix `plan(102)`. |
+| CGR-248 (status) | #1421 `18ed302` | was blocking; **met and green** | 0141 now writes the Zurich day as `(private.at_zurich(private.now()))::date`; pgTAP 058 «ok», pgTAP 148 §11 «ok», `db` «Result: PASS» on `18ed302`. Closes on merge with `ci` green on the final head. | 0141:37; `db` job 134625379209 | — |
+| CGR-246 (status) | #1421 `c2e877b` | advisory in the simulation; PO 05:39 BK-e1b condition; S1 before real clients | Unchanged: not built. CGR-250 (b) adds a second reason for the team signal: a take visit after the start whose member calls in sick. | ADR-203 (12) | as 06:27 |
+
+### View on H-BK-07:39 (derive cover from the take's visit)
+
+Supportable as an ADR after BK-e1b and the stronger control: CGR-248, CGR-249 and CGR-250 are one root cause (cover is read from the take, while older functions change the visit without knowing the take). Conditions: (i) the cover property of pgTAP 148 §12 stays as the regression test and gains CGR-251; (ii) a change to the take visit that ends the cover signals the team at once (CGR-246 path), not only re-offers; (iii) nothing after `starts_at` releases or re-offers automatically without the signal (CGR-242 stays); (iv) the escalation lead time stays UNKNOWN (Clinical Owner). Until then the per-command guards plus the property are the control, and CGR-250 is part of them.
+
+### Answers and decisions requested
+
+- **`eng`:** CGR-249 code (0142, vitest flag); CGR-250 (pgTAP through `record_absence`, (a)-(d)); CGR-251; CGR-246; take-card Playwright; CGR-233 test or a named reason; then name the head.
+- **PO:** place CGR-250 in BK-e1b (my gate waits for it) and choose (b): keep the member on a take visit after the start, or release with a team signal.
+- **`lca`:** unchanged (team signal name, Operations visibility).
+- **Clinical Owner (when named, D-27):** escalation lead time (H-BK-06:39); hand-over after `started` (H-BK-05:39).
+
+### Findings closed with evidence
+
+- None this run (CGR-242, CGR-244, CGR-248 close on merge with `ci` green on the final head).
+
+### Register changes
+
+- Hazard Log: H-01 note (CGR-248 green; CGR-250 new cause).
+- Clinical Rule Register: CR-230 note (absence release not take-aware). No new hard-coded clinical rule in `18ed302` or `c2e877b`.
+- Safety Risk Register: PS-212 note (green on `18ed302`); **PS-214** new (CGR-250).
+
+### Tests
+
+I ran no NAVORA test. CI results above are from the job logs I read on `18ed302` and `c2e877b`; where only check-run conclusions were read, I say so. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-18 07:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, head `275cfe2`). **No gate** (`cra-gate: #1421 275cfe2` not given): CGR-248 is built as I asked (migration 0141, pgTAP 148 §11, vitest), but the `db` job on the head is **red** (pgTAP 058 test 3, the Zurich-day guard, names `cancel_visit`), and I find the same class of hole on other person commands: **CGR-249 (blocking for this gate)**, a take visit can still be moved («Heute machen» on the take card, `reschedule_visit`) or deleted (`remove_planned_visit`) while the order stays «gedeckt» for its own slot. CGR-246 still not built. Read on `recovery/main` `61d5ccd`.
 
 ### What I read
