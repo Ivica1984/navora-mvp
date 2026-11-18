@@ -31,6 +31,69 @@
 
 ---
 
+## 2026-11-18 08:22 CET · aia review 67: BK-e is the active slice; views on H-BK-02:39 (report draft from recorded facts: supported, three source classes), H-BK-04:39 to H-BK-07:39 (supported); BK-e2 fits AIG1 with no schema change; signed «services» copy the planned list (AUT-141, medium); the ≤ 3 actions target needs a counting rule and a `cra` reading on placed own words (AUT-142, medium); a reused hypothesis ID (AUT-143, low)
+
+**Read:** `recovery/main` at `683bb23` (since review 66 at `7e1c078`, 42 commits): brief `BK.md` §PO acceptance 02:39 (BK-c accepted for the simulation on `d51d1c1`) and §PO amendments 02:39 to 07:39 (BK-e active; H-BK-02:39 to H-BK-07:39); ADR-202 in `docs/engineering/DECISIONS.md`; journals `po` 02:39 to 07:39, `cra` 02:26 to 07:27, `uxa` 03:50 to 06:48, `lca` 04:20, `eng` 02:37 and 03:12; `CLINICAL_GOVERNANCE.md` CGR-213 (b) position (uxa variant). #1421 branch at `d4df511` (BK-e1b): migration `20261021000138_bk_e1b_visit_from_take.sql`. Code: `20261021000016_signed_visit_reports.sql` (`private.visit_report_snapshot`), `20261021000014_care_plan_billable_planning.sql`, `20261021000046_abs1_absence.sql` (`take_open_visit`), `20261021000097_aig1_ai_governance_foundation.sql` (`ai_suggestions`, `propose_visit_responsible`), `20261021000135_bk_c1_take_cover_state.sql`.
+
+**Measured versus estimated:** nothing here is a measurement of care work. Code facts are readings of migrations; I ran no NAVORA test, read no CI log and started no database this run. **Active block (README rule 12):** BK, slice BK-e (BK-e1a merged, not accepted; BK-e1b #1421 open, no gate). I ask for no merge. The brief names `aia` for «BK-8 contract, controls» (BK-e2a, BK-e2b); BK-e1b needs no `aia` gate line. This section answers the PO's 02:39 question to `aia` on H-BK-02:39 and prepares BK-e2.
+
+### 1 View on H-BK-02:39 (2026-11-18, report draft from recorded facts): supported
+
+It is the design order of my mandate: eliminate through the care graph first (AUT-54), the rule-based fake only at the edge (her typed words). I propose the ADR take it in, with **three source classes per report line**, each with its own confirmation form. The documentation rule stays with `cra` and the Clinical Owner (D-27); this is a form proposal, PLANNED.
+
+| Class | Lines | Source shown | Her act | AIG1 ledger |
+|---|---|---|---|---|
+| (a) recorded fact | F1–F4 times (with corrections), place, date | the event or row (`visit_events`, `visit_time_corrections`) | none beyond the act that recorded it; a correction goes through the existing time-correction path (0008), not through the draft | **no** row: a copy of a recorded fact is not a proposal |
+| (b) ordered activity | the order's activity tags (`visit_activities`, 0138) | «geplant» from the order | one tick per item during the visit (H-BK-04:39 with `cra` (i)–(iv)) | **no** row: the tick is her own act with author and time, not an agent's value |
+| (c) her typed words | segments of the typed text | the segment itself, beside the line | placed or «nicht übernommen» (uxa variant, CGR-213 (b)) | **yes**: one `ai_suggestions` row per placement by the registered `rule` agent; correction = she moves or removes a placed segment |
+
+Why the classes matter: if (a) and (b) went through the ledger, every report would carry confirmations that check nothing an agent produced, the correction share per field would be diluted by copies, and the stop rule would watch the wrong thing. Only (c) is an agent output.
+
+**AIG1 fit for BK-e2 (code reading, IMPLEMENTED parts):** `ai_suggestions` needs `team_id not null`, `entity_type`, `entity_id not null`; `case_id` is nullable (0097:182-199). A take visit has `team_id` = the take's team and `case_id null` (0138, `write_take_visit`). So the BK-e2 draft can write proposals against `care_visits` with **no schema change**; the AUT-138 fit gaps (client account, no target before the order) bite only in BK-d. Open for BK-e2b: the fake needs a registered `(agent_key, field)` in `ai_agent_fields` and a written threshold at switch-on (`threshold_missing`, review 66 §2). **PO:** name the simulation threshold in the BK-e section (operating parameter, labelled «Simulation»); otherwise the fake runs in pgTAP but not on the seed or in `e2e`. I set no number.
+
+### 2 Views on H-BK-04:39 to H-BK-07:39 (PO challenges): supported
+
+- **H-BK-04:39 (tick list during the visit):** supported; it moves CGR-245's per-item act to where care happens and is the only way the ≤ 3 target can hold for a visit with ordered activities (AUT-142). See AUT-141 for the code path the CGR-245 test must reach.
+- **H-BK-05:39 and H-BK-06:39 (team closes its own gap; «Ich kann nicht» before `on_the_way`):** supported as the slice after BK-e. They remove the phone round, which is dispatch work. Conditions for reuse, not new rules: the colleague list is `private.order_member_step` at step 4 (AUT-130, one member step); the list never shows a colleague's failing step (AUT-132); first tap wins under the existing `order_take_member:` lock (0135, CGR-233); after `on_the_way` only the CGR-246 signal (CGR-244). Measure at team level only: human actions from «Ich kann nicht» or the signal to a new named member, and minutes to cover, on the synthetic seed; never per person.
+- **H-BK-07:39 (derive cover from the visit):** supported; it replaces one guard per command (CGR-248, CGR-249) with one source of «gedeckt», which is «eliminate» before «rule». Keep the cover property test (PO 07:39 (2)) as the monitor even after the change: it is the control that catches the next command. A derived cover must not re-offer an order by itself after `on_the_way` (CGR-244) and builds no lead time (CGR-242, UNKNOWN Clinical Owner).
+
+**Evidence for CGR-249 (PO 07:39 (1), «test or named reason»; code reading on #1421 `d4df511`, not run):** `write_take_visit` writes the visit with `responsible_user_id` = the take's `member_id` (0138; `order_takes.member_id not null`, 0135:87). `propose_visit_responsible` returns `not_applicable` when `responsible_user_id is not null` (0097, the guard before the insert into `ai_suggestions`), and `take_open_visit` returns `already_taken` in the same case (0046:341). Both therefore look unreachable for a live take visit while CGR-249 forbids re-assignment. The bodies of `take_open_visit` were later patched by exact-string replacement (0069, 0092, 0118, 0121); I did not confirm the guard survives on a running database. One pgTAP case per command is cheaper than the named reason. HOW is `eng`'s.
+
+### 3 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-141 | Visit report signature, carer (BK-e2a/e2b; CGR-245) | **IMPLEMENTED, every visit:** `private.visit_report_snapshot` copies `care_visits.services_provided` into the signed version as `services` (0016:117). For care-plan visits that field holds the planned services (0014:254). **On #1421 (BK-e1b, not merged):** `write_take_visit` fills it with the order's `activity_tags` (0138). So a signed take report lists every ordered activity as `services` without any act by the carer: an accept-all by default on a record field. CGR-245 is placed in BK-e2, not BK-e1b, so this holds only between the two merges and only on synthetic data. | **Rule:** in the signed version, planned and performed stay apart: `planned_services` from the order, `services` only from per-item ticks (class (b), §1). The CGR-245 pgTAP («an unticked ordered tag is never in the signed services») must assert on `visit_report_snapshot`, the path that writes the record, not on the card. **Question to `cra`:** does the same apply to care-plan visits (0014), where the snapshot does the same today? UNKNOWN. | G (proof of delivery; `cra` classes) | Stage 0 (deterministic); gate `cra` (BK-e2 gate), `lca` (what the signed version stores, D-4) | pgTAP: share of signed take reports whose `services` each have a tick act = 100 %; and an unticked ordered tag appears only under `planned_services` | medium | – |
+| AUT-142 | After the shift, carer: «Einsatz beendet» to «unterschrieben» (BK-e vision check 1, AUT-74, H-BK-02:39 measure) | **PLANNED.** Target «≤ 3 admin actions after a shift» has no counting rule. Read with criterion 7 («every value stays a proposal until the carer confirms it»), each placed segment of her typed text is one AIG1 confirmation: a 5-segment note is 5 confirmations plus signature, above target; the shared 40-segment test is 40. No patient-care benefit of a separate act per placed segment is shown; the risk it would catch (a segment under the wrong line) is visible in context at signature. | **Counting rule (monitor):** count per report, from rows that exist (AIG1 confirmations, segment decisions, edits, the signature), per team and month; report the distribution, never per person. **Form (challenge, equal safety):** classes (a) and (b) need no act after the shift (§1); a placed segment of her own verbatim words is confirmed by the signature over the draft that shows it in place with its source (the AUT-140 form: one confirmation inside the summary, no second pass); «Bewusst weglassen» stays one act per unplaced segment (CGR-213 (b) (ii)); no accept-all on record fields (AUT-141). Whether signature in context satisfies per-value confirmation for placed own words: UNKNOWN, `cra`, then Clinical Owner. | G / H per `cra` | Stage 0 (rule-based fake, synthetic data); gate `cra`, `uxa` (draft at 390 px), PO (criterion 7 wording) | Actions after the shift per report, team median and 90th percentile; share of report lines from class (a)+(b) versus (c) (H-BK-02:39) | medium | – |
+| AUT-143 | Traceability of PO hypotheses, all roles | The ID H-BK-02:39 names two different hypotheses: 2026-11-17 (reach aggregate of missed orders, `po` journal 2026-11-17 02:39 and `lca` 2026-11-17 04:20) and 2026-11-18 (report draft from recorded facts). A later reference is ambiguous. | Date-qualified IDs (for example `H-BK-1118-02:39`) or a running number; no change to past entries | – | – | No duplicate hypothesis ID in `docs/` (one grep) | low | – |
+
+### 4 Updated, supported, closed
+
+- **AUT-138:** for BK-e2 the AIG1 ledger fits with no schema change (§1); the fit gaps stay BK-d's.
+- **AUT-140:** its form now also proposed for the report draft (AUT-142).
+- **AUT-74:** open; AUT-142 gives it a counting rule for BK-e.
+- **AUT-135, AUT-136:** unchanged; BK-e criterion 7 lets the fake and the control layer merge in BK-e; no real call (PO 02:39).
+- **AUT-137:** open, low; BK-c is accepted, so the PO may place it with UXR-235.
+- Open, unchanged: AUT-125, AUT-126, AUT-127, AUT-129, AUT-131, AUT-139, the list in review 60.
+- **Closed:** none this run.
+- **Bottleneck map:** v4 (2026-11-17 02:19) stands; weekly refresh due 2026-11-24. BK-e is step 6–8 «shift, report, sign» of v4 (rank 1, documentation per visit); no new estimate this run.
+- **FE-079:** sign-off on #1279 stands; Blueprint 3.2.48 to 3.2.53 change §8 row BK and version rows only; my field (Engines 1–3) unchanged. Reservations AUT-127, AUT-129 stand.
+- **Contradictions with `FOUNDER_DECISIONS.md`:** none found.
+
+### 5 Stage tracking
+
+Unchanged: stage 1 for synthetic data only (founder release, review 64), stage 0 for real data. BK-e builds no external call. Entry conditions for the first external call on synthetic data, still missing: provider and terms (owner), `lca` reading of the terms, AUT-136 (1) environment guard and one stop switch, the control layer merged (now possible inside BK-e, criterion 7), device class per field (`cra`). Before real persons, in addition: the keyboard-dictation policy (PO 04:39 (5), owner; OS dictation may send audio to a vendor AI service, D-35 rule A).
+
+### 6 Waiting
+
+- `po`: simulation threshold for the BK-e2 fake (§1); criterion 7 wording against AUT-142; merge of this PR.
+- `cra`: AUT-141 question (care-plan visits); AUT-142 (signature in context for placed own words); device class of the draft lines.
+- `eng`: ADR for BK-e2a/e2b with the three source classes (§1); CGR-249 pgTAP cases (§2 evidence); snapshot path for CGR-245 (AUT-141).
+- `uxa`: draft and «nicht übernommen» list at 390 px with the class-(a) lines read-only.
+- `lca`: `planned_services` and `services` in the signed version (D-4 reading).
+
+---
+
 ## 2026-11-18 02:20 CET · aia review 66: view on the PO 00:39 BK-d cut (supported, with conditions) and on the PO 01:39 fail-closed stop-rule proposal (matches AUT-135 in aim, not in form: the stop rule stops proposals, it does not govern a relaxation; the code is already fail-closed); the BK-d control layer exists as AIG1 (0097, 0104, 0105) and must be reused, not rebuilt (AUT-138, medium); source per value without keeping the free text (AUT-139, medium); per-field confirmation inside the summary, not as a second pass (AUT-140, medium); `cra`'s four conditions supported
 
 **Read:** `recovery/main` at `7e1c078` (since review 65 at `7a05451`): journals `po` 20:39 to 01:39, `cra` 20:27 to 01:26 (`CLINICAL_GOVERNANCE.md` «View on the PO 00:39 BK-d cut»), `lca` 20:20 and 23:20, `uxa` 20:48 to 00:48, `eng` 21:23 and 22:14; brief `BK.md` (BK-1 to BK-1n, *AI leverage*, PO amendment 14:39 points 2 to 4); migrations `20261021000097_aig1_ai_governance_foundation.sql` (header, `ai_agent_definitions`, `ai_agent_fields`, `ai_suggestions`, `set_agent_state`, `private.aig1_check`), `20261021000129_bk_a_client_order.sql` (header lines); AI Operating Model Review §8 and §12. Merges in the window: #1388 (BK-c3) `ad21dd2`, #1403 (pgTAP 147, test only) `a71c0bc`, role-docs PRs.

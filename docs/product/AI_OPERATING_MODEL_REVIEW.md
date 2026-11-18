@@ -610,6 +610,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «confirm each value once, in the summary» (AUT-140):** per-value confirmation inside the BK-1d summary, no second pass. PLANNED (`uxa`, `cra`, PO).
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**BK-e report draft; three source classes; planned is not performed (`aia` 2026-11-18 08:22, review 67, AUT-141 to AUT-143):**
+- **View:** PO H-BK-02:39 (2026-11-18: the draft starts from recorded facts; her typed words add only what the system cannot know) supported. Three source classes per report line: (a) recorded fact (F1–F4 times, place), no act and no ledger row; (b) ordered activity, one tick per item during the visit (H-BK-04:39), her own act, no ledger row; (c) her typed words, one AIG1 proposal per placement by the registered `rule` agent. Only (c) is agent output; only (c) feeds the correction share and the stop rule. PLANNED.
+- **AIG1 fit:** a take visit has a team and no case; `ai_suggestions.case_id` is nullable, so BK-e2 writes proposals against `care_visits` with no schema change (IMPLEMENTED parts read in 0097, 0138). The fake still needs its `(agent_key, field)` rows and a written simulation threshold at switch-on (PO).
+- **Control «planned is not performed» (AUT-141):** today the signed snapshot copies the planned `services_provided` as `services` (0016); BK-e1b fills that field from the order. The signed version keeps `planned_services` and takes `services` only from per-item ticks; the CGR-245 test asserts on the snapshot. PLANNED (`cra`, `eng`, `lca`).
+- **Control «count the acts after the shift» (AUT-142):** actions from «Einsatz beendet» to «unterschrieben» counted per report from existing rows, team median and 90th percentile, never per person; placed own words confirmed by the signature in context is a `cra` question (UNKNOWN). PLANNED.
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -679,3 +686,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-17 14:38 | `aia` | §12: block «Founder release for synthetic data; interRAI and BESA out»: founder answer recorded (review 64); AUT-134 closed; stage 1 for synthetic data only; control «a synthetic release stays synthetic» (AUT-136). No agent added or removed |
 | 2026-11-17 20:25 | `aia` | §12: block «BK-c3 gate; a reason line must add what the card does not show»: AUT-128 ranking part and AUT-133 met on #1388 `8744acd`; AUT-133 read as «stored facts of the own team»; control AUT-137. No agent added or removed |
 | 2026-11-18 02:20 | `aia` | §12: block «BK-d cut; one control layer for every AI proposal»: PO 00:39 cut supported; stop rule clarified (stops proposals; fail-closed in code); controls AUT-138 (reuse AIG1), AUT-139 (source words only), AUT-140 (one confirmation pass). No agent added or removed |
+| 2026-11-18 08:22 | `aia` | §12: block «BK-e report draft; three source classes; planned is not performed»: H-BK-02:39 supported with three source classes; AIG1 fits BK-e2 without schema change; controls AUT-141 (planned is not performed), AUT-142 (count the acts after the shift). No agent added or removed |
