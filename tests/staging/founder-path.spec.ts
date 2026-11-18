@@ -14,11 +14,20 @@ async function signIn(page: Page, email: string) {
   await page.getByLabel("E-Mail").fill(email);
   await page.getByLabel("Passwort").fill(PASSWORD);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
+  try {
+    await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 45_000 });
+  } catch (e) {
+    // Diagnosis in the job log (the artifact is not readable from the agent session): what the login page shows.
+    const text = (await page.locator("main, body").first().innerText()).replace(/\s+/g, " ").slice(0, 600);
+    console.log(`LOGIN-DIAG ${email}: url=${page.url()} text=${text}`);
+    throw e;
+  }
 }
 const out = async (page: Page, name: string) => page.screenshot({ path: `staging-shots/${name}.png`, fullPage: true });
 
 test("founder path on staging at 390 px", async ({ page }) => {
+  page.on("console", (m) => { if (m.type() === "error") console.log(`CONSOLE-ERROR ${m.text().slice(0, 300)}`); });
+  page.on("response", (r) => { if (r.status() >= 400) console.log(`HTTP ${r.status()} ${r.url().replace(/\?.*$/, "")}`); });
   test.skip(PASSWORD === "", "no test password");
   await page.setViewportSize({ width: 390, height: 900 });
   const day = zurichDay(Date.now(), 40 + Number(process.env.SMOKE_OFFSET ?? 0));
