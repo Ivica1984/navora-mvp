@@ -88,6 +88,7 @@ import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLab
 import { placeLine } from "@/features/field/place";
 import { TAKE_HEADING, visitHeading } from "@/features/field/heading";
 import { TAKE_ENDED_STATUS, takeEndedText } from "@/features/field/take-end";
+import { TAKE_CANNOT_GO_LINE, fieldMoreItems, showTakeCannotGoLine } from "@/features/field/more-actions";
 
 type Props = {
   day: string;
@@ -458,9 +459,11 @@ function VisitCard({
   // UX1-8: the card's "Mehr" menu (first tap) and the action chosen in it (second tap opens its form with the consequence).
   const [moreOpen, setMoreOpen] = useState(false);
   const [moreAction, setMoreAction] = useState<"cancel" | "hold" | null>(null);
-  const canCancel = visit.status === "planned" || visit.status === "on_the_way";
-  const canHold = !quality.some((q) => q.kind === "hold" && q.status === "open");
-  const moreItems = [canCancel && "cancel", canHold && "hold"].filter(Boolean) as ("cancel" | "hold")[];
+  // BK-e1b / CGR-248, UXR-240 (ADR-203 (13)): a take visit offers no «Einsatz absagen»; an ended take card no action.
+  const takeEndedFlag = takeEndedText(visit.system_end_reason) !== null;
+  const holdOpen = quality.some((q) => q.kind === "hold" && q.status === "open");
+  const moreItems = fieldMoreItems({ status: visit.status, fromTake: visit.from_take === true, takeEnded: takeEndedFlag, holdOpen });
+  const cannotGoLine = showTakeCannotGoLine({ status: visit.status, fromTake: visit.from_take === true, takeEnded: takeEndedFlag });
 
   // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
   // VIS1-3: a visit dated after today shows no field action (the database refuses them, migration 0089).
@@ -663,6 +666,13 @@ function VisitCard({
             </button>
           ))}
         </div>
+      )}
+
+      {/* BK-e1b / CGR-248 / UXR-241: instead of «Einsatz absagen» on a live take visit (words `cra` 06:27). */}
+      {cannotGoLine && (
+        <p data-testid="take-cannot-go" className="mt-3 rounded-lg border border-stone-300 bg-stone-50 p-3 text-sm text-stone-900">
+          {TAKE_CANNOT_GO_LINE}
+        </p>
       )}
 
       {/* UX1-8 (ADR-104): actions with billing or planning consequences need two taps: "Mehr", then the action, whose
