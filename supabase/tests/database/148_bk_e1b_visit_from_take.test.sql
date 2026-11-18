@@ -453,21 +453,15 @@ select is(pg_temp.visits_of('o2'), 1, 'CGR-249: the take visit is not deleted');
 select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit is unchanged after the refused removals');
 select is(pg_temp.cover_violations(), null, 'cover property after remove_planned_visit');
 
--- take_open_visit and propose_visit_responsible act only on a visit without a responsible member. A live take visit is
--- written with the named member and no person command clears it while the take is live; the guard refuses it anyway,
--- before the «already taken» check, so a later path that clears the member cannot open a take visit to the team.
+-- take_open_visit and propose_visit_responsible act only on a visit without a responsible member. A take visit is
+-- written with the named member (0138), and every change of its member re-checks the take (`bk_c1_recheck_takes`),
+-- so this suite reaches no live take visit without a member; the guard refuses a take visit anyway, before the
+-- «already taken» and agent checks (ADR-203 (14)), so a later path that clears the member cannot open it to the team.
 select is(pg_temp.cmd('01', 'o2', 'take_open', 'ffff0000-0000-4000-8148-000000000076') ->> 'result', 'take_visit',
           'CGR-249: take_open_visit is refused on a take visit with take_visit');
 select is(pg_temp.cmd('01', 'o2', 'propose', 'ffff0000-0000-4000-8148-000000000077') ->> 'result', 'take_visit',
           'CGR-249: propose_visit_responsible is refused on a take visit with take_visit');
-update public.care_visits set responsible_user_id = null where id = (pg_temp.visit('o2') ->> 'id')::uuid;  -- forced, owner
-select is(pg_temp.cmd('01', 'o2', 'take_open', 'ffff0000-0000-4000-8148-000000000078') ->> 'result', 'take_visit',
-          'CGR-249: take_open_visit is refused on a take visit even without a member (forced state)');
-select is(pg_temp.cmd('01', 'o2', 'propose', 'ffff0000-0000-4000-8148-000000000079') ->> 'result', 'take_visit',
-          'CGR-249: propose_visit_responsible is refused on a take visit even without a member (forced state)');
-select is(pg_temp.visit('o2') ->> 'responsible_user_id', null, 'CGR-249: nobody took the forced take visit');
-update public.care_visits set responsible_user_id = pg_temp.m('02') where id = (pg_temp.visit('o2') ->> 'id')::uuid;
-select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: O2 is back to its slot after the forced state');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: O2 is unchanged after the refused take and proposal');
 select is(pg_temp.cover_violations(), null, 'cover property after take_open_visit and propose_visit_responsible');
 
 -- A take visit on the way (O4, M3) is refused as well, and a visit not from a take keeps every command (pgTAP 023, 031,
@@ -480,6 +474,28 @@ update public.care_visits set visit_date = date '2026-11-22' where id = (pg_temp
 select is(pg_temp.cover_violations(), 'o3:0', 'cover property: a moved take visit with «gedeckt» is reported');
 update public.care_visits set visit_date = date '2026-11-21' where id = (pg_temp.visit('o3') ->> 'id')::uuid;
 select is(pg_temp.cover_violations(), null, 'cover property holds again once the slot is restored');
+
+-- UXR-242 (PO 07:39 (4)): can a take exist on an order without postcode and place? Not through the commands: the only
+-- order writer, `confirm_client_order`, refuses a missing or empty postcode and one outside the BS/BL list (the place
+-- comes from that list), and a member cannot write orders directly. So the alternative line is not reachable here.
+create temp table u242 (k text primary key, r jsonb);
+grant all on u242 to authenticated;
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+insert into u242 select 'null', public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', date '2026-11-25',
+  time '08:00', time '12:00', null, 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8148-000000000090'::uuid);
+insert into u242 select 'empty', public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', date '2026-11-25',
+  time '08:00', time '12:00', '', 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8148-000000000091'::uuid);
+insert into u242 select 'unlisted', public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', date '2026-11-25',
+  time '08:00', time '12:00', '9999', 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8148-000000000092'::uuid);
+reset role;
+select pg_temp.as_owner();
+select is((select string_agg(k || ':' || (r ->> 'result') || ':' || (r -> 'problems' ->> 0), ',' order by k) from u242),
+          'empty:invalid:missing_postcode,null:invalid:missing_postcode,unlisted:invalid:postcode_not_in_list',
+          'UXR-242: no order without a listed postcode (and so its place) is written, so no take can exist on one');
+select ok(not has_table_privilege('authenticated', 'public.partner_requests', 'INSERT')
+          and not has_column_privilege('authenticated', 'public.partner_requests', 'postcode', 'UPDATE'),
+          'UXR-242: a member cannot write an order or its postcode directly');
 
 select * from finish();
 rollback;

@@ -470,7 +470,7 @@ function VisitCard({
   const afterToday = isAfterToday(visit.visit_date, today);
   // UX2-22 (ADR-124): no control the database refuses her for a missing qualification (ADM2-16, 0094).
   const actions = visit.suspended ? [] : actionsForMember(fieldActionsOn(visit.status, visit.visit_date, today), visit.team_id, unqualifiedTeams);
-  const canMove = canMoveToToday(visit.status, visit.suspended, visit.visit_date, today);
+  const canMove = canMoveToToday(visit.status, visit.suspended, visit.visit_date, today, visit.from_take === true);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
