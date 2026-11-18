@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:db": "supabase test db",
     "e2e": "playwright test",
+    "staging:smoke": "playwright test --config playwright.staging-smoke.config.ts",
     "agents:check": "node scripts/agents-check.mjs"
   },
   "dependencies": {
