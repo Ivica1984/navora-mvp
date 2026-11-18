@@ -1202,3 +1202,36 @@ Read: #1476 final head `bb2d101` (C4, comment 6987776447); `cra-gate: #1476 bb2d
 **Placement of the follow-ups (named items, not conditions of the BK-e acceptance for the simulation; all before real clients):** CGR-256 (overlap across midnight) first, then CGR-258 (a) `on_the_way` carried, (b) day visit overrunning midnight, (c) e2e for door facts and alert history on the carried card, (d) e2e for the report step after the return and the `draftError` path; UXR-249 (next-day view before midnight), UXR-250 (focus after the return). `cra` asked for CGR-258 next to CGR-256; done. Order of the active slice: #1460 (ADR-204), then the BK-e `ci-repeat` evidence run (10/10 `db`, `e2e` on a named integrated commit, raw logs), then the BK-e acceptance record in `ABNAHMEAKTE.md`.
 
 PO status of BK: **active**, slice **BK-e** (BK-e1b and BK-e1c merged; #1460, then acceptance evidence).
+
+
+## PO amendment 2026-11-18 21:39 (scheduled PO run): #1460 merged; BK-e acceptance run started; FE-090 re-sent
+
+Read: #1460 head `91b2f37` (check runs `app` 135099645786, `db` 135099645857, `e2e` 135099645267, `ui-screenshots` 135099645926, `staging` 135105801281 dry run, all `success`; 0 review threads; behind `recovery/main` 0); its diff (`.github/workflows/ci.yml`, `ci-repeat.yml`, `scripts/ci-supabase-start.{sh,mjs}`, `tests/unit/b0-runner-ports.test.ts`); `eng` 21:10 journal; #1465 (`eng` 21:45 read-only staging state); Render deploy list of `navora-staging` (read only).
+
+1. **#1460 (ADR-204) merged** at `91b2f37` → `09712bb` against the WHAT of amendment 15:39 (2): retry only for a classified registry limit, once, only with both secrets, not when a registry override is set; every other failure keeps «no retry»; no job, test or required step removed; token via `--password-stdin`. The `csa` security view asked on 15:39 has not arrived; named follow-up, not a condition (BK BUILD PHASE point 3). The `ci` run on `09712bb` was cancelled by the next push (concurrency); `ci` on `3ea17ee` (contains it) is the merge evidence.
+2. **BK-e acceptance run:** PO pushed `repeat/bk-e-accept-3ea17ee` → `ci-repeat` 44393766620 (10 × `db`, 10 × `e2e`) on the integrated commit `3ea17ee`. Counting rule unchanged (FE-071 (4)): every attempt read from its raw log; a run that needed the ADR-204 retry counts and is named; a run that fails after the retry counts as incomplete, never as a pass. Acceptance record only after 10/10 and `ci` green on `3ea17ee`.
+3. **Founder FE-090 re-sent (21:45):** no new merge condition. The founder's overlap sentence is met for the take path (CGR-246, CGR-251, CGR-255, merged with #1421); CGR-256 (two hand visits across midnight) stays the first follow-up after the BK-e acceptance and is named to the founder as not built.
+
+PO status of BK: **active**, slice **BK-e** (all slice PRs merged; acceptance evidence running).
+
+## PO acceptance 2026-11-18 21:39 (scheduled PO run): BK-e1 accepted for the simulation on `3ea17ee`; BK-e stays active
+
+**Correction (README rule 11, reported in the journal):** amendments 17:39 and 20:39 and the first part of 21:39 called the coming record «the BK-e acceptance». The cut of 02:39 and ADR-202 (03:39 (1)) say **one** BK-e acceptance after BK-e1a, BK-e1b, BK-e2a and BK-e2b. BK-e2a and BK-e2b are not built. **PO decision (acceptance granularity is the PO's WHAT; it cuts smaller and adds nothing, brief rule «cut the block smaller»; FE-071 (4) allows a sub-block acceptance):** BK-e is accepted in two parts, **BK-e1** (criteria 1–4 of 02:39 plus the BK-e1b residual list R1–R5, BK-e1c C1–C5 and CGR-257) now, **BK-e2** (criteria 5–7) later. BK-e stays the active slice. Reason: the founder asks for a demo after each accepted part (FE-091 (6), FE-090 re-sent 21:45); the BK-e1 evidence is complete and the 20/20 run is on the commit Staging serves.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| 1 UXR-190 / CGR-212 place line, three cases, 390 px, no sideways scroll | met | #1417 `3d9f1e6`; `tests/unit/bk-e1-uxr190-place-line.test.ts`; `tests/e2e/bk-e1-field-place.spec.ts`; PO amendment 04:39 |
+| 2 BK-7: only the named member of a live «gedeckt» take sees it on `/field`; negative tests | met | #1421 `7c04240`; pgTAP 148; `tests/e2e/bk-e1b-take-card.spec.ts`; `cra` and `uxa` gate lines on `386848b` (17:39) |
+| 3 CGR-232 / CGR-233 / CGR-255: writing the visit keeps the take; same lock; two-session race | met | pgTAP 148 (0147, 0148); CGR-233 race in every `db` attempt «invariant violations: 0»; `cra` 14:27 CGR-255 met |
+| 4 CGR-200 / CGR-206 (a): 22:00–07:00 = 9 h from Europe/Zurich timestamps | met | `tests/unit/bk-e1b-night-take-times.test.ts` (F2 sums); pgTAP 148 §14; clock-change night stays BK-g (CGR-206 (d)) |
+| BK-e1b residual list R1–R5 | met | amendment 17:39 evidence table |
+| BK-e1c C1–C5, CGR-257, UXR-248 | met | amendment 20:39 evidence table; pgTAP 149; `tests/e2e/bk-e1c-night-visit-next-day.spec.ts` |
+| Integrated commit: `ci` green | met | `ci` on `3ea17ee` (push and PR) 5/5 `success` |
+| `ci-repeat` 10/10 `db` and `e2e`, 0 skipped, raw logs | met | `ci-repeat` 44393766620: 20/20 `success`; `db` «Files=149, Tests=5393, Result: PASS»; `e2e` «191 passed», no skipped, flaky or failed line; no ADR-204 retry needed; verdict job 135130932572 |
+| Staging | migration 0149 applied, app on `3ea17ee`; **click path UNKNOWN** | `staging` job 135123399657; Render deploy `dep-dbv0r09j7cmc73ddnq8g`; #1465 |
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**. Not released for real persons and data.
+
+**Next (order):** CGR-256 (overlap across midnight for hand visits; `cra` pgTAP pair from amendment 13:39 (2)) as the next Engineering PR with a fixed residual list in `eng`'s brief reply; then BK-e2a (report draft from typed text, test substitute labelled «regelbasiert, keine KI»), BK-e2b (signature); CGR-258, UXR-249, UXR-250 as named follow-ups. The review-rhythm recommendation (BK BUILD PHASE point 6) stays due by 2026-11-25 (BK-e is not yet accepted as a whole).
+
+PO status of BK: **active**, slice **BK-e** (BK-e1 accepted for the simulation; BK-e2 open).
