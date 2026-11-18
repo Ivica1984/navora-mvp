@@ -16,6 +16,41 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 16:41 CET: gate review of **#1421** (BK-e1b, visit from the take; `eng` final head `614aad6`, docs-only journal head `386848b`). Run started once by `po` under FE-091 (4) (paused role; no answer would not be approval). **`cra-gate: #1421 386848b clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). Answer to the PO on (d): **NO**, R3b is not a substantial safety or function defect of the agreed flow *for the simulation gate*; it goes to BK-e1c as a precondition of BK-e acceptance and is S1 before any real night shift (new **CGR-257**). (e) «Ereignis melden» on the ended take card: **acceptable, and wanted**. Read on `recovery/main` `6f8b770`.
+
+### What I read
+
+- Merges since my 14:27 section: #1458 (`po` 14:39), #1459 (`uxa` 14:48), #1463, #1464, #1467, #1468 (FE-091 recorded, `FOUNDER_DECISIONS.md` v38), #1469 (`eng` staging check). Brief `BK.md` §PO amendment 15:39 and 15:45 (fixed residual list R1–R5). Annex B §1, the qualification matrix and Handbook V2.2 unchanged; no FE-079 renewal due.
+- **#1421** commits since `592c7ae`: `3b6a1a6` (merge of `recovery/main`), `2d67323` (take-card Playwright `tests/e2e/bk-e1b-take-card.spec.ts` at 390 px; pgTAP 148 §14 (plan 160); vitest `tests/unit/bk-e1b-night-take-times.test.ts`; TD-32; ADR-203 (21)), `614aad6` (the ended-card assertion pins exactly one button «Ereignis melden» instead of none; ADR-203 (21) (e)), `386848b` (`eng` 16:00 journal only; `git diff 614aad6 386848b` = one journal file). No product code, migration or rule changed after `592c7ae`. `614aad6` changes one assertion; it was not weakened to pass: the previous expectation (0 buttons) was wrong against the existing UX1-9 card contract, and the new one asserts the exact count and label.
+- `eng` comment 6982341750 (final head, condition ledger, questions (d) and (e)); `/field` code to answer (d): `src/app/(protected)/field/page.tsx` (`parseDayParam(datum, today)`, every per-day query takes `day`), `field-client.tsx:203` («← Vortag» link, one tap), `field_visits` (0006 `v.visit_date = p_date`), `field_safety_alerts` (latest body: `v.visit_date = p_date`, so the safety alerts of a visit travel with its card), pgTAP 148 §14 (lines 805–848: the night timeline on the start day; `visit_day_refusal('complete_visit', …)` = `none` at 07:00 the next day).
+- CI on `386848b`, check runs and job logs: `app` 134894149767 success (log: «✓ tests/unit/bk-e1b-night-take-times.test.ts (4 tests)»); `db` 134894149842 success (log: «148_bk_e1b_visit_from_take.test.sql … ok», «Result: PASS»; `take-visit.sh` case 1 / 1s / 2 / 2s equal, «invariant violations: 0» each); `e2e` 134894149913 success (log: «✓ 74 [chromium] › tests/e2e/bk-e1b-take-card.spec.ts:34:5 …», «190 passed»); `ui-screenshots` 134894152908 success; `staging` 134900635900 success (dry run, check-run state only). I ran no NAVORA test.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `386848b` (code = `614aad6`) | **`cra-gate: #1421 386848b clear`** · gate «Simulation, synthetic data». R1 (CGR-255) met (14:27, unchanged code); R2 green (`e2e` 134894149913); R3a green (pgTAP 148 §14, vitest F2 sums); R3b not built: advisory here, CGR-257; R4 posted (6982341750). Still open and not blocking this gate: CGR-246 (i), CGR-254, CGR-256, CGR-257 (all preconditions before real persons; CGR-257 also before BK-e acceptance). The merge commit needs its own green `ci`. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-257** (new) | #1421 `614aad6` / BK-e1c (R3b, `eng` (d), H-BK-15:39) | **advisory for the #1421 simulation gate; blocking for BK-e acceptance (as BK-e1c, PO proposal); S1 before any real night shift** | Between 00:00 and 07:00 «Heute» on `/field` does not show the night visit she is working: the card, its «Abschliessen», its «Ereignis melden» and the client's safety alerts (DOOR1) all sit on yesterday's page, reachable only by «← Vortag». Nothing on «Heute» says a visit is still running. At 03:00 «Heute» can instead show the next morning's visit as «Als Nächstes». No data is lost or written wrong: the visit stays `started`, completing at 07:00 is allowed (VIS1) and the times sum correctly (R3a). **Why not blocking now:** synthetic data only, the path exists one tap away, the record is correct, and no escalation path depends on the card (emergency calls are outside the app). **Why S1 later:** a night carer who reopens the app after midnight does not see the client's safety alerts or the open visit unless she knows it is filed under yesterday. That means a late or missed «Abschliessen», a quality report not made, or a second visit started while the first one is still running. In the simulated nursing-home ward this happens every night. | `page.tsx` `getFieldVisits(day)`, `getSafetyAlerts(day)`; 0006 `field_visits … v.visit_date = p_date`; `field_safety_alerts … v.visit_date = p_date`; `field-client.tsx:203`; pgTAP 148 §14 lines 826–848; ADR-203 (21) (d) | e2e or pgTAP plus e2e, as in R3b, with two additions: at 03:00 on day 2, (1) «Heute» shows the running night visit (`started`, not completed) itself, with its safety alerts, «Abschliessen» and «Ereignis melden»; a link alone does not count; (2) a visit of day 1 that is completed or never started is **not** pulled onto day 2. A test for (2): a `planned` day-1 visit that never started stays on day 1. Whether a planned night visit that has not started by 00:00 should also appear: UNKNOWN (`uxa`, Clinical Owner). |
+| **ADR-203 (21) (e)** (answer, no finding) | #1421 `614aad6` ended take card | – | **Acceptable, and clinically wanted.** A carer whose shift was ended may still have seen something about the client or the household that must be reported (QG1). Removing the only reporting path from that card would lose a report, not prevent a wrong action. It writes no care fact and does not reopen the take. Condition (already true by QG1, not a new merge condition): the report is attributed to her and to that visit. | `tests/e2e/bk-e1b-take-card.spec.ts` (exactly one button «Ereignis melden»); UXR-240 (no field, «Mehr» or take action) still asserted | – |
+| CGR-256 (status) | – | advisory; S1 before real clients | Unchanged (first follow-up after #1421, FE-091 residual list). Related to CGR-257: both are the calendar-day boundary cutting a night shift (planner side and carer side); one design for «a visit belongs to the days it covers» would close both. PLANNED, `eng` HOW. | ADR-203 (19), (21) | as 13:29 |
+
+### Findings closed
+
+None on `recovery/main` (CGR-255, CGR-233, CGR-246, CGR-251 to CGR-253 close when #1421 is merged with `ci` green on the merge commit).
+
+### Decisions requested
+
+- **PO:** place R3b as BK-e1c (precondition of BK-e acceptance) with the CGR-257 remedy as its test; merge this PR; re-pause `cra` as documented (FE-091 (4)).
+- **`uxa`:** what «Heute» shows at 03:00 (running visit first, «seit gestern 22:00»); whether a planned night visit that has not started by 00:00 shows on day 2 (UNKNOWN, with the Clinical Owner).
+- **Clinical Owner:** still open: CGR-254 (b), lead time, hand-over; rest time after a night take (H-10, UNKNOWN).
+
+---
+
 ## 2026-11-18 14:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `c8c9bf3` (red first) and `592c7ae` (migration 0148: CGR-255)). **CGR-255 met in code and test**; with it the CGR-233 condition is met (race result equals a serial result in both orders, invariant 0). **No gate yet** (`cra-gate: #1421 592c7ae` not given): `eng` has not named the final head (take-card Playwright at 390 px, F1–F4 sums), `e2e` not finished at publication. From the clinical side **no blocking finding is open on #1421**. UXR-247 (2) new words (#1455): no clinical objection for the simulation. View on H-BK-13:39 given. Read on `recovery/main` `cbc91cb`.
 
 ### What I read

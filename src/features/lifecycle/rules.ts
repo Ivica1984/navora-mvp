@@ -2,6 +2,7 @@
 
 import { ROLE_LABEL } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
+import { TAKE_CANNOT_GO_LINE } from "@/features/field/more-actions";
 
 export const PAUSE_REASONS = ["hospital_stay", "rehabilitation", "client_absence", "other"] as const;
 export const CLOSE_REASONS = ["goal_reached", "moved_inpatient", "moved_away", "declined", "died", "other"] as const;
@@ -72,6 +73,8 @@ export const LIFECYCLE_MESSAGES: Record<string, string> = {
   already_decided: "Schon entschieden: Eine Kollegin oder Operations hat den Entscheid bereits erfasst.",
   invalid: "Bitte die Eingaben prüfen (Grund wählen; Begründung bzw. Notiz mindestens 3 Zeichen).",
   failed: "Konnte nicht gespeichert werden.",
+  // BK-e1b / CGR-248 (migration 0141): a visit written from a take cannot be cancelled; same words as on the card.
+  take_visit: TAKE_CANNOT_GO_LINE,
 };
 
 /** CSR1 / CGR-20: shown with the not-completed end until the clinical rule (D-31) exists. */

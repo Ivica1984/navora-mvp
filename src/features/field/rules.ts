@@ -86,9 +86,19 @@ export function fieldActionsOn(status: string | null, visitDate: string | null, 
   return isAfterToday(visitDate, today) ? [] : fieldActions(status);
 }
 
-/** VIS1-3b: a planned, not suspended visit dated after today can be moved to today at the door (existing J3 move). */
-export function canMoveToToday(status: string | null, suspended: boolean | null, visitDate: string | null, today: string): boolean {
-  return status === "planned" && suspended !== true && isAfterToday(visitDate, today);
+/**
+ * VIS1-3b: a planned, not suspended visit dated after today can be moved to today at the door (existing J3 move).
+ * BK-e1b / CGR-249 (PO 2026-11-18 07:39 (1)): never a visit written from a take; the database refuses that move too
+ * (`move_visit_to_today` → `take_visit`, migration 0142).
+ */
+export function canMoveToToday(
+  status: string | null,
+  suspended: boolean | null,
+  visitDate: string | null,
+  today: string,
+  fromTake = false,
+): boolean {
+  return !fromTake && status === "planned" && suspended !== true && isAfterToday(visitDate, today);
 }
 
 /** "2026-10-29" → "29.10.2026" (calendar date, no time zone involved). */

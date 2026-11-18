@@ -1094,3 +1094,89 @@ Read: `eng` 14:15 journal on the #1421 branch (red first `c8c9bf3`: race case 1 
 **Challenge H-BK-14:39 (PLANNED, not decided, not a gate condition):** BK-e1b has gone through about a dozen review rounds today; each round re-reads a growing list of conditions in four documents. Hypothesis: each open slice PR carries one condition ledger in its description (ID | WHAT | test name | job and log line | reviewer tick), kept by `eng`, so `cra` and `uxa` give the gate line against the ledger on the named head, and the PO checks the ledger instead of reconstructing it from journals. Value: fewer review rounds and shorter time from code to merge (7 operational scalability), less coordination overhead that would otherwise recreate a dispatch layer between roles (4). Asked: `eng` (whether it costs less than the journal tables it would replace), `cra`, `uxa` (whether it is enough for a gate line).
 
 PO status of BK: **active**, slice **BK-e** (BK-e1a merged, not accepted; BK-e1b #1421 open, no gate; no clinical blocker open).
+
+## PO amendment 2026-11-18 15:39 (scheduled PO run): take-card Playwright red on `2d67323`; ADR-204 placed as a CI-infrastructure item; H-BK-15:39
+
+Read: #1421 new head `2d67323` (take-card Playwright `tests/e2e/bk-e1b-take-card.spec.ts` at 390 × 844, pgTAP 148 §14 plan 160 for the 22:00–07:00 timeline, vitest `bk-e1b-night-take-times` F2 sums 20/510/30, TD-32, ADR-203 (21) incl. finding (d) «`field_visits` lists by visit_date only»); check runs on `2d67323` (`app` 134872594052, `db` 134872594461, `ui-screenshots` 134872594634 `success`; **`e2e` 134872594477 `failure`**: «1) [chromium] › tests/e2e/bk-e1b-take-card.spec.ts:34:5 … Error: expect(locator).toHaveCount(expected) failed», Playwright summary «1 failed»; the same log also shows «error from registry: Rate exceeded» during the image pulls, which recovered); PR #1460 (ADR-204, head `56b5e63`) with `eng` 15:27 journal on its branch; #1279 (no change since 2026-11-17 19:53 UTC).
+
+1. **BK-e1b: no new condition.** The take-card Playwright and F1–F4 are now on the branch, but the new browser test fails on `2d67323`. This is not a red-first commit (the commit does not say so and the code under test is already on the branch), so it counts as a failing test of the slice, not as evidence. `eng` finds whether the test or the screen is wrong; if the screen differs from the confirmed words or card count (criterion 4: exactly one card «22:00 – 07:00» on her day), the screen is fixed, never the expectation. Remaining: green `e2e` on the head, `eng` names the final head, `cra` and `uxa` gate lines on it, green CI.
+2. **ADR-204 (#1460): placed as a CI-infrastructure item, not a feature and not a competing block merge (README rule 12 concerns feature PRs).** Reason: BK-e acceptance needs `ci-repeat` 10/10 on `db` and `e2e` from raw logs; an image-registry rate limit stops «Start local Supabase» before any test, and ADR-174 did not even name the `public.ecr.aws` message as infrastructure, so a 10/10 run could fail or be counted wrongly for a reason outside NAVORA. Order (PO choice): **#1421 first** (active block; #1460 and #1421 conflict, so merging #1460 first would delay the active slice), then #1460, **before** the BK-e `ci-repeat` evidence run. WHAT for the merge: all check runs `success` on its head; the retry happens only for a classified registry limit, only once, only with both secrets; every other failure keeps «no retry» (ADR-174); no job, test or required step removed; the token never printed; tests for the classifier and the retry shape. A run that needed the retry is still counted as a run, and its log line «registry limit, one retry from docker.io» is named in the acceptance record; a run that fails after the retry counts as incomplete (infrastructure), never as a pass. **`csa` asked** for a security view before the merge: the two secrets are available to `pull_request` jobs from branches in this repository, as `STAGING_DB_URL` already is; read-only scope and 90-day expiry are stated by `eng`, not checked by the PO.
+3. **Staging (FE-089):** the founder set `STAGING_DB_URL` and cleaned `navora-staging` (relayed by `eng`, not heard by the PO). The `staging` job on `dfb1ad38` failed at 14:06 UTC, before the history row was removed; the job on `e6ac4f2` had not run at the PO's read. Whether 0136 and 0137 are on `navora-staging`: **UNKNOWN** until that job's log is read. After the #1421 merge, 0138–0148 follow on the same path. Staging carries synthetic data only.
+
+**Challenge H-BK-15:39 (PLANNED, not decided, not a gate condition):** ADR-203 (21) (d) says `/field` lists by `visit_date` only; the night 22:00–07:00 sits on the start day. For a night nurse the unit of work is the shift, not the calendar day: at 03:00 «heute» is the wrong word, and a 07:00 handover belongs to the shift that started yesterday. Hypothesis: `/field` opens on «Meine Schicht jetzt / als Nächstes» (the running or next visit by `starts_at`, across midnight), with the day list one tap away. Value: less searching at night (1, direct care time), cleaner handover at shift end (2, continuity), relevant for the simulated nursing-home ward where nights are routine. Asked: `uxa` (screen), `cra` (does any clinical rule depend on the day boundary; no rest-time rule, H-10 stays UNKNOWN), `eng` (cost; not in BK-e1b).
+
+PO status of BK: **active**, slice **BK-e** (BK-e1a merged, not accepted; BK-e1b #1421 open, `e2e` red on `2d67323`, no gate; no clinical blocker open).
+
+## PO amendment 2026-11-18 15:45 (founder FE-091, live): fixed residual list of BK-e1b (#1421)
+
+Founder order FE-091 (2): #1421 closes against a fixed list; later wishes go to follow-up items; only a documented, substantial safety, privacy or function defect in the agreed flow may still block. This list replaces the «Remaining BK-e1b conditions» lines of the amendments 08:39 to 15:39; amendment 15:39 (1) stays (if the screen differs from criterion 4 or the confirmed words, the screen is fixed, never the expectation), and H-BK-15:39 becomes item R3b where it concerns the agreed night shift. Read: #1421 head `2d67323` (`eng` 15:13: take-card Playwright, F1–F4 across midnight, TD-32, ADR-203 (21) with finding (d)); check runs on `2d67323` (`app`, `db`, `ui-screenshots` `success`, `e2e` in progress at the PO's read, 15:45).
+
+**Fixed residual list (closed; nothing is added to it):**
+
+| # | Item | Why it belongs to BK-e1b | State | Test that decides it |
+|---|---|---|---|---|
+| R1 | CGR-255: no order reads «gedeckt» while its carer is booked elsewhere at the same time | It is the CGR-233 condition of this slice (two people booking the same carer at once), founder FE-091 (2) | IMPLEMENTED on `592c7ae` (migration 0148); `cra` 14:27: met | `scripts/db-concurrency/take-visit.sh` cases 1, 1s, 2, 2s equal, invariant 0; pgTAP 148 lock test |
+| R2 | Mobile test of the take card at 390 px | Criterion 4 and the screen findings UXR-237 to UXR-241 of this slice were accepted on condition of a browser test | built on `2d67323` (`tests/e2e/bk-e1b-take-card.spec.ts`); **red** in `e2e` 134872594477 (`:34` «toHaveCount»), not met | the e2e spec green in `e2e` on the final head |
+| R3a | The 22:00–07:00 shift is one card and its time is recorded and summed correctly (9 h; 20/510/30 min) | Already agreed: BK-1c (one order across midnight), BK-7 («time is recorded with the existing F1–F4 path, including a shift across midnight»), amendment 2026-11-18 02:39 (4) (CGR-200 / CGR-206 (a): «fixed in BK-e or before BK-7 is accepted») | IMPLEMENTED on `2d67323` as regression guards (no code change needed) | pgTAP 148 §14 (plan 160); vitest `bk-e1b-night-take-times` |
+| R3b | Between 00:00 and 07:00 the running night shift is reachable from the carer's «today» on `/field` (ADR-203 (21) finding (d): `field_visits(p_date)` lists a visit only on its start date) | Same agreed scope as R3a: BK-7 says the carer sees the order as her next item, including a shift across midnight. A carer who opens `/field` at 03:00 must find the shift she is working without knowing it is filed under yesterday. This is display and processing of the agreed shift, not a new rule | OPEN, to build in #1421 | an e2e or pgTAP case: at 03:00 of the second day the night visit (started, not completed) is on, or one tap from, her «today» and «Abschliessen» works; a day visit of the previous day is not pulled forward |
+| R4 | `eng` names the stable final head: commit SHA, result per CI job, and the concrete review questions for `cra` and `uxa` | FE-091 (4): reviews only on a stable state | OPEN | PR comment by `eng` |
+| R5 | `cra` gate line and `uxa` gate line on that head; all five CI jobs green on it | FE-071, FE-091 (4); `lca` gave its word confirmations earlier and is not a gate of this slice | OPEN | `cra-gate: #1421 <sha> clear`, `uxa` gate line |
+
+**Not in BK-e1b (follow-up items, named; none is a merge condition):**
+- CGR-256 (the overlap warning for a second planner misses a night take across midnight). Reason: it is about the warning shown to someone else who plans a second visit, not about the shift itself; it was not in the brief; `cra` rates it advisory; `eng` 14:15: the fix changes the PLAN3-16 overlap fact that the AIG1 confirm also reads. First follow-up item; precondition before the 22:00–07:00 take leaves simulation-only status.
+- UXR-246 name part, UXR-247 (Operations words), CGR-254 (a)–(c), CGR-246 (i), AUT-144, TD-32 (lock order of a multi-member PLAN3 confirm), challenges H-BK-12:39, H-BK-13:39, H-BK-14:39, the clock-change night (CGR-206 (d), stays in BK-g).
+- Night or Sunday surcharges and pause billing rules: not in this PR and not invented (FE-088 (4), FE-091 (2)).
+
+**Review path while `cra` and `uxa` are paused (FE-091 (4)):** when R4 is posted and all CI jobs are green on that head, the PO starts the «NAVORA Clinical & Regulatory Architect» and «NAVORA UX/UI Design Architect» tasks once, with the PR, the head, `eng`'s questions and this list. No answer is not approval.
+
+PO status of BK: **active**, slice **BK-e** (BK-e1b #1421 open; residual list fixed; no clinical blocker open).
+
+## PO amendment 2026-11-18 16:39 (scheduled PO run): R4 posted, gate start, R3b placement
+
+Read: #1421 head `386848b` (docs-only journal on the `eng` final head `614aad6`, PR comment 6982341750, 16:01); `ci` 44330746697 on `386848b`: `app` 134894149767, `db` 134894149842, `e2e` 134894149913, `ui-screenshots` 134894152908, `staging` 134900635900, all `success`; `ci` 44328620784 on `614aad6` all `success`. PO did not run tests.
+
+| # | State at 16:39 | Evidence |
+|---|---|---|
+| R1 | met | `cra` 14:27 (comment 6980142087); `db` 134894149842 |
+| R2 | met (green) | `e2e` 134894149913; `eng` fixed the assertion to «exactly one button» (QG1 «Ereignis melden»), no existing test changed |
+| R3a | met (regression guards, never seen red) | pgTAP 148 §14, `tests/unit/bk-e1b-night-take-times.test.ts` |
+| R3b | **not built**; `eng` lists it as review question (d) | comment 6982341750 (written before `eng` read the 15:45 list) |
+| R4 | met | comment 6982341750 (SHA, job per CI job, questions (d), (e)) |
+| R5 | OPEN; `cra` and `uxa` started once (below) | — |
+
+**Gate start (FE-091 (4), BK BUILD PHASE point 2):** `fire_trigger` on «NAVORA Clinical & Regulatory Architect» (`trig_01MYKSk7MPZSGL51ncf4jm8e`) and «NAVORA UX/UI Design Architect» (`trig_01LGS26FJXgcrTzKh5JGKsBK`) at ca. 16:41 for `#1421 386848b`, each with `eng`'s questions (d), (e), the fixed list and the rule «no new merge condition». Both calls were accepted with the tasks still `enabled = false` (no enable or re-pause needed); the UNKNOWN of FE-091 (b) is answered: a paused task can be started once.
+
+**R3b placement (PO decision, reduces the list, adds nothing):** R3b moves from #1421 to **BK-e1c**, the next PR in slice BK-e, and becomes a precondition of **BK-e acceptance** (not of the #1421 merge), **unless** `cra` names it a substantial function defect of the agreed flow in the gate line (`cra-gate: #1421 386848b blocked: R3b`); then R3b stays in #1421. Reason: the night take is simulation-only, the visit and its «Abschliessen» exist (on the previous day's page), FE-091 (2) places the night shift before the acceptance; moving it lets the agreed take flow reach staging for the founder's walk-through without a second review round on a changed head. BK-e1c scope: exactly the R3b test of amendment 15:45 (03:00 of day two: running night visit on or one tap from «today», «Abschliessen» works, a previous day's day visit is not pulled forward); `uxa` gives the look in BK-e1c. CGR-256 stays the first follow-up after BK-e1c.
+
+PO status of BK: **active**, slice **BK-e** (BK-e1b #1421 waiting for R5 only; BK-e1c next).
+
+## PO amendment 2026-11-18 17:39 (scheduled PO run): #1421 merged; BK-e1c fixed residual list
+
+Read: #1421 head `386848b`; `cra-gate: #1421 386848b clear` (comment 6983529428; R3b question (d): «NO» substantial defect; new CGR-257, blocking for BK-e acceptance); `uxa-gate: #1421 386848b clear` (comment 6983559658; replaces the 16:42 «not clear» line on the condition that BK-e1c with R3b is a precondition of BK-e acceptance, which amendment 16:39 records and this amendment confirms). PO did not run tests.
+
+**Merge:** #1421 merged at ca. 17:41, merge commit `7c04240` (merge record comment 6985020210). `ci` 44350060934 on `7c04240`: `app` 134962928448, `db` 134962928447, `e2e` 134962927812, `ui-screenshots` 134962928475, `staging` 134969071215, all `success`. **Staging:** the `staging` job log shows migrations 0138 to 0148 applied to `navora-staging` («migrations applied to navora-staging at 7c042400»); database version therefore 0148. App commit on Render: asked from `eng` (#1465).
+
+| # | Criterion (fixed residual list, amendment 15:45) | Result | Evidence |
+|---|---|---|---|
+| R1 | CGR-255 race = serial result | met | `cra` 14:27; `db` 134962928447 on `7c04240` |
+| R2 | take card Playwright at 390 px | met | `e2e` 134962927812 on `7c04240` |
+| R3a | night 22:00–07:00 one card, F1–F4 sums | met (regression guards) | pgTAP 148 §14, `tests/unit/bk-e1b-night-take-times.test.ts`; `app`, `db` on `7c04240` |
+| R3b | running night shift on «today» after midnight | moved to BK-e1c (below) | amendment 16:39; `cra` (d) «NO» |
+| R4 | final head named | met | comment 6982341750 |
+| R5 | `cra` and `uxa` gate lines, CI green | met | comments 6983529428, 6983559658; `ci` 44330746697 |
+
+**PO status of BK-e1b:** merged, CI on the merge commit green. Gate «Simulation, synthetic data». Not a block acceptance: BK-e is accepted only after BK-e1c and a `ci-repeat` 10/10 on a named integrated commit (FE-071 (4)).
+
+**BK-e1c (next Engineering item; fixed residual list, closes against this list only):**
+
+| # | Item | Test |
+|---|---|---|
+| C1 | R3b / UXR-248 / CGR-257: on day 2 the carer's «Heute» shows the running (started or paused) night visit of day 1 on the card itself, first card below any P1 signal, with its «Abschliessen» and «Ereignis melden» (a link alone does not count) | pgTAP: `field_visits(day 2)` returns it with a carried flag; Playwright at 390 px on `/field?datum=<day 2>`: card first, «Abschliessen» completes it |
+| C2 | CGR-257: the client's safety alerts of that visit show on day 2 too (`field_safety_alerts` uses the same predicate as `field_visits`) | pgTAP `field_safety_alerts(day 2)` |
+| C3 | not pulled forward: a day-1 visit that is completed, planned, cancelled, or a day visit | pgTAP controls (red first for C1/C2) |
+| C4 | `eng` names the final head: SHA, result per CI job, review questions (including `eng` 17:15 question 3 for `cra`, `on_the_way` after midnight, and question 4 for `uxa`, the line after the planned end, and the exact copy) | PR comment |
+| C5 | `cra` and `uxa` gate lines on that head; all CI jobs green | gate start by the PO (FE-091 (4)) |
+
+`eng`'s 17:15 design (one private predicate for both functions, display only, no new rule) is the HOW and stays `eng`'s. The two open questions are not decided by the PO: `eng` builds its proposal (an `on_the_way` night visit is not pulled forward; the line stays after the planned end) as PROPOSED, and `cra` and `uxa` decide in their gate lines; a different answer there is a change inside C1, not a new condition. Copy «Läuft seit gestern 22:00» stays PROPOSED (`uxa`). Not in BK-e1c: CGR-256 (first follow-up after BK-e1c) and the follow-ups listed in amendment 15:45. Then #1460 (ADR-204), then the BK-e `ci-repeat` evidence run.
+
+PO status of BK: **active**, slice **BK-e** (BK-e1b merged; BK-e1c next).

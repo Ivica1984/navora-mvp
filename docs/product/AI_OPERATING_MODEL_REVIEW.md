@@ -622,6 +622,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «a kind that leaves a base stays visible» (AUT-144):** when a team metric counts only signals where its action exists (H-BK-12:39), each excluded P1 kind gets its own team row; an inventory test is red for a kind in no base and no row. Team level only. PLANNED (PO, `csa`, `eng`).
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**First real AI function: decision template; rule before and after the model (`aia` 2026-11-18 15:46, review 69, AUT-145 to AUT-148):**
+- **View:** the PO's choice «Auftrag aus Freitext» (BK-d) as the first external call is supported: level L, harmless and visible errors, and it proves key, guard, ledger, confirmation, stop and cost limits before the report draft (G or H, `cra`) uses the same adapter. Template in `AUTOMATION_REVIEW.md` review 69 §1 (German, for `BK_ROADMAP.md` §9). PLANNED.
+- **Labelling (FE-089 (5)):** every function is stated as fixed rule, test double or connected model. Today: rules BK-b, BK-c3, `resolveOrderDate`; no test double merged; no model connected.
+- **Control «rule before and after the model» (AUT-145):** one deterministic reader is validator (a model value stays only if its source words are in the input and the reader derives the same value), CI test double and baseline (the model is switched on only if it beats the reader with 0 invented values). PLANNED (PO, `eng`).
+- **Control «the first agent proposes four fields» (AUT-146):** date, start, end, PLZ only; shift label by rule; grade and activity tags hand-entered (CGR-241). PLANNED (`cra`, `lca`).
+- **Control «a call carries the text and nothing else» (AUT-147):** no account ID, name, e-mail or client name in the request; no free text in logs; visible test-data line; character cap; synthetic demo accounts only. PLANNED (`lca`, `uxa`).
+- **Gate path (AUT-148):** FE-089 (4) allows the PO to start only `cra` and `uxa` for the active slice; the provider reading by `lca` needs a founder-named path. OPEN (founder).
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -693,3 +702,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-18 02:20 | `aia` | §12: block «BK-d cut; one control layer for every AI proposal»: PO 00:39 cut supported; stop rule clarified (stops proposals; fail-closed in code); controls AUT-138 (reuse AIG1), AUT-139 (source words only), AUT-140 (one confirmation pass). No agent added or removed |
 | 2026-11-18 08:22 | `aia` | §12: block «BK-e report draft; three source classes; planned is not performed»: H-BK-02:39 supported with three source classes; AIG1 fits BK-e2 without schema change; controls AUT-141 (planned is not performed), AUT-142 (count the acts after the shift). No agent added or removed |
 | 2026-11-18 14:23 | `aia` | §12: block «Closed by default; a metric names its action»: H-BK-11:39, H-BK-12:39, H-BK-13:39 supported; control AUT-144 (a kind that leaves a base stays visible). No agent added or removed |
+| 2026-11-18 15:46 | `aia` | §12: block «First real AI function: decision template; rule before and after the model»: PO choice BK-d supported; FE-089 (5) labelling; controls AUT-145 (validator, test double, baseline in one rule), AUT-146 (four fields), AUT-147 (minimal request); gate-path gap AUT-148. No agent added or removed |

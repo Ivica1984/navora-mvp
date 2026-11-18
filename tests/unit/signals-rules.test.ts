@@ -27,6 +27,8 @@ describe("safety signals (SIG1)", () => {
       visit_uncovered: "Einsatz ohne Zuständige",
       visit_interrupted: "Einsatz abgebrochen",
       no_show: "Klientin öffnet nicht",
+      // BK-e1b / CGR-246 (migration 0144): the rule label of `take_member_dropped` (ADR-203 (12), words PROPOSED `uxa`)
+      take_member_dropped: "Übernommene Schicht: Person fällt aus",
     });
     expect(signalText("unknown")).toBe("Sicherheitssignal");
   });

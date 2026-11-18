@@ -86,6 +86,9 @@ import type { SignalRow } from "@/features/signals/rules";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
 import { placeLine } from "@/features/field/place";
+import { TAKE_HEADING, visitHeading } from "@/features/field/heading";
+import { TAKE_ENDED_STATUS, takeEndedText } from "@/features/field/take-end";
+import { TAKE_CANNOT_GO_LINE, fieldMoreItems, showTakeCannotGoLine } from "@/features/field/more-actions";
 
 type Props = {
   day: string;
@@ -456,21 +459,27 @@ function VisitCard({
   // UX1-8: the card's "Mehr" menu (first tap) and the action chosen in it (second tap opens its form with the consequence).
   const [moreOpen, setMoreOpen] = useState(false);
   const [moreAction, setMoreAction] = useState<"cancel" | "hold" | null>(null);
-  const canCancel = visit.status === "planned" || visit.status === "on_the_way";
-  const canHold = !quality.some((q) => q.kind === "hold" && q.status === "open");
-  const moreItems = [canCancel && "cancel", canHold && "hold"].filter(Boolean) as ("cancel" | "hold")[];
+  // BK-e1b / CGR-248, UXR-240 (ADR-203 (13)): a take visit offers no «Einsatz absagen»; an ended take card no action.
+  const takeEndedFlag = takeEndedText(visit.system_end_reason) !== null;
+  const holdOpen = quality.some((q) => q.kind === "hold" && q.status === "open");
+  const moreItems = fieldMoreItems({ status: visit.status, fromTake: visit.from_take === true, takeEnded: takeEndedFlag, holdOpen });
+  const cannotGoLine = showTakeCannotGoLine({ status: visit.status, fromTake: visit.from_take === true, takeEnded: takeEndedFlag });
 
   // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
   // VIS1-3: a visit dated after today shows no field action (the database refuses them, migration 0089).
   const afterToday = isAfterToday(visit.visit_date, today);
   // UX2-22 (ADR-124): no control the database refuses her for a missing qualification (ADM2-16, 0094).
   const actions = visit.suspended ? [] : actionsForMember(fieldActionsOn(visit.status, visit.visit_date, today), visit.team_id, unqualifiedTeams);
-  const canMove = canMoveToToday(visit.status, visit.suspended, visit.visit_date, today);
+  const canMove = canMoveToToday(visit.status, visit.suspended, visit.visit_date, today, visit.from_take === true);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
   // BK-e1 / UXR-190 (ADR-202 (1)): a postcode without a street says so in text, not by colour alone.
-  const place = placeLine(visit.address, visit.plz, visit.ort);
+  const place = placeLine(visit.address, visit.plz, visit.ort, visit.from_take);
+  // BK-e1b / UXR-239: a take card names the kind, never «ohne Namen»; UXR-237: the place line names the simulation limit.
+  const heading = visitHeading(visit.client_name, visit.from_take);
+  // BK-e1b / CGR-242 (c): a take visit ended before the start stays on her day, in text, never as «abgesagt».
+  const takeEnded = takeEndedText(visit.system_end_reason);
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
   const needs = visit.care_needs?.length ? visit.care_needs.join(", ") : null;
   const events = parseEvents(visit.events);
@@ -512,13 +521,13 @@ function VisitCard({
       data-testid={focusOnMount ? "moved-visit" : undefined}
       aria-describedby={describedBy}
       id={focused ? "einsatz-korrektur" : undefined}
-      aria-label={cardAccessibleName(time, visit.client_name ?? "Klient:in", sameSlot)}
+      aria-label={cardAccessibleName(time, visit.from_take ? TAKE_HEADING : visit.client_name ?? "Klient:in", sameSlot)}
       className="scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg font-bold tabular-nums">{time}</p>
-          <h2 className="text-base font-semibold">{visit.client_name ?? "Klient:in ohne Namen"}</h2>
+          <h2 className="text-base font-semibold">{heading}</h2>
           {sameSlot && (
             // VIS2-3 (ADR-121): tells two cards of one client at one time apart; a fact, `info`, nothing refused.
             <p data-testid="same-slot-line" data-tone="info" className="mt-1 text-sm text-stone-700">
@@ -527,9 +536,14 @@ function VisitCard({
           )}
         </div>
         <span data-testid="visit-status" className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${visit.suspended ? "bg-amber-100 text-amber-900" : STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
-          {visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
+          {takeEnded ? TAKE_ENDED_STATUS : visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
         </span>
       </div>
+      {takeEnded && (
+        <p data-testid="take-ended" className="mt-2 text-sm text-stone-800">
+          {takeEnded}
+        </p>
+      )}
 
       <dl className="mt-3 grid gap-1 text-sm">
         <Row label="Ort" value={place.text} muted={place.missing} testId="visit-place" />
@@ -652,6 +666,13 @@ function VisitCard({
             </button>
           ))}
         </div>
+      )}
+
+      {/* BK-e1b / CGR-248 / UXR-241: instead of «Einsatz absagen» on a live take visit (words `cra` 06:27). */}
+      {cannotGoLine && (
+        <p data-testid="take-cannot-go" className="mt-3 rounded-lg border border-stone-300 bg-stone-50 p-3 text-sm text-stone-900">
+          {TAKE_CANNOT_GO_LINE}
+        </p>
       )}
 
       {/* UX1-8 (ADR-104): actions with billing or planning consequences need two taps: "Mehr", then the action, whose

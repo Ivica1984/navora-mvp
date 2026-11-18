@@ -6,6 +6,111 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 16:45 CET · `uxa`: gate start by `po` (FE-091 (4), PO run 16:39) on #1421 head `386848b`; gate **clear** for the screens of BK-e1b, with UXR-248 (R3b) placed as BK-e1c, precondition of BK-e acceptance (PO proposal); this replaces my 16:42 line only if the PO records that placement
+
+**State.** `recovery/main` at `6f8b770`. #1421 head `386848b` = `614aad6` + `eng` journal (docs only). The PO started this run with the PR, the head, `eng`'s questions and the residual list (FE-091 (4)); I stay paused afterwards. Check runs on `386848b` per the PO: `app` 134894149767, `db` 134894149842, `e2e` 134894149913, `ui-screenshots` 134894152908, `staging` 134900635900, all `success`; I read the `e2e` log on `614aad6` (16:42 section) and no log on `386848b`. `git diff 614aad6 386848b` touches one journal file, so the screen evidence of 16:42 applies. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14439507903 (job 134894152908, `386848b`) again not downloadable: the archive host is refused by the proxy (`CONNECT tunnel failed, response 403`). **No screenshots were available;** I could not check the images against my UXR-237 to UXR-241 words, only the asserted strings and counts (table in the 16:42 section). This is a limit of this review, not a finding against the PR.
+
+### Gate line on `386848b` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1421 386848b clear — UXR-237 to UXR-241 met (e2e); UXR-248 (R3b) not in this gate, placed as BK-e1c and a precondition of BK-e acceptance (PO 16:39 proposal)`
+
+Why the change from 16:42 «not clear»: at 16:42 the brief put R3b inside #1421 («OPEN, to build in #1421»); the PO now proposes R3b as BK-e1c, the next PR of BK-e, before BK-e is accepted. In the simulation with synthetic data, merging #1421 without R3b puts no person at risk, and no carer can work a real night shift before BK-e is accepted; so from the screen side it is not a substantial defect that must block this PR. Condition of this line: the PO records BK-e1c with R3b as a precondition of BK-e acceptance in `BK.md`; if the PO does not, my 16:42 reservation stands. `cra` decides whether it is a substantial safety defect (FE-091 (4)); my line does not answer for `cra`.
+
+### `eng`'s questions
+
+- **(e):** acceptable. «Ereignis melden» stays the only button on the ended take card (QG1 path, UX1-9; not a take, field or «Mehr» action, so UXR-240 holds). `cra` decides as QG1 owner.
+- **(d) → BK-e1c (view for that PR, not this gate):** **on «today», not one tap away.** At 03:00 the running shift is the item that needs her attention (§1 question 1); a tap she must know about («Gestern ansehen») fails the carer who does not know the shift is filed under yesterday. So: the started, not completed visit of the previous day is the first card of «today» after midnight, below any P1 signal and never above it, with its «Abschliessen» and one line «Läuft seit gestern 22:00» (PROPOSED; time from the visit); not-started or completed visits of the previous day and day visits are not pulled forward. Acceptance and test as in #1471 (clock at 03:00 of day 2). Design system §5 line v107 (PROPOSED).
+
+### Findings
+
+No new finding. UXR-248 stays open (high, #1471), now for BK-e1c. UXR-237 to UXR-241 close on merge of #1421. **Design system:** unchanged (v107). **Benchmark:** none. **Sign-off #1279:** stands (reservation UXR-195).
+
+**Waiting:** `po` (record BK-e1c with R3b in `BK.md`; merge #1421 under its process; merge this PR); `cra` (gate line, point (e), whether R3b is substantial); `eng` (BK-e1c).
+
+---
+
+## 2026-11-18 16:42 CET · `uxa`: gate review of #1421 on the named final head `614aad6` (FE-091 (4)); UXR-237 to UXR-241 met in the browser; gate **not clear** with one reservation, UXR-248 (= residual item R3b, running night shift not on the carer's «today» after midnight); view on `eng`'s points (d) and (e)
+
+**State.** `recovery/main` at `6f8b770` (PO merge #1469). Merged since my 14:48 section: my #1459, #1458, #1463, #1464, #1467, #1468, #1469 (docs). FE-091 (live, 16:20): review roles paused from the hourly rhythm; the PO starts `cra` and `uxa` once on a stable `eng` final head. This run started at 16:42; who started it is not yet recorded under FE-091 (b) (UNKNOWN, the PO documents it). Open PRs: #1421 (`eng`, BK-e1b, head `386848b` = final head `614aad6` + journal), #1460, #1084, #3.
+
+**CI read by me (job log, not only the status):** check runs on `614aad6`: `app` 134886607289, `db` 134886608057, `e2e` 134886607858, `ui-screenshots` 134886607838, `staging` 134892674176, all `success` (API). `e2e` 134886607858 log: `✓ 74 [chromium] › tests/e2e/bk-e1b-take-card.spec.ts:34:5 › BK-e1b at 390 px: …` and «190 passed (6.0m)». I read no other job log. I ran no NAVORA test.
+
+**Screenshots.** The `ui-screenshots` artifact 14438855980 (`614aad6`) could not be downloaded (archive host answered «Forbidden» through the proxy). **No screenshots were available;** the review below is from the code and the e2e assertions. `git diff --stat 49e5b68 614aad6 -- src` is empty: no screen code changed since my 12:48 reading of `2346b34`; the new files are `tests/e2e/bk-e1b-take-card.spec.ts`, `tests/unit/bk-e1b-night-take-times.test.ts` and pgTAP 148 §14.
+
+### Gate line on `614aad6` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1421 614aad6 not clear — reservation UXR-248 (residual item R3b, brief BK.md §PO amendment 15:45)`
+
+What is met from the screen side (each against the exact string or count asserted in `bk-e1b-take-card.spec.ts`, green in `e2e` 134886607858):
+
+| Condition | Asserted | State |
+|---|---|---|
+| UXR-239 heading | `heading level 2` = `TAKE_HEADING` («Übernommene Schicht»), no «ohne Namen» | met |
+| UXR-237 place line | `visit-place` = «4051 Basel · » + `TAKE_STREET_NOT_SENT` | met |
+| UXR-241 / CGR-248 | `take-cannot-go` = `TAKE_CANNOT_GO_LINE`; no button «Einsatz absagen» (also after opening «Mehr» when present) | met |
+| CGR-249 | no button «Heute machen» | met |
+| UXR-238 | ended card: `visit-status` = `TAKE_ENDED_STATUS`, `take-ended` = the full reason sentence, no «abgesagt» | met |
+| UXR-240 | ended card: no `take-cannot-go`, no `visit-more`, exactly one button «Ereignis melden» | met (see point (e)) |
+| 390 px | viewport 390 × 844; `scrollWidth − innerWidth ≤ 0` on both states | met |
+| CGR-242 client | the client's order card does not read «Gedeckt» after the release | met |
+
+Not asserted, noted, not a condition: the 44 px target of «Ereignis melden» on the ended card (§6) is the existing QG1 button, unchanged by this PR. UXR-237 to UXR-241 close on merge of #1421.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-248 | `/field` «Heute», the carer working a taken night shift 22:00–07:00 (BK-e1b, #1421) | high | Between 00:00 and 07:00 the shift she is working, and its «Abschliessen», are not on her «today»: `field_visits(p_date)` lists a visit only on its `visit_date` (`eng` ADR-203 (21) finding (d), «OPEN, nothing changed in this PR», #1421 comment of 16:00). A carer who opens NAVORA at 03:00 sees a day without her running shift and must know that it is filed under yesterday to close it. The screen fails question 1 (what needs attention now) for the one item that does; a shift left open because «Abschliessen» was not found also falsifies the recorded time that criterion 4 and R3a test. The PO placed this in the fixed list as R3b, «OPEN, to build in #1421». | `614aad6`: `bk-e1b-take-card.spec.ts` opens `/field?datum=${day}` only (no second-day case); `eng` #1421 comment 16:00 point (d); brief `BK.md` R3b | §1 (1) and (2); §5 «the next visit on `/field` is inside the first viewport» | As R3b: on `/field` «today» between 00:00 and the end of a started, not completed visit of the previous day, that visit is the first card (below any P1 signal, never above it), with its «Abschliessen»; one text line on the card, PROPOSED «Läuft seit gestern 22:00» (time from the visit; `cra` confirms only if it reads as a clinical statement). A not-started or completed visit of the previous day and any day visit are not pulled forward. Test (`eng` HOW): e2e or pgTAP with the pinned clock at 03:00 of day 2: the started night visit is on day 2's `/field` (or one tap from it) and «Abschliessen» completes it at 07:00; a day visit of day 1 is not listed. | #1471 |
+
+**Closed:** none in this section (UXR-237 to UXR-241 close on merge).
+
+### `eng`'s two points
+
+- **(e) ended take card keeps «Ereignis melden»:** keep it, from the screen side. It is the quality-report path every `/field` card has (UX1-9), not a take or field action, so UXR-240 («no action that acts on the take») holds; a carer may need to report something about that night even after the release. It must stay the only button and must not read as a way back into the shift. Whether a quality report on a released take is wanted is `cra`'s (QG1 owner); I propose no change.
+- **(d) running night visit on the previous day's page:** this is UXR-248 / R3b, the reservation of my gate. The ID «H-BK-15:39» now names two challenges: the 2026-11-14 offer-list challenge (met, pgTAP 141, `BK.md` line 821) and the PO 15:39 challenge of 2026-11-18 for this gap; I report the clash to the PO and change nothing.
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195). **Design system:** version 107, one PROPOSED §5 line (a running shift belongs to «today» until it ends). No token change.
+
+**Waiting:** `eng` (R3b on #1421, then a new final head; I give the gate line on it when the PO starts this role again); `po` (merge this PR; record of this run's start under FE-091 (b)); `cra` (point (e)).
+
+---
+
+## 2026-11-18 14:48 CET · `uxa`: UXR-247 (2) confirmed by `cra` 14:27 for the simulation; #1421 heads `c8c9bf3`–`49e5b68` change no screen; view on H-BK-14:39 (condition ledger) supported with three screen conditions; no gate (final head not named)
+
+**State.** `recovery/main` at `41a998b` (PO merge #1457). Merged since my 13:50 section: my #1455 (`372c803`), #1454 (`po` 13:39), #1456 (`aia` 14:23), #1457 (`cra` 14:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `49e5b68`, code head `592c7ae` per `eng` 14:15), #1458 (`po` 14:39, docs, not merged), #1084, #3. CI: I read no job log and claim no CI result; PO 14:39 reports five check runs `success` on `592c7ae`. I ran no NAVORA test.
+
+**Screenshots.** Not attempted: `git diff --stat 883d21c 49e5b68 -- src e2e tests` is empty (migration 0148, race script, pgTAP 148, ADR, journal). **No screenshots were available;** the screen reading of 12:48 on `2346b34` stands.
+
+### UXR-247 (2): confirmed for the simulation
+
+`cra` 14:27: no clinical objection to «Die zugeteilte Person fällt für diese Schicht aus. Der Einsatz steht im System noch bei ihr. Bitte mit dem Team klären, wer hingeht.» PO 14:39 (3): the words stand for the simulation follow-up. UXR-247 stays open (medium) until the follow-up with CGR-254 (c) is built; remedy unchanged from my 13:50 section. What Operations must arrange and by when stays UNKNOWN (Clinical Owner, CGR-254 (b)).
+
+### View on H-BK-14:39 (PLANNED, not decided; asked by PO 14:39)
+
+Supported, from the screen side, with three conditions so that the ledger saves review rounds without hiding screen evidence:
+
+1. **Screen rows name their evidence.** A row whose WHAT is a screen condition (a UXR remedy, a target size, a text that must or must not appear) names the Playwright or Vitest test by file and test title and the `ui-screenshots` artifact ID and commit it ran on, not only «e2e green». A text condition names the exact string asserted.
+2. **The tick is the reviewer's.** `eng` keeps the ledger, but only the role that owns the condition sets its tick (`uxa` for UXR rows, `cra` for CGR rows, `lca` for D-/legal rows); a row ticked by the author is open. This keeps the reviewer reading the code, not only the ledger.
+3. **No row replaces the gate line.** The ledger is input to my gate line on the named final head; it does not stand in for it (README rule 12), and a row «not reached from the screen» (like `kind_not_takeable`, 12:48) says so instead of being ticked.
+
+Value for the user: fewer rounds before the take card reaches the simulation; no change to any screen. Not a gate condition (PO 14:39).
+
+### Findings
+
+No new finding. **Closed:** none (UXR-245 and the UXR-246 link part close on merge of #1421; UXR-237 to UXR-241 wait for the take-card Playwright test at 390 px and the merge; UXR-244 open; UXR-246 open for the name part; UXR-247 open, follow-up).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.60 (#1458, not merged) changes header, §8 row BK and the version row per the PO 14:39 journal, not §5 or §6.
+
+**Design system:** unchanged (version 106). No token change.
+
+**Gate:** none on #1421: `eng` has not named the final head and the take-card Playwright test (390 px, F1–F4) is not on it. From the screen side no blocking finding is open. I give the gate line on the named final head once that test is on it and `e2e` is green there.
+
+**Waiting:** `po` (merge this PR; H-BK-14:39 decision); `eng` (final head with take-card Playwright; UXR-247, UXR-246 name part as follow-ups); Clinical Owner (CGR-254 (b)).
+
+---
+
 ## 2026-11-18 13:50 CET · `uxa`: UXR-247 (2) reworded after `cra` 13:29 (the Operations line no longer says «nicht mehr eingeplant»; it says that she drops out and that the visit is still on her); #1421 heads `4de4305`–`883d21c` change no screen; no gate (CGR-255 blocking, final head not named)
 
 **State.** `recovery/main` at `842d5af` (PO merge #1453). Merged since my 12:48 section: my #1452 (`6aa7f19`), #1453 (`cra` 13:29). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `e9ba66f`, code head `883d21c` per `eng` 13:14), #1454 (`po` 13:39, docs, not merged), #1084, #3. CI: I read no job log and claim no CI result; `cra` 13:29 read the `db` log on `883d21c`. I ran no NAVORA test.
