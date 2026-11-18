@@ -99,7 +99,11 @@ test("BK-e1b at 390 px: a self-named night take is one «Übernommene Schicht» 
   await expect(ended).not.toContainText(/abgesagt/i);
   await expect(ended.getByTestId("take-cannot-go")).toHaveCount(0);
   await expect(ended.getByTestId("visit-more")).toHaveCount(0);
-  await expect(ended.getByRole("button")).toHaveCount(0);
+  // UXR-240: no field, «Mehr» or take action. The one button left is the QG1 quality report «Ereignis melden», which
+  // every /field card carries (UX1-9, one tap); first CI run of this test (44323236233 attempt 2) showed it. Whether an
+  // ended take card keeps it is named to `uxa` / `cra` (ADR-203 (21) (e)); this test pins exactly that one button.
+  await expect(ended.getByRole("button")).toHaveCount(1);
+  await expect(ended.getByRole("button")).toHaveText("Ereignis melden");
   await noSidewaysScroll(page);
   await page.context().clearCookies();
 
