@@ -32,7 +32,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(57);
+select plan(58);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -190,10 +190,11 @@ end;
 $$;
 create function pg_temp.depart(actor text, k text, key text) returns text language plpgsql as $$
 declare res text;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;  -- read as the table owner, before the role switch
 begin
   perform pg_temp.act_as(pg_temp.m(actor)::text);
   set local role authenticated;
-  res := public.depart_visit((pg_temp.visit(k) ->> 'id')::uuid, key::uuid);
+  res := public.depart_visit(vid, key::uuid);
   reset role;
   perform pg_temp.as_owner();
   return res;
@@ -267,10 +268,10 @@ select ok(not exists (select 1 from public.visit_events e where e.visit_id = (pg
           'CGR-242 (a): no «cancelled» timeline event, so no count reads it as a cancellation');
 select ok(not exists (select 1 from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid),
           'CGR-242 (a): no cancellation note with a client or team reason');
-select ok(pg_temp.sees('01', 'o1', date '2026-11-19')
-          and (select f.status || ' ' || f.system_end_reason from fv f
-               where f.member = '01' and f.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid) = 'cancelled take_released_absence',
-          'CGR-242 (c): /field still lists the ended visit to the released member, with the reason code');
+select ok(pg_temp.sees('01', 'o1', date '2026-11-19'), 'CGR-242 (c): /field still lists the ended visit to the released member');
+select is((select f.status || ' ' || f.system_end_reason from fv f
+           where f.member = '01' and f.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid), 'cancelled take_released_absence',
+          'CGR-242 (c): /field returns her the status and the reason code');
 select ok(not pg_temp.sees('02', 'o1', date '2026-11-19'),
           'CGR-242 (c) / lca: a member of the same team who was not named never reads it or its reason');
 
