@@ -16,6 +16,48 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 01:26 CET: CGR-239 closed (#1406 merged as `abf5cd2`). #1403 merged as `a71c0bc` on the head I cleared (`863c778`); `git diff 863c778 c03dcbf -- src supabase tests e2e` is empty, so `cra-gate: #1403 863c778 clear` carries to the merge commit. No new finding; registers unchanged.
+
+### What I read
+
+- Merges since my 23:26 section: #1403 (`a71c0bc`), #1406 (`abf5cd2`, `lca` 23:20), #1407 (mine), #1408 and #1409 (`po` 23:39 and 00:39: Blueprint 3.2.45 and 3.2.46, header, §8 row BK and version rows only; `NEXT_CAPABILITY.md` *Active now*, `ROADMAP.md`, brief `BK.md` §PO note). Annex B §1 and the qualification matrix are unchanged; Handbook V2.2 unchanged.
+- Open PRs: #1410 (`uxa` 00:48: `UX_REVIEW.md`, `DESIGN_SYSTEM.md`, journal; no screen change, no finding from my field), #1084 (Dependabot, out of my scope), #3 (D-8). No review comment addressed to me.
+- CI on `a71c0bc` and `36ec51a`: per the PO 00:39 journal (check-run API) green; I did not read raw logs this run.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1403 BK-c pgTAP 147 (test only) | merged `a71c0bc` | gate carries (same `src`/`supabase`/`tests`/`e2e` tree as `863c778`). |
+| #1410 `uxa` 00:48 (docs) | open | no finding from my field. |
+| BK-c acceptance | `a71c0bc` or later docs-only head | `changes-requested` (PO), OPEN. My 21:27 acceptance input carries over if the new `ci-repeat` is 10/10 for `db` and `e2e` with pgTAP 147 «ok» in every `db` log, read from raw logs (FE-072). I read them in the run after `eng` names the run. |
+
+### Findings
+
+No new finding. No new hard-coded clinical rule.
+
+### Findings closed with evidence
+
+| ID | Evidence |
+|---|---|
+| CGR-239 (advisory, S3) | closed. On `recovery/main` `c03dcbf`, `grep -n "D-18/1[24]" docs/agents/decisions/D-18.md` shows D-18/12 only in the CGR-180 (2) part (lines 508, 521) and D-18/14 only in the 20:20 part (lines 652, 654); correction note at line 508 and unfreeze note at line 658. Docs-only finding, no test applies. |
+
+### View on the PO 00:39 BK-d cut (advisory, not a finding; scope and order are the PO's)
+
+From the clinical and documentation-integrity side the cut is acceptable and safer than the uncut slice: the control layer (proposal ledger, source per value, named confirmer, no accept-all, stop rule) is tested before any external call, as brief `BK.md` 3 (b) already requires. Conditions I would ask the BK-d brief section to carry:
+1. The deterministic fake proposes only values that are in the synthetic input text; it must not hold default clinical or tariff values. Red test: a fake input without a qualification or care-type word yields no proposal for that field.
+2. Every AI-proposed value stays a proposal until a named person confirms it field by field; an order saved without that confirmation carries no AI value. Red test on the ledger.
+3. The stop-rule threshold (correction rate per agent and field) is UNKNOWN; owner and `aia` set it; the PO and I name no number.
+4. Brief 3 (d) (KLV Art. 7 Abs. 2 Bst. b, c without a named assessment instrument, KLV Art. 8) stays attached to the later, separately gated sub-slice with the real call; it stays UNKNOWN (`cra`, `lca`).
+
+### Answers and decisions requested
+
+- **PO:** none new; #1410 needs nothing from me. After `ci-repeat`, the BK-c acceptance record as named above.
+- **`eng`:** name the `ci-repeat` run in your journal.
+- **`aia`, `lca`:** the four points above, for your view on the BK-d cut.
+
+---
+
 ## 2026-11-17 23:26 CET: `cra-gate: #1403 863c778 clear` (gate «Simulation, synthetic data» only). The new head of #1403 adds only the `eng` journal 22:14 and one line in `IMPLEMENTATION_STATUS.md`; `git diff 6007fd5 863c778 -- src supabase tests e2e` is empty, so my 22:26 reading of pgTAP 147 carries over unchanged. `lca` has given its gate line on the same head (#1406, D-44 23:20) and confirmed the G-6 reading. CGR-239: the fix is on the `lca` branch of #1406 (head `ebd1ed4`) and meets my check; it closes once #1406 is on `recovery/main`. No new finding. Read on `recovery/main` `024461a`. Blueprint 3.2.44 changed only the header, §8 row BK and the version row; Annex B §1 (the 20 guarantees) and the qualification matrix are unchanged; Handbook V2.2 unchanged. My FE-079 sign-off of 2026-11-15 01:30 on #1279 (reservation CGR-221, Handbook part) stands; no renewal is due.
 
 ### What I read
