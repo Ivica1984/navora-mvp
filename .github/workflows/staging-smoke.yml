@@ -1,0 +1,62 @@
+# ADR-205 (founder decision 2026-11-18, «Variante b»): the founder's two click paths in the real staging app, started by
+# hand after a slice reaches staging. Browser only: no local Supabase, no database access, no service key. The three
+# demo passwords are repository secrets (Settings → Secrets and variables → Actions), set by the founder; GitHub masks
+# them in the log. No trace, video, report or artifact is kept (a trace would hold the typed password). A missing secret
+# or a host other than navora-staging.onrender.com fails the run (tests/staging-smoke/target.ts); it never skips.
+name: staging-smoke
+
+# Start: push a branch `staging-smoke/<label>` pointing at a commit of recovery/main (as ci-repeat uses `repeat/**`;
+# workflow_dispatch only lists workflows of the default branch `main`, which does not have this file yet).
+on:
+  push:
+    branches: ['staging-smoke/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-smoke
+  cancel-in-progress: false
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  smoke:
+    name: staging smoke (founder click paths 1 and 2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Only reviewed code gets the secrets (commit must be on recovery/main)
+        run: |
+          git fetch --no-tags origin recovery/main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/recovery/main; then
+            echo "::error title=staging-smoke::commit $GITHUB_SHA is not on recovery/main; the smoke runs only reviewed code"
+            exit 1
+          fi
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        run: npm ci --no-fund
+      - name: Install Playwright browser
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "::warning title=playwright-install::attempt $attempt failed, retrying"
+            sleep 15
+          done
+          exit 1
+      - name: Tested commit (repository side)
+        run: echo "::notice title=staging-smoke::workflow commit ${GITHUB_SHA}; the app commit Render serves is read from Render (not from this job)"
+      - name: Click paths on navora-staging
+        env:
+          STAGING_SMOKE_PW_KUNDEBS: ${{ secrets.STAGING_SMOKE_PW_KUNDEBS }}
+          STAGING_SMOKE_PW_PFLEGEBS: ${{ secrets.STAGING_SMOKE_PW_PFLEGEBS }}
+          STAGING_SMOKE_PW_PFLEGE: ${{ secrets.STAGING_SMOKE_PW_PFLEGE }}
+        run: npx playwright test --config playwright.staging-smoke.config.ts
