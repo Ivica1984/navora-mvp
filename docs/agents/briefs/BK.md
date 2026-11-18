@@ -1235,3 +1235,12 @@ PO did not run tests locally. Gate: **«Simulation, synthetic data»**. Not rele
 **Next (order):** CGR-256 (overlap across midnight for hand visits; `cra` pgTAP pair from amendment 13:39 (2)) as the next Engineering PR with a fixed residual list in `eng`'s brief reply; then BK-e2a (report draft from typed text, test substitute labelled «regelbasiert, keine KI»), BK-e2b (signature); CGR-258, UXR-249, UXR-250 as named follow-ups. The review-rhythm recommendation (BK BUILD PHASE point 6) stays due by 2026-11-25 (BK-e is not yet accepted as a whole).
 
 PO status of BK: **active**, slice **BK-e** (BK-e1 accepted for the simulation; BK-e2 open).
+
+
+## PO amendment 2026-11-18 23:39 (scheduled PO run): ADR-205 merged; CGR-256 on the `cra` gate; FE-093 placed
+
+1. **#1492 (ADR-205 staging smoke) merged** at `3152c4e` → `2201628` on founder decision FE-092 (1). CI infrastructure, no product scope. The smoke against `navora-staging` has not run (UNKNOWN; needs the three founder secrets).
+2. **#1489 (CGR-256):** `eng` named final head `6322ea2` with review questions. PO answers (no new merge condition): (1) the AIG1 confirm refusing a line that meets a member's previous-day night is part of CGR-256 (safety-positive; `cra` to confirm in the gate line). (2) A visit reaching beyond D+1 is a **named Phase-A limit**, follow-up item CGR-256b next to CGR-258, before real clients; `cra` may say otherwise in the gate line. (3) Yes, a `cra` closing line is needed: gate started 23:47. (4) No rest-time rule (UNKNOWN, Clinical Owner, H-10). Fixed residual list unchanged: pgTAP pair green, locks and signatures unchanged, no new rule.
+3. **#1494 (BK-e2a part 1, FE-093):** next after #1489. Gate: `aia` (active role; AUT-135, AUT-136: input scope, label, stop rule «ohne Quelle kein Wert», environment lock, kill switch). Fixed residual list for part 1: the 21 unit tests green on the head; `ALLOWED_MODEL_HOSTS` empty and frozen; nothing calls the code (no route, migration or screen); the rule substitute labelled «regelbasiert, keine KI · synthetische Daten». Adding a model host is a separate reviewed PR after the founder's provider choice and the `lca` check of the data processing agreement (FE-093 (c)).
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
