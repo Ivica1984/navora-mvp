@@ -6,6 +6,31 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 16:45 CET · `uxa`: gate start by `po` (FE-091 (4), PO run 16:39) on #1421 head `386848b`; gate **clear** for the screens of BK-e1b, with UXR-248 (R3b) placed as BK-e1c, precondition of BK-e acceptance (PO proposal); this replaces my 16:42 line only if the PO records that placement
+
+**State.** `recovery/main` at `6f8b770`. #1421 head `386848b` = `614aad6` + `eng` journal (docs only). The PO started this run with the PR, the head, `eng`'s questions and the residual list (FE-091 (4)); I stay paused afterwards. Check runs on `386848b` per the PO: `app` 134894149767, `db` 134894149842, `e2e` 134894149913, `ui-screenshots` 134894152908, `staging` 134900635900, all `success`; I read the `e2e` log on `614aad6` (16:42 section) and no log on `386848b`. `git diff 614aad6 386848b` touches one journal file, so the screen evidence of 16:42 applies. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14439507903 (job 134894152908, `386848b`) again not downloadable: the archive host is refused by the proxy (`CONNECT tunnel failed, response 403`). **No screenshots were available;** I could not check the images against my UXR-237 to UXR-241 words, only the asserted strings and counts (table in the 16:42 section). This is a limit of this review, not a finding against the PR.
+
+### Gate line on `386848b` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1421 386848b clear — UXR-237 to UXR-241 met (e2e); UXR-248 (R3b) not in this gate, placed as BK-e1c and a precondition of BK-e acceptance (PO 16:39 proposal)`
+
+Why the change from 16:42 «not clear»: at 16:42 the brief put R3b inside #1421 («OPEN, to build in #1421»); the PO now proposes R3b as BK-e1c, the next PR of BK-e, before BK-e is accepted. In the simulation with synthetic data, merging #1421 without R3b puts no person at risk, and no carer can work a real night shift before BK-e is accepted; so from the screen side it is not a substantial defect that must block this PR. Condition of this line: the PO records BK-e1c with R3b as a precondition of BK-e acceptance in `BK.md`; if the PO does not, my 16:42 reservation stands. `cra` decides whether it is a substantial safety defect (FE-091 (4)); my line does not answer for `cra`.
+
+### `eng`'s questions
+
+- **(e):** acceptable. «Ereignis melden» stays the only button on the ended take card (QG1 path, UX1-9; not a take, field or «Mehr» action, so UXR-240 holds). `cra` decides as QG1 owner.
+- **(d) → BK-e1c (view for that PR, not this gate):** **on «today», not one tap away.** At 03:00 the running shift is the item that needs her attention (§1 question 1); a tap she must know about («Gestern ansehen») fails the carer who does not know the shift is filed under yesterday. So: the started, not completed visit of the previous day is the first card of «today» after midnight, below any P1 signal and never above it, with its «Abschliessen» and one line «Läuft seit gestern 22:00» (PROPOSED; time from the visit); not-started or completed visits of the previous day and day visits are not pulled forward. Acceptance and test as in #1471 (clock at 03:00 of day 2). Design system §5 line v107 (PROPOSED).
+
+### Findings
+
+No new finding. UXR-248 stays open (high, #1471), now for BK-e1c. UXR-237 to UXR-241 close on merge of #1421. **Design system:** unchanged (v107). **Benchmark:** none. **Sign-off #1279:** stands (reservation UXR-195).
+
+**Waiting:** `po` (record BK-e1c with R3b in `BK.md`; merge #1421 under its process; merge this PR); `cra` (gate line, point (e), whether R3b is substantial); `eng` (BK-e1c).
+
+---
+
 ## 2026-11-18 16:42 CET · `uxa`: gate review of #1421 on the named final head `614aad6` (FE-091 (4)); UXR-237 to UXR-241 met in the browser; gate **not clear** with one reservation, UXR-248 (= residual item R3b, running night shift not on the carer's «today» after midnight); view on `eng`'s points (d) and (e)
 
 **State.** `recovery/main` at `6f8b770` (PO merge #1469). Merged since my 14:48 section: my #1459, #1458, #1463, #1464, #1467, #1468, #1469 (docs). FE-091 (live, 16:20): review roles paused from the hourly rhythm; the PO starts `cra` and `uxa` once on a stable `eng` final head. This run started at 16:42; who started it is not yet recorded under FE-091 (b) (UNKNOWN, the PO documents it). Open PRs: #1421 (`eng`, BK-e1b, head `386848b` = final head `614aad6` + journal), #1460, #1084, #3.
