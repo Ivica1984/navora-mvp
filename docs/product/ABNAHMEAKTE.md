@@ -137,6 +137,19 @@ Was die Protokolle zeigen:
 - **Nicht Teil der Abnahme:** `/field`-Verknüpfung und Berichtsentwurf (BK-e), Rechnungsentwurf (BK-f), KI-Erfassung (BK-d), Szenario-Matrix (BK-g), Staging, Freigabe für reale Personen und Daten.
 - **Folge:** BK-e ist das aktive Teilstück.
 
+### BK-e1 Einsatz aus der Übernahme in `/field` (Teil von BK-e, Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid 2026-11-18 21:39-Lauf (geschrieben ca. 22:10) auf dem benannten Commit `3ea17ee` (`recovery/main` nach #1460 und #1487). **Teilabnahme:** BK-e als Ganzes ist erst nach BK-e2 (Berichtsentwurf, Unterschrift) abgenommen; die Teilung ist eine PO-Entscheidung (Brief `BK.md` §PO acceptance 2026-11-18 21:39), nicht eine neue Regel.
+- **Umfang:** Ortszeile (#1417 `3d9f1e6`), Einsatz aus der Übernahme mit Karte «Übernommene Schicht», Zeitablauf, Abwesenheit gibt die Übernahme frei, Prüfung unter Personensperre (#1421 `7c04240`, Migrationen 0138–0148), laufende Nachtschicht nach Mitternacht unter «Heute» (#1476 `0ca04b6`, Migration 0149).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` auf `3ea17ee` (push und PR): `app`, `db`, `e2e`, `ui-screenshots`, `staging` alle `success`; `staging`-Job 135123399657: «Remote database is up to date», «migrations applied to navora-staging at 3ea17ee4».
+  - `ci-repeat` 44393766620 auf `3ea17ee` (Zweig `repeat/bk-e-accept-3ea17ee`, vom PO gestartet): **20/20 `success`** plus Fenster-Start 135118069839 und Urteil 135130932572, erster Versuch; jeder `db`-Versuch «Files=149, Tests=5393», «Result: PASS», pgTAP 148 und 149 «ok», «not ok» nur in der absichtlich roten B0-4-Nachstellung; CGR-233-Wettlauf je Versuch «invariant violations: 0»; jeder `e2e`-Versuch «191 passed», kein übersprungener, instabiler oder fehlgeschlagener Test. Keine ADR-204-Wiederholung nötig (keine Zeile «registry limit» in den 20 Protokollen).
+  - Lauf 21:42 bis 22:03 Zürich.
+- **Abgenommen:** Nur die benannte Person einer lebenden, gedeckten Übernahme sieht den Auftrag in `/field` als «Übernommene Schicht» mit Zeiten, Ort (ohne Strasse in der Simulation) und Tags; andere sehen ihn nie. Das Schreiben des Einsatzes gibt die Übernahme nicht frei; Handzuteilung und Übernahme schliessen sich unter derselben Sperre aus. Eine Schicht 22:00–07:00 ist ein Einsatz mit 9 h und steht nach Mitternacht unter «Heute» samt Sicherheitshinweisen, «Abschliessen» und «Ereignis melden». Eine Abwesenheit vor Beginn beendet die Übernahme sichtbar; die Auftraggeberin liest dann nicht mehr «Gedeckt». Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-18 21:39.
+- **Nicht Teil der Abnahme:** Berichtsentwurf, Liste «nicht übernommen», Unterschrift (BK-e2a, BK-e2b); Rechnung (BK-f); KI (BK-d); Bedienung auf Staging (Klickpfad UNKNOWN, niemand hat ihn dort ausgeführt); Freigabe für reale Personen und Daten.
+- **Vor realen Personen offen:** CGR-256 (Überschneidung zweier Handeinsätze über Mitternacht), CGR-258 (a)–(d), CGR-254, UXR-249, UXR-250, CGR-246 (i).
+- **Folge:** BK-e bleibt aktiv; nächster Engineering-Schritt CGR-256, dann BK-e2a.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -152,6 +165,7 @@ Was die Protokolle zeigen:
 | B9 | NH-A1 bis NH-A5 nicht gebaut; BD-H | Bau; BD-H grün |
 | B10 | **AN3 widersprüchlich:** Code integriert (Migration 0108, pgTAP 109, Analyseansicht), die `eng`-Zeile steht auf `in-review`, die PO-Warteschlange führt AN3 noch als genehmigt und nicht begonnen (*Next up* Rang 2). AN3-C1 bis AN3-C3 nicht gebaut. | Der PO prüft AN3 gegen den Brief auf dem dann aktuellen Commit und bereinigt die Zeile; C1-C3 mit Tests. Bis dahin ist AN3 nicht abgenommen, gleichgültig was eine Zeile sagt |
 | BK-c | ~~Drei Datenschutzkriterien ohne Test~~: pgTAP 147 (#1403) gemergt, `ci-repeat` 44215240768 auf `d51d1c1` 20/20. **Abgenommen 18.11. 02:39 (§2).** Vor realen Personen offen: CR-224 bis CR-228, CGR-226 (b), CGR-235 (c), CGR-238 (a), (b), Staging 0136/0137 | – (Simulation); vor realen Daten die genannten Punkte |
+| BK-e | BK-e1 für die Simulation abgenommen 18.11. (21:39-Lauf, `3ea17ee`, `ci-repeat` 44393766620 20/20). Offen: BK-e2a, BK-e2b (Kriterien 5–7); vor realen Personen CGR-256, CGR-258, CGR-254, UXR-249, UXR-250 | BK-e2 bauen und abnehmen; Staging-Klickpfad |
 | B11/B12 | Staging-Migration (#1087) wartet auf das Owner-Secret; B0-6 | Owner-Handlungen |
 
 ## Änderungsprotokoll
@@ -163,3 +177,4 @@ Was die Protokolle zeigen:
 - 2026-11-17 02:39 (`po`): Blockakte BK-b (Teilstück von BK, für die Simulation abgenommen auf `ab90875`, `ci-repeat` 43994886883 20/20).
 - 2026-11-17 21:39 (`po`): §3 Zeile BK-c (Abnahmeprüfung auf `ad21dd2`: Lauf grün, drei Datenschutzkriterien ohne Test, `changes-requested`).
 - 2026-11-18 02:39 (`po`): Blockakte BK-c (Teilstück von BK, für die Simulation abgenommen auf `d51d1c1`, `ci-repeat` 44215240768 20/20); §3 Zeile BK-c nachgeführt.
+- 2026-11-18 21:39-Lauf (`po`): Blockakte BK-e1 (Teil von BK-e, für die Simulation abgenommen auf `3ea17ee`, `ci-repeat` 44393766620 20/20); §3 Zeile BK-e.
