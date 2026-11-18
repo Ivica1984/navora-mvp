@@ -18,7 +18,7 @@ export type ModelProviderOptions = {
   timeoutMs?: number;
 };
 
-const SYSTEM_PROMPT = [
+export const REPORT_DRAFT_SYSTEM_PROMPT = [
   "Du strukturierst einen Pflege-Einsatzbericht aus Textsegmenten und erfassten Fakten.",
   "Regeln:",
   "1. Verwende nur Inhalte aus den Segmenten und Fakten. Erfinde nichts, ergänze keine Werte, Befunde oder Massnahmen.",
@@ -56,23 +56,26 @@ export function createModelProvider(opts: ModelProviderOptions): Provider {
           temperature: 0,
           response_format: { type: "json_object" },
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: REPORT_DRAFT_SYSTEM_PROMPT },
             { role: "user", content: JSON.stringify({ segments: input.segments, facts: input.facts }) },
           ],
         }),
         signal: AbortSignal.timeout(opts.timeoutMs ?? 20000),
       });
       if (!res.ok) throw new Error(`model_http_${res.status}`);
-      return parseAnswer(await res.json());
+      const body = (await res.json()) as { choices?: Array<{ message?: { content?: unknown } }> };
+      return parseDraftJson(body?.choices?.[0]?.message?.content);
     },
   };
 }
 
-function parseAnswer(body: unknown): ProviderOutput {
-  const content = (body as { choices?: Array<{ message?: { content?: unknown } }> })?.choices?.[0]?.message?.content;
+/** Parses the model's JSON answer; a ```json fence around it is tolerated. Anything else fails, nothing is guessed. */
+export function parseDraftJson(content: unknown): ProviderOutput {
+  if (typeof content !== "string") throw new Error("model_output_invalid");
+  const fenced = content.trim().match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(String(content));
+    parsed = JSON.parse(fenced ? fenced[1] : content);
   } catch {
     throw new Error("model_output_invalid");
   }
