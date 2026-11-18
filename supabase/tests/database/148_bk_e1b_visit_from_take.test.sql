@@ -44,7 +44,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(157);
+select plan(160);
 
 -- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
 -- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
@@ -801,6 +801,51 @@ select ok(position('order_take_member:' in pg_get_functiondef('private.recheck_m
           'CGR-255: private.recheck_member_takes takes the order_take_member lock before it reads her live takes');
 select ok(position('take_visit_under_way' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)) > 0,
           'CGR-244 kept: the automatic release still never touches a take whose visit is under way');
+
+-- 14. Criterion 4, F1–F4 across midnight (ADR-203 (21); PO 14:39 «F1–F4 sums») -----------------------------------------
+-- The F1 commands stamp events with the transaction's now(), which a single pgTAP transaction cannot move; the night's
+-- instants are therefore written as the table owner (pattern of pgTAP 027, 030, 032), then read back through the
+-- member's /field function and the VIS1 day rule the complete command runs. The minute sums themselves are computed in
+-- TypeScript from these instants (tests/unit/bk-e1b-night-take-times.test.ts). Regression guards: green on first run.
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
+select v.organization_id, v.id, v.team_id, x.kind, x.f, x.t, pg_temp.m('03'), x.at
+from public.care_visits v,
+     (values ('departed', 'planned', 'on_the_way', timestamptz '2026-11-21 21:40:00+01', 1),
+             ('started', 'on_the_way', 'started', timestamptz '2026-11-21 22:00:00+01', 2),
+             ('paused', 'started', 'paused', timestamptz '2026-11-22 01:00:00+01', 3),
+             ('resumed', 'paused', 'started', timestamptz '2026-11-22 01:30:00+01', 4),
+             ('completed', 'started', 'completed', timestamptz '2026-11-22 07:00:00+01', 5)) as x(kind, f, t, at, n)
+where v.id = (pg_temp.visit('o3') ->> 'id')::uuid
+order by x.n;
+create temp table night_visit as select (pg_temp.visit('o3') ->> 'id')::uuid as id;  -- read as the table owner
+grant all on night_visit to authenticated;
+create temp table night_events (events jsonb, refusal text);
+grant all on night_events to authenticated;
+select pg_temp.act_as(pg_temp.m('03')::text);
+set local role authenticated;
+insert into night_events (events) select x.events from public.field_visits(date '2026-11-21') x
+  where x.visit_id = (select id from night_visit);
+reset role;
+select pg_temp.as_owner();
+select is((select string_agg(a.e ->> 'type', ',' order by a.ord) from night_events n,
+                  jsonb_array_elements(n.events) with ordinality as a(e, ord)),
+          'departed,started,paused,resumed,completed',
+          'criterion 4: /field returns the night timeline of the take visit on its start day, in order');
+select is((select max((e ->> 'at')::timestamptz) filter (where e ->> 'type' = 'completed')
+                - max((e ->> 'at')::timestamptz) filter (where e ->> 'type' = 'started')
+           from night_events n, jsonb_array_elements(n.events) e),
+          interval '9 hours',
+          'criterion 4: started 22:00, completed 07:00 the next day = 9 h between the instants (F2 sums in TS)');
+-- VIS1 (0089): «complete» refuses only a visit started before its own date; at 07:00 the next morning the night visit
+-- started on its date, so the rule lets the end through (null = no refusal).
+select pg_temp.clock('2026-11-22 07:00:00+01');
+select pg_temp.act_as(pg_temp.m('03')::text);
+set local role authenticated;
+update night_events set refusal = coalesce(private.visit_day_refusal('complete_visit', (select id from night_visit)), 'none');
+reset role;
+select pg_temp.as_owner();
+select is((select refusal from night_events), 'none',
+          'criterion 4: at 07:00 the next day the VIS1 day rule does not refuse completing the 22:00 night visit');
 
 select * from finish();
 rollback;
