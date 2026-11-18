@@ -32,7 +32,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(59);
+select plan(61);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -158,14 +158,14 @@ begin
   return n;
 end;
 $$;
-create temp table fv (member text, visit_id uuid, plz text, ort text, status text, system_end_reason text);
+create temp table fv (member text, visit_id uuid, plz text, ort text, status text, system_end_reason text, from_take boolean);
 grant all on fv to authenticated;
 create function pg_temp.field(member text, d date) returns void language plpgsql as $$
 begin
   delete from fv where fv.member = $1;
   perform pg_temp.act_as(pg_temp.m(member)::text);
   set local role authenticated;
-  insert into fv select member, x.visit_id, x.plz, x.ort, x.status, x.system_end_reason from public.field_visits(d) x;
+  insert into fv select member, x.visit_id, x.plz, x.ort, x.status, x.system_end_reason, x.from_take from public.field_visits(d) x;
   reset role;
   perform pg_temp.as_owner();
 end;
@@ -221,6 +221,12 @@ select ok(exists (select 1 from public.audit_events a where a.table_name = 'care
 
 -- 4. Only the named member reads it on /field (criterion 2, negative cases) ---------------------------------------------
 select ok(pg_temp.sees('01', 'o1', date '2026-11-19'), 'BK-7: the named member reads the visit on /field');
+-- UXR-237, UXR-239 (PO 05:39): /field carries a take flag, so the card names the kind and the simulation limit.
+select is((select fv.from_take from fv where fv.member = '01' and fv.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid), true,
+          'UXR-237/239: field_visits.from_take is true for the visit written from a take');
+select is((select count(*)::int from fv where fv.member = '01' and fv.from_take is distinct from
+             exists (select 1 from public.care_visits v where v.id = fv.visit_id and v.order_take_id is not null)), 0,
+          'UXR-237/239: from_take is never null and true only for a visit with order_take_id');
 select is((select plz || ' ' || ort from fv where member = '01' and visit_id = (pg_temp.visit('o1') ->> 'id')::uuid),
           '4102 ' || (select p.city from public.partner_requests p where p.id = pg_temp.oid('o1')),
           'BK-7: the place comes from the order (postcode and place; no street, P-8)');
