@@ -28,6 +28,11 @@
 --     start the take is released and its visit ended still naming her; after the start take and visit stay unchanged,
 --     the client reads «nicht gedeckt»; no cover or AI-proposal path reaches a take visit (§13). CGR-251: the cover
 --     property also requires a visit that is not suspended and not covered by another member.
+--   * CGR-246 (PO 05:39, 08:39 (1)(b), 09:39 (1); migration 0144; `lca` 08:20 D-44 (2)): while a live take's named
+--     member no longer passes and her visit is under way (§10) or still planned after the start (§13 (b)), the SIG1
+--     path raises the P1 signal `take_member_dropped` to her own team and to her, even when she is absent; never to
+--     another team, the client or another organisation; Operations of the organisation read the OPS1 row with a code
+--     as detail, never the absence type; take and visit stay unchanged; the episode ends with its cause.
 -- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
 -- OPEN). Synthetic data only; rolled back.
 --
@@ -36,7 +41,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(130);
+select plan(140);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -300,6 +305,28 @@ select is(pg_temp.release('02', 'o5', 'ffff0000-0000-4000-8148-000000000051') ->
 select ok((pg_temp.live('o5')).id is null, 'CGR-242 (f): the take is released');
 select is(pg_temp.visits_of('o5'), 0, 'CGR-242 (f): no visit was written and none is left behind');
 
+-- CGR-246 helpers: the open `take_member_dropped` signal of an order's take visit, its recipients, the caller's list.
+create function pg_temp.drop_signal(k text) returns public.safety_signals language sql as $$
+  select s.* from public.safety_signals s
+  where s.visit_id = (pg_temp.visit(k) ->> 'id')::uuid and s.signal_kind = 'take_member_dropped' and s.ended_at is null
+$$;
+create function pg_temp.drop_recipients(k text) returns text language sql as $$
+  select coalesce(string_agg(d.recipient_id::text || ':' || d.reason, ' ' order by d.recipient_id::text, d.reason), '')
+  from public.signal_deliveries d where d.signal_id = (pg_temp.drop_signal(k)).id
+$$;
+create function pg_temp.sees_drop(uid text, k text) returns boolean language plpgsql as $$
+declare res boolean;
+begin
+  perform pg_temp.act_as(uid);
+  set local role authenticated;
+  select exists (select 1 from public.my_signals() x
+                 where x.signal_kind = 'take_member_dropped' and x.visit_id = (pg_temp.visit(k) ->> 'id')::uuid) into res;
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+
 -- 10. CGR-244: a take whose visit is under way before the start is never released ----------------------------------------
 select is(pg_temp.take('03', 'o4', '02', '03', 'ffff0000-0000-4000-8148-000000000040') ->> 'result', 'ok',
           'M3 takes O4 naming herself');
@@ -325,6 +352,22 @@ select is(pg_temp.release('03', 'o4', 'ffff0000-0000-4000-8148-000000000042'),
           'CGR-244: «Ich kann nicht» is refused with the visible reason visit_under_way');
 select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
           'CGR-244: after the refusal the take is live and the visit still on the way');
+-- CGR-246 on the way: M3 is the only member of T2 and absent now, so the SIG1 rule falls back to Operations (9e5),
+-- and M3 herself receives it although she is absent. Nobody of T1, never the client.
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o4')).id is not null and (pg_temp.drop_signal('o4')).team_id = pg_temp.t('02'),
+          'CGR-246: her absence while on the way raises one open take_member_dropped signal for her own team');
+select is(pg_temp.drop_recipients('o4'),
+          '00000000-0000-4000-a000-0000000009e5:operations_fallback ' || pg_temp.m('03')::text || ':responsible',
+          'CGR-246: delivered to her (absent) and, with nobody of her team on duty, to Operations; never to T1 or the client');
+select is((select d.exception_type || ' ' || d.detail || ' ' || r.priority
+           from private.derived_exceptions('00000000-0000-4000-b000-000000000019') d
+           join private.effective_exception_rules('00000000-0000-4000-b000-000000000019') r on r.exception_type = d.exception_type
+           where d.exception_type = 'take_member_dropped' and d.entity_id = (pg_temp.visit('o4') ->> 'id')::uuid),
+          'take_member_dropped step_3 P1',
+          'CGR-246 / D-44 (2): the OPS1 row is P1 with a code as detail, never the absence type');
+select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
+          'CGR-246: the signal changes neither take nor visit (CGR-244)');
 
 -- 11. CGR-248 / UXR-241 (PO 06:39 (2)): no person command ends a take visit while its take stays live ------------------
 -- `cancel_visit` refuses a visit written from a take (order_take_id not null) with the stated reason `take_visit`;
@@ -518,7 +561,7 @@ select ok(not has_table_privilege('authenticated', 'public.partner_requests', 'I
 --       recorded as released, the client reads «nicht gedeckt» (ADR-199 (5)); the cover property holds.
 --   (c) `change_absence` (shorten, withdraw) leaves the take visit unchanged.
 --   (d) no cover or AI-proposal path reaches the take visit (named reason ADR-203 (15); the AIG1 apply by test).
--- The CGR-246 signal for (b) comes with the CGR-246 build (not in this commit; PLANNED).
+--   (b) also raises the CGR-246 signal `take_member_dropped` (migration 0144); the withdrawal in (c) ends it.
 create temp table d250 as select ((now() at time zone 'Europe/Zurich')::date + 40) as d;
 grant all on d250 to authenticated;
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
@@ -599,6 +642,20 @@ select is(pg_temp.released_rows('o7'), 0, 'CGR-250 (b): nothing records the take
 select is((select (r ->> 'released')::int from abs250 where k = 'b'), 0, 'CGR-250 (b): record_absence reports no release');
 select is(pg_temp.cs('o7'), 'not_covered', 'CGR-250 (b): the client reads «nicht gedeckt» (ADR-199 (5) safety net)');
 select is(pg_temp.cover_violations(), null, 'CGR-250 (b): cover property after record_absence after the start');
+-- CGR-246 for (b) (PO 08:39 (1)(b), 09:39 (1)): M1 is on duty in T1, so no Operations fallback.
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o7')).id is not null and (pg_temp.drop_signal('o7')).team_id = pg_temp.t('01'),
+          'CGR-246 (b): after the start her absence raises the take_member_dropped signal for her own team');
+select is(pg_temp.drop_recipients('o7'),
+          pg_temp.m('01')::text || ':team ' || pg_temp.m('02')::text || ':responsible',
+          'CGR-246 (b): delivered to her (absent) and to her team on duty; not to T2, not to Operations');
+select ok(pg_temp.sees_drop(pg_temp.m('02')::text, 'o7') and pg_temp.sees_drop(pg_temp.m('01')::text, 'o7'),
+          'CGR-246 (b): she and her colleague read it in my_signals');
+select ok(not pg_temp.sees_drop(pg_temp.m('03')::text, 'o7')
+          and not pg_temp.sees_drop('00000000-0000-4000-a000-0000000009e8', 'o7')
+          and not pg_temp.sees_drop('00000000-0000-4000-a000-000000000903', 'o7'),
+          'CGR-246 (b) / D-44 (2): another team, the client and another organisation read nothing');
+select is(pg_temp.slot('o7'), (select s from o7_slot), 'CGR-246 (b): the signal leaves the take visit unchanged');
 -- (d) no cover or proposal path reaches it
 select ok(not exists (select 1 from private.cover_open_visits('00000000-0000-4000-b000-000000000019') x
                       where x.id = (pg_temp.visit('o7') ->> 'id')::uuid)
@@ -614,6 +671,11 @@ select is(pg_temp.change_abs('02', (select (r ->> 'absence_id')::uuid from abs25
           'CGR-250 (c): M2 withdraws her absence (change_absence)');
 select is(pg_temp.slot('o7'), (select s from o7_slot), 'CGR-250 (c): the take visit is unchanged after the withdrawal');
 select ok((pg_temp.live('o7')).member_id = pg_temp.m('02'), 'CGR-250 (c): the take is still live with her');
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o7')).id is null
+          and exists (select 1 from public.safety_signals s where s.visit_id = (pg_temp.visit('o7') ->> 'id')::uuid
+                      and s.signal_kind = 'take_member_dropped' and s.ended_at is not null),
+          'CGR-246 (CR-041): the withdrawal removes the cause, so the episode ends with it');
 select is(pg_temp.cover_violations(), null, 'CGR-250 (c): cover property after change_absence');
 
 select * from finish();
