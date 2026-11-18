@@ -3,7 +3,18 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { pollSignals, takeSignal } from "@/features/signals/commands";
-import { SIGNAL_POLL_MS, reasonText, signalHref, signalText, signalWhen, splitSignals, takenText, type SignalRow } from "@/features/signals/rules";
+import {
+  SIGNAL_POLL_MS,
+  reasonText,
+  signalHref,
+  signalNextStep,
+  signalTakeable,
+  signalText,
+  signalWhen,
+  splitSignals,
+  takenText,
+  type SignalRow,
+} from "@/features/signals/rules";
 
 // SIG1-3 / SIG1-4: P1 safety signals of the signed-in person at the top of /field, /team and OPS1, refreshed every
 // 30 s without a reload. "Ich übernehme" records who takes it; the signal stays open until its cause ends (CR-041).
@@ -71,10 +82,16 @@ export default function SignalBanner({ initial, onRows }: { initial: SignalRow[]
               {(s.taken_awaits_rn || s.taker_access_ended) && (
                 <p data-testid="safety-signal-taken-by" className="font-semibold text-rose-900">{takenText(s)}</p>
               )}
-              <button type="button" disabled={pending === s.signal_id} onClick={() => take(s.signal_id)}
-                      className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 font-bold text-white disabled:opacity-60">
-                Ich übernehme
-              </button>
+              {/* BK-e1b / CGR-253 / UXR-245 (ADR-203 (18)): a kind nobody can take shows the next step, no button. */}
+              {signalNextStep(s) && (
+                <p data-testid="safety-signal-next-step" className="font-semibold text-rose-900">{signalNextStep(s)}</p>
+              )}
+              {signalTakeable(s) && (
+                <button type="button" disabled={pending === s.signal_id} onClick={() => take(s.signal_id)}
+                        className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 font-bold text-white disabled:opacity-60">
+                  Ich übernehme
+                </button>
+              )}
             </li>
           ))}
         </ol>

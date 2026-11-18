@@ -21,7 +21,38 @@ export const TAKE_MESSAGES: Record<string, string> = {
   signal_ended: "Die Ursache ist behoben, das Signal ist beendet.",
   failed: "Konnte nicht gespeichert werden. Bitte nochmals versuchen.",
   invalid: "Ungültige Eingabe.",
+  // BK-e1b / CGR-253 (migration 0146): a take_member_dropped signal is never taken; the card shows no button for it.
+  kind_not_takeable: "Dieses Signal kann niemand übernehmen. Bitte im Team klären, wer hingeht.",
 };
+
+/**
+ * BK-e1b / CGR-253 / UXR-245 (brief BK.md §PO amendment 2026-11-18 11:39 (1), choice (b); ADR-203 (18)): kinds that no
+ * recipient can take. A tap would neither move the visit nor stop the step to Operations, so the card shows the next
+ * step in words instead of «Ich übernehme». The database refuses the take as well (`kind_not_takeable`, 0146).
+ */
+export const NOT_TAKEABLE_KINDS: ReadonlySet<string> = new Set(["take_member_dropped"]);
+
+export function signalTakeable(row: Pick<SignalRow, "signal_kind">): boolean {
+  return !NOT_TAKEABLE_KINDS.has(row.signal_kind);
+}
+
+/** UXR-245 (`uxa` 10:48), PROPOSED words, `cra` confirms for the simulation: to the take's named member. */
+export const TAKE_DROP_NAMED_LINE =
+  "Diese übernommene Schicht ist dir zugeteilt, du bist aber nicht mehr eingeplant. Dein Team ist informiert. " +
+  "Die Schicht bleibt bei dir, bis sie geklärt ist.";
+/** CGR-253 (b) (PO 11:39 (1)(b)), PROPOSED words, `cra` confirms: to a colleague of her team. */
+export const TAKE_DROP_TEAM_LINE = "Bitte sofort im Team klären, wer hingeht.";
+
+/**
+ * The next step on a take_member_dropped card, by the delivery reason: `responsible` is the take's named member (0144
+ * delivers to her with this reason), `team` a colleague. Operations and every other kind: no line (no words decided).
+ */
+export function signalNextStep(row: Pick<SignalRow, "signal_kind" | "reason">): string | null {
+  if (row.signal_kind !== "take_member_dropped") return null;
+  if (row.reason === "responsible") return TAKE_DROP_NAMED_LINE;
+  if (row.reason === "team") return TAKE_DROP_TEAM_LINE;
+  return null;
+}
 
 export type SignalRow = {
   signal_id: string;
@@ -69,8 +100,12 @@ export function signalWhen(row: Pick<SignalRow, "visit_date" | "time_start" | "t
   return `${d}.${m}.${time} · ${row.team_name}`;
 }
 
-/** Link to the visit's day in the field tool. */
-export function signalHref(row: Pick<SignalRow, "visit_date">): string {
+/**
+ * Link to the visit's day in the field tool. UXR-246 (PO 11:39 (2)): a colleague never sees a take visit on /field
+ * (only the named member does, BK-7), so her take_member_dropped card links to /team instead of an empty day.
+ */
+export function signalHref(row: Pick<SignalRow, "visit_date"> & Partial<Pick<SignalRow, "signal_kind" | "reason">>): string {
+  if (row.signal_kind === "take_member_dropped" && row.reason === "team") return "/team";
   return `/field?datum=${row.visit_date}`;
 }
 
