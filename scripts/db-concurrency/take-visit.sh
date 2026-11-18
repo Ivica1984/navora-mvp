@@ -29,6 +29,7 @@ START=$(psql "$DB_URL" -X -At -c "select clock_timestamp()")
 cleanup() {
   psql_q <<SQL
 set session_replication_role = replica;
+delete from public.visit_activities where visit_id in (select id from public.care_visits where team_id = '$T1');
 delete from public.visit_plan_changes where team_id = '$T1';
 delete from public.care_visits where team_id = '$T1';
 delete from public.order_takes where order_id in (select id from public.partner_requests where client_account_id = '$ACC');
@@ -53,7 +54,7 @@ trap cleanup EXIT
 cleanup
 
 # Fixture: team T1 with M1 (FaGe evidence verified), service postcode 4102, 10 km; one running case of T1 with two open
-# (memberless) category A visits, each inside the slot of one order (orders 6 and 7 days ahead, 08:00–12:00).
+# (memberless) category A visits with activity C1, each inside the slot of one order (orders 6 and 7 days ahead, 08:00–12:00).
 psql_q <<SQL
 insert into public.client_accounts (id, organization_id, display_name, client_kind)
   values ('$ACC', '$ORG', 'Haushalt BK-e1b Race-Fixture (synthetisch)', 'household');
@@ -77,6 +78,8 @@ insert into public.care_visits (organization_id, id, case_id, team_id, visit_dat
    array['Grundpflege'], false, 'planned', 30),
   ('$ORG', '$V2', '$CASE1', '$T1', ((now() + interval '7 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
    array['Grundpflege'], false, 'planned', 30);
+-- QUAL1-6: the matrix activity of both visits is the orders' tag C1 (as the take visit, 0138), so a FaGe may perform them.
+insert into public.visit_activities (organization_id, visit_id, activity_code) values ('$ORG', '$V1', 'C1'), ('$ORG', '$V2', 'C1');
 SQL
 
 confirm() {  # $1 days ahead → prints the order id (08:00–12:00)
