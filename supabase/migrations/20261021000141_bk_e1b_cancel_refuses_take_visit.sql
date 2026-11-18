@@ -35,7 +35,7 @@ begin
   if v.status not in ('planned', 'on_the_way') then return private.end_command('wrong_state'); end if;   -- before it starts
   -- CSR1 / CGR-34: the CGR-32 condition, read before the status changes; stored, never taken from the caller.
   absent := v.status = 'planned'
-            and v.visit_date < private.at_zurich(private.now())::date  -- ADR-081 form (0067 rewrote 0054)
+            and v.visit_date < (private.at_zurich(private.now()))::date  -- ADR-081 form, as 0067 rewrote 0054
             and private.visit_responsible_absent(v.id);
   insert into public.visit_status_notes (organization_id, visit_id, kind, reason_code, note, actor_id, idempotency_key,
                                          responsible_absent)
