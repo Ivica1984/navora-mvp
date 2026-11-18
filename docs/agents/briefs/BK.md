@@ -1149,3 +1149,34 @@ Read: #1421 head `386848b` (docs-only journal on the `eng` final head `614aad6`,
 **R3b placement (PO decision, reduces the list, adds nothing):** R3b moves from #1421 to **BK-e1c**, the next PR in slice BK-e, and becomes a precondition of **BK-e acceptance** (not of the #1421 merge), **unless** `cra` names it a substantial function defect of the agreed flow in the gate line (`cra-gate: #1421 386848b blocked: R3b`); then R3b stays in #1421. Reason: the night take is simulation-only, the visit and its «Abschliessen» exist (on the previous day's page), FE-091 (2) places the night shift before the acceptance; moving it lets the agreed take flow reach staging for the founder's walk-through without a second review round on a changed head. BK-e1c scope: exactly the R3b test of amendment 15:45 (03:00 of day two: running night visit on or one tap from «today», «Abschliessen» works, a previous day's day visit is not pulled forward); `uxa` gives the look in BK-e1c. CGR-256 stays the first follow-up after BK-e1c.
 
 PO status of BK: **active**, slice **BK-e** (BK-e1b #1421 waiting for R5 only; BK-e1c next).
+
+## PO amendment 2026-11-18 17:39 (scheduled PO run): #1421 merged; BK-e1c fixed residual list
+
+Read: #1421 head `386848b`; `cra-gate: #1421 386848b clear` (comment 6983529428; R3b question (d): «NO» substantial defect; new CGR-257, blocking for BK-e acceptance); `uxa-gate: #1421 386848b clear` (comment 6983559658; replaces the 16:42 «not clear» line on the condition that BK-e1c with R3b is a precondition of BK-e acceptance, which amendment 16:39 records and this amendment confirms). PO did not run tests.
+
+**Merge:** #1421 merged at ca. 17:41, merge commit `7c04240` (merge record comment 6985020210). `ci` 44350060934 on `7c04240`: `app` 134962928448, `db` 134962928447, `e2e` 134962927812, `ui-screenshots` 134962928475, `staging` 134969071215, all `success`. **Staging:** the `staging` job log shows migrations 0138 to 0148 applied to `navora-staging` («migrations applied to navora-staging at 7c042400»); database version therefore 0148. App commit on Render: asked from `eng` (#1465).
+
+| # | Criterion (fixed residual list, amendment 15:45) | Result | Evidence |
+|---|---|---|---|
+| R1 | CGR-255 race = serial result | met | `cra` 14:27; `db` 134962928447 on `7c04240` |
+| R2 | take card Playwright at 390 px | met | `e2e` 134962927812 on `7c04240` |
+| R3a | night 22:00–07:00 one card, F1–F4 sums | met (regression guards) | pgTAP 148 §14, `tests/unit/bk-e1b-night-take-times.test.ts`; `app`, `db` on `7c04240` |
+| R3b | running night shift on «today» after midnight | moved to BK-e1c (below) | amendment 16:39; `cra` (d) «NO» |
+| R4 | final head named | met | comment 6982341750 |
+| R5 | `cra` and `uxa` gate lines, CI green | met | comments 6983529428, 6983559658; `ci` 44330746697 |
+
+**PO status of BK-e1b:** merged, CI on the merge commit green. Gate «Simulation, synthetic data». Not a block acceptance: BK-e is accepted only after BK-e1c and a `ci-repeat` 10/10 on a named integrated commit (FE-071 (4)).
+
+**BK-e1c (next Engineering item; fixed residual list, closes against this list only):**
+
+| # | Item | Test |
+|---|---|---|
+| C1 | R3b / UXR-248 / CGR-257: on day 2 the carer's «Heute» shows the running (started or paused) night visit of day 1 on the card itself, first card below any P1 signal, with its «Abschliessen» and «Ereignis melden» (a link alone does not count) | pgTAP: `field_visits(day 2)` returns it with a carried flag; Playwright at 390 px on `/field?datum=<day 2>`: card first, «Abschliessen» completes it |
+| C2 | CGR-257: the client's safety alerts of that visit show on day 2 too (`field_safety_alerts` uses the same predicate as `field_visits`) | pgTAP `field_safety_alerts(day 2)` |
+| C3 | not pulled forward: a day-1 visit that is completed, planned, cancelled, or a day visit | pgTAP controls (red first for C1/C2) |
+| C4 | `eng` names the final head: SHA, result per CI job, review questions (including `eng` 17:15 question 3 for `cra`, `on_the_way` after midnight, and question 4 for `uxa`, the line after the planned end, and the exact copy) | PR comment |
+| C5 | `cra` and `uxa` gate lines on that head; all CI jobs green | gate start by the PO (FE-091 (4)) |
+
+`eng`'s 17:15 design (one private predicate for both functions, display only, no new rule) is the HOW and stays `eng`'s. The two open questions are not decided by the PO: `eng` builds its proposal (an `on_the_way` night visit is not pulled forward; the line stays after the planned end) as PROPOSED, and `cra` and `uxa` decide in their gate lines; a different answer there is a change inside C1, not a new condition. Copy «Läuft seit gestern 22:00» stays PROPOSED (`uxa`). Not in BK-e1c: CGR-256 (first follow-up after BK-e1c) and the follow-ups listed in amendment 15:45. Then #1460 (ADR-204), then the BK-e `ci-repeat` evidence run.
+
+PO status of BK: **active**, slice **BK-e** (BK-e1b merged; BK-e1c next).
