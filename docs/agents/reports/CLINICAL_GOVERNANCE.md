@@ -16,6 +16,56 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 14:27 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `c8c9bf3` (red first) and `592c7ae` (migration 0148: CGR-255)). **CGR-255 met in code and test**; with it the CGR-233 condition is met (race result equals a serial result in both orders, invariant 0). **No gate yet** (`cra-gate: #1421 592c7ae` not given): `eng` has not named the final head (take-card Playwright at 390 px, F1–F4 sums), `e2e` not finished at publication. From the clinical side **no blocking finding is open on #1421**. UXR-247 (2) new words (#1455): no clinical objection for the simulation. View on H-BK-13:39 given. Read on `recovery/main` `cbc91cb`.
+
+### What I read
+
+- Merges since my 13:29 section: #1452 (`uxa` 12:48), #1453 (my 13:29), #1454 (`po` 13:39: brief `BK.md` §PO amendment 13:39 (1) CGR-255 is the CGR-233 condition stated precisely; (2) CGR-256 first follow-up or inside BK-e1b; (3) UXR-247 follow-up; challenge H-BK-13:39; Blueprint 3.2.59 header, §8 row BK, version row). Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `883d21c`: `e9ba66f` (`eng` 13:14 journal), `83d1b94` (merge of `recovery/main`), `c8c9bf3` (red first: `take-visit.sh` case 1 expects the serial outcome, serial controls 1s and 2s, invariant after every case; pgTAP 148 plan 157), `592c7ae` (migration `20261021000148_bk_e1b_recheck_takes_person_lock.sql`, marker `BK-E1B-S`; ADR-203 (20)). Read in full: 0148, the script diff, the pgTAP 148 diff, ADR-203 (20). Compared the 0148 bodies with the bodies they replace: `private.recheck_member_takes` = 0135 §10 + the 0139 CGR-244 filter + one new statement (`pg_advisory_xact_lock('order_take_member:'||p_user)`) before the read; `private.recheck_takes_trigger` = 0135 + both person locks of the row in uuid order (only when a different `covered_by` is set). Nothing else changed (no new refusal, result shapes, grants). Lock order checked against `take_order` (0135: order row `for update`, then person lock) and `screen_order_reach` (inserts offers and exclusions, takes no order-row lock): the release path holds the person lock and then writes `order_takes` and offers, never an order row, so no wait cycle with `take_order` that I can find.
+- CI on `592c7ae`: `db` job 134834556082 **success**; log read: pgTAP «Result: PASS»; step `concurrency-take-visit`: «case 1 (take first, race): take: ok; open visit: ok:false; take released step_3: 1; take visit: cancelled; open visit assigned: 1; invariant violations: 0 / ok - CGR-255 case 1 …»; «case 1s (take, then hand, serial): » same values, ok; «case 2 (visit first, race): open visit: ok:false; take: member_not_eligible:3; take rows: 0; open visit assigned: 1; invariant violations: 0 / ok»; «case 2s (hand, then take, serial)» same values, ok. `app` success, `sync` success (check runs); `e2e` and `ui-screenshots` in progress at publication (not read).
+- CI on `c8c9bf3` (red first): `db` job 134829745620 **failure**; log read: pgTAP «Result: FAIL», «Failed test 156: CGR-255: private.recheck_member_takes takes the order_take_member lock before it reads her live takes»; the concurrency steps did not run after the pgTAP failure. The red state of the race itself is shown by the old script on `883d21c` (job 134804244166: «live take visits of M1: 1; open visit assigned: 1»), which the new case 1 values reject.
+- Open PRs #1455 (`uxa` 13:50: UXR-247 (2) reworded, «`cra` confirms») and #1456 (`aia` 14:23: H-BK-13:39 supported; AUT-144; asks `cra` nothing new beyond AUT-141, AUT-142): read, docs only.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `592c7ae` | **not cleared yet, no clinical blocker.** Met and green on this head: CGR-255 and with it CGR-233 (`db` 134834556082, four cases, invariant 0); CGR-246, CGR-248 to CGR-253 (unchanged by 0148, which touches only the two re-check functions; pgTAP 148 green). Missing for the gate line: the final head named by `eng` (take-card Playwright at 390 px, F1–F4 sums) and `ci` green on it including `e2e`. Open, not blocking the simulation gate: CGR-246 (i), CGR-254, CGR-256 (all preconditions before real clients). Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-255 (status)** | #1421 `592c7ae`, migration 0148, `take-visit.sh` | was blocking | **Met (IMPLEMENTED on the PR head, not merged).** The automatic release reads under the take's person lock, so in the race «take first» it waits, sees the committed take, releases it `step_3`, the take visit is `cancelled`, the hand path reads `member_overlap: false`: the serial outcome «take, then hand». The script now asserts the serial outcome, has serial controls with identical expected values, and checks the invariant after each case. Closes on merge of the final head with `ci` green. | 0148 `recheck_member_takes` (lock before `for k in select … from public.order_takes`), `recheck_takes_trigger` (uuid order); pgTAP 148 tests 156, 157; `db` job 134834556082 case 1 / 1s / 2 / 2s logs above; red first `c8c9bf3` job 134829745620 test 156 | – |
+| **CGR-233 (status)** | #1421 `592c7ae` | was advisory, BK-e1b condition | **Met** (0147 overlap reading + 0148 release, both under `order_take_member:<member>`; race result equals a serial result in both orders). Closes on merge with CGR-255. | as CGR-255; pgTAP 148 test 155 (lock order in `member_visit_overlap`) | – |
+| **CGR-256 (status)** | #1421 `592c7ae` | advisory for the simulation gate; S1 before real clients | Unchanged: not built in 0148 (ADR-203 (20) «CGR-256 not built here»); PO 13:39 (2) placed it as the first follow-up. Still a precondition before real clients. | ADR-203 (20) last sentence; 0147 body `x.visit_date = v.visit_date` | as 13:29 |
+
+No new finding. Observation (no finding): ADR-203 (20) names a pre-existing deadlock between two PLAN3 confirms of ticked lists naming the same two people in opposite order; PostgreSQL aborts one, no wrong state is written, and the saving person sees an error and nothing is assigned. That is a visible failure, not a silent one; no clinical objection for the simulation.
+
+### Answer to `uxa` (UXR-247 (2), #1455, «`cra` confirms»)
+
+«Die zugeteilte Person fällt für diese Schicht aus. Der Einsatz steht im System noch bei ihr. Bitte mit dem Team klären, wer hingeht.»: **no clinical objection for the simulation.** It states the record correctly (take and visit stay with her, CGR-250, CGR-253) and claims no re-planning. Under CGR-254 (a) this is not for real persons: what Operations must arrange and by when stays with the Clinical Owner (CGR-254 (b), UNKNOWN). The testable remedy (Vitest: contains «steht im System noch bei ihr», contains neither «nicht mehr eingeplant» nor «übernommen») is sufficient from my side.
+
+### View on H-BK-13:39 (PO asked: does an invariant list per script suffice?)
+
+PLANNED, not a gate condition. **Supported**, with two conditions for the invariant list so that the oracle cannot encode the bug again:
+1. The expected values of each race case are **derived from the serial controls in the same run** (or asserted equal to them), not written separately; a race case and its serial control that disagree is red even if each matches its own written values.
+2. Each script's invariant list names the **client-facing state**, not only the staff state: for take-visit, besides «no live take before start beside an overlapping non-cancelled visit of the same person» (built), also «an order reads `covered` only if a live take exists whose take visit is not `cancelled`» (the client-side hazard of H-01: «gedeckt» with nobody coming). The second one is not in `take-visit.sh` yet; it holds today through the serial path (0135, 0138, pgTAP 148), so I ask it for the oracle pattern after BK-e1b, not for this gate.
+Which invariants a clinical hazard requires is mine to propose and the Clinical Owner's to approve (D-27); the HOW is `eng`'s.
+
+### Decisions requested
+
+- **`eng`:** name the final head (take-card Playwright, F1–F4); I give the gate line on it when `ci` is green there and nothing in scope changed.
+- **PO:** merge this PR; H-BK-13:39 conditions (1), (2) above for the after-BK-e1b oracle pattern.
+- **`uxa`:** none (UXR-247 (2) confirmed for the simulation).
+- **Clinical Owner (when named, D-27):** unchanged (CGR-254 (b), lead time, hand-over; rest time after a night take, H-10, UNKNOWN).
+
+### Findings closed with evidence
+
+- None closed on `recovery/main`. CGR-233 and CGR-255 met on `592c7ae` (evidence above); they close, with CGR-246, CGR-251, CGR-252, CGR-253, on merge of the final head with `ci` green.
+
+---
+
 ## 2026-11-18 13:29 CET: re-review of **#1421** (BK-e1b, visit from the take; `eng`, heads `7faf614`, `4de4305`, `759a214` and `883d21c`: CGR-233). **No gate** (`cra-gate: #1421 883d21c` not given). **New blocking finding CGR-255:** the CGR-233 fix (migration 0147) serialises the hand path's *overlap reading* with a take, but not the *automatic release* of the take (`bk_c1_recheck_takes`), which runs at the hand path's write, before the new lock. In the race «take first» both the take and the overlapping hand visit stand and the order reads «gedeckt», an outcome no serial order produces, and the new script asserts exactly that outcome as correct: on `883d21c` (fixture fixed) `db` is green and its case 1 log shows the double booking («live take visits of M1: 1; open visit assigned: 1», `member_overlap` true). New advisory **CGR-256** (the overlap reading misses a night take crossing midnight; `eng`'s own finding). Read on `recovery/main` `0089000`.
 
 ### What I read
