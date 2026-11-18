@@ -1,0 +1,236 @@
+-- BK-e1b database part (brief `docs/agents/briefs/BK.md`, PO amendments 2026-11-18 02:39 criteria 2–4, 03:39 (3);
+-- ADR-202 (2)–(4), ADR-203). Red first (FE-071 (2)): pushed alone, before the migration, where `care_visits` has no
+-- `order_take_id`, no visit is written from a take, and `private.order_take_visit` does not exist.
+--
+-- What it guards (each line names its source):
+--   * BK-7 / criterion 2: when a take becomes «gedeckt» (self-named: at the take; naming a colleague: at her
+--     acknowledgement, ADR-200) one visit is written in the same transaction: named member responsible, the take's
+--     team, date and times from `starts_at` / `ends_at` in Europe/Zurich, place from the order. A take awaiting the
+--     acknowledgement writes none. Only the named member reads it on `/field`; a member of the same team who is not
+--     named, and a member of another team, never do.
+--   * CGR-232 / criterion 3: writing the visit does not release the take of the person who is coming (the visit of
+--     the take is not an «open visit» of another order in `private.order_member_step` step 3).
+--   * CGR-233 / criterion 3: the visit writer takes the `order_take_member:` lock before it writes (source check here;
+--     the two-session race case is `scripts/concurrency-take-visit.mjs`).
+--   * CGR-242 (PO 03:39 (3)): positive — a release after «gedeckt» and before the start ends the visit in the same
+--     transaction as `cancelled`, never deleted, and the client no longer reads «gedeckt»; negative — after
+--     `starts_at` no automatic step releases the take or changes the visit. No lead-time rule is built (UNKNOWN,
+--     Clinical Owner).
+--   * CGR-200 / CGR-206 (a) / criterion 4: a 22:00–07:00 take becomes one visit of 9 h (Europe/Zurich).
+-- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
+-- OPEN). Synthetic data only; rolled back.
+--
+-- Users: kundebs …9e8 (client). Fixture: T1 (M1, M2), T2 (M3), postcode 4102, 10 km, all FaGe. Pinned clock, moved
+-- forward only.
+begin;
+create extension if not exists pgtap with schema extensions;
+
+select plan(37);
+
+create function pg_temp.act_as(uid text) returns void language sql as $$
+  select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
+  select set_config('request.jwt.claim.sub', uid, true);
+$$;
+create function pg_temp.as_owner() returns void language sql as $$
+  select set_config('request.jwt.claims', '', true);
+  select set_config('request.jwt.claim.sub', '', true);
+$$;
+create function pg_temp.clock(ts text) returns void language sql as $$ select set_config('navora.test_now', ts, true) $$;
+select pg_temp.clock('2026-11-16 12:00:00+01');
+create function pg_temp.t(n text) returns uuid language sql as $$ select ('00000000-0000-4000-b148-0000000000' || n)::uuid $$;
+create function pg_temp.m(n text) returns uuid language sql as $$ select ('00000000-0000-4000-a148-0000000000' || n)::uuid $$;
+
+-- 0. The new surface (non-aborting checks first) --------------------------------------------------------------------
+select has_column('public', 'care_visits', 'order_take_id', 'ADR-202 (2): a visit can name the take it was written from');
+select ok(exists (select 1 from pg_indexes i where i.schemaname = 'public' and i.tablename = 'care_visits'
+                  and i.indexdef ilike '%unique%' and i.indexdef ilike '%(order_take_id)%'),
+          'ADR-202 (2): at most one visit per take (unique index)');
+select has_function('private', 'order_take_visit', 'ADR-203: the one visit writer from a take exists');
+select ok(coalesce(position('order_take_member:' in
+            (select string_agg(p.prosrc, ' ') from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+             where n.nspname = 'private' and p.proname = 'order_take_visit')), 0) > 0,
+          'CGR-233: the visit writer takes the same order_take_member: lock as the take');
+
+-- 1. Fixture (synthetic), as the table owner ---------------------------------------------------------------------------
+insert into public.client_accounts (id, organization_id, display_name, client_kind) values
+  ('00000000-0000-4000-a000-0000000003cb', '00000000-0000-4000-b000-000000000019', 'Haushalt BK-e1b Fixture (synthetisch)', 'household');
+insert into public.client_account_members (client_account_id, user_id) values
+  ('00000000-0000-4000-a000-0000000003cb', '00000000-0000-4000-a000-0000000009e8');
+insert into public.teams (organization_id, id, name, region, status, max_distance_km) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', 'BK-e1b Fixture T1', 'Basel-Landschaft', 'active', 10),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000002', 'BK-e1b Fixture T2', 'Basel-Landschaft', 'active', 10);
+insert into public.team_service_postcodes (team_id, postcode)
+  select t.id, '4102' from public.teams t where t.id::text like '00000000-0000-4000-b148-%';
+insert into auth.users (id, aud, role, email)
+  select ('00000000-0000-4000-a148-0000000000' || n)::uuid, 'authenticated', 'authenticated', 'bk-e1b-' || n || '.fixture@navora.test'
+  from unnest(array['01', '02', '03']) n;
+insert into public.organization_memberships (organization_id, user_id, role)
+  select '00000000-0000-4000-b000-000000000019', ('00000000-0000-4000-a148-0000000000' || n)::uuid, 'nurse'
+  from unnest(array['01', '02', '03']) n;
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000001', 'care_assistant'),
+  ('00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000002', 'care_assistant'),
+  ('00000000-0000-4000-b148-000000000002', '00000000-0000-4000-a148-000000000003', 'care_assistant');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until)
+  select '00000000-0000-4000-b000-000000000019', ('00000000-0000-4000-a148-0000000000' || n)::uuid, 'grade', 'fage_efz', 'verified', true, null
+  from unnest(array['01', '02', '03']) n;
+
+-- 2. Orders (FaGe, C1) ----------------------------------------------------------------------------------------------------
+create temp table made (k text primary key, r jsonb);
+grant all on made to authenticated;
+create function pg_temp.co(k text, d date, s time, e time, key text) returns void language sql as $$
+  insert into made select k, public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', d, s, e,
+                                                         '4102', 'fage_efz', array['C1'], array['C1'], null, key::uuid)
+$$;
+create function pg_temp.oid(k text) returns uuid language sql as $$ select (r ->> 'order_id')::uuid from made where made.k = $1 $$;
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+select pg_temp.co('o1', date '2026-11-19', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000001');  -- self-named
+select pg_temp.co('o2', date '2026-11-20', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000002');  -- colleague, ack
+select pg_temp.co('o3', date '2026-11-21', time '22:00', time '07:00', 'dddd0000-0000-4000-8148-000000000003');  -- overnight
+reset role;
+select pg_temp.as_owner();
+select is((select count(*)::int from made where r ->> 'result' = 'ok'), 3, 'the three fixture orders are confirmed');
+
+-- Helpers ---------------------------------------------------------------------------------------------------------------
+create function pg_temp.take(actor text, k text, team text, member text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.take_order(pg_temp.oid(k), pg_temp.t(team), pg_temp.m(member), key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.ack(actor text, k text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.acknowledge_take(pg_temp.oid(k), key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.cs(k text) returns text language plpgsql as $$
+declare res text;
+begin
+  perform pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+  set local role authenticated;
+  select x.cover_state into res from public.client_orders() x where x.id = pg_temp.oid(k);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.live(k text) returns public.order_takes language sql as $$
+  select * from public.order_takes t where t.order_id = pg_temp.oid(k) and t.released_at is null
+$$;
+create function pg_temp.first_take(k text) returns uuid language sql as $$
+  select t.id from public.order_takes t where t.order_id = pg_temp.oid(k) order by t.taken_at, t.id limit 1
+$$;
+-- The visit written from the first take of an order, read as the table owner (dynamic: the column is new).
+create function pg_temp.visit(k text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  execute 'select to_jsonb(v) from public.care_visits v where v.order_take_id = $1' into res using pg_temp.first_take(k);
+  return res;
+end;
+$$;
+create function pg_temp.visits_of(k text) returns integer language plpgsql as $$
+declare n integer;
+begin
+  execute 'select count(*)::int from public.care_visits v join public.order_takes t on t.id = v.order_take_id
+           where t.order_id = $1' into n using pg_temp.oid(k);
+  return n;
+end;
+$$;
+create temp table fv (member text, visit_id uuid, plz text, ort text);
+grant all on fv to authenticated;
+create function pg_temp.field(member text, d date) returns void language plpgsql as $$
+begin
+  delete from fv where fv.member = $1;
+  perform pg_temp.act_as(pg_temp.m(member)::text);
+  set local role authenticated;
+  insert into fv select member, x.visit_id, x.plz, x.ort from public.field_visits(d) x;
+  reset role;
+  perform pg_temp.as_owner();
+end;
+$$;
+create function pg_temp.sees(member text, k text, d date) returns boolean language plpgsql as $$
+begin
+  perform pg_temp.field(member, d);
+  return exists (select 1 from fv where fv.member = $1 and fv.visit_id = (pg_temp.visit(k) ->> 'id')::uuid);
+end;
+$$;
+
+-- 3. Self-named take: the visit is written at the take (criterion 2; CGR-232) ------------------------------------------
+select is(pg_temp.take('01', 'o1', '01', '01', 'ffff0000-0000-4000-8148-000000000001') ->> 'result', 'ok',
+          'M1 takes O1 naming herself');
+select is(pg_temp.visits_of('o1'), 1, 'BK-7: one visit is written from the self-named take');
+select is(pg_temp.visit('o1') ->> 'responsible_user_id', pg_temp.m('01')::text, 'BK-7: the named member is responsible');
+select is(pg_temp.visit('o1') ->> 'team_id', pg_temp.t('01')::text, 'BK-7: the take''s team owns the visit');
+select is((pg_temp.visit('o1') ->> 'visit_date') || ' ' || (pg_temp.visit('o1') ->> 'time_start') || '-' ||
+          (pg_temp.visit('o1') ->> 'time_end'), '2026-11-19 08:00:00-12:00:00',
+          'BK-7: date and times from the order, Europe/Zurich wall clock');
+select is(pg_temp.visit('o1') ->> 'status', 'planned', 'BK-7: the visit is planned');
+select ok((pg_temp.live('o1')).id is not null, 'CGR-232: writing the visit does not release the take of the person who is coming');
+select is(private.order_member_step(pg_temp.oid('o1'), pg_temp.t('01'), pg_temp.m('01')), 4,
+          'CGR-232: step 3 does not count the visit written from the same take');
+select is(pg_temp.cs('o1'), 'covered', 'the client still reads «gedeckt»');
+select ok(exists (select 1 from public.audit_events a where a.table_name = 'care_visits'
+                  and a.entity_id = (pg_temp.visit('o1') ->> 'id')::uuid),
+          'AUD1: the written visit has its audit row');
+
+-- 4. Only the named member reads it on /field (criterion 2, negative cases) ---------------------------------------------
+select ok(pg_temp.sees('01', 'o1', date '2026-11-19'), 'BK-7: the named member reads the visit on /field');
+select is((select plz || ' ' || ort from fv where member = '01' and visit_id = (pg_temp.visit('o1') ->> 'id')::uuid),
+          '4102 ' || (select p.city from public.partner_requests p where p.id = pg_temp.oid('o1')),
+          'BK-7: the place comes from the order (postcode and place; no street, P-8)');
+select ok(not pg_temp.sees('02', 'o1', date '2026-11-19'), 'BK-7 negative: a member of the same team who is not named does not');
+select ok(not pg_temp.sees('03', 'o1', date '2026-11-19'), 'BK-7 negative: a member of another team does not');
+
+-- 5. Take naming a colleague: no visit before her acknowledgement, one after it (ADR-200) ------------------------------
+select is(pg_temp.take('01', 'o2', '01', '02', 'ffff0000-0000-4000-8148-000000000010') ->> 'result', 'ok', 'M1 takes O2 naming M2');
+select is(pg_temp.visits_of('o2'), 0, 'BK-7: a take awaiting the acknowledgement writes no visit (not «gedeckt»)');
+select is(pg_temp.ack('02', 'o2', 'ffff0000-0000-4000-8148-000000000011') ->> 'result', 'ok', 'M2 acknowledges');
+select is(pg_temp.visits_of('o2'), 1, 'BK-7: the acknowledgement writes the visit');
+select is(pg_temp.visit('o2') ->> 'responsible_user_id', pg_temp.m('02')::text, 'BK-7: the named colleague is responsible, not the taker');
+select ok((pg_temp.live('o2')).id is not null, 'CGR-232: the acknowledged take stays live after its visit is written');
+select ok(pg_temp.sees('02', 'o2', date '2026-11-20'), 'BK-7: the named colleague reads it on /field');
+select ok(not pg_temp.sees('01', 'o2', date '2026-11-20'), 'BK-7 negative: the taker of the same team who is not named does not');
+
+-- 6. Shift across midnight (criterion 4; CGR-200, CGR-206 (a)) -----------------------------------------------------------
+select is(pg_temp.take('03', 'o3', '02', '03', 'ffff0000-0000-4000-8148-000000000020') ->> 'result', 'ok', 'M3 takes O3 (22:00–07:00)');
+select is((pg_temp.visit('o3') ->> 'visit_date') || ' ' || (pg_temp.visit('o3') ->> 'time_start') || '-' ||
+          (pg_temp.visit('o3') ->> 'time_end'), '2026-11-21 22:00:00-07:00:00', 'criterion 4: one visit from 22:00 to 07:00');
+select is((select upper(private.visit_interval(v)) - lower(private.visit_interval(v)) from public.care_visits v
+           where v.id = (pg_temp.visit('o3') ->> 'id')::uuid), interval '9 hours',
+          'criterion 4: the visit covers 9 h, the same instants as the order');
+select is((select tstzrange(p.starts_at, p.ends_at, '[)') from public.partner_requests p where p.id = pg_temp.oid('o3')),
+          (select private.visit_interval(v) from public.care_visits v where v.id = (pg_temp.visit('o3') ->> 'id')::uuid),
+          'criterion 4: visit interval equals the order slot');
+
+-- 7. CGR-242 positive: release after «gedeckt», before the start → visit cancelled in the same transaction ------------
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000001',
+   timestamptz '2026-11-19 07:00:00+01', timestamptz '2026-11-19 13:00:00+01', '00000000-0000-4000-a148-000000000001');
+select ok((pg_temp.live('o1')).id is null,
+          'precondition: her absence releases her take before the start (ADR-199 (5))');
+select is(pg_temp.visit('o1') ->> 'status', 'cancelled', 'CGR-242: the visit of the released take is cancelled in the same transaction');
+select is(pg_temp.visits_of('o1'), 1, 'CGR-242: and never deleted');
+select isnt(pg_temp.cs('o1'), 'covered', 'CGR-242: the order leaves «gedeckt» for the client');
+
+-- 8. CGR-242 negative: after the start no automatic step releases or changes anything -----------------------------------
+select pg_temp.clock('2026-11-20 09:00:00+01');
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000002',
+   timestamptz '2026-11-20 10:00:00+01', timestamptz '2026-11-20 13:00:00+01', '00000000-0000-4000-a148-000000000002');
+select ok((pg_temp.live('o2')).member_id = pg_temp.m('02'), 'CGR-242 negative: after starts_at the take is not released automatically');
+select is(pg_temp.visit('o2') ->> 'status', 'planned', 'CGR-242 negative: after starts_at the visit is unchanged');
+
+select * from finish();
+rollback;
