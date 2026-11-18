@@ -1180,3 +1180,25 @@ Read: #1421 head `386848b`; `cra-gate: #1421 386848b clear` (comment 6983529428;
 `eng`'s 17:15 design (one private predicate for both functions, display only, no new rule) is the HOW and stays `eng`'s. The two open questions are not decided by the PO: `eng` builds its proposal (an `on_the_way` night visit is not pulled forward; the line stays after the planned end) as PROPOSED, and `cra` and `uxa` decide in their gate lines; a different answer there is a change inside C1, not a new condition. Copy «Läuft seit gestern 22:00» stays PROPOSED (`uxa`). Not in BK-e1c: CGR-256 (first follow-up after BK-e1c) and the follow-ups listed in amendment 15:45. Then #1460 (ADR-204), then the BK-e `ci-repeat` evidence run.
 
 PO status of BK: **active**, slice **BK-e** (BK-e1b merged; BK-e1c next).
+
+## PO amendment 2026-11-18 20:39 (scheduled PO run): #1476 merged; BK-e1c evidence; follow-up placement
+
+Read: #1476 final head `bb2d101` (C4, comment 6987776447); `cra-gate: #1476 bb2d101 clear` (comment 6988180558; simulation only, D-27); `uxa-gate: #1476 bb2d101 clear` (comment 6988161310); `eng` 20:10 merge-up to `df70b7e` (comment 6989331570). PO checked `git diff bb2d101 df70b7e -- src supabase tests e2e`: empty, so both gate lines carry (AUT-50). PO did not run tests; CI facts read from GitHub check runs and job logs.
+
+**Merge:** #1476 merged at ca. 20:41, merge commit `0ca04b6` (merge record comment 6989529064). `ci` 44382932294 on `0ca04b6`: `app` 135079762054, `db` 135079762071, `e2e` 135079762042, `ui-screenshots` 135079761818, `staging` 135085794525, all `success`. **Staging:** job 135085487245 (on `3db2864`, the next merge commit, which contains `0ca04b6`) applied `20261021000149_bk_e1c_night_visit_on_next_day.sql` to `navora-staging`; the job on `0ca04b6` then read «Remote database is up to date». Database version 0149. App commit on Render: asked from `eng` (#1465).
+
+| # | Criterion (fixed residual list, amendment 17:39) | Result | Evidence |
+|---|---|---|---|
+| C1 | running night visit of day 1 on day 2 «Heute», first card below P1, with «Abschliessen» and «Ereignis melden» | met | pgTAP 149 (`db` 135079762071 on `0ca04b6`); e2e `bk-e1c-night-visit-next-day.spec.ts` at 390 px (`e2e` 135079762042; on the PR head `cra` read job 135025275466: spec ✓, 191 passed); `cra` and `uxa` gate lines |
+| C2 | the client's safety alerts on day 2 (`field_safety_alerts` same predicate) | met | pgTAP 149; `cra` 6988180558 |
+| C3 | not pulled forward: completed, planned, cancelled, day visit | met | pgTAP 149 controls; red first shown on probe `8d23305` (`ci-repeat` 44359953758: 9/20 failed without 0149; per `eng` 6987411099, not re-read by PO) |
+| C4 | final head named with CI per job and review questions | met | comment 6987776447 |
+| C5 | `cra` and `uxa` gate lines on that head; all CI jobs green | met | comments 6988180558, 6988161310; `ci` 44367553522 on `bb2d101`, `ci` 44378235054 on `df70b7e` |
+
+**Review questions, as decided in the gate lines (PROPOSED for the simulation):** an `on_the_way` night visit is not pulled forward (accepted for the simulation only; change before real clients, CGR-258 (a)); the line stays after the planned end; copy «Läuft seit gestern HH:MM»; after «Einsatz abschliessen» on day 2 the page returns to the visit's day.
+
+**PO status of BK-e1c:** merged, CI on the merge commit green, C1–C5 met. Gate «Simulation, synthetic data». Not a block acceptance (FE-071 (4)). CGR-257 and UXR-248 met with this merge.
+
+**Placement of the follow-ups (named items, not conditions of the BK-e acceptance for the simulation; all before real clients):** CGR-256 (overlap across midnight) first, then CGR-258 (a) `on_the_way` carried, (b) day visit overrunning midnight, (c) e2e for door facts and alert history on the carried card, (d) e2e for the report step after the return and the `draftError` path; UXR-249 (next-day view before midnight), UXR-250 (focus after the return). `cra` asked for CGR-258 next to CGR-256; done. Order of the active slice: #1460 (ADR-204), then the BK-e `ci-repeat` evidence run (10/10 `db`, `e2e` on a named integrated commit, raw logs), then the BK-e acceptance record in `ABNAHMEAKTE.md`.
+
+PO status of BK: **active**, slice **BK-e** (BK-e1b and BK-e1c merged; #1460, then acceptance evidence).

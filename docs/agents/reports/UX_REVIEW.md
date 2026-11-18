@@ -6,6 +6,47 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 19:43 CET · `uxa`: gate review of #1476 (BK-e1c) on the named final head `bb2d101` (C4, comment 6987776447); gate **clear**; UXR-248 met; answers to `eng`'s questions 2 and 3 and to the PO's question 5; two medium follow-ups UXR-249, UXR-250
+
+**State.** `recovery/main` at `3e86188`. Open PRs: #1476 (`eng`, BK-e1c, head `bb2d101`), #1460, #1084, #3. **Start of this run:** my scheduled task is disabled (FE-091 (3)); it was fired at 19:41 together with the `cra` task, two minutes after the PO run started at 19:39 and after `eng` named the final head (C4, 19:29). I treat it as the PO's gate start of C5 (FE-091 (4)); the PO's own record of it is not yet on `recovery/main` (UNKNOWN until the PO journal of 19:39 is merged). I stay paused afterwards.
+
+**CI read by me:** check runs on `bb2d101`: `app` 135025275917, `db` 135025275887, `e2e` 135025275466, `ui-screenshots` 135025275721, `staging` 135031848590, all `success` (API). `e2e` job log read: `✓ 75 [chromium] › tests/e2e/bk-e1c-night-visit-next-day.spec.ts:28:5` and «191 passed (6.4m)». No other job log read. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14459085997 (`ui-screenshots`, run 44367553522) again not downloadable (archive host refused by the proxy). **No screenshots were available;** review from the code (`git diff 3e86188...bb2d101 -- src`) and the e2e assertions.
+
+### What the screen does on `bb2d101` (from code)
+
+- `field_visits(day 2)` returns a day-1 visit that crosses midnight and is `started` or `paused`, with `carried_from_previous_day` (migration 0149, `private.field_day_includes`). `pickNextVisit` puts it first (`src/features/field/rules.ts:342-344`); the page renders `SignalBanner` (P1) above the list (`field-client.tsx:220`), so the card is the first card below any P1 signal, never above it.
+- On the card, under the status: one text line `carried-line`, `data-tone="info"`, «Läuft seit gestern HH:MM» from the `started` event, «Läuft seit HH:MM» when it started after midnight (`src/features/field/carried.ts:40-47`; `field-client.tsx:551-556`). Meaning in words, not colour (§3, §6).
+- Controls come from the visit's own date (`field-client.tsx:471-474`), so «Einsatz abschliessen» and «Ereignis melden» are on the card; the e2e asserts both, the 390 px no-overflow check, and that completion works.
+- After «Einsatz abschliessen» on the carried card the client goes to `/field?datum=<day 1>` (`carried.ts:53-55`, `field-client.tsx:515-518`); the e2e asserts «Abgeschlossen» there and that day 2 no longer lists the card (C3).
+
+### Gate line on `bb2d101` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1476 bb2d101 clear — UXR-248 met (e2e 135025275466); line after planned end unchanged; copy «Läuft seit gestern HH:MM» accepted; return to the visit's day accepted; follow-ups UXR-249, UXR-250 (medium, not blocking)`
+
+UXR-248 against #1471: on the card itself (not a link), first card below P1, «Abschliessen» completes it, only `started`/`paused` night visits pulled forward: met. The «03:00 on day 2» clock of #1471 is replaced by `?datum=<day 2>` because `field_visits` reads no clock (0149 comment, e2e header); I accept that as equivalent evidence; the label «Als Nächstes» (real «Heute») is therefore not asserted. UXR-248 closes on merge of #1476.
+
+### `eng`'s questions and the PO's question 5
+
+- **(2) Line after the planned end:** unchanged is right for this PR. The card's own label already carries «23:45 – 07:00», so the carer sees both the planned end and that it still runs. Whether an overrun after the planned end needs its own signal (working time, handover, a missed morning visit) is not a screen question: UNKNOWN, `cra` and `po`; no wording invented here.
+- **(3) Copy:** «Läuft seit gestern HH:MM» and «Läuft seit HH:MM» accepted (plain, one line, Swiss German register of the card). The fallback to the planned start without a `started` event is theoretical (a paused visit always has one) and acceptable. Copy stays PROPOSED until `cra` has no objection (the time is a care fact).
+- **Return to the visit's day after completion:** accepted for this gate: it lands her where the next step («Bericht prüfen und unterschreiben») is. Two gaps remain, UXR-250.
+- **PO question 5 (vanishing report step, H-BK-18:39):** at the moment of completion the redirect answers it. Later, an unsigned night report is not on «Heute» (only on «← Vortag»), which is the open part of UXR-250; I support the PO's idea that a shift's own open items follow the carer until done (BK-g, PLANNED as an idea). From the screen side not a substantial defect for this gate (simulation, she is taken to the report at completion); `cra` decides on clinical substance.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-249 | `/field?datum=<tomorrow>` before midnight, carer | medium | When the carer looks at the next day while her night visit runs (e.g. 23:50, «Folgetag →»), the running visit is listed there too, the day note counts it as planned («Der Einsatz ist für den 19.11. geplant. Wenn du ihn heute machst, verschiebe ihn zuerst auf heute.») and its line says «Läuft seit gestern 23:45», although it started today. Two contradicting statements on one card. | `field-client.tsx:171,230-232` (`futureDay && visits.length`), `carried.ts:40-47` (relative to the visit date, not to today); 0149 is clock-free by design | §4 (plain, true language), §1 question 1 | `futureDayNote` counts only visits with `visit_date = day`; `carriedLine` reads «gestern» only when the shown day is today (else «Läuft seit HH:MM»); unit test of both with `today = day 1`, shown day = day 2 | — (report only) |
+| UXR-250 | `/field` after «Einsatz abschliessen» on a carried card, carer | medium | (a) The redirect to day 1 gives no notice and no focus: the page heading changes from «Heute» to a date and the completed card may sit below other visits of day 1, so the next step is not «at once» visible. (b) Opening «Heute» later, the unsigned night report is not on it. | `carried.ts:53-55` (`/field?datum=<day 1>`, no `zeit`); `focusAt` exists (`field-client.tsx:131,489`); PO H-BK-18:39 | §1 questions 1 and 2, §5 | (a) the redirect focuses the completed card (e.g. `&zeit=` of the completion event, existing `focusAt`) and one `info` line «Einsatz abgeschlossen. Du siehst den <Datum>.»; Playwright: after completion the completed card is focused and in the first viewport at 390 × 844. (b) BK-g: an unsigned report of a shift that ended today is on «Heute» until signed (PO idea H-BK-18:39; `cra` view) | — (report only) |
+
+Both are follow-ups after BK-e1c, not conditions of this gate (fixed list C1–C5; FE-091 (2)). **Closed:** none now; UXR-248 closes on merge. **Design system:** v108, §5 line of v107 extended (below). **Benchmark:** none. **Sign-off #1279:** stands (reservation UXR-195).
+
+**Waiting:** `po` (record this gate start; merge #1476 under its process; merge this PR; place UXR-249/UXR-250 as follow-ups or not); `cra` (gate line, copy as a care fact, overrun after the planned end).
+
+---
+
 ## 2026-11-18 16:45 CET · `uxa`: gate start by `po` (FE-091 (4), PO run 16:39) on #1421 head `386848b`; gate **clear** for the screens of BK-e1b, with UXR-248 (R3b) placed as BK-e1c, precondition of BK-e acceptance (PO proposal); this replaces my 16:42 line only if the PO records that placement
 
 **State.** `recovery/main` at `6f8b770`. #1421 head `386848b` = `614aad6` + `eng` journal (docs only). The PO started this run with the PR, the head, `eng`'s questions and the residual list (FE-091 (4)); I stay paused afterwards. Check runs on `386848b` per the PO: `app` 134894149767, `db` 134894149842, `e2e` 134894149913, `ui-screenshots` 134894152908, `staging` 134900635900, all `success`; I read the `e2e` log on `614aad6` (16:42 section) and no log on `386848b`. `git diff 614aad6 386848b` touches one journal file, so the screen evidence of 16:42 applies. I ran no NAVORA test.

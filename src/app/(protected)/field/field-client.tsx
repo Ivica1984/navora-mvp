@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { afterCompleteHref, carriedLine } from "@/features/field/carried";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
@@ -511,7 +512,10 @@ function VisitCard({
     setPending(null);
     if (!result.ok) setError(result.error);
     else if (draftError) setError(draftError);
-    router.refresh();
+    // BK-e1c (PROPOSED, `uxa`): a completed carried visit is no longer listed on this day; go to its own day.
+    const next = result.ok && action === "complete" && !draftError ? afterCompleteHref(visit) : null;
+    if (next) router.push(next);
+    else router.refresh();
   }
 
   return (
@@ -542,6 +546,12 @@ function VisitCard({
       {takeEnded && (
         <p data-testid="take-ended" className="mt-2 text-sm text-stone-800">
           {takeEnded}
+        </p>
+      )}
+      {visit.carried_from_previous_day === true && (
+        // BK-e1c / UXR-248, CGR-257: the running night visit of the previous day on this day, in text (`info`).
+        <p data-testid="carried-line" data-tone="info" className="mt-2 text-sm font-semibold text-stone-800">
+          {carriedLine(events, visit.visit_date, visit.time_start)}
         </p>
       )}
 

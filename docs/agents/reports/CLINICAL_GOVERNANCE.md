@@ -16,6 +16,52 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 19:45 CET: gate review of **#1476** (BK-e1c, running night visit on the carer's «Heute» after midnight; R3b, CGR-257, UXR-248; `eng` final head `bb2d101`). Run started once by `po` under FE-091 (4). **`cra-gate: #1476 bb2d101 clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). **CGR-257 met in code and test** for started and paused night visits (C1–C3). Answers to the three review questions below; none is a substantial safety, privacy or function defect of the agreed flow for the simulation gate. New advisory **CGR-258** (the rest of the night-boundary gap; S1 before real clients at night). Read on `recovery/main` `3e86188`.
+
+### What I read
+
+- Merges since my 16:41 section: #1421 (merge commit `7c04240`), #1470, #1472–#1475, #1477–#1480 (journals, PO amendments). Brief `BK.md` §PO amendment 16:39 and 17:39 (fixed residual list C1–C5). Blueprint 3.2.63 and 3.2.64: §8 row BK and version table only; Annex B §1, the qualification matrix and Handbook V2.2 unchanged: no FE-079 renewal due.
+- **#1476** (5 commits on `recovery/main` `4c417ee`): `abcf335` (pgTAP 149 red first), `4c2689c` (migration 0149, `page.tsx`, `field-client.tsx`, `carried.ts`, `rules.ts`, vitest), `bf3536e`, `f572507`, `bb2d101` (e2e fixtures and the BD-2 count). I read the migration, `page.tsx`, `field-client.tsx`, `carried.ts`, `rules.ts`, pgTAP 149, `tests/e2e/bk-e1c-night-visit-next-day.spec.ts`, `tests/unit/bk-e1c-carried-night-visit.test.ts`, the `durchgang-ambulant.spec.ts` change and ADR-203 (22); for question 1 also VIS1 `private.visit_day_refusal` (0089).
+- CI on `bb2d101` (`ci` 44367553522), check runs and job logs: `db` 135025275887 success (log: «149_bk_e1c_night_visit_on_next_day.test.sql … ok», «Result: PASS»); `e2e` 135025275466 success (log: «✓ 75 [chromium] › tests/e2e/bk-e1c-night-visit-next-day.spec.ts:28:5 …», «191 passed»); `app` 135025275917 success (log: «✓ tests/unit/bk-e1c-carried-night-visit.test.ts (13 tests)»); `ui-screenshots` 135025275721 success; `staging` 135031848590 success (check-run state only). Red first: `eng` comment 6987411099 (`ci-repeat` 44359953758, pgTAP 149 9/20 failed without 0149); I did not read that log. I ran no NAVORA test.
+
+### Code facts (IMPLEMENTED on the PR head, not merged)
+
+- 0149 `private.field_day_includes(visit_date, time_start, time_end, status, p_date)`: own day, or previous day with `time_end < time_start` and status `started`/`paused`. `field_visits` and `field_safety_alerts` both use it (one predicate, so a carried card never shows without its alerts). Display only: VIS1 0089 unchanged; the e2e shows «Einsatz abschliessen» completing the carried visit on day 2.
+- `pickNextVisit` puts a carried running visit first (vitest). `page.tsx` reads the seven day-keyed companions for the previous day only when something is carried and keeps only the carried visits' rows (`withCarriedRows`, no duplicates; vitest).
+- `durchgang-ambulant.spec.ts`: the BD-2 count of «exactly the two visits of the run» is now scoped to the run's nurse. This is test isolation against the new kolleginbs fixture; it does not weaken a safety assertion (the next lines still assert both visits completed and on one case).
+
+### Answers to the review questions
+
+1. **`on_the_way` after midnight not pulled forward (pgTAP 149 test 14): accept for the simulation gate; change before real clients (CGR-258 (a)).** Clinically the moment a carer arrives at the door is when the client's safety alerts (DOOR1) matter most, and a departed visit is under way: `rules.ts` `RUNNING` and CR-232 already treat `on_the_way` as under way, and VIS1 lets her start a day-1 visit on day 2. So an `on_the_way` night visit departed before 00:00 belongs on «Heute» with its alerts. Not a substantial defect now: the visit and its alerts are one tap away («← Vortag»), the record is correct, data is synthetic, and the case is narrow (departure before 00:00, arrival after). My 16:41 wording («never started is not pulled forward») did not separate `on_the_way`; this answer corrects it.
+2. **Companion readers for the previous day in `page.tsx` only: clinically sufficient for the simulation.** Every day-keyed reader the card uses is covered (notes, report, quality, status notes, since-last, door facts, alert history); the safety alerts come from the SQL predicate and are proven in pgTAP 149 (C2). The not-day-keyed readers (signals, countersign, returned reports, team open reports, follow-ups) are unaffected. Evidence gap, advisory: door facts and alert history on the carried card are proven only by a unit test of the merge helper, not end to end (CGR-258 (c)).
+3. **Return to `/field?datum=<day 1>` after «Einsatz abschliessen»: not a substantial safety or function defect.** She lands on the page where the completed visit and its report draft are (e2e step 4: status «Abgeschlossen», no command error), so the report step is reached, not lost; a completed visit should not stay on day 2 (C3). Two advisory gaps (CGR-258 (d)): the e2e does not assert that the report step is visible after the return, and when the report draft fails (`draftError`) the code stays on day 2 and refreshes, so the error is shown while the card (and the way to the report) leaves the page.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1476 BK-e1c | `bb2d101` | **`cra-gate: #1476 bb2d101 clear`** · gate «Simulation, synthetic data». C1 met (pgTAP 149 C1, e2e card first with line, «Einsatz abschliessen», «Ereignis melden»); C2 met (pgTAP 149 C2); C3 met (pgTAP 149 controls; e2e step 5); C4 met (comment 6987776447); C5: this line; all five CI jobs green on `bb2d101`. CGR-257 closes when #1476 is merged with `ci` green on the merge commit. Not blocking: CGR-256, CGR-258. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-257** (status) | #1476 `bb2d101` | was blocking for BK-e acceptance | **Met in code and test** for started and paused night visits: «Heute» on day 2 shows the card itself first, with its safety alerts, line, «Einsatz abschliessen» and «Ereignis melden»; completed, planned, cancelled, day and older visits are not carried. Closes on merge. | 0149 `field_day_includes`; pgTAP 149 (20 tests, `db` 135025275887); e2e `bk-e1c-night-visit-next-day.spec.ts:28` (`e2e` 135025275466) | – |
+| **CGR-258** (new) | #1476 `bb2d101` / follow-up after BK-e1c | **advisory for the simulation gate; S1 before real clients at night** | The calendar-day boundary still hides some visits she is in: (a) a night visit `on_the_way` (departed before 00:00) is not on «Heute» with its safety alerts, though `RUNNING` and CR-232 treat it as under way; (b) a day visit that overruns past midnight (e.g. 23:00–23:50, still `started` at 00:20) is not carried, because only `time_end < time_start` counts; (c) door facts and alert history on the carried card are proven only by a unit test; (d) after completion the return to day 1 is not shown to reach the report step, and a failed report draft leaves day 2 without the card. Whether a planned night visit not started by 00:00 should show: UNKNOWN (`uxa`, Clinical Owner). | 0149 `p_status in ('started', 'paused')`; `rules.ts` `RUNNING`; CR-232; 0089 `visit_day_refusal` (start allowed on a later day); `carried.ts` `afterCompleteHref`; `field-client.tsx` `draftError` branch | pgTAP: (a) a day-1 night visit `on_the_way` is in `field_visits(day 2)` and `field_safety_alerts(day 2)`; (b) a `started` day-1 day visit whose planned end has passed is shown on day 2 **or** a named decision (`uxa`, Clinical Owner) that it is not, with the open-visit signal that covers it; e2e: (c) a door fact and an alert-history row of the carried visit are on its day-2 card; (d) after «Einsatz abschliessen» the report step of that visit is visible, and with a failed draft the carer is still taken to it. |
+| CGR-256 (status) | – | advisory; S1 before real clients | Unchanged; still the first follow-up after BK-e1c. CGR-258 belongs to the same design question («a visit belongs to the days it covers»). | ADR-203 (19), (21) | as 13:29 |
+
+### Findings closed
+
+None on `recovery/main` (CGR-257 closes on merge of #1476 with `ci` green on the merge commit; CGR-255, CGR-233, CGR-246, CGR-251 to CGR-253 closed with the #1421 merge `7c04240`, `ci` 44350060934 green per PO amendment 17:39; I did not reread those logs).
+
+### Decisions requested
+
+- **PO:** merge #1476 on the C1–C5 list; place CGR-258 as a named follow-up next to CGR-256 (proposal: both before BK-e acceptance if the PO agrees; otherwise both S1 before real clients at night); merge this PR.
+- **`uxa`:** the return after completion (question 3) and its words; whether an overrunning day visit belongs on «Heute» (CGR-258 (b)).
+- **Clinical Owner:** a planned night visit not started by 00:00 (UNKNOWN); earlier open items unchanged (CGR-254 (b), rest time after a night take, H-10).
+
+---
+
 ## 2026-11-18 16:41 CET: gate review of **#1421** (BK-e1b, visit from the take; `eng` final head `614aad6`, docs-only journal head `386848b`). Run started once by `po` under FE-091 (4) (paused role; no answer would not be approval). **`cra-gate: #1421 386848b clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). Answer to the PO on (d): **NO**, R3b is not a substantial safety or function defect of the agreed flow *for the simulation gate*; it goes to BK-e1c as a precondition of BK-e acceptance and is S1 before any real night shift (new **CGR-257**). (e) «Ereignis melden» on the ended take card: **acceptable, and wanted**. Read on `recovery/main` `6f8b770`.
 
 ### What I read
