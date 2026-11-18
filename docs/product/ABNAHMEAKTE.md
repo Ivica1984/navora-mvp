@@ -124,6 +124,19 @@ Was die Protokolle zeigen:
 - **Nicht Teil der Abnahme:** Rangfolge, Angebotskarte, Rundruf, Übernahme und «nicht gedeckt» (BK-c); erneute Prüfung bei der Übernahme (CGR-204 (b), CGR-223); KI- und Spracherfassung (BK-d); Freigabe für reale Personen und Daten.
 - **Folge:** BK-c ist das aktive Teilstück.
 
+### BK-c Übernahme, Deckungsstand, Begründung je Team (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten: CR-224 bis CR-228 VORGESCHLAGEN beim Clinical Owner, K-8, D-27; CGR-226 (b), CGR-235 (c), CGR-238 (a), (b) offen; 0136 und 0137 nicht auf `navora-staging`). Entscheid 2026-11-18 02:39 auf dem benannten Commit `d51d1c1` (`recovery/main` nach #1411; ausserhalb `docs/` gegenüber `a71c0bc` nur `ROADMAP.md`).
+- **Umfang:** Übernahme und Deckungsstand in der Datenbank (#1342 `781944f`), Bildschirme `/team` und Kundenstatus mit Bestätigung und «Ich kann nicht» (#1358 `25d7cdf`), Begründung je eigenem Team ohne Rangfolge zwischen Teams (#1388 `ad21dd2`), drei Datenschutztests (#1403 `a71c0bc`, pgTAP 147).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44209867556 (push) auf `d51d1c1`: 5/5 `success`.
+  - `ci-repeat` 44215240768 auf `d51d1c1`: **20/20 `success`** plus Fenster-Start und Urteil, erster Versuch; jeder `db`-Versuch 147 Dateien / 5213 Tests «Result: PASS», pgTAP 141 bis 147 «ok», 0 übersprungen; jeder `e2e`-Versuch 188 bestanden, 0 übersprungen, 0 instabil, 0 fehlgeschlagen.
+  - In allen zehn `db`-Protokollen: «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; «not ok» nur in der absichtlich roten B0-4-Nachstellung.
+  - Lauf 02:22 bis 02:33 Zürich, im Tagesfenster (Urteilsjob 134508250721).
+- **Abgenommen:** Ein bestätigter Auftrag geht gleichzeitig an jedes Team, das alle harten Prüfungen besteht; ein Mitglied übernimmt für sein Team, genau eine Übernahme gewinnt, auch bei gleichzeitigen Tipps und bei einer Person in zwei Teams; die benannte Kollegin bestätigt oder sagt «Ich kann nicht»; die Auftraggeberin sieht «gedeckt» erst danach und nie eine Teamzahl; fällt eine Person weg, geht der Auftrag sofort wieder an alle passenden Teams; «nicht gedeckt» wird rechtzeitig gezeigt und als Ausnahme gemeldet; ein Haushalt ist vor der Übernahme für kein Team erkennbar; eine Person in zwei Rollen sieht die andere Seite nicht. Kriterientabelle: `docs/agents/briefs/BK.md` §PO review 2026-11-17 21:39 und §PO acceptance 2026-11-18 02:39.
+- **Nicht Teil der Abnahme:** `/field`-Verknüpfung und Berichtsentwurf (BK-e), Rechnungsentwurf (BK-f), KI-Erfassung (BK-d), Szenario-Matrix (BK-g), Staging, Freigabe für reale Personen und Daten.
+- **Folge:** BK-e ist das aktive Teilstück.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -138,7 +151,7 @@ Was die Protokolle zeigen:
 | B8 | BILL1 und J5-v4 nicht gebaut; D-18 Phase B, D-22 offen | Bau als Simulationsregel (FE-069) |
 | B9 | NH-A1 bis NH-A5 nicht gebaut; BD-H | Bau; BD-H grün |
 | B10 | **AN3 widersprüchlich:** Code integriert (Migration 0108, pgTAP 109, Analyseansicht), die `eng`-Zeile steht auf `in-review`, die PO-Warteschlange führt AN3 noch als genehmigt und nicht begonnen (*Next up* Rang 2). AN3-C1 bis AN3-C3 nicht gebaut. | Der PO prüft AN3 gegen den Brief auf dem dann aktuellen Commit und bereinigt die Zeile; C1-C3 mit Tests. Bis dahin ist AN3 nicht abgenommen, gleichgültig was eine Zeile sagt |
-| BK-c | Lauf auf `ad21dd2` vollständig grün (`ci` 44163100048; `ci-repeat` 44166631679: `db` 10/10 «Files=146, Tests=5182 … Result: PASS», 0 übersprungen; `e2e` 10/10 «188 passed», 0 übersprungen/instabil/fehlgeschlagen; im Tagesfenster). **Ohne Test:** drei am 14.11. 00:39 gesetzte Datenschutzkriterien (`lca` G-2 (i), (ii) Audit-Klassen bei Haushalten; G-3 (2) kein `partner_name` an Teams vor der Übernahme, im Code erfüllt; G-6 eine Person als Auftraggeberin in einem und Mitglied in einem anderen Netz). PO-Entscheid 17.11. 21:39: `changes-requested` | Test-PR (pgTAP 147), `cra`- und `lca`-Zeile, neuer `ci-repeat` auf dem Merge-Commit im Tagesfenster 02:20–22:05; dann Abnahme mit Gate «Simulation, synthetische Daten» |
+| BK-c | ~~Drei Datenschutzkriterien ohne Test~~: pgTAP 147 (#1403) gemergt, `ci-repeat` 44215240768 auf `d51d1c1` 20/20. **Abgenommen 18.11. 02:39 (§2).** Vor realen Personen offen: CR-224 bis CR-228, CGR-226 (b), CGR-235 (c), CGR-238 (a), (b), Staging 0136/0137 | – (Simulation); vor realen Daten die genannten Punkte |
 | B11/B12 | Staging-Migration (#1087) wartet auf das Owner-Secret; B0-6 | Owner-Handlungen |
 
 ## Änderungsprotokoll
@@ -149,3 +162,4 @@ Was die Protokolle zeigen:
 - 2026-11-14 09:39 (`po`): Blockakte BK-a (Teilstück von BK, für die Simulation abgenommen auf `634ccb7`, `ci-repeat` 43572290695 20/20).
 - 2026-11-17 02:39 (`po`): Blockakte BK-b (Teilstück von BK, für die Simulation abgenommen auf `ab90875`, `ci-repeat` 43994886883 20/20).
 - 2026-11-17 21:39 (`po`): §3 Zeile BK-c (Abnahmeprüfung auf `ad21dd2`: Lauf grün, drei Datenschutzkriterien ohne Test, `changes-requested`).
+- 2026-11-18 02:39 (`po`): Blockakte BK-c (Teilstück von BK, für die Simulation abgenommen auf `d51d1c1`, `ci-repeat` 44215240768 20/20); §3 Zeile BK-c nachgeführt.

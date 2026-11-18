@@ -31,10 +31,10 @@
 |---|---|---|---|---|
 | BK-a | Auftrag erfassen (ohne KI) | gemergt (#1238 u. a.) | ja | abgenommen 14.11. (Simulation) |
 | BK-b | Reichweite, harte Filter | gemergt (#1268, #1270, #1273) | ja | abgenommen 17.11. (Simulation) |
-| BK-c1 | Übernahme, Deckungsstand (DB) | gemergt `781944f` | ja (0135) | offen (BK-c als Ganzes) |
-| BK-c2 | Bildschirme `/team` und Kundenstatus | **gemergt** `25d7cdf` (#1358, Kopf `9a7fc56`; `lca`, `cra`, `uxa` frei) | **0136 fehlt** (`eng` spielt ein, FE-088 (7)) | offen |
-| BK-c3 | Begründung je eigenem Team (Reihenfolge nach Beginn, keine Rangfolge zwischen Teams; PO 17:39) | **gemergt** `ad21dd2` (#1388, Kopf `8744acd`; `cra`, `uxa`, `aia`, `lca` frei; Stand 17.11. 20:52) | **0137 fehlt** (wie 0136; `STAGING_DB_URL` nicht gesetzt) | offen: `ci-repeat` 44166631679 auf `ad21dd2` 20/20 grün, Abnahme am 17.11. 21:39 zurückgestellt (`changes-requested`): drei Datenschutzkriterien (`lca` G-2, G-3 (2), G-6) ohne Test; Test-PR, dann neuer `ci-repeat` im Tagesfenster ab 02:20 |
-| BK-e | `/field`-Verknüpfung, Berichtsentwurf aus Diktat | nicht begonnen | – | – |
+| BK-c1 | Übernahme, Deckungsstand (DB) | gemergt `781944f` | ja (0135) | abgenommen 18.11. 02:39 (Simulation, BK-c als Ganzes auf `d51d1c1`) |
+| BK-c2 | Bildschirme `/team` und Kundenstatus | **gemergt** `25d7cdf` (#1358, Kopf `9a7fc56`; `lca`, `cra`, `uxa` frei) | **0136 fehlt** (`eng` spielt ein, FE-088 (7)) | abgenommen 18.11. 02:39 (Simulation, mit BK-c) |
+| BK-c3 | Begründung je eigenem Team (Reihenfolge nach Beginn, keine Rangfolge zwischen Teams; PO 17:39) | **gemergt** `ad21dd2` (#1388, Kopf `8744acd`; `cra`, `uxa`, `aia`, `lca` frei; Stand 17.11. 20:52) | **0137 fehlt** (wie 0136; `STAGING_DB_URL` nicht gesetzt) | abgenommen 18.11. 02:39 (Simulation) auf `d51d1c1`: #1403 (pgTAP 147) gemergt, `ci-repeat` 44215240768 20/20, 0 übersprungen |
+| BK-e | `/field`-Verknüpfung, Berichtsentwurf aus Text (kein externer KI-Dienst, Testersatz) | **aktiv seit 18.11. 02:39**; ADR und rote Tests zuerst; Vorschlag BK-e1 (Einsatz aus der Übernahme, `/field`-Karte), BK-e2 (Entwurf, Liste «nicht übernommen», Unterschrift) | – | – |
 | BK-f | Rechnungsentwurf an die Auftraggeberin | nicht begonnen | – | – |
 | BK-d | KI-Erfassung des Auftrags (Text oder Diktat) | nicht begonnen; AUT-135 darf auf einem Branch vorbereitet werden | – | – |
 | BK-g | Szenario-Matrix, ganzer Durchlauf e2e | nicht begonnen | – | – |
