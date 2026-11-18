@@ -4324,3 +4324,15 @@ Context: brief `BK.md` §PO amendment 2026-11-18 02:39 (BK-e active; criteria 1�
 6. **Signature and controls (BK-e2b; BK-8n).** Only the member who performed the visit signs (existing F6 signing path, CSR1 lock); an unsigned draft creates no billable fact (negative test). The signed version stores its input segments and their decisions; what exactly is stored and how long is `lca`'s view (free-text minimisation) before the BK-e2b merge.
 7. **Finding reported (deviation, not changed):** orders store a place only, no address (ADR-193 (1), P-8). A visit written from a take will therefore always show «<plz> <ort> · Strasse fehlt – im Team klären» after BK-e1a. Where the carer gets the door address for a take-based visit (client portal, team note, DOOR1 intake) is OPEN for `po` with `lca` (P-8) and `uxa`; BK-e1b builds nothing for it.
 8. **Reviews:** `cra` (mandatory), `uxa`, `aia`, `lca` per PR as listed in the brief. BK-e1a changes one visible line on `/field` (`uxa`, `cra`).
+
+### ADR-204 — CI: one Docker Hub retry after an image-registry rate limit (PROPOSED, `eng` 2026-11-18 15:40, owner instruction in the live session)
+
+Context: on 2026-11-18 `e2e` and `ui-screenshots` of `ci` 44242595626 stopped in «Start local Supabase» with «error from registry: Rate exceeded» from `public.ecr.aws` (the Supabase CLI default registry, job 134593805851). The classifier of ADR-174 only knew the Docker Hub shape («toomanyrequests: …»), so the job was not even named as infrastructure. The owner created a Docker Hub account and set the repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (read-only token, 90 days) in the live session and asked `eng` to use them. No test, clinical or safety rule changes.
+
+1. `scripts/ci-supabase-start.mjs` classifies both registry shapes as `registry-limit`.
+2. `fallbackRegistry(kind, env)` returns `docker.io` only for `registry-limit`, only with both secrets set (blank = missing), and never when `SUPABASE_INTERNAL_IMAGE_REGISTRY` is already set (no second retry). CLI `--fallback <log>`.
+3. `scripts/ci-supabase-start.sh`: on that answer only, `docker login` (token through stdin, never printed), `supabase stop --no-backup`, then the one retry with `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`; a warning annotation names the retry. Every other failure keeps ADR-174 (no retry). Login refused → error annotation, no retry.
+4. The five Supabase start steps (`ci.yml` db, e2e, ui-screenshots; `ci-repeat.yml` db, e2e) get the two secrets as step env; nothing else sees them.
+5. Normal runs keep pulling from `public.ecr.aws` and use no Docker Hub quota. ci-repeat (20 parallel starts) could exceed the free Docker Hub pull quota if many fall back at once; the job then fails as today, named as infrastructure.
+6. UNKNOWN until the first real fallback: that CLI 2.121.0 resolves every image under `docker.io` (the wrapper logic is tested with stubs in the session, the unit tests cover the decision; the real pull is not exercised by a green run). The first fallback run is read and reported.
+7. Owner action due: the token expires after 90 days (about 2027-02-16); `eng` reminds before.
