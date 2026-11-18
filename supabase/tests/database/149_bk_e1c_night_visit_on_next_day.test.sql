@@ -42,7 +42,7 @@ create function pg_temp.foreign_admin() returns uuid language sql immutable as $
 -- The visit ids `p_user` reads from field_visits(p_day), in the function's order, as one text.
 create function pg_temp.fv_ids(p_user uuid, p_day date) returns text language sql as $$
   select pg_temp.as_user(p_user, format(
-    $q$ select coalesce(string_agg(x.visit_id::text, ',' order by x.ord), '') from public.field_visits(%L) with ordinality x $q$,
+    $q$ select coalesce(string_agg(x.visit_id::text, ',' order by x.ordinality), '') from public.field_visits(%L) with ordinality x $q$,
     p_day))
 $$;
 -- The carried flag of visit n in field_visits(p_day), read through jsonb so this file compiles before migration 0149.

@@ -5,13 +5,14 @@ import { TAKE_HEADING } from "@/features/field/heading";
 // BK-e1c at 390 × 844 (brief docs/agents/briefs/BK.md §PO amendment 2026-11-18 17:39, C1; R3b, UXR-248, CGR-257;
 // ADR-203 (22)). Synthetic local-only accounts from supabase/seed.sql (Testorganisation S, simulation):
 //   kundebs.test  client of «Testheim Rhein (synthetisch)»: orders one night shift tonight 23:45–07:00;
-//   pflegebs.test registered nurse of Testteam Basel: takes it naming herself and starts it today (VIS1 allows a start on
-//                 the visit's own day).
+//   kolleginbs.test second registered nurse of Testteam Basel: takes it naming herself and starts it today (VIS1 allows a
+//                 start on the visit's own day). Not pflegebs: the BD-2 run (durchgang-ambulant.spec.ts) counts pflegebs'
+//                 visits of today (first CI run of this spec, `ci` 44358035708, showed that).
 // The e2e job keeps the real clock (ADR-081, ADR-113), so «03:00 on day 2» cannot be set. `field_visits` does not read
 // the clock (migration 0149): day 2 is reached as `/field?datum=<tomorrow>`, the only input of the predicate. There the
 // running night visit is the first card, on the card itself, with its line, «Einsatz abschliessen» and «Ereignis melden»;
 // completing it works and leads to the visit's own day. 23:45 is the latest start the day guard leaves room for
-// (scripts/ci-e2e-day-guard.sh: no run starts within 20 min of midnight). No other spec uses pflegebs today.
+// (scripts/ci-e2e-day-guard.sh: no run starts within 20 min of midnight). No other spec uses kolleginbs today.
 const PASSWORD = "navora-local-only";
 
 async function signIn(page: Page, email: string) {
@@ -45,8 +46,8 @@ test("BK-e1c at 390 px: on day 2 the running night shift of day 1 is her first c
   await expect(page.getByTestId("order-done")).toContainText("Auftrag bestätigt");
   await page.context().clearCookies();
 
-  // 2. pflegebs takes it naming herself and starts the visit on day 1.
-  await signIn(page, "pflegebs.test@navora.test");
+  // 2. kolleginbs takes it naming herself and starts the visit on day 1.
+  await signIn(page, "kolleginbs.test@navora.test");
   await page.goto("/team");
   const offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
   await expect(offer.getByRole("radio", { name: "Ich (Pflegekraft)" })).toBeChecked();
