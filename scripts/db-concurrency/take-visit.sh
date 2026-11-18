@@ -54,7 +54,7 @@ trap cleanup EXIT
 cleanup
 
 # Fixture: team T1 with M1 (FaGe evidence verified), service postcode 4102, 10 km; one running case of T1 with two open
-# (memberless) category A visits with activity C1, each inside the slot of one order (orders 6 and 7 days ahead, 08:00–12:00).
+# (memberless) visits with activity C1, each inside the slot of one order (orders 6 and 7 days ahead, 08:00–12:00).
 psql_q <<SQL
 insert into public.client_accounts (id, organization_id, display_name, client_kind)
   values ('$ACC', '$ORG', 'Haushalt BK-e1b Race-Fixture (synthetisch)', 'household');
@@ -73,12 +73,13 @@ insert into public.cases (organization_id, id, created_at, name, first_name, las
   values ('$ORG', '$CASE1', now() - interval '3 days', 'Testfall Race BK-e1b', 'Testfall', 'Race', 'Basel-Landschaft',
           '4102', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'BK-e1b Race T1', '$T1');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
-                                billable, status, planned_minutes_a) values
+                                billable, status, planned_minutes_c) values
   ('$ORG', '$V1', '$CASE1', '$T1', ((now() + interval '6 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
    array['Grundpflege'], false, 'planned', 30),
   ('$ORG', '$V2', '$CASE1', '$T1', ((now() + interval '7 days') at time zone 'Europe/Zurich')::date, '09:00', '09:30',
    array['Grundpflege'], false, 'planned', 30);
--- QUAL1-6: the matrix activity of both visits is the orders' tag C1 (as the take visit, 0138), so a FaGe may perform them.
+-- QUAL1-6: the matrix activity of both visits is the orders' tag C1 (as the take visit, 0138), and only C minutes (KLV-A
+-- minutes would add A1 by CGR-149), so the FaGe M1 may perform them in the simulation organisation.
 insert into public.visit_activities (organization_id, visit_id, activity_code) values ('$ORG', '$V1', 'C1'), ('$ORG', '$V2', 'C1');
 SQL
 
