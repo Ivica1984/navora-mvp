@@ -315,12 +315,14 @@ create function pg_temp.drop_recipients(k text) returns text language sql as $$
   from public.signal_deliveries d where d.signal_id = (pg_temp.drop_signal(k)).id
 $$;
 create function pg_temp.sees_drop(uid text, k text) returns boolean language plpgsql as $$
-declare res boolean;
+declare
+  res boolean;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;
 begin
   perform pg_temp.act_as(uid);
   set local role authenticated;
   select exists (select 1 from public.my_signals() x
-                 where x.signal_kind = 'take_member_dropped' and x.visit_id = (pg_temp.visit(k) ->> 'id')::uuid) into res;
+                 where x.signal_kind = 'take_member_dropped' and x.visit_id = vid) into res;
   reset role;
   perform pg_temp.as_owner();
   return res;

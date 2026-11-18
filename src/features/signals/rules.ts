@@ -8,6 +8,9 @@ export const SIGNAL_TEXT: Record<string, string> = {
   visit_uncovered: "Einsatz ohne Zuständige",
   visit_interrupted: "Einsatz abgebrochen",
   no_show: "Klientin öffnet nicht",
+  // BK-e1b / CGR-246 (migration 0144, ADR-203 (12), (16)): a kept take whose named member no longer passes while her
+  // visit is under way or the start has passed. Sent to her own team and to her; never the absence type.
+  take_member_dropped: "Übernommene Schicht: Person fällt aus",
 };
 
 /** Polling interval: a new P1 shows within 60 s (SIG1-3); the server throttles evaluation to once per 15 s. */
