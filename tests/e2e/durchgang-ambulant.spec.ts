@@ -399,6 +399,9 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
     .select("id, case_id, status, is_needs_assessment, visit_date, time_start, responsible_user_id")
     .eq("team_id", TEAM_S)
     .eq("visit_date", today)
+    // The run's visits are hers (both A and C, line below). The shared e2e database also holds other specs' visits of
+    // Testteam Basel today (BK-e1c: kolleginbs' night shift, `ci` 44363954836), so the count is scoped to her.
+    .eq("responsible_user_id", NURSE_ID)
     .order("time_start");
   expect(visitError).toBeNull();
   expect(visits, "exactly the two visits of the run").toHaveLength(2);
