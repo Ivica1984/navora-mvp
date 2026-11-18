@@ -1202,3 +1202,14 @@ Read: #1476 final head `bb2d101` (C4, comment 6987776447); `cra-gate: #1476 bb2d
 **Placement of the follow-ups (named items, not conditions of the BK-e acceptance for the simulation; all before real clients):** CGR-256 (overlap across midnight) first, then CGR-258 (a) `on_the_way` carried, (b) day visit overrunning midnight, (c) e2e for door facts and alert history on the carried card, (d) e2e for the report step after the return and the `draftError` path; UXR-249 (next-day view before midnight), UXR-250 (focus after the return). `cra` asked for CGR-258 next to CGR-256; done. Order of the active slice: #1460 (ADR-204), then the BK-e `ci-repeat` evidence run (10/10 `db`, `e2e` on a named integrated commit, raw logs), then the BK-e acceptance record in `ABNAHMEAKTE.md`.
 
 PO status of BK: **active**, slice **BK-e** (BK-e1b and BK-e1c merged; #1460, then acceptance evidence).
+
+
+## PO amendment 2026-11-18 21:39 (scheduled PO run): #1460 merged; BK-e acceptance run started; FE-090 re-sent
+
+Read: #1460 head `91b2f37` (check runs `app` 135099645786, `db` 135099645857, `e2e` 135099645267, `ui-screenshots` 135099645926, `staging` 135105801281 dry run, all `success`; 0 review threads; behind `recovery/main` 0); its diff (`.github/workflows/ci.yml`, `ci-repeat.yml`, `scripts/ci-supabase-start.{sh,mjs}`, `tests/unit/b0-runner-ports.test.ts`); `eng` 21:10 journal; #1465 (`eng` 21:45 read-only staging state); Render deploy list of `navora-staging` (read only).
+
+1. **#1460 (ADR-204) merged** at `91b2f37` → `09712bb` against the WHAT of amendment 15:39 (2): retry only for a classified registry limit, once, only with both secrets, not when a registry override is set; every other failure keeps «no retry»; no job, test or required step removed; token via `--password-stdin`. The `csa` security view asked on 15:39 has not arrived; named follow-up, not a condition (BK BUILD PHASE point 3). The `ci` run on `09712bb` was cancelled by the next push (concurrency); `ci` on `3ea17ee` (contains it) is the merge evidence.
+2. **BK-e acceptance run:** PO pushed `repeat/bk-e-accept-3ea17ee` → `ci-repeat` 44393766620 (10 × `db`, 10 × `e2e`) on the integrated commit `3ea17ee`. Counting rule unchanged (FE-071 (4)): every attempt read from its raw log; a run that needed the ADR-204 retry counts and is named; a run that fails after the retry counts as incomplete, never as a pass. Acceptance record only after 10/10 and `ci` green on `3ea17ee`.
+3. **Founder FE-090 re-sent (21:45):** no new merge condition. The founder's overlap sentence is met for the take path (CGR-246, CGR-251, CGR-255, merged with #1421); CGR-256 (two hand visits across midnight) stays the first follow-up after the BK-e acceptance and is named to the founder as not built.
+
+PO status of BK: **active**, slice **BK-e** (all slice PRs merged; acceptance evidence running).
