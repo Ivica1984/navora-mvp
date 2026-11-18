@@ -113,7 +113,7 @@ Vorschläge, damit jeder Teilschritt sichtbar näher ans Ziel führt (Founder en
 
 Kennzeichnung heute: **kein KI-Modell ist angeschlossen.** BK-a bis BK-c sind feste Regeln; BK-e2 (Berichtsentwurf) ist als Testersatz geplant.
 
-Zwei Kandidaten liegen vor (zwei PO-Sitzungen am 18.11.; `aia` entscheidet die Empfehlung mit):
+**Abgestimmte Empfehlung (`po` und `aia`, `aia` Review 69, `AUTOMATION_REVIEW.md` 2026-11-18 15:46):** **B, Auftrag aus Freitext (BK-d), nur Datum, Beginn, Ende und PLZ**, jeder Wert durch eine feste Regel geprüft (AUT-145) und einzeln bestätigt; Qualifikation und Tätigkeiten bleiben von Hand (AUT-146); A folgt als zweite Funktion mit `cra`-Gate. Schwellen, Kosten- und Abschaltregeln: `aia` Review 69 §1. Tausch BK-d vor BK-f erst, wenn Anbieter gewählt, `lca` die Bedingungen gelesen, Schlüsselweg festgelegt und AUT-136 (1) gebaut ist. Vergleich der beiden Kandidaten:
 
 | Punkt | A: Berichtsentwurf aus der Eingabe der Pflegekraft (BK-e2a, Vorschlag PO 16:00) | B: Auftrag aus Freitext (BK-d, Vorschlag PO 15:45) |
 |---|---|---|
