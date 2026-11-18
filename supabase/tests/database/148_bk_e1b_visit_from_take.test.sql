@@ -32,7 +32,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(69);
+select plan(101);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -352,6 +352,134 @@ select is(pg_temp.cancel('01', 'o2', 'ffff0000-0000-4000-8148-000000000061'), 't
 select is(pg_temp.cancel('03', 'o4', 'ffff0000-0000-4000-8148-000000000062'), 'take_visit',
           'CGR-248: a take visit on the way is refused as well');
 select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-248: the visit on the way is unchanged');
+
+-- 12. CGR-249 (PO 07:39 (1)) and the cover property (PO 07:39 (2), `cra` 07:27) -------------------------------------
+-- While a take is live, no person command moves, re-dates, re-assigns or deletes its visit: `move_visit_to_today`,
+-- `reschedule_visit`, `remove_planned_visit`, `take_open_visit` and `propose_visit_responsible` refuse a visit written
+-- from a take with the stated result `take_visit` (as `cancel_visit`, §11), for the named member and for a colleague of
+-- the same team; the visit row (date, times, responsible member, status) and the client cover stay unchanged.
+-- Cover property (a control on the outcome): no order reads `covered` unless its live take has exactly one planned or
+-- under-way visit at the order's Zurich date and times for the named member. Asserted before §11, after every person
+-- command of §11 and §12, so a later command that forgets the guard turns this suite red.
+create function pg_temp.cover_violations() returns text language plpgsql as $$
+declare bad text := null;
+  r record;
+  n integer;
+begin
+  for r in select m.k, o.id, o.starts_at, o.ends_at from made m join public.partner_requests o on o.id = pg_temp.oid(m.k)
+           order by m.k loop
+    if pg_temp.cs(r.k) is distinct from 'covered' then continue; end if;
+    execute 'select count(*)::int from public.order_takes t join public.care_visits v on v.order_take_id = t.id
+             where t.order_id = $1 and t.released_at is null
+               and v.status in (''planned'', ''on_the_way'', ''started'')
+               and v.responsible_user_id = t.member_id
+               and v.visit_date = ($2 at time zone ''Europe/Zurich'')::date
+               and v.time_start = ($2 at time zone ''Europe/Zurich'')::time
+               and v.time_end = ($3 at time zone ''Europe/Zurich'')::time'
+      into n using r.id, r.starts_at, r.ends_at;
+    if n <> 1 then bad := concat_ws(',', bad, r.k || ':' || n); end if;
+  end loop;
+  return bad;
+end;
+$$;
+-- One person command on the visit of order k, as member `actor` (the visit id is read as the table owner first).
+create function pg_temp.cmd(actor text, k text, what text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  if what = 'today' then
+    res := public.move_visit_to_today(vid, date '2026-11-16', time '13:00', time '17:00', 'Test CGR-249', key::uuid);
+  elsif what = 'reschedule' then
+    res := public.reschedule_visit(vid, date '2026-11-22', time '09:00', time '13:00', 'Test CGR-249', key::uuid);
+  elsif what = 'remove' then
+    res := public.remove_planned_visit(vid, 'Test CGR-249', key::uuid);
+  elsif what = 'take_open' then
+    res := public.take_open_visit(vid, key::uuid);
+  elsif what = 'propose' then
+    res := public.propose_visit_responsible(vid, key::uuid);
+  end if;
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.slot(k text) returns text language sql as $$
+  select concat_ws('|', v ->> 'status', v ->> 'visit_date', v ->> 'time_start', v ->> 'time_end', v ->> 'responsible_user_id')
+  from (select pg_temp.visit(k) v) x
+$$;
+-- Back to the first clock of this file (before every start), so «Heute machen» sees the database's own today.
+select pg_temp.clock('2026-11-16 12:00:00+01');
+-- O2 (M2, T1): live take, planned visit; reads «nicht mehr gedeckt» here (her §8 absence, ADR-199 (5)), so it carries
+-- the refusals for the named member and a same-team colleague. O3 (M3, T2, 22:00–07:00) reads «gedeckt»: it carries
+-- the property-sensitive commands.
+create temp table o2_slot as select pg_temp.slot('o2') as s;
+create temp table o3_slot as select pg_temp.slot('o3') as s;
+
+select is(pg_temp.cs('o3'), 'covered', 'fixture: O3 (M3, T2) reads «gedeckt» with its live take visit');
+select is(pg_temp.cover_violations(), null, 'cover property holds after the §11 cancellations were refused');
+
+select is(pg_temp.cmd('02', 'o2', 'today', 'ffff0000-0000-4000-8148-000000000070') ->> 'result', 'take_visit',
+          'CGR-249: «Heute machen» (move_visit_to_today) is refused for the named member with take_visit');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit keeps date, times, member and status');
+select is(pg_temp.cover_violations(), null, 'cover property after move_visit_to_today (named member)');
+select is(pg_temp.cmd('01', 'o2', 'today', 'ffff0000-0000-4000-8148-000000000071') ->> 'result', 'take_visit',
+          'CGR-249: move_visit_to_today is refused for a colleague of the same team as well');
+select is(pg_temp.cover_violations(), null, 'cover property after move_visit_to_today (colleague)');
+
+select is(pg_temp.cmd('02', 'o2', 'reschedule', 'ffff0000-0000-4000-8148-000000000072') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit is refused for the named member with take_visit');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit is not re-dated');
+select is(pg_temp.cover_violations(), null, 'cover property after reschedule_visit (named member)');
+select is(pg_temp.cmd('01', 'o2', 'reschedule', 'ffff0000-0000-4000-8148-000000000073') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit is refused for a colleague of the same team as well');
+select is(pg_temp.cover_violations(), null, 'cover property after reschedule_visit (colleague)');
+select is(pg_temp.cmd('03', 'o3', 'today', 'ffff0000-0000-4000-8148-000000000081') ->> 'result', 'take_visit',
+          'CGR-249: «Heute machen» is refused on the «gedeckt» take visit O3 (named member M3)');
+select is(pg_temp.cmd('03', 'o3', 'reschedule', 'ffff0000-0000-4000-8148-000000000082') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit is refused on the «gedeckt» take visit O3 (named member M3)');
+select is(pg_temp.slot('o3'), (select s from o3_slot), 'CGR-249: O3 keeps date, times, member and status');
+select is(pg_temp.cover_violations(), null, 'cover property after the moves of O3 were refused (O3 still «gedeckt»)');
+select is((select count(*)::int from public.visit_plan_changes c
+           where c.visit_id in ((pg_temp.visit('o2') ->> 'id')::uuid, (pg_temp.visit('o3') ->> 'id')::uuid)),
+          0, 'CGR-249: no plan change is written for the refused moves');
+
+select is(pg_temp.cmd('02', 'o2', 'remove', 'ffff0000-0000-4000-8148-000000000074') ->> 'result', 'take_visit',
+          'CGR-249: remove_planned_visit is refused for the named member with take_visit');
+select is(pg_temp.cmd('01', 'o2', 'remove', 'ffff0000-0000-4000-8148-000000000075') ->> 'result', 'take_visit',
+          'CGR-249: remove_planned_visit is refused for a colleague of the same team as well');
+select is(pg_temp.visits_of('o2'), 1, 'CGR-249: the take visit is not deleted');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit is unchanged after the refused removals');
+select is(pg_temp.cover_violations(), null, 'cover property after remove_planned_visit');
+
+-- take_open_visit and propose_visit_responsible act only on a visit without a responsible member. A live take visit is
+-- written with the named member and no person command clears it while the take is live; the guard refuses it anyway,
+-- before the «already taken» check, so a later path that clears the member cannot open a take visit to the team.
+select is(pg_temp.cmd('01', 'o2', 'take_open', 'ffff0000-0000-4000-8148-000000000076') ->> 'result', 'take_visit',
+          'CGR-249: take_open_visit is refused on a take visit with take_visit');
+select is(pg_temp.cmd('01', 'o2', 'propose', 'ffff0000-0000-4000-8148-000000000077') ->> 'result', 'take_visit',
+          'CGR-249: propose_visit_responsible is refused on a take visit with take_visit');
+update public.care_visits set responsible_user_id = null where id = (pg_temp.visit('o2') ->> 'id')::uuid;  -- forced, owner
+select is(pg_temp.cmd('01', 'o2', 'take_open', 'ffff0000-0000-4000-8148-000000000078') ->> 'result', 'take_visit',
+          'CGR-249: take_open_visit is refused on a take visit even without a member (forced state)');
+select is(pg_temp.cmd('01', 'o2', 'propose', 'ffff0000-0000-4000-8148-000000000079') ->> 'result', 'take_visit',
+          'CGR-249: propose_visit_responsible is refused on a take visit even without a member (forced state)');
+select is(pg_temp.visit('o2') ->> 'responsible_user_id', null, 'CGR-249: nobody took the forced take visit');
+update public.care_visits set responsible_user_id = pg_temp.m('02') where id = (pg_temp.visit('o2') ->> 'id')::uuid;
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: O2 is back to its slot after the forced state');
+select is(pg_temp.cover_violations(), null, 'cover property after take_open_visit and propose_visit_responsible');
+
+-- A take visit on the way (O4, M3) is refused as well, and a visit not from a take keeps every command (pgTAP 023, 031,
+-- 055, 088, 093 keep passing): here the plain reschedule of a non-take visit is the control.
+select is(pg_temp.cmd('03', 'o4', 'reschedule', 'ffff0000-0000-4000-8148-000000000080') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit refuses a take visit on the way with take_visit');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-249: the visit on the way is unchanged');
+-- The property itself catches a moved take visit (the control is real): move O3 as the owner, check, move back.
+update public.care_visits set visit_date = date '2026-11-22' where id = (pg_temp.visit('o3') ->> 'id')::uuid;
+select is(pg_temp.cover_violations(), 'o3:0', 'cover property: a moved take visit with «gedeckt» is reported');
+update public.care_visits set visit_date = date '2026-11-21' where id = (pg_temp.visit('o3') ->> 'id')::uuid;
+select is(pg_temp.cover_violations(), null, 'cover property holds again once the slot is restored');
 
 select * from finish();
 rollback;
