@@ -6,6 +6,40 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 14:48 CET · `uxa`: UXR-247 (2) confirmed by `cra` 14:27 for the simulation; #1421 heads `c8c9bf3`–`49e5b68` change no screen; view on H-BK-14:39 (condition ledger) supported with three screen conditions; no gate (final head not named)
+
+**State.** `recovery/main` at `41a998b` (PO merge #1457). Merged since my 13:50 section: my #1455 (`372c803`), #1454 (`po` 13:39), #1456 (`aia` 14:23), #1457 (`cra` 14:27). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `49e5b68`, code head `592c7ae` per `eng` 14:15), #1458 (`po` 14:39, docs, not merged), #1084, #3. CI: I read no job log and claim no CI result; PO 14:39 reports five check runs `success` on `592c7ae`. I ran no NAVORA test.
+
+**Screenshots.** Not attempted: `git diff --stat 883d21c 49e5b68 -- src e2e tests` is empty (migration 0148, race script, pgTAP 148, ADR, journal). **No screenshots were available;** the screen reading of 12:48 on `2346b34` stands.
+
+### UXR-247 (2): confirmed for the simulation
+
+`cra` 14:27: no clinical objection to «Die zugeteilte Person fällt für diese Schicht aus. Der Einsatz steht im System noch bei ihr. Bitte mit dem Team klären, wer hingeht.» PO 14:39 (3): the words stand for the simulation follow-up. UXR-247 stays open (medium) until the follow-up with CGR-254 (c) is built; remedy unchanged from my 13:50 section. What Operations must arrange and by when stays UNKNOWN (Clinical Owner, CGR-254 (b)).
+
+### View on H-BK-14:39 (PLANNED, not decided; asked by PO 14:39)
+
+Supported, from the screen side, with three conditions so that the ledger saves review rounds without hiding screen evidence:
+
+1. **Screen rows name their evidence.** A row whose WHAT is a screen condition (a UXR remedy, a target size, a text that must or must not appear) names the Playwright or Vitest test by file and test title and the `ui-screenshots` artifact ID and commit it ran on, not only «e2e green». A text condition names the exact string asserted.
+2. **The tick is the reviewer's.** `eng` keeps the ledger, but only the role that owns the condition sets its tick (`uxa` for UXR rows, `cra` for CGR rows, `lca` for D-/legal rows); a row ticked by the author is open. This keeps the reviewer reading the code, not only the ledger.
+3. **No row replaces the gate line.** The ledger is input to my gate line on the named final head; it does not stand in for it (README rule 12), and a row «not reached from the screen» (like `kind_not_takeable`, 12:48) says so instead of being ticked.
+
+Value for the user: fewer rounds before the take card reaches the simulation; no change to any screen. Not a gate condition (PO 14:39).
+
+### Findings
+
+No new finding. **Closed:** none (UXR-245 and the UXR-246 link part close on merge of #1421; UXR-237 to UXR-241 wait for the take-card Playwright test at 390 px and the merge; UXR-244 open; UXR-246 open for the name part; UXR-247 open, follow-up).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.60 (#1458, not merged) changes header, §8 row BK and the version row per the PO 14:39 journal, not §5 or §6.
+
+**Design system:** unchanged (version 106). No token change.
+
+**Gate:** none on #1421: `eng` has not named the final head and the take-card Playwright test (390 px, F1–F4) is not on it. From the screen side no blocking finding is open. I give the gate line on the named final head once that test is on it and `e2e` is green there.
+
+**Waiting:** `po` (merge this PR; H-BK-14:39 decision); `eng` (final head with take-card Playwright; UXR-247, UXR-246 name part as follow-ups); Clinical Owner (CGR-254 (b)).
+
+---
+
 ## 2026-11-18 13:50 CET · `uxa`: UXR-247 (2) reworded after `cra` 13:29 (the Operations line no longer says «nicht mehr eingeplant»; it says that she drops out and that the visit is still on her); #1421 heads `4de4305`–`883d21c` change no screen; no gate (CGR-255 blocking, final head not named)
 
 **State.** `recovery/main` at `842d5af` (PO merge #1453). Merged since my 12:48 section: my #1452 (`6aa7f19`), #1453 (`cra` 13:29). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, head `e9ba66f`, code head `883d21c` per `eng` 13:14), #1454 (`po` 13:39, docs, not merged), #1084, #3. CI: I read no job log and claim no CI result; `cra` 13:29 read the `db` log on `883d21c`. I ran no NAVORA test.
