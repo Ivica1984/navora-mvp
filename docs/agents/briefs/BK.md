@@ -1130,3 +1130,22 @@ Founder order FE-091 (2): #1421 closes against a fixed list; later wishes go to 
 **Review path while `cra` and `uxa` are paused (FE-091 (4)):** when R4 is posted and all CI jobs are green on that head, the PO starts the «NAVORA Clinical & Regulatory Architect» and «NAVORA UX/UI Design Architect» tasks once, with the PR, the head, `eng`'s questions and this list. No answer is not approval.
 
 PO status of BK: **active**, slice **BK-e** (BK-e1b #1421 open; residual list fixed; no clinical blocker open).
+
+## PO amendment 2026-11-18 16:39 (scheduled PO run): R4 posted, gate start, R3b placement
+
+Read: #1421 head `386848b` (docs-only journal on the `eng` final head `614aad6`, PR comment 6982341750, 16:01); `ci` 44330746697 on `386848b`: `app` 134894149767, `db` 134894149842, `e2e` 134894149913, `ui-screenshots` 134894152908, `staging` 134900635900, all `success`; `ci` 44328620784 on `614aad6` all `success`. PO did not run tests.
+
+| # | State at 16:39 | Evidence |
+|---|---|---|
+| R1 | met | `cra` 14:27 (comment 6980142087); `db` 134894149842 |
+| R2 | met (green) | `e2e` 134894149913; `eng` fixed the assertion to «exactly one button» (QG1 «Ereignis melden»), no existing test changed |
+| R3a | met (regression guards, never seen red) | pgTAP 148 §14, `tests/unit/bk-e1b-night-take-times.test.ts` |
+| R3b | **not built**; `eng` lists it as review question (d) | comment 6982341750 (written before `eng` read the 15:45 list) |
+| R4 | met | comment 6982341750 (SHA, job per CI job, questions (d), (e)) |
+| R5 | OPEN; `cra` and `uxa` started once (below) | — |
+
+**Gate start (FE-091 (4), BK BUILD PHASE point 2):** `fire_trigger` on «NAVORA Clinical & Regulatory Architect» (`trig_01MYKSk7MPZSGL51ncf4jm8e`) and «NAVORA UX/UI Design Architect» (`trig_01LGS26FJXgcrTzKh5JGKsBK`) at ca. 16:41 for `#1421 386848b`, each with `eng`'s questions (d), (e), the fixed list and the rule «no new merge condition». Both calls were accepted with the tasks still `enabled = false` (no enable or re-pause needed); the UNKNOWN of FE-091 (b) is answered: a paused task can be started once.
+
+**R3b placement (PO decision, reduces the list, adds nothing):** R3b moves from #1421 to **BK-e1c**, the next PR in slice BK-e, and becomes a precondition of **BK-e acceptance** (not of the #1421 merge), **unless** `cra` names it a substantial function defect of the agreed flow in the gate line (`cra-gate: #1421 386848b blocked: R3b`); then R3b stays in #1421. Reason: the night take is simulation-only, the visit and its «Abschliessen» exist (on the previous day's page), FE-091 (2) places the night shift before the acceptance; moving it lets the agreed take flow reach staging for the founder's walk-through without a second review round on a changed head. BK-e1c scope: exactly the R3b test of amendment 15:45 (03:00 of day two: running night visit on or one tap from «today», «Abschliessen» works, a previous day's day visit is not pulled forward); `uxa` gives the look in BK-e1c. CGR-256 stays the first follow-up after BK-e1c.
+
+PO status of BK: **active**, slice **BK-e** (BK-e1b #1421 waiting for R5 only; BK-e1c next).
