@@ -6,6 +6,45 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-18 05:48 CET · `uxa`: #1421 (BK-e1b) read on code head `737dd9c`, no gate (Playwright, UXR-237, UXR-239 still PLANNED): UXR-238 met in code; UXR-240 (ended take card still offers «Abrechnungssperre setzen»); UXR-241 (take visit offers «Einsatz absagen», client keeps reading «gedeckt», issue #1428); words for CGR-246; view on H-BK-05:39
+
+**State.** `recovery/main` at `d8f75c0` (PO merge #1426). Merged since my 04:48 section: my #1425, #1426 (`cra`). Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, out of draft, head `2793208`; code head `737dd9c` per `eng` 05:10, the head commit adds a journal file only), #1427 (`po` 05:39, docs; Blueprint 3.2.51), #1084, #3. CI on `737dd9c` per `eng` comment: `ci` 44237656367 `app`, `db` (Files=148, PASS), `e2e` (189 passed), `ui-screenshots`, `staging` success; I read the check-run API for `2793208` only (`app`, `db`, `ui-screenshots` success, `e2e` in progress). I did not read job logs this run; no CI result is claimed by me beyond that.
+
+**Screenshots.** Artifact 14398447245 (`ui-screenshots`, `737dd9c`): download refused by the session proxy (blob host, empty file), as in my last runs. **No screenshots were available.** Review from code.
+
+### #1421 on `737dd9c`: screen reading (no gate)
+
+- **UXR-238: met in code** (IMPLEMENTED on the PR head, not merged). `field_visits` returns `system_end_reason` (0139); the card shows the badge «Nicht mehr deine Schicht» and the line «Die Übernahme gilt nicht mehr: <Grund>. Das Angebot geht wieder an alle passenden Teams.» (`src/features/field/take-end.ts:7-22`; `field-client.tsx` `take-ended`); no lifecycle cancellation note is written, so `VisitLifecycle` shows nothing; no field action button (`fieldActions('cancelled')` is empty, `rules.ts:61-73`). Closes when the BK-e1b Playwright test at 390 × 844 is on the head (still PLANNED per `eng` 05:10). Badge colour neutral grey (`STATUS_CLASS.cancelled`); the meaning is in the text (§6).
+- **UXR-237, UXR-239:** not built yet (PO 05:39 (2) placed both in BK-e1b).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-240 | `/field` visit card, named member whose take visit was ended by a release (BK-e1b, #1421) | medium | The ended card still shows «Mehr» with «Abrechnungssperre setzen»: `canHold` checks only for an open hold, not the end (`field-client.tsx`, `moreItems`). A billing hold on a visit that is no longer hers and never happened is a control without a job, and it makes the card look still active. | `737dd9c`: `field-client.tsx` (`canHold`, `moreItems`, «Mehr» block) | §1 one next step, and none where nothing is to be done; §4 an ended state offers no action | When `takeEndedText(...)` is not null: no «Mehr», no action of any kind on the card. Vitest on the item list; the BK-e1b Playwright test asserts no `visit-more` on that card. | — (medium; comment on #1421) |
+| UXR-241 | `/field` visit card, named member of a gedeckt take (BK-e1b, #1421) | high | A `planned` take visit offers «Mehr › Einsatz absagen» like every visit (`canCancel`). `cancel_visit` (0054:39-69) has no check on `order_take_id`: the visit becomes `cancelled` with a client or team reason, the take is not released, `private.order_cover` keeps `covered` while her step is 4 (0135:261-264), the order is not offered again, and a cancelled visit raises no `visit_overdue`. The member who cannot go takes the visible way out; the shift then has nobody while the client reads «gedeckt». 0138 and 0139 do not touch `cancel_visit` (`git grep`). Code reading; safety rating is `cra`'s. | `737dd9c`: `field-client.tsx` (`canCancel`); `visit-lifecycle.tsx:54`; 0054:39-69; 0135:261-264 | §1 the action offered must lead to a true state; Principle «patient safety first» | (1) On a take visit card «Einsatz absagen» is not offered; one line instead. Because `release_named_take` refuses every take with a visit (0136:325-331, `cra` 05:26), there is no hand release for her today, so the line names the limit: «Kannst du nicht? Melde dich sofort bei deinem Team. Die Schicht bleibt bei dir, bis sie geklärt ist.» (PROPOSED, `cra` to confirm). (2) The command side: `cancel_visit` refuses a take visit or releases the take in the same transaction (`eng` HOW). Vitest: take flag → no «Einsatz absagen» item; pgTAP: never `cancelled` take visit with `covered` order; Playwright 390 × 844. | #1428 |
+
+### Words for `cra` (PO 05:39 (2), CGR-246)
+
+The `visit_under_way` refusal (`offer-rules.ts`, built «… bitte im Team klären») is hard to reach on the hand path (refused earlier, `cra` 05:26). The words that matter are the CGR-246 signal (PROPOSED, `cra` confirms, `lca` the name on the team line):
+- To her, on her `/field` card: «Du hast für diese Zeit eine Abwesenheit erfasst, bist aber schon unterwegs. Die Schicht bleibt bei dir, bis dein Team sie geklärt hat.»
+- To her own team (exception line): «<Anzeigename> ist für eine übernommene Schicht unterwegs und hat jetzt eine Abwesenheit erfasst. Bitte sofort klären, wer hingeht.» No absence type, no client data beyond what the team already reads.
+- The `visit_under_way` refusal, if kept: «Du bist für diese Schicht schon unterwegs. Darum bleibt sie bei dir. Kannst du nicht hingehen, melde dich sofort bei deinem Team.» It names only what she can do; no «im Team klären» as if a function existed.
+
+### View on H-BK-05:39 (signal card lists colleagues who pass, one tap «Ich übernehme»)
+
+From the screen side I support it as a later slice (not BK-e1b): it turns a signal into the next step on the same card, which is the workflow-guided pattern NAVORA wants. Screen conditions (PROPOSED): the colleague takes the shift herself (one filled «Ich übernehme» on her own phone; nobody assigns another person); a consequence sentence before the tap («Du gehst um <Zeit> zu <Ort>. Die Schicht ist dann bei dir.»); the first tap wins and the others see at once «Bereits übernommen von <Anzeigename>», never a second success; the list shows only names and «frei bis <Zeit>», never why others are not listed; offline: the tap is not offered without connection (a hand-over must be confirmed by the server). Whether a hand-over during a started visit is safe: UNKNOWN, Clinical Owner via `cra`; visibility: `lca`.
+
+**Closed:** none this run (UXR-238 waits for the Playwright test on the head).
+
+**Benchmark:** none this run (done 00:48 today). **Sign-off #1279:** stands (reservation UXR-195); Blueprint 3.2.51 does not touch §5 or §6 (PO 05:39 PR body).
+
+**Design system:** version 100 (§4 notes: UXR-238 built on #1421; PROPOSED «an ended card offers no action», UXR-240; «a command that ends a visit ends what depends on it», UXR-241). No token change.
+
+**Waiting:** `po` (merge this PR; place UXR-240 and UXR-241 (#1428) in BK-e1b or decide otherwise); `eng` (#1421: Playwright card test, UXR-237, UXR-239, UXR-240; HOW for UXR-241); `cra` (UXR-241 rating and words; CGR-246 words above); `lca` (name on the team signal line).
+
+---
+
 ## 2026-11-18 04:48 CET · `uxa`: UXR-190 closed (#1417 on `recovery/main`, `e2e` read); draft #1421 (BK-e1b) read on `bc82f77`, no gate (draft): UXR-238 (released take visit shows «Abgesagt»), UXR-239 (take card title «Klient:in ohne Namen»), UXR-237 now concrete on the head; view on H-BK-04:39
 
 **State.** `recovery/main` at `7ebf37a` (PO merge #1423). Merged since my 03:50 section: #1417 (BK-e1a) as `3d9f1e6` on head `a5bae13`, my #1420, role docs #1422, #1423. Open PRs into `recovery/main`: #1421 (`eng`, BK-e1b, **draft**, head `bc82f77`), #1424 (`po` 04:39, docs; Blueprint 3.2.50 changes the header, §8 row BK and the version row, not §5 or §6), #1084, #3. No `ux` issue updated since 03:50.
