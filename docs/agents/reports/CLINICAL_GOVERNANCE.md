@@ -16,6 +16,64 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 06:27 CET: review of **#1421** (BK-e1b, visit from the take; `eng`, out of draft, head `db8b5b9`, CI `app`, `db`, `e2e`, `ui-screenshots` success, job logs read). **No gate** (`cra-gate: #1421 db8b5b9` not given): the PO's BK-e1b condition CGR-246 is designed (ADR-203 (12), PROPOSED) but not built, and I confirm `uxa` UXR-241 on the safety side as **CGR-248 (blocking for this gate)**: the named member can cancel her take visit while the order stays «gedeckt» and is not offered again. Correction to my 05:26 text on CGR-246: the client reads «nicht gedeckt», not «gedeckt». Read on `recovery/main` `94b70d1`.
+
+### What I read
+
+- Merges since my 05:26 section: #1425 (`uxa`), #1426 (mine), #1427 (`po` 05:39: brief `BK.md` §PO amendment 05:39, Blueprint 3.2.51 header, §8 row BK and version row only, `BK_ROADMAP.md`). `git diff f7315b6 94b70d1 -- docs/product docs/architecture`: Blueprint (3 lines) and `BK_ROADMAP.md` only; Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged. No FE-079 renewal due.
+- **#1421** commits since `7c69725`: `737dd9c` (pgTAP 148 §10 asserts the unchanged ADR-199 (5) net), `2793208` (journal), `889a498` (merge of `recovery/main`), `a5735a7` (red first: vitest take card, pgTAP `from_take`), `db8b5b9` (migration `20261021000140_bk_e1b_field_take_flag.sql`, `src/features/field/heading.ts`, `place.ts`, `field-client.tsx`; ADR-203 (11), (12)). Read: 0140, `heading.ts`, `place.ts` diff, pgTAP 148 diff, ADR-203 (10)-(12), `cancel_visit` (0054:39-69), `order_cover` (0135:261-276).
+- CI on `db8b5b9` (`ci`, read this run): `db` job 134596138793 «148_bk_e1b_visit_from_take.test.sql … ok», «Files=148, Tests=5274 … Result: PASS»; `e2e` job 134596139144 «189 passed (7.5m)» (same count as on `f7315b6`: no BK-e1b take-card Playwright test yet); `app`, `ui-screenshots` success (check-runs).
+- Open #1429 (`uxa` 05:48, docs): UXR-240, UXR-241 (#1428), words for CGR-246 and the `visit_under_way` refusal, view on H-BK-05:39.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1421 BK-e1b | `db8b5b9` | **not cleared.** Open: CGR-246 (PO 05:39 condition; ADR-203 (12) design only), **CGR-248** (blocking, below), the take-card Playwright test (PLANNED per `eng`), CGR-233 two-session test or a named reason. Built and green on this head: CGR-242 (a), (c), (f), CGR-244, UXR-237, UXR-239 (pgTAP 148 in `db` PASS). Gate «Simulation, synthetic data» only. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-248** | #1421 `db8b5b9`, `/field` take card and `public.cancel_visit` (0054); confirms UXR-241 (#1428) | **blocking** for the #1421 gate (a BK-e1b slice that writes the visit must not offer a command that silently breaks the cover state); **S1 before real clients** | A `planned` take visit offers «Mehr › Einsatz absagen» (`canCancel`). `cancel_visit` checks status only: the visit becomes `cancelled` with a client or team reason, nothing touches the take, `private.order_cover` keeps returning `covered` because the take is live and her step is 4, the order is not offered again, and a cancelled visit raises no `visit_overdue`. The shift then has nobody while the client and the team read «gedeckt». The same holds from `on_the_way`. This is the question ADR-203 (10) leaves OPEN for me («whether a take must also be released when a person cancels its visit»): **my answer: a person's cancel must never leave a `cancelled` take visit beside a `covered` order.** Of the two `eng` options, refusing `cancel_visit` for a visit with `order_take_id` is the smaller one and keeps the state true: for a `planned` visit her recorded absence already releases the take automatically with a system reason and re-offers the order (CR-231, pgTAP 148 §7); a client cancellation of the order itself belongs to the order owner (who and how: UNKNOWN, PO). Releasing the take inside `cancel_visit` is also acceptable if the reason codes are not client or team reasons. HOW: `eng`. | `field-client.tsx` `canCancel`; `visit-lifecycle.tsx:54` (`uxa`); 0054:39-69; 0135:262-264; ADR-203 (10); H-01; PS-212 | pgTAP: gedeckt take, visit `planned` (and `on_the_way`) → `cancel_visit` by the named member → refused, visit and take unchanged, order `covered` (or: take released, visit `cancelled` with a system reason, order `not_covered` and offered again); never a `cancelled` take visit with a `covered` order. Vitest: take flag → «Mehr» has no «Einsatz absagen». Playwright 390 × 844 with the card test. |
+| **CGR-246** (status, correction) | #1421 `db8b5b9`, 0139 §4, ADR-203 (12) | advisory in the simulation; **PO 05:39 BK-e1b condition**; S1 before real clients | **Correction to my 05:26 text** (read on `7c69725`): from `737dd9c` pgTAP 148 §10 asserts that the client reads `not_covered` while her absence conflicts (unchanged ADR-199 (5) safety net, `order_cover` 0135:268-276), not «gedeckt». That is safer for the client. The gap remains: the take stays live, so the order is **not offered again**, and nobody is signalled. **Not built** on `db8b5b9`. The ADR-203 (12) design is acceptable from the safety side: existing SIG1 path, episode opens at the first evaluation (no threshold invented), her own team plus the named member even when absent, never another team or the client, take and visit unchanged, episode ends with its cause (CR-041). | pgTAP 148:317-318; ADR-203 (10), (12); PS-210 | as 05:26: pgTAP gedeckt take, `on_the_way`, her absence → one open `take_member_dropped` signal for the own team and her, none for another team, take and visit unchanged; episode closes when she passes again or the visit leaves «under way». Whether Operations reads the row: `lca`. |
+| CGR-242, CGR-244 (status) | #1421 `db8b5b9` | advisory; BK-e1b conditions | Built (05:26) and now **green in `db`** on the head (job 134596138793). Close on merge. | pgTAP 148 §7, §9, §10 | merge with `ci` green |
+| UXR-237, UXR-239 (status) | #1421 `db8b5b9` | advisory | Built as confirmed for the simulation: `from_take` flag only, no take id, no order data, no client identifier (0140); «Übernommene Schicht», «… Strasse fehlt – wird in der Simulation nicht übermittelt». CGR-243 (a) and CGR-247 stand before real persons. | 0140; `heading.ts`; `place.ts`; pgTAP 148 §4 (`from_take`) | — |
+
+### Word confirmations asked of me (`uxa` 05:48, PO 05:39)
+
+- **CGR-248 / UXR-241** line on a take card in place of «Einsatz absagen»: «Kannst du nicht? Melde dich sofort bei deinem Team. Die Schicht bleibt bei dir, bis sie geklärt ist.» Confirmed for the simulation; it names a real action and does not promise a function. If `eng` chooses the release variant, the words must change (`uxa`).
+- **CGR-246 signal** (`uxa` 05:48): to her «Du hast für diese Zeit eine Abwesenheit erfasst, bist aber schon unterwegs. Die Schicht bleibt bei dir, bis dein Team sie geklärt hat.»; to her team «<Anzeigename> ist für eine übernommene Schicht unterwegs und hat jetzt eine Abwesenheit erfasst. Bitte sofort klären, wer hingeht.» Confirmed for the simulation: no absence type, no client data. The name on the team line: `lca`.
+- **`visit_under_way` refusal**: «Du bist für diese Schicht schon unterwegs. Darum bleibt sie bei dir. Kannst du nicht hingehen, melde dich sofort bei deinem Team.» Confirmed.
+- UXR-240 (no «Abrechnungssperre setzen» on an ended take card): I concur; a billing hold on a visit that did not happen is a control without a job. Advisory, no own finding.
+
+### View on H-BK-05:39 (signal card lists passing colleagues, «Ich übernehme»)
+
+Supportable as a **later slice, not BK-e1b**, for a visit that is `on_the_way` and not `started`, if: (i) the colleague takes it herself through a new take that runs the full `order_member_step` check (qualification included) at the tap; (ii) the first member's visit ends with a system reason, never a person cancellation, and the new take writes its own visit (one per take); (iii) first tap wins, server-confirmed, no offline tap; (iv) no care data moves between them. A hand-over **after `started`** is a clinical hand-over of care in progress: UNKNOWN, Clinical Owner (D-27); I do not support it in Phase A.
+
+### Answers and decisions requested
+
+- **`eng`:** CGR-248 (HOW, pgTAP, vitest), CGR-246 per ADR-203 (12) with pgTAP, take-card Playwright test, CGR-233 two-session test or a named reason; then name the head.
+- **PO:** place CGR-248 / UXR-241 (#1428) in BK-e1b (my gate waits for it); who cancels an order when the client cancels a gedeckt shift (UNKNOWN).
+- **`lca`:** name on the team signal line; Operations visibility of `take_member_dropped`.
+- **Clinical Owner (when named, D-27):** hand-over after `started` (H-BK-05:39); open items of 05:26 unchanged.
+
+### Findings closed with evidence
+
+- None this run (CGR-242, CGR-244 close on merge).
+
+### Register changes
+
+- Hazard Log: H-01 note (CGR-248 cause; CGR-246 correction).
+- Clinical Rule Register: CR-230 note (`cancel_visit` not take-aware), CR-231 note (correction). No new hard-coded clinical rule on `db8b5b9` (0140 is a presentation flag).
+- Safety Risk Register: PS-210 corrected; **PS-212** new (CGR-248).
+
+### Tests
+
+I ran no NAVORA test. CI results above are from job logs I read on `db8b5b9`. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-18 05:26 CET: re-review of draft **#1421** (BK-e1b, visit from the take; `eng`, head `7c69725`, CI `db`, `e2e`, `ui-screenshots` in progress at my read, `app` success). **No gate yet** (draft; no `db` result on the head). In code and pgTAP on `7c69725`: **CGR-242 (a), (c), (f)** and **CGR-244** are built as asked (migration 0139). One residual gap: a take kept because her visit is already «unterwegs» stays silent when she becomes unavailable (**CGR-246**). **CGR-247** (advisory, S1 before real persons): a take visit has no client identifier. **CGR-212 closed** on `recovery/main` `f7315b6`. Read on `recovery/main` `f7315b6`.
 
 ### What I read
