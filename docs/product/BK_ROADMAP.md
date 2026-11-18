@@ -1,6 +1,6 @@
 # BK-Roadmap: vom Pflegeauftrag bis zur Rechnung
 
-**Besitzer:** Product Owner (`po`) · **Version:** 1, 2026-11-17 17:15 (Europe/Zurich) · **Auftrag:** FE-088 (6) · **Quellen:** Brief `docs/agents/briefs/BK.md`, Blueprint V3.2 §8, `FOUNDER_DECISIONS.md` FE-085, FE-087, FE-088 · **Kennzeichnung:** IMPLEMENTED, PLANNED, OPEN, UNKNOWN. Termine sind Schätzungen des PO, keine Zusagen. Der PO hat keine Tests ausgeführt.
+**Besitzer:** Product Owner (`po`) · **Version:** 2, 2026-11-18 16:20 (Europe/Zurich) (~~1, 2026-11-17 17:15~~) · **Auftrag:** FE-088 (6), FE-090, FE-091 · **Founder-Übersicht:** `FOUNDER_STAGING_UEBERSICHT.md` · **Quellen:** Brief `docs/agents/briefs/BK.md`, Blueprint V3.2 §8, `FOUNDER_DECISIONS.md` FE-085, FE-087, FE-088 · **Kennzeichnung:** IMPLEMENTED, PLANNED, OPEN, UNKNOWN. Termine sind Schätzungen des PO, keine Zusagen. Der PO hat keine Tests ausgeführt.
 
 ## 0. Kurzfassung
 
@@ -24,6 +24,15 @@
 **Nicht bedienbar:** Übernahme, «Bestätigen» und «Ich kann nicht» auf `/team`, Kundenstatus «Gedeckt» (#1358, nicht gemergt), Rangfolge, KI-Erfassung, Berichtsentwurf, Rechnung.
 
 **Vorschlag an `eng` (Nachweis statt «Render ist bereit»):** Nach jedem Deploy prüft ein CI-Schritt Commit und höchste Migration von Staging und führt einen kurzen Playwright-Klickpfad gegen `navora-staging.onrender.com` aus. Das Ergebnis steht in der PR- oder Merge-Notiz.
+
+## 1a. Staging-Stand 2026-11-18 16:20 (FE-090 (1), FE-091 (1); aktueller Stand, §1 ist Verlauf)
+
+| Prüfpunkt | Stand | Nachweis |
+|---|---|---|
+| Automatisches Einspielen | **IMPLEMENTED seit heute:** Secret `STAGING_DB_URL` vom Founder gesetzt (FE-089); jeder Push auf `recovery/main` spielt nach grünen Pflichtjobs die Migrationen auf `navora-staging` ein (ADR-190); auf einem PR nur Probelauf | `ci.yml` Job `staging` |
+| Datenbank `navora-staging` | **bis 0137 = `recovery/main`.** 0136 und 0137 eingespielt am 18.11. um 15:47 durch den `staging`-Job des Pushes `e6ac4f2`. 0138–0148 kommen erst mit #1421 | Job 134884613655 «Applying migration …0136 … 0137 … Finished» (vom PO gelesen); Migrationsliste lesend (PO 16:00) |
+| App-Commit auf Render | `e6ac4f2` live (Deploy 14:38 UTC), danach nur Dokumenten-Commits | Render, lesend (PO 16:00) |
+| Klickpfad «Auftrag → Angebot beim Team → Übernahme → Status beim Auftraggeber» auf Staging | **nicht ausgeführt (UNKNOWN)**; im Code IMPLEMENTED und in CI grün (`bk-c2-take-status.spec.ts`); Anleitung in `FOUNDER_STAGING_UEBERSICHT.md` | `eng` prüft auf Staging (#1465) |
 
 ## 2. Stand im Code
 
@@ -87,14 +96,33 @@ Vorschläge, damit jeder Teilschritt sichtbar näher ans Ziel führt (Founder en
 | Risiko | Nacharbeit, wenn BK-c3 Schnittstellen ändert; dann verwirft `eng-2` den Entwurf |
 | Versuch | 1 Woche (bis 2026-11-25), danach Auswertung durch den PO |
 
-## 7. Rhythmus `cra` und `uxa` (FE-088 (1))
+## 7. Rhythmus der Prüfrollen (FE-091 ersetzt FE-088 (1))
 
-- **Umgesetzt 2026-11-17 ca. 17:10:** `cra` `26 * * * *`, `uxa` `47 * * * *` (vorher alle 4 Stunden). Befristet auf das aktive BK-Teilstück.
-- **Messgrösse:** Zeit von «Kopf stabil und bereit» bis zur Freigabezeile, je Rolle und PR. Ausgangswert #1358 `9a7fc56`: stabil 16:06; `lca` 16:24 (18 Min.); `cra` und `uxa` offen.
-- **Empfehlung zum weiteren Rhythmus:** spätestens 2026-11-21.
+- **Seit 2026-11-18 ca. 15:25 pausiert:** «NAVORA Clinical & Regulatory Architect», «NAVORA UX/UI Design Architect», «NAVORA Legal & Compliance Agent». Aktiv: PO, Engineering, AI & Automation, Wochenstatus Engineering; Chief Strategy Architect wöchentlich (keine Aufgabe, die den aktiven PR verändert).
+- **Pflicht-Reviews:** erst wenn `eng` den stabilen Endstand (Commit, Testresultate, Prüffragen) meldet und alle CI-Jobs grün sind, startet der PO die benötigte Rolle einmal (Aufgabe «NAVORA Product Owner agent», Abschnitt «BK BUILD PHASE»). Pausiert heisst nie zustimmend.
+- **Messgrösse:** Zeit von «Endstand gemeldet» bis Freigabezeile, je Rolle und PR.
+- **Neubewertung:** bis 2026-11-25 oder bei der BK-e-Abnahme, was zuerst eintritt.
 
 ## 8. Offen beim Owner/Founder
 
-1. Anbieter für einen KI-Endpunkt mit synthetischen Daten (FE-085 (4)); ohne ihn kein Termin für echte KI.
+1. Anbieter und Endpunkt (CH/EU, keine Speicherung) für die erste echte KI-Funktion mit synthetischen Daten, Ablage des Schlüssels nur in der Staging-Umgebung, Ausgabenlimit (FE-085, §9). Die Freigabe synthetischer Daten für KI-Schnittstellen gibt es seit FE-085 (B)(2); die Datenbank-Sperre AUT-115 hebt `eng` im dafür aktiven Teilschritt auf.
 2. Entscheid über den `eng-2`-Versuch (§6).
 3. Vorschläge §5 (1)–(3).
+
+## 9. Erste echte KI-Funktion (PLANNED; abgestimmte Vorlage mit `aia` bis 2026-11-19 12:00, #1466)
+
+Kennzeichnung heute: **kein KI-Modell ist angeschlossen.** BK-a bis BK-c sind feste Regeln; BK-e2 (Berichtsentwurf) ist als Testersatz geplant.
+
+Zwei Kandidaten liegen vor (zwei PO-Sitzungen am 18.11.; `aia` entscheidet die Empfehlung mit):
+
+| Punkt | A: Berichtsentwurf aus der Eingabe der Pflegekraft (BK-e2a, Vorschlag PO 16:00) | B: Auftrag aus Freitext (BK-d, Vorschlag PO 15:45) |
+|---|---|---|
+| Nutzen | grösste Schreibentlastung für Pflegekräfte (Wert 1, 5); im aktiven Block | weniger Erfassungsarbeit bei der Auftraggeberin; für den Founder als Auftraggeber direkt sichtbar |
+| Risiko und Prüfungen | Pflegedokumentation: `cra` (Entwurfsgrenzen, Geräteklasse), Unterschrift BK-e2b vor jeder Verbindlichkeit | kein Pflegebericht, keine Zuteilung; jedes Feld von der Auftraggeberin bestätigt; feste Regeln BK-b danach |
+| Founder-Lage | FE-085 (B)(3): «echte Voice-to-Report-Anbindung erst, wenn BK-d aktiv ist»; A vor BK-d braucht dazu eine Änderung durch den Founder | passt zu FE-085 (B)(3) |
+| Datenweg (beide) | Browser → App-Server (Render) → Modell-Endpunkt des vom Founder gewählten Anbieters (CH/EU, keine Speicherung) → Vorschlag mit Quellstelle je Angabe → Vorschlagsprotokoll (AIG1) → Bestätigung durch einen Menschen. Nur `navora-staging`, nur synthetische Daten, nur Simulationsorganisationen | |
+| Kontrolle, Abschaltung, Kosten (beide) | Schlüssel nur in der Staging-Umgebung; Server lehnt ab, wenn er nicht gegen `navora-staging` läuft (AUT-136 (1)); ein Schalter stellt auf Testersatz oder Formular zurück; nichts ohne Bestätigung; nichts ohne Quellstelle; Tageslimit an Aufrufen in der App, Ausgabenlimit im Anbieterkonto | |
+| Testkriterien (beide) | CI nur mit Testersatz (kein Schlüssel in CI); Prüfsatz synthetischer Texte mit erwarteten Werten; bestanden ohne erfundenen Wert und mit Quellstelle je Angabe; Schalter-Test; ein protokollierter Live-Lauf auf Staging. Schwellen setzt `aia` | |
+| Zeitfenster (Schätzung) | frühestens rund eine Woche nach Merge #1421, wenn Anbieter und Schlüssel vorliegen | frühester Live-Lauf KW 49 (30.11.–4.12.), wenn Anbieter und Schlüssel bis ca. 24.11. vorliegen und BK-d vor BK-f gezogen wird |
+
+Der PO legt dem Founder nach der Antwort von `aia` **eine** Empfehlung vor (FE-090 (5)).
