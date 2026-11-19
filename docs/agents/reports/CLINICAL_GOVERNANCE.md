@@ -16,6 +16,41 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-19 04:45 CET: gate review of **#1497** new head **`24105ec`** (BK-e2a part 2a, UXR-251 fix (a): signing also waits until the decided draft is placed; ADR-207 addendum 6). Run started once by `po` under FE-091 (4) (gate start 04:39, BK BUILD PHASE point 2). **`cra-gate: #1497 24105ec clear`** (gate «Simulation, synthetic data» only; not a clinical release and not a documentation rule, D-27). My line on `5a5ef5f` no longer covers the head (AUT-50); this section replaces it for `24105ec`. No new finding. Read on `recovery/main` `e79231d`.
+
+### What I read
+
+- Diff `5a5ef5f..24105ec` (2 commits: red first `3382405`, fix `24105ec`; 6 files): `src/features/field/report-assist.ts` (`SignGate`, `signGate`, `signWaitText`), `src/app/(protected)/field/report-assist-panel.tsx` (`onSignGate` replaces `onOpenCount`; cleanup on unmount), `report-section.tsx` (submit `disabled={pending || draftWait !== null}`), `tests/unit/report-assist.test.ts` (+4), `tests/e2e/field.spec.ts` (F7 extended), ADR-207 addendum 6. No migration, no change to `report-commands.ts`, the sign path or the snapshot hash.
+- CI on `24105ec` (check runs): `app` 135311236403, `db` 135311236173, `e2e` 135311236404, `ui-screenshots` 135311236448, `staging` 135315566068, all `completed`/`success`. Job logs read: `app` «tests/unit/report-assist.test.ts (18 tests)» passed, «Test Files 141 passed», «Tests 1512 passed»; `e2e` «191 passed (7.6m)», no «skipped» line. I ran no NAVORA test.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1497 BK-e2a part 2a | `24105ec` | **`cra-gate: #1497 24105ec clear`** · gate «Simulation, synthetic data». R1 unit 18/18 and extended F7 e2e green, 0 skipped. R2 unchanged (rule substitute only, `MODEL_LEDGER_READY = false`). R3 strengthened: signing now waits in three states (`open` with count, `unplaced`, `clear`); only «In die Zusammenfassung übernehmen» (`onSummary(composeSummary(…))` then `update(null)`) or «Entwurf verwerfen» (`update(null)`) end a draft. The UXR-251 path (all decided, not placed, signed without the chosen lines) is closed on the screen: unit «still waits once everything is decided but the draft is not yet placed», e2e asserts the wait line and a disabled button before «übernehmen». |
+
+### Answers to `eng`'s review questions
+
+1. **Wait-line wording confirmed** for the simulation gate: «Entwurf noch nicht in die Zusammenfassung übernommen. Bitte übernehmen oder den Entwurf verwerfen.» It states the fact, names both explicit ways out, does not suggest one, and makes clear that the chosen lines are not yet in the report. Not a clinical wording rule; final form `uxa`; Clinical Owner may replace it before real data (D-27).
+2. **CGR-213 (b) stays intact:** per-line and per-sentence decisions unchanged (`decideLine`, `decideSegment`), no bulk decision added, the `open` text and count are the same as on `5a5ef5f` (unit «waits while lines or sentences are still open, naming the number»), 40-in-40-out test unchanged. The fix only adds a stricter state; it removes no wait. Conditions (ii)–(iii) stay part 2b.
+
+### Notes (no new finding)
+
+- A draft where every line was dropped and every sentence left out still needs an explicit end (unit test). Accepted: «Entwurf verwerfen» or «übernehmen» is one visible act, and it keeps her decision deliberate.
+- The unmount cleanup (`onSignGate({ kind: "clear" })`) clears the gate when the sign form closes; the draft goes with it and nothing was placed, so nothing unseen enters the record. Consistent with CGR-260 (b): discarding stays one tap and leaves her typed notes without a per-sentence decision; CGR-260 stays the named advisory follow-up (S2 before real data), not a merge condition (PO point 3).
+- The wait remains a browser rule (ADR-207 point 4); unchanged reading from 03:50.
+
+### Findings closed
+
+- None closed by this section. CGR-213 (b) for the 2a screen still closes on merge of #1497.
+
+### Decisions requested
+
+- **PO:** merge #1497 at `24105ec` once the other gate lines name it; merge this PR.
+- **Clinical Owner (when named, D-27):** wait-line wording and CGR-260 before real data (unchanged).
+
+---
+
 ## 2026-11-19 03:50 CET: gate review of **#1497** (BK-e2a part 2a, «Entwurf aus Notizen» on the `/field` report, decided line by line; ADR-207; `eng` final head `5a5ef5f`). Run started once by `po` under FE-091 (4) (BK BUILD PHASE point 2, gate start 03:39). **`cra-gate: #1497 5a5ef5f clear`** (gate «Simulation, synthetic data» only; not a clinical release and not a documentation rule, D-27). **CGR-213 (b) met on the 2a screen** for the `uxa` variant: per-line decision, no accept-all, every unused sentence listed with «Einfügen»/«Bewusst weglassen», «Bericht unterschreiben» disabled while anything is open; conditions (ii) and (iii) of 2026-11-13 21:40 (audited omission in the input record; counts per report and team) belong to part 2b and stay open there. New advisory **CGR-260** (notes typed but never proposed, or a whole draft discarded, leave without a per-sentence decision). Separate, non-blocking views on part 2b (level G, AUT-149, AUT-151) below. Read on `recovery/main` `53b8fa6`.
 
 ### What I read
