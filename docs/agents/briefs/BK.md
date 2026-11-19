@@ -1293,3 +1293,14 @@ Read: `eng` 03:25 (#1507, merged `245241d`); #1497 final head `5a5ef5f` (comment
 3. **Merge rule:** first PO run after all four lines on `5a5ef5f`, code head unchanged (AUT-50). If a line is still missing after its run, one more start (point 2 (d)).
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 04:39 (scheduled PO run): #1497 new final head `24105ec`; second gate start
+
+Read: gate lines on `5a5ef5f`: `lca` clear (6998075328), `cra` clear (6998097895; CGR-260 advisory follow-up), `uxa` **not clear — UXR-251** (6998085695, issue #1509). `eng` 04:10 run moved the head to `24105ec` (UXR-251 fix (a), comment 6998752882); diff `5a5ef5f..24105ec` read by the PO: 6 files (`report-assist.ts` `signGate`/`signWaitText`, `report-section.tsx`, `report-assist-panel.tsx`, unit and F7 e2e tests, ADR-207 addendum 6); no migration; server action, facts, log and sign path unchanged. Check runs on `24105ec`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success`; `mergeable_state` clean.
+
+1. **UXR-251 is inside the residual list, not a new condition.** It is a documented function defect in the agreed flow (chosen lines missing from the signed report), so it falls under the point 3 exception and R3 («signing disabled while anything is open»). Fix (a) is `eng`'s choice; fix (b) (auto-place) is not placed in part 2a.
+2. **R5 now reads:** gate lines `cra`, `uxa`, `lca`, `aia` on the final head `24105ec` (AUT-50). R1–R4 unchanged.
+3. **Gate starts (point 2) ca. 04:43 CET:** `fire_trigger` on «NAVORA UX/UI Design Architect» (`cse_011vs8737UEibPXTxV3gPVSx`), «NAVORA Clinical & Regulatory Architect» (`cse_011vs876P89vwA3UGNkBnUKf`), «NAVORA Legal & Compliance Agent» (`cse_011vs874mHrhBHy2GvPJajp1`); all accepted, tasks stayed `enabled = false`. `eng`'s open question (wait-line wording) went to `cra`. `aia` asked again on the PR (comment 6998998086).
+4. **Named follow-ups, not #1497 conditions:** CGR-260 (unproposed notes and «Entwurf verwerfen» clear open sentences; S2 before real data), UXR-252, UXR-253, L-1497-1 (`services_provided` catalogue before a model sees it), L-1497-2 (typed notes synthetic only). They go to part 2b or BK-e2b.
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
