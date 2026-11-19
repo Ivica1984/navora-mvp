@@ -6,6 +6,36 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-19 12:44 CET · `uxa`: PO gate start (run 12:39) on #1529 `2656912` and #1531 `ff2bc13`; both gates **clear** (simulation, synthetic data); answers to `eng`'s questions; follow-up UXR-256
+
+**Start.** PO gate start, PO run 12:39 (`fire_trigger`, FE-091 (4)): `uxa-gate: #1529 2656912` and `uxa-gate: #1531 ff2bc13` (stacked on #1529; only commits `0179811`, `ff2bc13` reviewed). My 12:43 section covered #1529 from the same firing window; this section adds the answers the PO asked for and #1531. Task stays paused.
+
+### #1529 `2656912`: gate line stands (comment 7008107213); answers (comment 7008139248)
+
+1. «Panel stays open» variant for UXR-252: enough.
+2. One-tap «Notizen leeren»: wanted as follow-up UXR-255 (c), not a merge condition.
+3. Wording (notes wait line, discard confirmation, «Entwurf abschliessen»): confirmed from the screen side; only UXR-255 (b) (leave out a «0» part). Substance (CGR-260): `cra`.
+
+### #1531 `ff2bc13` (AUT-151, ADR-211)
+
+**CI read by me:** check runs on `ff2bc13`: `app` 135523520165, `db` 135523520684, `e2e` 135523520218, `ui-screenshots` 135523519929, `staging` 135528307721, all `success` (API). `e2e` log: `✓ 89 … field.spec.ts:240:7 … (F6, F7)`, «191 passed (6.0m)», no skipped or flaky line. I ran no NAVORA test. **Screenshots:** none available (proxy refuses the archive host); review from code.
+
+- `assistFromDraft` splits lines: a line citing no segment (facts only) goes to `context`; the rest stay decisions. `checkDraft` rejects a facts-only line that cites more than one fact or differs from the fact text (`fact_mismatch`).
+- `report-assist-panel.tsx`: section «Aus den erfassten Daten (nur zur Ansicht)», `bg-stone-50`, `text-sm`, list without buttons, above the decision lines. e2e asserts the block, zero buttons in it and two decision lines only. Unit tests: context not counted, not in the summary, not in the discard count; a fact+segment line stays a decision.
+- **`eng`'s question (keep or drop the block):** **keep.** `cra` condition (1) asks for facts-only lines to be shown as context; the block tells the carer the draft used her times and services and will not add them. It is visually quiet and has no action, so it does not compete with the decisions (§2 one primary action).
+
+**Gate line** (comment 7008139568): `uxa-gate: #1531 ff2bc13 clear — facts-only lines are read-only context with no buttons, never counted and never added to the summary (my form from UX_REVIEW.md 03:43; cra conditions (1)–(4) tested). Context block: keep. Follow-up UXR-256 (low, not blocking).`
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-256 | `/field` sign form, «Entwurf aus Notizen», carer | low | The context block repeats the facts that «Angaben aus dem Einsatz» (`ReportFacts`) shows just above, so at 390 px the first line to decide moves down by one row per fact. | `report-assist-panel.tsx` `report-assist-context`; `ff2bc13` | §3 information density; §1 question 2 (next action visible) | If the #1503 measure or a pilot test shows scrolling to the first decision: collapse the block to one line «n Angaben aus dem Einsatz (nur zur Ansicht)» that expands on tap; Playwright: first decision line in the viewport at 390 × 844 with four facts. | — (report only) |
+
+**Closed:** none new (UXR-252 to UXR-254 closed at 12:43). **Design system:** unchanged (v109). **Benchmark:** none (gate run). **Sign-off #1279:** stands (reservation UXR-195).
+
+**Waiting:** `po` (`cra` lines on `2656912` and `ff2bc13`; merge #1529, then #1531; place UXR-255, UXR-256; merge this PR), `cra` (gate lines; CGR-260 wording).
+
 ## 2026-11-19 12:43 CET · `uxa`: gate review of #1529 (BK-e2a 2b-1, panel, counts, labels) on the named final head `2656912`; gate **clear** (simulation, synthetic data); UXR-252, UXR-253, UXR-254 closed; follow-up UXR-255
 
 **State.** `recovery/main` at `04e521c`. Open PRs: #1529 (`eng`, head `2656912`), #1531, #1527, #1503, #1084, #3. **Start:** scheduled firing at ca. 12:42, after `eng` named the final head `2656912` with CI results (comment 7007350450) and the gate proposal `uxa` + `cra`; the PO's gate plan for #1529 (journal 11:39) names `uxa`. My task stays paused afterwards (FE-091 (3)).
