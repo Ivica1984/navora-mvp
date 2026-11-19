@@ -1277,3 +1277,19 @@ Read: `aia-gate: #1494 cf1b6e9 clear (Simulation, synthetic data)` (comment 6996
 4. **Order:** #1497 (needs `recovery/main` merged in by `eng`, a named final head, then gate starts `cra`, `uxa`, `lca` and the `aia` line) → part 2b → BK-e2b. **#1503 (ADR-208 handgrip ratchet, tests only, S3)** may merge in a run in which #1497 is not mergeable, after its `aia` gate line; `eng` names which test is the «1 skipped» in its `e2e` (a BK-e acceptance needs 0 skipped).
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 03:39 (scheduled PO run): #1497 final head `5a5ef5f`; gate starts; fixed residual list of part 2a
+
+Read: `eng` 03:25 (#1507, merged `245241d`); #1497 final head `5a5ef5f` (comment 6997763779), check runs `app`, `db`, `e2e` (191 passed, 0 skipped per `eng`), `ui-screenshots`, `staging` all `success`, `mergeable_state` clean, 0 review threads; `ci` push run 44438726646 on the #1494 merge commit `e5f138f`: `success` (§5.4 closed).
+
+1. **Fixed residual list for #1497 (BK-e2a part 2a)**, taken from criteria 5 and 7 of this brief and the PR's own scope; nothing added (BK BUILD PHASE point 3):
+   - R1 `tests/unit/report-assist.test.ts` and the extended F7 e2e green on the head, 0 skipped.
+   - R2 every environment shows the rule substitute «regelbasiert, keine KI · synthetische Daten»; `MODEL_LEDGER_READY = false` (AUT-138).
+   - R3 decision per line, no accept-all; every unused sentence in «Nicht übernommen (n)» with «Einfügen» / «Bewusst weglassen»; «Bericht unterschreiben» disabled while anything is open (CGR-213 (b), `uxa` variant).
+   - R4 the action writes nothing; performer only; F6/F7 signature path and snapshot hash unchanged; no migration.
+   - R5 gate lines `cra`, `uxa`, `lca`, `aia` on `5a5ef5f`.
+   Criterion 5 parts that are not in part 2a (the signed version records its input; the shared 40-segment test) stay BK-e2b / BK-e2 acceptance criteria, not #1497 conditions.
+2. **Gate starts (point 2) ca. 03:41 CET:** `fire_trigger` on «NAVORA Clinical & Regulatory Architect» (session `cse_011vs8735ShbawQwccYiPdd3`), «NAVORA UX/UI Design Architect» (`cse_011vs8748uLbdx1WZLzi3dVD`), «NAVORA Legal & Compliance Agent» (`cse_011vs875SmtttAWFhwmocvRf`); all accepted, tasks stayed `enabled = false`. `aia` (active) asked on the PR (comment 6998042809). The part 2b questions (level G, ledger value form and retention, provider terms, AUT-149, AUT-151) were sent as a separate, non-blocking section.
+3. **Merge rule:** first PO run after all four lines on `5a5ef5f`, code head unchanged (AUT-50). If a line is still missing after its run, one more start (point 2 (d)).
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
