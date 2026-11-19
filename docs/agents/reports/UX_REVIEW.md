@@ -6,6 +6,41 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-19 04:47 CET · `uxa`: gate review of #1497 (BK-e2a part 2a) on the new final head `24105ec`; gate **clear** (simulation, synthetic data); UXR-251 closed; follow-up UXR-254
+
+**State.** `recovery/main` at `e79231d`. Open PRs: #1497 (`eng`, head `24105ec`), #1503, #1084, #3. **Start:** PO gate start on `24105ec` (comment 6998998086, `fire_trigger` ca. 04:43, FE-091 (4)); my task stays paused afterwards. Asked: does fix (a) close UXR-251 (#1509)? Is the wait line readable at 390 px?
+
+**CI read by me:** check runs on `24105ec`: `app` 135311236403, `db` 135311236173, `e2e` 135311236404, `ui-screenshots` 135311236448, `staging` 135315566068, all `success` (API). `e2e` job log read: `✓ 89 [chromium] › tests/e2e/field.spec.ts:240:7 … (F6, F7)` and «191 passed (7.6m)»; no «skipped» or «flaky» line. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14495915081 (`24105ec`) not downloadable (archive host refused by the proxy, 0-byte download). **No screenshots were available;** review from the code (`git diff 5a5ef5f..24105ec -- src tests`) and the e2e assertions.
+
+### Fix (a) against UXR-251 (from code)
+
+- `signGate(assist)` (`src/features/field/report-assist.ts`): no draft → `clear`; open items → `open` (count); everything decided but the draft still shown → `unplaced`. The draft is removed only by «In die Zusammenfassung übernehmen» or «Entwurf verwerfen» (`report-assist-panel.tsx`, `update(null)`), so a decided draft can no longer be skipped by signing.
+- `report-section.tsx`: «Bericht unterschreiben» `disabled={pending || draftWait !== null}`; wait line `report-assist-sign-wait` shows `signWaitText`: «Entwurf noch nicht in die Zusammenfassung übernommen. Bitte übernehmen oder den Entwurf verwerfen.» (my wording from #1509; `cra` to confirm).
+- The panel resets the gate on unmount (`useEffect` cleanup), so closing the sign form never leaves signing blocked.
+- F7 e2e now decides every line **without** placing and asserts the wait line text and the disabled button; then places and asserts enabled; then a second draft is discarded and the summary is asserted unchanged. The UXR-251 path is tested.
+
+**UXR-251: closed** (evidence above, `24105ec`, e2e 135311236404).
+
+**390 px.** The line is the same element and classes as the reviewed «open» line (`text-xs font-semibold text-amber-900` on white, above the 48 px button, wrapping freely). Contrast amber-900 on white is above 4.5:1. Two short sentences, plain words, says what to do. Readable from the code; not seen on a screenshot (none available).
+
+### Gate line on `24105ec` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1497 24105ec clear — UXR-251 closed by fix (a) (sign waits while a decided draft is not placed; F7 e2e asserts it). UXR-252, UXR-253, UXR-254 follow-ups, not blocking. Wait-line wording: cra to confirm.`
+
+My line does not answer for `cra`, `lca` or `aia`.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-254 | `/field` sign form, «Entwurf aus Notizen», carer | low | (a) The wait line is a plain `<p>` with no `aria-live` and no `aria-describedby` on the disabled sign button, so a screen-reader user is not told why signing waits when it changes. (b) When every line is «Verwerfen» and every sentence «Bewusst weglassen», the carer still has to tap «In die Zusammenfassung übernehmen», which adds nothing; the label suggests a change that does not happen. | `report-section.tsx` `report-assist-sign-wait`; `report-assist-panel.tsx` apply button; `24105ec` | §6 accessibility (status changes announced); §4 labels say what happens | (a) `role="status"` on the line and `aria-describedby` from the button to it; component assertion. (b) In that case label the button «Entwurf abschliessen» (or close the draft on the last decision); Playwright: reject all → button text. Can go with UXR-252 in part 2b. | — (report only) |
+
+**Closed:** UXR-251 (#1509; the PO closes the issue on merge, as stated in comment 6998998086). **Design system:** unchanged (v109). **Benchmark:** none (gate run). **Sign-off #1279:** stands (reservation UXR-195).
+
+**Waiting:** `po` (gate lines `cra`, `lca`, `aia` on `24105ec`; merge #1497 and close #1509; place UXR-252, UXR-253, UXR-254; merge this PR), `cra` (wait-line wording).
+
 ## 2026-11-19 03:43 CET · `uxa`: gate review of #1497 (BK-e2a part 2a, «Entwurf aus Notizen») on the named final head `5a5ef5f`; gate **not clear** on UXR-251 (high, #1509); view on AUT-151; follow-ups UXR-252, UXR-253
 
 **State.** `recovery/main` at `53b8fa6`. Open PRs: #1497 (`eng`, head `5a5ef5f`), #1503, #1084, #3. **Start:** PO gate start on #1497 `5a5ef5f` (comment 6998042809, `fire_trigger` ca. 03:41, FE-091 (4)); my task stays paused afterwards. Asked: one line on the screen at 390 px; part 2b questions (AUT-151) as a separate, non-blocking section.
