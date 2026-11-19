@@ -51,6 +51,28 @@ export function openCount(a: ReportAssist): number {
   return a.lines.filter((l) => l.decision === "open").length + a.unplaced.filter((u) => u.decision === "open").length;
 }
 
+/**
+ * UXR-251: whether «Bericht unterschreiben» may be used while a draft is shown.
+ * Signing waits while anything is undecided («open»), and also once everything is decided but the draft has not
+ * been placed into the summary yet («unplaced»); otherwise the chosen lines would be missing from the signed report.
+ * Only «In die Zusammenfassung übernehmen» or «Entwurf verwerfen» (both remove the draft) clear it.
+ */
+export type SignGate = { kind: "clear" } | { kind: "open"; open: number } | { kind: "unplaced" };
+
+export function signGate(a: ReportAssist | null): SignGate {
+  if (!a) return { kind: "clear" };
+  const open = openCount(a);
+  return open > 0 ? { kind: "open", open } : { kind: "unplaced" };
+}
+
+/** The wait line under the sign button (wording from `uxa` UXR-251; `cra` to confirm). Null when signing is allowed. */
+export function signWaitText(g: SignGate): string | null {
+  if (g.kind === "open")
+    return `Noch ${g.open} ${g.open === 1 ? "Punkt" : "Punkte"} im Entwurf offen. Bitte zuerst entscheiden oder den Entwurf verwerfen.`;
+  if (g.kind === "unplaced") return "Entwurf noch nicht in die Zusammenfassung übernommen. Bitte übernehmen oder den Entwurf verwerfen.";
+  return null;
+}
+
 /** The summary text after the carer's decisions: existing text, then taken lines, then inserted segments. */
 export function composeSummary(existing: string, a: ReportAssist): string {
   const added = [

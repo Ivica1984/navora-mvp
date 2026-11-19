@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   composeSummary,
   decideLine,
   decideSegment,
   openCount,
+  signGate,
   type ReportAssist,
+  type SignGate,
 } from "@/features/field/report-assist";
 import { proposeReportDraft } from "@/features/field/report-draft-command";
 
@@ -14,29 +16,33 @@ import { proposeReportDraft } from "@/features/field/report-draft-command";
  * BK-e2a part 2 (ADR-207): «Entwurf aus Notizen» on the carer's open report.
  * She types her own words; the draft proposes lines with their source and lists every sentence it did not use
  * («Nicht übernommen»). Each line and each sentence is decided on its own; there is no accept-all.
- * The decided text goes into the summary field; signing waits while anything is still open (CGR-213 (b), `uxa` variant).
+ * The decided text goes into the summary field; signing waits while anything is still open (CGR-213 (b), `uxa` variant)
+ * and while a decided draft is not yet placed into the summary (UXR-251).
  */
 export default function ReportAssistPanel({
   visitId,
   day,
   summary,
   onSummary,
-  onOpenCount,
+  onSignGate,
 }: {
   visitId: string;
   day: string;
   summary: string;
   onSummary: (text: string) => void;
-  onOpenCount: (n: number) => void;
+  onSignGate: (g: SignGate) => void;
 }) {
   const [notes, setNotes] = useState("");
   const [assist, setAssist] = useState<ReportAssist | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // A panel that goes away (sign form closed) takes its draft with it, so it must not leave signing blocked.
+  useEffect(() => () => onSignGate({ kind: "clear" }), [onSignGate]);
+
   function update(next: ReportAssist | null) {
     setAssist(next);
-    onOpenCount(next ? openCount(next) : 0);
+    onSignGate(signGate(next));
   }
 
   async function propose() {

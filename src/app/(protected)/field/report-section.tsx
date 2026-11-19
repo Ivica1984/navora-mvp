@@ -13,6 +13,7 @@ import {
   withdrawReportCorrection,
 } from "@/features/field/report-commands";
 import { returnConfirmation, reportView, type FieldReport } from "@/features/field/report";
+import { signWaitText, type SignGate } from "@/features/field/report-assist";
 import ReportAssistPanel from "./report-assist-panel";
 
 const TONE_CLASS = {
@@ -49,9 +50,10 @@ export default function ReportSection({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // BK-e2a part 2 (ADR-207): the summary in the sign form, so a decided draft can be placed into it;
-  // the number of draft lines and sentences still undecided (signing waits while above 0).
+  // whether signing waits for the draft: lines or sentences undecided, or decided but not yet placed (UXR-251).
   const [signSummary, setSignSummary] = useState<string | null>(null);
-  const [draftOpen, setDraftOpen] = useState(0);
+  const [draftGate, setDraftGate] = useState<SignGate>({ kind: "clear" });
+  const draftWait = signWaitText(draftGate);
 
   const view = reportView(visitStatus, report);
   if (!view) return null;
@@ -221,19 +223,19 @@ export default function ReportSection({
               day={visitDate}
               summary={signSummary ?? report.summary ?? ""}
               onSummary={setSignSummary}
-              onOpenCount={setDraftOpen}
+              onSignGate={setDraftGate}
             />
           )}
           <SummaryField value={signSummary ?? report.summary ?? ""} onChange={setSignSummary} />
           <p className="text-xs text-secondary">
             Mit der Unterschrift bestätigst du die Angaben. Danach ist der Bericht nicht mehr änderbar. Du kannst auch später unterschreiben.
           </p>
-          {draftOpen > 0 && (
+          {draftWait && (
             <p data-testid="report-assist-sign-wait" className="text-xs font-semibold text-amber-900">
-              Noch {draftOpen} {draftOpen === 1 ? "Punkt" : "Punkte"} im Entwurf offen. Bitte zuerst entscheiden oder den Entwurf verwerfen.
+              {draftWait}
             </p>
           )}
-          <button type="submit" disabled={pending || draftOpen > 0} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+          <button type="submit" disabled={pending || draftWait !== null} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
             {pending ? "Wird gespeichert …" : "Bericht unterschreiben"}
           </button>
         </form>
