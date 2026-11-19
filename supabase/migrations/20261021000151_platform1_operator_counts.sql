@@ -8,10 +8,12 @@
 --    command can read or write it, so no app path changes it (an admin command with audit is PLANNED, ADR-213 (4)).
 create table if not exists private.platform_operators (
   user_id    uuid primary key references auth.users (id) on delete cascade,
-  created_at timestamptz not null default now(),
+  created_at timestamptz not null default private.now(),
   note       text not null check (length(trim(note)) > 0)
 );
 revoke all on private.platform_operators from public, anon, authenticated;
+-- B0-7-1: every table has row level security on; no policy, so only the owner (and definer functions) read it.
+alter table private.platform_operators enable row level security;
 comment on table private.platform_operators is
   'PLATFORM1 (ADR-213): members of NAVORA operations. Owner-written only (seed, reviewed migration). Grants nothing '
   'but the count read model public.platform_overview().';
@@ -20,7 +22,8 @@ comment on table private.platform_operators is
 create or replace function public.am_platform_operator()
 returns boolean language sql stable security definer set search_path = ''
 as $$
-  select exists (select 1 from private.platform_operators p where p.user_id = (select auth.uid()));
+  select exists (select 1 from private.platform_operators p where p.user_id = (select auth.uid()))
+     and not private.access_ended((select auth.uid()));  -- LEAVE1-3
 $$;
 revoke all on function public.am_platform_operator() from public, anon;
 grant execute on function public.am_platform_operator() to authenticated;
@@ -36,6 +39,7 @@ language sql stable security definer set search_path = ''
 as $$
   with me as (
     select 1 from private.platform_operators p where p.user_id = (select auth.uid())
+      and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   ),
   up as (
     select r.organization_id, c.cover_state
