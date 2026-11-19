@@ -9,9 +9,9 @@ import { requireUser } from "@/lib/auth/session";
 import { resolveReportDraftProvider } from "@/lib/ai/report-draft/config";
 import { buildReportDraft } from "@/lib/ai/report-draft/draft";
 import { errorFields, logEvent } from "@/lib/log";
-import { assistAllowed, assistFromDraft, factsFromSnapshot, withLedgerGuard, type ReportAssist } from "./report-assist";
+import { assistAllowed, assistFromDraft, factsForProvider, type ReportAssist } from "./report-assist";
 
-/** AUT-138: flipped by the reviewed PR that adds the AIG1 ledger entry for model proposals (BK-e2a part 2b). */
+/** AUT-138, AUT-153: flipped by the reviewed PR that adds the AIG1 ledger entry for model proposals (BK-e2a part 2b-2). */
 const MODEL_LEDGER_READY = false;
 
 const schema = z.object({
@@ -50,10 +50,10 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
   const org = (team.data as { organizations?: { simulation?: boolean } | null } | null)?.organizations;
   const simulationOrg = org?.simulation === true;
 
-  const resolved = withLedgerGuard(resolveReportDraftProvider(process.env, { simulationOrg }), MODEL_LEDGER_READY);
+  const resolved = resolveReportDraftProvider(process.env, { simulationOrg, ledgerReady: MODEL_LEDGER_READY });
   if (!resolved.provider) return { ok: false, error: "Berichtsentwürfe sind ausgeschaltet." };
 
-  const draft = await buildReportDraft({ text: parsed.data.text, facts: factsFromSnapshot(report!.snapshot) }, resolved.provider);
+  const draft = await buildReportDraft({ text: parsed.data.text, facts: factsForProvider(report!.snapshot, resolved.provider.kind) }, resolved.provider);
   // Origin, outcome and a count only; never the typed text (log allowlist, no clinical free text in logs).
   logEvent("info", "report_draft.proposed", {
     op: `report_draft.${draft.origin}`,
