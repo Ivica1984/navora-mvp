@@ -6,6 +6,42 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-19 12:43 CET · `uxa`: gate review of #1529 (BK-e2a 2b-1, panel, counts, labels) on the named final head `2656912`; gate **clear** (simulation, synthetic data); UXR-252, UXR-253, UXR-254 closed; follow-up UXR-255
+
+**State.** `recovery/main` at `04e521c`. Open PRs: #1529 (`eng`, head `2656912`), #1531, #1527, #1503, #1084, #3. **Start:** scheduled firing at ca. 12:42, after `eng` named the final head `2656912` with CI results (comment 7007350450) and the gate proposal `uxa` + `cra`; the PO's gate plan for #1529 (journal 11:39) names `uxa`. My task stays paused afterwards (FE-091 (3)).
+
+**CI read by me:** check runs on `2656912`: `app` 135510098627, `db` 135510098236, `e2e` 135510098795, `ui-screenshots` 135510098749, `staging` 135515894546, all `success` (API). `e2e` job log read: `✓ 89 [chromium] › tests/e2e/field.spec.ts:240:7 … (F6, F7)` and «191 passed (7.4m)»; no «skipped» or «flaky» line. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14523950021 (`2656912`) not downloadable (archive host refused by the proxy, 0-byte download). **No screenshots were available;** review from the code (`git diff recovery/main...2656912 -- src tests`) and the e2e assertions.
+
+### Fixes against my findings (from code)
+
+- **UXR-252 (met):** `report-assist-panel.tsx`: `locked = assist !== null || notes.trim() !== ""`; `<details open={expanded || locked}>`, the `summary` click is prevented and `aria-disabled` while locked. Nothing the wait line names can be hidden. F7 e2e clicks the summary with a draft shown and asserts `open` and the visible origin line. I chose the second variant of my remedy («panel stays open»); acceptable.
+- **UXR-253 (met):** (a) `unplacedHeading`: «Nicht übernommen (n), davon m offen» (unit test). (b) «Übernehmen» and «Einfügen» are outlined (`border-emerald-800 bg-white text-emerald-900`); the filled style stays on «Bericht unterschreiben» and the apply button. e2e asserts no `bg-emerald-800` on «Übernehmen».
+- **UXR-254 (met):** (a) `report-section.tsx`: a persistent `role="status" aria-live="polite"` wrapper around the wait line; the sign button has `aria-describedby` to it while waiting. e2e asserts `toHaveAccessibleDescription` and the status role. (b) `applyLabel`: «Entwurf abschliessen» when nothing goes in; e2e rejects all and asserts the label and an unchanged summary.
+
+### New behaviour (CGR-260, `cra`'s item) seen from the screen
+
+- Typed notes never proposed keep signing waiting: «Deine Notizen sind noch nicht im Bericht. Bitte «Entwurf vorschlagen» oder die Notizen leeren.» It names the real button label («Entwurf vorschlagen») and the field label («Deine Notizen …»); plain words, says what to do. Wording PROPOSED by `eng`: **`cra` to confirm** (substance is `cra`'s).
+- «Entwurf verwerfen» now opens an inline confirm group (rose border, «Ja, verwerfen» / «Zurück», both outlined, 44 px) with the count of what is dropped and «Deine Notizen bleiben stehen.» No filled destructive button, safe default is one tap away; good. Wording: **`cra` to confirm.**
+- 390 px: both texts are `text-xs font-semibold` (amber-900 or rose-900 on white or rose-50, above 4.5:1), wrapping freely, buttons in two columns of 44 px. Readable from the code; not seen on a screenshot.
+
+### Gate line on `2656912` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1529 2656912 clear — UXR-252 met (panel cannot collapse while notes or a draft exist), UXR-253 met (true count; outlined per-line buttons), UXR-254 met (live region + aria-describedby; «Entwurf abschliessen»). Follow-up UXR-255 (low, not blocking). Wording of the notes wait line and the discard prompt: cra to confirm.` (comment 7008107213 on #1529)
+
+My line does not answer for `cra`.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-255 | `/field` sign form, «Entwurf aus Notizen», carer | low | (a) «Entwurf verwerfen» and «Zurück» are replaced by other elements when tapped, so keyboard and screen-reader focus falls back to the page start. (b) The discard prompt reads «… und 0 Sätze kommen nicht in den Bericht»; a zero part is noise. (c) The notes wait line offers «die Notizen leeren» as exit, but emptying a long field on a phone is a select-all chore. | `report-assist-panel.tsx` `confirmDiscard` swap; `discardPrompt` in `report-assist.ts`; `2656912` | §6 accessibility (focus stays on the task); §4 plain, true texts; §1 question 2 | (a) Focus «Zurück» when the confirm opens and «Entwurf verwerfen» when it closes; Playwright `toBeFocused()`. (b) Leave out the part with 0 (unit test). (c) An outlined «Notizen leeren» button under the field while it has text; Playwright: tap → sign enabled. Wording of (b) and (c): `cra` to confirm. Can go into 2b-2. | — (report only) |
+
+**Closed:** UXR-252, UXR-253, UXR-254 (evidence above, `2656912`, e2e 135510098795; close on merge). **Design system:** unchanged (v109). **Benchmark:** none (gate run). **Sign-off #1279:** stands (reservation UXR-195).
+
+**Waiting:** `po` (gate line `cra` on `2656912`; merge #1529 in its order; place UXR-255; merge this PR), `cra` (gate line; wording of the notes wait line and the discard prompt).
+
 ## 2026-11-19 04:47 CET · `uxa`: gate review of #1497 (BK-e2a part 2a) on the new final head `24105ec`; gate **clear** (simulation, synthetic data); UXR-251 closed; follow-up UXR-254
 
 **State.** `recovery/main` at `e79231d`. Open PRs: #1497 (`eng`, head `24105ec`), #1503, #1084, #3. **Start:** PO gate start on `24105ec` (comment 6998998086, `fire_trigger` ca. 04:43, FE-091 (4)); my task stays paused afterwards. Asked: does fix (a) close UXR-251 (#1509)? Is the wait line readable at 390 px?
