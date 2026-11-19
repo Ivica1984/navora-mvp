@@ -240,7 +240,7 @@ describe("checkDraft: value in source (AUT-149)", () => {
 describe("ruleProvider (test substitute, never called AI)", () => {
   it("is labelled rule-based and makes one sourced line per fact and per segment", async () => {
     expect(ruleProvider.kind).toBe("rule");
-    expect(RULE_ORIGIN_LABEL).toBe("regelbasiert, keine KI · synthetische Daten");
+    expect(RULE_ORIGIN_LABEL).toBe("regelbasiert, keine KI");
     expect(ruleProvider.label).toBe(RULE_ORIGIN_LABEL);
     const i = input("Klientin wach. Verband gewechselt.");
     const out = await ruleProvider.propose(i);
@@ -402,7 +402,9 @@ describe("createAnthropicProvider (Claude, founder decision 2026-11-18)", () => 
     );
     const p = createAnthropicProvider({ apiKey: "k", model: "claude-x", fetch });
     expect(p.kind).toBe("model");
-    expect(p.label).toMatch(/^KI-Entwurf · Claude claude-x · synthetische Daten/);
+    // Contract point 2 / `aia` gate point 6: the label is exactly this; the model id goes to the ledger, not the label.
+    expect(p.label).toBe("KI-Entwurf (Claude), synthetische Daten");
+    expect(p.modelId).toBe("claude-x");
     const i = input("Klientin wach. Verband gewechselt.");
     expect(await p.propose(i)).toEqual(answer);
 
@@ -414,6 +416,8 @@ describe("createAnthropicProvider (Claude, founder decision 2026-11-18)", () => 
     const body = JSON.parse(String(init.body));
     expect(body.model).toBe("claude-x");
     expect(body.temperature).toBe(0);
+    // `lca` 2026-11-19 03:43 (c) (2): the processing region is set explicitly so the registered region `us` is true.
+    expect(body.inference_geo).toBe("us");
     expect(body.messages).toHaveLength(1);
     expect(JSON.parse(body.messages[0].content)).toEqual({ segments: i.segments, facts: i.facts });
   });

@@ -7,13 +7,14 @@ import {
   decideLine,
   decideSegment,
   discardPrompt,
+  type LineDecision,
   openCount,
   signGate,
   type ReportAssist,
   type SignGate,
   unplacedHeading,
 } from "@/features/field/report-assist";
-import { proposeReportDraft } from "@/features/field/report-draft-command";
+import { decideReportDraftLine, proposeReportDraft } from "@/features/field/report-draft-command";
 
 /**
  * BK-e2a part 2 (ADR-207): «Entwurf aus Notizen» on the carer's open report.
@@ -75,6 +76,28 @@ export default function ReportAssistPanel({
     onSummary(composeSummary(summary, assist));
     update(null);
     setNotes("");
+  }
+
+  // ADR-216: a model line with a ledger row is decided in the ledger first; if that fails it stays open (fail closed).
+  async function decide(i: number, decision: LineDecision) {
+    if (!assist) return;
+    const line = assist.lines[i];
+    if (line?.suggestionId && decision !== "open") {
+      setPending(true);
+      setError(null);
+      const res = await decideReportDraftLine({
+        suggestionId: line.suggestionId,
+        decision,
+        text: line.text,
+        idempotencyKey: crypto.randomUUID(),
+      });
+      setPending(false);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+    }
+    update(decideLine(assist, i, decision));
   }
 
   const open = assist ? openCount(assist) : 0;
@@ -155,15 +178,15 @@ export default function ReportAssistPanel({
                   </p>
                   {line.decision === "open" ? (
                     <div className="grid grid-cols-2 gap-2">
-                      <button type="button" data-testid="report-assist-take" onClick={() => update(decideLine(assist, i, "taken"))} className="min-h-11 rounded-lg border border-emerald-800 bg-white font-semibold text-emerald-900">
+                      <button type="button" data-testid="report-assist-take" disabled={pending} onClick={() => decide(i, "taken")} className="min-h-11 rounded-lg border border-emerald-800 bg-white font-semibold text-emerald-900">
                         Übernehmen
                       </button>
-                      <button type="button" onClick={() => update(decideLine(assist, i, "dropped"))} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
+                      <button type="button" disabled={pending} onClick={() => decide(i, "dropped")} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
                         Verwerfen
                       </button>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => update(decideLine(assist, i, "open"))} className="min-h-11 text-left text-xs font-semibold underline underline-offset-4">
+                    <button type="button" onClick={() => decide(i, "open")} className="min-h-11 text-left text-xs font-semibold underline underline-offset-4">
                       {line.decision === "taken" ? "Übernommen" : "Verworfen"} · ändern
                     </button>
                   )}

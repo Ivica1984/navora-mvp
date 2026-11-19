@@ -9,7 +9,8 @@ import type { ReportDraft } from "@/lib/ai/report-draft/draft";
 export type LineDecision = "open" | "taken" | "dropped";
 export type SegmentDecision = "open" | "inserted" | "omitted";
 
-export type AssistLine = { text: string; sources: string[]; decision: LineDecision };
+/** `suggestionId`: the AIG1 ledger row of a model line (ADR-215/216); absent for the rule substitute. */
+export type AssistLine = { text: string; sources: string[]; decision: LineDecision; suggestionId?: string };
 export type AssistSegment = { id: string; text: string; decision: SegmentDecision };
 
 export type ReportAssist = {

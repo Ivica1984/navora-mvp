@@ -21,6 +21,8 @@ export interface Provider {
   kind: ProviderKind;
   /** Origin label shown beside the draft. A rule provider is never labelled as AI (FE-088 (4), FE-090 (4)). */
   label: string;
+  /** Model id of a model provider; written to the ledger row of each line (ADR-215 (2)), never shown as the label. */
+  modelId?: string;
   propose(input: DraftInput): Promise<ProviderOutput>;
 }
 

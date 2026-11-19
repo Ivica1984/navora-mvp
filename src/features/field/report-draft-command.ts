@@ -6,13 +6,17 @@
 
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
+import { randomUUID } from "node:crypto";
 import { resolveReportDraftProvider } from "@/lib/ai/report-draft/config";
 import { buildReportDraft } from "@/lib/ai/report-draft/draft";
+import { ruleProvider } from "@/lib/ai/report-draft/rule-provider";
 import { errorFields, logEvent } from "@/lib/log";
 import { assistAllowed, assistFromDraft, factsForProvider, type ReportAssist } from "./report-assist";
+import { attachSuggestions, ledgerGate, ledgerLines, ledgerOutcome, type LedgerGate } from "./report-ledger";
 
-/** AUT-138, AUT-153: flipped by the reviewed PR that adds the AIG1 ledger entry for model proposals (BK-e2a part 2b-2). */
-const MODEL_LEDGER_READY = false;
+// AUT-138, AUT-153 (ADR-216): there is no constant any more. Whether the model may run is the database gate's answer
+// (0151 `report_draft_model_gate`: performer, open draft, simulation organisation, threshold row, stop rule), read on
+// every request; any doubt keeps the model closed.
 
 const schema = z.object({
   visitId: z.uuid(),
@@ -50,16 +54,80 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
   const org = (team.data as { organizations?: { simulation?: boolean } | null } | null)?.organizations;
   const simulationOrg = org?.simulation === true;
 
-  const resolved = resolveReportDraftProvider(process.env, { simulationOrg, ledgerReady: MODEL_LEDGER_READY });
+  // The gate is read only when the model mode is configured; otherwise the rule substitute needs no ledger.
+  const gate: LedgerGate =
+    process.env.AI_REPORT_DRAFT_MODE === "model"
+      ? ledgerGate(await supabase.rpc("report_draft_model_gate", { p_report_id: report!.report_id }))
+      : { ready: false, reason: "ledger_missing" };
+  const resolved = resolveReportDraftProvider(process.env, { simulationOrg, ledgerReady: gate.ready });
   if (!resolved.provider) return { ok: false, error: "Berichtsentwürfe sind ausgeschaltet." };
+  // Name the database's own reason (no threshold row, stop rule, …) instead of the generic «ledger missing».
+  let modelBlocked: string | undefined =
+    resolved.modelBlocked === "ledger_missing" && !gate.ready ? gate.reason : resolved.modelBlocked;
 
-  const draft = await buildReportDraft({ text: parsed.data.text, facts: factsForProvider(report!.snapshot, resolved.provider.kind) }, resolved.provider);
+  let draft = await buildReportDraft({ text: parsed.data.text, facts: factsForProvider(report!.snapshot, resolved.provider.kind) }, resolved.provider);
+  let assist = draft.ok ? assistFromDraft(draft) : null;
+
+  // No model line on screen without its ledger row (ADR-216): record first; on any failure fall back to the rule
+  // substitute with its own label. Only line index, sources, a keyed digest, length and model id are stored (ADR-215).
+  if (draft.ok && draft.origin === "model" && assist && assist.lines.length > 0) {
+    const recorded = attachSuggestions(
+      assist,
+      await supabase.rpc("record_report_draft_proposal", {
+        p_report_id: report!.report_id,
+        p_model: draft.modelId ?? "",
+        p_lines: ledgerLines(assist),
+        p_idempotency_key: randomUUID(),
+      }),
+    );
+    if (recorded) assist = recorded;
+    else {
+      logEvent("warn", "report_draft.ledger_failed", { op: "report_draft.model", code: "ledger_missing" });
+      modelBlocked = "ledger_missing";
+      draft = await buildReportDraft({ text: parsed.data.text, facts: factsForProvider(report!.snapshot, "rule") }, ruleProvider);
+      assist = draft.ok ? assistFromDraft(draft) : null;
+    }
+  }
   // Origin, outcome and a count only; never the typed text (log allowlist, no clinical free text in logs).
   logEvent("info", "report_draft.proposed", {
     op: `report_draft.${draft.origin}`,
-    code: draft.ok ? (resolved.modelBlocked ?? "ok") : draft.error,
+    code: draft.ok ? (modelBlocked ?? "ok") : draft.error,
     count: draft.ok ? draft.unplaced.length : 0,
   });
-  if (!draft.ok) return { ok: false, error: draft.error === "input_too_long" ? "Bitte höchstens 8000 Zeichen eingeben." : FAILED };
-  return { ok: true, assist: assistFromDraft(draft), modelBlocked: resolved.modelBlocked };
+  if (!draft.ok || !assist) return { ok: false, error: !draft.ok && draft.error === "input_too_long" ? "Bitte höchstens 8000 Zeichen eingeben." : FAILED };
+  return { ok: true, assist, modelBlocked };
 }
+
+const decideSchema = z.object({
+  suggestionId: z.uuid(),
+  decision: z.enum(["taken", "dropped"]),
+  text: z.string().min(1).max(2000),
+  idempotencyKey: z.uuid(),
+});
+
+export type DecideResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * ADR-216: the carer's decision on one model line, written to the ledger before the screen shows it as decided.
+ * One line per call, never in bulk (`aia` gate point 7). The database checks performer and open draft again.
+ */
+export async function decideReportDraftLine(input: unknown): Promise<DecideResult> {
+  const parsed = decideSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: DECIDE_FAILED };
+  const outcome = ledgerOutcome(parsed.data.decision);
+  if (!outcome) return { ok: false, error: DECIDE_FAILED };
+  const { supabase } = await requireUser();
+  const res = await supabase.rpc("decide_report_draft_line", {
+    p_suggestion_id: parsed.data.suggestionId,
+    p_outcome: outcome,
+    // A rejected line carries no text (0151); a confirmed one is compared by its keyed digest.
+    p_text: (outcome === "confirmed" ? parsed.data.text : null) as string,
+    p_idempotency_key: parsed.data.idempotencyKey,
+  });
+  const result = (res.data as { result?: unknown } | null)?.result;
+  logEvent("info", "report_draft.decided", { op: `report_draft.${outcome}`, code: res.error ? "error" : String(result ?? "none") });
+  if (res.error || (result !== "ok" && result !== "duplicate")) return { ok: false, error: DECIDE_FAILED };
+  return { ok: true };
+}
+
+const DECIDE_FAILED = "Die Entscheidung konnte nicht gespeichert werden. Bitte nochmals versuchen.";

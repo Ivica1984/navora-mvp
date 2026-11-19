@@ -7,6 +7,14 @@ import { ModelConfigError, REPORT_DRAFT_SYSTEM_PROMPT, parseDraftJson } from "./
  * for real persons D-35 rule A stays in force. The host is fixed here, not taken from the environment.
  */
 export const ANTHROPIC_HOST = "api.anthropic.com";
+/** Contract BK-e2 point 2 (`aia` gate point 6): exactly this text. */
+export const CLAUDE_ORIGIN_LABEL = "KI-Entwurf (Claude), synthetische Daten";
+/**
+ * `lca` 2026-11-19 03:43 (c) (2), contract point 2: the processing region is set explicitly, so the region registered
+ * for `report_draft_model` (0151: `us`) is what the call asks for. Parameter name and value as `lca` read them in the
+ * Anthropic data-residency docs; if the API refuses it the call fails and the carer gets no model draft (fail closed).
+ */
+export const CLAUDE_INFERENCE_GEO = "us";
 const ENDPOINT = `https://${ANTHROPIC_HOST}/v1/messages`;
 
 export type AnthropicProviderOptions = {
@@ -22,7 +30,8 @@ export function createAnthropicProvider(opts: AnthropicProviderOptions): Provide
 
   return {
     kind: "model",
-    label: `KI-Entwurf · Claude ${opts.model} · synthetische Daten · jede Zeile prüfen`,
+    label: CLAUDE_ORIGIN_LABEL,
+    modelId: opts.model,
     async propose(input: DraftInput): Promise<ProviderOutput> {
       const res = await opts.fetch(ENDPOINT, {
         method: "POST",
@@ -35,6 +44,7 @@ export function createAnthropicProvider(opts: AnthropicProviderOptions): Provide
           model: opts.model,
           max_tokens: 4096,
           temperature: 0,
+          inference_geo: CLAUDE_INFERENCE_GEO,
           system: REPORT_DRAFT_SYSTEM_PROMPT,
           messages: [{ role: "user", content: JSON.stringify({ segments: input.segments, facts: input.facts }) }],
         }),
