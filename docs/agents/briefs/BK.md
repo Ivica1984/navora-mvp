@@ -1256,3 +1256,51 @@ Read: #1489 merge record (comment 6994408529, founder live session ca. 00:20); `
 5. **Staging smoke (ADR-205):** IMPLEMENTED, runs, fails only for the three missing founder secrets (UNKNOWN whether the click paths pass).
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 01:39 (scheduled PO run): engineering standards placed; #1494 still on the `aia` gate
+
+Read: #1494 head `cf1b6e9` unchanged, `mergeable_state` clean, 5/5 check runs `success`, no `aia` gate line yet (`aia` next run ca. 02:17 CET, `list_triggers`); #1497 head `d254827`, waits for #1494. Merged this run as `eng` role docs: #1499 (`19aab0c`), #1501 (`73c806c`), #1500 (`87f6f8b`, `docs/engineering/STANDARDS.md`, PROPOSED). Staging app: Render live on `011dfd5` (read by `eng` 01:12, not by the PO), contains `8532942` (CGR-256) and migration 0150.
+
+1. **Engineering standards S1–S8 (founder asked `eng`, relayed; PROPOSED):** placed, none is a merge condition of #1494 or #1497 (BK BUILD PHASE point 3). S1 (provenance ledger) is BK-e2a part 2b, already next. S2 (AI evaluation set in CI, recorded answers, no live call in CI) before the first live model draft is shown to the founder. S6 (smoke after each deploy) once the founder's three secrets exist. S3 (handgrips as e2e counts) with BK-g. S4, S5, S7, S8 one at a time inside the active block. Targets are set or changed only by the PO; no test is weakened to reach one. Field reviews: `aia` (S1, S2), `cra` (S4 invariants), `lca` (S1 retention of the provenance record) at their next run or gate start.
+2. **Deviation noted, not changed:** `eng` 00:50 reports that ADR-206 (8) («the founder can switch Claude on by setting the variables») holds only after part 2b, because AUT-138 forbids a model proposal without its audit record. This matches FE-094 note (d) («Umgebungswerte erst nach Teil 2»); no new decision needed.
+3. **Render deploy `5b73d8b` ended `update_failed` (00:29 CET)** per `eng` 01:12, superseded by a successful deploy; cause UNKNOWN. Not a condition; named follow-up for S6: the smoke records deploy status per commit.
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 02:39 (scheduled PO run): #1494 merged; part 2b waits for owner views; AUT-149 to AUT-151 placed
+
+Read: `aia-gate: #1494 cf1b6e9 clear (Simulation, synthetic data)` (comment 6996713600); 5/5 check runs `success`, clean, 0 threads. **#1494 merged** `e5f138f` (record 6997053038); `ci` on the merge commit was running at the PO's read (first `e2e` run `cancelled` by the concurrency group), read next run (§5.4). Role docs merged: #1505 (`aia` 71) `f212506`, #1504 (`eng` 02:12, part 2b ADR draft) `6b1698c`. No migration merged; staging unchanged.
+
+1. **Part 2b (AIG1 ledger) stays an ADR draft** (`docs/engineering/probes/BK-e2a-part2b_ADR_DRAFT.md`, option A). PO direction (WHAT): the database refusal of `kind = 'ai'` agents stays as built (stricter than FE-094; never relaxed without a founder decision); fail closed; `MODEL_LEDGER_READY = false` until part 2b is merged. The three open points are not decided by the PO: level G (`cra`, D-34), ledger value form and retention (`lca`), input references (`aia`). They are asked at the next gate start of `cra` and `lca` for #1497 as a separate, non-blocking section; they are no merge condition of #1497.
+2. **AUT-149** (`value_not_in_source`: every number, time and unit token of a line occurs in its cited sources; red test first; both providers): part of part 2b, before any model line is shown (with S2). **AUT-150** (kill switch fails closed on any value but empty/`off`; exact host compare): part 2b. Not conditions of #1497.
+3. **AUT-151** (facts as fixed context, a decision only on lines that cite a segment): PO supports the direction (value order 1, 5; answers H-BK-01:39). Question for `uxa` and `cra` at the #1497 gate; no merge condition; if built, a follow-up PR after #1497.
+4. **Order:** #1497 (needs `recovery/main` merged in by `eng`, a named final head, then gate starts `cra`, `uxa`, `lca` and the `aia` line) → part 2b → BK-e2b. **#1503 (ADR-208 handgrip ratchet, tests only, S3)** may merge in a run in which #1497 is not mergeable, after its `aia` gate line; `eng` names which test is the «1 skipped» in its `e2e` (a BK-e acceptance needs 0 skipped).
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 03:39 (scheduled PO run): #1497 final head `5a5ef5f`; gate starts; fixed residual list of part 2a
+
+Read: `eng` 03:25 (#1507, merged `245241d`); #1497 final head `5a5ef5f` (comment 6997763779), check runs `app`, `db`, `e2e` (191 passed, 0 skipped per `eng`), `ui-screenshots`, `staging` all `success`, `mergeable_state` clean, 0 review threads; `ci` push run 44438726646 on the #1494 merge commit `e5f138f`: `success` (§5.4 closed).
+
+1. **Fixed residual list for #1497 (BK-e2a part 2a)**, taken from criteria 5 and 7 of this brief and the PR's own scope; nothing added (BK BUILD PHASE point 3):
+   - R1 `tests/unit/report-assist.test.ts` and the extended F7 e2e green on the head, 0 skipped.
+   - R2 every environment shows the rule substitute «regelbasiert, keine KI · synthetische Daten»; `MODEL_LEDGER_READY = false` (AUT-138).
+   - R3 decision per line, no accept-all; every unused sentence in «Nicht übernommen (n)» with «Einfügen» / «Bewusst weglassen»; «Bericht unterschreiben» disabled while anything is open (CGR-213 (b), `uxa` variant).
+   - R4 the action writes nothing; performer only; F6/F7 signature path and snapshot hash unchanged; no migration.
+   - R5 gate lines `cra`, `uxa`, `lca`, `aia` on `5a5ef5f`.
+   Criterion 5 parts that are not in part 2a (the signed version records its input; the shared 40-segment test) stay BK-e2b / BK-e2 acceptance criteria, not #1497 conditions.
+2. **Gate starts (point 2) ca. 03:41 CET:** `fire_trigger` on «NAVORA Clinical & Regulatory Architect» (session `cse_011vs8735ShbawQwccYiPdd3`), «NAVORA UX/UI Design Architect» (`cse_011vs8748uLbdx1WZLzi3dVD`), «NAVORA Legal & Compliance Agent» (`cse_011vs875SmtttAWFhwmocvRf`); all accepted, tasks stayed `enabled = false`. `aia` (active) asked on the PR (comment 6998042809). The part 2b questions (level G, ledger value form and retention, provider terms, AUT-149, AUT-151) were sent as a separate, non-blocking section.
+3. **Merge rule:** first PO run after all four lines on `5a5ef5f`, code head unchanged (AUT-50). If a line is still missing after its run, one more start (point 2 (d)).
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 04:39 (scheduled PO run): #1497 new final head `24105ec`; second gate start
+
+Read: gate lines on `5a5ef5f`: `lca` clear (6998075328), `cra` clear (6998097895; CGR-260 advisory follow-up), `uxa` **not clear — UXR-251** (6998085695, issue #1509). `eng` 04:10 run moved the head to `24105ec` (UXR-251 fix (a), comment 6998752882); diff `5a5ef5f..24105ec` read by the PO: 6 files (`report-assist.ts` `signGate`/`signWaitText`, `report-section.tsx`, `report-assist-panel.tsx`, unit and F7 e2e tests, ADR-207 addendum 6); no migration; server action, facts, log and sign path unchanged. Check runs on `24105ec`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success`; `mergeable_state` clean.
+
+1. **UXR-251 is inside the residual list, not a new condition.** It is a documented function defect in the agreed flow (chosen lines missing from the signed report), so it falls under the point 3 exception and R3 («signing disabled while anything is open»). Fix (a) is `eng`'s choice; fix (b) (auto-place) is not placed in part 2a.
+2. **R5 now reads:** gate lines `cra`, `uxa`, `lca`, `aia` on the final head `24105ec` (AUT-50). R1–R4 unchanged.
+3. **Gate starts (point 2) ca. 04:43 CET:** `fire_trigger` on «NAVORA UX/UI Design Architect» (`cse_011vs8737UEibPXTxV3gPVSx`), «NAVORA Clinical & Regulatory Architect» (`cse_011vs876P89vwA3UGNkBnUKf`), «NAVORA Legal & Compliance Agent» (`cse_011vs874mHrhBHy2GvPJajp1`); all accepted, tasks stayed `enabled = false`. `eng`'s open question (wait-line wording) went to `cra`. `aia` asked again on the PR (comment 6998998086).
+4. **Named follow-ups, not #1497 conditions:** CGR-260 (unproposed notes and «Entwurf verwerfen» clear open sentences; S2 before real data), UXR-252, UXR-253, L-1497-1 (`services_provided` catalogue before a model sees it), L-1497-2 (typed notes synthetic only). They go to part 2b or BK-e2b.
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.

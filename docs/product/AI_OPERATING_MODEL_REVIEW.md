@@ -631,6 +631,14 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Gate path (AUT-148):** FE-089 (4) allows the PO to start only `cra` and `uxa` for the active slice; the provider reading by `lca` needs a founder-named path. OPEN (founder).
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**BK-e2a chain: gate on part 1; value in source; facts are context; a stop rule without the AIG1 switch (`aia` 2026-11-19 02:18, review 71, AUT-149 to AUT-152):**
+- **Gate:** `aia-gate: #1494 cf1b6e9 clear` (Simulation, synthetic data). The adapter, the control layer, the honest labels and the guards are IMPLEMENTED on the branch. Nothing calls them.
+- **Control «value in source» (AUT-149):** every number, time and unit token in a draft line must occur in its cited sources, or the line is rejected. This holds for the rule and the model provider alike. PLANNED (`eng`, `cra`).
+- **Control «guards fail closed» (AUT-150):** any kill-switch value other than empty or `off` stops the model. The project host is compared exactly. PLANNED (`eng`).
+- **Control «recorded facts are context, not decisions» (AUT-151):** only lines from the carer's own words are decided one by one. A model line that cites only facts must repeat the fact text exactly. PLANNED (`eng`, `uxa`, `cra`).
+- **Control «stop rule without the AIG1 switch» (AUT-152):** under ADR draft option A, the server applies the AIG1 predicate before each model call. Without a threshold row, the model mode is closed. PLANNED (`eng`, `po`, `cra`).
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -703,3 +711,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-18 08:22 | `aia` | §12: block «BK-e report draft; three source classes; planned is not performed»: H-BK-02:39 supported with three source classes; AIG1 fits BK-e2 without schema change; controls AUT-141 (planned is not performed), AUT-142 (count the acts after the shift). No agent added or removed |
 | 2026-11-18 14:23 | `aia` | §12: block «Closed by default; a metric names its action»: H-BK-11:39, H-BK-12:39, H-BK-13:39 supported; control AUT-144 (a kind that leaves a base stays visible). No agent added or removed |
 | 2026-11-18 15:46 | `aia` | §12: block «First real AI function: decision template; rule before and after the model»: PO choice BK-d supported; FE-089 (5) labelling; controls AUT-145 (validator, test double, baseline in one rule), AUT-146 (four fields), AUT-147 (minimal request); gate-path gap AUT-148. No agent added or removed |
+| 2026-11-19 02:18 | `aia` | §12: block «BK-e2a chain: gate on part 1; value in source; facts are context; a stop rule without the AIG1 switch»: `aia-gate: #1494 cf1b6e9 clear`; controls AUT-149 to AUT-152. No agent added or removed |
