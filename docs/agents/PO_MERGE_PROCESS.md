@@ -89,6 +89,14 @@ All seven conditions must hold **for the head commit being merged**. The PO writ
 - Role docs PRs: conditions 1 and 5 apply, plus "the PR touches only that role's own files and no `src/`, `supabase/`, `tests/` or `e2e/` file" (CGR-135). Conditions 2-4, 6 and 7 do not apply to them.
 - The PO never merges its own code (it writes none) and never accepts its own work: a PO docs PR is merged on conditions 1 and 5 alone, and acceptance does not apply.
 
+## 4a. One gate window per package (founder FE-097, 2026-11-19; issue #1555)
+
+1. **One window:** after `eng` posts `Paket prüfbereit:` (FE-095 (3)) on a stable head with every CI job green, the PO starts **all** gates the package contract names, on that one head, in one start, with one due time. The gate-start rule of FE-089 (2) still applies to paused roles (fire, or enable-fire-pause, recorded under FE-089).
+2. **No interim gates:** stacked or preparatory PRs of an active package get no gate of their own; they ride with the package head.
+3. **Merge in the same cycle:** once every gate line names that head `clear` and conditions 1-7 of section 4 hold, the PO merges in the same run, then reads the `staging` job log (BK BUILD PHASE point 4).
+4. **Residual list fixed at the window:** findings after the window go to follow-up items, except a documented substantial safety, privacy or function defect in the agreed flow.
+5. A paused role is never counted as approving; a missing gate line is not `clear`.
+
 ## 5. After the merge: acceptance and milestone status
 
 1. Wait for CI on the merge commit.
