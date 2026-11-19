@@ -255,11 +255,26 @@ test.describe("field tool (F1)", () => {
     const assist = review.getByTestId("report-assist");
     await assist.locator("summary").click();
     await assist.getByTestId("report-assist-notes").fill("Synthetisch: Klientin wach und gesprächig. Trinkt gut.");
+    // CGR-260 (a): typed notes that were never proposed are not in the report, so signing waits and says why;
+    // UXR-254 (a): the wait line is a live region and describes the disabled sign button.
+    const sign = review.getByRole("button", { name: "Bericht unterschreiben" });
+    await expect(review.getByTestId("report-assist-sign-wait")).toHaveText(
+      "Deine Notizen sind noch nicht im Bericht. Bitte «Entwurf vorschlagen» oder die Notizen leeren.",
+    );
+    await expect(sign).toBeDisabled();
+    await expect(sign).toHaveAccessibleDescription(/Deine Notizen sind noch nicht im Bericht/);
+    await expect(review.getByRole("status").filter({ has: review.getByTestId("report-assist-sign-wait") })).toHaveCount(1);
     await assist.getByTestId("report-assist-propose").click();
     await expect(assist.getByTestId("report-assist-origin")).toContainText("regelbasiert, keine KI · synthetische Daten");
     await expect(assist.getByRole("button", { name: /alle/i })).toHaveCount(0);
     await expect(review.getByTestId("report-assist-sign-wait")).toBeVisible();
     await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeDisabled();
+    // UXR-252: with a draft shown the panel cannot be collapsed, so the open items the wait line names stay visible.
+    await assist.locator("summary").click();
+    await expect(assist).toHaveAttribute("open", "");
+    await expect(assist.getByTestId("report-assist-origin")).toBeVisible();
+    // UXR-253 (b): «Übernehmen» is outlined; the only filled primary button of the form stays «Bericht unterschreiben».
+    await expect(assist.getByTestId("report-assist-take").first()).not.toHaveClass(/bg-emerald-800/);
     const lines = assist.getByTestId("report-assist-line");
     for (const line of await lines.all()) {
       const text = await line.locator("p").first().innerText();
@@ -276,11 +291,37 @@ test.describe("field tool (F1)", () => {
     await expect(review.getByTestId("report-assist-sign-wait")).toHaveCount(0);
     await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeEnabled();
 
-    // UXR-251: «Entwurf verwerfen» is the other explicit end of a draft; signing is allowed again afterwards.
+    // UXR-254 (b): when every line is dropped and every sentence left out, the button says it only closes the draft.
+    await assist.getByTestId("report-assist-notes").fill("Synthetisch: Klientin müde.");
+    await assist.getByTestId("report-assist-propose").click();
+    for (const name of ["Verwerfen", "Bewusst weglassen"]) {
+      while ((await assist.getByRole("button", { name, exact: true }).count()) > 0) {
+        await assist.getByRole("button", { name, exact: true }).first().click();
+      }
+    }
+    await expect(assist.getByTestId("report-assist-apply")).toHaveText("Entwurf abschliessen");
+    await assist.getByTestId("report-assist-apply").click();
+    await expect(review.getByTestId("report-assist-sign-wait")).toHaveCount(0);
+    await expect(review.getByLabel("Zusammenfassung (optional)")).toHaveValue(/Trinkt gut\.$/);
+
+    // CGR-260 (b): «Entwurf verwerfen» is the other explicit end of a draft; it asks once and names what is dropped.
+    // Her notes stay on screen and keep signing waiting (CGR-260 (a)) until she proposes them or empties the field.
     await assist.getByTestId("report-assist-notes").fill("Synthetisch: Klientin müde.");
     await assist.getByTestId("report-assist-propose").click();
     await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeDisabled();
     await assist.getByRole("button", { name: "Entwurf verwerfen" }).click();
+    const confirm = assist.getByTestId("report-assist-discard-confirm");
+    await expect(confirm).toContainText(/^Entwurf verwerfen\? \d+ (Zeile|Zeilen) und \d+ (Satz|Sätze) kommen nicht in den Bericht\./);
+    await confirm.getByRole("button", { name: "Zurück" }).click();
+    await expect(assist.getByTestId("report-assist-origin")).toBeVisible();
+    await assist.getByRole("button", { name: "Entwurf verwerfen" }).click();
+    await confirm.getByRole("button", { name: "Ja, verwerfen" }).click();
+    await expect(assist.getByTestId("report-assist-notes")).toHaveValue("Synthetisch: Klientin müde.");
+    await expect(review.getByTestId("report-assist-sign-wait")).toHaveText(
+      "Deine Notizen sind noch nicht im Bericht. Bitte «Entwurf vorschlagen» oder die Notizen leeren.",
+    );
+    await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeDisabled();
+    await assist.getByTestId("report-assist-notes").fill("");
     await expect(review.getByTestId("report-assist-sign-wait")).toHaveCount(0);
     await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeEnabled();
     await expect(review.getByLabel("Zusammenfassung (optional)")).toHaveValue(/Trinkt gut\.$/);
