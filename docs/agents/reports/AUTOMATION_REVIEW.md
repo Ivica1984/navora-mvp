@@ -31,6 +31,39 @@
 
 ---
 
+## 2026-11-19 19:05 CET · aia review 74: `aia-gate: #1527 e638c57 clear` (Simulation, synthetic data); `aia` checks for the BK-e2 Abschlusspaket named before its ready report (AUT-158, medium); AUT-156 applied as the PO read it
+
+**Read:** `recovery/main` at `943c62b` (since review 73: PO journals 14:39 to 18:55, `eng` 14:40 to 17:12, FE-095 and FE-096, `docs/agents/ENG_PROMPT_FE-096.md`). Open PRs: #1527 head `e638c57` (diff-of-diffs against `c63f177`), #1549 (draft, marked «nicht prüfbereit» by `eng`; scope only, no gate), #1540 and #1541 (not in *Active now*, not read). CI facts come from check runs and two job logs I read myself (`app` 135659112473, `e2e` 135659113194). I ran no NAVORA test, did not touch the live project, chose no provider and moved no data.
+
+**Active block (README rule 12):** BK, slice BK-e. #1527 is in the active slice. I ask for no merge outside it.
+
+**Task adjustment (README rule 11):** the gate line on `e638c57` that the PO named as the only open item on #1527 (comment 7015581562), plus my gate checks for the package, named now as FE-095 (4) asks. No bottleneck-map refresh: v4 is due 2026-11-24.
+
+### 1 Done
+
+- **#1527** (comment 7017649626): `aia-gate: #1527 e638c57 clear (Simulation, synthetic data)`.
+  - PR-own change on `src tests` (base `d1a70d7` → `e638c57`): the same removed and added lines as on `c63f177`. Only the hunk pairing in `tests/unit/report-assist.test.ts` differs.
+  - For each of the five PR files, `git diff c63f177 e638c57` equals the #1503 change `git diff 4df9dfd d1a70d7` up to `@@` line numbers. Outside code: `DECISIONS.md` only.
+  - AUT-153, AUT-150 and L-1497-1 stay met. `withLedgerGuard` appears nowhere; `MODEL_LEDGER_READY = false`.
+  - CI 5/5 `success` (run 44552336268); `app` 1544 unit tests passed, `e2e` 192 passed (logs read).
+- **AUT-156 as applied:** the PO read condition (1) strictly (the gate line must name the merged head, 17:39). I agree; that is what AUT-156 says when (1) fails by offsets. The review then covers only the diff-of-diffs, as done here. The wait was the 6-hour cycle (ready report 17:12 → line 19:05), not the review work.
+
+### 2 Findings
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-158 | Our own delivery process: `eng`, PO and `aia` for the BK-e2 Abschlusspaket (#1549) | FE-095 (4): roles must name their checks before the package, not as a chain on the open PR. #1549 is the first package that can connect a model (staging, synthetic data). Without a named list, my gate on the package head could add requests late. | **Rule (named checks, fixed now):** on the package head I check only these, each in code or CI: (1) `MODEL_LEDGER_READY` comes only from an AIG1 ledger row, never from an env flag alone; (2) one suggestion-ledger row per draft with model id, input refs and confirmer; (3) AUT-149: every draft line has a source id and its value is in that source, else the line is dropped; (4) AUT-152: with no threshold row from `cra` the model stays closed (fail closed); (5) the S2 set runs in CI on synthetic data and its result is in the log; (6) the label says exactly «KI-Entwurf (Claude), synthetische Daten» or «regelbasiert, keine KI»; (7) no accept-all; each line is accepted or rejected by the signing carer; (8) the stop switch and the exact staging host from AUT-150 stay in force; (9) the correction rate per agent and field is countable at team level, never per person. Not my check: the threshold value (`cra`), the provider, region and `inference_geo` (`lca`, D-35, D-41; the PO note of 18:39 stands). | none (process); the package itself is L | Stage 1 synthetic only; `aia`, `cra`, `lca` | Extra requests by `aia` after `Paket prüfbereit:` (target 0) | medium | — (report; one comment on #1549) |
+
+**Closed with evidence:** none yet. AUT-153 closes when #1527 is merged.
+
+**Challenges:** none new. FE-096 makes AI an `eng` responsibility «with `aia`»; that adds no step for a carer and no approval beyond the existing gate, so no challenge.
+
+### 3 Stage tracking
+
+Unchanged. Stage 1 applies to synthetic data only; stage 0 applies to real data. No model is connected in any environment. Entry conditions still missing for a model call on staging: the AIG1 ledger row, the S2 set, AUT-149, the AUT-152 stop rule (threshold by `cra`), `lca` on the provider (D-35), and the staging key (FE-094 (d), founder).
+
+---
+
 ## 2026-11-19 14:22 CET · aia review 73: `aia-gate: #1503 cf02fa1 clear` and `aia-gate: #1527 c63f177 clear` (Simulation, synthetic data); carry-over of a gate line after a merge-up accepted on conditions (AUT-156, medium); one ADR file per decision supported (AUT-157, low); AUT-138 closed
 
 **Read:** `recovery/main` at `4df9dfd` (since review 72: PO journals 08:39 to 13:39, `eng` 09:14, 10:20 and 11:10, `cra` 12:50, `uxa` 12:43 and 12:44).
