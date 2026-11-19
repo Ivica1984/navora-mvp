@@ -55,10 +55,15 @@ export function openCount(a: ReportAssist): number {
  * been placed into the summary yet («unplaced»); otherwise the chosen lines would be missing from the signed report.
  * Only «In die Zusammenfassung übernehmen» or «Entwurf verwerfen» (both remove the draft) clear it.
  */
-export type SignGate = { kind: "clear" } | { kind: "open"; open: number } | { kind: "unplaced" };
+export type SignGate = { kind: "clear" } | { kind: "open"; open: number } | { kind: "unplaced" } | { kind: "notes" };
 
-export function signGate(a: ReportAssist | null): SignGate {
-  if (!a) return { kind: "clear" };
+/**
+ * CGR-260 (a): with no draft shown, text still in «Deine Notizen» was never proposed, so it is not in the report.
+ * Signing waits until she proposes it or empties the field herself (an explicit act). With a draft shown, the draft
+ * decides the gate (its notes are part of it).
+ */
+export function signGate(a: ReportAssist | null, notes = ""): SignGate {
+  if (!a) return notes.trim().length > 0 ? { kind: "notes" } : { kind: "clear" };
   const open = openCount(a);
   return open > 0 ? { kind: "open", open } : { kind: "unplaced" };
 }
@@ -68,7 +73,34 @@ export function signWaitText(g: SignGate): string | null {
   if (g.kind === "open")
     return `Noch ${g.open} ${g.open === 1 ? "Punkt" : "Punkte"} im Entwurf offen. Bitte zuerst entscheiden oder den Entwurf verwerfen.`;
   if (g.kind === "unplaced") return "Entwurf noch nicht in die Zusammenfassung übernommen. Bitte übernehmen oder den Entwurf verwerfen.";
+  // CGR-260 (a); wording PROPOSED by `eng`, `uxa` and `cra` to confirm.
+  if (g.kind === "notes") return "Deine Notizen sind noch nicht im Bericht. Bitte «Entwurf vorschlagen» oder die Notizen leeren.";
   return null;
+}
+
+/**
+ * CGR-260 (b): «Entwurf verwerfen» is a confirmed act that names what would still have gone into the report:
+ * lines not already dropped and sentences not already left out. Her notes stay on screen (and keep signing waiting,
+ * CGR-260 (a)). Wording PROPOSED by `eng`, `uxa` and `cra` to confirm.
+ */
+export function discardPrompt(a: ReportAssist): string {
+  const lines = a.lines.filter((l) => l.decision !== "dropped").length;
+  const sentences = a.unplaced.filter((u) => u.decision !== "omitted").length;
+  return `Entwurf verwerfen? ${lines} ${lines === 1 ? "Zeile" : "Zeilen"} und ${sentences} ${sentences === 1 ? "Satz" : "Sätze"} kommen nicht in den Bericht. Deine Notizen bleiben stehen.`;
+}
+
+/** UXR-253 (a): the heading counts every unused sentence and says how many are still open. */
+export function unplacedHeading(a: ReportAssist): string {
+  const open = a.unplaced.filter((u) => u.decision === "open").length;
+  return `Nicht übernommen (${a.unplaced.length}), davon ${open} offen`;
+}
+
+/** UXR-254 (b): the apply button says what it does; when nothing goes in, it only closes the draft. */
+export function applyLabel(a: ReportAssist): string {
+  const open = openCount(a);
+  if (open > 0) return `Noch ${open} offen`;
+  const adds = a.lines.some((l) => l.decision === "taken") || a.unplaced.some((u) => u.decision === "inserted");
+  return adds ? "In die Zusammenfassung übernehmen" : "Entwurf abschliessen";
 }
 
 /** The summary text after the carer's decisions: existing text, then taken lines, then inserted segments. */

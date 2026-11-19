@@ -230,12 +230,21 @@ export default function ReportSection({
           <p className="text-xs text-secondary">
             Mit der Unterschrift bestätigst du die Angaben. Danach ist der Bericht nicht mehr änderbar. Du kannst auch später unterschreiben.
           </p>
-          {draftWait && (
-            <p data-testid="report-assist-sign-wait" className="text-xs font-semibold text-amber-900">
-              {draftWait}
-            </p>
-          )}
-          <button type="submit" disabled={pending || draftWait !== null} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+          {/* UXR-254 (a): a live region that stays in the page, so a change of the wait line is announced, and the sign
+              button is described by it. */}
+          <div id={`report-sign-wait-${report.report_id}`} role="status" aria-live="polite">
+            {draftWait && (
+              <p data-testid="report-assist-sign-wait" className="text-xs font-semibold text-amber-900">
+                {draftWait}
+              </p>
+            )}
+          </div>
+          <button
+            type="submit"
+            disabled={pending || draftWait !== null}
+            aria-describedby={draftWait ? `report-sign-wait-${report.report_id}` : undefined}
+            className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60"
+          >
             {pending ? "Wird gespeichert …" : "Bericht unterschreiben"}
           </button>
         </form>

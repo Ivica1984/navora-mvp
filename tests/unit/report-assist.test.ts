@@ -11,6 +11,9 @@ import {
   openCount,
   signGate,
   signWaitText,
+  unplacedHeading,
+  applyLabel,
+  discardPrompt,
 } from "@/features/field/report-assist";
 import * as assistModule from "@/features/field/report-assist";
 import { checkDraft } from "@/lib/ai/report-draft/control";
@@ -182,5 +185,88 @@ describe("report assist: signing waits until the decided draft is placed (UXR-25
     let a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
     a = decideSegment(decideLine(a, 0, "dropped"), "s2", "omitted");
     expect(signGate(a)).toEqual({ kind: "unplaced" });
+  });
+});
+
+describe("report assist: typed notes not yet proposed keep signing waiting (CGR-260 (a))", () => {
+  it("waits while the notes field holds text that was never proposed", () => {
+    expect(signGate(null, "Synthetisch: Sturz im Bad.")).toEqual({ kind: "notes" });
+    expect(signWaitText({ kind: "notes" })).toBe(
+      "Deine Notizen sind noch nicht im Bericht. Bitte «Entwurf vorschlagen» oder die Notizen leeren.",
+    );
+  });
+
+  it("is clear when the notes field is empty or only whitespace", () => {
+    expect(signGate(null, "")).toEqual({ kind: "clear" });
+    expect(signGate(null, "  \n ")).toEqual({ kind: "clear" });
+    expect(signGate(null)).toEqual({ kind: "clear" });
+  });
+
+  it("an existing draft decides the gate; the notes behind it are part of that draft", () => {
+    const a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    expect(signGate(a, "Klientin wach. Trinkt wenig.")).toEqual({ kind: "open", open: 2 });
+  });
+});
+
+describe("report assist: «Entwurf verwerfen» is confirmed and names what is dropped (CGR-260 (b))", () => {
+  it("names the lines and sentences that would still have gone into the report", () => {
+    const a = draft("Klientin wach. Trinkt wenig. Schläft gut.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    expect(discardPrompt(a)).toBe(
+      "Entwurf verwerfen? 1 Zeile und 2 Sätze kommen nicht in den Bericht. Deine Notizen bleiben stehen.",
+    );
+  });
+
+  it("does not count lines already dropped or sentences already left out", () => {
+    let a = draft("Klientin wach. Trinkt wenig.", {
+      lines: [
+        { text: "Klientin wach.", sources: ["s1"] },
+        { text: "Trinkt wenig.", sources: ["s2"] },
+      ],
+    });
+    a = decideLine(a, 0, "dropped");
+    expect(discardPrompt(a)).toBe("Entwurf verwerfen? 1 Zeile und 0 Sätze kommen nicht in den Bericht. Deine Notizen bleiben stehen.");
+    a = decideLine(a, 1, "taken");
+    expect(discardPrompt(a)).toBe("Entwurf verwerfen? 1 Zeile und 0 Sätze kommen nicht in den Bericht. Deine Notizen bleiben stehen.");
+  });
+
+  it("uses the plural for several lines and the singular for one sentence", () => {
+    const a = draft("Klientin wach. Trinkt wenig. Schläft gut.", {
+      lines: [
+        { text: "Klientin wach.", sources: ["s1"] },
+        { text: "Trinkt wenig.", sources: ["s2"] },
+      ],
+    });
+    expect(discardPrompt(a)).toBe("Entwurf verwerfen? 2 Zeilen und 1 Satz kommen nicht in den Bericht. Deine Notizen bleiben stehen.");
+  });
+});
+
+describe("report assist: true counts on «Nicht übernommen» (UXR-253 (a))", () => {
+  it("shows the total and how many are still open", () => {
+    let a = draft("Klientin wach. Trinkt wenig. Schläft gut.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    expect(unplacedHeading(a)).toBe("Nicht übernommen (2), davon 2 offen");
+    a = decideSegment(a, "s2", "omitted");
+    expect(unplacedHeading(a)).toBe("Nicht übernommen (2), davon 1 offen");
+    a = decideSegment(a, "s3", "inserted");
+    expect(unplacedHeading(a)).toBe("Nicht übernommen (2), davon 0 offen");
+  });
+});
+
+describe("report assist: the apply button says what happens (UXR-254 (b))", () => {
+  it("names the open count while anything is undecided", () => {
+    const a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    expect(applyLabel(a)).toBe("Noch 2 offen");
+  });
+
+  it("says «Entwurf abschliessen» when every line was dropped and every sentence left out", () => {
+    let a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    a = decideSegment(decideLine(a, 0, "dropped"), "s2", "omitted");
+    expect(applyLabel(a)).toBe("Entwurf abschliessen");
+    expect(composeSummary("Vorher.", a)).toBe("Vorher.");
+  });
+
+  it("says «In die Zusammenfassung übernehmen» when at least one line or sentence goes in", () => {
+    let a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    a = decideSegment(decideLine(a, 0, "dropped"), "s2", "inserted");
+    expect(applyLabel(a)).toBe("In die Zusammenfassung übernehmen");
   });
 });
