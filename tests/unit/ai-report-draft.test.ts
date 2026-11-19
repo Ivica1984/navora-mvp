@@ -194,13 +194,13 @@ describe("resolveReportDraftProvider (one stop switch, simulation only)", () => 
   };
 
   it("defaults to the rule provider", () => {
-    const r = resolveReportDraftProvider({}, { simulationOrg: true });
+    const r = resolveReportDraftProvider({}, { ledgerReady: false, simulationOrg: true });
     expect(r.provider?.kind).toBe("rule");
     expect(r.modelBlocked).toBeUndefined();
   });
 
   it("mode off gives no provider at all", () => {
-    expect(resolveReportDraftProvider({ AI_REPORT_DRAFT_MODE: "off" }, { simulationOrg: true }).provider).toBeNull();
+    expect(resolveReportDraftProvider({ AI_REPORT_DRAFT_MODE: "off" }, { ledgerReady: false, simulationOrg: true }).provider).toBeNull();
   });
 
   it("never uses the model with the stop switch on, outside a simulation org, or on the live project", () => {
@@ -212,7 +212,7 @@ describe("resolveReportDraftProvider (one stop switch, simulation only)", () => 
       [{ ...modelEnv, NEXT_PUBLIC_SUPABASE_URL: "https://jwmfxrmougneeceldhsa.supabase.co" }, true, "live_project"],
     ];
     for (const [env, simulationOrg, reason] of cases) {
-      const r = resolveReportDraftProvider(env, { simulationOrg, allowedHosts, fetch });
+      const r = resolveReportDraftProvider(env, { ledgerReady: false, simulationOrg, allowedHosts, fetch });
       expect(r.provider?.kind, reason).toBe("rule");
       expect(r.modelBlocked).toBe(reason);
     }
@@ -220,7 +220,7 @@ describe("resolveReportDraftProvider (one stop switch, simulation only)", () => 
   });
 
   it("with the shipped allowlist the model stays blocked and says why", () => {
-    const r = resolveReportDraftProvider(modelEnv, { simulationOrg: true });
+    const r = resolveReportDraftProvider(modelEnv, { ledgerReady: false, simulationOrg: true });
     expect(r.provider?.kind).toBe("rule");
     expect(r.modelBlocked).toBe("host_not_allowed");
   });
@@ -339,14 +339,14 @@ describe("resolveReportDraftProvider with AI_MODEL_PROVIDER=anthropic (staging o
       [{ ...env, AI_MODEL_API_KEY: "" }, true, "api_key_missing"],
     ];
     for (const [e, simulationOrg, reason] of cases) {
-      const r = resolveReportDraftProvider(e, { simulationOrg, fetch: vi.fn() });
+      const r = resolveReportDraftProvider(e, { ledgerReady: false, simulationOrg, fetch: vi.fn() });
       expect(r.provider?.kind, reason).toBe("rule");
       expect(r.modelBlocked, reason).toBe(reason);
     }
   });
 
   it("refuses an unknown provider name", () => {
-    const r = resolveReportDraftProvider({ ...env, AI_MODEL_PROVIDER: "other" }, { simulationOrg: true, fetch: vi.fn() });
+    const r = resolveReportDraftProvider({ ...env, AI_MODEL_PROVIDER: "other" }, { ledgerReady: false, simulationOrg: true, fetch: vi.fn() });
     expect(r.provider?.kind).toBe("rule");
     expect(r.modelBlocked).toBe("provider_unknown");
   });

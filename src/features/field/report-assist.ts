@@ -4,9 +4,7 @@
 // The draft is never binding; only the F6 signature makes the report final. Synthetic data only in Phase A.
 
 import type { Fact, ProviderKind } from "@/lib/ai/report-draft/contract";
-import type { ResolvedProvider } from "@/lib/ai/report-draft/config";
 import type { ReportDraft } from "@/lib/ai/report-draft/draft";
-import { ruleProvider } from "@/lib/ai/report-draft/rule-provider";
 
 export type LineDecision = "open" | "taken" | "dropped";
 export type SegmentDecision = "open" | "inserted" | "omitted";
@@ -96,7 +94,7 @@ const time = (iso: string) =>
  * Facts for the draft from the stored report snapshot (what the report already holds, F7).
  * Data minimisation: only the actual times and the services; never a name, an address or an observation.
  */
-export function factsFromSnapshot(snapshot: unknown): Fact[] {
+export function factsFromSnapshot(snapshot: unknown, opts: { services?: boolean } = {}): Fact[] {
   const snap = (snapshot && typeof snapshot === "object" ? snapshot : {}) as Snapshot;
   const events = Array.isArray(snap.events) ? (snap.events as { type?: unknown; at?: unknown }[]) : [];
   const at = (type: string) => {
@@ -107,19 +105,17 @@ export function factsFromSnapshot(snapshot: unknown): Fact[] {
   const start = at("started");
   const end = at("completed");
   if (start && end) texts.push(`Einsatz ${time(start)}–${time(end)}`);
-  const services = Array.isArray(snap.services) ? snap.services.filter((s): s is string => typeof s === "string") : [];
+  const services = opts.services === false ? [] : Array.isArray(snap.services) ? snap.services.filter((s): s is string => typeof s === "string") : [];
   if (services.length > 0) texts.push(`Leistungen: ${services.join(", ")}`);
   return texts.map((text, i) => ({ id: `f${i + 1}`, text }));
 }
 
 /**
- * AUT-138: every model proposal belongs in the AIG1 ledger. Until that migration exists (`ledgerReady` false),
- * a model provider is replaced by the rule substitute and the reason is returned, so no model call happens
- * without its audit record.
+ * L-1497-1 (PO 2026-11-19 08:39): in Phase A no services go into a model payload; the rule substitute keeps them.
+ * The /field command picks the facts by the kind of the provider the resolver returned.
  */
-export function withLedgerGuard(resolved: ResolvedProvider, ledgerReady: boolean): ResolvedProvider {
-  if (resolved.provider?.kind === "model" && !ledgerReady) return { provider: ruleProvider, modelBlocked: "ledger_missing" };
-  return resolved;
+export function factsForProvider(snapshot: unknown, kind: ProviderKind): Fact[] {
+  return factsFromSnapshot(snapshot, { services: kind !== "model" });
 }
 
 /** Who may ask for a draft: only the performer of the visit, only on an open draft (ADR-207 (1)). */
