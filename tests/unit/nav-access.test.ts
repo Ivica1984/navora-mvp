@@ -87,11 +87,14 @@ describe("menu role lists = the database predicates (UX1-3, no drift)", () => {
     expect(newestDefinition("public.my_client_accounts")).toMatch(/private\.is_client_member\(/);
     expect(newestDefinition("private.is_client_member")).toMatch(/client_account_members/);
     expect(newestDefinition("public.confirm_client_order")).toMatch(/private\.is_client_member\(/);
+    // /platform (PLATFORM1, ADR-213): NAVORA operations only; the menu flag reads the same table.
+    expect(newestDefinition("public.platform_overview")).toMatch(/private\.platform_operators/);
+    expect(newestDefinition("public.am_platform_operator")).toMatch(/private\.platform_operators/);
   });
 
   it("covers exactly the menu routes (no item without a target, no first-MVP page)", () => {
     expect(NAV_ITEMS.map((i) => i.href).sort()).toEqual(
-      ["/admin", "/analytics", "/field", "/intake", "/operations", "/order", "/partners", "/settings", "/team", "/work"].sort(),
+      ["/admin", "/analytics", "/field", "/intake", "/operations", "/order", "/partners", "/platform", "/settings", "/team", "/work"].sort(),
     );
     // UX1-4: /teams and /visits (first MVP) are not menu items; "Qualitätsmanagement" (no target) is gone.
     expect(NAV_ITEMS.some((i) => i.href === "/teams" || i.href === "/visits")).toBe(false);
@@ -121,6 +124,19 @@ describe("items per role (seed people, UX1-3)", () => {
     expect(hrefs({ roles: ["admin"], inTeam: false })).toEqual([
       "/operations", "/intake", "/work", "/analytics", "/settings", "/admin",
     ]);
+  });
+
+  it("PLATFORM1: NAVORA operations sees only /platform (and settings in the shown menu); nobody else sees it", () => {
+    expect(hrefs({ roles: [], inTeam: false, platformOperator: true })).toEqual(["/platform"]);
+    expect(menuItemsFor({ roles: [], inTeam: false, platformOperator: true }).map((i) => i.href)).toEqual(["/platform", "/settings"]);
+    for (const access of [
+      { roles: ["admin"], inTeam: true },
+      { roles: ["operations"], inTeam: false },
+      { roles: [], inTeam: false, clientAccount: true },
+      NO_ACCESS,
+    ] satisfies NavAccess[]) {
+      expect(hrefs(access)).not.toContain("/platform");
+    }
   });
 
   it("a nurse without a team sees no /field, no /team and no figures", () => {

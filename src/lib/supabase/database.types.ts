@@ -2841,6 +2841,9 @@ isOneToOne: false
               "became_not_open": number,"days_to_zero_open": number,"lead_time_median_hours": number,"left_by_recheck": number,"lines_at_stop": number,"not_open_at_stop": number,"open_now": number,"proposals_in_window": number,"superseded": number,"team_id": string,"team_name": string
             }[]
                            },
+"am_platform_operator":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
                            },
@@ -3172,6 +3175,11 @@ isOneToOne: false
 "plan3_team_measures":
 { Args: { "p_month": string }; Returns: {
               "confirm_actions_per_plan": number,"confirmed_unchanged_share": number,"continuity_after_base": number,"continuity_after_share": number,"continuity_before_base": number,"continuity_before_share": number,"continuity_suppressed": boolean,"corrected_share": number,"day_plans": number,"decided_lines": number,"enabled_since": string,"lines": number,"lines_closed": number,"minutes_to_last_decision_median": number,"month": string,"no_proposal": number,"no_proposal_absent": number,"no_proposal_needs_rn": number,"no_proposal_not_active": number,"no_proposal_overlap": number,"no_proposal_share": number,"proposal_suppressed": boolean,"rejected_share": number,"requests_closing": number,"team_id": string,"team_name": string
+            }[]
+                           },
+"platform_overview":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "client_accounts": number,"members": number,"orders_covered": number,"orders_not_covered": number,"orders_upcoming": number,"orders_waiting": number,"organization_id": string,"organization_name": string,"simulation": boolean,"teams": number
             }[]
                            },
 "prepare_member_access_end":

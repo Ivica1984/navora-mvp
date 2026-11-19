@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getOptionalUser } from "@/lib/auth/session";
 import { getHomePath } from "@/lib/auth/home";
 import LoginForm from "./login-form";
+import DemoPicker from "./demo-picker";
+import { DEMO_PERSONAS, demoLoginEnabled } from "@/features/auth/demo-login";
 
 // UX1-15, UX1-16 (ADR-105): one sign-in page for every role, one column with the sign-in card. UX1-16 widened (uxa
 // UXR-17, PO 2026-10-28 02:10): the explanatory panel is gone and nothing replaces it (a nurse cannot act on it).
@@ -23,6 +25,9 @@ export default async function LoginPage() {
           </p>
 
           <LoginForm />
+
+          {/* DEMO1 (ADR-212): staging only, synthetic seed persons. */}
+          {demoLoginEnabled(process.env) && <DemoPicker personas={DEMO_PERSONAS} />}
         </div>
       </section>
     </main>
