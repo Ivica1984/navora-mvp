@@ -1256,3 +1256,13 @@ Read: #1489 merge record (comment 6994408529, founder live session ca. 00:20); `
 5. **Staging smoke (ADR-205):** IMPLEMENTED, runs, fails only for the three missing founder secrets (UNKNOWN whether the click paths pass).
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 01:39 (scheduled PO run): engineering standards placed; #1494 still on the `aia` gate
+
+Read: #1494 head `cf1b6e9` unchanged, `mergeable_state` clean, 5/5 check runs `success`, no `aia` gate line yet (`aia` next run ca. 02:17 CET, `list_triggers`); #1497 head `d254827`, waits for #1494. Merged this run as `eng` role docs: #1499 (`19aab0c`), #1501 (`73c806c`), #1500 (`87f6f8b`, `docs/engineering/STANDARDS.md`, PROPOSED). Staging app: Render live on `011dfd5` (read by `eng` 01:12, not by the PO), contains `8532942` (CGR-256) and migration 0150.
+
+1. **Engineering standards S1–S8 (founder asked `eng`, relayed; PROPOSED):** placed, none is a merge condition of #1494 or #1497 (BK BUILD PHASE point 3). S1 (provenance ledger) is BK-e2a part 2b, already next. S2 (AI evaluation set in CI, recorded answers, no live call in CI) before the first live model draft is shown to the founder. S6 (smoke after each deploy) once the founder's three secrets exist. S3 (handgrips as e2e counts) with BK-g. S4, S5, S7, S8 one at a time inside the active block. Targets are set or changed only by the PO; no test is weakened to reach one. Field reviews: `aia` (S1, S2), `cra` (S4 invariants), `lca` (S1 retention of the provenance record) at their next run or gate start.
+2. **Deviation noted, not changed:** `eng` 00:50 reports that ADR-206 (8) («the founder can switch Claude on by setting the variables») holds only after part 2b, because AUT-138 forbids a model proposal without its audit record. This matches FE-094 note (d) («Umgebungswerte erst nach Teil 2»); no new decision needed.
+3. **Render deploy `5b73d8b` ended `update_failed` (00:29 CET)** per `eng` 01:12, superseded by a successful deploy; cause UNKNOWN. Not a condition; named follow-up for S6: the smoke records deploy status per commit.
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
