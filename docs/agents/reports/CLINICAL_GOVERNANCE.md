@@ -16,6 +16,46 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-18 23:43 CET: gate review of **#1489** (BK-e, CGR-256: member overlap across midnight; migration 0150, pgTAP 150; `eng` final head `6322ea2`). Run started once by `po` under FE-091 (4) (BK BUILD PHASE point 2). **`cra-gate: #1489 6322ea2 clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). **CGR-256 met in code and test** (my pgTAP pair of 13:29, PO amendment 13:39 (2)). Answers to `eng`'s four review questions below; none is a substantial safety, privacy or function defect of the agreed flow. New advisory **CGR-259** (what the day boundary still hides from the planner; follow-up next to CGR-258). Read on `recovery/main` `2201628`.
+
+### What I read
+
+- Merges since my 19:45 section: #1476 (BK-e1c, merge commit `0ca04b6`), my 19:45 PR, #1460 (ADR-204, CI only), #1482–#1488, #1490, #1491, #1492 (ADR-205 staging smoke, no migration, no clinical rule). Blueprint 3.2.65/3.2.66: §8 row BK and version table only; Annex B §1, the qualification matrix, `FOUNDER_DECISIONS.md` and Handbook V2.2 unchanged.
+- **#1489** (3 commits on `recovery/main` `641c9ba`): `6bdf084` (pgTAP 150 red first), `dd48a28` (test order corrected, still red), `6322ea2` (migration `20261021000150_bk_cgr256_member_overlap_across_midnight.sql`, ADR-203 (23)). I read the full migration and test, and for the effect on readers `private.aig1_apply` (0110 l. 184–188), `private.plan3_confirm_overlaps` (0118 l. 59–64) and `public.day_plan_load` (0110).
+- CI on `6322ea2` (`ci` 44401920129), check runs: `app` 135147176598, `db` 135147176265, `e2e` 135147176589, `ui-screenshots` 135147176566, `staging` 135153683160, `sync` 135146910179, all `completed`/`success`. `db` job log read: «150_bk_cgr256_member_overlap_across_midnight.test.sql …… ok», «Files=150, Tests=5411», «Result: PASS». I ran no NAVORA test.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1489 CGR-256 | `6322ea2` | **`cra-gate: #1489 6322ea2 clear`** · gate «Simulation, synthetic data». Fixed residual list met: (1) the CGR-256 pgTAP pair is in pgTAP 150 and green on the head (`db` log above): 06:00 on D+1 against a 22:00–07:00 night of D → `member_overlap` true; 07:30 → false; 07:00 touching → false; the same three for the form's read `member_slot_overlap`; the reverse direction (the night reads the 06:00 visit); same-day control true; no id, case, team or time of the other team's night reaches the asking team; nights of D+2 and D+6 and a cancelled night not seen; every visit saved (never a refusal on the hand paths, CGR-137). (2) Locks and signatures unchanged: 0150 replaces two bodies with the same signatures, grants and result shapes; person lock `order_take_member:` before `plan3_busy:` (pgTAP 150 test 1). (3) No new clinical rule: the overlap definition stays `private.visit_interval(x) && private.visit_interval(v)`; only the candidate dates widen to D−1..D+1. CGR-256 closes when #1489 is merged with `ci` green on the merge commit. Not blocking: CGR-258, CGR-259. |
+
+### Answers to `eng`'s review questions
+
+1. **AIG1 day-plan confirm now refuses a line meeting a member's night of the previous day (IMPLEMENTED): accepted as part of CGR-256.** It is safety-positive: before 0150 the confirm assigned a carer still on night duty to a morning visit. The refusal is per line and leaves the visit as it was (0110: `return 'overlap'` before `aig1_apply_visit_responsible`), so the visit stays open and visible to the planner, not dropped. Gap (CGR-259 (b)): the cross-midnight refusal is proven only by contract (pgTAP 150 test 2: the confirm reads the same function), not by a day-plan case.
+2. **Visits reaching beyond the day after their date (UNKNOWN): accept as a Phase-A limit; follow-up item, not a merge condition** (CGR-259 (c)). Before real persons, either a constraint shows that no visit interval exceeds 24 h, or the read uses the interval itself instead of a date window (the PO's H-BK-22:39 «shift interval» read model would answer both).
+3. **Closing line:** given above.
+4. **No rest-time rule (UNKNOWN, Clinical Owner, H-10): confirmed.** 0150 implies none; touching ends (07:00 after a night to 07:00) read «no overlap», which is a time fact, not a clinical statement that no rest is needed. Whether a carer may start a visit right after a night take stays a Clinical Owner question.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-256** (status) | #1489 `6322ea2` | was advisory; S1 before real clients | **Met in code and test.** The hand-path fact and the form's read compare her visits dated D−1, D and D+1 with the unchanged interval test; the AIG1 confirm sees the same. | 0150 `member_visit_overlap` and `member_slot_overlap` (`x.visit_date between … - 1 and … + 1`); pgTAP 150 tests 3–15; `db` 135147176265 PASS | closes on merge with `ci` green on the merge commit |
+| **CGR-259** (new) | #1489 `6322ea2` / follow-up next to CGR-258 | **advisory for the simulation gate; S1 before real clients at night** | The day boundary still hides the night from the planner in three places: (a) the form's read returns null for a slot with `end <= start`, so a planner who types a night slot 22:00–07:00 by hand sees no overlap line before saving (the save's own fact is right); (b) the AIG1 cross-midnight refusal has no day-plan test, only the contract that it calls the same function; (c) `day_plan_load` still marks «weitere Einsätze in anderen Teams» and today's minutes for `visit_date = p_date` only, so the day plan of D+1 does not show that a member comes off a night, and the first sign is the refusal at confirm; plus the named D−1..D+1 window (question 2). No clinical rule is asked. | 0150 `member_slot_overlap` `p_time_end <= p_time_start … return null` (unchanged); pgTAP 150 test 2; 0110 `day_plan_load` `x.visit_date = p_date` (twice); ADR-203 (23) (c), (d) | `eng`: (a) the form's read accepts a night slot (`visit_interval` already ends it next day); pgTAP: a 22:00–07:00 slot on D against her 06:00 visit of D+1 → true. (b) pgTAP: a day-plan line for 06:00 on D+1 for a member with a night of D → `overlap`, visit unchanged. (c) `day_plan_load` of D+1 flags the member with a night of D. Window: a constraint or test that no visit interval exceeds 24 h, or an interval-based read. `po`: place next to CGR-258 (H-BK-22:39 may cover all) |
+
+### Findings closed
+
+None on `recovery/main` by this run (CGR-257 closed with the #1476 merge `0ca04b6` per PO 20:39; I did not reread that merge's CI). CGR-256 closes on merge of #1489.
+
+### Decisions requested
+
+- **PO:** merge #1489 on the fixed residual list; place CGR-259 as a named follow-up next to CGR-258 (both S1 before real clients at night); merge this PR.
+- **`eng`:** nothing before merge.
+- **Clinical Owner:** rest time after a night take (H-10, unchanged); a planned night visit not started by 00:00 (UNKNOWN, unchanged).
+
+---
+
 ## 2026-11-18 19:45 CET: gate review of **#1476** (BK-e1c, running night visit on the carer's «Heute» after midnight; R3b, CGR-257, UXR-248; `eng` final head `bb2d101`). Run started once by `po` under FE-091 (4). **`cra-gate: #1476 bb2d101 clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). **CGR-257 met in code and test** for started and paused night visits (C1–C3). Answers to the three review questions below; none is a substantial safety, privacy or function defect of the agreed flow for the simulation gate. New advisory **CGR-258** (the rest of the night-boundary gap; S1 before real clients at night). Read on `recovery/main` `3e86188`.
 
 ### What I read
