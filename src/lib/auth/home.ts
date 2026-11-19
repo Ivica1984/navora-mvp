@@ -23,6 +23,12 @@ export async function resolveHomePath(supabase: ServerClient): Promise<string> {
     logEvent("warn", "auth.client_accounts_failed", errorFields(aError));
     return homePathForRoles([]);
   }
+  if ((accounts ?? []).length === 0) {
+    // PLATFORM1 (ADR-213): NAVORA operations has no organisation role either; on a read error, the default page.
+    const { data: operator, error: pError } = await supabase.rpc("am_platform_operator");
+    if (pError) logEvent("warn", "auth.platform_operator_failed", errorFields(pError));
+    return homePathFor(roles, false, !pError && operator === true);
+  }
   return homePathFor(roles, (accounts ?? []).length > 0);
 }
 

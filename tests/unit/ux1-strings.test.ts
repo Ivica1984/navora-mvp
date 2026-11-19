@@ -64,6 +64,7 @@ const PAGE_FILE: Record<keyof typeof PAGE_LABEL, string> = {
   settings: "src/app/(protected)/settings/settings-client.tsx",
   admin: "src/app/(protected)/admin/admin-client.tsx",
   team: "src/app/(protected)/team/team-client.tsx",
+  platform: "src/app/(protected)/platform/page.tsx",
 };
 
 // Inline action links inside a sentence or a call to action name the action, not the page (ADR-108):

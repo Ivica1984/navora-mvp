@@ -35,9 +35,9 @@ describe("DEMO_PERSONAS", () => {
     expect(DEMO_PERSONAS.length).toBeGreaterThanOrEqual(3);
     for (const p of DEMO_PERSONAS) expect(p.email).toMatch(/^[a-z]+\.test@navora\.test$/);
   });
-  it("cover the nursing home, the team and the organisation view", () => {
+  it("cover the nursing home, the team, the organisation and the NAVORA view", () => {
     const views = new Set(DEMO_PERSONAS.map((p) => p.view));
-    expect(views).toEqual(new Set(["heim", "team", "organisation"]));
+    expect(views).toEqual(new Set(["heim", "team", "organisation", "navora"]));
   });
   it("have unique keys", () => {
     const keys = DEMO_PERSONAS.map((p) => p.key);

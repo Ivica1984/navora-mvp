@@ -16,6 +16,8 @@ export type NavAccess = {
    * only). Absent or false when unknown or the read failed (fail closed: no /order item).
    */
   clientAccount?: boolean;
+  /** PLATFORM1 (ADR-213): `public.am_platform_operator()`. Absent or false when unknown (fail closed: no /platform). */
+  platformOperator?: boolean;
 };
 
 /** The database predicates the page checks use (supabase/migrations, `private.*`). */
@@ -24,7 +26,8 @@ export type PageCheck =
   | { kind: "team_member" }
   | { kind: "team_member_or_role"; predicate: "is_coordinator"; roles: ReadonlyArray<string> }
   | { kind: "member" }
-  | { kind: "client_account" };
+  | { kind: "client_account" }
+  | { kind: "platform_operator" };
 
 /** private.is_org_admin (0035). */
 export const ADMIN_ROLES: ReadonlyArray<string> = ["admin"];
@@ -43,7 +46,8 @@ export type NavKey =
   | "work"
   | "analytics"
   | "settings"
-  | "admin";
+  | "admin"
+  | "platform";
 
 /**
  * UX1-13 (ADR-108, `uxa` UXR-12): one label per page, used in the menu, as the page's name (its heading, or on the
@@ -60,6 +64,7 @@ export const PAGE_LABEL = {
   analytics: "Kennzahlen",
   settings: "Meine Einstellungen",
   admin: "Administration",
+  platform: "NAVORA-Betrieb",
   team: "Dein Team",
 } as const satisfies Record<NavKey | "team", string>;
 
@@ -157,6 +162,14 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
     check: { kind: "role", predicate: "is_org_admin", roles: ADMIN_ROLES },
     source: "getAdminData: own admin membership; public.admin_members: private.is_org_admin",
   },
+  {
+    // PLATFORM1 (ADR-213): the NAVORA operator cockpit, counts only; the read model returns nothing to anybody else.
+    key: "platform",
+    label: PAGE_LABEL.platform,
+    href: "/platform",
+    check: { kind: "platform_operator" },
+    source: "public.platform_overview / public.am_platform_operator: private.platform_operators",
+  },
 ];
 
 const hasAny = (roles: ReadonlyArray<string>, allowed: ReadonlyArray<string>) => roles.some((r) => allowed.includes(r));
@@ -174,6 +187,8 @@ export function admits(check: PageCheck, access: NavAccess): boolean {
       return access.roles.length > 0;
     case "client_account":
       return access.clientAccount === true;
+    case "platform_operator":
+      return access.platformOperator === true;
   }
 }
 

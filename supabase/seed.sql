@@ -948,3 +948,20 @@ insert into public.member_profiles (organization_id, user_id, display_name, upda
 insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until) values
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'grade', 'nurse_hf_fh', 'verified', true, null),
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'practice_licence', null, 'verified', true, null);
+
+-- PLATFORM1 (ADR-213; founder live session 2026-11-19): one synthetic member of NAVORA operations for /platform.
+-- No organisation membership, no client account: she reads only the counts of public.platform_overview().
+--   navora.test (…a01): NAVORA operations; signs in.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000a01', 'authenticated', 'authenticated',
+   'navora.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-000000000a11', '00000000-0000-4000-a000-000000000a01', '00000000-0000-4000-a000-000000000a01',
+   '{"sub":"00000000-0000-4000-a000-000000000a01","email":"navora.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into private.platform_operators (user_id, note) values
+  ('00000000-0000-4000-a000-000000000a01', 'synthetic seed account (PLATFORM1, ADR-213)');

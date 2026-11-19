@@ -7,9 +7,14 @@ import { FIELD_PATH, HOME_PATH, homePathForRoles } from "@/lib/auth/paths";
 /** ADR-192 (6): the client's only page. */
 export const CLIENT_ORDER_PATH = "/order";
 
+/** PLATFORM1 (ADR-213): the NAVORA operator cockpit. */
+export const PLATFORM_PATH = "/platform";
+
 /** A client (member of a client account) with no organisation role lands on /order; everyone else as before. */
-export function homePathFor(roles: ReadonlyArray<string>, isClient: boolean): string {
+export function homePathFor(roles: ReadonlyArray<string>, isClient: boolean, isPlatformOperator = false): string {
   if (isClient && roles.length === 0) return CLIENT_ORDER_PATH;
+  // PLATFORM1 (ADR-213): NAVORA operations without an organisation role lands on its cockpit.
+  if (isPlatformOperator && roles.length === 0) return PLATFORM_PATH;
   const path = homePathForRoles(roles);
   return path === FIELD_PATH ? FIELD_PATH : HOME_PATH;
 }

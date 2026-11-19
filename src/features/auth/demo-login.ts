@@ -11,7 +11,7 @@ const STAGING_PROJECT_REF = "qpmdryxkktbqqkqpsnkj";
 /** Public password of every synthetic seed account (supabase/seed.sql). */
 export const DEMO_SEED_PASSWORD = "navora-local-only";
 
-export type DemoView = "heim" | "team" | "organisation";
+export type DemoView = "heim" | "team" | "organisation" | "navora";
 
 export type DemoPersona = {
   key: string;
@@ -43,6 +43,14 @@ export const DEMO_PERSONAS: readonly DemoPersona[] = [
     email: "opsbs.test@navora.test",
     title: "Als Organisation: Einsatzleitung",
     description: "Testorganisation S: Anfragen aufnehmen und Fälle eröffnen.",
+  },
+  {
+    // PLATFORM1 (ADR-213): exists on navora-staging only after the founder's go for the seed delta (ADR-190).
+    key: "navora",
+    view: "navora",
+    email: "navora.test@navora.test",
+    title: "Als NAVORA-Betrieb",
+    description: "Zählwerte aller Organisationen, Teams, Heime und Aufträge; «Nicht gedeckt» zuerst.",
   },
 ];
 
