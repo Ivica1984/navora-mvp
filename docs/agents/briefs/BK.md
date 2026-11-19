@@ -1328,3 +1328,22 @@ Read: `aia-gate: #1497 24105ec clear (Simulation, synthetic data)` (7002558937) 
 4. **Placed after BK-e, not in this slice:** AUT-154 (repeat order, client 8 → about 4 handgrips) and AUT-155 (open offer on «Mein Tag», team 2 → 1). They are candidates for the next slice brief; no merge condition.
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO package contract 2026-11-19 16:40 (founder FE-095, PO live session): BK-e2 Abschlusspaket
+
+From FE-095 on, the scope of an active package is fixed by its contract and is not amended hourly. New ideas from any role go to «for later packages» below and are decided at the next contract. Only a documented substantial safety, privacy or function defect in the agreed flow stops a package that `eng` has reported ready.
+
+1. **Flow (visible on staging):** the carer ends the taken shift on `/field`, types (or uses the phone keyboard's dictation) her notes, gets a draft from the connected model on synthetic data on `navora-staging` only, decides each line, places it into the summary and signs. With the model not enabled or switched off: the same flow with the rule substitute, labelled «regelbasiert, keine KI».
+2. **In scope:** ledger migration (provenance per line); `MODEL_LEDGER_READY` only true through the ledger; AUT-152 stop rule (no threshold row → model closed; threshold value set at the `cra` gate, not by `eng` or `po`); AUT-149 (`value_not_in_source`); S2 evaluation set on synthetic notes; BK-e2b (signature and close of BK-e2); labels «KI-Entwurf (Claude), synthetische Daten» vs. «regelbasiert, keine KI»; `inference_geo = "us"` set explicitly (`lca` 03:43 (c) (2)).
+3. **Not in scope:** no NAVORA speech service, no audio; no invoice line (BK-f); no AI order capture (BK-d); no real persons; no new comfort items.
+4. **PO decision (WHAT, Phase A only):** ledger value form = **no text**; `{line_index, sources, digest, length}`, digest as keyed HMAC with the key outside the ledger (`lca` 2026-11-19 03:43 (a)). Retention Phase A: no obstacle (synthetic, no personal data, `lca` (b)); a deletion or anonymisation path for Phase B is documented in the ADR, not built. Phase B value form and retention stay OPEN (founder, legal adviser). This meets the PO precondition of 2b-2 (amendment 08:39 (3)).
+5. **Tests:** unit (ledger form, stop rule, AUT-149, kill switch; red first); pgTAP (ledger: own team only, append-only, no text column filled); e2e F7 at 390 px with the rule substitute (the real model never runs in CI); negative: kill switch on, no threshold row, non-simulation organisation, other team, value not in source → no model draft. BK-e2 acceptance: `ci` green and `ci-repeat` 10/10 (`db`, `e2e`, 0 skipped) on a named integrated commit; gate «Simulation, synthetic data».
+6. **Gates, all on the one reported head, one start:** `aia` (ledger, stop rule, controls), `cra` (level G, stop-rule threshold, CGR-213 (b)), `lca` (ledger without text, provider terms, `inference_geo`), `uxa` (labels, 390 px).
+7. **Ready report:** a PR comment beginning `Paket prüfbereit:` with PR and head SHA, function, tests actually run per CI job, migrations and staging effect, known limits and open defects, gates needed, demo click path. The PO review starts only then.
+8. **What the founder can then operate:** the click path of 1 with a real model draft once he has set the staging key (FE-094 (d)); app commit and migration version reported by `eng` after the merge.
+
+`#1527` stays as is (fixed residual list: CI green on the named head plus one `aia` line) and merges before this package.
+
+**For later packages (not conditions):** AUT-154 repeat order «wie letztes Mal», AUT-155 offer on «Mein Tag», UXR-255 (a)–(c), UXR-256, CGR-213 (b) (ii), app version and migration level visible on staging plus a CI check of the match, CI-written ready report.
+
+PO did not run tests. Gate: **«Simulation, synthetic data»**.
