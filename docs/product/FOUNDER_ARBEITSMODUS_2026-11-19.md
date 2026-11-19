@@ -49,7 +49,7 @@ Verstanden. Ab dem laufenden Teilblock gilt praktisch:
 
 ## 3. Nächster Ablauf, den Sie auf Staging selbst bedienen können
 
-**Heute schon gebaut und in CI getestet, auf Staging von keinem Agenten durchgeklickt (UNKNOWN):** Auftrag erfassen → Team übernimmt → «Gedeckt» → Schicht erscheint auf `/field` → Zeiten erfassen → Notizen tippen → «Entwurf aus Notizen» (Regel-Testersatz) → Zeilen entscheiden → unterschreiben. Welcher App-Commit auf Render läuft und ob Migration **0150** eingespielt ist: **`eng` meldet es** (der PO liest Render in dieser Sitzung nicht).
+**Heute schon gebaut und in CI getestet, auf Staging von keinem Agenten durchgeklickt (UNKNOWN):** Auftrag erfassen → Team übernimmt → «Gedeckt» → Schicht erscheint auf `/field` → Zeiten erfassen → Notizen tippen → «Entwurf aus Notizen» (Regel-Testersatz) → Zeilen entscheiden → unterschreiben. **Staging-Stand (von `eng` um 16:30 geprüft, Journal `2026-11-19-1637-eng.md`):** Render `navora-staging` läuft auf App-Commit `d1a70d7`; der `staging`-Job auf `d1a70d7` hat die Migrationen bis `20261021000150` eingespielt. App und Datenbank passen zusammen (IMPLEMENTED). Der Klickpfad-Job auf Staging (`staging-smoke.yml`, ADR-205) ist **noch nie grün gelaufen**, weil drei Secrets fehlen (§7 Punkt 1); deshalb ist kein Ablauf «auf Staging selbst geprüft».
 
 **Nach dem BK-e2 Abschlusspaket:** derselbe Ablauf mit einem **echten Claude-Entwurf** auf synthetischen Notizen, sobald Sie den Staging-Schlüssel hinterlegt haben (§8).
 
@@ -73,13 +73,14 @@ Ehrlich: Heute ist **keine** Funktion an ein KI-Modell angeschlossen. Teamempfeh
 
 | Ansicht | Route(n) | Status | Was fehlt |
 |---|---|---|---|
-| Auftraggeber (Heim, Spital, Privat) | `/order` | **bedienbar** (BK-a bis BK-c abgenommen) | KI-Erfassung aus Freitext (BK-d), Rückfrage, Spital-Varianten im Detail |
+| Auftraggeber Pflegeheim | `/order` | **bedienbar** (BK-a bis BK-c abgenommen) | «Wie letztes Mal» (AUT-154), KI-Erfassung aus Freitext (BK-d) |
+| Auftraggeber Spital, Privatperson | `/order` (gleiches Formular) | **teilweise** | eigene Wortwahl, Sektor-Konfiguration und Einstieg je Typ (UNKNOWN, wie weit das allgemeine Formular passt) |
 | Team-Portal | `/team`, `/team/tagesplan`, `/team/vorschlaege`, `/team/einsatzgebiet` | **teilweise** (Angebote, Übernahme, Einsatzgebiet, Tagesvorschlag als Regel) | wirtschaftliche Übersicht, Qualifikationspflege durch das Team (B2 Teil 2), Ausfallkoordination im BK-Pfad |
 | Pflegekraft mobil | `/field` | **teilweise** (Schicht, Zeiten, Entwurf mit Regel-Testersatz, Unterschrift) | echter KI-Entwurf (Abschlusspaket), Offline, NAVORA-Diktat |
 | B2B-Einrichtung (Module 1–3) | – (`/operations` ist Altbestand, nicht als B2B abgenommen) | **geplant** | eigene Ansicht, Modulbuchung, interne Schichtplanung (B9 nur Brief NH-A1) |
 | Angehörige | – | **geplant**, nicht gebaut | Modul 3, Rechte, Rechtsprüfung |
 | Betreiber und Finanzen | `/admin`, `/analytics` | **teilweise** (Altbestand; Kennzahlen AN1–AN3 implementiert, nicht ausreichend getestet) | Abo- und B2B-Umsätze getrennt, Modulverwaltung, Betriebsübersicht |
-| Coach/Mediator | – | **geplant**, nicht gebaut | eigene Rolle ohne Gesundheitsakte, ohne Finanzen |
+| Coach/Mediator | `/operations` (Ausnahmen) | **teilweise** (Rolle `coach` existiert laut Code und sieht Ausnahmen; korrigiert nach `eng`, Code hat Vorrang) | eigene Konflikt-/Mediationsansicht, getrennt von Admin und Finanzen, ohne Gesundheitsakte |
 | Abrechnung (Teil des Team-Portals) | – | **geplant** (BK-f) | Rechnungsentwurf ohne NAVORA-Provision, kein Geldfluss über NAVORA (FE-078) |
 
 **Übergaben zwischen Ansichten heute:** Auftrag (Auftraggeber → Team), Übernahme und «Gedeckt» (Team → Auftraggeber), Schicht (Team → Pflegekraft), Abwesenheit gibt Übernahme frei (Pflegekraft → Auftraggeber). **Fehlt:** Bericht → Auftraggeber (Lesebeleg), Bericht → Rechnung, alles → Betreiber.
@@ -99,9 +100,12 @@ Alle sind Vorschläge für spätere Pakete, keine Bedingung des laufenden.
 
 ## 7. Was nur Sie als Founder tun müssen
 
+0. **Drei GitHub-Repository-Secrets** `STAGING_SMOKE_PW_KUNDEBS`, `STAGING_SMOKE_PW_PFLEGEBS`, `STAGING_SMOKE_PW_PFLEGE` (die Staging-Demo-Passwörter; nie im Chat) anlegen. Ohne sie kann kein Ablauf als «auf Staging selbst geprüft» gemeldet werden. **Das ist die dringendste Einstellung.**
 1. **Staging-Schlüssel für Claude** in Render `navora-staging` als Umgebungswert hinterlegen (nie in Chat oder GitHub), mit **Ausgabenlimit** im Anbieterkonto; `AI_KILL_SWITCH` bleibt `on`, bis `eng` das Abschlusspaket gemergt meldet. Zeitpunkt: nach dem Merge des Abschlusspakets.
 2. **Kenntnisnahme `lca` (c):** Die direkte Anthropic-API bietet laut Doku keine CH/EU-Region (`inference_geo` nur `global` oder `us`). Für synthetische Daten ist das nach FE-094 in Ordnung; `eng` setzt `us` ausdrücklich, damit die Angabe stimmt. Für Phase B braucht es einen anderen Weg (OPEN, später).
 3. **Demo-Zugang:** ob Sie die Demo-Konten (FE-086b) für Staging bereits haben und selbst durchklicken wollen, oder `eng` den Klickpfad auf Staging ausführt und belegt. Bitte ein Wort.
 4. **Rhythmus der PO-Läufe:** Ich behalte den stündlichen Lauf als stille Wache (er handelt nur auf eine Prüfbereit-Meldung oder einen roten Merge-Commit). Eine Umstellung der geplanten Aufgabe auf seltener darf nur ein Founder-Auftrag; meine Empfehlung dazu kommt bis 25.11. (FE-091 (c)).
+
+**Abgleich mit `eng` (16:52, PO-Live-Sitzung):** Die Antwort von `eng` (`docs/agents/journal/2026-11-19-1637-eng.md`, gemergt `6b1b553`) stimmt mit diesem Dokument in Arbeitsmodus, Paketschnitt (2b-2 + BK-e2b als **ein** Paket) und Gates überein. Übernommen: Staging-Stand (§3), Ansichten Spital/Privat und Coach (§5), Secrets (§7 Punkt 0). Zeitfenster: `eng` schätzt den ersten echten Claude-Entwurf auf Staging für die Woche ab 23.11., wenn die offenen Eingaben bis Mo 23.11. stehen; die PO-Entscheidung zur Ledger-Form ist seit 16:40 gefallen; offen bleiben der Schwellenwert der Stopp-Regel (`cra` am Gate), AUT-149 und S2 (`aia`) sowie die `lca`-Lesung der Anbieterbedingungen. Realistisch: **KW 48 (23.–29.11.)**, spätestens KW 49.
 
 Sonst nichts. Rechtsform, Phase-B-Pilot und KI-Weg für reale Daten bleiben gesondert offen und blockieren Phase A nicht.
