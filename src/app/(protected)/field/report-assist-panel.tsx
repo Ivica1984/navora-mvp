@@ -133,6 +133,18 @@ export default function ReportAssistPanel({
             Herkunft: {assist.label}. Nur ein Vorschlag: du entscheidest jede Zeile.
           </p>
 
+          {/* AUT-151 (ADR-211): recorded facts are context, read-only, no buttons; they are not added to the summary. */}
+          {assist.context.length > 0 && (
+            <section aria-label="Aus den erfassten Daten" data-testid="report-assist-context" className="grid gap-1 rounded-lg border border-stone-200 bg-stone-50 p-2">
+              <h4 className="text-xs font-bold">Aus den erfassten Daten (nur zur Ansicht)</h4>
+              <ul className="grid gap-1 text-sm">
+                {assist.context.map((text, i) => (
+                  <li key={i} className="whitespace-pre-wrap">{text}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {assist.lines.length > 0 && (
             <ul className="grid gap-2" aria-label="Vorgeschlagene Zeilen">
               {assist.lines.map((line, i) => (

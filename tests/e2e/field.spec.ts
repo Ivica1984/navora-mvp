@@ -275,7 +275,13 @@ test.describe("field tool (F1)", () => {
     await expect(assist.getByTestId("report-assist-origin")).toBeVisible();
     // UXR-253 (b): «Übernehmen» is outlined; the only filled primary button of the form stays «Bericht unterschreiben».
     await expect(assist.getByTestId("report-assist-take").first()).not.toHaveClass(/bg-emerald-800/);
+    // AUT-151 (ADR-211): the recorded facts are read-only context with no buttons; only her two sentences are decided.
+    const context = assist.getByTestId("report-assist-context");
+    await expect(context).toContainText("Leistungen");
+    await expect(context.getByRole("button")).toHaveCount(0);
     const lines = assist.getByTestId("report-assist-line");
+    await expect(lines).toHaveCount(2);
+    await expect(lines.filter({ hasText: "Leistungen" })).toHaveCount(0);
     for (const line of await lines.all()) {
       const text = await line.locator("p").first().innerText();
       await line.getByRole("button", { name: text.startsWith("Synthetisch") || text.startsWith("Trinkt") ? "Übernehmen" : "Verwerfen" }).click();

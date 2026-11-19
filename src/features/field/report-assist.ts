@@ -19,6 +19,11 @@ export type ReportAssist = {
   label: string;
   /** Segment texts by id, so a line can show where it comes from. */
   sourceText: Record<string, string>;
+  /**
+   * AUT-151 (ADR-211, `cra` condition (1)): lines that cite only recorded facts. Shown read-only as context
+   * («aus den erfassten Daten», `uxa`), never a decision, never counted as open, never added to the summary.
+   */
+  context: string[];
   lines: AssistLine[];
   unplaced: AssistSegment[];
 };
@@ -27,11 +32,14 @@ type OkDraft = Extract<ReportDraft, { ok: true }>;
 
 export function assistFromDraft(draft: OkDraft): ReportAssist {
   const sourceText = Object.fromEntries(draft.segments.map((s) => [s.id, s.text]));
+  // The control layer has already rejected unknown ids, so a line citing no segment cites only facts.
+  const citesHerWords = (l: { sources: string[] }) => l.sources.some((id) => id in sourceText);
   return {
     origin: draft.origin,
     label: draft.label,
     sourceText,
-    lines: draft.lines.map((l) => ({ text: l.text, sources: l.sources, decision: "open" })),
+    context: draft.lines.filter((l) => !citesHerWords(l)).map((l) => l.text),
+    lines: draft.lines.filter(citesHerWords).map((l) => ({ text: l.text, sources: l.sources, decision: "open" })),
     unplaced: draft.unplaced.map((id) => ({ id, text: sourceText[id] ?? "", decision: "open" })),
   };
 }
