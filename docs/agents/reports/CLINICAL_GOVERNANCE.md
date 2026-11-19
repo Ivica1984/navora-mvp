@@ -16,6 +16,70 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-19 21:45 CET: package gate review of **#1549** (BK-e2 Abschlusspaket: AUT-149 value in source, ledger without text and AUT-152 stop rule in migration 0151, ADR-215/216, S2 set in CI, BK-e2b input record in migration 0152, labels, `inference_geo`; ADR-214 to ADR-217, ADR-219; `eng` ready report 7021239142). One gate window, started by `po` under FE-089 (2) and FE-097 (scheduled PO run 21:39). **`cra-gate: #1549 e149e04 clear`** (gate «Simulation, synthetic data» only; not a clinical release, not a documentation rule, not a classification, D-27). **AUT-152 value given below as a simulation test parameter, not a clinical threshold.** New advisory CGR-261 (unit list) and CGR-262 (stop-rule denominator); both named follow-ups, neither a merge condition. Read on `recovery/main` `950c7df`.
+
+### What I read
+
+- Since my 12:50 section: #1529, #1531, #1527, #1552 and PO cycles merged; brief `BK.md` §PO package contract 2026-11-19 16:40 (points 1–8); `FOUNDER_DECISIONS.md` v49 (FE-095, FE-096, FE-097: no change in my field: Annex B §1, qualification matrix, Handbook V2.2 unchanged).
+- **#1549** diff `950c7df...e149e04` (28 files): migrations `20261021000151_bk_e2_report_draft_ledger.sql` and `20261021000152_bk_e2b_report_input_record.sql` read in full; pgTAP `151` (sections 1–6) and `152`; `src/lib/ai/report-draft/control.ts` (`valueTokens`, `valueReason`, `UNIT_TOKENS`), `contract.ts`, `anthropic-provider.ts` (`CLAUDE_ORIGIN_LABEL`, `CLAUDE_INFERENCE_GEO`), `s2-cases.ts`; `src/features/field/report-draft-command.ts` (gate read, record before show, fall back to the rule substitute on a ledger failure, `decideReportDraftLine`, `recordReportInput`), `report-ledger.ts`, `report-assist-panel.tsx` (`apply()` stores the input first; `decide()` writes the ledger first); unit tests `report-ledger`, `report-draft-command-ledger`, `report-draft-s2`, `report-input-record`.
+- CI on `e149e04` (check runs, all `completed`/`success`): `app` 135850075993, `db` 135850076050, `e2e` 135850075663, `ui-screenshots` 135850076194, `staging` 135857005684. Job logs read: `app` «Test Files 146 passed», «Tests 1593 passed», S2 table (value 6/6, source 3/3, dropped 2/2, fact 1/1, format 2/2 stopped; carer 3/3 passed to her decision; faithful 3/3 accepted); `db` «Files=152, Tests=5476», «All tests successful», `151` and `152` ok; `e2e` «192 passed (7.6m)», no skipped, flaky or failed line. `mergeable_state` clean onto `950c7df`. I ran no NAVORA test.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1549 BK-e2 Abschlusspaket | `e149e04` | **`cra-gate: #1549 e149e04 clear`** · gate «Simulation, synthetic data». My field as built: **(1) Level G** registration as I read it on 03:50 (`report_draft_model`, kind `ai`, level `G`; 0151 §2; pgTAP 151 §1); `set_agent_state` still refuses it and no `ai_agent_settings` row exists (pgTAP 151 «0 settings rows»); no simulation exception added (option B not built). **(2) No model line on screen without its ledger row** (`record_report_draft_proposal` before the draft is returned; any failure → rule substitute with its own label, `report-draft-command.ts`); one decision per line, `bulk = false` always, confirmed only with an equal keyed digest (pgTAP 151 §4). **(3) Fail closed:** no threshold row → `no_threshold`, nothing recorded (pgTAP 151 §2); non-simulation organisation, other team, non-performer, signed report refused even with a row (§2b); stop rule closes at share above threshold once the minimum is reached (§5). **(4) AUT-149** `value_not_in_source` for rule and model alike; S2 «value» 6/6 stopped. **(5) BK-e2b:** the signed version's input is stored before the draft enters the summary; refused after signing; every segment once with one consistent decision; no line text (pgTAP 152; unit 40-segment test). Sign path, snapshot hash and billing (reads `final` only) unchanged. Not a substantial safety, privacy or function defect of the agreed flow. |
+
+### AUT-152 stop-rule value (contract point 2; `eng` question 2)
+
+I do not set a clinical threshold and none is known (UNKNOWN, Clinical Owner, D-27; my earlier sections stand). What I can give, and give here, is a **simulation test parameter** for a gate that structurally admits only simulation organisations (0151 `report_draft_model_closed`: `not_simulation_org` is checked before the threshold row is read; pgTAP 151 §2b «still closed outside a simulation organisation»). It carries no clinical meaning, says nothing about acceptable error rates for real care documentation, and I invent no new number: it is the value the repository already uses for a switched-on synthetic AIG1 test agent (`supabase/seed.sql:477`, `stop_share 50, stop_min_proposals 10, stop_window_days 30`).
+
+| Column | Value |
+|---|---|
+| `agent_key` | `report_draft_model` |
+| `stop_share` | `50.00` |
+| `stop_min_decided` | `10` |
+| `stop_window_days` | `30` |
+| `cra_ref` | `cra 2026-11-19 21:45 simulation test parameter (seed.sql:477), not a clinical threshold` |
+
+Conditions (no new merge condition; they describe the one planned push): the follow-up head adds only a migration inserting exactly this row (`on conflict do nothing`) and a pgTAP pin of the five values; nothing else changes. That head needs its own `cra` line (AUT-50); I will check only these two points on it. **Before any non-simulation organisation can reach the model** (S1), the row is replaced by a value a named Clinical Owner sets (Clinical Rule Register CR-239). The primary controls stay the carer's per-line decision with her sentence beside the line, AUT-149 and S2; the stop rule is a backstop, and CGR-262 limits what it can see.
+
+### Answers to `eng`'s review questions
+
+1. **Level G registration:** acceptable as built (gate row (1)). This is my review reading; the binding classification stays `lca`'s and the regulatory adviser's (D-34, UNKNOWN).
+2. **Stop-rule value:** above.
+3. **CGR-213 (b):** **(ii) met** on `e149e04`: each «Bewusst weglassen» is stored as `omitted` with the text, by the performer, append-only, audited without text, before the summary is filled, and cannot be added after signing (0152; pgTAP 152 negatives; unit `report-input-record`). It closes on merge. **(iii) not built** (no count of omitted sentences per report and team; the audit keeps `segment_count` only; no reader): stays open as a named follow-up for `aia` (contract «for later packages»), not a condition. Note for the ADR: a report can hold several input records (one per placement); the one belonging to the signed version is the last before signing. Pin that reading in ADR-219 or a pgTAP when a reader is built.
+4. **«Bewusst weglassen» stored only in the input record, not in the summary: acceptable for the simulation gate.** The signed summary is her documentation and must contain only what she chose; the omitted sentence is not lost, and her decision is an attributable, audited act. Safety content does not depend on the summary: it reaches SIG1, orders and escalation only from structured entries (my earlier condition for AI report drafts, unchanged). Before real data, UNKNOWN and not mine: whether an omitted sentence is part of the Patientendokumentation and who may read it (legal adviser, BK brief 2026-11-18 point 6); whether an omitted safety-relevant sentence must reach anyone (Clinical Owner, D-27).
+5. **`UNIT_TOKENS` (ADR-214, AUT-149):** acceptable for the simulation gate; not complete enough before real data (CGR-261).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-261** (new) | #1549 `e149e04` AUT-149 | **advisory for the simulation gate; S2 before real data** | The unit check sees only the nine listed units. A unit substitution where the new unit is not listed passes: source «250 mg» → line «250 µg», «5 mg» → «5 g», «8 mg» → «8 IE» keep the number and add no listed unit, so `value_not_in_source` does not fire. A 1000-fold or unit-class change is a dosing error class (H-52). The carer still decides the line with her sentence beside it, so nothing enters the record unseen. | `control.ts` `UNIT_TOKENS = ["mmhg","mg","ml","kg","min","°c","%","l","h"]`; `UNIT` regex with letter look-around (µ is a letter, so «µg» matches nothing) | `eng`: extend the closed list at least by `g`, `µg`/`mcg`, `ie`/`i.e.`/`e`, `mmol`, `cm`, `mm`, `tropfen`/`gtt`, `hub`; S2 cases for each swap (mg→µg, mg→g, mg→IE, ml→Tropfen) stopped with `value_not_in_source`. Lexical completeness, not a clinical rule; the final list for real data is the Clinical Owner's (UNKNOWN) |
+| **CGR-262** (new) | #1549 `e149e04` AUT-152 | **advisory (S3) for the simulation; S2 before real data** | The stop rule counts only decided lines. (a) A draft discarded with «Entwurf verwerfen», or left by leaving the page, writes no decision, so a model whose drafts are thrown away whole never moves the share. (b) A line decided «Übernehmen» in a draft that is then discarded stays `confirmed` in the ledger although it never reached the summary, which lowers the share. The backstop is blind to the most telling failure (drafts not worth deciding). | 0151 `report_draft_model_closed` → `aig1_window_stats` (decided lines only); `report-assist-panel.tsx` discard → `update(null)`, no ledger write; `decide()` writes on each tap | `aia`/`eng` specify one of: count proposed lines without a decision in a closed window as not confirmed in the share, or record a discard as its own outcome per line (not `bulk`, not `rejected`); and mark a `confirmed` line whose draft was discarded. pgTAP: 3 proposed, 0 decided, window closed → counted; e2e count line in `agent_correction_rates`. No number from me |
+
+### Notes (no new finding)
+
+- **Negation and body side** still pass every automatic control (S2 «carer» 3/3 passed to her decision), as named on 03:50. The S2 table proves the guards on hand-written answers, not Claude's draft quality; the first staging run with Claude should report the same table on real model output before anyone reads «KI-Entwurf» as safe (`aia` question; no condition from me).
+- **`inference_geo`** and Claude's data terms are `lca`'s; for synthetic data no clinical objection.
+- **Line editing («corrected»)** is supported by the database and not on screen; when it is built, the corrected text is hers and must still show the source sentence beside it (H-20).
+
+### Findings closed
+
+- **CGR-213 (b) (ii)**: met on #1549 `e149e04`; closes on merge. (iii) stays open (follow-up, `aia`).
+- No other finding closed.
+
+### Decisions requested
+
+- **PO:** merge #1549 at `e149e04` on the fixed residual list once the other three lines name this head; place CGR-261, CGR-262 and CGR-213 (b) (iii) as named follow-ups («for later packages»); merge this PR.
+- **`eng`:** the threshold migration with exactly the row above and its pgTAP pin, as one head; nothing else before merge.
+- **`aia`:** CGR-262 measure; CGR-213 (b) (iii) count.
+- **`lca` / regulatory adviser:** binding level of `report_draft_model` (D-34; my reading G).
+- **Clinical Owner (when named, D-27):** the real stop threshold (CR-239); the unit list for real data (CGR-261); whether an omitted sentence must reach anyone.
+
+---
+
 ## 2026-11-19 12:50 CET: gate review of **#1529** (BK-e2a 2b-1 second PR: notes gate, confirmed discard, panel, counts, labels; ADR-210; CGR-260, UXR-252 to UXR-254; `eng` final head `2656912`) and **#1531** (BK-e2a 2b-1 third PR: recorded facts as fixed context; ADR-211; AUT-151; stacked on #1529, own commits `0179811`, `ff2bc13`; final head `ff2bc13`). Run started once by `po` under FE-091 (4) (gate start 12:39, BK BUILD PHASE point 2). **`cra-gate: #1529 2656912 clear`** and **`cra-gate: #1531 ff2bc13 clear`** (gate «Simulation, synthetic data» only; not a clinical release and not a documentation rule, D-27). **CGR-260 met in code and test** on #1529 (closes on merge). The four `cra` conditions for AUT-151 (03:50) are **met as built** on #1531. No new finding. Read on `recovery/main` `04e521c`.
 
 ### What I read
