@@ -265,7 +265,7 @@ test.describe("field tool (F1)", () => {
     await expect(sign).toHaveAccessibleDescription(/Deine Notizen sind noch nicht im Bericht/);
     await expect(review.getByRole("status").getByTestId("report-assist-sign-wait")).toHaveCount(1);
     await assist.getByTestId("report-assist-propose").click();
-    await expect(assist.getByTestId("report-assist-origin")).toContainText("regelbasiert, keine KI · synthetische Daten");
+    await expect(assist.getByTestId("report-assist-origin")).toContainText("Herkunft: regelbasiert, keine KI.");
     await expect(assist.getByRole("button", { name: /alle/i })).toHaveCount(0);
     await expect(review.getByTestId("report-assist-sign-wait")).toBeVisible();
     await expect(review.getByRole("button", { name: "Bericht unterschreiben" })).toBeDisabled();
