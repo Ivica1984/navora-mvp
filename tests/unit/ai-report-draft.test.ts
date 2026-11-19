@@ -226,7 +226,12 @@ describe("resolveReportDraftProvider (one stop switch, simulation only)", () => 
   });
 
   it("uses the model only when every guard holds", () => {
-    const r = resolveReportDraftProvider(modelEnv, { simulationOrg: true, allowedHosts: ["ai.example.ch"], fetch: vi.fn() });
+    const r = resolveReportDraftProvider(modelEnv, {
+      simulationOrg: true,
+      ledgerReady: true,
+      allowedHosts: ["ai.example.ch"],
+      fetch: vi.fn(),
+    });
     expect(r.provider?.kind).toBe("model");
     expect(r.modelBlocked).toBeUndefined();
   });
@@ -320,7 +325,7 @@ describe("resolveReportDraftProvider with AI_MODEL_PROVIDER=anthropic (staging o
   };
 
   it("uses Claude on staging in a simulation org", () => {
-    const r = resolveReportDraftProvider(env, { simulationOrg: true, fetch: vi.fn() });
+    const r = resolveReportDraftProvider(env, { simulationOrg: true, ledgerReady: true, fetch: vi.fn() });
     expect(r.provider?.kind).toBe("model");
     expect(r.provider?.label).toMatch(/Claude/);
   });
@@ -344,5 +349,90 @@ describe("resolveReportDraftProvider with AI_MODEL_PROVIDER=anthropic (staging o
     const r = resolveReportDraftProvider({ ...env, AI_MODEL_PROVIDER: "other" }, { simulationOrg: true, fetch: vi.fn() });
     expect(r.provider?.kind).toBe("rule");
     expect(r.modelBlocked).toBe("provider_unknown");
+  });
+});
+
+describe("resolveReportDraftProvider: ledger guard in the single resolver (AUT-153)", () => {
+  const anthropicEnv = {
+    AI_REPORT_DRAFT_MODE: "model",
+    AI_MODEL_PROVIDER: "anthropic",
+    AI_MODEL_API_KEY: "k",
+    AI_MODEL_NAME: "claude-x",
+    NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co",
+  };
+  const compatibleEnv = {
+    AI_REPORT_DRAFT_MODE: "model",
+    AI_MODEL_BASE_URL: "https://ai.example.ch/v1",
+    AI_MODEL_API_KEY: "k",
+    AI_MODEL_NAME: "m",
+    NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co",
+  };
+
+  it("no caller gets a model provider while the AI ledger is missing, for either provider", () => {
+    const fetch = vi.fn();
+    for (const env of [anthropicEnv, compatibleEnv]) {
+      const r = resolveReportDraftProvider(env, { simulationOrg: true, ledgerReady: false, allowedHosts: ["ai.example.ch"], fetch });
+      expect(r.provider).toBe(ruleProvider);
+      expect(r.modelBlocked).toBe("ledger_missing");
+    }
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("an earlier guard keeps its own reason; rule mode and «off» are not touched by the ledger flag", () => {
+    expect(resolveReportDraftProvider({ ...anthropicEnv, AI_KILL_SWITCH: "on" }, { simulationOrg: true, ledgerReady: false }).modelBlocked).toBe(
+      "kill_switch",
+    );
+    expect(resolveReportDraftProvider({}, { simulationOrg: true, ledgerReady: false })).toEqual({ provider: ruleProvider });
+    expect(resolveReportDraftProvider({ AI_REPORT_DRAFT_MODE: "off" }, { simulationOrg: true, ledgerReady: false })).toEqual({ provider: null });
+  });
+});
+
+describe("resolveReportDraftProvider: guard matrix (AUT-150)", () => {
+  const env = {
+    AI_REPORT_DRAFT_MODE: "model",
+    AI_MODEL_PROVIDER: "anthropic",
+    AI_MODEL_API_KEY: "k",
+    AI_MODEL_NAME: "claude-x",
+    NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co",
+  };
+  const ctx = { simulationOrg: true, ledgerReady: true, fetch: vi.fn() };
+
+  it("the stop switch stops on every value except empty or «off»", () => {
+    for (const value of ["on", "ON", "On", "1", "true", "yes", " off", "off ", "OFF", "stop"]) {
+      const r = resolveReportDraftProvider({ ...env, AI_KILL_SWITCH: value }, ctx);
+      expect(r.provider?.kind, JSON.stringify(value)).toBe("rule");
+      expect(r.modelBlocked, JSON.stringify(value)).toBe("kill_switch");
+    }
+    for (const value of [undefined, "", "off"]) {
+      const r = resolveReportDraftProvider({ ...env, AI_KILL_SWITCH: value }, ctx);
+      expect(r.provider?.kind, JSON.stringify(value)).toBe("model");
+    }
+  });
+
+  it("staging is recognised only by the exact host, not by a substring of the URL", () => {
+    const notStaging = [
+      "https://qpmdryxkktbqqkqpsnkj.supabase.co.evil.example",
+      "https://evil.example/qpmdryxkktbqqkqpsnkj.supabase.co",
+      "https://evil.example/?ref=qpmdryxkktbqqkqpsnkj",
+      "https://xqpmdryxkktbqqkqpsnkj.supabase.co",
+      "http://qpmdryxkktbqqkqpsnkj.supabase.co",
+      "not a url",
+      "",
+    ];
+    for (const url of notStaging) {
+      const r = resolveReportDraftProvider({ ...env, NEXT_PUBLIC_SUPABASE_URL: url }, ctx);
+      expect(r.provider?.kind, url).toBe("rule");
+      expect(r.modelBlocked, url).toBe("not_staging");
+    }
+    const ok = resolveReportDraftProvider({ ...env, NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co/" }, ctx);
+    expect(ok.provider?.kind).toBe("model");
+  });
+
+  it("any mention of the live project still blocks first", () => {
+    const r = resolveReportDraftProvider(
+      { ...env, NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co/?x=jwmfxrmougneeceldhsa" },
+      ctx,
+    );
+    expect(r.modelBlocked).toBe("live_project");
   });
 });

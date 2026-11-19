@@ -6,17 +6,16 @@ import {
   composeSummary,
   decideLine,
   decideSegment,
+  factsForProvider,
   factsFromSnapshot,
   openCount,
   signGate,
   signWaitText,
-  withLedgerGuard,
 } from "@/features/field/report-assist";
 import * as assistModule from "@/features/field/report-assist";
 import { checkDraft } from "@/lib/ai/report-draft/control";
 import { ruleProvider } from "@/lib/ai/report-draft/rule-provider";
 import { segmentInput } from "@/lib/ai/report-draft/segment";
-import type { Provider } from "@/lib/ai/report-draft/contract";
 
 /**
  * BK-e2a part 2 (ADR-207): the carer's decisions on a report draft in /field.
@@ -122,22 +121,25 @@ describe("report assist: facts from the stored report snapshot", () => {
   });
 });
 
-describe("report assist: no model call without the AI ledger (AUT-138, ADR-207 (3))", () => {
-  const model: Provider = { kind: "model", label: "KI-Vorschlag", propose: async () => ({ lines: [], unplaced: [] }) };
+describe("report assist: services never go into a model payload (L-1497-1, PO 2026-11-19 08:39)", () => {
+  const snapshot = {
+    services: ["Grundpflege", "Medikamente richten"],
+    events: [
+      { type: "started", at: "2026-11-19T06:02:00Z" },
+      { type: "completed", at: "2026-11-19T06:48:00Z" },
+    ],
+  };
 
-  it("falls back to the rule substitute, with the reason, while the ledger is not built", () => {
-    const r = withLedgerGuard({ provider: model }, false);
-    expect(r.provider).toBe(ruleProvider);
-    expect(r.modelBlocked).toBe("ledger_missing");
+  it("keeps the services for the rule substitute (default) and drops them for a model", () => {
+    expect(factsFromSnapshot(snapshot).map((f) => f.text)).toEqual(["Einsatz 07:02–07:48", "Leistungen: Grundpflege, Medikamente richten"]);
+    const forModel = factsFromSnapshot(snapshot, { services: false });
+    expect(forModel).toEqual([{ id: "f1", text: "Einsatz 07:02–07:48" }]);
+    expect(JSON.stringify(forModel)).not.toMatch(/Grundpflege|Medikamente/);
   });
 
-  it("keeps the model once the ledger exists", () => {
-    expect(withLedgerGuard({ provider: model }, true).provider).toBe(model);
-  });
-
-  it("leaves the rule substitute and «off» unchanged", () => {
-    expect(withLedgerGuard({ provider: ruleProvider }, false)).toEqual({ provider: ruleProvider });
-    expect(withLedgerGuard({ provider: null }, false)).toEqual({ provider: null });
+  it("the /field command picks the facts by the resolved provider kind", () => {
+    expect(factsForProvider(snapshot, "model").map((f) => f.text)).toEqual(["Einsatz 07:02–07:48"]);
+    expect(factsForProvider(snapshot, "rule")).toEqual(factsFromSnapshot(snapshot));
   });
 });
 
