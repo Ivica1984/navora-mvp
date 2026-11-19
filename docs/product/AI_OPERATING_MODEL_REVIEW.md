@@ -646,6 +646,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Measure:** ADR-208 handgrips (client 8, team 2; synthetic, one path) are the first measured map input. Per role, never per person.
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**BK-e2a 2b-1 (a) gated; gate lines carry over after a merge-up (`aia` 2026-11-19 14:22, review 73, AUT-156, AUT-157):**
+- **Gates:** `aia-gate: #1503 cf02fa1 clear` and `aia-gate: #1527 c63f177 clear` (Simulation, synthetic data). The control «one guard, every caller» (AUT-153) is IMPLEMENTED on the #1527 branch. So are the fail-closed stop switch and the exact staging host (AUT-150).
+- **Control «gate line carry-over» (AUT-156):** an `aia` line stays valid on a merged-up head if four things hold: the PR-own code diff is byte-identical, all other changes are already-gated `recovery/main` content or PR docs, CI is green on the new head, and the PO records the comparison. PROPOSED (PO).
+- No agent added or removed. Stage 1 applies to synthetic data only; stage 0 to real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -720,3 +725,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-18 15:46 | `aia` | §12: block «First real AI function: decision template; rule before and after the model»: PO choice BK-d supported; FE-089 (5) labelling; controls AUT-145 (validator, test double, baseline in one rule), AUT-146 (four fields), AUT-147 (minimal request); gate-path gap AUT-148. No agent added or removed |
 | 2026-11-19 02:18 | `aia` | §12: block «BK-e2a chain: gate on part 1; value in source; facts are context; a stop rule without the AIG1 switch»: `aia-gate: #1494 cf1b6e9 clear`; controls AUT-149 to AUT-152. No agent added or removed |
 | 2026-11-19 08:18 | `aia` | §12: block «BK-e2a part 2a gated; guard in one place; first measured handgrips»: `aia-gate` lines on #1497 and #1503; control AUT-153; option A supported with conditions. No agent added or removed |
+| 2026-11-19 14:22 | `aia` | §12: block «BK-e2a 2b-1 (a) gated; gate lines carry over after a merge-up»: `aia-gate` lines on #1503 and #1527; controls AUT-156 and AUT-157; AUT-138 closed. No agent added or removed |
