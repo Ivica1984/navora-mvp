@@ -2009,6 +2009,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"report_draft_stop_rules": {
+                  Row: {
+                    "agent_key": string,"cra_ref": string,"created_at": string,"stop_min_decided": number,"stop_share": number,"stop_window_days": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_key": string,"cra_ref": string,"created_at"?: string,"stop_min_decided": number,"stop_share": number,"stop_window_days": number
+                  }
+                  Update: {
+                    "agent_key"?: string,"cra_ref"?: string,"created_at"?: string,"stop_min_decided"?: number,"stop_share"?: number,"stop_window_days"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "report_draft_stop_rules_agent_key_fkey"
+      columns: ["agent_key"]
+isOneToOne: true
+      referencedRelation: "ai_agent_definitions"
+      referencedColumns: ["key"]
+    }
+                  ]
                 },"response_deadlines": {
                   Row: {
                     "amount": number,"id": string,"organization_id": string | null,"referral_type": string,"unit": string,"updated_at": string,"updated_by": string | null
@@ -2942,6 +2962,9 @@ isOneToOne: false
 "decide_matching_request":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code"?: string,"p_request_id": string,"p_team_id": string }; Returns: string
                            },
+"decide_report_draft_line":
+{ Args: { "p_idempotency_key": string,"p_outcome": string,"p_suggestion_id": string,"p_text": string }; Returns: Json
+                           },
 "decide_team_candidate":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_proposal_id": string,"p_reason": string }; Returns: Json
                            },
@@ -3243,6 +3266,9 @@ isOneToOne: false
 "record_quality_event":
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
+"record_report_draft_proposal":
+{ Args: { "p_idempotency_key": string,"p_lines": Json,"p_model": string,"p_report_id": string }; Returns: Json
+                           },
 "record_safety_alert_value":
 { Args: { "p_case_id": string,"p_category": string,"p_idempotency_key": string,"p_note": string,"p_source": string,"p_value": string }; Returns: string
                            },
@@ -3263,6 +3289,9 @@ isOneToOne: false
                            },
 "reopen_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
+"report_draft_model_gate":
+{ Args: { "p_report_id": string }; Returns: Json
                            },
 "report_returns":
 { Args: { "p_visit_id": string }; Returns: {
