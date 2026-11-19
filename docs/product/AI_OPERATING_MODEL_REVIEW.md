@@ -639,6 +639,13 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «stop rule without the AIG1 switch» (AUT-152):** under ADR draft option A, the server applies the AIG1 predicate before each model call. Without a threshold row, the model mode is closed. PLANNED (`eng`, `po`, `cra`).
 - No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
 
+**BK-e2a part 2a gated; guard in one place; first measured handgrips (`aia` 2026-11-19 08:18, review 72, AUT-153 to AUT-155):**
+- **Gates:** `aia-gate: #1497 24105ec clear` and `aia-gate: #1503 869e35d clear` (Simulation, synthetic data). The ledger guard (AUT-138) forces the rule substitute while `MODEL_LEDGER_READY = false`. IMPLEMENTED on the branch.
+- **Control «one guard, every caller» (AUT-153):** the ledger check lives in the single provider resolver, so no second caller can reach a model without the ledger. PLANNED (`eng`, 2b-1).
+- **Part 2b, option A:** supported, on two conditions: the source ids stay in the proposal row, and the AUT-152 stop rule applies. No services in the model payload in Phase A (L-1497-1). PLANNED (PO).
+- **Measure:** ADR-208 handgrips (client 8, team 2; synthetic, one path) are the first measured map input. Per role, never per person.
+- No agent added or removed. Stage 1 for synthetic data only, stage 0 for real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -712,3 +719,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-18 14:23 | `aia` | §12: block «Closed by default; a metric names its action»: H-BK-11:39, H-BK-12:39, H-BK-13:39 supported; control AUT-144 (a kind that leaves a base stays visible). No agent added or removed |
 | 2026-11-18 15:46 | `aia` | §12: block «First real AI function: decision template; rule before and after the model»: PO choice BK-d supported; FE-089 (5) labelling; controls AUT-145 (validator, test double, baseline in one rule), AUT-146 (four fields), AUT-147 (minimal request); gate-path gap AUT-148. No agent added or removed |
 | 2026-11-19 02:18 | `aia` | §12: block «BK-e2a chain: gate on part 1; value in source; facts are context; a stop rule without the AIG1 switch»: `aia-gate: #1494 cf1b6e9 clear`; controls AUT-149 to AUT-152. No agent added or removed |
+| 2026-11-19 08:18 | `aia` | §12: block «BK-e2a part 2a gated; guard in one place; first measured handgrips»: `aia-gate` lines on #1497 and #1503; control AUT-153; option A supported with conditions. No agent added or removed |

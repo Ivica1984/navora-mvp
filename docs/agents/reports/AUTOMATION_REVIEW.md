@@ -31,6 +31,89 @@
 
 ---
 
+## 2026-11-19 08:18 CET · aia review 72: `aia-gate: #1497 24105ec clear` and `aia-gate: #1503 869e35d clear` (Simulation, synthetic data); first measured handgrips on the BK path (client 8, team 2, against the Blueprint §6.3 target of 1 and 1); ledger guard only in one caller (AUT-153, low); client order is the largest measured gap (AUT-154, medium); «Dein Team» tap (AUT-155, low); the ADR-208 contradiction with AUT-88 is resolved by the newer founder decision
+
+**Read:** `recovery/main` at `8532f91` (since review 71: PO 02:39 to 07:39, `eng` 03:25 to 06:12, `cra`, `lca`, `uxa` 03:43 to 04:47 journals). Open PRs:
+- #1497 head `24105ec`: the 9 files read in full;
+- #1503 head `869e35d`: the 6 files read in full;
+- #1523 (`eng` part 2b plan addendum, docs only): read.
+
+CI facts: check runs on both heads, plus two `e2e` job logs that I read myself (135311236404, 135333672496). I ran no NAVORA test, did not touch the live project, chose no provider and moved no data.
+
+**Active block (README rule 12):** BK, slice BK-e. Both gate lines are for PRs in the active slice. I ask for no merge outside it.
+
+**Task adjustment (README rule 11):** this run gives the two gate lines the PO asked for (comments 6998998086, 6999923270) and answers the open `aia` row in `eng`'s part 2b plan. No bottleneck-map refresh (v4 due 2026-11-24). The first measured handgrip numbers are recorded below as map input.
+
+### 1 Done
+
+- **#1497 gate line** (comment 7002558937): `aia-gate: #1497 24105ec clear (Simulation, synthetic data)`.
+  - Contract: read-only; zod input; performer check from the server's answer; `simulationOrg` from the database; facts are times and services only; the log holds origin, code and count only.
+  - Ledger guard (AUT-138): while `MODEL_LEDGER_READY = false`, every model provider is replaced by the rule substitute with the reason `ledger_missing`. The three unit cases exist. Building the provider makes no network call.
+  - UXR-251 fix (a) keeps the no-accept-all control and adds no step.
+  - `e2e` log: `field.spec.ts:240:7` passed, 191 passed, none skipped.
+- **#1503 gate line** (comment 7002560820): `aia-gate: #1503 869e35d clear (Simulation, synthetic data)`.
+  - The ratchet counts per role on one synthetic path, never per person. The limit only goes down. The gap to the target is reported on every run.
+  - `e2e` log: «Auftraggeber | 8 | 8 | 1 | 7 | gehalten», «Team | 2 | 2 | 1 | 1 | gehalten»; M2 190 ms and 344 ms (reported, not asserted); 192 passed.
+- **#1523 line** (comment 7002568704):
+  - Option A and `input_refs` = report + visit are supported, on two conditions: the source ids stay in the proposal row, and the AUT-152 stop rule applies.
+  - The 2b-1 / 2b-2 split is supported, with AUT-153 added to 2b-1.
+  - L-1497-1 «no services to the model in Phase A» is supported.
+- **The ADR-208 contradiction with AUT-88:** the newer founder decision (live, 2026-11-19, «Sperrklinke») wins (README rule 10). AUT-88 («never a limit») stays in force for the BD-2 act count only. I change no earlier section. This note is the correction.
+- **AI readiness (§8) for the BK-e2a chain, after #1497:**
+  - Provenance per line: IMPLEMENTED on the branch.
+  - Named confirmer: IMPLEMENTED on the branch.
+  - No accept-all: IMPLEMENTED on the branch.
+  - Ledger guard: IMPLEMENTED, caller only (AUT-153).
+  - Suggestion ledger: PLANNED (2b-2).
+  - Correction rate: PLANNED (2b-2).
+  - Stop rule: PLANNED (AUT-152, 2b-2).
+  - Value in source: PLANNED (AUT-149, 2b-1).
+  - Evaluation on synthetic data: PLANNED (S2).
+- **Challenge review:** #1497 and #1503 add no role, approval or carer step. #1523 adds no step. No `high` finding.
+
+### 2 Bottleneck map input (first measurement, not an estimate)
+
+The BK path ran at 390 px on the synthetic seed (CI run 44456797837, `e2e` job 135333672496), from client order to «Gedeckt». Result:
+- **Client (Auftraggeber):** 8 handgrips: date, start, end, PLZ, grade, one service, «Weiter», «Bestätigen».
+- **Team:** 2 handgrips: «Dein Team», «Übernehmen».
+- **System time:** 190 ms and 344 ms.
+
+This is IMPLEMENTED measurement on synthetic data. It is one path and one run, so it gives no time saved for a real team. «Pflegekraft nach der Schicht» is not yet measured (it joins after #1497).
+
+### 3 Findings
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-153 | AI governance: ledger guard for the report draft, `eng` | `withLedgerGuard` is applied in `report-draft-command.ts` only. `resolveReportDraftProvider` (`config.ts`) can still return a model provider to any other caller (#1497 `24105ec`, read in code) | **Rule hardening:** the ledger check moves into the single resolver, or into a single entry point that every caller must use. One unit test: no caller gets `kind: "model"` while the ledger is missing. In 2b-1, before `MODEL_LEDGER_READY` becomes a server check | L | stage 0; `eng` | guard-matrix test | low | – |
+| AUT-154 | Referral/order: the client orders one shift (BK step 1), Auftraggeber | **Measured 8 handgrips against the §6.3 target of 1** (ADR-208, job 135333672496). Five typed or chosen fields, two ticks and the confirmation. `client_orders()` already returns every field of the client's earlier orders (review 56, AUT-123) | **Eliminate through the care graph:** (1) «Wieder erfassen» from an earlier order (AUT-123). Only the date is new, and the existing summary step stays the one confirmation. (2) A client with one stored site gets the PLZ as a default, not a choice. Estimate: 8 → about 4 for a repeat order (date, «Weiter», «Bestätigen», plus one change). A first order stays 8. No AI is needed. The order agent (BK-d, AUT-146) is for free text only | L | stage 0; PO (order), `uxa` (form), `eng` | the ADR-208 ratchet for a second spec «Wiederholauftrag»; share of orders created by repeat, at team or client-organisation level | medium | report only |
+| AUT-155 | Taking an offer (BK step 2), team member | **Measured 2 handgrips against a target of 1:** the nurse lands on «Mein Tag» and must tap «Dein Team» to see the offer (ADR-208 (2)) | **Monitor:** an open offer that matches the member's qualification shows as one card on «Mein Tag», with «Übernehmen» on the card. No new rule and no ranking: the same offer list and the same command. Who sees which offer stays a team rule (FE-028), not an AI decision | L | stage 0; `uxa`, `eng`; PO (order) | team handgrips 2 → 1 in the ratchet | low | report only |
+
+**Closed:** none. AUT-138 is IMPLEMENTED on #1497 (guard in the caller). It closes when #1497 is merged on `recovery/main`. **Open, unchanged:** AUT-125, AUT-126, AUT-127, AUT-129, AUT-131, AUT-137, AUT-139 to AUT-142, AUT-144 to AUT-152, the list in review 60.
+
+### 4 Stage tracking
+
+Stage 1 applies to synthetic data on `navora-staging` only (FE-085 (B), FE-094 as the PO recorded it). Stage 0 applies to real data, and D-35 rule A stays in force. **No model is connected in any environment.**
+
+Entry conditions for the first model draft on staging:
+- **Met on branches:** lock, control layer, performer-only, no accept-all, ledger guard (caller).
+- **Missing:**
+  - ledger migration and value form (2b-2, PO);
+  - stop-rule threshold row (`po`, `cra`);
+  - AUT-149;
+  - S2 evaluation set;
+  - the founder's staging secret.
+
+### 5 Waiting
+
+- `po`:
+  - merge #1497, then #1503 (all four lines are now on each head);
+  - decide the 2b split and the value form;
+  - place AUT-154 and AUT-155 after BK-e.
+- `eng`: AUT-153 in 2b-1; the «Pflegekraft nach der Schicht» row in the ratchet after #1497.
+- `uxa`: the form for AUT-154 and AUT-155, when placed.
+
+---
+
 ## 2026-11-19 02:18 CET · aia review 71: `aia-gate: #1494 cf1b6e9 clear` (Simulation, synthetic data); the stop rule checks that a source exists, not that the value is in it (AUT-149, medium); guard hardening (AUT-150, low); recorded facts re-decided as draft lines (AUT-151, medium, answers H-BK-01:39); no stop rule for the model draft under ADR draft option A (AUT-152, medium)
 
 **Read:** `recovery/main` at `8352425` (since review 70: #1460, #1489, #1492, #1499, #1500, #1501 merged; PO 21:39 to 01:39, `eng` 23:19 to 01:12, `cra` 23:43 journals; brief `BK.md` §PO amendments 23:39, 00:39, 01:39; FE-093, FE-094 as the PO recorded them). Open PRs: #1494 head `cf1b6e9` (code read in full: `src/lib/ai/report-draft/*.ts`, `tests/unit/ai-report-draft.test.ts`); #1497 head `d254827` (`src/features/field/report-draft-command.ts`, `report-assist.ts` read in part); #1504 (`eng` part 2b ADR draft, docs only); #1503 (handgrip measure, not read in depth). CI facts only as `eng` reported them in PR comments; I read no job log, ran no NAVORA test, did not touch the live project, chose no provider and moved no data.

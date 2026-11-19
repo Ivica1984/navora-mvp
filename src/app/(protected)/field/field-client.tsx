@@ -636,7 +636,7 @@ function VisitCard({
         notes={notes.filter((n) => n.kind === "observation")}
       />
 
-      <ReportSection visitId={visit.visit_id} visitStatus={visit.status} report={report} />
+      <ReportSection visitId={visit.visit_id} visitDate={visit.visit_date} visitStatus={visit.status} report={report} />
 
       <QualitySection
         visitId={visit.visit_id} items={quality} types={qualityTypes}

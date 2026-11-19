@@ -13,6 +13,8 @@ import {
   withdrawReportCorrection,
 } from "@/features/field/report-commands";
 import { returnConfirmation, reportView, type FieldReport } from "@/features/field/report";
+import { signWaitText, type SignGate } from "@/features/field/report-assist";
+import ReportAssistPanel from "./report-assist-panel";
 
 const TONE_CLASS = {
   open: "border-amber-500 bg-amber-50",
@@ -33,10 +35,13 @@ function formatStamp(iso: string | null) {
  */
 export default function ReportSection({
   visitId,
+  visitDate,
   visitStatus,
   report,
 }: {
   visitId: string;
+  /** BK-e2a part 2: the day the report-draft command reads the report from. */
+  visitDate?: string | null;
   visitStatus: string | null;
   report: FieldReport | null;
 }) {
@@ -44,6 +49,11 @@ export default function ReportSection({
   const [mode, setMode] = useState<"idle" | "edit" | "correct" | "withdraw" | "return">("idle");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // BK-e2a part 2 (ADR-207): the summary in the sign form, so a decided draft can be placed into it;
+  // whether signing waits for the draft: lines or sentences undecided, or decided but not yet placed (UXR-251).
+  const [signSummary, setSignSummary] = useState<string | null>(null);
+  const [draftGate, setDraftGate] = useState<SignGate>({ kind: "clear" });
+  const draftWait = signWaitText(draftGate);
 
   const view = reportView(visitStatus, report);
   if (!view) return null;
@@ -207,11 +217,25 @@ export default function ReportSection({
           className="grid gap-2"
         >
           <ReportFacts snapshot={report.snapshot} />
-          <SummaryField initial={report.summary ?? ""} />
+          {visitDate && report.status === "draft" && report.i_am_performer && (
+            <ReportAssistPanel
+              visitId={visitId}
+              day={visitDate}
+              summary={signSummary ?? report.summary ?? ""}
+              onSummary={setSignSummary}
+              onSignGate={setDraftGate}
+            />
+          )}
+          <SummaryField value={signSummary ?? report.summary ?? ""} onChange={setSignSummary} />
           <p className="text-xs text-secondary">
             Mit der Unterschrift bestätigst du die Angaben. Danach ist der Bericht nicht mehr änderbar. Du kannst auch später unterschreiben.
           </p>
-          <button type="submit" disabled={pending} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+          {draftWait && (
+            <p data-testid="report-assist-sign-wait" className="text-xs font-semibold text-amber-900">
+              {draftWait}
+            </p>
+          )}
+          <button type="submit" disabled={pending || draftWait !== null} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
             {pending ? "Wird gespeichert …" : "Bericht unterschreiben"}
           </button>
         </form>
@@ -357,11 +381,18 @@ function ReportFacts({ snapshot }: { snapshot: unknown }) {
   );
 }
 
-function SummaryField({ initial = "" }: { initial?: string }) {
+function SummaryField({ initial = "", value, onChange }: { initial?: string; value?: string; onChange?: (text: string) => void }) {
+  const controlled = value !== undefined && onChange !== undefined;
   return (
     <label className="grid gap-1">
       <span className="text-xs font-semibold">Zusammenfassung (optional)</span>
-      <textarea name="summary" maxLength={4000} rows={3} defaultValue={initial} className="rounded-lg border border-stone-300 bg-white p-2" />
+      <textarea
+        name="summary"
+        maxLength={4000}
+        rows={3}
+        {...(controlled ? { value, onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value) } : { defaultValue: initial })}
+        className="rounded-lg border border-stone-300 bg-white p-2"
+      />
     </label>
   );
 }
