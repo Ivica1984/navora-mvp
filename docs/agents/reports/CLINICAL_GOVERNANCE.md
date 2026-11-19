@@ -16,6 +16,46 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-19 12:50 CET: gate review of **#1529** (BK-e2a 2b-1 second PR: notes gate, confirmed discard, panel, counts, labels; ADR-210; CGR-260, UXR-252 to UXR-254; `eng` final head `2656912`) and **#1531** (BK-e2a 2b-1 third PR: recorded facts as fixed context; ADR-211; AUT-151; stacked on #1529, own commits `0179811`, `ff2bc13`; final head `ff2bc13`). Run started once by `po` under FE-091 (4) (gate start 12:39, BK BUILD PHASE point 2). **`cra-gate: #1529 2656912 clear`** and **`cra-gate: #1531 ff2bc13 clear`** (gate «Simulation, synthetic data» only; not a clinical release and not a documentation rule, D-27). **CGR-260 met in code and test** on #1529 (closes on merge). The four `cra` conditions for AUT-151 (03:50) are **met as built** on #1531. No new finding. Read on `recovery/main` `04e521c`.
+
+### What I read
+
+- Since my 04:45 section: #1497 merged at `24105ec` (merge `30bf219`, PO record 08:39); #1517 (my 04:45 PR), #1514, #1516, #1518, #1520, #1523 (`eng` part 2b plan addendum, docs), #1524 (`aia` review 72) and PO cycles. Brief `BK.md` §PO amendment 2026-11-19 08:39 (3) places CGR-260, UXR-252 to UXR-254 and AUT-151 (under my four conditions) in 2b-1. `FOUNDER_DECISIONS.md`, Annex B §1, the qualification matrix and Handbook V2.2: no change in my field since my last section.
+- **#1529** diff `c1aede3...2656912` (4 commits, red first `7dbb5b4`; 7 files): `src/features/field/report-assist.ts` (`signGate(assist, notes)` with kind `notes`, `signWaitText`, `discardPrompt`, `unplacedHeading`, `applyLabel`), `src/app/(protected)/field/report-assist-panel.tsx` (gate effect on `[assist, notes]`, unmount clear unchanged, inline discard confirmation, controlled `<details>` locked while notes or a draft exist, `apply()` empties the notes after placing), `report-section.tsx` (live region `role="status"`, `aria-describedby` on the disabled sign button), `tests/unit/report-assist.test.ts` (+10), `tests/e2e/field.spec.ts` (F7), ADR-210. No migration, sign path (F6/F7), `report-commands.ts` and snapshot hash unchanged; `MODEL_LEDGER_READY` unchanged.
+- **#1531** diff `2656912..ff2bc13` (2 commits, red first `0179811`): `src/lib/ai/report-draft/control.ts` (`factReason`, reason `fact_mismatch`), `contract.ts`, `report-assist.ts` (`context` in `ReportAssist`; `assistFromDraft` splits lines by «cites a segment»), panel (read-only block «Aus den erfassten Daten (nur zur Ansicht)», no buttons), `tests/unit/ai-report-draft.test.ts`, `tests/unit/report-assist.test.ts` (+6), F7 e2e, ADR-211.
+- CI (check runs, all `completed`/`success`): **#1529 `2656912`**: `app` 135510098627, `db` 135510098236, `e2e` 135510098795, `ui-screenshots` 135510098749, `staging` 135515894546. Job logs read: `app` «tests/unit/report-assist.test.ts (28 tests)», «Test Files 141 passed», «Tests 1522 passed»; `e2e` «191 passed (7.4m)», no skipped, flaky or failed line. **#1531 `ff2bc13`**: `app` 135523520165, `db` 135523520684, `e2e` 135523520218, `ui-screenshots` 135523519929, `staging` 135528307721. Job logs read: `app` «report-assist.test.ts (34 tests)», «Test Files 141 passed», «Tests 1531 passed»; `e2e` «191 passed (6.0m)», no skipped, flaky or failed line. I ran no NAVORA test.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1529 BK-e2a 2b-1 (ADR-210) | `2656912` | **`cra-gate: #1529 2656912 clear`** · gate «Simulation, synthetic data». CGR-260 (a): with no draft shown, non-whitespace notes give `{ kind: "notes" }` and signing is disabled with the wait line (unit «waits while the notes field holds text that was never proposed»; e2e: typed, not proposed → wait line, disabled, accessible description). While a draft is shown the notes field is not rendered (`{!assist && …}`), so notes cannot change behind a draft; after «übernehmen» the notes are emptied (`apply()` → `setNotes("")`), so the notes gate does not claim text that is already placed. CGR-260 (b): «Entwurf verwerfen» opens one confirmation naming lines not dropped and sentences not left out (taken and inserted ones count, which is right: they would have gone in); «Zurück» keeps the draft; after «Ja, verwerfen» the notes stay and signing waits again (e2e). Named behaviour change against ADR-207 (6) is stricter, in the safe direction. CGR-213 (b) (i), (iv) intact (no bulk decision; e2e: no button /alle/; 40-in-40-out unchanged). |
+| #1531 AUT-151 (ADR-211) | `ff2bc13` | **`cra-gate: #1531 ff2bc13 clear`** · gate «Simulation, synthetic data». My four conditions of 03:50 as built: **(1)** a line citing no segment goes to `context` only, never to `lines`, so it is never open, never in `composeSummary`, `discardPrompt` or `applyLabel` (unit «context not open, not in the summary, not in the discard count»; e2e: context block shows «Leistungen» with no buttons, exactly two decision lines). **(2)** `factReason`: a facts-only line must cite exactly one fact and its trimmed text must equal that fact's trimmed text, else `fact_mismatch`; same function for rule substitute and any model (unit: shortened, changed time, changed case → rejected). **(3)** a line citing a fact and a segment stays an open decision (unit «keeps a line that cites a fact and a segment»). **(4)** no accept-all for any line from her words (unchanged tests). The earlier test with a differing text now is a rejection case: a named behaviour change, not a weakening. |
+
+### Answers to `eng`'s review questions
+
+1. **#1529: does the notes gate plus the confirmed discard meet CGR-260 for the simulation? Yes.** It is the remedy I named on 03:50 (count unproposed notes as open; confirmed discard naming the number), both with e2e. **Wording acceptable** for the simulation gate: «Deine Notizen sind noch nicht im Bericht. Bitte «Entwurf vorschlagen» oder die Notizen leeren.» states the fact and both explicit ways out; «Entwurf verwerfen? n Zeile(n) und m Satz/Sätze kommen nicht in den Bericht. Deine Notizen bleiben stehen.» names what is lost and what stays. Final form `uxa`; the Clinical Owner may replace either before real data, and decides whether unproposed notes are a documentation duty (UNKNOWN, D-27). Not a clinical wording rule.
+2. **#1531: may a line citing two facts be accepted? Keep the rejection (ADR-211 (1)); I do not relax it.** There is no single recorded text such a line could equal, so any accepted form would be a composed, unverified restatement of recorded data. Nothing is lost by the rejection: the facts are already on screen from the snapshot (`ReportFacts`), and a facts-only line carries none of her words, so no sentence of hers leaves unplaced through it. If a later need appears, the only form I would read as equivalent is an exact join of the cited fact texts in a fixed order, with its own red test; not needed now.
+
+### Notes (no new finding)
+
+- **Unmount still clears the gate** (ADR-207 (6), unchanged): if the sign form leaves the page (mode change, navigation), unproposed notes and a draft go with it without a confirmation, and a later sign form starts clear. Nothing unseen enters the record, and the server cannot know about browser state (ADR-207 (4)); this is the browser-only limit already carried by CGR-213 (b) (ii) and PS-223 into part 2b-2, not a new defect of the agreed flow.
+- **Mixed lines (fact + segment)** may restate a fact value inside her sentence («Klientin um 07:02 wach.»). She decides them, and the fact is shown above in «Angaben aus dem Einsatz». For AUT-149 (value in source, 2b-2), the cited fact text should count as a source of number and time tokens, and a token not in any cited source should be rejected, for both providers. View only; the rule is `eng`'s and `aia`'s to specify.
+- **Duplicate display** of facts (`ReportFacts` and the context block): no clinical objection either way; the form is `uxa`'s (ADR-211 (4) open question).
+
+### Findings closed
+
+- **CGR-260** (advisory, S2): met in code and test on #1529 `2656912`; **closes on merge** of #1529. The documentation-duty question stays with the Clinical Owner (UNKNOWN).
+- **CGR-213 (b)** for the 2a screen: closed with the #1497 merge at `24105ec` (merge `30bf219`, PO record 08:39; I did not reread that merge's CI). (ii) and (iii) stay open for part 2b-2.
+
+### Decisions requested
+
+- **PO:** merge #1529 at `2656912` and then #1531 at `ff2bc13` on the fixed residual lists once the `uxa` lines name those heads; merge this PR. No new merge condition from me.
+- **`eng`:** nothing before merge.
+- **Clinical Owner (when named, D-27):** both wait-line wordings and the discard text; whether unproposed notes are a documentation duty; whether recorded facts need re-confirmation for real data (ADR-211 (5)).
+
+---
+
 ## 2026-11-19 04:45 CET: gate review of **#1497** new head **`24105ec`** (BK-e2a part 2a, UXR-251 fix (a): signing also waits until the decided draft is placed; ADR-207 addendum 6). Run started once by `po` under FE-091 (4) (gate start 04:39, BK BUILD PHASE point 2). **`cra-gate: #1497 24105ec clear`** (gate «Simulation, synthetic data» only; not a clinical release and not a documentation rule, D-27). My line on `5a5ef5f` no longer covers the head (AUT-50); this section replaces it for `24105ec`. No new finding. Read on `recovery/main` `e79231d`.
 
 ### What I read
