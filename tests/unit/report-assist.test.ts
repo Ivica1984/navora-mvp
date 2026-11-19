@@ -8,6 +8,8 @@ import {
   decideSegment,
   factsFromSnapshot,
   openCount,
+  signGate,
+  signWaitText,
   withLedgerGuard,
 } from "@/features/field/report-assist";
 import * as assistModule from "@/features/field/report-assist";
@@ -147,5 +149,36 @@ describe("report assist: who may ask for a draft", () => {
     expect(assistAllowed({ ...base, i_am_performer: false })).toBe(false);
     expect(assistAllowed({ ...base, status: "signed" })).toBe(false);
     expect(assistAllowed({ ...base, performer_access_ended: true })).toBe(false);
+  });
+});
+
+describe("report assist: signing waits until the decided draft is placed (UXR-251)", () => {
+  it("is clear when no draft is shown", () => {
+    expect(signGate(null)).toEqual({ kind: "clear" });
+    expect(signWaitText(signGate(null))).toBeNull();
+  });
+
+  it("waits while lines or sentences are still open, naming the number", () => {
+    const a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    expect(signGate(a)).toEqual({ kind: "open", open: 2 });
+    expect(signWaitText(signGate(a))).toBe("Noch 2 Punkte im Entwurf offen. Bitte zuerst entscheiden oder den Entwurf verwerfen.");
+    const one = decideLine(a, 0, "taken");
+    expect(signWaitText(signGate(one))).toBe("Noch 1 Punkt im Entwurf offen. Bitte zuerst entscheiden oder den Entwurf verwerfen.");
+  });
+
+  it("still waits once everything is decided but the draft is not yet placed in the summary", () => {
+    let a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    a = decideSegment(decideLine(a, 0, "taken"), "s2", "inserted");
+    expect(openCount(a)).toBe(0);
+    expect(signGate(a)).toEqual({ kind: "unplaced" });
+    expect(signWaitText(signGate(a))).toBe(
+      "Entwurf noch nicht in die Zusammenfassung übernommen. Bitte übernehmen oder den Entwurf verwerfen.",
+    );
+  });
+
+  it("also waits when every line was dropped and every sentence left out (the draft still needs an explicit end)", () => {
+    let a = draft("Klientin wach. Trinkt wenig.", { lines: [{ text: "Klientin wach.", sources: ["s1"] }] });
+    a = decideSegment(decideLine(a, 0, "dropped"), "s2", "omitted");
+    expect(signGate(a)).toEqual({ kind: "unplaced" });
   });
 });
