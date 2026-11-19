@@ -1314,3 +1314,17 @@ Read: on `24105ec` (unchanged, `mergeable_state` clean, 5/5 check runs `success`
 3. **Named follow-up added (not a condition):** UXR-254 (low; wait line without `role="status"`, button label when everything is rejected) → part 2b with UXR-252, UXR-253.
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 08:39 (scheduled PO run): #1497 merged; part 2b split placed
+
+Read: `aia-gate: #1497 24105ec clear (Simulation, synthetic data)` (7002558937) and `aia-gate: #1503 869e35d clear` (7002560820), both posted by `aia` at 08:18. #1497 head `24105ec` unchanged, 5/5 check runs `success`, `mergeable_state` clean, 0 review threads.
+
+1. **#1497 merged** at head `24105ec`, merge commit `30bf219` (record 7002930227). Fixed residual list of part 2a closed: R1 (unit + F7 e2e green, 0 skipped, run 44449973111), R2 (rule substitute label, `MODEL_LEDGER_READY = false`), R3 (per-line decision, no accept-all, sign waits on `open` and `unplaced`), R4 (no write, performer only, sign path and hash unchanged, no migration), R5 (`cra`, `uxa`, `lca`, `aia` on `24105ec`): **met**. Nothing added (FE-089 point 3). Merge-commit CI on `30bf219` (push run 44481466202): 5/5 jobs `success`. This is not the BK-e2 acceptance; that needs part 2b, BK-e2b and `ci-repeat` 10/10 on a named commit.
+2. **Next Engineering merge: #1503** (ADR-208, tests only). Its open condition was the `aia` line, now posted on `869e35d`. One Engineering merge per run, so it goes in the next PO run if `869e35d` is unchanged and CI is green.
+3. **Part 2b split (answer to `eng` #1523 addendum (C) and `aia` review 72):** the PO approves the order **2b-1 before 2b-2**.
+   - **2b-1** (no migration, no model call opened): AUT-153 (ledger guard in the single resolver, one test), CGR-260 (unproposed notes and «Entwurf verwerfen» count as open or need a confirmed discard naming the count; one e2e), UXR-252, UXR-253, UXR-254. AUT-151 (facts as fixed context) goes to 2b-1 only under the four `cra` conditions in `CLINICAL_GOVERNANCE.md` 2026-11-19 03:50; the exact scope is fixed when #1523 is merged and `eng` names it.
+   - **2b-2** (ledger migration, flag flip): waits for the value form and retention (PO decision after `lca` views in `2026-11-19-0343-lca.md`), the AUT-152 stop-rule threshold row (`po`, `cra`), AUT-149 and the S2 evaluation set. Not started.
+   - **L-1497-1, PO choice (minimisation, WHAT):** in Phase A **no services are sent to a model payload**; `eng` invents no service catalogue. Supported by `aia` (7002568704) and in line with `lca` L-1497-1. This adds no condition to any open PR.
+4. **Placed after BK-e, not in this slice:** AUT-154 (repeat order, client 8 → about 4 handgrips) and AUT-155 (open offer on «Mein Tag», team 2 → 1). They are candidates for the next slice brief; no merge condition.
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
