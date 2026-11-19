@@ -5,6 +5,7 @@ import { LOGIN_PATH } from "@/lib/auth/paths";
 import { resolveHomePath } from "@/lib/auth/home";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SIGN_IN_FAILED, signInSchema, type SignInState } from "./schema";
+import { DEMO_SEED_PASSWORD, demoLoginEnabled, demoPersona } from "./demo-login";
 import { errorFields, logEvent } from "@/lib/log";
 
 export async function signIn(
@@ -36,6 +37,28 @@ export async function signIn(
 
   // Destination comes from the user's roles in the database, never from the
   // request: no user-controlled redirect target (no open redirect).
+  redirect(await resolveHomePath(supabase));
+}
+
+/**
+ * DEMO1 (ADR-212): one-click sign-in as a synthetic seed person. Staging only (demoLoginEnabled); the account comes
+ * from the fixed persona list by key, never from the request. Same session, RLS and landing page as a normal sign-in.
+ */
+export async function demoSignIn(
+  _previous: SignInState,
+  formData: FormData
+): Promise<SignInState> {
+  if (!demoLoginEnabled(process.env)) return { error: SIGN_IN_FAILED };
+  const persona = demoPersona(formData.get("persona"));
+  if (!persona) return { error: SIGN_IN_FAILED };
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.signInWithPassword({ email: persona.email, password: DEMO_SEED_PASSWORD });
+  if (error) {
+    logEvent("warn", "auth.demo_sign_in_failed", { ...errorFields(error), op: persona.key });
+    return { error: SIGN_IN_FAILED };
+  }
+  logEvent("info", "auth.demo_sign_in", { op: persona.key });
   redirect(await resolveHomePath(supabase));
 }
 
