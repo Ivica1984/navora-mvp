@@ -12,7 +12,10 @@
 --     the digest is keyed, not the plain SHA-256 of the line), input references = report and visit; a repeat of the key
 --     returns the same rows; append-only; no direct read for app roles;
 --   * a decision: one line per call, never bulk; confirmed only with the unchanged text, corrected only with a changed
---     text, rejected without text; only the performer, only on a draft.
+--     text, rejected without text; only the performer, only on a draft;
+--   * `aia` AUT-158 check 9 (ADR-217): the model agent's lines are counted by the AIG1 reader `agent_correction_rates`
+--     per agent, field and team, with no person column; one confirmer is under three, so the cell is suppressed; a
+--     member of another organisation sees no cell.
 -- The stop-rule row written here is a synthetic test fixture (share 50, minimum 4, window 30 days), not a clinical
 -- threshold. All data synthetic; rolled back.
 -- Seed users: Testorganisation S …019 (simulation, Testteam Basel …1b9): pflegebs …9e6 (performer), assistbs …9e7 (same
@@ -21,7 +24,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(39);
+select plan(42);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' when 'a' then '00000000-0000-4000-a000-0000000009e7'
@@ -189,6 +192,26 @@ select is(pg_temp.dec('p', pg_temp.sid(30, 1), 'rejected', null, 32) ->> 'result
 select is((pg_temp.gate('p', 1) ->> 'reason') || ',' || (pg_temp.rec('p', 1, '[{"text": "Puls 72.", "sources": ["s3"]}]', 40)
           ->> 'reason'), 'stop_rule,stop_rule',
   'AUT-152: once the correction share of the window (75 %) exceeds the threshold, gate and record command close the model');
+
+-- 6. aia check 9: correction rate per agent, field and team, never per person (AIG1-7 reader, 0097) ----------------------
+select is(pg_temp.cmd('p', format($q$ select jsonb_build_object('cells', count(*), 'proposals', sum(proposals),
+                                       'suppressed', bool_and(suppressed), 'corrected', max(corrected))
+                                     from public.agent_correction_rates(%L)
+                                     where agent_key = 'report_draft_model' and field = 'summary_line' and team_id = %L $q$,
+            (select private.at_zurich(created_at)::date from public.ai_suggestions where id = pg_temp.sid(10, 0)),
+            '00000000-0000-4000-a000-0000000001b9')),
+          '{"cells": 1, "proposals": 4, "suppressed": true, "corrected": null}'::jsonb,
+  'check 9: the team reads one cell for report_draft_model / summary_line with all four lines; one confirmer -> suppressed');
+select is(pg_temp.cmd('c', format($q$ select count(*)::int from public.agent_correction_rates(%L)
+                                     where agent_key = 'report_draft_model' $q$,
+            (select private.at_zurich(created_at)::date from public.ai_suggestions where id = pg_temp.sid(10, 0)))),
+          '0'::jsonb, 'check 9 negative: a member of another organisation sees no cell of this team');
+select is((select array_agg(u.n order by u.o)
+           from pg_proc p, unnest(p.proargnames, p.proargmodes) with ordinality u(n, m, o)
+           where p.proname = 'agent_correction_rates' and p.pronamespace = 'public'::regnamespace and u.m = 't'),
+          array['team_id', 'team_name', 'agent_key', 'agent_name', 'field', 'month', 'proposals', 'confirmed_unchanged',
+                'corrected', 'rejected', 'not_found', 'suppressed'],
+  'check 9: the reader has no person column');
 
 select * from finish();
 rollback;
