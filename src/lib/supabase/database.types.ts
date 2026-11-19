@@ -2533,6 +2533,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"visit_report_inputs": {
+                  Row: {
+                    "created_at": string,"created_by": string,"id": string,"lines": NonNullable<Json>,"organization_id": string,"origin": string,"report_id": string,"segment_count": number,"segments": NonNullable<Json>,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"id"?: string,"lines": NonNullable<Json>,"organization_id": string,"origin": string,"report_id": string,"segment_count": number,"segments": NonNullable<Json>,"team_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"id"?: string,"lines"?: NonNullable<Json>,"organization_id"?: string,"origin"?: string,"report_id"?: string,"segment_count"?: number,"segments"?: NonNullable<Json>,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_report_inputs_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_report_inputs_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "visit_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_report_inputs_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"visit_report_returns": {
                   Row: {
                     "id": string,"organization_id": string,"performer_id": string,"performer_unavailable": boolean,"reason": string,"report_id": string,"report_version": number,"returned_at": string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
