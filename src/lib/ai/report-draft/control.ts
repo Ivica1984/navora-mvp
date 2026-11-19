@@ -1,0 +1,39 @@
+import type { CheckedDraft, DraftInput, DraftLine, ProviderOutput, RejectReason } from "./contract";
+
+export const MAX_LINE_CHARS = 2000;
+
+/**
+ * Control layer between any provider and the draft (Handbook V2.2 Engine 2/3 contract: «ohne Quelle kein Wert»).
+ * - a line without a source, or citing an id that is not in the input, is rejected;
+ * - every segment not cited by an accepted line is listed as unplaced, so nothing is dropped silently;
+ * - the provider's own unplaced list is only a hint; ids that are not segments are ignored.
+ * The provider never decides what reaches the draft; this function does, the same for rule and model.
+ */
+export function checkDraft(input: DraftInput, output: ProviderOutput): CheckedDraft {
+  const segmentIds = new Set(input.segments.map((s) => s.id));
+  const known = new Set([...segmentIds, ...input.facts.map((f) => f.id)]);
+  const lines: DraftLine[] = [];
+  const rejected: CheckedDraft["rejected"] = [];
+
+  for (const raw of output.lines ?? []) {
+    const line: DraftLine = {
+      text: typeof raw?.text === "string" ? raw.text : "",
+      sources: Array.isArray(raw?.sources) ? raw.sources.filter((x): x is string => typeof x === "string") : [],
+    };
+    const reason = rejectReason(line, known);
+    if (reason) rejected.push({ line, reason });
+    else lines.push({ text: line.text.trim(), sources: [...new Set(line.sources)] });
+  }
+
+  const cited = new Set(lines.flatMap((l) => l.sources));
+  const unplaced = input.segments.map((s) => s.id).filter((id) => !cited.has(id));
+  return { lines, rejected, unplaced };
+}
+
+function rejectReason(line: DraftLine, known: Set<string>): RejectReason | null {
+  if (line.text.trim().length === 0) return "empty_text";
+  if (line.text.length > MAX_LINE_CHARS) return "too_long";
+  if (line.sources.length === 0) return "no_source";
+  if (line.sources.some((id) => !known.has(id))) return "unknown_source";
+  return null;
+}
