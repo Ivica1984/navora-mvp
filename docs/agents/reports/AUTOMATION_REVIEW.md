@@ -31,6 +31,56 @@
 
 ---
 
+## 2026-11-19 14:22 CET · aia review 73: `aia-gate: #1503 cf02fa1 clear` and `aia-gate: #1527 c63f177 clear` (Simulation, synthetic data); carry-over of a gate line after a merge-up accepted on conditions (AUT-156, medium); one ADR file per decision supported (AUT-157, low); AUT-138 closed
+
+**Read:** `recovery/main` at `4df9dfd` (since review 72: PO journals 08:39 to 13:39, `eng` 09:14, 10:20 and 11:10, `cra` 12:50, `uxa` 12:43 and 12:44).
+
+Open PRs:
+- #1503 head `cf02fa1`: the PR-own diff, compared with the head I cleared;
+- #1527 head `c63f177`: the 7 files read in full, plus the diff-of-diffs against `b05c82a`;
+- #1531 (`ff2bc13`): its scope was read. It is not an `aia` gate (`cra` and `uxa` lines are present).
+
+CI facts come from check runs and two `e2e` job logs that I read myself (135586003060, 135586355160). I ran no NAVORA test, did not touch the live project, chose no provider and moved no data.
+
+**Active block (README rule 12):** BK, slice BK-e. Both lines are for PRs in the active slice. I ask for no merge outside it.
+
+**Task adjustment (README rule 11):** this run gives the two gate lines that the PO named as the bottleneck (comments 7004142925 and 7009432835). It answers the carry-over proposal (PO 09:39, 13:39). No bottleneck-map refresh: v4 is due 2026-11-24.
+
+### 1 Done
+
+- **#1503** (comment 7010503083): `aia-gate: #1503 cf02fa1 clear (Simulation, synthetic data)`.
+  - The PR-own diff on `src supabase tests e2e`, with `index` lines removed, is byte-identical to the one on `869e35d` (308 lines each).
+  - CI 5/5 `success`. In the `e2e` log, the ratchet held: client 8, team 2; 192 passed.
+- **#1527** (comment 7010505391): `aia-gate: #1527 c63f177 clear (Simulation, synthetic data)`.
+  - **AUT-153 met:** `ledgerReady` is a required field of the single resolver, and `withLedgerGuard` is removed.
+  - **AUT-150 met:** the stop switch fails closed, and staging is recognised only by the exact host.
+  - **L-1497-1 met:** a model gets no services.
+  - The diff-of-diffs against `b05c82a` differs only in hunk offsets and in context lines from #1529.
+  - CI 5/5 `success`; 191 passed.
+
+### 2 Findings
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-156 | Our own delivery process: PO and gate roles after a merge-up | A merge of `recovery/main` into a cleared head moves the SHA. Under AUT-50 the line is then void, even though the PR's own code is unchanged. Evidence (PO journals 09:39 to 13:39): #1503 waited about 5 h for a line on code I had already cleared. Every merge makes the other open PRs conflict in `DECISIONS.md`, so the wait repeats. | **Rule (carry-over):** an `aia` line carries over to a merged-up head when all of these hold: (1) the PR-own diff (base → head on `src supabase tests e2e`, `index` lines removed) is byte-identical to the one on the cleared head; (2) every other change came from `recovery/main` (already gated) or is a PR doc file (ADR, journal); (3) all CI jobs are `success` on the new head; (4) the PO records both diffs and the result in the merge record. If (1) fails only by context or offsets (as on #1527), a new line is needed, but the review covers only the diff-of-diffs. AUT-50 stays as written for every other change. This rule covers `aia` lines only; `cra`, `uxa` and `lca` decide for their own lines. | none (process) | Stage 0; PO decides whether to apply it | Gate wait per PR after a merge-up (PO data; target: 0 extra gate cycles) | medium | — (report; answered on #1503) |
+| AUT-157 | Our own delivery process: `eng` and PO | `docs/engineering/DECISIONS.md` is one shared file. Each merge made the other open BK PRs conflict there (PO 13:39: #1503, #1527). Each conflict costs an `eng` merge-up, a new CI run and a gate check. | **Eliminate:** one ADR file per decision (for example `docs/engineering/adr/ADR-<n>.md`) plus a generated index, as the PO proposed in H-BK-13:39. With AUT-156 this removes most re-gating. The decision belongs to `eng`. | none (process) | Stage 0; `eng` | Merge-ups per merged BK PR | low | — (report) |
+
+**Closed with evidence:**
+- **AUT-138:** the ledger guard is on `recovery/main` since #1497 (merge `30bf219`). With #1527 it moves into the resolver, and AUT-153 closes on that merge.
+
+**Challenges:** none new against a brief. The PO's H-BK-09:39 and H-BK-13:39 (review cycles, not build time, set the BK pace) are supported. I am the slowest gate (6-hourly). Running `aia` on demand, like the paused roles, would cut that wait. That is a scheduling question for the PO and the owner; I do not change scheduled tasks.
+
+### 3 Stage tracking
+
+Unchanged. Stage 1 applies to synthetic data only; stage 0 applies to real data. No model is connected in any environment, and `MODEL_LEDGER_READY = false`. Entry conditions still missing for a model call on staging:
+- the AIG1 ledger row (2b-2);
+- the S2 evaluation set;
+- AUT-149 (value in source);
+- the AUT-152 stop rule;
+- `lca` on any provider (D-35).
+
+---
+
 ## 2026-11-19 08:18 CET · aia review 72: `aia-gate: #1497 24105ec clear` and `aia-gate: #1503 869e35d clear` (Simulation, synthetic data); first measured handgrips on the BK path (client 8, team 2, against the Blueprint §6.3 target of 1 and 1); ledger guard only in one caller (AUT-153, low); client order is the largest measured gap (AUT-154, medium); «Dein Team» tap (AUT-155, low); the ADR-208 contradiction with AUT-88 is resolved by the newer founder decision
 
 **Read:** `recovery/main` at `8532f91` (since review 71: PO 02:39 to 07:39, `eng` 03:25 to 06:12, `cra`, `lca`, `uxa` 03:43 to 04:47 journals). Open PRs:

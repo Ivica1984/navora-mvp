@@ -270,3 +270,62 @@ describe("report assist: the apply button says what happens (UXR-254 (b))", () =
     expect(applyLabel(a)).toBe("In die Zusammenfassung übernehmen");
   });
 });
+
+/**
+ * AUT-151 (ADR-211): recorded facts are fixed context, not a decision. `cra` conditions (CLINICAL_GOVERNANCE.md
+ * 2026-11-19 03:50): (1) a line citing only facts is shown as context and never added to the summary; (2) its text must
+ * equal the fact (control layer, tested in ai-report-draft.test.ts); (3) a line citing a fact and a segment is still
+ * decided; (4) no accept-all for her words. `uxa` form (UX_REVIEW.md 03:43): read-only lines, no buttons.
+ */
+describe("report assist: recorded facts are fixed context (AUT-151)", () => {
+  const fact = { text: "Einsatz 07:02–07:48", sources: ["f1"] };
+
+  it("(1) a line citing only facts is context: not a decision, not open, not counted", () => {
+    const a = draft("Klientin wach.", { lines: [fact, { text: "Klientin wach.", sources: ["s1"] }] });
+    expect(a.context).toEqual(["Einsatz 07:02–07:48"]);
+    expect(a.lines.map((l) => l.text)).toEqual(["Klientin wach."]);
+    expect(openCount(a)).toBe(1);
+    expect(applyLabel(a)).toBe("Noch 1 offen");
+  });
+
+  it("(1) context never goes into the summary, also when every line is taken", () => {
+    const a = decideLine(draft("Klientin wach.", { lines: [fact, { text: "Klientin wach.", sources: ["s1"] }] }), 0, "taken");
+    expect(composeSummary("", a)).toBe("Klientin wach.");
+    expect(signGate(a)).toEqual({ kind: "unplaced" });
+  });
+
+  it("(1) a draft of facts only has nothing to decide; closing it adds nothing", () => {
+    const a = draft("", { lines: [fact] });
+    expect(a.lines).toEqual([]);
+    expect(openCount(a)).toBe(0);
+    expect(applyLabel(a)).toBe("Entwurf abschliessen");
+    expect(composeSummary("Vorher.", a)).toBe("Vorher.");
+  });
+
+  it("(1) the discard prompt counts only what she could have put in, not the context", () => {
+    const a = draft("Klientin wach.", { lines: [fact, { text: "Klientin wach.", sources: ["s1"] }] });
+    expect(discardPrompt(a)).toMatch(/^Entwurf verwerfen\? 1 Zeile und 0 Sätze/);
+  });
+
+  it("(3) a line citing a fact and a segment stays a decision", () => {
+    const a = draft("Klientin wach.", { lines: [{ text: "Klientin um 07:02 wach.", sources: ["f1", "s1"] }] });
+    expect(a.context).toEqual([]);
+    expect(a.lines).toHaveLength(1);
+    expect(a.lines[0].decision).toBe("open");
+    expect(openCount(a)).toBe(1);
+  });
+
+  it("the rule substitute: facts become context, each of her sentences one open line (4: no accept-all)", async () => {
+    const segments = segmentInput("Klientin wach. Trinkt gut.");
+    const input = { segments, facts: [{ id: "f1", text: "Einsatz 07:02–07:48" }, { id: "f2", text: "Leistungen: Grundpflege" }] };
+    const checked = checkDraft(input, await ruleProvider.propose(input));
+    expect(checked.rejected).toEqual([]);
+    const a = assistFromDraft({ ok: true, origin: "rule", label: ruleProvider.label, segments, ...checked });
+    expect(a.context).toEqual(["Einsatz 07:02–07:48", "Leistungen: Grundpflege"]);
+    expect(a.lines.map((l) => [l.text, l.decision])).toEqual([
+      ["Klientin wach.", "open"],
+      ["Trinkt gut.", "open"],
+    ]);
+    expect(openCount(a)).toBe(2);
+  });
+});

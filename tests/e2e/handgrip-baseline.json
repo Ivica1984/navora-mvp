@@ -1,0 +1,5 @@
+{
+  "_note": "ADR-208 ratchet: the limit of handgrips per order on the BK path. Lower it when a PR needs fewer; only the PO may raise it. pflege_nach_schicht joins with BK-e2 (report on the take visit).",
+  "auftraggeber": 8,
+  "team": 2
+}
