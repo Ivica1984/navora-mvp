@@ -24,7 +24,11 @@ export interface Provider {
   propose(input: DraftInput): Promise<ProviderOutput>;
 }
 
-export type RejectReason = "no_source" | "unknown_source" | "empty_text" | "too_long";
+/**
+ * `fact_mismatch` (AUT-151, `cra` condition (2), ADR-211): a line that cites only facts must cite exactly one fact and
+ * repeat its text exactly; a reworded fact is not a recorded fact.
+ */
+export type RejectReason = "no_source" | "unknown_source" | "empty_text" | "too_long" | "fact_mismatch";
 
 export type CheckedDraft = {
   lines: DraftLine[];
