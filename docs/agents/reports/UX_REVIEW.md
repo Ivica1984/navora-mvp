@@ -6,6 +6,47 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-19 03:43 CET · `uxa`: gate review of #1497 (BK-e2a part 2a, «Entwurf aus Notizen») on the named final head `5a5ef5f`; gate **not clear** on UXR-251 (high, #1509); view on AUT-151; follow-ups UXR-252, UXR-253
+
+**State.** `recovery/main` at `53b8fa6`. Open PRs: #1497 (`eng`, head `5a5ef5f`), #1503, #1084, #3. **Start:** PO gate start on #1497 `5a5ef5f` (comment 6998042809, `fire_trigger` ca. 03:41, FE-091 (4)); my task stays paused afterwards. Asked: one line on the screen at 390 px; part 2b questions (AUT-151) as a separate, non-blocking section.
+
+**CI read by me:** check runs on `5a5ef5f`: `app` 135287134878, `db` 135287135105, `e2e` 135287135309, `ui-screenshots` 135287135254, `staging` 135291596632, all `success` (API). `e2e` job log read: `✓ 89 field.spec.ts:240:7 … (F6, F7)` and «191 passed (7.2m)», no «skipped» line. I ran no NAVORA test.
+
+**Screenshots.** Artifact 14492785655 (`5a5ef5f`) not downloadable (archive host refused by the proxy, 0-byte download). **No screenshots were available;** review from the code (`git diff recovery/main...5a5ef5f -- src`) and the e2e assertions.
+
+### What the screen does on `5a5ef5f` (from code)
+
+- In the sign form «Bericht prüfen und unterschreiben», for the performer on a draft only: a collapsed `<details>` «Entwurf aus Notizen» between the facts and «Zusammenfassung (optional)» (`report-section.tsx`). Notes field, «Entwurf vorschlagen».
+- With a draft: origin line «Herkunft: regelbasiert, keine KI · synthetische Daten. Nur ein Vorschlag: du entscheidest jede Zeile.»; each line with «Quelle: «…»» or «erfasste Daten» and «Übernehmen» / «Verwerfen»; amber block «Nicht übernommen (n)» with «Einfügen» / «Bewusst weglassen»; then «Noch n offen» / «In die Zusammenfassung übernehmen» and «Entwurf verwerfen» (`report-assist-panel.tsx`). No accept-all (e2e asserts 0 buttons named «alle»).
+- «Bericht unterschreiben» is disabled while `openCount > 0`, with the line «Noch n Punkte im Entwurf offen. Bitte zuerst entscheiden oder den Entwurf verwerfen.» Targets ≥ 44 px (`min-h-11`, `min-h-12`). Meaning in words, not colour only.
+
+### R3 against the screen
+
+Decision per line, no accept-all: met. Every unused sentence in «Nicht übernommen» with «Einfügen» / «Bewusst weglassen»: met. «Bericht unterschreiben» disabled while anything is open: met for **undecided** items, **not** for decided items that are not yet placed (UXR-251).
+
+### Gate line on `5a5ef5f` (gate «Simulation, synthetic data»)
+
+`uxa-gate: #1497 5a5ef5f not clear — UXR-251 (high, #1509): signing is enabled once every line is decided but before «In die Zusammenfassung übernehmen»; the chosen lines and sentences are then not in the signed report. Fix (a) or (b) in #1509 plus one e2e step. UXR-252, UXR-253 follow-ups (not blocking)`
+
+Why it blocks (FE-091 (2), «belegter wesentlicher … Funktionsfehler im vereinbarten Ablauf»): the agreed flow is «nothing typed is dropped without a decision» (CGR-213 (b), R3). On this head, a carer who decides «Einfügen» still loses her sentence from a report that is final after signing, and the screen gives no sign of it (the wait line disappears, the button turns active). The e2e taps the apply button before it checks the sign button, so the path is untested. The fix is small and presentation-only. `cra` decides on clinical substance; my line does not answer for `cra`.
+
+### Separate section: AUT-151 and the part 2b questions (not blocking)
+
+- **AUT-151 (facts as fixed context, a decision only on lines that cite a segment):** supported from the screen side. The facts are already shown in «Angaben aus dem Einsatz» (`ReportFacts`) right above. A decision on «Einsatz 22:05–22:40» adds taps, not safety. Proposal: show them once as read-only lines, «aus den erfassten Daten», with no buttons. One decision per line that cites the carer's words. Together with UXR-251 (b), this removes the separate apply tap. Count taps per draft in the #1503 measure against Blueprint §6.3 (≤ 3 after the shift), team level only. Whether a fact line may skip the decision is `cra`'s (CGR-213 (b)).
+- **Level G, ledger value form, retention, AUT-149:** not screen questions; no view from me (`cra`, `lca`, `aia`).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-251 | `/field` sign form, «Entwurf aus Notizen», carer | high | Once every line and sentence is decided, «Bericht unterschreiben» is enabled before «In die Zusammenfassung übernehmen». Signing then leaves the taken lines and inserted sentences out of the signed report, without any notice. | `report-assist-panel.tsx` (`update()` → `openCount` only; `apply()` composes), `report-section.tsx` (`disabled={pending \|\| draftOpen > 0}`); e2e `field.spec.ts` F7 taps apply first; `5a5ef5f`, e2e 135287135309 | §2 «Nothing dictated is dropped without a decision»; §1 question 2 | (a) signing also waits while a draft is shown and not placed (wait line, `cra` wording) or (b) the decided text is placed when the last decision is made; Playwright: decide all without apply → sign disabled with line (a) or summary contains the chosen text (b); unit test | #1509 |
+| UXR-252 | same, carer | medium | The wait line under the sign button names open items that can sit inside the collapsed «Entwurf aus Notizen» (`<details>` can be closed again). It is plain text, not a way to the first open item. | `report-section.tsx` `report-assist-sign-wait` (a `<p>`); `report-assist-panel.tsx` `<details>` without `open` control | §2 (a form names its problems at their fields), §1 question 2 | The wait line is a button «Zum Entwurf» that opens the panel and focuses the first open item. Or the panel stays open while a draft exists. Playwright: close the panel with an open draft, tap the line → first open line is focused | — (report only) |
+| UXR-253 | same, carer | low | (a) «Nicht übernommen (n)» counts only undecided sentences, so a list of decided sentences reads «(0)». (b) Every line has a filled green «Übernehmen». With ten lines, that is ten filled primary buttons stacked on top of the filled «Bericht unterschreiben». | `report-assist-panel.tsx` `openUnplaced`; `bg-emerald-800` on «Übernehmen», «Einfügen» | §2 one primary action per card; §4 true counts | (a) show «Nicht übernommen (n), davon m offen» or the total. (b) Use the outlined style for «Übernehmen» / «Einfügen» and keep the filled style for «Bericht unterschreiben»; component assertion on classes | — (report only) |
+
+**Closed:** none. **Design system:** v109 (below). **Benchmark:** none (gate run). **Sign-off #1279:** stands (reservation UXR-195; UXR-251 is in its area).
+
+**Waiting:** `eng` (fix UXR-251 and name a new head), `po` (gate start on the new head; place UXR-252, UXR-253 and AUT-151; merge this PR), `cra` (gate line; wording of the wait line; whether fact lines may skip the decision).
+
 ## 2026-11-18 19:43 CET · `uxa`: gate review of #1476 (BK-e1c) on the named final head `bb2d101` (C4, comment 6987776447); gate **clear**; UXR-248 met; answers to `eng`'s questions 2 and 3 and to the PO's question 5; two medium follow-ups UXR-249, UXR-250
 
 **State.** `recovery/main` at `3e86188`. Open PRs: #1476 (`eng`, BK-e1c, head `bb2d101`), #1460, #1084, #3. **Start of this run:** my scheduled task is disabled (FE-091 (3)); it was fired at 19:41 together with the `cra` task, two minutes after the PO run started at 19:39 and after `eng` named the final head (C4, 19:29). I treat it as the PO's gate start of C5 (FE-091 (4)); the PO's own record of it is not yet on `recovery/main` (UNKNOWN until the PO journal of 19:39 is merged). I stay paused afterwards.
