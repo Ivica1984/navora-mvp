@@ -15,16 +15,17 @@
 --     text, rejected without text; only the performer, only on a draft.
 -- The stop-rule row written here is a synthetic test fixture (share 50, minimum 4, window 30 days), not a clinical
 -- threshold. All data synthetic; rolled back.
--- Seed users (Testorganisation A …011, Testteam Nord …101): pflege …902 (performer), assist …906 (same team), admin …905;
--- pflege C …960 (Testorganisation C …013).
+-- Seed users: Testorganisation S …019 (simulation, Testteam Basel …1b9): pflegebs …9e6 (performer), assistbs …9e7 (same
+-- team). Testorganisation A …011 (not a simulation, Testteam Nord …101): pflege …902 (performer of report 3), admin …905.
+-- `organizations.simulation` is set only by a migration or the seed (CGR-177), so the two organisations are the fixtures.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(38);
+select plan(39);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
-  select (case n when 'p' then '00000000-0000-4000-a000-000000000902' when 'a' then '00000000-0000-4000-a000-000000000906'
-                 when 'admin' then '00000000-0000-4000-a000-000000000905' when 'c' then '00000000-0000-4000-a000-000000000960'
+  select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' when 'a' then '00000000-0000-4000-a000-0000000009e7'
+                 when 'c' then '00000000-0000-4000-a000-000000000902' when 'admin' then '00000000-0000-4000-a000-000000000905'
           end)::uuid $$;
 create function pg_temp.id(n int) returns uuid language sql immutable as $$
   select ('a1510000-0000-4000-8000-' || lpad(n::text, 12, '0'))::uuid $$;
@@ -41,7 +42,7 @@ begin
   execute 'set local role authenticated';
   execute format('select to_jsonb(x) from (%s) s(x)', p_sql) into r;
   execute 'reset role';
-  return r -> 'x';
+  return r;
 end $$;
 create function pg_temp.gate(p_user text, p_report int) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.report_draft_model_gate(%L)', pg_temp.id(p_report))) $$;
@@ -57,20 +58,30 @@ create function pg_temp.sid(p_key int, p_line int) returns uuid language sql as 
 create function pg_temp.rows() returns int language sql as $$
   select count(*)::int from public.ai_suggestions where agent_key = 'report_draft_model' $$;
 
--- Fixtures (as the table owner): two visits of Testteam Nord, an open draft (1) and a signed report (2) by 902 --------
+-- Fixtures (as the table owner) ----------------------------------------------------------------------------------------------
+-- Org S: a synthetic case, two visits, an open draft (1) and a signed report (2) by 9e6. Org A: an open draft (3) by 902.
+insert into public.cases (organization_id, id, name, first_name, last_name, region, status, urgency, assigned_team_id)
+values ('00000000-0000-4000-b000-000000000019', pg_temp.id(200), 'Synth Klientin L151', 'Synth', 'L151', 'Basel-Stadt',
+        'laufend', 'mittel', '00000000-0000-4000-a000-0000000001b9');
+insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, status,
+                                planned_minutes_a, planned_minutes_b)
+select '00000000-0000-4000-b000-000000000019', pg_temp.id(100 + n), pg_temp.id(200), '00000000-0000-4000-a000-0000000001b9',
+       (private.now() at time zone 'Europe/Zurich')::date + 2, time '08:00' + make_interval(hours => n),
+       time '08:30' + make_interval(hours => n), 'planned', 30, 0
+from generate_series(1, 2) n;
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
-select '00000000-0000-4000-b000-000000000011', pg_temp.id(100 + n), '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date - 1,
-       time '08:00' + make_interval(hours => n), time '08:30' + make_interval(hours => n), array['Grundpflege'], false,
-       'completed', 30, 0, pg_temp.u('p')
-from generate_series(1, 2) n;
+values ('00000000-0000-4000-b000-000000000011', pg_temp.id(103), '00000000-0000-4000-a000-000000000208',
+        '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date - 1, '08:00', '08:30',
+        array['Grundpflege'], false, 'completed', 30, 0, pg_temp.u('c'));
 insert into public.visit_reports (organization_id, id, visit_id, case_id, team_id, version, status, snapshot, performer_id,
                                   countersign_required, created_by, signed_by, signed_at)
-select '00000000-0000-4000-b000-000000000011', pg_temp.id(n), pg_temp.id(100 + n), '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', 1, case n when 1 then 'draft' else 'signed' end, '{"synthetic": true}'::jsonb,
-       pg_temp.u('p'), false, pg_temp.u('p'), case n when 2 then pg_temp.u('p') end, case n when 2 then private.now() end
-from generate_series(1, 2) n;
+select o, pg_temp.id(n), pg_temp.id(100 + n), c, t, 1, case n when 2 then 'signed' else 'draft' end, '{"synthetic": true}'::jsonb,
+       pf, false, pf, case n when 2 then pf end, case n when 2 then private.now() end
+from (values (1, '00000000-0000-4000-b000-000000000019'::uuid, pg_temp.id(200), '00000000-0000-4000-a000-0000000001b9'::uuid, pg_temp.u('p')),
+             (2, '00000000-0000-4000-b000-000000000019'::uuid, pg_temp.id(200), '00000000-0000-4000-a000-0000000001b9'::uuid, pg_temp.u('p')),
+             (3, '00000000-0000-4000-b000-000000000011'::uuid, '00000000-0000-4000-a000-000000000208'::uuid,
+                 '00000000-0000-4000-a000-000000000101'::uuid, pg_temp.u('c'))) f(n, o, c, t, pf);
 
 -- 1. Registration and grants -----------------------------------------------------------------------------------------------
 select is((select jsonb_build_object('kind', kind, 'level', level, 'provider', provider, 'region', region)
@@ -95,9 +106,8 @@ select is((select count(*)::int from public.report_draft_stop_rules), 0,
   'AUT-152: no threshold row is shipped (the value is set at the cra gate)');
 
 -- 2. Gate refusals before any ledger row ---------------------------------------------------------------------------------
-select is(pg_temp.gate('p', 1) ->> 'reason', 'not_simulation_org',
-  'negative: an organisation that is not a simulation gets no model draft');
-update public.organizations set simulation = true where id = '00000000-0000-4000-b000-000000000011';
+select is(pg_temp.gate('c', 3) ->> 'reason', 'not_simulation_org',
+  'negative: the performer of an open draft in an organisation that is not a simulation gets no model draft');
 select is(pg_temp.gate('p', 1), '{"result": "ok", "open": false, "reason": "no_threshold"}'::jsonb,
   'AUT-152: no threshold row: the model stays closed (fail closed)');
 select is(pg_temp.rec('p', 1, '[{"text": "Patientin mobilisiert.", "sources": ["s1"]}]', 1) ->> 'reason', 'no_threshold',
@@ -111,6 +121,7 @@ select is(pg_temp.gate('p', 1), '{"result": "ok", "open": true, "reason": null}'
   'with a threshold row the performer of the open draft may get a model draft');
 select is(pg_temp.gate('a', 1) ->> 'reason', 'not_performer', 'negative: a team member who is not the performer is refused');
 select is(pg_temp.gate('c', 1) ->> 'reason', 'not_team_member', 'negative: a member of another organisation is refused');
+select is(pg_temp.gate('c', 3) ->> 'reason', 'not_simulation_org', 'negative: still closed outside a simulation organisation');
 select is(pg_temp.gate('p', 2) ->> 'reason', 'not_draft', 'negative: a signed report gets no model draft');
 select is(pg_temp.rec('c', 1, '[{"text": "Patientin mobilisiert.", "sources": ["s1"]}]', 2) ->> 'reason', 'not_team_member',
   'negative: another organisation''s member cannot write into this team''s ledger');
