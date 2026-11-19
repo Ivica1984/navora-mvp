@@ -1266,3 +1266,14 @@ Read: #1494 head `cf1b6e9` unchanged, `mergeable_state` clean, 5/5 check runs `s
 3. **Render deploy `5b73d8b` ended `update_failed` (00:29 CET)** per `eng` 01:12, superseded by a successful deploy; cause UNKNOWN. Not a condition; named follow-up for S6: the smoke records deploy status per commit.
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 02:39 (scheduled PO run): #1494 merged; part 2b waits for owner views; AUT-149 to AUT-151 placed
+
+Read: `aia-gate: #1494 cf1b6e9 clear (Simulation, synthetic data)` (comment 6996713600); 5/5 check runs `success`, clean, 0 threads. **#1494 merged** `e5f138f` (record 6997053038); `ci` on the merge commit was running at the PO's read (first `e2e` run `cancelled` by the concurrency group), read next run (§5.4). Role docs merged: #1505 (`aia` 71) `f212506`, #1504 (`eng` 02:12, part 2b ADR draft) `6b1698c`. No migration merged; staging unchanged.
+
+1. **Part 2b (AIG1 ledger) stays an ADR draft** (`docs/engineering/probes/BK-e2a-part2b_ADR_DRAFT.md`, option A). PO direction (WHAT): the database refusal of `kind = 'ai'` agents stays as built (stricter than FE-094; never relaxed without a founder decision); fail closed; `MODEL_LEDGER_READY = false` until part 2b is merged. The three open points are not decided by the PO: level G (`cra`, D-34), ledger value form and retention (`lca`), input references (`aia`). They are asked at the next gate start of `cra` and `lca` for #1497 as a separate, non-blocking section; they are no merge condition of #1497.
+2. **AUT-149** (`value_not_in_source`: every number, time and unit token of a line occurs in its cited sources; red test first; both providers): part of part 2b, before any model line is shown (with S2). **AUT-150** (kill switch fails closed on any value but empty/`off`; exact host compare): part 2b. Not conditions of #1497.
+3. **AUT-151** (facts as fixed context, a decision only on lines that cite a segment): PO supports the direction (value order 1, 5; answers H-BK-01:39). Question for `uxa` and `cra` at the #1497 gate; no merge condition; if built, a follow-up PR after #1497.
+4. **Order:** #1497 (needs `recovery/main` merged in by `eng`, a named final head, then gate starts `cra`, `uxa`, `lca` and the `aia` line) → part 2b → BK-e2b. **#1503 (ADR-208 handgrip ratchet, tests only, S3)** may merge in a run in which #1497 is not mergeable, after its `aia` gate line; `eng` names which test is the «1 skipped» in its `e2e` (a BK-e acceptance needs 0 skipped).
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
