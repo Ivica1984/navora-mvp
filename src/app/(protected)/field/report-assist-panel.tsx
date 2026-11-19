@@ -7,6 +7,7 @@ import {
   decideLine,
   decideSegment,
   discardPrompt,
+  inputRecord,
   type LineDecision,
   openCount,
   signGate,
@@ -14,7 +15,7 @@ import {
   type SignGate,
   unplacedHeading,
 } from "@/features/field/report-assist";
-import { decideReportDraftLine, proposeReportDraft } from "@/features/field/report-draft-command";
+import { decideReportDraftLine, proposeReportDraft, recordReportInput } from "@/features/field/report-draft-command";
 
 /**
  * BK-e2a part 2 (ADR-207): «Entwurf aus Notizen» on the carer's open report.
@@ -71,8 +72,20 @@ export default function ReportAssistPanel({
     update(result.assist);
   }
 
-  function apply() {
+  // BK-e2b (ADR-219): her notes and every decision are stored with the open report first; only then does the draft go
+  // into the summary. If storing fails, the draft stays on screen (fail closed).
+  async function apply() {
     if (!assist || openCount(assist) > 0) return;
+    const record = inputRecord(assist);
+    if (!record) return;
+    setPending(true);
+    setError(null);
+    const res = await recordReportInput({ visitId, day, record, idempotencyKey: crypto.randomUUID() });
+    setPending(false);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
     onSummary(composeSummary(summary, assist));
     update(null);
     setNotes("");
@@ -225,7 +238,7 @@ export default function ReportAssistPanel({
           <button
             type="button"
             data-testid="report-assist-apply"
-            disabled={open > 0}
+            disabled={open > 0 || pending}
             onClick={apply}
             className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60"
           >

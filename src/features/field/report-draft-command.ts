@@ -131,3 +131,45 @@ export async function decideReportDraftLine(input: unknown): Promise<DecideResul
 }
 
 const DECIDE_FAILED = "Die Entscheidung konnte nicht gespeichert werden. Bitte nochmals versuchen.";
+
+const inputSchema = z.object({
+  visitId: z.uuid(),
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  record: z.object({
+    origin: z.enum(["rule", "model"]),
+    segments: z
+      .array(z.object({ id: z.string().regex(/^s[1-9]\d{0,3}$/), text: z.string().min(1).max(8000), decision: z.enum(["taken", "dropped", "inserted", "omitted"]) }))
+      .min(1)
+      .max(400),
+    lines: z.array(z.object({ sources: z.array(z.string().regex(/^[sf][1-9]\d{0,3}$/)).min(1).max(50), decision: z.enum(["taken", "dropped"]) })).max(400),
+  }),
+  idempotencyKey: z.uuid(),
+});
+
+const INPUT_FAILED = "Deine Entscheidungen konnten nicht gespeichert werden. Bitte nochmals «übernehmen».";
+
+/**
+ * BK-e2b (ADR-219): stores her notes with one decision per sentence on her open report before the draft goes into the
+ * summary (migration 0152). If it fails, the draft stays on screen and nothing goes into the summary (fail closed).
+ */
+export async function recordReportInput(input: unknown): Promise<DecideResult> {
+  const parsed = inputSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: INPUT_FAILED };
+  const { supabase } = await requireUser();
+  const reports = await supabase.rpc("field_reports", { p_date: parsed.data.day });
+  const report = (reports.data ?? []).find((r) => r.visit_id === parsed.data.visitId) ?? null;
+  if (reports.error || !assistAllowed(report)) return { ok: false, error: NOT_ALLOWED };
+  const { record } = parsed.data;
+  const res = await supabase.rpc("record_report_input", {
+    p_report_id: report!.report_id,
+    p_origin: record.origin,
+    p_segments: record.segments,
+    p_lines: record.lines,
+    p_idempotency_key: parsed.data.idempotencyKey,
+  });
+  const result = (res.data as { result?: unknown } | null)?.result;
+  // Counts and outcome only; never the typed text.
+  logEvent("info", "report_draft.input_recorded", { op: `report_draft.${record.origin}`, code: res.error ? "error" : String(result ?? "none"), count: record.segments.length });
+  if (res.error || (result !== "ok" && result !== "duplicate")) return { ok: false, error: INPUT_FAILED };
+  return { ok: true };
+}

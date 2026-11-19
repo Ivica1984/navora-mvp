@@ -3269,6 +3269,9 @@ isOneToOne: false
 "record_report_draft_proposal":
 { Args: { "p_idempotency_key": string,"p_lines": Json,"p_model": string,"p_report_id": string }; Returns: Json
                            },
+"record_report_input":
+{ Args: { "p_idempotency_key": string,"p_lines": Json,"p_origin": string,"p_report_id": string,"p_segments": Json }; Returns: Json
+                           },
 "record_safety_alert_value":
 { Args: { "p_case_id": string,"p_category": string,"p_idempotency_key": string,"p_note": string,"p_source": string,"p_value": string }; Returns: string
                            },
