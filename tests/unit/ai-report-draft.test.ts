@@ -71,9 +71,41 @@ describe("checkDraft (control layer, stop rule: no value without a source)", () 
     expect(r.unplaced).toEqual(["s2"]);
   });
 
-  it("accepts a line that cites only a recorded fact", () => {
-    const r = checkDraft(input(""), { lines: [{ text: "Einsatz 07:02–07:48", sources: ["f1"] }], unplaced: [] });
-    expect(r.lines).toHaveLength(1);
+  // AUT-151, `cra` condition (2) (CLINICAL_GOVERNANCE.md 2026-11-19 03:50): a line that cites only facts must equal
+  // the fact text exactly, else it is rejected. ADR-211: it must cite exactly one fact.
+  it("accepts a line that cites only a recorded fact when it equals the fact text exactly", () => {
+    const r = checkDraft(input(""), { lines: [{ text: "Einsatz 07:02–07:48 (F1–F4)", sources: ["f1"] }], unplaced: [] });
+    expect(r.lines).toEqual([{ text: "Einsatz 07:02–07:48 (F1–F4)", sources: ["f1"] }]);
+    expect(r.rejected).toEqual([]);
+  });
+
+  it("rejects a facts-only line whose text differs from the fact (AUT-151 (2))", () => {
+    const r = checkDraft(input(""), {
+      lines: [
+        { text: "Einsatz 07:02–07:48", sources: ["f1"] },
+        { text: "Einsatz 07:02–07:58 (F1–F4)", sources: ["f1"] },
+        { text: "einsatz 07:02–07:48 (f1–f4)", sources: ["f1"] },
+      ],
+      unplaced: [],
+    });
+    expect(r.lines).toEqual([]);
+    expect(r.rejected.map((x) => x.reason)).toEqual(["fact_mismatch", "fact_mismatch", "fact_mismatch"]);
+  });
+
+  it("rejects a facts-only line that cites more than one fact (AUT-151 (2), ADR-211)", () => {
+    const r = checkDraft(input(""), {
+      lines: [{ text: "Einsatz 07:02–07:48 (F1–F4)", sources: ["f1", "f2"] }],
+      unplaced: [],
+    });
+    expect(r.rejected.map((x) => x.reason)).toEqual(["fact_mismatch"]);
+  });
+
+  it("keeps a line that cites a fact and a segment, whatever its wording (AUT-151 (3): she decides it)", () => {
+    const r = checkDraft(input("Klientin wach."), {
+      lines: [{ text: "Klientin um 07:02 wach.", sources: ["f1", "s1"] }],
+      unplaced: [],
+    });
+    expect(r.lines).toEqual([{ text: "Klientin um 07:02 wach.", sources: ["f1", "s1"] }]);
     expect(r.rejected).toEqual([]);
   });
 
