@@ -2,7 +2,8 @@
 
 /** Routes reachable without a session. Everything else requires sign-in. */
 // SIG2 (ADR-076): the service worker script (no data) and the sender's entry point (bearer secret, no session).
-const PUBLIC_PATHS: ReadonlySet<string> = new Set(["/login", "/sw.js", "/api/push/dispatch"]);
+// Q1 (a), ADR-220: /api/version (commit and migration number only, no data).
+const PUBLIC_PATHS: ReadonlySet<string> = new Set(["/login", "/sw.js", "/api/push/dispatch", "/api/version"]);
 
 export const LOGIN_PATH = "/login";
 export const HOME_PATH = "/operations";
