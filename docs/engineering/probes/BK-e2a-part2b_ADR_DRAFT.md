@@ -47,3 +47,39 @@ Every statement is labelled IMPLEMENTED (in the repository code on `recovery/mai
 - **`po`:** place part 2b after these views; until then `MODEL_LEDGER_READY` stays `false` and every draft is the rule substitute on every environment (IMPLEMENTED on #1497).
 
 Nothing here sets a clinical, legal, documentation or tariff rule.
+
+## Addendum 2026-11-19 08:10 (`eng`, scheduled run): views received, named follow-ups mapped, split proposal (docs only)
+
+**Base:** `recovery/main` `8532f91`. #1497 (`24105ec`) and #1503 (`869e35d`) still open; nothing here changes their code or their residual lists. Sources read this run: `lca` 2026-11-19 03:43 (views (a)–(c), L-1497-1, L-1497-2), `cra` `CLINICAL_GOVERNANCE.md` 03:50 (level G, AUT-149, AUT-151, CGR-213 (b), CGR-260) and 04:45, `aia` `AUTOMATION_REVIEW.md` rows AUT-149 to AUT-152, `uxa` `UX_REVIEW.md` 03:43 and 04:47 (UXR-252 to UXR-254), PO amendments 02:39 to 05:39 in brief `BK.md`. Labels as above.
+
+### A. Views received on the §5 questions (read, not decided by `eng`)
+
+| §5 question | View | Status |
+|---|---|---|
+| `cra`: level G for `report_draft_model` | G confirmed as `cra`'s reading; binding classification `lca`/regulatory adviser (D-34); option B not supported | answered for Phase A; binding classification OPEN |
+| `lca`: value form | most protective: **no text** in `proposed_value`/`final_value`; `{line_index, sources, digest, length}`; prefer a keyed digest (HMAC, key outside the ledger) over plain SHA-256. Phase A: no obstacle. Phase B: OPEN (owner: is a digest enough as proof?) | recommendation; PO to decide WHAT |
+| `lca`: retention | Phase A synthetic: no obstacle. Phase B: append-only with no deletion path cannot meet any D-4 period; design a deletion or anonymisation path now (documented, not built) | OPEN (owner, D-4; legal adviser) |
+| `lca`: region | direct API offers `inference_geo` `global` or `us` only; proposal: set `us` explicitly so the registered `region` is true. FE-085 (A) (CH/EU, 0 retention) **not met** by the direct API as documented; retention wording differs between two provider pages (UNKNOWN which applies) | Phase A value `us` proposed; Phase B OPEN (owner, legal adviser) |
+| `aia`: option A, `input_refs` | not answered as a line yet; AUT-152 (below) says option A leaves no stop rule and proposes reusing the AIG1 predicate | OPEN (`aia`) |
+
+### B. Named follow-ups mapped to code (PLANNED; IMPLEMENTED facts read on `24105ec`)
+
+| Item | What exists (IMPLEMENTED) | Proposed HOW (PLANNED) | Depends on |
+|---|---|---|---|
+| AUT-149 value in source | `checkDraft` (#1494 `control.ts`) checks only that sources exist | token check in `checkDraft`: every digit run, `HH:MM` time and unit token of a line must occur in a cited segment or fact, else reject `value_not_in_source`; both providers; red unit test first. Words are **not** checked (no clinical rule; `cra`: not sufficient alone for G; negation and body-side cases go into the S2 evaluation set as counts) | which unit tokens count: `eng` proposes a closed list in code (`mg`, `ml`, `l`, `°C`, `mmHg`, `%`, `kg`, `min`, `h`), reviewed by `cra`; not a clinical rule, only a comparison |
+| AUT-150 guard hardening | `config.ts`: kill switch only on exact `on`; staging/live detected by `includes()` on the URL | kill switch stops on any value except empty or `off`; URL host compared exactly with `<ref>.supabase.co`; one guard-matrix test row each | none (L, stage 0) |
+| AUT-151 facts as context | rule substitute makes one decision line per fact | cra conditions (1)–(4): a line citing only facts is context, not added; a model line citing only facts must equal the fact text exactly, else rejected; a line citing a fact and a segment needs a decision; no accept-all for lines from her words. Form from `uxa` | `uxa` form; measured by #1503 handgrips (S3) |
+| UXR-252, UXR-253, UXR-254 | wait line, «(0)» count, filled buttons, no `role="status"`, apply label when all rejected | as written by `uxa` (UXR-254 (a) `role="status"` + `aria-describedby`; (b) label «Entwurf abschliessen» when nothing would be placed) | none |
+| CGR-260 | unproposed notes and «Entwurf verwerfen» are not counted as open | `eng` recommends the first `cra` option: non-empty unproposed notes and a discarded draft count as open («Notizen nicht übernommen»), so signing waits; e2e both paths. Whether this is a documentation duty: Clinical Owner (UNKNOWN, D-27) | `uxa` choice between the two `cra` options |
+| L-1497-1 closed services | `services_provided` is free `text[]` (`0006` and later); **no service catalogue exists in the code** (searched migrations and `src`) | `eng` does **not** create a catalogue (its content is a care or tariff list, not an engineering choice). Proposal for Phase A: the model payload carries **no services at all**; with AUT-151 facts are context only, so the model never needs them. A catalogue check is built later when an owner names the catalogue | PO (accept «no services to the model» for Phase A) |
+| L-1497-2 notes are the payload | only synthetic notes allowed (FE-094); simulation-organisation check in the app | add the database simulation-organisation check in `record_report_draft_proposal` (§3 (2)) as the second guard; real data needs the D-35 stage-1 release, not this PR | none for Phase A |
+| CGR-213 (b) (ii), (iii) | decisions live in browser state; log counts unplaced sentences only | one ledger decision row per «Bewusst weglassen» by the performer (kept with the signed version's input record); counts per report and per team, never per person; pgTAP | ledger value form (A) |
+| AUT-152 stop rule | under option A no stop rule governs the model draft | before each model call the server reads the AIG1 predicate (share `rejected` + `corrected`) for this agent; **no threshold row → model mode closed**; exceeded → `stop_rule`, rule substitute with its label. **`eng` sets no number** | threshold: `po`, `cra` (level G) |
+
+### C. Split proposal (for the PO; HOW only, WHAT stays with the PO)
+
+- **Part 2b-1, no migration, no model call opened:** AUT-149, AUT-150, AUT-151, UXR-252 to UXR-254, CGR-260, L-1497-1 (no services in the model payload). Everything is app logic plus unit and e2e tests; `MODEL_LEDGER_READY` stays `false`, so no data leaves the server. It can start after #1497 is merged and needs no owner view except the `uxa` form choices (AUT-151, CGR-260), which can be asked at its gate. Red tests first: `value_not_in_source` (digit, time, unit), guard matrix (`ON`, `1`, `true`, ` off` stop; empty and `off` pass), facts-only line not placed, notes-not-proposed keeps signing waiting.
+- **Part 2b-2, migration (ledger, append-only, no deletion path):** registration of `report_draft_model` (G, `anthropic`, region `us` only if the call sets `inference_geo = "us"`), `record_report_draft_proposal`, decision rows, CGR-213 (b) (ii)–(iii), AUT-152 stop rule, `MODEL_LEDGER_READY` as a server check. Waits for: PO decision on the value form (A); threshold row for AUT-152 (`po`/`cra`); `aia` line on option A and `input_refs`. Because a wrong shape on `navora-staging` cannot be removed, `eng` will not open 2b-2 before these three.
+- **Unchanged:** the D-35 refusal of `kind = 'ai'` in `set_agent_state` stays; no environment exception is proposed. Phase B route (FE-085 (A)) is OPEN and outside BK-e2a.
+
+Nothing in this addendum sets a clinical, legal, documentation, tariff or threshold rule. No test was run for this addendum (docs only).
