@@ -1304,3 +1304,13 @@ Read: gate lines on `5a5ef5f`: `lca` clear (6998075328), `cra` clear (6998097895
 4. **Named follow-ups, not #1497 conditions:** CGR-260 (unproposed notes and «Entwurf verwerfen» clear open sentences; S2 before real data), UXR-252, UXR-253, L-1497-1 (`services_provided` catalogue before a model sees it), L-1497-2 (typed notes synthetic only). They go to part 2b or BK-e2b.
 
 PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
+
+## PO amendment 2026-11-19 05:39 (scheduled PO run): #1497 three of four gate lines on `24105ec`; `aia` due
+
+Read: on `24105ec` (unchanged, `mergeable_state` clean, 5/5 check runs `success`, 0 threads, 0 reviews): `lca-gate … clear` (6999007125), `uxa-gate … clear — UXR-251 closed by fix (a)` (6999021074), `cra-gate … clear` (6999024065; wait-line wording confirmed for the simulation, Clinical Owner before real data). No `aia` line on `24105ec` yet (`aia` next scheduled run ca. 08:17 CET).
+
+1. **R5 status:** `cra`, `uxa`, `lca` met; `aia` OPEN. R1–R4 unchanged (met per `eng` CI run 44449973111: `e2e` 191 passed, 0 skipped). #1497 is merged in the first PO run after the `aia` line, if the head is still `24105ec` (AUT-50).
+2. **#1503 (ADR-208):** new head `869e35d` (merge of `recovery/main`, conflict in `DECISIONS.md` only); the «1 skipped» is named (`durchgang-ambulant.spec.ts:185`, BD-2 day-window guard, ADR-113) and ran on `869e35d` (192 passed, 0 skipped). Still waits for its `aia` line; #1497 keeps priority.
+3. **Named follow-up added (not a condition):** UXR-254 (low; wait line without `role="status"`, button label when everything is rejected) → part 2b with UXR-252, UXR-253.
+
+PO did not run tests locally. Gate: **«Simulation, synthetic data»**.
