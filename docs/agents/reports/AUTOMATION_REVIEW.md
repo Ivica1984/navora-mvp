@@ -31,6 +31,72 @@
 
 ---
 
+## 2026-11-19 02:18 CET · aia review 71: `aia-gate: #1494 cf1b6e9 clear` (Simulation, synthetic data); the stop rule checks that a source exists, not that the value is in it (AUT-149, medium); guard hardening (AUT-150, low); recorded facts re-decided as draft lines (AUT-151, medium, answers H-BK-01:39); no stop rule for the model draft under ADR draft option A (AUT-152, medium)
+
+**Read:** `recovery/main` at `8352425` (since review 70: #1460, #1489, #1492, #1499, #1500, #1501 merged; PO 21:39 to 01:39, `eng` 23:19 to 01:12, `cra` 23:43 journals; brief `BK.md` §PO amendments 23:39, 00:39, 01:39; FE-093, FE-094 as the PO recorded them). Open PRs: #1494 head `cf1b6e9` (code read in full: `src/lib/ai/report-draft/*.ts`, `tests/unit/ai-report-draft.test.ts`); #1497 head `d254827` (`src/features/field/report-draft-command.ts`, `report-assist.ts` read in part); #1504 (`eng` part 2b ADR draft, docs only); #1503 (handgrip measure, not read in depth). CI facts only as `eng` reported them in PR comments; I read no job log, ran no NAVORA test, did not touch the live project, chose no provider and moved no data.
+
+**Active block (README rule 12):** BK, slice BK-e (BK-e2a). Everything below is in the active slice; I ask for no merge outside it.
+
+**Task adjustment (README rule 11):** this run gives the gate the PO asked for on #1494 (comment 6994951269) and answers `eng`'s questions on #1504. No bottleneck-map refresh (v4 due 2026-11-24).
+
+### 1 Done
+
+- **#1494 gate line posted** (comment 6996713600): `aia-gate: #1494 cf1b6e9 clear (Simulation, synthetic data)`. PO questions 1–4 answered:
+  1. The contract meets AUT-135 and AUT-136 for part 1. The input is segments and facts only. Labels are honest. One control layer (`checkDraft`) handles both providers. The provider's own `unplaced` list is ignored.
+  2. Each guard has a test: kill switch, live ref, not staging, not a simulation organisation, key missing, unknown provider.
+  3. The Anthropic request body is exactly `{segments, facts}` plus the model parameters (tested with `toEqual`).
+  4. Every malformed or failed answer gives `provider_failed`. A guard block gives the rule provider with its own label. Rule output is never shown as AI output.
+
+  IMPLEMENTED on the branch, not merged.
+- **#1504 view posted** (comment 6996716899). Option A (ledger yes, AIG1 switch not used in Phase A) is supported. Option B (simulation exception in `set_agent_state`) is not supported. `input_refs` = report + visit is enough, if `proposed_value` keeps the line's source ids. Gap AUT-152.
+- **#1497 advance note posted** (comment 6996718105). It is not a gate line, because it waits for the rebased final head. AUT-151.
+- **AI readiness (AI Operating Model Review §8) for the BK-e2a chain:**
+  - Provenance per line (`sources`): IMPLEMENTED (#1494).
+  - Named confirmer (the performer only): IMPLEMENTED (#1497).
+  - No accept-all: IMPLEMENTED (#1497, e2e).
+  - Suggestion ledger: PLANNED (part 2b, #1504).
+  - Correction rate per agent and field: PLANNED; it needs the ledger.
+  - Stop rule: OPEN (AUT-152).
+  - Evaluation on synthetic data: PLANNED (S2, before the first live model draft).
+  - Semantic check «value in source»: OPEN (AUT-149).
+- **Challenge review:** #1494 adds no step, role or approval. In #1497, line-by-line deciding is a safety control and is not challenged. Its form is challenged in AUT-151. No `high` finding.
+
+### 2 Findings
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-149 | Documentation: report draft (Engine 3), carer | `checkDraft` (#1494 `control.ts`) rejects a line with no source or an unknown source id, but does not check that the line's content comes from the cited source. A model line with a number or time not in its sources passes and depends only on the carer noticing it (IMPLEMENTED behaviour, read in code) | **Rule after AI** (AUT-145 for reports): every number, time and unit token in a line must occur in its cited segments or facts, else reject with `value_not_in_source`; same for rule and model provider; one red unit test first. Words are not checked (no clinical rule invented); `cra` to say if a token check is enough for level G | G (`cra` reading of DOC-AI, CGR-241) | stage 1 synthetic only (FE-094); gates `eng` (HOW), `cra` | rejected lines with `value_not_in_source` on the S2 evaluation set and on staging, team level; target: 0 accepted lines with a value not in a source | medium | – |
+| AUT-150 | Environment lock for any model call, `eng` | `config.ts`: kill switch only when exactly `on`; staging and live detected by `includes()` on the Supabase URL (IMPLEMENTED, #1494) | **Rule hardening:** any value of `AI_KILL_SWITCH` other than empty or `off` stops (fail closed); compare the URL host exactly with `<ref>.supabase.co`; one test row each | L | stage 0; `eng` | guard-matrix tests | low | – |
+| AUT-151 | Documentation: deciding draft lines after the visit, carer | Rule substitute (`rule-provider.ts`) makes one line per recorded fact (times, services from the snapshot) and per segment; `report-assist.ts` opens every line; signing waits until each is decided (#1497 `d254827`). Facts already in the snapshot cost one tap each with no safety gain. Tap count per draft UNKNOWN (no measure yet); PO H-BK-01:39 names the Blueprint §6.3 budget of 3 | **Eliminate:** facts shown as fixed context, no decision; decisions only for lines citing a segment; a model line citing only facts must equal the fact text, else rejected. Keeps no-accept-all for every line from the carer's own words | G | stage 0 for the rule path; gates `eng`, `uxa` (form), `cra` (that facts need no re-confirmation) | taps per draft in the handgrip measure (#1503, S3), median per team, against the §6.3 budget | medium | – |
+| AUT-152 | AI governance: stop rule for the model report draft, `eng`/`po` | Under #1504 option A the AIG1 switch is not used, so `aig1_check` does not govern `report_draft_model`; the only switch is the environment (FE-094 (d)). No stop rule exists for the model draft (PLANNED design read in the ADR draft) | **Rule (reuse):** before each model call the server reads the AIG1 predicate over `ai_confirmations` for this agent (share `rejected` + `corrected` against the threshold row written at registration); no threshold row → model mode closed (H-BK-11:39 pattern); exceeded → `stop_rule`, rule substitute with its label. No number set here | G | stage 1 synthetic only; gates `eng` (ADR-209), `po`; `cra` for the threshold at level G | count of `stop_rule` blocks; correction rate per agent and field, team level only | medium | – |
+
+**Closed:** none. **Open, unchanged:** AUT-125, AUT-126, AUT-127, AUT-129, AUT-131, AUT-137, AUT-139 to AUT-142, AUT-144 to AUT-148, the list in review 60. **Views on PO challenge H-BK-01:39:** supported. First count the taps (S3). If the count is over budget, AUT-151 removes most of them without any accept-all.
+
+### 3 Stage tracking
+
+Stage 1 applies to synthetic data on `navora-staging` only (FE-085 (B), FE-094 as the PO recorded it). Stage 0 applies to real data, and D-35 rule A stays in force. **No model is connected in any environment:** nothing on `recovery/main` calls the adapter, and #1497 forces the rule substitute (`ledger_missing`).
+
+Entry conditions for the first model draft on staging:
+- **Met on branches:** the environment lock and kill switch with tests (#1494), the control layer (#1494), performer-only and no accept-all (#1497).
+- **Missing:**
+  - the ledger (part 2b);
+  - the stop rule (AUT-152);
+  - the value-in-source check (AUT-149);
+  - the S2 evaluation set;
+  - the `lca` reading of the provider terms (data retention UNKNOWN);
+  - the `cra` confirmation of level G;
+  - the founder's staging environment values.
+
+### 4 Waiting
+
+- `po`: merge #1494 if the head is unchanged; merge this PR; place AUT-149 to AUT-152 (no `high`, so no issue).
+- `eng`: AUT-149 and AUT-152 in ADR-209 (part 2b); AUT-150 at the next change to `config.ts`; AUT-151 with `uxa` in part 2a or a follow-up.
+- `cra`: level G for `report_draft_model`; whether a token check is enough (AUT-149); facts without re-confirmation (AUT-151).
+- `lca`: the provider terms; text or digest in `proposed_value` (#1504).
+- Bottleneck map v4: due 2026-11-24.
+
+---
+
 ## 2026-11-18 20:25 CET · aia review 70: answer to #1466 posted (B BK-d first, A BK-e2a second, from review 69 §1); BK-e1c fixed list C1–C5 read: no challenge (it shows the running night visit, a patient-safety display, no new step); no new finding
 
 **Read:** `recovery/main` at `020e374` (since review 69: #1464 merged; PO 16:20 live session FE-091 and 16:35 addendum; #1421 BK-e1b merged at `7c04240`; brief `BK.md` §PO amendment 17:39 with the BK-e1c list C1–C5; eng 17:15 to 19:29, po 17:39 to 19:39 journals). Open PRs: #1476 (BK-e1c, active slice), #1482 (`uxa` gate clear), #1483 (`cra` gate clear), #1460 (ADR-204, CI). Issue #1466 and its PO comment (answer once there by 2026-11-19 12:00). I ran no NAVORA test, read no CI log, did not touch the live project and chose no provider.
