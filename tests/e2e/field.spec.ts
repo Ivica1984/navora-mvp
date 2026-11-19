@@ -294,6 +294,8 @@ test.describe("field tool (F1)", () => {
     // UXR-254 (b): when every line is dropped and every sentence left out, the button says it only closes the draft.
     await assist.getByTestId("report-assist-notes").fill("Synthetisch: Klientin müde.");
     await assist.getByTestId("report-assist-propose").click();
+    // count() does not wait: wait for the draft before deciding its items.
+    await expect(assist.getByTestId("report-assist-apply")).toHaveText(/^Noch \d+ offen$/);
     for (const name of ["Verwerfen", "Bewusst weglassen"]) {
       while ((await assist.getByRole("button", { name, exact: true }).count()) > 0) {
         await assist.getByRole("button", { name, exact: true }).first().click();
