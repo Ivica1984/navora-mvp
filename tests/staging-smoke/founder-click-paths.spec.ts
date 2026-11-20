@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
+import { addDays, weekStart } from "@/features/home-plan/rules";
 import { busyFromOrderLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
@@ -175,4 +176,54 @@ test("path 3: nurse signs a worked shift → invoice draft → team sends it →
   await expect(invoices.getByTestId("invoice-label")).toHaveText(INVOICE_LABEL);
   await expect(invoices.getByTestId("client-invoice").filter({ hasText: deDate(day) }).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
+// Path 4 (HD-1 / HD-2, founder 2026-11-20): the home plans its own staff on staging. The demo client is the lead of
+// «Testheim Rhein (synthetisch)» (migration 0159 backfill). If the home is still empty the run loads the synthetic
+// example once; then it plans one shift in a week of its own (offset by the run number), records an absence, reads the
+// gap in the week and in the month, and removes both again, so staging keeps no row of the run.
+test("path 4: the home assigns a person, records an absence, sees the gap in week and month, then removes both (390 px)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  const day = addDays(weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40))), 2);
+  const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="Rhein 2"][data-shift="S"]`);
+
+  await signIn(page, "kunde");
+  await page.goto("/heim");
+  await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
+  if (await page.getByTestId("heim-empty").isVisible()) {
+    await page.getByTestId("heim-load-example").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
+  }
+
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf()).toHaveAttribute("data-status", "gap");
+  await cellOf().getByTestId("heim-assign-select").selectOption({ label: "Gina Simul (HF)" });
+  await cellOf().getByTestId("heim-assign").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Eingeteilt.");
+  await expect(cellOf().getByTestId("heim-cell-status")).toHaveText("1 von 2 · Lücke: 1 fehlt");
+
+  await page.goto(`/heim?ansicht=personal&datum=${day}`);
+  await page.getByTestId("heim-staff-link").filter({ hasText: "Gina Simul" }).click();
+  const absence = page.getByTestId("heim-absence-form");
+  await absence.getByLabel("Abwesend von").fill(day);
+  await absence.getByLabel("bis").fill(day);
+  await absence.getByRole("button", { name: "Abwesenheit erfassen" }).click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Abwesenheit erfasst. Betroffene Dienste zeigen jetzt die Lücke.");
+
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf().getByTestId("heim-cell-status")).toHaveText("0 von 2 · Lücke: 2 fehlt, 1 HF fehlt");
+  await page.goto(`/heim?ansicht=monat&datum=${day}`);
+  const row = page.getByTestId("heim-month-row").filter({ hasText: "Gina Simul" });
+  await expect(row.locator("td").nth(Number(day.slice(8)) - 1)).toHaveText("A (S)");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+  // Clean up: absence and assignment removed; the cell is a gap of the example requirement again.
+  await page.goto(`/heim?ansicht=personal&datum=${day}`);
+  await page.getByTestId("heim-staff-link").filter({ hasText: "Gina Simul" }).click();
+  await page.getByTestId("heim-absences").locator("li").first().getByRole("button", { name: "entfernen" }).click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Abwesenheit entfernt.");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await cellOf().getByTestId("heim-assigned").filter({ hasText: "Gina Simul" }).getByRole("button", { name: /entfernen/ }).click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Aus dem Dienst entfernt.");
+  await expect(cellOf().getByTestId("heim-cell-status")).toHaveText("0 von 2 · Lücke: 2 fehlt, 1 HF fehlt");
 });

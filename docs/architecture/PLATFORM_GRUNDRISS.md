@@ -1,6 +1,6 @@
 # NAVORA Plattform-Grundriss (ARCH1)
 
-**Status:** Fassung 2, 2026-11-20 ca. 16:20: vom Founder als **Arbeitsgrundlage** bestätigt, nicht als fertiger Bauplan (Vermerk unter FE-108). Fassung 1: PROPOSED. Entwurf `po`, Live-Sitzung 2026-11-20 ca. 15:25, aus dem Code von `recovery/main` `37083b2` gelesen (Seiten, Navigation `src/lib/auth/nav.ts`, Rollen `organization_memberships.role`, `client_accounts.client_kind`, Specs). **`eng` bestätigt oder ersetzt jede technische Angabe** (Spalten Backend, Daten, KI, Prüfung) in einem eigenen Docs-PR, bevor H1 startet. Der PO verantwortet Umfang und Reihenfolge. Visuelle Fassung für den Founder: Artifact «NAVORA Plattform-Grundriss» (https://claude.ai/artifact/9HgXU4yQbNmf34Sx7NWzqN). Founder-Auftrag: FE-108.
+**Status:** Fassung 2.1, 2026-11-20 ca. 18:40. **Vom Founder bestätigt ist die Vision** (eine Plattform mit Ansichten je Rolle, Heim zuerst, Register für Register; FE-108, FE-109 (B)). **Nicht bestätigt sind die Details dieser Fassung**: Sie sind eine Arbeitsgrundlage. Der verbindliche Heim-Vertrag steht in `docs/agents/briefs/HD.md` Fassung 2; Tabellen und Funktionen hat `eng` geprüft (`docs/engineering/probes/ARCH1_ENG_REVIEW.md`). Fassung 2 (16:20): Arbeitsgrundlage (Vermerk unter FE-108). Fassung 1: PROPOSED. Entwurf `po`, Live-Sitzung 2026-11-20 ca. 15:25, aus dem Code von `recovery/main` `37083b2` gelesen (Seiten, Navigation `src/lib/auth/nav.ts`, Rollen `organization_memberships.role`, `client_accounts.client_kind`, Specs). **`eng` bestätigt oder ersetzt jede technische Angabe** (Spalten Backend, Daten, KI, Prüfung) in einem eigenen Docs-PR, bevor H1 startet. Der PO verantwortet Umfang und Reihenfolge. Visuelle Fassung für den Founder: Artifact «NAVORA Plattform-Grundriss» (https://claude.ai/artifact/9HgXU4yQbNmf34Sx7NWzqN). Founder-Auftrag: FE-108.
 
 Kennzeichnung: **Staging** = mit Klicktest auf `navora-staging` nachgewiesen (staging-smoke 44744533079, App `8051283`, DB `20261021000157`); **Code** = im Code und CI, auf Staging nicht nachgewiesen; **Teilweise**; **Fehlt**.
 
@@ -80,4 +80,21 @@ Reihenfolge: bisher (FE-099 (7)) BK-f → STAB1 → AI1 → BK-d. Vorschlag: BK-
 
 **KI-Empfehlung PO:** erste Modellfunktion = AI1 (Berichtsentwurf; Anbieter, CHF 50/Monat und `lca`-Gate entschieden, FE-099 (7)); erste Heim-KI = Ausfall-Optionen erklären (HD-4). Konflikterklärung: feste Regeltexte genügen. Auftrag aus der Lücke strukturieren: kein Nutzen (Lücke ist strukturiert), später für Freitext (BK-d). Wochenplan-Vorschlag: nach HD.
 
-**Baufolge (Founder-Entscheid offen):** A (Empfehlung) STAB1 → AI1 → HD · B AI1 → STAB1 → HD (Ausnahme von FE-100 (6), nicht empfohlen) · C STAB1 → HD → AI1 (Fassung 1).
+**Baufolge (Fassung 2; beantwortet durch FE-109: HD-1 → HD-2 → AI1 → HD-3, `briefs/HD.md` §4):** A (Empfehlung) STAB1 → AI1 → HD · B AI1 → STAB1 → HD (Ausnahme von FE-100 (6), nicht empfohlen) · C STAB1 → HD → AI1 (Fassung 1).
+
+## 9. Fassung 2.1 (2026-11-20 ca. 18:40): Ist-Stand und die übrigen Nutzergruppen
+
+**Ist-Stand, verifiziert aus Job-Protokollen (nicht aus diesem Dokument):** `staging-version` 44781911610 meldet: `navora-staging` liefert `f3149d6` aus (0 Commits hinter `recovery/main`), Datenbank `20261021000158`, «app and database match». STAB1 ist abgenommen (`ci-repeat` 44778677226, 20/20). Auf Staging nachgewiesen sind nur die vier Smoke-Pfade (`staging-smoke` 44776130634, 4/4 auf `d3b2233`). Der Lauf 44777149305 auf `f7dfd2d` war in Pfad 3 rot; die Ursache ist wahrscheinlich eine Kollision der Testdaten zweier aufeinanderfolgender Läufe (UNKNOWN, Folgeposten STAB1-F3 bei `eng`); der nächste Lauf 44781911457 auf `f3149d6` war wieder 4/4. Die Heim-Dienstplanung (#1623) ist **nicht** auf Staging: Code+CI, Draft. `eng` bestätigt diesen Stand im nächsten Journal.
+
+**Die übrigen Nutzergruppen (Aufgaben und Datenflüsse; gebaut wird später, ein Register nach dem anderen):** Gemeinsame Bausteine, damit HEIM-DP keine zweite Plattform erzwingt: (1) **Einrichtungs-Mandant `institutions`** mit Art (`home`, `hospital_ward`, später weitere) und Mitgliedsrollen `lead`/`planner`/`viewer`; Heim und Spital nutzen denselben Mandanten. Eine Einrichtung kann je Netzwerk ein Auftraggeberkonto haben. (2) **ein Bestellweg** `preview_client_order`/`confirm_client_order` für alle Auftraggeber; (3) **eine Statusfunktion** (HD.md §3) für alle Ansichten; (4) **getrennte Geldströme** (Pflegeumsatz Team ← Auftraggeber direkt; NAVORA-Abo; B2B-Modul).
+
+| Gruppe | Aufgaben | Datenfluss | Stand |
+|---|---|---|---|
+| Pflegeheim | Dienstplanung (eigenes Personal), externe Aufträge, Status, Rechnungen der Teams lesen | Einrichtung → Auftrag → Team; Status zurück; Rechnung Team → Heim direkt | HD-1 Code+CI (#1623); Aufträge und Rechnungen Staging (Pfade 1, 3) |
+| Spital (Station) | wie Heim, Stationen = Abteilungen; kurzfristige Ausfälle | gleicher Mandant `institutions` (Art `hospital_ward`), gleicher Bestellweg | Fehlt (nach HEIM-DP) |
+| Privatperson | einen Bedarf bestellen, Status sehen, Rechnung lesen; Angehörige (Modul 3) nur mit Erlaubnis | Haushalt als Auftraggeberkonto (`household`) **ohne** Einrichtung; Zahler je Fall OPEN (`lca`) | Fehlt |
+| Team | Angebote sehen, mit eigener Person übernehmen, Preis, Rechnung senden, Abwesenheit im Team ausgleichen | liest nur eigene Übernahmen; sieht nie Heimpersonal oder Heimplan | Staging (Pfade 1, 3) |
+| Pflegekraft | Einsatz in `/field`, bestätigen, Bericht, Abwesenheit melden | eigene Einsätze; Abwesenheit → Status N beim Auftraggeber | Staging (Pfade 2, 3) |
+| NAVORA-Betreiber | Betreiberfinanzen (nur Abo und B2B), Support (technisch), betriebliche Ausnahmen, neutraler Coach | kein Zugang zu Fall- und Heimpersonaldaten; Weg C0–C3 in HD.md §7 | C0 Code+CI (#1623); C1–C3 Fehlt |
+
+Regel aus dem Code (IMPLEMENTED, 0129; auf #1623 für `institution_members` übernommen): Niemand ist zugleich Auftraggeber und Teammitglied.

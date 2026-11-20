@@ -921,6 +921,16 @@ insert into public.client_shift_plans (client_account_id, label, starts_at, ends
   ('00000000-0000-4000-a000-0000000003c1', 'Spät', time '14:30', time '23:00', 'synthetic'),
   ('00000000-0000-4000-a000-0000000003c1', 'Nacht', time '22:00', time '07:00', 'synthetic');
 
+-- HD-1 seed addition (migration 0159): the home tenant of «Testheim Rhein (synthetisch)», as the 0159 backfill creates it
+-- on databases where the client account already existed (staging). kundebs.test is its lead. No stations or staff: the
+-- home loads the synthetic example itself («Beispieldaten laden») or enters its own; e2e tests create their own rows.
+insert into public.institutions (id, display_name, kind, simulation) values
+  ('00000000-0000-4000-a000-0000000004c1', 'Testheim Rhein (synthetisch)', 'home', true);
+update public.client_accounts set institution_id = '00000000-0000-4000-a000-0000000004c1'
+  where id = '00000000-0000-4000-a000-0000000003c1';
+insert into public.institution_members (institution_id, user_id, role) values
+  ('00000000-0000-4000-a000-0000000004c1', '00000000-0000-4000-a000-0000000009e8', 'lead');
+
 -- BK-c2 seed addition (brief docs/agents/briefs/BK.md §PO amendment 2026-11-17 11:39 (2); ADR-200 addendum 12:15;
 -- e2e tests/e2e/bk-c2-colleague-take.spec.ts). Synthetic only: one more registered nurse of Testteam Basel with the
 -- same grade and the same fixture evidence as pflegebs, so a take can name a colleague (CGR-230 «Bestätigen»,

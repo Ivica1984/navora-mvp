@@ -823,17 +823,23 @@ isOneToOne: false
                   ]
                 },"client_accounts": {
                   Row: {
-                    "client_kind": string,"created_at": string,"display_name": string,"id": string,"organization_id": string
+                    "client_kind": string,"created_at": string,"display_name": string,"id": string,"institution_id": string | null,"organization_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "client_kind": string,"created_at"?: string,"display_name": string,"id"?: string,"organization_id": string
+                    "client_kind": string,"created_at"?: string,"display_name": string,"id"?: string,"institution_id"?: string | null,"organization_id": string
                   }
                   Update: {
-                    "client_kind"?: string,"created_at"?: string,"display_name"?: string,"id"?: string,"organization_id"?: string
+                    "client_kind"?: string,"created_at"?: string,"display_name"?: string,"id"?: string,"institution_id"?: string | null,"organization_id"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "client_accounts_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "client_accounts_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
@@ -1088,6 +1094,222 @@ isOneToOne: false
       referencedRelation: "care_visits"
       referencedColumns: ["id","organization_id"]
     }
+                  ]
+                },"institution_absences": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"ends_on": string,"id": string,"institution_id": string,"staff_id": string,"starts_on": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"ends_on": string,"id"?: string,"institution_id": string,"staff_id": string,"starts_on": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"ends_on"?: string,"id"?: string,"institution_id"?: string,"staff_id"?: string,"starts_on"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_absences_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_absences_staff_id_institution_id_fkey"
+      columns: ["staff_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_staff"
+      referencedColumns: ["id","institution_id"]
+    }
+                  ]
+                },"institution_assignments": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"shift_type_id"?: string,"staff_id"?: string,"station_id"?: string,"work_date"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_assignments_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_assignments_shift_type_id_institution_id_fkey"
+      columns: ["shift_type_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_shift_types"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_assignments_staff_id_institution_id_fkey"
+      columns: ["staff_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_staff"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_assignments_station_id_institution_id_fkey"
+      columns: ["station_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_stations"
+      referencedColumns: ["id","institution_id"]
+    }
+                  ]
+                },"institution_audit_events": {
+                  Row: {
+                    "actor_id": string | null,"changed": NonNullable<Json>,"command": string,"entity_id": string | null,"entity_table": string,"id": number,"institution_id": string,"occurred_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id"?: string | null,"changed"?: NonNullable<Json>,"command": string,"entity_id"?: string | null,"entity_table": string,"id"?: never,"institution_id": string,"occurred_at"?: string
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"changed"?: NonNullable<Json>,"command"?: string,"entity_id"?: string | null,"entity_table"?: string,"id"?: never,"institution_id"?: string,"occurred_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_audit_events_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"institution_members": {
+                  Row: {
+                    "created_at": string,"institution_id": string,"role": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"institution_id": string,"role": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"institution_id"?: string,"role"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_members_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"institution_shift_types": {
+                  Row: {
+                    "code": string,"ends_at": string,"id": string,"institution_id": string,"label": string,"sort": number,"starts_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"ends_at": string,"id"?: string,"institution_id": string,"label": string,"sort"?: number,"starts_at": string
+                  }
+                  Update: {
+                    "code"?: string,"ends_at"?: string,"id"?: string,"institution_id"?: string,"label"?: string,"sort"?: number,"starts_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_shift_types_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"institution_staff": {
+                  Row: {
+                    "active": boolean,"created_at": string,"display_name": string,"grade": string,"home_station_id": string | null,"id": string,"institution_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"created_at"?: string,"display_name": string,"grade": string,"home_station_id"?: string | null,"id"?: string,"institution_id": string
+                  }
+                  Update: {
+                    "active"?: boolean,"created_at"?: string,"display_name"?: string,"grade"?: string,"home_station_id"?: string | null,"id"?: string,"institution_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_staff_home_station_id_institution_id_fkey"
+      columns: ["home_station_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_stations"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_staff_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"institution_staffing_rules": {
+                  Row: {
+                    "example": boolean,"institution_id": string,"required_grade": string | null,"required_grade_count": number,"required_total": number,"shift_type_id": string,"station_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "example"?: boolean,"institution_id": string,"required_grade"?: string | null,"required_grade_count"?: number,"required_total": number,"shift_type_id": string,"station_id": string
+                  }
+                  Update: {
+                    "example"?: boolean,"institution_id"?: string,"required_grade"?: string | null,"required_grade_count"?: number,"required_total"?: number,"shift_type_id"?: string,"station_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_staffing_rules_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_staffing_rules_shift_type_id_institution_id_fkey"
+      columns: ["shift_type_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_shift_types"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_staffing_rules_station_id_institution_id_fkey"
+      columns: ["station_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_stations"
+      referencedColumns: ["id","institution_id"]
+    }
+                  ]
+                },"institution_stations": {
+                  Row: {
+                    "created_at": string,"id": string,"institution_id": string,"name": string,"sort": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"institution_id": string,"name": string,"sort"?: number
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"institution_id"?: string,"name"?: string,"sort"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_stations_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"institutions": {
+                  Row: {
+                    "created_at": string,"display_name": string,"id": string,"kind": string,"simulation": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"simulation"?: boolean
+                  }
+                  Update: {
+                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"simulation"?: boolean
+                  }
+                  Relationships: [
+                    
                   ]
                 },"invoice_time_tolerances": {
                   Row: {
@@ -3226,6 +3448,39 @@ isOneToOne: false
 "handle_exception":
 { Args: { "p_idempotency_key": string,"p_key": string,"p_kind": string,"p_text": string }; Returns: string
                            },
+"institution_add_staff":
+{ Args: { "p_display_name": string,"p_grade": string,"p_home_station_id": string,"p_institution_id": string }; Returns: Json
+                           },
+"institution_add_station":
+{ Args: { "p_institution_id": string,"p_name": string }; Returns: Json
+                           },
+"institution_assign_staff":
+{ Args: { "p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
+                           },
+"institution_load_example":
+{ Args: { "p_institution_id": string,"p_week_start": string }; Returns: Json
+                           },
+"institution_plan":
+{ Args: { "p_from": string,"p_institution_id": string,"p_to": string }; Returns: Json
+                           },
+"institution_record_absence":
+{ Args: { "p_ends_on": string,"p_institution_id": string,"p_staff_id": string,"p_starts_on": string }; Returns: Json
+                           },
+"institution_remove_absence":
+{ Args: { "p_absence_id": string }; Returns: Json
+                           },
+"institution_set_shift_type":
+{ Args: { "p_code": string,"p_ends_at": string,"p_institution_id": string,"p_label": string,"p_starts_at": string }; Returns: Json
+                           },
+"institution_set_staff_active":
+{ Args: { "p_active": boolean,"p_staff_id": string }; Returns: Json
+                           },
+"institution_set_staffing_rule":
+{ Args: { "p_institution_id": string,"p_required_grade": string,"p_required_grade_count": number,"p_required_total": number,"p_shift_type_id": string,"p_station_id": string }; Returns: Json
+                           },
+"institution_unassign_staff":
+{ Args: { "p_assignment_id": string }; Returns: Json
+                           },
 "intake_cases":
 { Args: Record<PropertyKey, never>; Returns: {
               "access_notes": string,"care_needs": (string)[],"case_id": string,"client_name": string,"created_at": string,"expected_hours_per_week": number,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"language_notes": string,"medical_order_status": string,"medical_order_valid_until": string,"missing": Json,"open_tasks": (string)[],"other_providers_active": boolean,"region": string,"requested_start": string,"residence_canton": string,"residence_municipality": string,"urgency": string
@@ -3278,6 +3533,11 @@ isOneToOne: false
 "my_covers":
 { Args: Record<PropertyKey, never>; Returns: {
               "area": string,"covered_at": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"services": (string)[],"status": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
+"my_institutions":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "display_name": string,"id": string,"kind": string,"role": string,"simulation": boolean
             }[]
                            },
 "my_push_state":

@@ -92,3 +92,24 @@ Second founder message (ca. 09:35, verbatim in issue #1587 comment 7034490863) s
 5. **Founder count «25 core functions»:** matches the `eng` proposal (25 plus `may_perform_visit`, `end_member_access` to confirm). `eng` names the final list in the ADR.
 6. **Direction, not STAB1 scope:** «too much logic in SQL instead of TypeScript». `eng` proposes a documented boundary database/TypeScript as an ADR after STAB1; no business logic moves in STAB1.
 7. **Release:** `eng` prepares on `feature/STAB-1` now (allowed: preparation, FE-070 (5)); the PR opens and becomes *Active now* only after BK-f is merged. The order BK-f → STAB1 → AI1 → BK-d is unchanged (FE-099 (7), FE-100 (6)).
+
+## PO review and merge 2026-11-20 17:39 (scheduled PO run, signal FE-105 (1) (a))
+
+Ready report 7043841117 on head `27d1164c`; `eng` independent no-op check 7044492775 (0157 dump byte-identical to the 28 files). Merged as `d3b2233` (merge record 7045122276). The PO did not run tests; everything below is read from GitHub job logs.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| (a) one file per function, equal to the database | met | `fn-source` in `db` 136386934504: «29 definitions in 28 files match the database»; `eng` dump comparison against 0157 |
+| (b) drift check in `db` (and `ci-repeat`) | met | `.github/workflows/ci.yml`, `ci-repeat.yml` step `fn-source check`; negative probe (i) red: run 44753270244, job 136346314293 |
+| (c) no text patch after the cutoff | met | `no-text-patch` in `app` 136386934355; probe (ii) red: run 44761243635, job 136374029152; cutoff 0153 accepted (0154–0157 pass) |
+| (d) permission and guard snapshot | met | pgTAP 157 `plan(302)`: 29× empty `search_path`, no PUBLIC, `anon` refused; 28× `security definer`, `field_visits` invoker as before; markers `access_ended`, `begin_command`, `audit_command`, LEAVE1-C3, WORK1-C3, `has_qualification`, `is_registered_nurse`, BKF-F1; probe (iii) red (job 136346314293) |
+| (e) `staging-smoke` after every push to `recovery/main` | met | first automatic run 44776130634 on `d3b2233`: «ci: go (staging job success)», «Render serves f7dfd2d…», 4/4 passed incl. path 3 |
+| No behaviour change, consolidation migration only | met | 0158: only `create or replace function`, `revoke`, `grant`, `comment`; applied to `navora-staging` by `staging` job 136431540358 («Applying migration 20261021000158…»), job 136432306920 «Remote database is up to date» |
+| Positive: full `db` suite green | met | `ci` 44776130676 on `d3b2233`: all jobs `success` |
+| Regression: `ci-repeat` 10/10 on the integrated commit | OPEN | run 44778677226 on `f7dfd2d` started 17:5x; read in the next signal run |
+
+**PO decisions on `eng`'s limits:** (1) STAB1-F2: `paths` filter so docs-only merges do not start `staging-smoke` (approved as a follow-up, not a condition). (2) As described, the first automatic run was on the merge commit. (3) Tranche 2 unchanged. (4) Next.js security notice: dependency package after STAB1, together with #1084, to be cut by the PO. STAB1-F1 (`db-lint --fail-on error`, #1620 §4) approved as a follow-up.
+
+## PO acceptance 2026-11-20 ca. 18:40 (PO live session)
+
+**Accepted for the simulation** on `f7dfd2d` (gate «Simulation, synthetic data»). Regression criterion met: `ci-repeat` 44778677226, 20/20, all 20 raw logs read (`db` «Files=157, Tests=5868», «Result: PASS», 0 `# SKIP`, `fn-source` match; `e2e` «193 passed», 0 skipped/flaky/failed; verdict 136442411189 inside the window). `staging-smoke` green on the merge commit `d3b2233` (44776130634, 4/4). Record: `ABNAHMEAKTE.md`. Known defect STAB1-F3 (a later docs-only run 44777149305 red in path 3, probably test-data collision between runs; UNKNOWN until `eng` confirms). Not an exception for HD-1 (FE-109 (C)). PO did not run tests.

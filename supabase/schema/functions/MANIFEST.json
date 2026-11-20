@@ -238,6 +238,160 @@
         "LEAVE1-C3",
         "WORK1-C3"
       ]
+    },
+    {
+      "name": "private.is_institution_member",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended"
+      ]
+    },
+    {
+      "name": "private.institution_audit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.institution_member_not_org_member",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.institution_shift_span",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.institution_shift_days",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.my_institutions",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended"
+      ]
+    },
+    {
+      "name": "public.institution_plan",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_shift_days"
+      ]
+    },
+    {
+      "name": "public.institution_assign_staff",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "institution_shift_days",
+        "for share"
+      ]
+    },
+    {
+      "name": "public.institution_unassign_staff",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_record_absence",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_remove_absence",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_add_staff",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_active",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_add_station",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_shift_type",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_type_in_use"
+      ]
+    },
+    {
+      "name": "public.institution_set_staffing_rule",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_load_example",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
     }
   ]
 }

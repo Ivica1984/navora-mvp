@@ -16,6 +16,11 @@ export type NavAccess = {
    * only). Absent or false when unknown or the read failed (fail closed: no /order item).
    */
   clientAccount?: boolean;
+  /**
+   * HD-1: the caller is a member of at least one home tenant (`public.my_institutions`, own rows only). Absent or
+   * false when unknown or the read failed (fail closed: no /heim item).
+   */
+  institution?: boolean;
 };
 
 /** The database predicates the page checks use (supabase/migrations, `private.*`). */
@@ -24,7 +29,8 @@ export type PageCheck =
   | { kind: "team_member" }
   | { kind: "team_member_or_role"; predicate: "is_coordinator"; roles: ReadonlyArray<string> }
   | { kind: "member" }
-  | { kind: "client_account" };
+  | { kind: "client_account" }
+  | { kind: "institution_member" };
 
 /** private.is_org_admin (0035). */
 export const ADMIN_ROLES: ReadonlyArray<string> = ["admin"];
@@ -34,6 +40,7 @@ export const INTAKE_PAGE_ROLES: ReadonlyArray<string> = ["admin", "operations"];
 export const COORDINATOR_ROLES: ReadonlyArray<string> = ["admin", "coach", "operations"];
 
 export type NavKey =
+  | "heim"
   | "order"
   | "operations"
   | "intake"
@@ -51,6 +58,7 @@ export type NavKey =
  * but has a label because /field and its own header name it. tests/unit/ux1-strings.test.ts checks the uses.
  */
 export const PAGE_LABEL = {
+  heim: "Dienstplanung",
   order: "Auftrag erfassen",
   operations: "Ausnahmen",
   intake: "Aufnahme",
@@ -80,6 +88,15 @@ export type NavItem = {
 // the OPS1 exceptions there); the first-MVP pages /teams and /visits are no longer in the menu (routes stay until UX2).
 // UX2-1 (ADR-131): /team joins the map so that the shell's tab bar and sidebar read one source.
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
+  {
+    // HD-1 (founder 2026-11-20; Blueprint §5.4 P4): the home's planning of its own staff. Only a member of a home tenant
+    // sees it; every read and command checks the membership again in the database (private.is_institution_member).
+    key: "heim",
+    label: PAGE_LABEL.heim,
+    href: "/heim",
+    check: { kind: "institution_member" },
+    source: "public.my_institutions / public.institution_plan: private.is_institution_member (own institution_members)",
+  },
   {
     // BK-a (UXR-198, BK amendment 2026-11-14 00:39 (1)(b)): the client's order page. Only a member of a client account
     // sees it; the page and its commands check the membership again in the database (private.is_client_member).
@@ -174,6 +191,8 @@ export function admits(check: PageCheck, access: NavAccess): boolean {
       return access.roles.length > 0;
     case "client_account":
       return access.clientAccount === true;
+    case "institution_member":
+      return access.institution === true;
   }
 }
 
