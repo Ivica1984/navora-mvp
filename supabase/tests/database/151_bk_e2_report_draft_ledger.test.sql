@@ -4,7 +4,8 @@
 -- What it guards:
 --   * registration: `report_draft_model` is kind ai, level G, provider anthropic, region us, and `set_agent_state`
 --     still refuses to switch it on (D-35 rule A unchanged);
---   * the key and the stop-rule table have no grant; no threshold row is shipped (the value is the `cra` gate's);
+--   * the key and the stop-rule table have no grant; without a threshold row the model is closed (the shipped `cra`
+--     simulation row of 0153, pinned in pgTAP 153, is removed inside this transaction to prove it);
 --   * the gate and the record command refuse: non-simulation organisation, no threshold row, other organisation's
 --     member, a team member who is not the performer, a signed report; and the stop rule once the correction share of
 --     the window exceeds the threshold;
@@ -105,8 +106,11 @@ select ok(not has_table_privilege('authenticated', 'private.report_draft_ledger_
   'no grant on the HMAC key or the stop-rule table for app users');
 select is((select count(*)::int from private.report_draft_ledger_key where octet_length(key) = 32), 1,
   'one 32-byte key, generated in the database');
+-- 0153 ships the cra simulation row (pinned in pgTAP 153). To keep proving the fail-closed path, this transaction removes
+-- it first (rolled back at the end); the fixture below then sets its own synthetic values.
+delete from public.report_draft_stop_rules where agent_key = 'report_draft_model';
 select is((select count(*)::int from public.report_draft_stop_rules), 0,
-  'AUT-152: no threshold row is shipped (the value is set at the cra gate)');
+  'AUT-152 test setup: with the shipped row removed in this transaction, the table is empty');
 
 -- 2. Gate refusals before any ledger row ---------------------------------------------------------------------------------
 select is(pg_temp.gate('c', 3) ->> 'reason', 'not_simulation_org',

@@ -16,6 +16,39 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-20 03:45 CET: gate re-check of **#1572** (BK-e AUT-152: `cra` simulation stop-rule row, migration 0153, pgTAP 153 pin; pgTAP 151 setup change; `eng` ready report 7028505271). Run started once by `po` under FE-089 (2) (gate start 03:4x, residual list BK.md §PO amendment 2026-11-20 02:39 (1)). Scope as I set it on 2026-11-19 21:45 and as `eng` asked (AUT-50): the row and its pin, nothing else. **`cra-gate: #1572 499ca34 clear`** (gate «Simulation, synthetic data» only; a simulation test parameter, not a clinical threshold, not a clinical release, D-27). No new finding. Read on `recovery/main` `75ccf10` (merge base of the head).
+
+### What I read
+
+- Diff `75ccf10...499ca34`: four files only: `supabase/migrations/20261021000153_bk_e_aut152_simulation_stop_rule.sql` (new, 22 lines), `supabase/tests/database/153_bk_e_aut152_simulation_stop_rule.test.sql` (new), `supabase/tests/database/151_bk_e2_report_draft_ledger.test.sql` (setup, +5/−2), `eng` journal. No app code, no other migration, no grant, policy or function change.
+- Table definition in 0151 (`report_draft_stop_rules`: `agent_key` primary key, `stop_share numeric(5,2)` in [0, 100), `stop_min_decided` 1–100000, `stop_window_days` 1–366, `cra_ref` 3–120 chars, RLS on, `revoke all` from `public`, `anon`, `authenticated`).
+- App default: `src/lib/ai/report-draft/config.ts:61` `AI_REPORT_DRAFT_MODE ?? "rule"`; no `AI_REPORT_DRAFT_MODE` or provider key in `.github/` or other repository configuration.
+- CI on `499ca34` (check runs all `completed`/`success`): `app` 136033400113, `db` 136033400212, `e2e` 136033399805, `ui-screenshots` 136033400030, `staging` 136037904136, `sync` 136033284819. Job logs read: `db` applies 0151, 0152, 0153; «151_bk_e2_report_draft_ledger.test.sql … ok», «153_bk_e_aut152_simulation_stop_rule.test.sql … ok», «All tests successful.», «Files=153, Tests=5483», «Result: PASS» (the `not ok` lines in the log belong to the B0-4 red-before proof of pgTAP 080, expected); `e2e` «192 passed (7.3m)». I ran no NAVORA test.
+
+### Gate status
+
+| Item | Head | Gate |
+|---|---|---|
+| #1572 BK-e AUT-152 threshold row | `499ca34` | **`cra-gate: #1572 499ca34 clear`** · gate «Simulation, synthetic data». **(1) Row = my value:** 0153 inserts exactly `('report_draft_model', 50.00, 10, 30, 'cra 2026-11-19 21:45 simulation test parameter (seed.sql:477), not a clinical threshold')`, `on conflict (agent_key) do nothing`; matches my table of 2026-11-19 21:45 column by column; the `cra_ref` text is verbatim. The header labels it a simulation test parameter, names CR-239 (S1) and the way back (delete in a reviewed migration → `no_threshold`, fail closed). **(2) Pin suffices:** pgTAP 153 asserts count 1, `agent_key`, the three values (`50.00::numeric(5,2)`, 10, 30), the `cra_ref` text, RLS on and no `select`/`insert`/`update`/`delete` for `authenticated` and no `select` for `anon`. Any edit of the row in a later migration turns 153 red, so the value cannot change without a reviewed head. **(3) pgTAP 151 setup change: no change of meaning.** The `delete` of the shipped row runs inside 151's `begin … rollback` (lines 25, 221), before §2; `no_threshold` for the gate and the record command and «no ledger row written» are still proved on an empty table; the refusals with a row present still run against the 151 fixture (50 / 4 / 30, labelled synthetic); §5 stop rule unchanged. Not a substantial safety, privacy or function defect of the agreed flow. |
+
+### Notes (no new finding, FE-089 (3))
+
+- **Comment accuracy (for `eng`, any later docs touch, not a condition):** the header of pgTAP 153 says the refusals with a row present «stay in pgTAP 151 §2, which now runs against this shipped row». They do not: 151 deletes the shipped row and inserts its own fixture (minimum 4). The tests are right; only that sentence is wrong. The shipped values (minimum 10) are pinned, but no test opens or stops the gate on them; that is acceptable, because the stop mechanism is proved in 151 §5 and the value is a parameter.
+- **Staging after merge (for `po`):** once 0153 reaches `navora-staging`, the database layer no longer closes the model for a simulation organisation; the remaining closure is the app configuration (`AI_REPORT_DRAFT_MODE` default `rule`, no provider key). The sentence in *Active now* «staging runs the report draft as "regelbasiert, keine KI" (model closed, `no_threshold`)» then needs its reason corrected to «model not configured». Whether `AI_REPORT_DRAFT_MODE` or a provider key is set on staging or any hosting environment is not visible in the repository (UNKNOWN, `eng`). Setting either remains a decision under D-35 rule A and ADR-215, not a consequence of this row.
+- **Unchanged and still open:** CR-239 (real threshold by a named Clinical Owner before any non-simulation organisation can reach the model, S1); CGR-261; CGR-262 (the stop rule sees decided lines only, so this value is a backstop with that blind spot); CGR-213 (b) (iii).
+
+### Findings closed
+
+- None. Contract point 2 of the PO package contract (16:40) is met as built on `499ca34`; it closes on merge.
+
+### Decisions requested
+
+- **`po`:** merge #1572 on this line; then `ci-repeat` 10/10 on the merge commit (residual list (2)); correct the staging sentence as above. Merge this governance PR.
+- **`eng`:** state whether `AI_REPORT_DRAFT_MODE` or a provider key is set in any environment (expected: none).
+- **Clinical Owner (when named, D-27):** the real stop threshold (CR-239), unchanged.
+
+---
+
 ## 2026-11-19 21:45 CET: package gate review of **#1549** (BK-e2 Abschlusspaket: AUT-149 value in source, ledger without text and AUT-152 stop rule in migration 0151, ADR-215/216, S2 set in CI, BK-e2b input record in migration 0152, labels, `inference_geo`; ADR-214 to ADR-217, ADR-219; `eng` ready report 7021239142). One gate window, started by `po` under FE-089 (2) and FE-097 (scheduled PO run 21:39). **`cra-gate: #1549 e149e04 clear`** (gate «Simulation, synthetic data» only; not a clinical release, not a documentation rule, not a classification, D-27). **AUT-152 value given below as a simulation test parameter, not a clinical threshold.** New advisory CGR-261 (unit list) and CGR-262 (stop-rule denominator); both named follow-ups, neither a merge condition. Read on `recovery/main` `950c7df`.
 
 ### What I read

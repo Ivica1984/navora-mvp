@@ -1,0 +1,42 @@
+name: codeql
+
+# Q6 (a), ADR-218 (founder order 2026-11-19, #1557): static security analysis of the app code on every pull request
+# and on the integration branch, plus once a week for newly published queries. Findings appear under
+# Security → Code scanning; a new high or critical finding on a pull request is shown as a failed check.
+on:
+  pull_request:
+  push:
+    branches: [recovery/main]
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: codeql (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+          config: |
+            paths:
+              - src
+              - scripts
+            paths-ignore:
+              - src/lib/supabase/database.types.ts
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"
