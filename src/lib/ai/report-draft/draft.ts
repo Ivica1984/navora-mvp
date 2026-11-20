@@ -3,7 +3,7 @@ import type { CheckedDraft, Fact, Provider, ProviderKind, Segment } from "./cont
 import { segmentInput } from "./segment";
 
 export type ReportDraft =
-  | ({ ok: true; origin: ProviderKind; label: string; segments: Segment[] } & CheckedDraft)
+  | ({ ok: true; origin: ProviderKind; label: string; modelId?: string; segments: Segment[] } & CheckedDraft)
   | { ok: false; error: "input_too_long" | "provider_failed"; origin: ProviderKind };
 
 /**
@@ -25,5 +25,5 @@ export async function buildReportDraft(input: { text: string; facts: Fact[] }, p
   } catch {
     return { ok: false, error: "provider_failed", origin: provider.kind };
   }
-  return { ok: true, origin: provider.kind, label: provider.label, segments, ...checkDraft(draftInput, output) };
+  return { ok: true, origin: provider.kind, label: provider.label, modelId: provider.modelId, segments, ...checkDraft(draftInput, output) };
 }

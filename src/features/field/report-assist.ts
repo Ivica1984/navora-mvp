@@ -9,7 +9,8 @@ import type { ReportDraft } from "@/lib/ai/report-draft/draft";
 export type LineDecision = "open" | "taken" | "dropped";
 export type SegmentDecision = "open" | "inserted" | "omitted";
 
-export type AssistLine = { text: string; sources: string[]; decision: LineDecision };
+/** `suggestionId`: the AIG1 ledger row of a model line (ADR-215/216); absent for the rule substitute. */
+export type AssistLine = { text: string; sources: string[]; decision: LineDecision; suggestionId?: string };
 export type AssistSegment = { id: string; text: string; decision: SegmentDecision };
 
 export type ReportAssist = {
@@ -118,6 +119,38 @@ export function composeSummary(existing: string, a: ReportAssist): string {
     ...a.unplaced.filter((u) => u.decision === "inserted").map((u) => u.text),
   ];
   return [existing.trim(), ...added].filter((t) => t.length > 0).join("\n");
+}
+
+/**
+ * BK-e2b (ADR-219, migration 0152): what is stored with the report when she places a decided draft into the summary.
+ * Every segment of her notes once, in order, with its text and her decision; the lines only as source ids and decision
+ * (a taken line's text is in the summary, a rejected one is not kept). Null while anything is open.
+ */
+export type InputRecord = {
+  origin: ProviderKind;
+  segments: Array<{ id: string; text: string; decision: "taken" | "dropped" | "inserted" | "omitted" }>;
+  lines: Array<{ sources: string[]; decision: "taken" | "dropped" }>;
+};
+
+export function inputRecord(a: ReportAssist): InputRecord | null {
+  if (openCount(a) > 0) return null;
+  const listed = new Map(a.unplaced.map((u) => [u.id, u.decision]));
+  const ids = Object.keys(a.sourceText).sort((x, y) => Number(x.slice(1)) - Number(y.slice(1)));
+  const segments: InputRecord["segments"] = [];
+  for (const id of ids) {
+    const citing = a.lines.filter((l) => l.sources.includes(id));
+    const l = listed.get(id);
+    const decision =
+      l === "inserted" || l === "omitted" ? l : citing.some((x) => x.decision === "taken") ? "taken" : citing.length > 0 ? "dropped" : null;
+    // A segment neither cited nor listed would be lost: refuse rather than store a record with a gap.
+    if (!decision) return null;
+    segments.push({ id, text: a.sourceText[id], decision });
+  }
+  return {
+    origin: a.origin,
+    segments,
+    lines: a.lines.map((l) => ({ sources: l.sources, decision: l.decision === "taken" ? "taken" : "dropped" })),
+  };
 }
 
 type Snapshot = {
