@@ -28,6 +28,8 @@ jobs:
         run: supabase db reset --no-seed
       - name: Export the canonical function files
         run: node scripts/fn-source.mjs dump --out stab1-out
+      - name: Drift check of the committed files against this database
+        run: node scripts/fn-source.mjs check
       - name: Print the files as one archive (read by eng through the job log; public source code only)
         if: always()
         run: |
