@@ -12,11 +12,13 @@ import { requireUser } from "./session";
  */
 export const getNavAccess = cache(async function getNavAccess(): Promise<NavAccess> {
   const { supabase, user } = await requireUser();
-  const [orgs, teams, clients] = await Promise.all([
+  const [orgs, teams, clients, institutions] = await Promise.all([
     supabase.from("organization_memberships").select("role").eq("user_id", user.id),
     supabase.from("team_memberships").select("team_id").eq("user_id", user.id).limit(1),
     // BK-a (UXR-198): own client accounts only (definer function over the caller's own client_account_members rows).
     supabase.rpc("my_client_accounts"),
+    // HD-1: own home tenants only (definer function over the caller's own institution_members rows).
+    supabase.rpc("my_institutions" as never),
   ]);
   if (orgs.error || teams.error) {
     logEvent("warn", "auth.nav_access_failed", errorFields(orgs.error ?? teams.error));
@@ -24,10 +26,13 @@ export const getNavAccess = cache(async function getNavAccess(): Promise<NavAcce
   }
   const roles = (orgs.data ?? []).map((row) => row.role);
   const inTeam = (teams.data ?? []).length > 0;
+  // Fail closed for /heim only: the other items keep their own reads.
+  if (institutions.error) logEvent("warn", "auth.nav_institutions_failed", errorFields(institutions.error));
+  const institution = !institutions.error && ((institutions.data ?? []) as unknown[]).length > 0;
   if (clients.error) {
     // Fail closed for /order only: the other items keep their own reads.
     logEvent("warn", "auth.nav_client_accounts_failed", errorFields(clients.error));
-    return { roles, inTeam, clientAccount: false };
+    return { roles, inTeam, clientAccount: false, institution };
   }
-  return { roles, inTeam, clientAccount: (clients.data ?? []).length > 0 };
+  return { roles, inTeam, clientAccount: (clients.data ?? []).length > 0, institution };
 });

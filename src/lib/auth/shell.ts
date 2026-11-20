@@ -44,8 +44,9 @@ export function homeTabFor(access: NavAccess, demoPages = false): NavItem | null
  * already holds (`client_account` check, fail closed): a client-account member without a role or team never sees a
  * tab bar of "Mehr" alone. Every staff case keeps its tabs; /order stays under "Mehr" there.
  */
-function clientTabFrom(items: ReadonlyArray<NavItem>): NavItem | null {
-  return items.find((item) => item.key === "order") ?? null;
+function clientTabsFrom(items: ReadonlyArray<NavItem>): NavItem[] {
+  // HD-1: a home member sees «Dienstplanung» next to «Auftrag erfassen» (both only if her menu holds them).
+  return (["heim", "order"] as const).flatMap((key) => items.filter((item) => item.key === key));
 }
 
 export type ShellItems = {
@@ -64,8 +65,8 @@ export function shellItemsFor(access: NavAccess, demoPages = false): ShellItems 
   const items = menuItemsFor(access, demoPages);
   const home = homeTabFor(access, demoPages);
   const fixed = TAB_KEYS.flatMap((key) => items.filter((item) => item.key === key));
-  const client = home || fixed.length > 0 ? null : clientTabFrom(items);
-  const tabs = home ? [home, ...fixed.slice(0, TABS_AFTER_HOME)] : client ? [client] : fixed;
+  const client = home || fixed.length > 0 ? [] : clientTabsFrom(items);
+  const tabs = home ? [home, ...fixed.slice(0, TABS_AFTER_HOME)] : client.length > 0 ? client : fixed;
   const inTabs = new Set(tabs.map((item) => item.key));
   const more = items.filter((item) => !inTabs.has(item.key));
   return { tabs, more };
