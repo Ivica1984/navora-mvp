@@ -7,8 +7,8 @@
 --   * the time tolerance is a configuration row written only by a reviewed migration with an `lca` reference
 --     (pattern AUT-152, 0153). THIS MIGRATION SHIPS NO ROW: every draft is refused `no_tolerance` until `lca` names the
 --     simulation test value at the gate (contract point 2 (d));
---   * amount = recorded minutes / 60 × price per hour, kept to 2 decimals (`round(…, 2)`); rounding to 5 Rappen or to
---     time units, surcharges and VAT are OPEN (`lca`) and not built.
+--   * amount = recorded minutes × price per hour / 60, kept to 2 decimals (`round(…, 2)`; multiply first, BKF-F2);
+--     rounding to 5 Rappen or to time units, surcharges and VAT are OPEN (`lca`) and not built.
 --
 -- Before (IMPLEMENTED, 0001-0155): a signed take report has no invoice path; the J5 path skips take visits (0154).
 -- Now (IMPLEMENTED in this migration):
@@ -197,7 +197,7 @@ begin
      private.report_snapshot_hash(r.snapshot),
      case when reason is null then 'draft' else 'refused' end, reason, ordered, recorded, tol.tolerance_minutes,
      pr.price_per_hour,
-     case when reason is null then round(recorded / 60 * pr.price_per_hour, 2) end,
+     case when reason is null then round(recorded * pr.price_per_hour / 60, 2) end,
      p_actor)
   returning * into row_;
   return row_;
@@ -207,7 +207,7 @@ revoke all on function private.take_invoice_build(uuid, uuid) from public, anon,
 comment on function private.take_invoice_build(uuid, uuid) is
   'BK-f / BK-9, BK-9n: one draft or one visible refusal for a take report version (not_signed, superseded, '
   'already_drafted, on_hold, no_tolerance, no_price, no_times, times_disagree). Minutes from the signed snapshot '
-  '(snapshot_times, CGR-03), price from the take snapshot (0155), amount = minutes / 60 × price, 2 decimals.';
+  '(snapshot_times, CGR-03), price from the take snapshot (0155), amount = minutes × price / 60, 2 decimals (multiply first, BKF-F2).';
 
 -- Stores the refusal `build_failed` when a build raised; never raises itself.
 create or replace function private.take_invoice_build_failed(p_report_id uuid, p_actor uuid)
