@@ -30,6 +30,18 @@ Muster:
 - **Die verbindliche Lösungsregel ab jetzt:** Eigenschaften eines Werkzeugs nur aus `--help`, der Dokumentation oder dem Quelltext prüfen, nie durch einen Aufruf, der ein Modell, ein Deployment, eine Zahlung oder ein fremdes System auslöst. Einen solchen Aufruf gibt es nur mit ausdrücklicher Freigabe und in der dafür vorgesehenen, isolierten Umgebung. Die Voraussetzung «kein Zugang» wird belegt (E0), nicht angenommen.
 - **Abgesichert durch:** OPEN (E0-Prüfung «kein fremder Modellzugang» in der EVAL0-Sandbox, `docs/engineering/probes/EVAL0_P0_ENG.md` §2, PLANNED).
 
+### [2026-11-20 / PR #1581, CI 44709240629] Gelernte Lektion: Knopftexte mit Personennamen nie wörtlich im Test erwarten
+- **Was war das Fehlerbild?** `e2e` auf `9d1c113` rot (Job 136196406414). `tests/e2e/bk-f-invoice.spec.ts` wartete 3 Minuten auf den Knopf «Übernehmen mit Pflegekraft», bis der Test abbrach.
+- **Was war die technische Ursache?** `src/app/(protected)/team/shift-offers-section.tsx` setzt den Knopftext aus dem Anzeigenamen der gewählten Person zusammen («Übernehmen mit <Name>»). Für `pflegebs` lautet er zufällig «… Pflegekraft», für `kolleginbs` «… Kollegin». Der Text wurde aus einem anderen Test übernommen, ohne die Quelle zu lesen.
+- **Die verbindliche Lösungsregel ab jetzt:** Bevor ein Test einen Knopf- oder Labeltext erwartet, liest `eng` die Stelle im Code, die ihn erzeugt. Enthält er Personendaten, prüft der Test das feste Wortmuster (`/^Übernehmen mit /`) und dazu den Zustand (z. B. die angewählte Option «Ich …»), nicht den Namen.
+- **Abgesichert durch:** Fix `a53d86e` (Muster statt Name); CI 44713939706, `e2e` 193/193. Allgemeiner Check OPEN.
+
+### [2026-11-20 / STAB-1, Branch feature/STAB-1] Gelernte Lektion: `ci-repeat.yml` ist aus `ci.yml` erzeugt
+- **Was war das Fehlerbild?** Nach einem neuen Schritt in `.github/workflows/ci.yml` schlugen lokal drei Unit-Tests fehl (`tests/unit/b0-2-ci-repeat.test.ts`: «the committed file is exactly what the generator renders»).
+- **Was war die technische Ursache?** `.github/workflows/ci-repeat.yml` wird von `scripts/ci-repeat.mjs` aus `ci.yml` erzeugt (B0-2). Eine Änderung nur an `ci.yml` macht die erzeugte Datei veraltet.
+- **Die verbindliche Lösungsregel ab jetzt:** Nach jeder Änderung an `ci.yml` läuft `node scripts/ci-repeat.mjs --write`, und beide Dateien kommen in denselben Commit. Vor dem Push läuft `npm test`.
+- **Abgesichert durch:** `tests/unit/b0-2-ci-repeat.test.ts` (fängt es schon heute).
+
 ### [2026-11-20 / PR #1581, CI 44707414690] Gelernte Lektion: Browsertests teilen eine Datenbank: nur eigene Datensätze zählen
 - **Was war das Fehlerbild?** `e2e` auf `630d5ba` rot (Job 136190356902). `tests/e2e/durchgang-ambulant.spec.ts:407` (BD-2) erwartete «exactly the two visits of the run» und fand 3.
 - **Was war die technische Ursache?** Der neue `tests/e2e/bk-f-invoice.spec.ts` lässt für dieselbe Pflegekraft (`pflegebs.test`, Testteam Basel) einen unterschriebenen Übernahme-Einsatz um 22:30 ohne Fall (`case_id` null) in der gemeinsamen e2e-Datenbank zurück. Er bleibt zu Recht stehen, denn unterschriebene Datensätze werden nicht gelöscht. BD-2 zählte nach Team, Datum und Person, aber nicht nach dem eigenen Fall.

@@ -19,7 +19,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(56);
+select plan(57);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -54,8 +54,13 @@ end $$;
 -- 0. Surface and FE-078 ------------------------------------------------------------------------------------------------
 select has_table('public', 'team_invoice_drafts', 'BK-9: the invoice draft table exists');
 select has_table('public', 'invoice_time_tolerances', 'BK-9n: the tolerance configuration table exists');
-select is((select count(*)::int from public.invoice_time_tolerances), 0,
-  'contract 2 (d): no migration ships a tolerance value (lca names it at the gate)');
+-- 0157 ships the value `lca` named at the gate (comment 7039866370 point 2). This file removes it inside its own
+-- rolled-back transaction, so the no-row path below still proves «no row → refused no_tolerance» (pattern of 151/0153).
+select is((select tolerance_minutes from public.invoice_time_tolerances where key = 'take_invoice'), 15,
+  'contract 2 (d): 0157 ships the lca simulation test value, 15 minutes');
+select ok((select lca_ref like 'lca 2026-11-20 13:43 #1581:%' from public.invoice_time_tolerances where key = 'take_invoice'),
+  'contract 2 (d): the shipped row names its lca source');
+delete from public.invoice_time_tolerances where key = 'take_invoice';
 select is((select count(*)::int from information_schema.columns
            where table_schema = 'public' and table_name = 'team_invoice_drafts'
              and column_name ~* '(commission|percent|fee|navora_|iban|payment|paid)'), 0,
