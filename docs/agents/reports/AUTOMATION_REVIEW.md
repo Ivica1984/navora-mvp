@@ -31,6 +31,50 @@
 
 ---
 
+## 2026-11-20 02:18 CET · aia review 75: `aia-gate: #1549 e149e04 clear` (Simulation, synthetic data); all nine AUT-158 checks met; three follow-ups (AUT-159 to AUT-161), none a merge condition
+
+**Read:** `recovery/main` at `6b2bffc` (since review 74: PO journals 19:15 to 01:39, `uxa` 21:42 and 21:45, `lca` 21:43, `cra` 21:45). PR #1549 head `e149e04`, checked against `refs/pull/1549/head`. I read the ready report (comment 7021239142), the PO window (7021713739) and the gate lines from `uxa`, `lca` and `cra`. Code read on `e149e04`:
+- `report-draft-command.ts`, `report-ledger.ts`, `config.ts`, `control.ts`, `anthropic-provider.ts`, `model-provider.ts`, `report-assist-panel.tsx`;
+- migration 0151;
+- pgTAP 151 §6;
+- `aig1_window_stats` (0097).
+
+I read the `app` job log 135850075993 myself: S2 table, 1593 passed. I ran no NAVORA test, did not touch the live project, chose no provider and moved no data. No personal or health data.
+
+**Gate:** posted `aia-gate: #1549 e149e04 clear (Simulation, synthetic data)` (comment 7027369915). The AUT-158 checks, one by one:
+1. Database gate only; `MODEL_LEDGER_READY` is gone.
+2. One ledger row per line, with model id, `input_refs` and `confirmed_by`. The draft is recorded before it is shown, and a ledger failure falls back to the rule substitute.
+3. `valueReason` on both rule and model output.
+4. No row is shipped, so the gate returns `no_threshold`. The window counts the latest outcome per suggestion, so a reopened line is not counted twice.
+5. S2 table in the `app` log.
+6. Exact labels.
+7. One call per line with `bulk = false`, and «übernehmen» stays disabled while any line is open.
+8. The AUT-150 guards in `config.ts` are unchanged.
+9. pgTAP 151 §6 counts per team, with no person column, cells under three suppressed.
+
+| ID | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-159 | Report draft, OpenAI-compatible path (`eng`) | `model-provider.ts:49` still builds its own label («KI-Entwurf · Modell … · jede Zeile prüfen») and sets no `modelId`. The path cannot run today: `ALLOWED_MODEL_HOSTS` is frozen empty, so `host_not_allowed` is thrown before any provider exists (`uxa` note on #1549). If a host is added later, the screen would show two labels for one origin, and the ledger would get an empty model id. Today `record_report_draft_proposal` refuses that, so the path fails closed. | **Rule:** one origin label constant for every model provider, plus `modelId` on the OpenAI-compatible provider. Do it in the same PR that adds the first host, not before. Unit test: every `kind: "model"` provider uses the label constant. | L | Stage 1 synthetic; `eng` | Labels per origin in code (target 1) | low | — (report) |
+| AUT-160 | Report draft stop rule (`eng`, `cra`) | `cra` CGR-262: the stop rule counts only decided lines. A carer who ignores a model draft and writes the report herself leaves its lines undecided, so a draft that was useless as a whole never moves the share. Evidence: `aig1_window_stats` counts only `confirmed`, `corrected` and `rejected`; 0151 has no outcome for «not used». | **Rule (deterministic, no new step for the carer):** when the report is signed, every model line of that report that is still undecided counts as unused. Either record it as its own outcome on signing (system row, not attributed to her), or count undecided proposals of signed reports in the window. pgTAP: a signed report with three undecided lines moves the share. | G (same agent) | Stage 1 synthetic; `cra` (whether «unused» counts as a correction), `eng` | Share of model lines never decided per team and week | medium | — (report; on CGR-262) |
+| AUT-161 | Measuring omitted sentences, BK-e2b (`aia`, AN1) | `cra` CGR-213 (b)(iii) is assigned to `aia`: count the omitted sentences per report and team. 0152 stores one decision per segment (`omitted`), but nothing reads that yet. | **Monitor:** the share of segments decided `omitted`, per team and week, from `visit_report_inputs`. Counts only, no text; cells under three reports suppressed; no per-person view. It signals whether drafts leave out what carers wrote, and it adds no step. The owner of the reader is `eng`; the meaning of a high share is `cra`'s, so I set no threshold. | L | Stage 1 synthetic; `cra`, `lca` (reader on stored input, L-1549-1) | Omitted share per team and week (counted, no threshold) | low | — (report) |
+
+**Answer to `eng`'s question (S2 form for the first staging run):** keep the seven categories and the 20 cases. Add the real model output as one more column on `navora-staging`, simulation organisation only. Report it at team level, next to the `agent_correction_rates` cell. No line text.
+
+**Closed with evidence:**
+- AUT-158 (medium) is met: all nine checks are on `e149e04`, and the gate line is posted. It closes when #1549 merges.
+- AUT-153 closed: #1527 is merged (on `recovery/main` before `950c7df`), and on #1549 the constant is replaced by the database gate.
+
+**Stage tracking:** stage 1 entry conditions for synthetic data, on the branch:
+- met: ledger, stop rule fail closed, S2 in CI, labels, no accept-all, team-level rate;
+- missing: the `cra` threshold row (a simulation test parameter, given 21:45) and the founder's staging key (UNKNOWN);
+- not measured: latency and cost.
+
+Real data stay at stage 0 (D-35 rule A).
+
+**FE-079:** my sign-off on #1279 stands, with reservations AUT-127 and AUT-129. No new Blueprint version.
+
+---
+
 ## 2026-11-19 19:05 CET · aia review 74: `aia-gate: #1527 e638c57 clear` (Simulation, synthetic data); `aia` checks for the BK-e2 Abschlusspaket named before its ready report (AUT-158, medium); AUT-156 applied as the PO read it
 
 **Read:** `recovery/main` at `943c62b` (since review 73: PO journals 14:39 to 18:55, `eng` 14:40 to 17:12, FE-095 and FE-096, `docs/agents/ENG_PROMPT_FE-096.md`). Open PRs: #1527 head `e638c57` (diff-of-diffs against `c63f177`), #1549 (draft, marked «nicht prüfbereit» by `eng`; scope only, no gate), #1540 and #1541 (not in *Active now*, not read). CI facts come from check runs and two job logs I read myself (`app` 135659112473, `e2e` 135659113194). I ran no NAVORA test, did not touch the live project, chose no provider and moved no data.

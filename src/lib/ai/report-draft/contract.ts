@@ -21,6 +21,8 @@ export interface Provider {
   kind: ProviderKind;
   /** Origin label shown beside the draft. A rule provider is never labelled as AI (FE-088 (4), FE-090 (4)). */
   label: string;
+  /** Model id of a model provider; written to the ledger row of each line (ADR-215 (2)), never shown as the label. */
+  modelId?: string;
   propose(input: DraftInput): Promise<ProviderOutput>;
 }
 
@@ -28,7 +30,17 @@ export interface Provider {
  * `fact_mismatch` (AUT-151, `cra` condition (2), ADR-211): a line that cites only facts must cite exactly one fact and
  * repeat its text exactly; a reworded fact is not a recorded fact.
  */
-export type RejectReason = "no_source" | "unknown_source" | "empty_text" | "too_long" | "fact_mismatch";
+/**
+ * `value_not_in_source` (AUT-149, ADR-214): a number, time or unit token of the line occurs in none of its cited
+ * segments or facts.
+ */
+export type RejectReason =
+  | "no_source"
+  | "unknown_source"
+  | "empty_text"
+  | "too_long"
+  | "fact_mismatch"
+  | "value_not_in_source";
 
 export type CheckedDraft = {
   lines: DraftLine[];

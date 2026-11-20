@@ -15,7 +15,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(23);
 
 -- A synthetic rule agent for the register writes below (rolled back with the transaction).
 insert into public.ai_agent_definitions (key, name, level, kind, version, provider, region, fixture, eval_bar, brief)
@@ -88,9 +88,17 @@ select is((select coalesce(string_agg(fn, ', ' order by fn), '') from g108_aig1_
   '',
   '#824: no function that reads the AIG1 ledger or applies a confirmed value writes billing or safety-signal tables');
 
--- (5) no AI model registered --------------------------------------------------------------------------------------------
-select is((select count(*)::int from public.ai_agent_definitions where kind = 'ai'), 0,
-  '#824 / D-35 rule A: no agent of kind ai is registered (synthetic rule agents only)');
+-- (5) AI models registered ----------------------------------------------------------------------------------------------
+-- Until 0151 no agent of kind ai was registered. BK-e2 (PO package contract 2026-11-19 16:40, ADR-215) registers exactly
+-- one, the report-draft model, at level G, so that its proposals have a ledger row; it is never switched on through
+-- set_agent_state (D-35 rule A, D-34 unchanged) and proposes only the report summary, no billing or signal target.
+select is((select string_agg(key || ':' || level || ':' || f.target_table, ',' order by key)
+           from public.ai_agent_definitions d join public.ai_agent_fields f on f.agent_key = d.key where d.kind = 'ai'),
+          'report_draft_model:G:visit_reports',
+  '#824 / D-35 rule A: the only agent of kind ai is the level-G report-draft model on visit_reports (ADR-215)');
+select is((select count(*)::int from public.ai_agent_settings s join public.ai_agent_definitions d on d.key = s.agent_key
+           where d.kind = 'ai'), 0,
+  '#824 / D-35 rule A: no organisation has a setting row for an agent of kind ai (none is switched on)');
 
 select * from finish();
 rollback;

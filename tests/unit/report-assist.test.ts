@@ -94,7 +94,7 @@ describe("report assist: decisions", () => {
   it("keeps the origin label of the provider (a rule substitute is never called AI)", () => {
     const a = draft("A.");
     expect(a.origin).toBe("rule");
-    expect(a.label).toBe("regelbasiert, keine KI · synthetische Daten");
+    expect(a.label).toBe("regelbasiert, keine KI");
     expect(a.label).not.toMatch(/\bKI-Entwurf\b/);
   });
 });
