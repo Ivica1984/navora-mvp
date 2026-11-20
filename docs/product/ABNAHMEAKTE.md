@@ -209,6 +209,13 @@ Was die Protokolle zeigen:
 | BK-f | **Für die Simulation abgenommen** 20.11. (15:39-Lauf, `40a2ce1`, `ci-repeat` 44746720886 20/20; `staging-smoke` Pfad 3 grün auf `8051283`). Vor realen Personen offen: BK-f-F1 bis -F3, CGR-263 bis CGR-266, UXR-261 bis UXR-264, Rechnungssteller und Toleranzwert für reale Daten (`lca`, Founder) | – (Simulation); vor realen Daten die genannten Punkte |
 | B11/B12 | Staging-Migration (#1087) wartet auf das Owner-Secret; B0-6 | Owner-Handlungen |
 
+## 4. Offene Gates vor realen Personen und Daten (blockübergreifend)
+
+| Gate | Inhalt | Stand | Prüfbare Begrenzung (Schliessbedingung) | Owner |
+|---|---|---|---|---|
+| **G-COACH** (FE-110 (4)) | Die Rolle `coach` ist heute ein Koordinator: `is_coordinator` gilt für `admin`, `coach`, `operations`, mit organisationsweitem Zeilenzugriff auf 26 Tabellen, u. a. `cases`, `care_visits`, `visit_reports`, `quality_events` (IMPLEMENTED, `docs/engineering/probes/ARCH1_ENG_REVIEW.md` §3). Ob Gesundheitsspalten gesperrt sind: UNKNOWN. | **OFFEN.** Zulässig nur mit synthetischen Daten. Keine Freigabe für reale Personen und Daten, solange offen. | Beschrieben in `briefs/HD.md` §7 C3, Paket vor Phase B: eigene neutrale Coach-Rolle ausserhalb der Organisationsmitgliedschaft; liest nur Teamkennzahlen über Funktionen und nur auf Anfrage eines Teams; kein direkter Tabellenzugriff. Nachweis: pgTAP, dass `coach` auf jede der 26 Tabellen 0 Zeilen liest und jede Funktion mit Akten- oder Gesundheitsinhalt ablehnt; Prüfung `cra`, `lca`. | `po` (Reihenfolge), `eng`, `cra`, `lca` |
+| **B0-6** | Repository-Schutz Stufe 1 (§2 B0) | OFFEN (Owner-Handlung) | wie §2 B0 | Founder |
+
 ## Änderungsprotokoll
 
 - 2026-11-12 15:45 (`po`): angelegt nach FE-071 (Founder-Rückmeldung auf Lieferung 1).
@@ -223,3 +230,4 @@ Was die Protokolle zeigen:
 - 2026-11-20 15:39 (`po`): Blockakte BK-f (Teilstück von BK, für die Simulation abgenommen auf `40a2ce1`, `ci-repeat` 44746720886 20/20); §3 Zeile BK-f.
 - 2026-11-20 ca. 16:00 (`po`, Live-Sitzung): BK-f für die Simulation abgenommen auf `40a2ce1`.
 - 2026-11-20 ca. 18:40 (`po`, Live-Sitzung): Blockakte STAB1 (technisches Paket, für die Simulation abgenommen auf `f7dfd2d`, `ci-repeat` 44778677226 20/20).
+- 2026-11-20 ca. 20:05 (`po`, Live-Sitzung): §4 Offene Gates vor realen Daten; G-COACH (FE-110 (4)).

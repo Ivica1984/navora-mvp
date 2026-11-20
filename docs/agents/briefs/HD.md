@@ -2,11 +2,11 @@
 id: HD
 title: HEIM-DP — Heim-Dienstplanung als vollständiges Register (Woche, Monat, Plan je Mitarbeiterin, Abwesenheit, Lücke, externer Auftrag, gemeinsamer Status, KI-gestützte Planung)
 author: po
-status: approved   # Fassung 2: HD-1 approved and ACTIVE (#1623); HD-2 approved; HD-3 PROPOSED until `aia` and `eng` confirm §5
+status: approved   # Fassung 3 (FE-110): HD-1 residual list §4a. Fassung 2: HD-1 approved and ACTIVE (#1623); HD-2 approved; HD-3 PROPOSED until `aia` and `eng` confirm §5
 updated: 2026-11-20
 ---
 
-# HEIM-DP: PO-Produktvertrag, Fassung 2
+# HEIM-DP: PO-Produktvertrag, Fassung 3 (2026-11-20 20:05, FE-110: §3a, §4a, §5a neu; sonst unverändert)
 
 **Ursprung:** FE-108 und FE-109 (Founder-Nachrichten vom 2026-11-20: ca. 17:45 an `eng`, ca. 18:00 und ca. 18:20 an `po`). **Gate:** «Simulation, synthetische Daten». Für reale Personen gilt nichts hiervon als freigegeben. Der PO hat keine Tests ausgeführt. Alle Aussagen sind gekennzeichnet als IMPLEMENTED (im Code oder in CI belegt), PLANNED, OPEN oder UNKNOWN.
 
@@ -47,6 +47,18 @@ Eine Datenbankfunktion liefert den Zustand eines externen Auftrags. Heim-Woche, 
 
 «Person hat bestätigt» ist das Ereignis, «Gedeckt» ist der Zustand. Im Code geschehen Bestätigung und Prüfung in derselben Transaktion (IMPLEMENTED, BK-c/BK-e). Einen sichtbaren Zwischenzustand «bestätigt, aber nicht geprüft» gibt es darum nicht. Fällt eine Prüfung später weg, wechselt der Zustand auf N (IMPLEMENTED: `recheck_member_takes`, `no_longer_covered`). Kein Bildschirm zeigt nach N noch «gedeckt»: Das ist ein Negativtest in CI und auf Staging. Fällt die Übernahme weg, bevor «Gedeckt» je gezeigt wurde, kehrt der Zustand zu A zurück, mit dem Hinweis «Die eingeteilte Person kann nicht» (IMPLEMENTED).
 
+## 3a. Drei Wörter an einer synthetischen Schicht (FE-110 (1), PO entscheidet)
+
+Beispiel: «Testheim Rhein», Station A, Mo Früh 07:00–15:30, Mindestbesetzung 1 HF (Beispielwert des Simulationskontos).
+
+| Wort | Wann | Paket | Tatsächliche nächste Handlung des Heims |
+|---|---|---|---|
+| **Lücke** | Mindestbesetzung intern nicht erreicht, kein externer Auftrag (z. B. HF «Mara Test» als abwesend erfasst) | HD-1 (IMPLEMENTED auf #1623) | eine zulässige eigene Person in der Zelle einteilen; ab HD-2 zusätzlich «Externen Auftrag vorbereiten» |
+| **Nicht gedeckt** | ein Auftrag existiert, aber kein passendes Team ist frei, alle haben abgelehnt, die Deckungsfrist ist erreicht oder die Schicht hat begonnen | HD-2 | intern einteilen oder Auftrag zurückziehen; kein Text behauptet, dass noch ein Angebot läuft |
+| **Nicht mehr gedeckt** | die Schicht war «Gedeckt», dann fällt die bestätigte Person aus | HD-2 | intern einteilen oder Auftrag zurückziehen; der Zusatz «Angebot läuft wieder» nur unter der Bedingung unten |
+
+**Bedingung «Angebot läuft wieder» (HD-2-Abnahmekriterium, Negativtest Pflicht):** Der Zusatz erscheint nur, wenn die Übernahme freigegeben ist (`released_at` gesetzt), ein neuer Rundruf mit mindestens einem offenen Angebot in der aktuellen Runde besteht und die Deckungsfrist nicht erreicht ist. Sonst: «Nicht mehr gedeckt · kein Angebot offen» mit denselben Handlungen. Befund (Code 0136, vom PO gelesen): Der Zweig «Sicherheitsnetz» von `private.order_cover` erfüllt das heute nicht (siehe FE-110 Vermerk (b)); `eng` prüft und belegt mit pgTAP. Für `/order` gilt dieselbe Regel (gleiche Quelle), umgesetzt in HD-2.
+
 ## 4. Technische PR-Folge (PO entscheidet die Reihenfolge; `eng` das WIE)
 
 Es ist immer genau ein Paket aktiv (Blockregel unverändert).
@@ -57,6 +69,18 @@ Es ist immer genau ein Paket aktiv (Blockregel unverändert).
 | **HD-2** | Lücke → vorbefüllter Auftrag über `preview_client_order`/`confirm_client_order` (kein zweiter Bestellweg); gemeinsamer Status §3 in allen Heim-Ansichten; N mit nächster Handlung; Doppelbestellung je Lücke gesperrt; `staging-smoke` Pfad 5 | HD-1 | `cra`, `uxa` | PLANNED |
 | **AI1** | Modellanschluss über das bestehende Gateway: Kostendeckel (CHF 50/Monat, 300 Aufrufe/Tag), Protokoll, Auswertung, Not-Aus; erste Modellfunktion Berichtsentwurf (`briefs/AI1.md`) | HD-2 | `cra`, `lca` (Anbieterbedingungen, FE-099 (7)), `aia` | approved, verschoben nach FE-109 (b) |
 | **HD-3** | KI-gestützte Planung §5: (a) Optimierung: zulässiger Wochen- und Monatsentwurf, Umplanungsoptionen nach Abwesenheit; (b) Modell: Sprache → Abwesenheit und Planungswünsche, Rangfolge und Abwägung zwischen zulässigen Optionen | AI1 (für b) | `cra`, `uxa`, `aia` | PROPOSED bis `aia`/`eng` §5 bestätigen |
+
+**Reihenfolge, Herkunft (FE-110 (2)):** HD-1 → HD-2 ist Founder-Entscheid (FE-109 (C)). Die Stelle von AI1 zwischen HD-2 und HD-3 und die Teilung HD-3a/HD-3b sind **PO-Empfehlung**, bis der Founder sie bestätigt.
+
+### 4a. HD-1 feste Restliste (PO, 2026-11-20 20:05; keine weitere Bedingung)
+
+1. **R1 (Patientensicherheit):** eine inaktive Person zählt nicht als anwesend; Zelle zeigt «nicht mehr aktiv» und die Lücke; die Person bleibt im Monat sichtbar, solange sie im Zeitraum eingeteilt ist. Roter pgTAP zuerst, dann e2e Woche = Monat.
+2. **R2 (PO entscheidet):** Zeitänderung einer Dienstart, die ab heute eingeteilt ist, wird abgelehnt (`shift_type_in_use`, Hinweis «neue Dienstart anlegen»); vergangene Pläne bleiben unverändert. pgTAP.
+3. **R3 (PO entscheidet):** Abwesenheit gilt für den ganzen Kalendertag. Ein Dienst, dessen Zeitspanne einen Abwesenheitstag berührt (auch die Nacht D-1 bis D), zählt als abwesend (Lücke) und kann nicht neu eingeteilt werden. pgTAP.
+4. Ready-Report nach FE-105 mit: Midnight-Test «Monat zeigt die Nacht an genau einem Tag» (neu); LEAVE1 ehrlich: Heimpersonal hat kein Konto, Äquivalent ist «nicht aktiv»; Zugangsende gilt für die planende Person; Gleichzeitigkeit zweier Planender: Test, falls mit `scripts/db-concurrency` machbar, sonst als OPEN benannt (keine Bedingung).
+5. `staging-smoke` Pfad 4 und grüne Smoke auf `recovery/main` vor dem Merge (unverändert).
+
+Gates danach in einem Fenster: `cra`, `uxa` (unverändert).
 
 Danach folgen das Heim-Dashboard (es fasst nur die verlässlichen Daten dieser Register zusammen) und später die Register für Spital und Privatperson (Grundriss §9).
 
@@ -73,6 +97,19 @@ Die Planungsarbeit nimmt vor allem ein **Optimierer** ab. Er ist ein festes, pr�
 | 5 Status zurück | eine Funktion, §3 | kein Modell | — |
 
 **Woran der Founder es auf Staging erkennt:** Jeder Vorschlag trägt eine von drei Marken: «Optimierung (feste Regeln)», «KI-Vorschlag (Modell), bitte prüfen» oder «regelbasiert, keine KI». Jeder Modellvorschlag erscheint im Vorschlagsprotokoll mit Zeit, Modell und Entscheid (IMPLEMENTED als Ledger AIG1 für den Berichtsentwurf). Mit Not-Aus erscheinen nur Regeltexte. **KI-Status heute:** HD-1 nutzt nur feste Regeln. Kein Modell ist in irgendeinem Pfad angeschlossen. Das Modell übernimmt Planungsarbeit erst ab HD-3b; vorher kann es auf Staging nicht vorkommen. Für reale Personen gilt D-35 Regel A unverändert.
+
+### 5a. Nutzen von HD-3 messen (FE-110, Abnahmebedingung von HD-3; PLANNED)
+
+HD-3 wird nicht an einem Erklärungstext abgenommen, sondern an abgenommener Arbeit, gemessen auf dem synthetischen Heim gegen denselben Fall manuell:
+
+| Messgrösse | Manuell (HD-1/HD-2) | Mit HD-3 | Quelle |
+|---|---|---|---|
+| Schritte und Zeit bis zum zulässigen Monatsplan (Station, 20 Personen) | gezählte Einteilungen und Zeit im e2e-Lauf | Entwurf + Übernahme + Korrekturen | e2e-Zeitstempel, Ereignisprotokoll |
+| Schritte und Zeit von der Ausfallmeldung bis «besetzt» oder Auftrag gesendet | Abwesenheit, Suche, Einteilung | Meldung in eigenen Worten → Option wählen | dito |
+| Anteil übernommener Vorschläge, Korrekturrate je Feld | — | Vorschlagsprotokoll (AIG1-Ledger) | Ledger |
+| verbliebene Lücken und Regelverstösse | Plan | Entwurf (Verstösse müssen 0 sein, Test) | `institution_plan` |
+
+Prüfweg der Heimleitung: Jeder Vorschlag zeigt die Änderungen gegenüber dem aktuellen Plan (wer, wann, welche Zelle), seine Marke und eine Begründung nur aus Plandaten; sie übernimmt ganz, teilweise oder gar nicht; nichts gilt ohne Übernahme. Werte und Messverfahren definiert `aia` mit `eng` (Issue #1627); es wird kein Zielwert erfunden.
 
 **Offene Fragen an `aia`/`eng` (Issue, vor HD-3):** Verfahren und Laufzeit des Optimierers für 8 bis 60 Personen und einen Monat; ob die Übersetzung «Sprache → weiche Kriterien» messbar zuverlässig ist (Auswertungsset); Kosten je Vorschlag gegen den Deckel; was mit synthetischen Namen an das Modell geht (Datenminimierung).
 
