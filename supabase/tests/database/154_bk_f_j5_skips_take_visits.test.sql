@@ -1,4 +1,5 @@
--- BK-f, contract 2026-11-20 06:39 point 2 (h), decision (a): BKF-F1 red first (this commit), the fix in the next one.
+-- BK-f, contract 2026-11-20 06:39 point 2 (h), decision (a): BKF-F1 was red first (4c247b0, CI run 44686853245, 23502);
+-- migration 0154 makes the J5 path skip case-less take visits.
 -- Reproduction for finding BKF-F1 (docs/engineering/probes/BK-f_ADR_DRAFT.md; probe branch probe/bk-f-j5-caseless-20261120).
 --
 -- Claim (from code reading):
