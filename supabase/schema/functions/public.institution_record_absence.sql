@@ -12,6 +12,7 @@ declare
   p public.institution_staff;
   new_id uuid;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
   end if;

@@ -8,8 +8,8 @@ CREATE OR REPLACE FUNCTION private.institution_shift_span(p_date date, p_starts 
  IMMUTABLE
  SET search_path TO ''
 AS $function$
-  select tstzrange((p_date + p_starts)::timestamp at time zone 'Europe/Zurich',
-                   (case when p_ends > p_starts then p_date else p_date + 1 end + p_ends)::timestamp at time zone 'Europe/Zurich',
+  select tstzrange(private.at_zurich((p_date + p_starts)::timestamp),
+                   private.at_zurich_end((case when p_ends > p_starts then p_date else p_date + 1 end + p_ends)::timestamp),
                    '[)')
 $function$;
 

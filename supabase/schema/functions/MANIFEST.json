@@ -243,7 +243,8 @@
       "name": "private.is_institution_member",
       "required": [
         "SECURITY DEFINER",
-        "SET search_path TO ''"
+        "SET search_path TO ''",
+        "access_ended"
       ]
     },
     {
@@ -270,7 +271,8 @@
       "name": "public.my_institutions",
       "required": [
         "SECURITY DEFINER",
-        "SET search_path TO ''"
+        "SET search_path TO ''",
+        "access_ended"
       ]
     },
     {
@@ -287,7 +289,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -296,7 +299,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -305,7 +309,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -314,7 +319,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -323,7 +329,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -332,7 +339,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -341,7 +349,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -350,7 +359,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -359,7 +369,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     },
     {
@@ -368,7 +379,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_audit"
+        "institution_audit",
+        "assert_access_open"
       ]
     }
   ]

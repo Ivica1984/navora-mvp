@@ -11,6 +11,7 @@ AS $function$
   select i.id, i.display_name, i.kind, m.role, i.simulation
   from public.institution_members m join public.institutions i on i.id = m.institution_id
   where m.user_id = (select auth.uid())
+    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   order by i.display_name, i.id
 $function$;
 

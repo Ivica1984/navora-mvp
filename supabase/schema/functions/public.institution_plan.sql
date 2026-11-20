@@ -11,6 +11,7 @@ AS $function$
 declare
   inst public.institutions;
 begin
+  -- LEAVE1-3: is_institution_member is false for a person whose access ended.
   if p_institution_id is null or not private.is_institution_member(p_institution_id) then
     return jsonb_build_object('result', 'rejected');
   end if;

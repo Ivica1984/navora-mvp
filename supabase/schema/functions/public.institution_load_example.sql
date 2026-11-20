@@ -15,6 +15,7 @@ declare
   staff_ids uuid[];
   i int;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   select * into inst from public.institutions where id = p_institution_id for update;
   if inst.id is null or not private.is_institution_member(inst.id, array['lead']) then
     return jsonb_build_object('result', 'rejected');

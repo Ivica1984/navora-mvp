@@ -9,6 +9,7 @@ CREATE OR REPLACE FUNCTION public.institution_set_staffing_rule(p_institution_id
  SET search_path TO ''
 AS $function$
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead']) then
     return jsonb_build_object('result', 'rejected');
   end if;

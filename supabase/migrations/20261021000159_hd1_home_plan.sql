@@ -178,7 +178,8 @@ returns boolean language sql stable security definer set search_path = '' as $$
     select 1 from public.institution_members m
     where m.institution_id = p_institution_id
       and m.user_id = (select auth.uid())
-      and (p_roles is null or m.role = any (p_roles)))
+      and (p_roles is null or m.role = any (p_roles))
+      and not private.access_ended((select auth.uid())))  -- LEAVE1-3: a person whose access ended is nobody's member
 $$;
 revoke all on function private.is_institution_member(uuid, text[]) from public, anon;
 grant execute on function private.is_institution_member(uuid, text[]) to authenticated;
@@ -230,6 +231,7 @@ language sql stable security definer set search_path = '' as $$
   select i.id, i.display_name, i.kind, m.role, i.simulation
   from public.institution_members m join public.institutions i on i.id = m.institution_id
   where m.user_id = (select auth.uid())
+    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   order by i.display_name, i.id
 $$;
 revoke all on function public.my_institutions() from public, anon;
@@ -241,6 +243,7 @@ returns jsonb language plpgsql stable security definer set search_path = '' as $
 declare
   inst public.institutions;
 begin
+  -- LEAVE1-3: is_institution_member is false for a person whose access ended.
   if p_institution_id is null or not private.is_institution_member(p_institution_id) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -312,8 +315,8 @@ grant execute on function public.institution_plan(uuid, date, date) to authentic
 -- Interval of one shift on one date (a shift whose end is not after its start ends on the next day).
 create or replace function private.institution_shift_span(p_date date, p_starts time, p_ends time)
 returns tstzrange language sql immutable set search_path = '' as $$
-  select tstzrange((p_date + p_starts)::timestamp at time zone 'Europe/Zurich',
-                   (case when p_ends > p_starts then p_date else p_date + 1 end + p_ends)::timestamp at time zone 'Europe/Zurich',
+  select tstzrange(private.at_zurich((p_date + p_starts)::timestamp),
+                   private.at_zurich_end((case when p_ends > p_starts then p_date else p_date + 1 end + p_ends)::timestamp),
                    '[)')
 $$;
 revoke all on function private.institution_shift_span(date, time, time) from public, anon, authenticated;
@@ -327,6 +330,7 @@ declare
   span tstzrange;
   new_id uuid;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -369,6 +373,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   a public.institution_assignments;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   select * into a from public.institution_assignments where id = p_assignment_id for update;
   if a.id is null or not private.is_institution_member(a.institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
@@ -389,6 +394,7 @@ declare
   p public.institution_staff;
   new_id uuid;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -421,6 +427,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   a public.institution_absences;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   select * into a from public.institution_absences where id = p_absence_id for update;
   if a.id is null or not private.is_institution_member(a.institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
@@ -439,6 +446,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   new_id uuid;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -463,6 +471,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   p public.institution_staff;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   select * into p from public.institution_staff where id = p_staff_id for update;
   if p.id is null or p_active is null or not private.is_institution_member(p.institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');
@@ -480,6 +489,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   new_id uuid;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead']) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -506,6 +516,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   t_id uuid;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead']) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -532,6 +543,7 @@ create or replace function public.institution_set_staffing_rule(p_institution_id
                                                                 p_required_grade text, p_required_grade_count integer)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead']) then
     return jsonb_build_object('result', 'rejected');
   end if;
@@ -570,6 +582,7 @@ declare
   staff_ids uuid[];
   i int;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   select * into inst from public.institutions where id = p_institution_id for update;
   if inst.id is null or not private.is_institution_member(inst.id, array['lead']) then
     return jsonb_build_object('result', 'rejected');

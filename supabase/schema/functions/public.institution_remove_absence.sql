@@ -11,6 +11,7 @@ AS $function$
 declare
   a public.institution_absences;
 begin
+  perform private.assert_access_open();  -- LEAVE1-3
   select * into a from public.institution_absences where id = p_absence_id for update;
   if a.id is null or not private.is_institution_member(a.institution_id, array['lead', 'planner']) then
     return jsonb_build_object('result', 'rejected');

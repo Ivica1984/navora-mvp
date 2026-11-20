@@ -12,7 +12,8 @@ AS $function$
     select 1 from public.institution_members m
     where m.institution_id = p_institution_id
       and m.user_id = (select auth.uid())
-      and (p_roles is null or m.role = any (p_roles)))
+      and (p_roles is null or m.role = any (p_roles))
+      and not private.access_ended((select auth.uid())))  -- LEAVE1-3: a person whose access ended is nobody's member
 $function$;
 
 revoke all on function private.is_institution_member(p_institution_id uuid, p_roles text[]) from public, anon, authenticated, service_role;
