@@ -7,12 +7,14 @@
 --     over 42 days is refused; the example is refused a second time and for a non-simulation tenant;
 --   * permission: another home's lead, a viewer (writes), a network admin, a team nurse, a client of another account and
 --     anon read and write nothing; no app role has a table grant; a network member cannot become an institution member;
+--   * access end (LEAVE1-3): a home lead whose access ended in any organisation reads nothing, is no member and every
+--     command raises access_ended;
 --   * schema and audit: an absence has no reason column; every command writes one append-only audit row.
 -- Synthetic data only; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(48);
+select plan(52);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -170,6 +172,23 @@ select is(pg_temp.cmd(pg_temp.u('01')::text, format('select public.institution_l
           'ok', 'an empty simulation home loads the synthetic example');
 select is(pg_temp.cmd(pg_temp.u('03')::text, format('select public.institution_load_example(%L, %L)', pg_temp.u('13'), '2026-11-23')) -> 'problems' ->> 0,
           'not_simulation', 'a home outside the simulation never gets example data');
+
+-- 5b. Access end (LEAVE1-3) -------------------------------------------------------------------------------------------
+-- L5 is lead of home 2 (no client account, so no network link) and nurse of another organisation; her access there ends.
+insert into auth.users (id, email) values (pg_temp.u('05'), 'l5.hd1@navora.test');
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000011', pg_temp.u('05'), 'nurse');
+insert into public.institution_members (institution_id, user_id, role) values (pg_temp.u('11'), pg_temp.u('05'), 'lead');
+select is(pg_temp.cmd(pg_temp.u('05')::text, format('select public.institution_plan(%L, %L, %L)', pg_temp.u('11'), '2026-11-23', '2026-11-23')) ->> 'result',
+          'ok', 'before the access end she reads her home''s plan');
+insert into public.member_access_events (organization_id, user_id, kind, reason_code, actor_id) values
+  ('00000000-0000-4000-b000-000000000011', pg_temp.u('05'), 'ended', 'employment_ended', pg_temp.u('01'));
+select is(pg_temp.cmd(pg_temp.u('05')::text, format('select public.institution_plan(%L, %L, %L)', pg_temp.u('11'), '2026-11-23', '2026-11-23')) ->> 'result',
+          'rejected', 'after the access end she reads nothing (LEAVE1-3)');
+select is(pg_temp.cmd(pg_temp.u('05')::text, 'select count(*) from public.my_institutions()')::int, 0,
+          'after the access end she is listed in no home');
+select is(pg_temp.cmd(pg_temp.u('05')::text, format('select public.institution_add_station(%L, %L)', pg_temp.u('11'), 'Nach Ende')) ->> 'sqlstate',
+          '42501', 'after the access end every command raises access_ended');
 
 -- 6. Schema and audit -------------------------------------------------------------------------------------------------
 select hasnt_column('public', 'institution_absences', 'reason', 'an absence has no reason column');
