@@ -17,7 +17,19 @@ export type Station = { id: string; name: string };
 export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string };
 export type Staff = { id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean };
 export type Absence = { id: string; staff_id: string; starts_on: string; ends_on: string };
-export type AssignedPerson = { assignment_id: string; staff_id: string; display_name: string; grade: string; absent: boolean };
+/**
+ * One assigned person in a cell, as `institution_plan` returns it. `absent`: an absence day touches the shift (also the
+ * night into an absence day, HD-1 R3). `inactive`: the person is no longer active; she stays listed but never counts as
+ * present (HD-1 R1). The database decides both; this module only words them.
+ */
+export type AssignedPerson = {
+  assignment_id: string;
+  staff_id: string;
+  display_name: string;
+  grade: string;
+  absent: boolean;
+  inactive: boolean;
+};
 export type CellStatus = "ok" | "gap" | "no_rule";
 export type PlanCell = {
   date: string;
@@ -180,8 +192,18 @@ export function assignableStaff(plan: Plan, date: string): Staff[] {
 
 export type PersonDay = {
   date: string;
+  /** The calendar day itself is an absence day. */
   absent: boolean;
-  shifts: { assignment_id: string; code: string; label: string; time: string; station: string }[];
+  /** One entry per shift starting on this day (a night across midnight appears on its start day only). */
+  shifts: {
+    assignment_id: string;
+    code: string;
+    label: string;
+    time: string;
+    station: string;
+    /** From the cell: the shift touches an absence day (also the night into one) or the person is inactive. */
+    counts: boolean;
+  }[];
 };
 
 /** The plan of one staff member (her days in the range), from the same cells as the week. */
@@ -202,16 +224,29 @@ export function personPlan(plan: Plan, staffId: string): PersonDay[] {
           label: t?.label ?? "",
           time: t ? `${t.starts_at}–${t.ends_at}` : "",
           station: station.get(c.station_id) ?? "",
+          counts: !a.absent && !a.inactive,
         };
       }),
   }));
 }
 
-/** The month grid cell of one person on one day: shift codes, «A» when absent, empty when free. */
+/**
+ * The month grid cell of one person on one day: shift codes, «A» when absent, empty when free. A shift that does not
+ * count (the night into an absence day, or a person no longer active) is shown in brackets: it is planned, not staffed.
+ */
 export function monthCode(day: PersonDay): string {
-  const codes = day.shifts.map((s) => s.code).join("/");
+  const codes = day.shifts.map((s) => (s.counts || day.absent ? s.code : `(${s.code})`)).join("/");
   if (day.absent) return codes ? `A (${codes})` : "A";
   return codes;
+}
+
+/**
+ * The persons of the month grid: every active person, and an inactive person as long as she is still assigned in the
+ * range (HD-1 R1: her shifts stay visible as gaps until the home re-plans them).
+ */
+export function monthPeople(plan: Plan): Staff[] {
+  const assigned = new Set(plan.cells.flatMap((c) => c.assigned.map((a) => a.staff_id)));
+  return plan.staff.filter((s) => s.active || assigned.has(s.id));
 }
 
 /** Number of gap cells per day (for the month overview). */
@@ -229,12 +264,12 @@ export function countMinutes(t: ShiftType): number {
   return end > start ? end - start : 24 * 60 - start + end;
 }
 
-/** Planned hours of a person in the range (shift length as entered by the home, breaks not deducted). */
+/** Planned hours of a person in the range that count (not absent, active; shift length as entered, breaks not deducted). */
 export function plannedHours(plan: Plan, staffId: string): number {
   const minutes = new Map(plan.shift_types.map((t) => [t.id, countMinutes(t)]));
   let total = 0;
   for (const c of plan.cells) {
-    if (c.assigned.some((a) => a.staff_id === staffId && !a.absent)) total += minutes.get(c.shift_type_id) ?? 0;
+    if (c.assigned.some((a) => a.staff_id === staffId && !a.absent && !a.inactive)) total += minutes.get(c.shift_type_id) ?? 0;
   }
   return Math.round((total / 60) * 10) / 10;
 }
@@ -245,8 +280,10 @@ const PROBLEM_TEXT: Record<string, string> = {
   not_found: "Nicht gefunden. Bitte die Seite neu laden.",
   staff_inactive: "Diese Person ist nicht mehr aktiv.",
   already_assigned: "Diese Person ist in diesem Dienst bereits eingeteilt.",
-  staff_absent: "Diese Person ist an diesem Tag abwesend.",
+  staff_absent: "Diese Person ist in diesem Dienst abwesend (auch eine Nacht in einen Abwesenheitstag zählt).",
   staff_overlap: "Diese Person hat zur gleichen Zeit schon einen anderen Dienst.",
+  shift_type_in_use:
+    "Diese Dienstart ist im Plan eingeteilt; ihre Zeiten bleiben unverändert. Für andere Zeiten bitte eine neue Dienstart anlegen.",
   dates_not_valid: "Bitte gültige Daten angeben (bis höchstens ein Jahr).",
   absence_overlaps: "Für diese Tage ist schon eine Abwesenheit erfasst.",
   input_not_valid: "Bitte die Angaben prüfen.",

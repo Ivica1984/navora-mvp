@@ -10,6 +10,7 @@ CREATE OR REPLACE FUNCTION public.institution_set_shift_type(p_institution_id uu
 AS $function$
 declare
   t_id uuid;
+  cur public.institution_shift_types;
 begin
   perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead']) then
@@ -19,6 +20,14 @@ begin
      or char_length(btrim(p_label)) not between 1 and 40 or p_starts_at is null or p_ends_at is null
      or p_starts_at = p_ends_at then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('input_not_valid'));
+  end if;
+  -- HD-1 R2: the times of a shift type that is used in the plan never change (they are part of every plan, past ones
+  -- included); the home creates a new shift type instead. The row lock serialises with institution_assign_staff.
+  select * into cur from public.institution_shift_types
+    where institution_id = p_institution_id and code = btrim(p_code) for update;
+  if cur.id is not null and (cur.starts_at <> p_starts_at or cur.ends_at <> p_ends_at)
+     and exists (select 1 from public.institution_assignments a where a.shift_type_id = cur.id) then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('shift_type_in_use'));
   end if;
   insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort)
     values (p_institution_id, btrim(p_code), btrim(p_label), p_starts_at, p_ends_at,

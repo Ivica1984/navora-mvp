@@ -109,6 +109,50 @@ for (const width of [390, 1440]) {
   });
 }
 
+// HD-1 residual list R1 (PO 2026-11-20 20:05, patient safety): a person set «nicht mehr aktiv» never counts as present.
+// Week and month read the same cells: the week cell turns into the gap and names her «nicht mehr aktiv», the month keeps
+// her row while she is still assigned and shows the shift in brackets. Her own person (added here) keeps the shared
+// example persons untouched for the parallel runs; five weeks ahead, no collision with the runs above.
+test("HD-1 R1: an inactive person never counts as present, in the week and in the month", async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const wed = addDays(weekStart(addDays(zurichDay(), 35)), 2);
+  const name = `R1 Probe ${Date.now() % 100000}`;
+
+  await signIn(page, HOME);
+  await ensureExample(page);
+  await page.goto(`/heim?ansicht=personal&datum=${wed}`);
+  const add = page.getByTestId("heim-add-staff");
+  await add.getByLabel("Name (synthetisch)").fill(name);
+  await add.getByLabel("Stufe").selectOption({ label: "HF" });
+  await add.getByRole("button", { name: "Hinzufügen" }).click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Person hinzugefügt.");
+
+  await page.goto(`/heim?ansicht=woche&datum=${wed}`);
+  await expect(cell(page, wed, "Rhein 2", "F").getByTestId("heim-cell-status")).toHaveText("0 von 3 · Lücke: 3 fehlt, 1 HF fehlt");
+  await assign(page, cell(page, wed, "Rhein 2", "F"), `${name} (HF)`);
+  await expect(cell(page, wed, "Rhein 2", "F").getByTestId("heim-cell-status")).toHaveText("1 von 3 · Lücke: 2 fehlt");
+
+  await page.goto(`/heim?ansicht=personal&datum=${wed}`);
+  await page.getByTestId("heim-staff-link").filter({ hasText: name }).click();
+  await page.getByRole("button", { name: "Nicht mehr aktiv" }).click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Gespeichert.");
+
+  // Week: the gap is back, the HF is missing again, she is still listed and named «nicht mehr aktiv».
+  await page.goto(`/heim?ansicht=woche&datum=${wed}`);
+  const c = cell(page, wed, "Rhein 2", "F");
+  await expect(c).toHaveAttribute("data-status", "gap");
+  await expect(c.getByTestId("heim-cell-status")).toHaveText("0 von 3 · Lücke: 3 fehlt, 1 HF fehlt");
+  await expect(c.getByTestId("heim-assigned").filter({ hasText: name }).getByTestId("heim-assigned-inactive")).toHaveText("nicht mehr aktiv");
+
+  // Month: her row stays while she is assigned, the shift is in brackets, the day counts a gap.
+  await page.goto(`/heim?ansicht=monat&datum=${wed}`);
+  const row = page.getByTestId("heim-month-row").filter({ hasText: name });
+  await expect(row).toContainText("nicht mehr aktiv");
+  await expect(row.locator("td").nth(Number(wed.slice(8)) - 1)).toHaveText("(F)");
+  await expect(page.locator(`[data-testid="heim-month-gaps"][data-date="${wed}"]`)).not.toHaveText("0");
+});
+
 test("HD-1 permission: a NAVORA team nurse has no «Dienstplanung» and /heim shows no home data", async ({ page }) => {
   await signIn(page, NURSE);
   await expect(page.getByRole("link", { name: "Dienstplanung" })).toHaveCount(0);

@@ -8,7 +8,7 @@ import {
 import {
   EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, addDays, assignableStaff, canPlan, canSettle,
   cellStatusText, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  monthCode, monthLabel, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
+  monthCode, monthLabel, monthPeople, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
   type PlanView,
 } from "@/features/home-plan/rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
@@ -203,9 +203,14 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
                       <ul className="grid gap-1">
                         {c.assigned.map((a) => (
                           <li key={a.assignment_id} className="flex flex-wrap items-center justify-between gap-1" data-testid="heim-assigned">
-                            <span className={a.absent ? "line-through" : ""}>
+                            <span className={a.absent || a.inactive ? "line-through" : ""}>
                               {a.display_name} <span className="text-xs text-secondary">{gradeLabel(a.grade)}</span>
                               {a.absent && <span className="ml-1 text-xs font-semibold text-rose-800 no-underline">abwesend</span>}
+                              {a.inactive && (
+                                <span className="ml-1 text-xs font-semibold text-rose-800 no-underline" data-testid="heim-assigned-inactive">
+                                  nicht mehr aktiv
+                                </span>
+                              )}
                             </span>
                             {planner && (
                               <form action={unassignStaff}>
@@ -245,12 +250,13 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
 function MonthView({ plan, prev, next, personHref }: { plan: Plan; prev: string; next: string; personHref: (id: string) => string }) {
   const days = daysBetween(plan.from, plan.to);
   const gaps = gapsPerDay(plan);
-  const people = plan.staff.filter((s) => s.active);
+  const people = monthPeople(plan);
   return (
     <section aria-label="Monatsplan" className="grid gap-3">
       <PeriodNav title={monthLabel(plan.from)} prev={prev} next={next} />
       <p className="text-xs text-secondary">
         Kürzel je Tag: {plan.shift_types.map((t) => `${t.code} = ${t.label} ${t.starts_at}–${t.ends_at}`).join(" · ")} · A = abwesend
+        {" "}· (N) = eingeteilt, zählt aber nicht (abwesend oder nicht mehr aktiv) · eine Nacht steht am Tag ihres Beginns
       </p>
       <div className="max-w-full overflow-x-auto rounded-lg border border-stone-200 bg-white">
         <table className="border-collapse text-xs" data-testid="heim-month">
@@ -272,7 +278,7 @@ function MonthView({ plan, prev, next, personHref }: { plan: Plan; prev: string;
                 <tr key={p.id} className="border-t border-stone-200" data-testid="heim-month-row">
                   <th scope="row" className="sticky left-0 z-10 whitespace-nowrap bg-white p-1 text-left font-normal">
                     <Link href={personHref(p.id)} className="underline">{p.display_name}</Link>{" "}
-                    <span className="text-secondary">{gradeLabel(p.grade)}</span>
+                    <span className="text-secondary">{gradeLabel(p.grade)}{p.active ? "" : " · nicht mehr aktiv"}</span>
                   </th>
                   {pp.map((day) => (
                     <td key={day.date} className={`p-1 text-center ${day.absent ? "bg-amber-50 font-semibold text-amber-900" : isWeekend(day.date) ? "bg-stone-50" : ""}`}>
@@ -362,7 +368,7 @@ function PersonPanel({ plan, staff, back, planner, prev, next }: {
 }) {
   const days = personPlan(plan, staff.id);
   const absences = plan.absences.filter((a) => a.staff_id === staff.id);
-  const worked = days.filter((d) => d.shifts.length > 0 && !d.absent).length;
+  const worked = days.filter((d) => !d.absent && d.shifts.some((s) => s.counts)).length;
   return (
     <div className="grid gap-3" data-testid="heim-person">
       <h2 className="text-lg font-bold">{staff.display_name} <span className="text-sm font-normal text-secondary">{gradeLabel(staff.grade)}</span></h2>
@@ -411,7 +417,10 @@ function PersonPanel({ plan, staff, back, planner, prev, next }: {
             <span className="w-20 font-semibold">{dayLabel(d.date)}</span>
             {d.absent && <span className="font-semibold text-amber-900">abwesend</span>}
             {d.shifts.map((s) => (
-              <span key={s.assignment_id}>{s.label} {s.time} · {s.station}</span>
+              <span key={s.assignment_id} className={s.counts ? "" : "line-through"}>
+                {s.label} {s.time} · {s.station}
+                {!s.counts && !d.absent && <span className="ml-1 font-semibold text-rose-800 no-underline">zählt nicht</span>}
+              </span>
             ))}
             {!d.absent && d.shifts.length === 0 && <span>frei</span>}
           </li>

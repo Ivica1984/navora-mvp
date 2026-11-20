@@ -12,8 +12,13 @@ declare
   p public.institution_staff;
 begin
   perform private.assert_access_open();  -- LEAVE1-3
+  -- Membership first, then the row lock (a non-member never holds a lock on the home's staff row).
+  if p_staff_id is null or p_active is null or not private.is_institution_member(
+       (select s.institution_id from public.institution_staff s where s.id = p_staff_id), array['lead', 'planner']) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
   select * into p from public.institution_staff where id = p_staff_id for update;
-  if p.id is null or p_active is null or not private.is_institution_member(p.institution_id, array['lead', 'planner']) then
+  if p.id is null then
     return jsonb_build_object('result', 'rejected');
   end if;
   update public.institution_staff set active = p_active where id = p.id;

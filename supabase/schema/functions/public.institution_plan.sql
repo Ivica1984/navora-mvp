@@ -63,13 +63,18 @@ begin
         left join public.institution_staffing_rules r on r.station_id = s.id and r.shift_type_id = t.id
         left join lateral (
           select jsonb_agg(jsonb_build_object('assignment_id', ia.id, 'staff_id', p.id, 'display_name', p.display_name,
-                                              'grade', p.grade, 'absent', ab.absent) order by p.display_name, p.id) as assigned,
-                 count(*) filter (where not ab.absent)::int as present,
-                 count(*) filter (where not ab.absent and p.grade = r.required_grade)::int as grade_present
+                                              'grade', p.grade, 'absent', ab.absent, 'inactive', not p.active)
+                           order by p.display_name, p.id) as assigned,
+                 -- HD-1 R1: an inactive person never counts as present (she stays listed, marked inactive).
+                 count(*) filter (where p.active and not ab.absent)::int as present,
+                 count(*) filter (where p.active and not ab.absent and p.grade = r.required_grade)::int as grade_present
           from public.institution_assignments ia
           join public.institution_staff p on p.id = ia.staff_id
+          -- HD-1 R3: an absence covers whole calendar days; a shift touching one of them (the night D-1 -> D) is absent.
           cross join lateral (select exists (select 1 from public.institution_absences a
-                                             where a.staff_id = p.id and d.d::date between a.starts_on and a.ends_on)
+                                             where a.staff_id = p.id
+                                               and daterange(a.starts_on, a.ends_on, '[]')
+                                                   && private.institution_shift_days(d.d::date, t.starts_at, t.ends_at))
                               as absent) ab
           where ia.station_id = s.id and ia.shift_type_id = t.id and ia.work_date = d.d::date
         ) x on true

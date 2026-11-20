@@ -34,8 +34,12 @@ begin
   perform private.institution_audit(p_institution_id, 'institution_record_absence', 'institution_absences', new_id,
     jsonb_build_object('staff_id', p.id, 'starts_on', p_starts_on, 'ends_on', p_ends_on));
   return jsonb_build_object('result', 'ok', 'absence_id', new_id,
+    -- HD-1 R3: every shift touching an absence day counts, also the night D-1 -> D.
     'affected_assignments', (select count(*) from public.institution_assignments a
-                             where a.staff_id = p.id and a.work_date between p_starts_on and p_ends_on));
+                             join public.institution_shift_types t on t.id = a.shift_type_id
+                             where a.staff_id = p.id and a.work_date between p_starts_on - 1 and p_ends_on
+                               and private.institution_shift_days(a.work_date, t.starts_at, t.ends_at)
+                                   && daterange(p_starts_on, p_ends_on, '[]')));
 end $function$;
 
 revoke all on function public.institution_record_absence(p_institution_id uuid, p_staff_id uuid, p_starts_on date, p_ends_on date) from public, anon, authenticated, service_role;

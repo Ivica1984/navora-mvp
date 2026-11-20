@@ -20,7 +20,9 @@ begin
   end if;
   -- Lock the person: two planners assigning the same person at the same time are serialised here.
   select * into p from public.institution_staff where id = p_staff_id and institution_id = p_institution_id for update;
-  select * into t from public.institution_shift_types where id = p_shift_type_id and institution_id = p_institution_id;
+  -- HD-1 R2: share-lock the shift type, so a concurrent time change waits for this assignment (and then sees it).
+  select * into t from public.institution_shift_types where id = p_shift_type_id and institution_id = p_institution_id
+    for share;
   if p.id is null or t.id is null or p_work_date is null
      or not exists (select 1 from public.institution_stations s where s.id = p_station_id and s.institution_id = p_institution_id) then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('not_found'));
@@ -32,7 +34,10 @@ begin
              and a.shift_type_id = t.id) then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('already_assigned'));
   end if;
-  if exists (select 1 from public.institution_absences a where a.staff_id = p.id and p_work_date between a.starts_on and a.ends_on) then
+  -- HD-1 R3: refused when the shift touches an absence day (also the night D-1 -> D).
+  if exists (select 1 from public.institution_absences a where a.staff_id = p.id
+             and daterange(a.starts_on, a.ends_on, '[]')
+                 && private.institution_shift_days(p_work_date, t.starts_at, t.ends_at)) then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('staff_absent'));
   end if;
   span := private.institution_shift_span(p_work_date, t.starts_at, t.ends_at);
