@@ -1357,3 +1357,29 @@ PO did not run tests. Gate: **«Simulation, synthetic data»**.
 5. **Staging and demo (BK BUILD PHASE point 4):** the `staging` job on `9f1d673` (136024849758) reports «Remote database is up to date»: 0151 and 0152 were already on `navora-staging` before the merge, applied outside the job (origin UNKNOWN; `eng` asked; FE-092 deviation documented, nothing changed). `eng` reports the Render app commit and the migration version. Demo click path as in the ready report 7021239142 (carer `pflegebs`, `/field`), label «regelbasiert, keine KI».
 
 PO did not run tests. Gate: **«Simulation, synthetic data»**.
+
+## PO acceptance 2026-11-20 05:39 (scheduled PO run): BK-e2 accepted; BK-e accepted as a whole for the simulation on `8155ac6`
+
+BK-e1 was accepted on 2026-11-18 (21:39 run, `3ea17ee`). This record accepts **BK-e2** (criteria 5–7 of amendment 2026-11-18 02:39, delivered by #1494, #1497, #1527, #1549 and #1572) and so closes **BK-e as a whole**, on the named integrated commit **`8155ac6`** (`recovery/main` after #1572). The PO read the job logs and did not run tests itself.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| 5 BK-8: draft with its source beside each line; origin label; unused segments «nicht übernommen» with «Einfügen» / «Bewusst weglassen»; signed version records its input; 40-segment test; `cra` choice CGR-213 (b) | met | #1497 `30bf219` (part 2a, R1–R5, amendment 2026-11-19 08:39 (1)); #1549 `9f1d673` (0152 `record_report_input`, ADR-219; labels «regelbasiert, keine KI» / «KI-Entwurf (Claude), synthetische Daten»); gate lines `cra` 7021790626, `uxa` 7021714020 / 7021749772 on `e149e04`; pgTAP 152 ok in every `db` attempt |
+| 6 BK-8n: only the carer of the shift signs; an unsigned draft creates no billable fact (negative test) | met | #1549 (ADR-219, pgTAP 152); sign path and hash unchanged since #1497 R4 |
+| 7 Controls: provider-neutral adapter, fake in CI, AIG1 ledger reused, no accept-all, every value a proposal until confirmed; model only on `navora-staging`, simulation organisation, threshold row, founder key; kill switch | met | #1494 (control layer), #1527, #1549 (0151 ledger without text, ADR-215/216; AUT-149 ADR-214; S2 in the `app` job), `aia` 7027369915 (nine AUT-158 checks), `lca` 7021718022; #1572 `8155ac6` (0153 threshold row 50.00 / 10 / 30, `cra` 7028685894: simulation test parameter, not a clinical threshold, D-27); pgTAP 151 and 153 ok in every `db` attempt |
+| Contract FE-095 point 2 (AUT-152 threshold row set at the `cra` gate) | met | #1572 merged 04:40 (record 7029632712) |
+| Integrated commit: `ci` green | met | push `ci` 44669357371 on `8155ac6`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` all `success` |
+| `ci-repeat` 10/10 `db` and `e2e`, 0 skipped, raw logs, day window | met | `ci-repeat` 44669473293 on `8155ac6` (branch `repeat/bk-e-accept-8155ac6`, started by the PO 04:41:56): **20/20 `success`**, first attempt; every `db` log «Files=153, Tests=5483», «Result: PASS», pgTAP 151, 152, 153 «ok», CGR-233 race «invariant violations: 0», 0 `# SKIP`, «not ok» only in the intentionally red B0-4 / B0-3 reproductions; every `e2e` log «192 passed», no skipped, flaky, failed or «did not run» line, no «registry limit» line (no ADR-204 retry); verdict job 136071960780: «Inside the e2e acceptance window: start 04:42, end 04:56» |
+| Staging | migration 0153 applied; app live on `d6d88b2` (contains `8155ac6`); **click path not executed on staging by anyone** (UNKNOWN) | `staging` job 136069607340 («Applying migration 20261021000153 … Finished supabase db push»); `eng` 05:10 journal: Render `dep-dbvs2mod3evc73fu1a6g` = `d6d88b2` since 04:43:30, `list_migrations` up to 0153, one stop-rule row |
+
+Gate: **«Simulation, synthetic data»**. Not released for real persons and data. `cra` gave no clinical release (D-27).
+
+**AI honesty (FE-089 (5)):** the report draft on staging is a **test substitute (fixed rules)**, labelled «regelbasiert, keine KI». The Claude path is built, gated and tested with a fake; it is **not connected** in any environment (no staging key known; `AI_REPORT_DRAFT_MODE` on Render UNKNOWN). The stop rule is a **fixed rule** with a simulation test parameter.
+
+**Before real persons and data (not acceptance conditions):** CGR-261 / PS-224 (unit swap past AUT-149), CGR-262 / AUT-160 / PS-225 (undecided and discarded drafts in the stop rule), CGR-213 (b)(iii) / AUT-161, CR-239 real threshold by a named Clinical Owner, L-1549-1 to L-1549-4, UXR-257, UXR-258, AUT-159, and the BK-e1 list (CGR-256b, CGR-258, CGR-254, UXR-249, UXR-250, CGR-246 (i)).
+
+**Placement (PO WHEN, README rule 11; correction of amendment 2026-11-20 02:39 (4)):** 02:39 proposed CGR-261 and CGR-262/AUT-160 as the first package after this acceptance. `QUAL2.md` (02:45, same day) says BK-f comes first when no Q1 founder decision is recorded, and none is. Both items are S2 «before real data» on a path that runs on synthetic data only and is not connected. They are therefore placed in the **Q2 package contract** (AI as a platform: eval per AI function, gateway), which comes before BK-d and before any real data. This is a WHEN choice; no rule is set.
+
+**Next:** BK-f (invoice draft from the signed report, 0 % commission, no money flow through NAVORA, FE-078) is the next package (`QUAL2.md` order point 3). The PO writes its package contract (FE-095) before `eng` builds; `lca` is a mandatory gate (billing, D-44: no KVG/KLV tariff). Until the contract is written, no feature package is active; #1561 (Q1 (a)) may merge alongside (FE-098 (4)).
+
+PO status of BK: **active**; slices BK-a, BK-b, BK-c, BK-e **accepted for the simulation**; next BK-f, then BK-d, BK-g.
