@@ -150,6 +150,19 @@ Was die Protokolle zeigen:
 - **Vor realen Personen offen:** CGR-256 (Überschneidung zweier Handeinsätze über Mitternacht), CGR-258 (a)–(d), CGR-254, UXR-249, UXR-250, CGR-246 (i).
 - **Folge:** BK-e bleibt aktiv; nächster Engineering-Schritt CGR-256, dann BK-e2a.
 
+### BK-e2 Berichtsentwurf, Liste «nicht übernommen», Unterschrift (Teil von BK-e); BK-e als Ganzes
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid 2026-11-20 05:39-Lauf auf dem benannten Commit `8155ac6` (`recovery/main` nach #1572). Mit BK-e1 (18.11., `3ea17ee`) ist **BK-e als Ganzes abgenommen**. Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-20 05:39.
+- **Umfang:** Steuerschicht (#1494), Entwurf aus Notizen mit Entscheid je Zeile (#1497 `30bf219`), BK-e2-Abschlusspaket mit Protokoll ohne Text, Stoppregel, AUT-149, S2-Prüfsatz und gespeicherter Eingabe (#1549 `9f1d673`, Migrationen 0151, 0152), Schwellenzeile der Stoppregel als Simulationsparameter (#1572 `8155ac6`, Migration 0153).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44669357371 auf `8155ac6`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` alle `success`; `staging`-Job 136069607340: «Applying migration 20261021000153 … Finished supabase db push».
+  - `ci-repeat` 44669473293 auf `8155ac6` (Zweig `repeat/bk-e-accept-8155ac6`, vom PO gestartet 04:41:56): **20/20 `success`**, erster Versuch; jeder `db`-Versuch «Files=153, Tests=5483», «Result: PASS», pgTAP 151, 152, 153 «ok», CGR-233-Wettlauf «invariant violations: 0», keine `# SKIP`-Zeile, «not ok» nur in den absichtlich roten Nachstellungen B0-4 und B0-3; jeder `e2e`-Versuch «192 passed», kein übersprungener, instabiler oder fehlgeschlagener Test, keine Zeile «registry limit»; Urteil 136071960780: im Fenster (Start 04:42, Ende 04:56 Zürich).
+- **Abgenommen:** Die Pflegekraft tippt am Schichtende ihre Notizen und erhält einen Entwurf; jede Zeile zeigt ihren Quellsatz, jeder nicht verwendete Satz steht unter «Nicht übernommen» mit «Einfügen» und «Bewusst weglassen»; sie entscheidet jede Zeile einzeln, ohne «alles übernehmen»; unterschreiben geht erst, wenn nichts offen ist; die unterschriebene Fassung hält ihre Eingabe mit dem Entscheid je Satz fest; nur die Pflegekraft der Schicht unterschreibt, ein nicht unterschriebener Entwurf erzeugt keinen abrechenbaren Fakt. Der Modellweg (Claude) ist gebaut und mit einem Testersatz geprüft, öffnet sich nur auf `navora-staging`, nur für eine Simulationsorganisation, nur mit Schwellenzeile und Founder-Schlüssel, und schliesst bei Notaus oder ausgelöster Stoppregel.
+- **KI-Ehrlichkeit:** Auf Staging läuft der Entwurf als **Testersatz mit festen Regeln** («regelbasiert, keine KI»). Kein KI-Modell ist in irgendeiner Umgebung angeschlossen.
+- **Nicht Teil der Abnahme:** Bedienung auf Staging (Klickpfad von niemandem dort ausgeführt, UNKNOWN); echter Modellentwurf (Schlüssel nicht gesetzt); Rechnung (BK-f); KI-Erfassung (BK-d); Freigabe für reale Personen und Daten; klinische Freigabe (D-27).
+- **Vor realen Personen offen:** CGR-261, CGR-262/AUT-160, CGR-213 (b)(iii), CR-239 (echte Schwelle durch eine benannte Clinical Owner), L-1549-1 bis L-1549-4, UXR-257, UXR-258, AUT-159; dazu die BK-e1-Liste.
+- **Folge:** nächstes Paket BK-f (Vertrag durch den PO vor dem Bau, `lca`-Gate).
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -165,7 +178,7 @@ Was die Protokolle zeigen:
 | B9 | NH-A1 bis NH-A5 nicht gebaut; BD-H | Bau; BD-H grün |
 | B10 | **AN3 widersprüchlich:** Code integriert (Migration 0108, pgTAP 109, Analyseansicht), die `eng`-Zeile steht auf `in-review`, die PO-Warteschlange führt AN3 noch als genehmigt und nicht begonnen (*Next up* Rang 2). AN3-C1 bis AN3-C3 nicht gebaut. | Der PO prüft AN3 gegen den Brief auf dem dann aktuellen Commit und bereinigt die Zeile; C1-C3 mit Tests. Bis dahin ist AN3 nicht abgenommen, gleichgültig was eine Zeile sagt |
 | BK-c | ~~Drei Datenschutzkriterien ohne Test~~: pgTAP 147 (#1403) gemergt, `ci-repeat` 44215240768 auf `d51d1c1` 20/20. **Abgenommen 18.11. 02:39 (§2).** Vor realen Personen offen: CR-224 bis CR-228, CGR-226 (b), CGR-235 (c), CGR-238 (a), (b), Staging 0136/0137 | – (Simulation); vor realen Daten die genannten Punkte |
-| BK-e | BK-e1 für die Simulation abgenommen 18.11. (21:39-Lauf, `3ea17ee`, `ci-repeat` 44393766620 20/20). Offen: BK-e2a, BK-e2b (Kriterien 5–7); vor realen Personen CGR-256, CGR-258, CGR-254, UXR-249, UXR-250 | BK-e2 bauen und abnehmen; Staging-Klickpfad |
+| BK-e | **BK-e als Ganzes für die Simulation abgenommen** 20.11. (05:39-Lauf, `8155ac6`, `ci-repeat` 44669473293 20/20); BK-e1 am 18.11. (`3ea17ee`). Vor realen Personen offen: CGR-256b, CGR-258, CGR-254, CGR-261, CGR-262, UXR-249, UXR-250, UXR-257, UXR-258, CR-239, L-1549-1 bis -4 | – (Simulation); Staging-Klickpfad; vor realen Daten die genannten Punkte |
 | B11/B12 | Staging-Migration (#1087) wartet auf das Owner-Secret; B0-6 | Owner-Handlungen |
 
 ## Änderungsprotokoll
@@ -178,3 +191,4 @@ Was die Protokolle zeigen:
 - 2026-11-17 21:39 (`po`): §3 Zeile BK-c (Abnahmeprüfung auf `ad21dd2`: Lauf grün, drei Datenschutzkriterien ohne Test, `changes-requested`).
 - 2026-11-18 02:39 (`po`): Blockakte BK-c (Teilstück von BK, für die Simulation abgenommen auf `d51d1c1`, `ci-repeat` 44215240768 20/20); §3 Zeile BK-c nachgeführt.
 - 2026-11-18 21:39-Lauf (`po`): Blockakte BK-e1 (Teil von BK-e, für die Simulation abgenommen auf `3ea17ee`, `ci-repeat` 44393766620 20/20); §3 Zeile BK-e.
+- 2026-11-20 05:39 (`po`): Blockakte BK-e2 (Teil von BK-e) und BK-e als Ganzes für die Simulation abgenommen auf `8155ac6` (`ci-repeat` 44669473293 20/20); §3 Zeile BK-e.
