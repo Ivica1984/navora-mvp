@@ -16,6 +16,59 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-20 22:36 CET: package gate review of **#1623** (HD-1 «Heim-Dienstplanung, eigenes Personal», head `1eb228a`; migrations 0159, 0160; pgTAP 158, 159, 157 catalogue; `eng` ready report 7050177132). Gate requested by the PO (FE-109, FE-110; `briefs/HD.md` Fassung 3 §4a, gate scope «Qualifikationsstatus; Unterbesetzung nie als «besetzt»»). **`cra-gate: #1623 1eb228a clear`** (gate «Simulation, synthetic data» only; not a clinical release of any staffing or qualification rule, D-27). Fixed residual list (FE-089 (3)): no new merge condition from me. New advisory CGR-267, CGR-268, CGR-269 (follow-ups; CGR-267 S1 before real data). Read on `recovery/main` `2a96141`.
+
+### What I read
+
+- Diff `recovery/main...1eb228a`: `public.institution_plan`, `institution_assign_staff`, `institution_set_staffing_rule`, `institution_add_staff`, `institution_load_example`, `private.institution_shift_days`, `private.institution_shift_span` (canonical files, in full); 0159 table checks (grade lists, staffing-rule checks, absence range); `src/features/home-plan/rules.ts` (status text, `GRADE_LABEL`, `WORKING_TIME_NOTE`, `EXAMPLE_NOTE`); `heim/page.tsx` (notes shown on cells and for planners); pgTAP 159 (R1, R2, R3 cases) by its assertions.
+- CI on `1eb228a` (check runs, all `completed`/`success`): `app` 136544581811, `db` 136544582071, `e2e` 136544581393, `ui-screenshots` 136544581981, `staging` (dry run) 136552890588, CodeQL 136545109286. `db` job log read: «159_hd1_residual_r1_r3.test.sql … ok», «Files=159, Tests=6135», «Result: PASS», «fn-source: 46 definitions in 45 files match the database», step `concurrency-home-plan` ran. `e2e` job log: «198 passed».
+- STAB1 (#1619, merged, accepted on `f7dfd2d`) was not a `cra` gate (brief STAB1: `cra` only if the snapshot shows a changed guard on a clinical function; the PO did not ask). I did not re-diff 0158 against the earlier definitions; UNKNOWN to me by my own reading, no finding.
+- I ran no NAVORA test.
+
+### Gate criteria (HD.md: `cra`)
+
+1. **Under-staffing never shown as «besetzt»: met for the data model as built (IMPLEMENTED on the head).** `status = 'ok'` only when `present >= required_total` **and** `grade_present >= required_grade_count`; `present` and `grade_present` count only `p.active and not absent` (R1, R3); the grade count is an exact code match, so no grade ordering or substitution is invented (`institution_plan.sql` lines 46–48, 66–68). pgTAP 159: inactive HF → `gap`, `present` 0, `grade_present` 0; reactivated → `ok`; absent night D-1 → D → `gap`. Residual: the result is only as true as the grade entered (CGR-267).
+2. **Qualification status: acceptable for the simulation, not yet for real staff.** HD-1 allows exactly three codes (`ags_eba`, `fage_efz`, `nurse_hf_fh`; 0159 lines 81, 97; `institution_add_staff`), while `QUALIFICATION_MATRIX.md` and CR-174 (PROPOSED) have five, including `pflegehelfer_srk` and `trained_other`, and CGR-205 (d) recorded that PH SRK is not equivalent to AGS. HD.md says the levels «stammen aus `QUALIFICATION_MATRIX.md`»: the code takes a subset (documented deviation, README rule 10 / CLAUDE.md: code has precedence, nothing changed by me). See CGR-267.
+
+### Answers to `eng`'s review questions (7050177132)
+
+1. **«Inactive never present» and «absence = whole calendar day incl. the night into it»: yes, the safe reading for a ward.** Both err toward showing a gap, never toward a false «besetzt». One known over-warning: an absence starting on D (e.g. holidays) also marks the night D-1 → D as absent, although the person usually works that last night and the absence means the day after. That is the safe direction, but it may push leads to enter absences one day late to make the night assignable; whether the home needs a «from the end of the night» start is a product question for `po` with a real home (Phase B), UNKNOWN, not a condition.
+2. **«2 von 3 · Lücke: 1 fehlt, 1 HF fehlt»: not unambiguous.** When the missing person is also the missing HF, a lead under time pressure can read two persons missing. «3 von 3 · Lücke: 1 HF fehlt» is clear. See CGR-268 (advisory, wording; `uxa` co-owns).
+3. **R2 strict (refuse any time change of a used type, also past-only): keep it strict.** Changing the times on the type would rewrite what past plans show as worked, which is a record-integrity loss; «neue Dienstart anlegen» keeps history true.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-267** | #1623 grade codes | **advisory**; S1 before real staff data (Phase B); follow-up | HD-1 accepts only `ags_eba`, `fage_efz`, `nurse_hf_fh`. A home's assistant without a listed level (Pflegehelferin SRK, other trained or untrained help, an apprentice) can only be entered under one of the three or not at all. Entered as `ags_eba`, she satisfies an AGS requirement, so a qualification shortfall shows «besetzt»; this repeats CGR-205 (d) in the home tenant. HD.md names the matrix as source; the matrix (PROPOSED) has five codes. The grade has no evidence or «set by / confirmed on» field (CR-174: active only with evidence); the audit row records who set it. | 0159 lines 81, 97; `institution_add_staff.sql` line 18; `rules.ts` `GRADE_LABEL` line 59; CR-174; CR-217 / CGR-205 (d); `HD.md` line 32 | Before real staff data: (a) the HD grade list equals the matrix codes in force (at least `pflegehelfer_srk` and `trained_other`), each counting toward `required_total` and never toward another code's `required_grade_count`; pgTAP: rule «1 AGS», assigned PH SRK → `gap`; (b) grade shows «Stufe vom Heim bestätigt am … durch …» from the audit; the evidence rule itself is D-29 (owner) and the Clinical Owner (D-27). |
+| **CGR-268** | #1623 status text | **advisory**; S3; `uxa` with `cra` | `cellStatusText` lists the total shortfall and the grade shortfall side by side («1 fehlt, 1 HF fehlt») even when they are the same person, so the text can be read as two missing. The data (`missing`, `grade_present`) are right. | `rules.ts` lines 159–170 | When the grade lack ≤ `missing`: «Lücke: 1 fehlt (davon 1 HF)»; when `missing` = 0: «Lücke: 1 HF fehlt»; when the grade lack > `missing`: «Lücke: 1 fehlt, zusätzlich 1 HF statt …» or as `uxa` words it; unit test for the three cases. |
+| **CGR-269** | #1623 one grade per rule | **advisory**; S3 (before real data a decision); follow-up | A staffing rule holds one total and one grade requirement (`required_grade`, single). A home that requires e.g. «1 HF und 1 FaGe» per shift cannot express it, so the second requirement is not watched and a shortfall in it shows «besetzt» against the rule as entered. Exact-code matching (an HF does not count for a FaGe requirement) is correct, not invented; whether a higher level may fill a lower requirement stays with the Clinical Owner (CR-217, CGR-216). | 0159 lines 96–104; `institution_set_staffing_rule.sql` | `po` decides whether HD-2/HD-3 or Phase B needs several grade lines per rule; if yes, pgTAP «1 HF + 1 FaGe, only HF present → gap». Until then the settings screen states «eine Stufe je Vorgabe». |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1623 HD-1 Heim-Dienstplanung | `1eb228a` | **`cra-gate: #1623 1eb228a clear`** · gate «Simulation, synthetic data». Under-staffing never «besetzt» on the data entered (R1, R3, exact grade); R2 strict supported; synthetic staff only (`load_example` simulation-only, cell note «Beispielwert des Heims (synthetisch), keine Vorgabe von NAVORA»); working-time law shown as not checked (`lca` OPEN); no AI in any path. CI green from the job logs above. CGR-267 to CGR-269 advisory follow-ups, not merge conditions (FE-089 (3)). Not a clinical release of staffing levels or qualification codes (D-27). |
+
+Not reviewed as gates (out of my scope or not the active block): #1630 (`aia` review 78, docs), #1625 (Next.js security update, no clinical content), #1624 (staging-smoke path 3), #1622, #1612, #1611 (docs), #1541, #1540, #1084.
+
+### Findings closed
+
+None. CGR-263 to CGR-266 stay open as BK-f follow-ups.
+
+### Decisions requested
+
+- **`po`:** place CGR-267 to CGR-269 as named HEIM-DP follow-ups; CGR-267 is a precondition before real staff data (with G-COACH and the `lca` gate before real data). Correct `HD.md` line 32 or the code so source and code agree on the grade list (README rule 10; I change neither).
+- **`uxa`:** CGR-268 wording.
+- **Owner (D-29) and Clinical Owner (UNKNOWN, D-27):** grade evidence for home staff; whether a higher level may fill a lower requirement (CR-217).
+- **`lca`:** working-time and rest-time rules (ArG) before real data (OPEN, already named in HD.md).
+
+### FE-079
+
+My sign-off on #1279 stands (renewed 2026-11-15 01:30, reservation CGR-221). `FOUNDER_DECISIONS.md` v63 (FE-108 to FE-110) and the blueprint commit `94532fc` do not change Annex B §1 or the qualification matrix; no renewal is due.
+
+---
+
 ## 2026-11-20 14:15 CET: gate review of **#1604** (BK-f tolerance row: migration 0157, pgTAP 156 plan 57; `eng` ready report 7040125921). Run started by hand by the founder («Run now») after the PO's request 7040318064 (FE-089 (2), FE-107 (2)). **`cra-gate: #1604 43d8d7d clear`** (gate «Simulation, synthetic data» only; the 15 minutes are an `lca` simulation test value, not a legal, tariff or clinical value, D-27). Fixed residual list (FE-089 (3)): no new merge condition from me. New advisory CGR-265, CGR-266 (follow-ups). Read on `recovery/main` `df616b3`.
 
 ### What I read
