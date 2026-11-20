@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ShiftOffersSection from "./shift-offers-section";
 import InvoiceDraftsSection from "./invoice-drafts-section";
-import type { TeamInvoiceRow } from "@/features/invoices/queries";
+import type { TeamInvoiceRow, TeamPriceRow } from "@/features/invoices/queries";
 import type { TeamShiftOffer } from "@/features/orders/team-queries";
 import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
 import { returnReferralFacts, returningOfferText, reviewTaskLabel, type ReturnReferralFacts } from "@/features/returning/rules";
@@ -99,6 +99,7 @@ export default function TeamClient({
   lookbackStops = [],
   shiftOffers = [],
   invoiceDrafts = [],
+  teamPrices = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -135,6 +136,8 @@ export default function TeamClient({
   shiftOffers?: TeamShiftOffer[];
   /** BK-f (0156): invoice drafts of the caller's teams (drafts, sent, void after sending, newest refusal). */
   invoiceDrafts?: TeamInvoiceRow[];
+  /** BK-f (0155): the current price per hour of each of the caller's teams. */
+  teamPrices?: TeamPriceRow[];
 }) {
   const suggestionsEntry = suggestionsLink(openSuggestions);
   const gpByCase = latestNoticeByCase(gpNotices);
@@ -183,7 +186,7 @@ export default function TeamClient({
 
         {/* BK-c2 (ADR-200; template §3): the named person's card first, then by shift start. */}
         <ShiftOffersSection offers={shiftOffers} />
-        <InvoiceDraftsSection rows={invoiceDrafts} />
+        <InvoiceDraftsSection rows={invoiceDrafts} prices={teamPrices} />
 
         {/* BD / UXR-155 (ADR-179): the /field "Zu erledigen" link lands here, named by the same constant. */}
         <h2 id={TEAM_OFFERS_ANCHOR} className="text-lg font-bold">{TEAM_OFFERS_HEADING}</h2>

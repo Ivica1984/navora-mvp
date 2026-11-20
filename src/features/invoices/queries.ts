@@ -41,6 +41,9 @@ export type ClientInvoiceRow = {
   voided_at: string | null;
 };
 
+/** BK-f (0155): the current price of one of the caller's teams (`my_team_prices()`); null when the team set none. */
+export type TeamPriceRow = { team_id: string; team_name: string; price_per_hour: number | null; currency: string | null; set_at: string | null };
+
 export type TakeInvoiceState = { state: string; refusal_reason: string | null; amount_chf: number | null };
 
 // The generated types gain these readers with the db-types-sync commit; the rows are typed here from migration 0156.
@@ -54,6 +57,16 @@ export async function getMyTeamInvoiceDrafts(): Promise<TeamInvoiceRow[]> {
     throw new Error("Rechnungsentwürfe konnten nicht geladen werden.");
   }
   return (data ?? []) as TeamInvoiceRow[];
+}
+
+export async function getMyTeamPrices(): Promise<TeamPriceRow[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await (supabase.rpc as unknown as Rpc)("my_team_prices");
+  if (error) {
+    logEvent("error", "bk_f.team_prices_failed", errorFields(error));
+    throw new Error("Stundenpreise konnten nicht geladen werden.");
+  }
+  return (data ?? []) as TeamPriceRow[];
 }
 
 export async function getClientInvoices(): Promise<ClientInvoiceRow[]> {

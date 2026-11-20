@@ -6,13 +6,15 @@
 // (Phase A); no PDF, no payment (R-12). Every function is a fixed rule; no AI model.
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { TeamInvoiceRow } from "@/features/invoices/queries";
-import { rebuildTeamInvoiceDraft, sendTeamInvoiceDraft } from "@/features/invoices/commands";
+import type { TeamInvoiceRow, TeamPriceRow } from "@/features/invoices/queries";
+import { rebuildTeamInvoiceDraft, sendTeamInvoiceDraft, setTeamPrice } from "@/features/invoices/commands";
 import {
   canRetry,
   formatChf,
   formatHours,
   INVOICE_LABEL,
+  parsePrice,
+  PRICE_LABEL,
   refusalLine,
   SEND_BUTTON,
   SEND_HINT,
@@ -26,13 +28,16 @@ function day(iso: string | null) {
   return `${d}.${m}.${y}`;
 }
 
-export default function InvoiceDraftsSection({ rows }: { rows: TeamInvoiceRow[] }) {
+export default function InvoiceDraftsSection({ rows, prices = [] }: { rows: TeamInvoiceRow[]; prices?: TeamPriceRow[] }) {
   return (
     <section aria-labelledby="invoice-drafts-heading" className="grid gap-3" data-testid="invoice-drafts">
       <h2 id="invoice-drafts-heading" className="text-lg font-bold">Rechnungsentwürfe</h2>
       <p data-testid="invoice-label" className="rounded-lg border border-amber-400 bg-amber-50 p-2 text-xs font-semibold text-amber-950">
         {INVOICE_LABEL}
       </p>
+      {prices.map((p) => (
+        <TeamPriceForm key={p.team_id} price={p} />
+      ))}
       {rows.length === 0 && (
         <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-4 text-sm">
           Noch kein Rechnungsentwurf. Er entsteht von selbst, sobald ein Bericht einer übernommenen Schicht unterschrieben ist.
@@ -114,5 +119,51 @@ function InvoiceDraftCard({ row }: { row: TeamInvoiceRow }) {
       )}
       {error && <p role="alert" className="text-xs font-semibold text-red-800">{error}</p>}
     </article>
+  );
+}
+
+/** Contract point 2 (a): the team sets its own standing price per hour; no NAVORA value, labelled as an example. */
+function TeamPriceForm({ price }: { price: TeamPriceRow }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const inputId = `team-price-${price.team_id}`;
+
+  async function save(form: FormData) {
+    const value = parsePrice(String(form.get("price") ?? ""));
+    if (value === null) {
+      setMessage({ kind: "error", text: "Bitte einen Preis zwischen 0 und 1000 CHF mit höchstens zwei Nachkommastellen eingeben." });
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    const res = await setTeamPrice({ teamId: price.team_id, price: value, idempotencyKey: crypto.randomUUID() });
+    setBusy(false);
+    setMessage(res.ok ? { kind: "ok", text: "Preis gespeichert. Er gilt für Schichten, die ihr ab jetzt übernehmt." } : { kind: "error", text: res.error });
+    router.refresh();
+  }
+
+  return (
+    <form action={save} aria-label={`Stundenpreis ${price.team_name}`} data-testid="team-price" className="grid gap-1 rounded-2xl bg-white p-3 text-sm">
+      <p className="font-semibold">
+        Stundenpreis {price.team_name}:{" "}
+        <span data-testid="team-price-current">{price.price_per_hour === null ? "noch keiner" : formatChf(price.price_per_hour)}</span>
+      </p>
+      <p className="text-xs text-secondary">{PRICE_LABEL}</p>
+      <div className="flex flex-wrap items-end gap-2">
+        <label htmlFor={inputId} className="grid gap-1">
+          <span className="text-xs font-semibold">Neuer Preis pro Stunde (CHF)</span>
+          <input id={inputId} name="price" inputMode="decimal" required className="min-h-11 w-32 rounded-lg border border-stone-300 bg-white px-2" />
+        </label>
+        <button type="submit" disabled={busy} data-testid="team-price-save" className="min-h-11 rounded-lg border border-emerald-800 px-4 font-semibold text-emerald-900 disabled:opacity-60">
+          Preis speichern
+        </button>
+      </div>
+      {message && (
+        <p role={message.kind === "error" ? "alert" : "status"} className={`text-xs font-semibold ${message.kind === "error" ? "text-red-800" : "text-emerald-900"}`}>
+          {message.text}
+        </p>
+      )}
+    </form>
   );
 }

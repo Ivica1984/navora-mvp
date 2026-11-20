@@ -125,3 +125,17 @@ export const CLIENT_VOID_TEXT = "Ungültig: Das Team hat den Bericht korrigiert.
 
 export const SEND_BUTTON = "Bestätigen und senden";
 export const SEND_HINT = "Der Auftraggeber sieht die Rechnung danach unter «Rechnungen». NAVORA zieht kein Geld ein.";
+
+/** /team: the label next to the team's own price (contract point 2 (a), W-7). */
+export const PRICE_LABEL = "Beispielwert, kein Tarif. Euer Team legt den Preis selbst fest; NAVORA gibt keinen Wert vor.";
+
+/**
+ * The team's price per hour as typed («68», «68.50», «68,50»): CHF with at most 2 decimals, above 0 and below 1000
+ * (the same bounds as `set_team_price`, 0155, which decides again). Returns null when it is not such a number.
+ */
+export function parsePrice(text: string): number | null {
+  const t = text.trim().replace(",", ".");
+  if (!/^\d{1,3}(\.\d{1,2})?$/.test(t)) return null;
+  const n = Number(t);
+  return n > 0 && n < 1000 ? n : null;
+}

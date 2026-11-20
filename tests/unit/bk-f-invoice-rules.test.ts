@@ -8,6 +8,8 @@ import {
   formatHours,
   formatMinutes,
   INVOICE_LABEL,
+  parsePrice,
+  PRICE_LABEL,
   REFUSAL_CODES,
   refusalLine,
   refusalText,
@@ -70,5 +72,19 @@ describe("BK-f /field line after signing", () => {
     expect(stateLabel("sent", "team")).toBe("Gesendet");
     expect(stateLabel("sent", "client")).toBe("Erhalten");
     expect(stateLabel("void", "client")).toBe("Ungültig (Bericht korrigiert)");
+  });
+});
+
+describe("BK-f team price input (contract point 2 (a), 0155)", () => {
+  it("reads CHF with at most two decimals, comma or point", () => {
+    expect(parsePrice("68")).toBe(68);
+    expect(parsePrice(" 68.50 ")).toBe(68.5);
+    expect(parsePrice("68,05")).toBe(68.05);
+  });
+  it("refuses zero, 1000 and more, three decimals, signs and words", () => {
+    for (const t of ["0", "0.00", "1000", "68.505", "-5", "abc", "", "1e2"]) expect(parsePrice(t)).toBeNull();
+  });
+  it("labels the price as an example, never a tariff", () => {
+    expect(PRICE_LABEL).toContain("Beispielwert, kein Tarif");
   });
 });

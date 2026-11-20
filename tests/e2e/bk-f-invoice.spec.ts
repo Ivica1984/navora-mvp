@@ -7,14 +7,15 @@ import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
 // client sees it under «Rechnungen»; protocol counts taps from «Bericht unterschreiben» to «gesendet», team level»).
 // Synthetic local-only accounts from supabase/seed.sql (Testorganisation S, simulation):
 //   kundebs.test  client of «Testheim Rhein (synthetisch)»: orders one HF shift tonight 22:30–23:30 (60 min);
-//   pflegebs.test registered nurse of Testteam Basel (seed price 68.00, «Beispielwert, kein Tarif»): takes it, works it,
-//                 signs the report (final), then sends the draft from /team.
+//   kolleginbs.test registered nurse of Testteam Basel (seed price 68.00, «Beispielwert, kein Tarif»): takes it, works
+//                 it, signs the report (final), then sends the draft from /team. Not pflegebs: BD-2 (durchgang-ambulant)
+//                 asserts exactly two visits of pflegebs today (first CI run of this spec, job 136190356902).
 // Fixture: the time tolerance row is NOT shipped by any migration (`lca` names the simulation value at the gate). This
 // test inserts a row ONLY in the local CI database (port 54322, guarded) with the marker «e2e fixture, not a value» and
 // deletes it at the end; it sets nothing on staging or production. Times: the take is before the order's start (22:30);
 // she then works it now and corrects the recorded times with F3 «Testlauf» (the run cannot wait 60 real minutes), so
 // the signed snapshot holds 60 recorded minutes against 60 ordered (inside any tolerance). Evening window, so no
-// overlap with the BD-2 run of the same nurse (durchgang-ambulant, slots right after now).
+// overlap with the BD-2 slots right after now.
 const PASSWORD = "navora-local-only";
 const F3_REASON = "Testlauf: simulierte Einsatzdauer";
 const DB_URL = process.env.E2E_DB_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
@@ -67,9 +68,13 @@ test("BK-f at 390 px: signed take report → invoice draft on /team → one tap 
     await expect(page.getByTestId("order-done")).toContainText("Auftrag bestätigt");
     await page.context().clearCookies();
 
-    // 2. pflegebs takes it naming herself (the take copies the team price, 0155).
-    await signIn(page, "pflegebs.test@navora.test");
+    // 2. kolleginbs takes it naming herself (the take copies the team price, 0155).
+    await signIn(page, "kolleginbs.test@navora.test");
     await page.goto("/team");
+    // Contract point 2 (a): the team's own price, labelled as an example (seed 68.00, «Beispielwert, kein Tarif»).
+    const price = page.getByTestId("team-price").filter({ hasText: "Testteam Basel" });
+    await expect(price.getByTestId("team-price-current")).toHaveText("CHF 68.00");
+    await expect(price).toContainText("Beispielwert, kein Tarif");
     const offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
     await offer.getByRole("button", { name: "Übernehmen mit Pflegekraft" }).click();
     await expect(page.getByTestId("shift-offer-card").filter({ hasText: when }).last().getByTestId("shift-offer-tag")).toHaveText("Übernommen");
@@ -139,7 +144,7 @@ test("BK-f at 390 px: signed take report → invoice draft on /team → one tap 
     const mine = invoices.getByTestId("client-invoice").filter({ hasText: deDate(day) }).filter({ hasText: "CHF 68.00" });
     await expect(mine.first()).toBeVisible();
     await expect(mine.first().getByTestId("client-invoice-amount")).toHaveText("CHF 68.00");
-    await expect(invoices).not.toContainText("Pflegekraft Basel S");
+    await expect(invoices).not.toContainText("Kollegin Basel S");
     await noSidewaysScroll(page);
   } finally {
     psql(`delete from public.invoice_time_tolerances where key = 'take_invoice' and lca_ref = '${FIXTURE_REF}'`);

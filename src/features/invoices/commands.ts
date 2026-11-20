@@ -10,6 +10,7 @@ import { errorFields, logEvent } from "@/lib/log";
 
 const sendFields = z.object({ draftId: z.uuid(), idempotencyKey: z.uuid() });
 const buildFields = z.object({ reportId: z.uuid(), idempotencyKey: z.uuid() });
+const priceFields = z.object({ teamId: z.uuid(), price: z.number().positive().lt(1000), idempotencyKey: z.uuid() });
 
 export type InvoiceCommandResult = { ok: true; state?: string | null; reason?: string | null } | { ok: false; error: string };
 
@@ -55,4 +56,27 @@ export async function rebuildTeamInvoiceDraft(input: unknown): Promise<InvoiceCo
     return { ok: true, state: r.state ?? null, reason: r.reason ?? null };
   }
   return { ok: false, error: "Nur ein Mitglied des Teams, das die Schicht übernommen hat, kann das prüfen." };
+}
+
+/** BK-f (contract point 2 (a), 0155): the team sets its own standing price per hour (same right as its service area). */
+export async function setTeamPrice(input: unknown): Promise<InvoiceCommandResult> {
+  const p = priceFields.safeParse(input);
+  if (!p.success) return { ok: false, error: "Bitte einen Preis zwischen 0 und 1000 CHF mit höchstens zwei Nachkommastellen eingeben." };
+  const { supabase } = await requireUser();
+  const { data, error } = await (supabase.rpc as unknown as Rpc)("set_team_price", {
+    p_team_id: p.data.teamId,
+    p_price_per_hour: p.data.price,
+    p_idempotency_key: p.data.idempotencyKey,
+  });
+  if (error) {
+    logEvent("warn", "command.failed", { op: "set_team_price", ...errorFields(error) });
+    return { ok: false, error: "Preis nicht gespeichert." };
+  }
+  const r = (data ?? {}) as { result?: string };
+  if (r.result === "ok" || r.result === "duplicate") {
+    revalidatePath("/team");
+    return { ok: true };
+  }
+  if (r.result === "invalid") return { ok: false, error: "Bitte einen Preis zwischen 0 und 1000 CHF mit höchstens zwei Nachkommastellen eingeben." };
+  return { ok: false, error: "Nur ein Mitglied dieses Teams kann den Preis festlegen." };
 }
