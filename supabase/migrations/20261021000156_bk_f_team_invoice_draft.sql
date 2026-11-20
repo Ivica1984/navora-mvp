@@ -330,11 +330,11 @@ comment on function public.send_team_invoice_draft(uuid, uuid) is
 create or replace function public.my_team_invoice_drafts()
 returns table (id uuid, team_id uuid, team_name text, client_name text, visit_date date,
                state text, refusal_reason text, ordered_minutes numeric, recorded_minutes numeric,
-               price_per_hour numeric, amount_chf numeric, currency text, report_version integer,
+               price_per_hour numeric, amount_chf numeric, currency text, report_id uuid, report_version integer,
                created_at timestamptz, sent_at timestamptz, voided_at timestamptz, void_reason text)
 language sql stable security definer set search_path = '' as $$
   select d.id, d.team_id, t.name, ca.display_name, v.visit_date, d.state, d.refusal_reason,
-         d.ordered_minutes, d.recorded_minutes, d.price_per_hour, d.amount_chf, d.currency, d.report_version,
+         d.ordered_minutes, d.recorded_minutes, d.price_per_hour, d.amount_chf, d.currency, d.report_id, d.report_version,
          d.created_at, d.sent_at, d.voided_at, d.void_reason
   from public.team_invoice_drafts d
   join public.teams t on t.id = d.team_id

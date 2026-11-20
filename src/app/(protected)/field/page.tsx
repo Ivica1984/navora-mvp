@@ -13,6 +13,7 @@ import { getMySignals } from "@/features/signals/queries";
 import { recordPushTap } from "@/features/push/queries";
 import { getMyAssessmentsToConfirm } from "@/features/assessment/queries";
 import { carriedVisitIds, withCarriedRows } from "@/features/field/carried";
+import { getTakeInvoiceStates } from "@/features/invoices/queries";
 import FieldClient from "./field-client";
 
 // F1: the nurse's day. Mobile-first; visits of her own teams only (public.field_visits).
@@ -72,6 +73,13 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getSafetyAlertHistory(prevDay),
   ]);
   const byVisit = (r: { visit_id: string | null }) => r.visit_id;
+  // BK-f (0156): the one invoice line under a signed taken shift (display only; never blocks the card or the signature).
+  const allReports = withCarriedRows(reports, prev?.[1] ?? [], carried, byVisit);
+  const invoiceStates = await getTakeInvoiceStates(
+    visits
+      .filter((v) => v.from_take === true && allReports.some((r) => r.visit_id === v.visit_id && r.status === "final"))
+      .map((v) => v.visit_id),
+  );
 
   return (
     <FieldClient
@@ -82,7 +90,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       nextDay={shiftDay(day, 1)}
       visits={visits}
       notes={withCarriedRows(notes, prev?.[0] ?? [], carried, byVisit)}
-      reports={withCarriedRows(reports, prev?.[1] ?? [], carried, byVisit)}
+      reports={allReports}
       quality={withCarriedRows(quality, prev?.[2] ?? [], carried, byVisit)}
       qualityTypes={qualityTypes}
       statusNotes={withCarriedRows(statusNotes, prev?.[3] ?? [], carried, byVisit)}
@@ -103,6 +111,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       unqualifiedTeams={unqualifiedTeams}
       assessmentsToConfirm={assessmentsToConfirm}
       openTeamOffers={openTeamOffers}
+      invoiceStates={invoiceStates}
     />
   );
 }
