@@ -25,3 +25,11 @@ export function versionLine(v: AppVersion): string {
   const db = v.migration ? v.migration.slice(-4) : "unbekannt";
   return `Version ${commit} · Datenbank ${db}`;
 }
+
+/**
+ * The two values as the running app sees them. Written literally on purpose: Next inlines `process.env.NAVORA_MIGRATION`
+ * (set in next.config.ts at build time) only where it appears like this; `RENDER_GIT_COMMIT` is a runtime variable.
+ */
+export function buildVersionEnv(): Record<string, string | undefined> {
+  return { RENDER_GIT_COMMIT: process.env.RENDER_GIT_COMMIT, NAVORA_MIGRATION: process.env.NAVORA_MIGRATION };
+}

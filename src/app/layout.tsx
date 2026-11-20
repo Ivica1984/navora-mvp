@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { connection } from "next/server";
-import { appVersion, versionLine } from "@/lib/version";
+import { appVersion, buildVersionEnv, versionLine } from "@/lib/version";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         {/* Q1 (a), ADR-220: which app commit and database level this is, so a tester can name what she saw. */}
         <footer data-testid="app-version" className="mt-auto px-4 py-2 text-center text-xs text-secondary">
-          {versionLine(appVersion(process.env))}
+          {versionLine(appVersion(buildVersionEnv()))}
         </footer>
       </body>
     </html>

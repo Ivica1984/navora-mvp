@@ -27,3 +27,19 @@ describe("Q1 (a) version (ADR-220)", () => {
     expect(isPublicPath("/api/versions")).toBe(false);
   });
 });
+
+describe("Q1 (a) build-time migration level reaches the running app (ADR-220 fix)", () => {
+  // Staging 2026-11-20 (staging-version run 44682756909): /api/version gave the commit but no migration, because
+  // Next replaces `process.env.NAVORA_MIGRATION` only where it is written literally; passing `process.env` as an object
+  // reads the runtime environment, where the build value does not exist. The readers must use `buildVersionEnv()`.
+  it("route and footer read the version through the literal build-time accessor", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("src/lib/version.ts", "utf8");
+    expect(src).toMatch(/NAVORA_MIGRATION:\s*process\.env\.NAVORA_MIGRATION/);
+    for (const f of ["src/app/api/version/route.ts", "src/app/layout.tsx"]) {
+      const s = readFileSync(f, "utf8");
+      expect(s, f).not.toContain("appVersion(process.env)");
+      expect(s, f).toContain("appVersion(buildVersionEnv())");
+    }
+  });
+});
