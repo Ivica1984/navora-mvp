@@ -60,6 +60,12 @@ describe("STAB1 (d) permission and guard snapshot", () => {
     expect(sql).toContain("'public.f(p_id uuid): keeps «access_ended»'");
     expect(sql).toContain("pg_get_function_identity_arguments(p.oid) = 'p_id uuid'");
   });
+  it("reads SECURITY DEFINER when it shares the line with STABLE (bootstrap run 44726501879, 6 false «absent»)", () => {
+    const stable = file.replace("\n SECURITY DEFINER\n", "\n STABLE SECURITY DEFINER\n");
+    expect(parseFile("public.f", stable)[0].definer).toBe(true);
+    const invoker = file.replace("\n SECURITY DEFINER\n", "\n STABLE\n");
+    expect(parseFile("public.f", invoker)[0].definer).toBe(false);
+  });
   it("refuses a file without the explicit revoke (default PUBLIC execute)", () => {
     const open = file.replace(/^revoke all .*$/m, "");
     expect(() => parseFile("public.f", open)).toThrow(/default PUBLIC execute is refused/);

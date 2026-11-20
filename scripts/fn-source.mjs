@@ -127,14 +127,18 @@ export function parseFile(name, text) {
   }
   if (out.length === 0) throw new Error(`${name}.sql: no signature line`);
   return out.map((d) => {
-    const body = d.body.join("\n");
+    // Header = the lines pg_get_functiondef prints before the body («AS $function$»); a property is read there only,
+    // never from the body text. Attributes share a line (« STABLE SECURITY DEFINER»), so match the word, not the line.
+    const end = d.body.findIndex((l) => /^AS \$/.test(l));
+    if (end < 0) throw new Error(`${d.signature}: no «AS $…$» body line`);
+    const header = d.body.slice(0, end);
     if (!d.revoked) throw new Error(`${d.signature}: no explicit «revoke all … from public, anon, authenticated, service_role» (default PUBLIC execute is refused)`);
     return {
       name: d.name,
       args: d.args,
       signature: d.signature,
-      definer: body.includes("\n SECURITY DEFINER\n"),
-      emptySearchPath: body.includes("\n SET search_path TO ''\n"),
+      definer: header.some((l) => /^ (?:[A-Z]+ )*SECURITY DEFINER(?: [A-Z]+)*$/.test(l)),
+      emptySearchPath: header.includes(" SET search_path TO ''"),
       grantees: d.grantees,
     };
   });
