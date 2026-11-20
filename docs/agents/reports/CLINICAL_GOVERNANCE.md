@@ -16,6 +16,61 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-20 11:50 CET: package gate review of **#1581** (BK-f «Rechnungsentwurf aus dem unterschriebenen Bericht», head `ba19210`; migrations 0154, 0155, 0156; `eng` ready report 7037015711). One gate window, started by `po` under FE-089 (2) and FE-097 §4a (gate start 2026-11-20 11:4x). Contract: `briefs/BK.md` §PO package contract 2026-11-20 06:39 point 6 (`cra`: draft only from the signed version; correction voids; hold blocks; signature never blocked by billing), cut 08:39, amendments 09:30, 09:39. Fixed residual list (FE-089 (3)): no new merge condition from me.
+
+### What I read
+
+- Diff `recovery/main...ba19210` (29 files). Read in full: `supabase/migrations/20261021000156_bk_f_team_invoice_draft.sql`; the BKF-F1 parts and header of `20261021000154_bk_f_j5_skips_take_visits.sql`; pgTAP `154` and `156` (all sections); `20261021000020_quality_events_and_holds.sql` (hold table, `visit_has_open_hold`) and `20261021000043_csr1_j5_signed_billing.sql:280-322` (J5 hold-follow triggers) for comparison; current `private.is_team_member` (LEAVE1-3 guard).
+- CI on `ba19210` (check runs, all `completed`/`success`): `app` 136218534468, `db` 136218614176, `e2e` 136218589319, `ui-screenshots` 136218531464, `staging` 136224749635, CodeQL 136212944129 / 136212386144. Job logs read: `db` applies 0154, 0155, 0156; «154_bk_f_j5_skips_take_visits.test.sql … ok», «155_bk_f_team_price.test.sql … ok», «156_bk_f_team_invoice_draft.test.sql … ok», «Files=156, Tests=5565», «Result: PASS»; `e2e` «193 passed».
+- BKF-F1 red first: `db` job 136123116685 on `4c247b0` (failure): «154_bk_f_j5_skips_take_visits.test.sql (Tests: 3 Failed: 1)», «have: 23502», «Result: FAIL». Green on `ba19210` as above.
+- I ran no NAVORA test.
+
+### Answers to `eng`'s review questions
+
+1. **Draft only from the `final` version, minutes from its snapshot: yes (IMPLEMENTED on the head).** `private.take_invoice_build` (0156 §3) refuses `not_signed` unless `r.status = 'final'`, refuses `superseded` when a `final` successor exists, takes `recorded` from `private.snapshot_times(r.snapshot).care_minutes_exact`, and stores `report_id`, `report_version` and `report_snapshot_hash`. Price from `order_take_prices` (0155 snapshot), amount `round(recorded * price / 60, 2)` (multiply first, BKF-F2). Tests: pgTAP 156 §3 (`not_signed`), §4 (238 minutes «from the signed snapshot», version and hash named, 285.60), §8b (238.53 tie).
+2. **Superseding `final` voids the draft, also after «gesendet»: yes.** `private.take_report_final_invoice` (AFTER trigger on `visit_reports`) sets the take's `draft`/`sent` rows to `void`/`report_corrected` in the same transaction, then builds the new version; the guard admits only `draft → sent`, `draft → void`, `sent → void`. `client_invoices()` keeps a sent-then-voided invoice visible. Test: pgTAP 156 §7 (sent invoice → `void/report_corrected`; new draft on version 2; client reads `void`). One gap in the failure branch: CGR-264.
+3. **Open quality hold refuses the draft: yes, at build.** `on_hold` when a hold on the visit has `lifted_at is null`; the signature stands. Test: pgTAP 156 §8 (hold inserted, M1 signs o3 → `final`, refusal `on_hold`). **Not checked at send:** a hold opened after the draft was built does not stop «Bestätigen und senden» (CGR-263, advisory, follow-up).
+4. **A failing build never blocks or rolls back the signature: yes.** The build runs inside its own exception block in an AFTER trigger; on any error `take_invoice_build_failed` stores `build_failed` and itself swallows errors. Test: pgTAP 156 §8 (forced `check` constraint → o4 report `final`, refusal `build_failed`). Residual: `pg_advisory_xact_lock` waits for a concurrent build of the same take, and `query_canceled` (statement timeout) is not caught by `when others`; both can only delay, not roll back a successful signature into a silent state. Note only, no finding.
+
+**BKF-F1:** `build_billable_fact` returns null for `v.case_id is null` and the J5 month loop selects only `v.case_id is not null` (0154, the two marked lines); pgTAP 154 red first (23502) then green. A BK take visit no longer reaches the KLV-modelled J5 path (D-44, BK-10). IMPLEMENTED on the head. I compared only the two marked additions, not the whole re-created text against the earlier definition; that the rest is unchanged rests on the CI suite (5565 tests, all earlier J5 pgTAP green).
+
+### Gate status
+
+| Item | Head | Gate |
+|---|---|---|
+| #1581 BK-f invoice draft from the signed report | `ba19210` | **`cra-gate: #1581 ba19210 clear`** · gate «Simulation, synthetic data». My four contract points are met as built (answers 1–4 above, with tests); BKF-F1 met (red first, then green). Advisory CGR-263 and CGR-264 go to named follow-up items, not merge conditions (FE-089 (3)); both are conditions before «released for real persons and data». Not a clinical approval (D-27); no tariff, rounding, tolerance or legal value set by me. |
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-263** | #1581 send path | **advisory**; S2 (before real data); follow-up | «Bestätigen und senden» does not re-check the build conditions. `send_team_invoice_draft` checks only take-team membership and `state = 'draft'`. A quality hold opened on the visit **after** the draft was built, or a correction of the report that is open but not yet `final`, does not stop sending; the client then receives an invoice for a visit under review. This differs from the platform's existing J5 rule, where a hold set later withdraws billability (`billable_fact_follow_hold`, 0043:315-322), and from the J5 «latest version only» check, which counts any non-withdrawn successor (0154 month loop). In BK-f the build refuses `on_hold` only at build time. Simulation only; no money moves (FE-078). | 0156 §5 `send_team_invoice_draft`; 0156 §3 `on_hold` at build only; pgTAP 156 has no case «hold after draft, then send» | `send_team_invoice_draft` refuses `on_hold` when `private.visit_has_open_hold(d.visit_id)` and `correction_open` when a non-withdrawn successor of `d.report_id` exists (or: a hold insert voids or blocks the live draft, as J5 does). pgTAP: build draft → set hold → send rejected `on_hold` → lift → send ok; open correction → send rejected. Proposed as follow-up item **BK-f-F3** (owner `po` to name). |
+| **CGR-264** | #1581 correction void, failure branch | **advisory**; S3 | The void step in `take_report_final_invoice` swallows its own error (`exception when others then null`). If it fails, the older draft or sent invoice stays live on the superseded version with no visible reason, and the next build refuses `already_drafted`, which names the wrong cause. The contract says refusals are never silent (BK-8n, BK-9n). Low likelihood (the guard admits `→ void`), but it is the one silent branch. | 0156 §4 inner `begin … exception when others then null; end` around the `update … set state = 'void'` | In that handler, store a refusal for the new version with its own reason (e.g. `void_failed`) so `/team` and `/field` show it; pgTAP with a forced void failure (pattern of the forced `build_failed` case). |
+
+### Gate-window question: BK-f-F1 «Abweichung bestätigen» (AUT-162), not a condition
+
+My reading for the follow-up package (recommendation, not a decision; owner of the rule `lca` and `cra` as named by the PO, clinical part Clinical Owner):
+
+- (a) The signed report is never changed by the confirmation; the confirmation is its own record (reason, confirming person, both minute values, report version and hash). Agreed with the PO cut 08:39.
+- (b) The client view states that a deviation was confirmed and shows ordered and recorded minutes.
+- (c) **A recorded duration well below the ordered one is also a care signal,** not only a billing one: the client may have received less care than ordered (shift cut short, carer called away). Today `times_disagree` is visible only in the invoice list. Before real data the shortfall should reach the team's coverage or quality view, whatever happens to the invoice (H-53). Whether a shortfall needs a clinical follow-up, and from what size: UNKNOWN, Clinical Owner (D-27); I set no threshold.
+- (d) Whether a second person must confirm (four-eye): UNKNOWN, `lca` and founder, before real data (the contract already lists four-eye for invoices as OPEN).
+- (e) No confirmation while a hold is open on the visit (same reason as CGR-263).
+
+### Findings closed / status
+
+- **CGR-210 (a), (b): met on #1581 `ba19210`** (draft names version and snapshot hash; correction voids and redrafts; times beyond the tolerance refuse with the reason shown; pgTAP 156 §4, §7, §8). They close on merge. **CGR-210 (c):** met as built for Phase A (`client_invoices()` returns no member name and no tag; pgTAP 156 §0 result-type check); confirmation is `lca`'s gate point (4). Closes on merge for the simulation; real-data part stays with `lca`.
+- **BKF-F1** (`eng`'s finding): met on the head, closes on merge.
+- Unchanged and open: CR-239, CGR-261, CGR-262, CGR-213 (b) (iii), CGR-204 (c), CGR-205, CGR-207 to CGR-209, CGR-212.
+
+### Decisions requested
+
+- **`po`:** merge #1581 when the other gates (`lca` mandatory, `uxa`) are in; name CGR-263 as follow-up **BK-f-F3** and CGR-264 beside it; BK-f acceptance still needs `ci-repeat` 10/10 and the tolerance row (amendment 09:39 (2)). Merge this governance PR.
+- **`lca`:** the simulation tolerance value (contract 2 (d)); four-eye for invoice and for «Abweichung bestätigen» (UNKNOWN).
+- **Clinical Owner (when named, D-27):** whether a recorded shortfall against the ordered duration needs a clinical follow-up (H-53).
+
+---
+
 ## 2026-11-20 03:45 CET: gate re-check of **#1572** (BK-e AUT-152: `cra` simulation stop-rule row, migration 0153, pgTAP 153 pin; pgTAP 151 setup change; `eng` ready report 7028505271). Run started once by `po` under FE-089 (2) (gate start 03:4x, residual list BK.md §PO amendment 2026-11-20 02:39 (1)). Scope as I set it on 2026-11-19 21:45 and as `eng` asked (AUT-50): the row and its pin, nothing else. **`cra-gate: #1572 499ca34 clear`** (gate «Simulation, synthetic data» only; a simulation test parameter, not a clinical threshold, not a clinical release, D-27). No new finding. Read on `recovery/main` `75ccf10` (merge base of the head).
 
 ### What I read
