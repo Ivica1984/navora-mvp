@@ -208,3 +208,4 @@ Was die Protokolle zeigen:
 - 2026-11-18 21:39-Lauf (`po`): Blockakte BK-e1 (Teil von BK-e, für die Simulation abgenommen auf `3ea17ee`, `ci-repeat` 44393766620 20/20); §3 Zeile BK-e.
 - 2026-11-20 05:39 (`po`): Blockakte BK-e2 (Teil von BK-e) und BK-e als Ganzes für die Simulation abgenommen auf `8155ac6` (`ci-repeat` 44669473293 20/20); §3 Zeile BK-e.
 - 2026-11-20 15:39 (`po`): Blockakte BK-f (Teilstück von BK, für die Simulation abgenommen auf `40a2ce1`, `ci-repeat` 44746720886 20/20); §3 Zeile BK-f.
+- 2026-11-20 ca. 16:00 (`po`, Live-Sitzung): BK-f für die Simulation abgenommen auf `40a2ce1`.
