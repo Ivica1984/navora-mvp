@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { SMOKE_EMAILS, smokeAccounts, smokeDayOffsets, smokePath3Slot, stagingTarget } from "../staging-smoke/target";
+import {
+  busyFromOrderLines,
+  SMOKE_EMAILS,
+  smokeAccounts,
+  smokeDayOffsets,
+  smokePath3Slot,
+  stagingTarget,
+} from "../staging-smoke/target";
+
+const minuteOf = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+const busyInterval = (s: { from: string; to: string }): [number, number] => [minuteOf(s.from), minuteOf(s.to)];
 
 // ADR-205: where the staging smoke may run, with which accounts, on which days. Guards, not a skip: every refusal throws.
 const PW = { STAGING_SMOKE_PW_KUNDEBS: "a", STAGING_SMOKE_PW_PFLEGEBS: "b", STAGING_SMOKE_PW_PFLEGE: "c" };
@@ -69,22 +79,48 @@ describe("smokePath3Slot", () => {
   // 44777149305 reached path 3 about this far apart.
   const at = (hh: number, mm: number) => Date.UTC(2026, 10, 20, hh - 1, mm);
   it("gives two runs a few minutes apart different shifts (staging-smoke 44777149305)", () => {
-    const a = smokePath3Slot(at(17, 53));
-    const b = smokePath3Slot(at(17, 58));
+    const a = smokePath3Slot(at(17, 53), []);
+    const b = smokePath3Slot(at(17, 58), []);
     expect(a.from).not.toBe(b.from);
     expect(a.to).not.toBe(b.to);
   });
   it("gives every minute of the day its own start", () => {
-    const starts = new Set(Array.from({ length: 60 }, (_, i) => smokePath3Slot(at(10, 0) + i * 60_000).from));
+    const starts = new Set(Array.from({ length: 60 }, (_, i) => smokePath3Slot(at(10, 0) + i * 60_000, []).from));
     expect(starts.size).toBe(60);
   });
   it("starts 20 minutes after the current minute, lasts 10 minutes, today in Zurich", () => {
-    expect(smokePath3Slot(at(17, 53) + 59_000)).toEqual({ day: "2026-11-20", from: "18:13", to: "18:23" });
+    expect(smokePath3Slot(at(17, 53) + 59_000, [])).toEqual({ day: "2026-11-20", from: "18:13", to: "18:23" });
+  });
+  // STAB1-F3 root cause (raw data, staging 2026-11-20): the run on f7dfd2d0 did not find a second card at all. Its order
+  // 2c718c3c (18:20–18:30) got NO offer: order_exclusions «no_member_available» for Testteam Basel, because the demo
+  // nurse held the live take of the earlier run's order b42c7fb3 for the same slot (order_member_step step 3, the
+  // overlap rule CGR-224). A start that is merely different is not enough: the slot must not OVERLAP an earlier slot.
+  it("gives a run 4 minutes after another a slot that does not overlap the earlier one (STAB1-F3)", () => {
+    const first = smokePath3Slot(at(17, 54), []);
+    const busy = [busyInterval(first)];
+    const second = smokePath3Slot(at(17, 58), busy);
+    expect(minuteOf(second.from)).toBeGreaterThanOrEqual(minuteOf(first.to));
+  });
+  it("skips every busy interval of today, also back to back and crossing midnight", () => {
+    const busy: Array<[number, number]> = [[18 * 60 + 14, 18 * 60 + 24], [18 * 60 + 24, 18 * 60 + 34], [22 * 60, 24 * 60]];
+    expect(smokePath3Slot(at(17, 54), busy)).toEqual({ day: "2026-11-20", from: "18:34", to: "18:44" });
+    expect(smokePath3Slot(at(17, 20), busy)).toEqual({ day: "2026-11-20", from: "17:40", to: "17:50" });
+    expect(() => smokePath3Slot(at(21, 45), busy)).toThrow(/no free 10-minute slot/);
+  });
+  it("reads busy intervals of today from the client's order sentences (client_orders, request_title)", () => {
+    const lines = [
+      "Schichtauftrag · HF · Fr 20.11.2026 18:20 – Fr 20.11.2026 18:30 (0 Std. 10 Min.) · 4051 Basel",
+      "Schichtauftrag · HF · Do 19.11.2026 22:00 – Fr 20.11.2026 07:00 (9 Std.) · 4051 Basel",
+      "Schichtauftrag · HF · Fr 20.11.2026 22:00 – Sa 21.11.2026 07:00 (9 Std.) · 4051 Basel",
+      "Schichtauftrag · HF · Sa 21.11.2026 07:00 – Sa 21.11.2026 15:00 (8 Std.) · 4051 Basel",
+      "Gedeckt · Testteam Basel",
+    ];
+    expect(busyFromOrderLines(lines, "2026-11-20")).toEqual([[1100, 1110], [0, 420], [1320, 1440]]);
   });
   it("refuses outside 00:30–23:20 Zurich", () => {
-    expect(() => smokePath3Slot(at(0, 29))).toThrow(/between 00:30 and 23:20/);
-    expect(() => smokePath3Slot(at(23, 21))).toThrow(/between 00:30 and 23:20/);
-    expect(smokePath3Slot(at(0, 30)).from).toBe("00:50");
-    expect(smokePath3Slot(at(23, 20))).toEqual({ day: "2026-11-20", from: "23:40", to: "23:50" });
+    expect(() => smokePath3Slot(at(0, 29), [])).toThrow(/between 00:30 and 23:20/);
+    expect(() => smokePath3Slot(at(23, 21), [])).toThrow(/between 00:30 and 23:20/);
+    expect(smokePath3Slot(at(0, 30), []).from).toBe("00:50");
+    expect(smokePath3Slot(at(23, 20), [])).toEqual({ day: "2026-11-20", from: "23:40", to: "23:50" });
   });
 });

@@ -68,21 +68,66 @@ export function smokeDayOffsets(runNumber: number): { day: number; night: number
   return { day: 40 + n, night: 75 + n };
 }
 
+/** A busy interval of today in minutes of the Zurich day, [from, to); `to` may be 1440 (midnight). */
+export type BusyMinutes = [number, number];
+
+const SLOT_MINUTES = 10;
+const LAST_END = 23 * 60 + 50;
+
 /**
- * Path 3 (BK-f) shift of one run: today (Europe/Zurich), 10 minutes long, starting 20 minutes after the minute of
- * `nowMs`. Path 3 must run on today (the nurse works and signs the shift), so it cannot use a day offset of its own like
- * paths 1 and 2; its start minute is what keeps one run's offer card, /field card and invoice apart from an earlier
- * run's. Since STAB1 scope (e) the smoke runs after every push to recovery/main, one run after another (concurrency
- * group, no cancel), so two runs are minutes apart: the start is per minute, never rounded to a coarser grid
- * (staging-smoke 44777149305: a start rounded to 10 minutes gave the run on f7dfd2d0 the same «20.11.2026 18:20» as the
- * run on d3b2233d four minutes earlier, and the take found the earlier, already taken card).
- * Throws outside 00:30–23:20 Zurich (the shift and its corrected times stay on one day); a refusal, never a skip.
+ * Path 3 (BK-f) shift of one run: today (Europe/Zurich), 10 minutes long, starting at the first minute from 20 minutes
+ * after `nowMs` at which the slot overlaps no `busy` interval of today. Path 3 must run on today (the nurse works and
+ * signs the shift), so it cannot use a day offset of its own like paths 1 and 2.
+ *
+ * STAB1-F3 (root cause from raw data, staging 2026-11-20; journal 2026-11-20-2210-eng): two push-triggered runs are
+ * serialised by the concurrency group and reach path 3 about 4 minutes apart. The run on f7dfd2d0 ordered 18:20–18:30
+ * like the run on d3b2233d before it; the database correctly offered it to no team (order_exclusions
+ * «no_member_available»: the demo nurse already held the live take of the same slot, order_member_step step 3, overlap
+ * rule CGR-224), so the only «20.11.2026 18:20» card was the earlier, taken one. A merely different start (#1624 head
+ * 21f011ff) still overlaps for runs less than 10 minutes apart; only a slot after every busy interval is free.
+ * `busy` is read in the real app before ordering (the client's own orders of today, `busyFromOrderLines`).
+ * Throws outside 00:30–23:20 Zurich, or when no free slot is left today; a refusal, never a skip.
  */
-export function smokePath3Slot(nowMs: number): { day: string; from: string; to: string } {
+export function smokePath3Slot(nowMs: number, busy: readonly BusyMinutes[]): { day: string; from: string; to: string } {
   const minute = zurichMinuteOfDay(nowMs);
-  const startMin = minute + 20;
-  if (startMin + 10 > 23 * 60 + 50 || minute < 30) {
+  if (minute + 20 + SLOT_MINUTES > LAST_END || minute < 30) {
     throw new Error("staging-smoke path 3: run it between 00:30 and 23:20 Zurich (the shift and its times stay on one day)");
   }
-  return { day: zurichDay(nowMs), from: hhmm(startMin), to: hhmm(startMin + 10) };
+  let start = minute + 20;
+  for (let moved = true; moved; ) {
+    moved = false;
+    for (const [a, b] of busy) {
+      if (a < start + SLOT_MINUTES && b > start) {
+        start = b;
+        moved = true;
+      }
+    }
+  }
+  if (start + SLOT_MINUTES > LAST_END) {
+    throw new Error("staging-smoke path 3: no free 10-minute slot left today before 23:50 Zurich (earlier smoke orders fill it)");
+  }
+  return { day: zurichDay(nowMs), from: hhmm(start), to: hhmm(start + SLOT_MINUTES) };
+}
+
+const ORDER_SPAN = /(\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2}) – \S+ (\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})/;
+
+/**
+ * Busy intervals of `day` (YYYY-MM-DD, Zurich) from the client's order sentences on /order (`client_orders().sentence`
+ * = the order's `request_title`, e.g. «Schichtauftrag · HF · Fr 20.11.2026 18:20 – Fr 20.11.2026 18:30 (…) · 4051 Basel»).
+ * A span from an earlier day starts at 0, one into a later day ends at 1440; lines without a span are ignored. Every
+ * order counts, taken or not: a superset of the nurse's live takes is safe (it only moves the slot later).
+ */
+export function busyFromOrderLines(lines: readonly string[], day: string): BusyMinutes[] {
+  const out: BusyMinutes[] = [];
+  for (const line of lines) {
+    const m = ORDER_SPAN.exec(line);
+    if (!m) continue;
+    const fromDay = `${m[3]}-${m[2]}-${m[1]}`;
+    const toDay = `${m[8]}-${m[7]}-${m[6]}`;
+    if (fromDay > day || toDay < day) continue;
+    const a = fromDay < day ? 0 : Number(m[4]) * 60 + Number(m[5]);
+    const b = toDay > day ? 24 * 60 : Number(m[9]) * 60 + Number(m[10]);
+    if (b > a) out.push([a, b]);
+  }
+  return out;
 }

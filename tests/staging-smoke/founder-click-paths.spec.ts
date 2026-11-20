@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
-import { smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
+import { busyFromOrderLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
 // `docs/product/FOUNDER_STAGING_UEBERSICHT.md`, in the real staging app, with the three demo accounts (FE-086b):
@@ -116,10 +116,15 @@ test("path 2: a 22:00–07:00 night taken by the nurse is one «Übernommene Sch
 test("path 3: nurse signs a worked shift → invoice draft → team sends it → client reads it under «Rechnungen» (390 px)", async ({ page }) => {
   test.setTimeout(240_000);
   await page.setViewportSize({ width: 390, height: 844 });
-  const { day, from, to } = smokePath3Slot(Date.now()); // one start minute per run, never shared with an earlier run
+  // STAB1-F3: the slot must not overlap any order of today (an earlier run's take blocks the nurse, CGR-224), so the
+  // client's own order list is read in the app first and the slot starts after every busy interval of today.
+  await signIn(page, "kunde");
+  await page.goto("/order");
+  const lines = await page.getByTestId("client-orders").locator("li").allTextContents();
+  const now = Date.now();
+  const { day, from, to } = smokePath3Slot(now, busyFromOrderLines(lines, zurichDay(now)));
   const when = `${deDate(day)} ${from}`;
 
-  await signIn(page, "kunde");
   await order(page, day, from, to);
 
   await signIn(page, "pflegeBs");
