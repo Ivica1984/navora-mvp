@@ -1,0 +1,38 @@
+name: stab1-bootstrap
+
+# STAB-1 preparation only (removed before the package PR): on a push to feature/STAB-1, apply every migration to a
+# local Supabase stack on the runner and export the canonical files of the MANIFEST functions as an artifact.
+# Reads nothing outside the runner, writes nothing outside the runner; no secret except the Docker Hub login.
+on:
+  push:
+    branches: [feature/STAB-1]
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      - name: Start local Supabase
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: scripts/ci-supabase-start.sh
+      - name: Apply migrations from scratch
+        run: supabase db reset --no-seed
+      - name: Export the canonical function files
+        run: node scripts/fn-source.mjs dump --out stab1-out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stab1-functions
+          path: stab1-out
+      - name: Stop
+        if: always()
+        run: supabase stop --no-backup
