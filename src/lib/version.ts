@@ -13,6 +13,15 @@ export function appVersion(env: Record<string, string | undefined>): AppVersion 
   return { commit: SHA.test(commit) ? commit : null, migration: MIGRATION.test(migration) ? migration : null };
 }
 
+/**
+ * The version of this running build. Next.js inlines a `next.config.ts` `env` value only where the code names it
+ * literally (`process.env.NAVORA_MIGRATION`); passing the `process.env` object reads the run-time environment, where
+ * Render sets no NAVORA_MIGRATION, so the migration level was empty on staging (staging-version red on c8339c8).
+ */
+export function runningVersion(): AppVersion {
+  return appVersion({ RENDER_GIT_COMMIT: process.env.RENDER_GIT_COMMIT, NAVORA_MIGRATION: process.env.NAVORA_MIGRATION });
+}
+
 /** Highest migration version from the file names in supabase/migrations («20261021000152_name.sql» → «20261021000152»). */
 export function highestMigration(files: readonly string[]): string | null {
   const versions = files.map((f) => /^(\d{14})_.+\.sql$/.exec(f)?.[1]).filter((v): v is string => !!v);
