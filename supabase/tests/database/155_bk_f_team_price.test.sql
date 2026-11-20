@@ -4,14 +4,14 @@
 --   * invalid values are refused with a reason; the same value twice writes no second row; append-only (no update,
 --     no delete); every change writes one audit row;
 --   * «Übernehmen» copies the current price onto the take (snapshot); a later price change never changes the take;
---     the snapshot columns cannot be updated; a team without a price takes with an empty snapshot (no NAVORA default);
+--     the snapshot row (own table) cannot be updated; a team without a price takes with an empty snapshot (no NAVORA default);
 --   * a client-only user reads no team price row (G-6);
 --   * no commission, percent or fee column (FE-078).
 -- Fixture: organisation 019, T1 (M1), T2 (M2), client kundebs …9e8, postcode 4102. Synthetic data only; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(23);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -28,11 +28,11 @@ create function pg_temp.m(n text) returns uuid language sql as $$ select ('00000
 
 -- 0. Surface ---------------------------------------------------------------------------------------------------------
 select has_table('public', 'team_prices', 'AUT-119 (b): the team price table exists');
-select has_column('public', 'order_takes', 'price_per_hour_snapshot', 'the take carries a price snapshot');
+select has_table('public', 'order_take_prices', 'the take''s price snapshot has its own table (order_takes unchanged)');
 select is((select count(*)::int from information_schema.columns
-           where table_schema = 'public' and table_name in ('team_prices')
+           where table_schema = 'public' and table_name in ('team_prices', 'order_take_prices')
              and column_name ~* '(commission|percent|fee|navora_|iban|payment|paid)'), 0,
-  'FE-078: no commission, percent, fee or payment column on team_prices');
+  'FE-078: no commission, percent, fee or payment column on team_prices or order_take_prices');
 
 -- 1. Fixture (synthetic), as the table owner ---------------------------------------------------------------------------
 insert into public.client_accounts (id, organization_id, display_name, client_kind) values
@@ -118,23 +118,24 @@ end;
 $$;
 
 select is(pg_temp.take('01', 'o1', '01', 'eeee0000-0000-4000-8155-000000000011') ->> 'result', 'ok', 'T1 takes o1');
-select is((select price_per_hour_snapshot from public.order_takes where order_id = pg_temp.oid('o1') and released_at is null),
-  72.50::numeric(8,2), 'the take carries T1''s price at the moment of the take');
+create function pg_temp.snap(k text) returns public.order_take_prices language sql as $$
+  select p.* from public.order_take_prices p join public.order_takes t on t.id = p.take_id
+  where t.order_id = pg_temp.oid(k) and t.released_at is null $$;
+select is((pg_temp.snap('o1')).price_per_hour, 72.50::numeric(8,2), 'the take carries T1''s price at the moment of the take');
 select is(pg_temp.price(pg_temp.m('01')::text, '01', 80.00, 'eeee0000-0000-4000-8155-000000000007') ->> 'changed', 'true',
   'T1 changes its price later');
-select is((select price_per_hour_snapshot from public.order_takes where order_id = pg_temp.oid('o1') and released_at is null),
-  72.50::numeric(8,2), 'a later price change never changes the taken shift');
-select throws_ok(format($$ update public.order_takes set price_per_hour_snapshot = 1 where order_id = %L $$, pg_temp.oid('o1')),
-  '42501', 'the take price snapshot is never updated', 'the snapshot cannot be updated');
+select is((pg_temp.snap('o1')).price_per_hour, 72.50::numeric(8,2), 'a later price change never changes the taken shift');
+select throws_ok(format($$ update public.order_take_prices set price_per_hour = 1 where take_id = %L $$, (pg_temp.snap('o1')).take_id),
+  '42501', 'team_prices is append-only', 'the snapshot cannot be updated');
 select is(pg_temp.take('02', 'o2', '02', 'eeee0000-0000-4000-8155-000000000012') ->> 'result', 'ok', 'T2 (no price) takes o2');
-select ok((select price_per_hour_snapshot is null and price_id is null from public.order_takes
-           where order_id = pg_temp.oid('o2') and released_at is null),
+select ok((pg_temp.snap('o2')).take_id is not null and (pg_temp.snap('o2')).price_per_hour is null,
   'no NAVORA default: a team without a price takes with an empty snapshot');
 
 -- 4. G-6: a client-only user reads no team price ------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
 set local role authenticated;
 select is((select count(*)::int from public.team_prices), 0, 'G-6: a client-only user reads no team price row');
+select throws_ok('select count(*) from public.order_take_prices', '42501', null, 'G-6: app roles read no take price snapshot directly');
 reset role;
 select pg_temp.as_owner();
 
