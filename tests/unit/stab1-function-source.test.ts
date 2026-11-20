@@ -29,7 +29,7 @@ describe("STAB-1 function source files", () => {
     expect(text).toContain("comment on function public.f(uuid) is 'it''s x';");
   });
   it("reports a lost required property", () => {
-    expect(missingRequired([{ signature: "public.f(uuid)", required: ["LEAVE1-3"] }], [{ definition: "begin end" }])).toEqual([
+    expect(missingRequired([{ name: "public.f", required: ["LEAVE1-3"] }], [{ name: "public.f", signature: "public.f(uuid)", definition: "begin end" }])).toEqual([
       "public.f(uuid): lost required «LEAVE1-3»",
     ]);
   });

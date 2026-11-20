@@ -35,10 +35,11 @@ function sqlLiteral(s) {
 
 /** Reads definition, execute grantees and comment of every manifest signature in one read-only query. */
 export function readFromDb(functions) {
-  const sigs = functions.map((f) => sqlLiteral(f.signature)).join(", ");
+  const names = functions.map((f) => sqlLiteral(f.name)).join(", ");
   const sql = `
     select coalesce(json_agg(json_build_object(
-      'signature', s.sig,
+      'name', s.name,
+      'signature', s.name || '(' || pg_get_function_identity_arguments(p.oid) || ')',
       'definition', pg_get_functiondef(p.oid),
       'acl_set', p.proacl is not null,
       'grantees', (select coalesce(json_agg(distinct case when a.grantee = 0 then 'public' else r.rolname end
@@ -46,12 +47,14 @@ export function readFromDb(functions) {
                    from aclexplode(p.proacl) a left join pg_roles r on r.oid = a.grantee
                    where a.privilege_type = 'EXECUTE' and a.grantee <> p.proowner),
       'comment', obj_description(p.oid, 'pg_proc')
-    ) order by s.ord), '[]')
-    from unnest(array[${sigs}]) with ordinality as s(sig, ord)
-    join pg_proc p on p.oid = s.sig::regprocedure`;
+    ) order by s.ord, pg_get_function_identity_arguments(p.oid)), '[]')
+    from unnest(array[${names}]) with ordinality as s(name, ord)
+    join pg_namespace n on n.nspname = split_part(s.name, '.', 1)
+    join pg_proc p on p.pronamespace = n.oid and p.proname = split_part(s.name, '.', 2)`;
   const out = execFileSync("psql", [DB, "-AtX", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8" });
   const rows = JSON.parse(out);
-  if (rows.length !== functions.length) throw new Error(`expected ${functions.length} functions, the DB has ${rows.length}`);
+  const missing = functions.filter((f) => !rows.some((r) => r.name === f.name)).map((f) => f.name);
+  if (missing.length) throw new Error(`not in the database: ${missing.join(", ")}`);
   return rows;
 }
 
@@ -77,7 +80,7 @@ export function renderFile(name, rows) {
 export function renderAll(functions, rows) {
   const byName = new Map();
   rows.forEach((r) => {
-    const n = qualifiedName(r.signature);
+    const n = r.name;
     if (!byName.has(n)) byName.set(n, []);
     byName.get(n).push(r);
   });
@@ -87,11 +90,13 @@ export function renderAll(functions, rows) {
 /** Required substrings (MANIFEST «required») that a definition lost. */
 export function missingRequired(functions, rows) {
   const problems = [];
-  functions.forEach((f, i) => {
-    for (const req of f.required ?? []) {
-      if (!rows[i].definition.includes(req)) problems.push(`${f.signature}: lost required «${req}»`);
+  for (const f of functions) {
+    for (const r of rows.filter((x) => x.name === f.name)) {
+      for (const req of f.required ?? []) {
+        if (!r.definition.includes(req)) problems.push(`${r.signature}: lost required «${req}»`);
+      }
     }
-  });
+  }
   return problems;
 }
 

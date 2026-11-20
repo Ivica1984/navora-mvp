@@ -1,32 +1,145 @@
 {
-  "comment": "STAB-1 (founder 2026-11-20, issue #1587): the BK functions whose canonical source is the file supabase/schema/functions/<schema>.<name>.sql. The file is generated from the database by scripts/fn-source.mjs and checked for drift in CI. A change to a listed function changes its file and ships the whole file in a new migration; no text patch. required: substrings every definition must keep (lost-rule guard).",
+  "comment": "STAB-1 (founder 2026-11-20, issue #1587): the BK functions whose canonical source is the file supabase/schema/functions/<schema>.<name>.sql. The file is generated from the database (every overload of the name) by scripts/fn-source.mjs and checked for drift in CI. A change to a listed function changes its file and ships the whole file in a new migration; no text patch. required: substrings every definition must keep (lost-rule guard).",
   "functions": [
-    { "signature": "private.client_order_check(uuid, date, time, time, text, text, text[], text[], numeric)", "required": [] },
-    { "signature": "public.confirm_client_order(uuid, date, time, time, text, text, text[], text[], numeric, uuid)", "required": ["begin_command"] },
-    { "signature": "public.preview_client_order(uuid, date, time, time, text, text, text[], text[], numeric)", "required": [] },
-    { "signature": "private.screen_order_reach(uuid, integer)", "required": [] },
-    { "signature": "private.screen_order_reach(uuid)", "required": [] },
-    { "signature": "public.take_order(uuid, uuid, uuid, uuid)", "required": ["begin_command", "order_take_member:", "order_member_step"] },
-    { "signature": "private.order_member_step(uuid, uuid, uuid)", "required": [] },
-    { "signature": "private.recheck_member_takes(uuid)", "required": ["order_take_member:"] },
-    { "signature": "private.recheck_takes_trigger()", "required": [] },
-    { "signature": "private.order_take_visit()", "required": ["order_take_member:"] },
-    { "signature": "private.end_take_visit(uuid)", "required": [] },
-    { "signature": "public.field_visits(date)", "required": ["LEAVE1-3"] },
-    { "signature": "public.reschedule_visit(uuid, date, time, time, text, uuid, boolean)", "required": ["begin_command"] },
-    { "signature": "public.move_visit_to_today(uuid, date, time, time, text, uuid, boolean)", "required": ["begin_command"] },
-    { "signature": "public.remove_planned_visit(uuid, uuid)", "required": ["begin_command"] },
-    { "signature": "public.propose_visit_responsible(uuid, uuid)", "required": ["begin_command"] },
-    { "signature": "public.take_open_visit(uuid, uuid)", "required": ["begin_command"] },
-    { "signature": "public.record_absence(uuid, uuid, date, date, time, time, uuid)", "required": ["begin_command"] },
-    { "signature": "public.change_absence(uuid, boolean, date, time, uuid)", "required": ["begin_command"] },
-    { "signature": "private.derived_exceptions(uuid)", "required": [] },
-    { "signature": "public.operations_exceptions()", "required": ["LEAVE1-3"] },
-    { "signature": "private.signal_recipients(uuid)", "required": [] },
-    { "signature": "public.take_signal(uuid, uuid)", "required": ["begin_command"] },
-    { "signature": "public.sign_report(uuid, uuid)", "required": ["begin_command"] },
-    { "signature": "public.correct_report(uuid, text, text, uuid)", "required": ["begin_command"] },
-    { "signature": "private.build_billable_fact(uuid, uuid)", "required": [] },
-    { "signature": "public.generate_billable_facts(date)", "required": ["LEAVE1-3"] }
+    {
+      "name": "private.client_order_check",
+      "required": []
+    },
+    {
+      "name": "public.confirm_client_order",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.preview_client_order",
+      "required": []
+    },
+    {
+      "name": "private.screen_order_reach",
+      "required": []
+    },
+    {
+      "name": "public.take_order",
+      "required": [
+        "begin_command",
+        "order_take_member:",
+        "order_member_step"
+      ]
+    },
+    {
+      "name": "private.order_member_step",
+      "required": []
+    },
+    {
+      "name": "private.recheck_member_takes",
+      "required": [
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "private.recheck_takes_trigger",
+      "required": []
+    },
+    {
+      "name": "private.order_take_visit",
+      "required": [
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "private.end_take_visit",
+      "required": []
+    },
+    {
+      "name": "public.field_visits",
+      "required": [
+        "LEAVE1-3"
+      ]
+    },
+    {
+      "name": "public.reschedule_visit",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.move_visit_to_today",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.remove_planned_visit",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.propose_visit_responsible",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.take_open_visit",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.record_absence",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.change_absence",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "private.derived_exceptions",
+      "required": []
+    },
+    {
+      "name": "public.operations_exceptions",
+      "required": [
+        "LEAVE1-3"
+      ]
+    },
+    {
+      "name": "private.signal_recipients",
+      "required": []
+    },
+    {
+      "name": "public.take_signal",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.sign_report",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.correct_report",
+      "required": [
+        "begin_command"
+      ]
+    },
+    {
+      "name": "private.build_billable_fact",
+      "required": []
+    },
+    {
+      "name": "public.generate_billable_facts",
+      "required": [
+        "LEAVE1-3"
+      ]
+    }
   ]
 }
