@@ -2,7 +2,7 @@
 id: STAB1
 title: Eine lesbare Quelle je Datenbankfunktion und Staging-Nachweis je Ablauf (technisches Stabilisierungspaket)
 author: po
-status: draft
+status: approved   # ACTIVE package since 2026-11-20 15:39 CET (BK-f accepted on 40a2ce1)
 updated: 2026-11-20
 ---
 

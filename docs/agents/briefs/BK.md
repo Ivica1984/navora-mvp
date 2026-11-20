@@ -1461,3 +1461,30 @@ PO status of BK-f: **active (contract written; `eng` builds; gate window after `
 **PO observation (follow-up candidate, not a condition):** `team_prices_read` lets every member of the organisation read every team's price in that organisation, not only their own team's. In Phase A (one simulated organisation) this is harmless. Before several independent teams share one organisation in real use, `lca` should say whether a team's price is visible to other teams (item **BK-f-F3**, owner `lca`, OPEN).
 
 **Merge:** in the run where `lca`, `cra` and `uxa` each name `ba19210` `clear` (FE-097 §4a (3)); then the `staging` job log for 0154–0156 (BK BUILD PHASE point 4). The tolerance row PR follows after the merge (amendment 09:39 (2)).
+
+## PO acceptance 2026-11-20 15:39 (BK-f; scheduled PO run, signal FE-105 (1) (d))
+
+Named integrated commit **`40a2ce1`** (`recovery/main` after #1581 `e4e02c9`, #1604 `3d67dd4` and docs-only merges; code equal to `8051283`, which Render serves on staging). Gate: **«Simulation, synthetic data»**. The PO read raw job logs and did not run tests.
+
+| Criterion (contract 06:39) | Result | Evidence |
+|---|---|---|
+| 1 flow on staging: sign → draft → one tap → client «Rechnungen», label on every view | met | `staging-smoke` 44744533079 on `8051283`, job 136316309345, 4/4 incl. path 3 (390 px); `staging-version` 44744242201 (Render `8051283`, DB `20261021000157`) |
+| 2 (a) team price, snapshot at the take | met | pgTAP 155 «ok» in all ten `db` attempts of `ci-repeat` 44746720886 |
+| 2 (b)–(g) draft built at `final`, never blocks the signature; refusals with reason; tolerance row (none → refused; 15 min simulation value by `lca`, #1604); correction voids; send by take-team member; client reads only own sent drafts, no name or tag | met | pgTAP 156 «ok» ×10; e2e `bk-f-invoice.spec.ts:44` ×10; migration 0157 applied by `staging` job 136315164205 |
+| 2 (h) BKF-F1: J5 skips take visits, red first | met | pgTAP 154 «ok» ×10; red first on `4c247b0` (job 136123116685, per ready report 7037015711) |
+| 2 (i) G-6 client reads no configuration row | met | pgTAP 156 (`lca` gate reading 5 on `ba19210`) |
+| 2 (j) no commission, percent, fee, IBAN, payment column | met | pgTAP 156 schema test (ready report) |
+| 5 Q8 taps from «Bericht unterschreiben» to «gesendet» | 2 taps | log line «BK-f Q8 … = 2» in every `e2e` attempt |
+| 5 acceptance run | met | `ci` 44746633595 on `40a2ce1` 5/5 `success`; `ci-repeat` 44746720886 **20/20**, `db` «Files=156, Tests=5566», «Result: PASS», 0 `# SKIP`, CGR-233 «invariant violations: 0»; `e2e` «193 passed» ×10, 0 skipped / flaky / failed; verdict 136334173381 inside the window (14:43–15:03 Zürich) |
+| 6 gates | met | `cra-gate: #1581 ba19210 clear` (7037575054), `uxa-gate: #1581 ba19210 clear` (7037583660), `lca-gate: #1581 ba19210 clear` (7039866370; 7039903365 names the 15 min tolerance test value); #1604 merged 14:14 with its own gate lines (record 7040467401) |
+| 9 AI label | met | every BK-f function is a fixed rule; no model, no test substitute for AI |
+
+**PO status of BK-f: `accepted`** (simulation only). Record in `docs/product/ABNAHMEAKTE.md` §2. Not accepted: real persons and data; everything in contract point 3. Follow-ups (not conditions): BK-f-F1, BK-f-F2, BK-f-F3, CGR-263 to CGR-266, UXR-261 to UXR-264, `staging-version` after `staging`.
+
+**What a client, team or carer can additionally operate on staging today:** carer `pflegebs` signs the report of a taken shift on `/field` and reads «Rechnungsentwurf für das Team erstellt.»; the team on `/team` sees hours × price = amount under «Rechnungsentwürfe» and sends with «Bestätigen und senden»; client `kundebs` reads it under «Rechnungen» on `/order`. App `8051283`, database `20261021000157`. Limits: example price, no tariff, no payment, no PDF, no surcharge or rounding rule; tolerance 15 min is a simulation value.
+
+**Prioritisation (step D, value order):** the run-through now reaches billing on staging (Referral → Team decision → Visit → Documentation → Billing). The biggest remaining gaps are (1) the reliability of the database logic the next packages touch (STAB1; patient safety precondition: a lost guard is a silent safety defect), (2) the nursing-home ward as a real client with its own workspace (ARCH1 H1–H3, FE-108; value 1, 2, 4), (3) AI capture of the order on a gateway (AI1, BK-d; value 5). **Next active package: STAB1** (`briefs/STAB1.md`, FE-099 (7) (d), FE-100; confirmed in the live session 15:37). After STAB1 the order AI1/BK-d versus H1 is the open founder decision of FE-108 / ARCH1 §7; the PO does not decide it.
+
+**Challenge (step E, hypothesis H-BK-f-15:39, not a condition):** two taps remain between signature and invoice, and the second («Bestätigen und senden») is a team check of a number the team cannot change. Question for `lca` and `uxa`: may a team choose, once in its settings, «Rechnungen innerhalb der Toleranz automatisch senden», keeping a one-tap «zurückziehen» until the client opens it? That would make billing zero-tap for the ordinary shift and leave the team's attention for deviations only (BK-f-F1). Value 5, 4. OPEN; candidate for a later billing package, never for STAB1.
+
+**Step G:** no new brief needed; STAB1 has an approved contract.
