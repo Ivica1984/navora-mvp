@@ -948,3 +948,9 @@ insert into public.member_profiles (organization_id, user_id, display_name, upda
 insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until) values
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'grade', 'nurse_hf_fh', 'verified', true, null),
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000009ec', 'practice_licence', null, 'verified', true, null);
+
+-- BK-f (contract 2026-11-20 06:39 point 2 (a), migration 0155): Testteam Basel's own price per hour, a SYNTHETIC
+-- EXAMPLE VALUE («Beispielwert, kein Tarif», W-7). NAVORA ships no reference value; no other team has a price.
+insert into public.team_prices (organization_id, team_id, price_per_hour, set_by, note) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', 68.00,
+   '00000000-0000-4000-a000-0000000009e6', 'Beispielwert, kein Tarif');

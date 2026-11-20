@@ -1,0 +1,62 @@
+# NAVORA Engineering: Self-Improving Memory (LEARNINGS)
+
+Founder-Auftrag FE-101 / FE-102 (2026-11-20). Owner der Datei: `eng`. Jede Rolle darf eine Lektion vorschlagen; `eng` trägt sie ein.
+
+**Pflicht (FE-101/FE-102):**
+
+1. `eng` liest diese Datei zu Beginn jedes Laufs (EACH RUN, Schritt «Read»), vor jeder Code- oder Migrationsänderung.
+2. Sobald ein CI-Test rot wird, ein Merge-Konflikt auftritt oder ein Bug behoben wird, trägt `eng` die Lektion **sofort** ein. «Sofort» heisst: im selben Lauf und auf demselben Branch wie der Fix. Ein Fix-Commit ohne Lektion ist nicht fertig.
+3. Format: genau das Muster unten. Neueste Lektion oben. Bestehende Lektionen werden nicht umgeschrieben, nur ergänzt («Nachtrag <Datum>»).
+4. Nur belegte Fakten aus Code, CI-Log oder Test (Job-ID, Datei, Migration). Keine erfundenen Regeln; medizinische, tarifliche oder rechtliche Regeln gehören nicht hierher, sondern als Entscheid an ihren Owner.
+5. Wo möglich wird eine Lektion durch einen automatischen Test oder Check abgesichert. Die Zeile «Abgesichert durch» nennt ihn, oder `OPEN`, wenn es ihn noch nicht gibt.
+
+Muster:
+
+```
+### [Datum/Issue-ID] Gelernte Lektion: <Kurztitel>
+- **Was war das Fehlerbild?** (Konkretes Symptom)
+- **Was war die technische Ursache?** (Der genaue Auslöser)
+- **Die verbindliche Lösungsregel ab jetzt:** (Das Anti-Pattern, das nie wieder wiederholt werden darf)
+- **Abgesichert durch:** (Test/Check, oder OPEN)
+```
+
+---
+
+## Lektionen (neueste zuerst)
+
+### [2026-11-20 / PR #1581, CI 44709240629] Gelernte Lektion: Knopftexte mit Personennamen nie wörtlich im Test erwarten
+- **Was war das Fehlerbild?** `e2e` auf `9d1c113` rot (Job 136196406414). `tests/e2e/bk-f-invoice.spec.ts` wartete 3 Minuten auf den Knopf «Übernehmen mit Pflegekraft», bis der Test abbrach.
+- **Was war die technische Ursache?** `src/app/(protected)/team/shift-offers-section.tsx` setzt den Knopftext aus dem Anzeigenamen der gewählten Person zusammen («Übernehmen mit <Name>»). Für `pflegebs` lautet er zufällig «… Pflegekraft», für `kolleginbs` «… Kollegin». Der Text wurde aus einem anderen Test übernommen, ohne die Quelle zu lesen.
+- **Die verbindliche Lösungsregel ab jetzt:** Bevor ein Test einen Knopf- oder Labeltext erwartet, liest `eng` die Stelle im Code, die ihn erzeugt. Enthält er Personendaten, prüft der Test das feste Wortmuster (`/^Übernehmen mit /`) und dazu den Zustand (z. B. die angewählte Option «Ich …»), nicht den Namen.
+- **Abgesichert durch:** Fix `a53d86e` (Muster statt Name); CI 44713939706, `e2e` 193/193. Allgemeiner Check OPEN.
+
+### [2026-11-20 / STAB-1, Branch feature/STAB-1] Gelernte Lektion: `ci-repeat.yml` ist aus `ci.yml` erzeugt
+- **Was war das Fehlerbild?** Nach einem neuen Schritt in `.github/workflows/ci.yml` schlugen lokal drei Unit-Tests fehl (`tests/unit/b0-2-ci-repeat.test.ts`: «the committed file is exactly what the generator renders»).
+- **Was war die technische Ursache?** `.github/workflows/ci-repeat.yml` wird von `scripts/ci-repeat.mjs` aus `ci.yml` erzeugt (B0-2). Eine Änderung nur an `ci.yml` macht die erzeugte Datei veraltet.
+- **Die verbindliche Lösungsregel ab jetzt:** Nach jeder Änderung an `ci.yml` läuft `node scripts/ci-repeat.mjs --write`, und beide Dateien kommen in denselben Commit. Vor dem Push läuft `npm test`.
+- **Abgesichert durch:** `tests/unit/b0-2-ci-repeat.test.ts` (fängt es schon heute).
+
+### [2026-11-20 / PR #1581, CI 44707414690] Gelernte Lektion: Browsertests teilen eine Datenbank: nur eigene Datensätze zählen
+- **Was war das Fehlerbild?** `e2e` auf `630d5ba` rot (Job 136190356902). `tests/e2e/durchgang-ambulant.spec.ts:407` (BD-2) erwartete «exactly the two visits of the run» und fand 3.
+- **Was war die technische Ursache?** Der neue `tests/e2e/bk-f-invoice.spec.ts` lässt für dieselbe Pflegekraft (`pflegebs.test`, Testteam Basel) einen unterschriebenen Übernahme-Einsatz um 22:30 ohne Fall (`case_id` null) in der gemeinsamen e2e-Datenbank zurück. Er bleibt zu Recht stehen, denn unterschriebene Datensätze werden nicht gelöscht. BD-2 zählte nach Team, Datum und Person, aber nicht nach dem eigenen Fall.
+- **Die verbindliche Lösungsregel ab jetzt:** Ein e2e-Test zählt oder prüft nur Datensätze, die er selbst erzeugt hat (eigene Fall-ID, eigene Auftrags-ID oder eigene synthetische Person). Nie «alle Einsätze von Person X heute» zählen. Ein neuer e2e-Test, der eine bestehende Seed-Person benutzt, muss vor dem Push gegen alle anderen Tests geprüft werden, die dieselbe Person zählen (`grep` auf die E-Mail oder die User-ID). «Flaky» ist nie die Ursache.
+- **Abgesichert durch:** Fix `986fb0a` (BD-2 zählt nur Einsätze mit Fall); CI 44711910509, `e2e` 193/193. Allgemeine Absicherung (eine synthetische Person pro Ablauftest) OPEN, Vorschlag an `po`.
+
+### [2026-11-20 / BKF-F2, PR #1581] Gelernte Lektion: Rappen-Rundung bei Schichtpreisen: zuerst multiplizieren, dann teilen
+- **Was war das Fehlerbild?** pgTAP 156 §8b (Test 50) rot: Preis 70.50 CHF/Std., 203 erfasste Minuten. «have: 238.52, want: 238.53» (CI-Job `db` 136169377310).
+- **Was war die technische Ursache?** In Migration 0156 wurde zuerst `Minuten / 60` gerechnet und dann mit dem Preis multipliziert. `203 / 60` ist ein periodischer Bruch und wird in `numeric` abgeschnitten. Dadurch lag der exakte Halbrappen-Wert 238.525 knapp darunter, und `round(…, 2)` ergab 238.52 statt 238.53.
+- **Die verbindliche Lösungsregel ab jetzt:** Geldbeträge aus Minuten immer als `round(Minuten * Preis_pro_Stunde / 60, 2)` rechnen: zuerst multiplizieren, zuletzt teilen, nur einmal am Ende runden. Nie `Minuten / 60 * Preis` und nie gerundete Zwischenwerte (z. B. gerundete Stunden) weiterverrechnen. Gerundete Stunden dienen nur der Anzeige. Jede neue Betragsformel bekommt einen pgTAP-Test auf einem Halbrappen-Grenzfall.
+- **Abgesichert durch:** pgTAP 156 §8b (Fix `c597e51`, Migration 0156 Zeile mit `round(recorded * pr.price_per_hour / 60, 2)`).
+
+### [2026-11-20 / FE-100 (1), STAB1] Gelernte Lektion: Keine Text-Patches an SQL-Funktionen
+- **Was war das Fehlerbild?** Funktionen wurden in Migrationen per Textersetzung auf ihrem eigenen Quelltext geändert (`replace()` auf `pg_get_functiondef`, Hilfsfunktion `private.leave1_patch` in Migration 0074, 9 Aufrufe). Gezählt im Code: 60 Funktionen mit Text-Patches plus 16 in der Schleife von 0074 (`docs/engineering/probes/STAB-1_PROPOSAL.md`). Der wirkliche Funktionstext stand in keiner Datei, nur in der Datenbank nach allen Migrationen.
+- **Was war die technische Ursache?** Ein Patch trifft nur, wenn der gesuchte Text exakt vorkommt. Ändert eine spätere Migration denselben Text, kann ein Patch still nichts tun oder die falsche Stelle treffen. Wer eine Funktion aus einer älteren Migrationsdatei kopiert, verliert alle späteren Patches, auch Schutzprüfungen.
+- **Die verbindliche Lösungsregel ab jetzt:** Nie wieder `replace()` oder Regex auf einem Funktionstext und nie eine Funktion aus einer alten Migrationsdatei kopieren. Eine Funktion wird nur mit einem vollständigen `create or replace` geändert: nach STAB1 aus ihrer kanonischen Datei (`supabase/schema/functions/`), bis dahin aus der Definition, die die CI-Datenbank nach allen Migrationen hält (Dump). Im PR steht der Diff gegen die vorherige Definition. `security definer`, `search_path`, Grants und Revokes, Audit und LEAVE1-Prüfung bleiben, und ein pgTAP- oder Katalogtest beweist es. Historische Migrationen werden nie umgeschrieben (Prompt TESTS 6).
+- **Abgesichert durch:** BK-f Migration 0154 als ganzes `create or replace` (`630d5ba`), pgTAP 154. CI-Drift-Check gegen die kanonischen Dateien: PLANNED in STAB1 (`docs/agents/briefs/STAB1.md`).
+
+### [2026-11-20 / LEAVE1, FE-100] Gelernte Lektion: Schutz von Zugriffsenden (LEAVE1) nie unbemerkt überschreiben
+- **Was war das Fehlerbild?** Die LEAVE1-Prüfung (Zugriff endet mit dem Ende der Anstellung) wurde in Migration 0074 per Text-Patch in bestehende Funktionen eingefügt. Bei der Neufassung von `private.build_billable_fact` und `public.generate_billable_facts` für BK-f wäre sie fast verloren gegangen: Eine Kopie aus der älteren Migrationsdatei enthält sie nicht.
+- **Was war die technische Ursache?** Die Prüfung steht nur im gepatchten Funktionstext in der Datenbank, nicht in der Datei, die die Funktion ursprünglich anlegte. Im Code heisst sie `private.access_ended(...)` (174 Aufrufe in den Migrationen), zusammen mit der restriktiven Policy `leave1_access_open` auf den Tabellen.
+  - **Abweichung zum Founder-Text:** Der Auftrag nennt `ensure_active_member`. Eine Funktion dieses Namens gibt es im Repository nicht (`grep` ohne Treffer). Die Regel gilt für die tatsächliche Prüfung `private.access_ended(...)`. UNKNOWN, ob eine Umbenennung gewünscht ist; nichts wurde umbenannt.
+- **Die verbindliche Lösungsregel ab jetzt:** Wer eine Funktion neu fasst, prüft vorher im Dump der CI-Datenbank, ob sie `private.access_ended(...)` aufruft. Die Neufassung muss diesen Aufruf an derselben Stelle behalten, ausser der Paketvertrag ändert ihn ausdrücklich. Ein pgTAP-Test beweist, dass eine beendete Mitgliedschaft weiterhin abgewiesen wird.
+- **Abgesichert durch:** 0154 enthält die LEAVE1-3-Prüfung aus 0074 im ganzen Text (`630d5ba`), pgTAP 154. Ein Katalogtest «jede Funktion der Liste ruft `private.access_ended` auf» ist PLANNED in STAB1.

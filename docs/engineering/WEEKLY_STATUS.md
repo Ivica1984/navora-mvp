@@ -31,6 +31,110 @@ Each names the cause, the date at risk, the new estimate and what is needed. M5 
 
 ---
 
+## 2026-W47 (Mon 2026-11-16 to Sun 2026-11-22) · Friday entry, Fri 2026-11-20 13:00
+
+Read at about 11:50–12:00 UTC on `recovery/main` `e6d8768` (PO merge #1597), by the GitHub API (PR list, PR comments and check runs, Actions runs of `ci`, `staging-smoke`, `staging-version` on `recovery/main`, open `agent:eng` issues), Render (service `navora-staging`, deploy list, read only) and Supabase (`list_migrations` on `navora-staging`, read only). Engineering ran no test for this entry; every CI statement is a read of a named GitHub run. This entry also covers the weekend Sat 14 to Sun 15 Nov, which came after the W46 entry (Fri 13:05).
+
+**Headline: BK-f, the first invoice draft from a signed report, is `Paket prüfbereit:` and waits only for the mandatory `lca` gate line.** `cra` and `uxa` named head `ba19210` `clear` at 11:47; the PO's start of `lca` was refused by its session permission check, so the founder is asked to start «NAVORA Legal & Compliance Agent» by hand («Run now»). Until then nothing more merges on BK-f.
+
+**Second point (date risk, not a Blueprint §10 escalation):** the BK-g window «frühestens 1.–2.12. mit Testersatz» in `BK_ROADMAP.md` §3 (v2, 18.11.) is **threatened**. Cause: the founder orders FE-099 and FE-100 (20.11.) put four packages between BK-f and BK-g: STAB1 → AI1 → BK-d «Station bestellt» → absence and cover for a ward (`NEXT_CAPABILITY.md` *Active now*, `BK.md` §PO amendment 09:30 (2)). New estimate for BK-g: **about 7–11 Dec (KW 50), Low confidence** (assumes one package per one to two working days, the pace of BK-e2 and BK-f this week, and no blocking clinical or legal question). Needed: no founder action for the risk itself; `BK_ROADMAP.md` v2 should be re-dated by the PO. **M9 Phase A 2027-03-12 (Blueprint §10) is not shown to be threatened by this week's facts (UNKNOWN beyond BK; no estimate exists yet for B2-Kern to B12).**
+
+### Contradictions found (README rule 10; documented, nothing changed)
+1. **Escalation table at the top of this file** lists M2 2026-11-27, M4, M6, M8 from pre-FE-077 plans. Blueprint V3.2 §10 (running 3.2.79) names only **M9 2027-03-12** and **M10 OPEN**. Under FE-077 and README rule 13 the table is history. This entry measures risk only against Blueprint §10 and `BK_ROADMAP.md`. Proposal for `po`: mark the table as archived. The same stale table is in the header of `IMPLEMENTATION_STATUS.md` (`eng` file; this report task does not edit it).
+2. **FE-101 to FE-104** are cited by `eng` (#1596, LEARNINGS.md) and by FE-105 (d), but are **not in `FOUNDER_DECISIONS.md`** (v55, 12:45). Source of FE-101/FE-102: the founder's live session with `eng` (journal `2026-11-20-1209-eng.md`). FE-103 and FE-104: UNKNOWN to Engineering.
+3. **FE-105 (2)** asks for «Staging: verifiziert» before the merge, but migrations reach `navora-staging` only after the merge (`ci.yml` job `staging`). The PO's safe reading (FE-105 (b): green dry run before, real apply checked after) is adopted by Engineering.
+4. `BK_ROADMAP.md` (v2, 18.11.) §0 and §8 still say «kein KI-Anbieter gewählt»; FE-094 (19.11.) chose Anthropic API direct for synthetic data on staging only. The roadmap is stale, not wrong in direction.
+
+### Active block and package
+- **Block BK** active since 13.11. 18:40 (Blueprint §8). **Slice BK-f «Rechnungsentwurf aus dem unterschriebenen Bericht»**, contract `briefs/BK.md` §PO package contract 2026-11-20 06:39 with amendments 08:39, 09:30, 09:39.
+- **State: in gates (IN REVIEW).** #1581, head `ba19210`, `Paket prüfbereit:` comment 7037015711 (11:18 CET). CI run 44713939706 on the head: `app` 136218534468, `db` 136218614176 (Files=156, Tests=5565, PASS), `e2e` 136218589319 (193 passed, 0 skipped), `ui-screenshots` 136218531464 (second attempt after a Docker port-bind failure before any test, ADR-174), `staging` 136224749635 (dry run), CodeQL 136212386144: all `success`. Gate window opened ca. 11:47 (FE-097): `cra` clear (comment 7037575054), `uxa` clear (7037583660), **`lca` missing**.
+- **Next in order (PLANNED):** tolerance-row PR after the BK-f merge (value from `lca`) → STAB1 → AI1 → BK-d → ward absence → BK-g.
+
+### Delivered this week
+**Acceptances (PO, `ABNAHMEAKTE.md` §2; all with gate «Simulation, synthetische Daten», none for real persons and data):**
+
+| Slice | Decided | Named commit | `ci-repeat` | Label |
+|---|---|---|---|---|
+| BK-b reach and hard filters | 17.11. 02:39 | `ab90875` | 43994886883 20/20 | IMPLEMENTED (accepted) |
+| BK-c take, acknowledgement, cover state, reason line | 18.11. 02:39 | `d51d1c1` | 44215240768 20/20 | IMPLEMENTED (accepted) |
+| BK-e1 taken shift in `/field`, night across midnight | 18.11. 21:39 run | `3ea17ee` | 44393766620 20/20 | IMPLEMENTED (partial of BK-e) |
+| BK-e2 report draft, «nicht übernommen» list, signature; **BK-e as a whole** | 20.11. 05:39 | `8155ac6` | 44669473293 20/20 | IMPLEMENTED (accepted) |
+
+Carried over from after the W46 entry: B1.1 (cut) accepted 13.11. 18:40 on `33523a5` (20/20); BK-a accepted 14.11. 09:39 on `634ccb7` (20/20).
+
+**Engineering PRs merged into `recovery/main`, Mon 16.11. to Fri 20.11. 12:45** (merge commit; `ci` push run on that commit: attempt 1 `success` for every line unless noted):
+- **BK-b:** #1295 CGR-220 (`ab90875`); #1335 acceptance commit note (`f50e5fa`); #1337 ADR-198 ci-repeat self-labelling (`abaddca`).
+- **BK-c:** #1342 BK-c1 (`781944f`); #1358 BK-c2 (`25d7cdf`); #1381 BK-c3 ADR draft, docs (`23c88f9`); #1388 BK-c3 (`ad21dd2`); #1403 pgTAP 147 (`a71c0bc`).
+- **Staging:** #1087 STG1 staging job, owner-directed (`e0b38a1`); #1492 ADR-205 staging smoke (`2201628`).
+- **BK-e:** #1417 BK-e1a (`3d9f1e6`); #1421 BK-e1b (`7c04240`); #1476 BK-e1c (`0ca04b6`); #1489 CGR-256 (`8532942`); #1494 BK-e2a part 1 (`e5f138f`); #1497 part 2a (`30bf219`); #1527 part 2b-1 (a) (`a411601`); #1529 (`51011c3`); #1531 (`ef0284d`); #1549 BK-e2 Abschlusspaket (`9f1d673`); #1572 AUT-152 stop-rule row (`8155ac6`).
+- **BK measures:** #1503 ADR-208 taps per order, time to «Gedeckt» (`14e16d0`).
+- **CI and quality (FE-098 Q1–Q6):** #1460 ADR-204 Docker Hub retry (`09712bb`); #1558 scorecard and ADR-218 (`0446985`); #1559 Q4 (a) local fonts (`2dff1a2`); #1560 Q6 (a) CodeQL (`1646ee0`); #1561 Q1 (a) version in the app, `/api/version`, staging match check (`f0229a4`); #1580 Q1 (a) fix (`8823e2a`).
+- **Engineering docs:** #1500 standards S1–S8 PROPOSED (`87f6f8b`); #1504 and #1523 BK-e2 plans (`6b1698c`, `fb4ff32`); #1596 `LEARNINGS.md` (`5e3e27e`; its push run was `in_progress` at read time, the next push `e6d8768` run 44730002691 is `success`).
+- **Weekend 14–15 Nov (after W46 entry):** #1238, #1246, #1252, #1257 (BK-a; merge-commit CI not re-read for this entry, UNKNOWN here; BK-a acceptance 20/20 covers `634ccb7`); #1268, #1270, #1273, #1276, #1291 (BK-b; merge-commit `ci` `success`).
+- **Red on `recovery/main` this week:** three docs-only PO merges (`f8cab84` #1367, `dfb1ad3` #1458, `31a7e0d` #1518). For #1518 the `e2e` job failed at «Start local Supabase», before any test (infrastructure). Causes of the other two: not read (UNKNOWN). Each was followed by green push runs.
+
+**Not Engineering:** 333 PRs were merged into `recovery/main` from Sat 14.11. 00:00 to Fri 20.11. 12:45 CET (GitHub search). About 50 are Engineering code or docs; the rest are PO cycles and role reviews. FE-105 (today) ends the PO's hourly docs PRs.
+
+### Operable on staging
+- **App:** Render `navora-staging`, deploy `dep-dc035267bikc739s0ka0`, commit **`e6d8768`** (= `recovery/main`), live since 12:45 CET. Region Frankfurt, Render free plan.
+- **Database:** `navora-staging` (Zurich `eu-central-2`), highest migration **0153** `bk_e_aut152_simulation_stop_rule` = highest migration on `recovery/main`. **App and database match:** yes; `staging-version` run 44730002759 on `e6d8768` `success`.
+- **Executed on staging:** **yes for click paths 1 and 2**, by automation: `staging-smoke` run 44699041140 (workflow_dispatch, 09:00 CET, on `269e4b5`), 3 of 3 passed (sign-in of each demo account; path 1; path 2 at 390 px). This is the first green run against `navora-staging` itself. Earlier runs 1–3 (18.11.) failed. No person's click-through is recorded.
+
+| Newly operable this week (IMPLEMENTED, accepted for the simulation) | Role and click path | Run on staging? |
+|---|---|---|
+| Take an offer for the team, «Bestätigen» or «Ich kann nicht»; the client reads «Gedeckt» or «Noch nicht gedeckt» (BK-c) | client `/order` → order a shift; carer `/team` → «Übernehmen mit Pflegekraft»; client `/order` → «Gedeckt» | **yes** (smoke path 1) |
+| Reason line per own team, fixed rule (BK-c3) | carer `/team` → offer card «Empfohlen für euch: …» | partly (path 1 opens the card; the line itself not asserted: UNKNOWN) |
+| Taken shift as a card in `/field`, night 22:00–07:00 as one card under «Heute» (BK-e1) | carer `/field?datum=…` | **yes** (smoke path 2) |
+| Report draft from the carer's notes, each line decided, signature (BK-e2; rule substitute, labelled) | carer `/field` → «Bericht» → notes → «Entwurf aus Notizen» → decide per line → «Bericht unterschreiben» | **no** (not in the smoke; UNKNOWN) |
+| App version and migration level visible (Q1 (a)) | any role, `/api/version` | yes (`staging-version` reads it) |
+
+**Not yet operable:** invoice draft and sending (BK-f, in gates; after merge every draft on staging is refused until the `lca` tolerance row is applied); AI order capture (BK-d); a connected model (AI1); ward view; `/platform`; one-click demo login (#1540, not placed).
+
+### AI
+- **Fixed rule:** matching (postcode distance, qualification, availability, BK-b); reason line (BK-c3); stop rule and thresholds (AUT-152, 0153); every BK-f function (amount, refusals, send). IMPLEMENTED.
+- **Test substitute (mock):** the report draft from notes (BK-e2) runs in CI with a fake provider and the S2 evaluation set; on staging it runs as the rule substitute «regelbasiert, keine KI», because the model mode is not switched on. IMPLEMENTED.
+- **Connected AI model:** **none has run.** The Claude provider path for the report draft is built (#1494, #1527, #1549; host fixed to `api.anthropic.com` by FE-094; refuses outside `navora-staging` and outside simulation organisations; kill switch; ledger without text). It is PLANNED to be enabled in package **AI1** (`briefs/AI1.md`; founder answers 20.11. ca. 09:45: provider FE-094 confirmed, cap CHF 50 per month, `lca` terms reading as a gate). No live model call is recorded on staging; whether the Render model variables are set: not read (UNKNOWN; values never read).
+
+### In review and gates
+| PR | Item | Head | CI on head | Ready report | Gate lines | Waiting |
+|---|---|---|---|---|---|---|
+| #1581 | BK-f | `ba19210` | run 44713939706, all `success` | 7037015711, 11:18 | `cra` clear, `uxa` clear, **`lca` missing** | ca. 1 h 40 min since the ready report at read time; `lca` paused, start needs the founder |
+| #1540 | DEMO1 one-click demo login (ADR-212) | `dcfa52c` | not read | none | none | open since 19.11. 16:12; not in *Active now*; base 31 merges behind |
+| #1541 | PLATFORM1 `/platform` counts (ADR-213) | `bc2a391` | not read | none | none | same; PO: later, with AUT-164 |
+| #3 | M2 `recovery/main` → `main` | `e6d8768` | – | – | – | blocked by D-7, D-8 (B0-6, owner) |
+
+**Follow-ups named in the BK-f window (not merge conditions):** BK-f-F1 (AUT-162), BK-f-F2 (AUT-163), BK-f-F3 (`team_prices_read`, PO), CGR-263 (S2: send ignores a hold opened after the draft), CGR-264 (S3: swallowed void error), UXR-261 to UXR-264.
+
+**Open `agent:eng` issues:** 21. Several are stale: #1230 still carries `active` although B1.1 was accepted on 13.11.; #1465 (staging click path) is answered by `staging-smoke` 44699041140; #1222, #1211, #1194 refer to closed work. Engineering proposes that `po` closes or relabels them (no change by this task).
+
+### Blocked
+| Item | Owner | Needed by | Safe path |
+|---|---|---|---|
+| `lca` gate line on #1581 `ba19210` | founder (start «NAVORA Legal & Compliance Agent» by hand), then `lca` | Mon 23.11. (keeps the BK-f, tolerance row, STAB1 sequence in the week) | claude.ai scheduled tasks → the `lca` task → «Run now». No secret involved |
+| Tolerance row value (simulation) for BK-f on staging | `lca` (in the gate line) | same | named in the gate line; `eng` ships it as a one-line PR |
+| AI1 activation | founder, after the AI1 ready report | when AI1 is ready (after STAB1) | Render dashboard → `navora-staging` → Environment: set the model variables named in `briefs/AI1.md` §7 (4) and a CHF 50 cap in the provider console. Never in chat, GitHub or a document |
+| B0-6 repository protection (D-7 stage 1) | owner | before B12 | GitHub → Settings → Rules (ruleset); unchanged since W46 |
+
+### Milestone and date risks (read this run)
+- **Blueprint §10 M9 2027-03-12:** in progress; BK slices a, b, c, e accepted in eight days, f in gates. No estimate exists for B2-Kern, B3, B6, B8, B5, B9, B10, B4-Rest, B1.1-2 to -5, B11, B12 (UNKNOWN). Engineering cannot say M9 is threatened, nor that it is safe.
+- **Blueprint §10 M10:** OPEN.
+- **`BK_ROADMAP.md` §3 windows:** BK-e with test substitute «Merge ca. 24.–25.11.»: **met early** (accepted 20.11.). BK-f «ca. 25.–27.11.»: **on track** (in gates 20.11.). BK-d with test substitute «frühestens Ende KW 48»: **moved** behind STAB1 and AI1 by FE-099; new estimate early KW 49 (Low). **BK-g «frühestens 1.–2.12.»: threatened** (headline). First live model run «KW 49 if provider and key by ca. 24.11.»: the provider is chosen (FE-094) and the cap is set; the date now depends on STAB1 and AI1; estimate KW 48 end to KW 49 (Low).
+
+### Architecture and platform concerns
+1. **Logic by text patch in SQL (IMPLEMENTED, being fixed):** on 20.11. a copied function lost the LEAVE1 guard; pgTAP 074 caught it (job 136125670120). STAB1 (FE-100) is the right next package; it must stay bounded (25 functions, one consolidation migration, drift check in CI).
+2. **Shared e2e database:** BD-2 counted a visit left by the new BK-f spec (`ci` 44707414690). Fixed by scoping the query (`986fb0a`); the class of error stays open for every new take spec (`LEARNINGS.md`).
+3. **Two `eng` sessions on one branch** (#1581, 08:28): no overwrite, but it cost a run. The writer-claim line is a PROPOSED working rule, not in the README.
+4. **CI infrastructure:** Docker port-bind failures (ADR-174) and Docker Hub limits still cause first-attempt failures (BK-f head, #1518). `DOCKERHUB_USERNAME` set 20.11.; effect UNKNOWN.
+5. **Staging host:** the app runs on Render Frankfurt, free plan, reachable from anywhere. Fine for synthetic data. If DEMO1 (#1540) is merged, anyone with the URL can sign in as a demo person with a public seed password; that needs an explicit PO and `lca` view before placement, and it must never coexist with real data.
+6. **Review latency is now the bottleneck, not build time:** BK-f was built and green in about 5 hours; the merge waits on a paused mandatory role.
+
+### Innovation proposals for the PO (PROPOSED, not decided)
+1. **Run `staging-smoke` automatically after every Render deploy of a code commit** (today by hand). Benefit: «executed on staging» answered with a run ID for every merge, as FE-099 (2) asks. Cost: about 3 min of Actions per code merge; the secrets exist. Way back: remove the trigger line.
+2. **Gate-window watcher:** a small workflow that, on a `Paket prüfbereit:` comment, posts one status comment and updates it with each gate line and the minutes waited (Blueprint §10 M-02/M-03). Benefit: the founder sees at once which role blocks and for how long. Cost: one workflow, no product code. Way back: delete the workflow.
+3. **Per-spec synthetic namespace in e2e:** each spec creates its own simulation team and organisation, so no test can count another test's records. Benefit: removes the BD-2 class of failures before BK-g adds many specs. Cost: about one package-day inside STAB1 or BK-g. Way back: specs keep working on the shared seed.
+
+---
+
 ## 2026-W46 (Mon 2026-11-09 to Sun 2026-11-15) · Friday entry, Fri 2026-11-13 13:05
 
 Read at about 12:00 UTC on `recovery/main` `07a5296` (PO merge #1197), using the GitHub API: PR list, `mergeable_state`, check runs on every head and merge commit named below, Actions runs on `recovery/main`, open `agent:eng` issues. Engineering ran no test for this entry; every CI statement is a read of GitHub check runs.

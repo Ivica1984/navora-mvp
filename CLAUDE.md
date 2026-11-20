@@ -11,6 +11,8 @@ docs/agents/NEXT_CAPABILITY.md        (Product Owner: was als Nächstes gebaut w
 docs/agents/IMPLEMENTATION_STATUS.md  (Engineering: Stand je Item)
 docs/agents/OPEN_DECISIONS.md         (offene Entscheide: Owner, Empfehlung, blockiert)
 docs/agents/JOURNAL.md                (Übergaben, neueste zuerst)
+docs/engineering/LEARNINGS.md         (Self-Improving Memory, FE-101/FE-102: gelernte Lektionen; Pflichtlektüre zu Beginn jedes Laufs,
+                                       vor jeder Code- oder Migrationsänderung; nach jedem roten CI-Test, Merge-Konflikt oder Bugfix sofort ergänzen)
 
 AUTONOME KOORDINATION (COORD-4): docs/agents/COORDINATION.md.
 Übergaben laufen über GitHub-Issues (Labels agent:eng, agent:po, human-decision, active, blocked, claimed),

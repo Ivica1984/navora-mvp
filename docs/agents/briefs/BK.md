@@ -1431,3 +1431,33 @@ PO status of BK-f: **active (contract written; `eng` builds; gate window after `
 - **AUT-164** (reach-to-sent measure): with `/platform` counts, later package.
 - PO comment 7033546532 on #1581. PO did not run tests.
 
+### PO amendment 2026-11-20 09:30 (founder FE-099, PO live session)
+
+1. **BK-f staging path (founder FE-099 (2), newer than the contract, README rule 10; not a PO addition):** #1581 adds the path «carer signs the report → team sees the draft → «Bestätigen und senden» → client reads it under «Rechnungen»» to `staging-smoke` (`tests/staging-smoke/`). BK-f is reported to the founder as operable only with a green `staging-smoke` run on the merge commit that includes this path and the three earlier paths. Merge conditions otherwise unchanged (contract 06:39, cut 08:39).
+2. **Order after BK-f (PO, FE-099 (3)):** STAB1 (`briefs/STAB1.md`) → AI1 (`briefs/AI1.md`, after the founder decisions in its §7) → BK-d «Station bestellt» (the PO writes its cut before it starts: a ward as client, the request captured by the model on the AI1 gateway, confirmed by a person) → absence and cover for a ward → BK-g. The slice letters stay; only the place of the two technical packages changes.
+3. **Naming deviation (not changed):** the `eng` self-assessment calls BK-d «Absenzen» and BK-g «Uhrumstellung»; in this brief BK-d is AI capture of the order and BK-g the scenario matrix with the clock-change night.
+
+### PO amendment 2026-11-20 09:39 (BK-f; scheduled PO run; no PO-added merge condition, FE-089 (3))
+
+1. **Migration 0154 (J5 functions via the patch helper):** founder FE-100 (1) («keine einzige Zeile Suchen & Ersetzen mehr»), newer than the 06:39 contract, applies to BK-f. `eng`'s proposal in issue #1587 (comment 7034490863, note 2) is the HOW and is confirmed: before `Paket prüfbereit:`, 0154 carries the complete `create or replace` text of both J5 functions, taken from the definition CI builds from all earlier migrations; behaviour unchanged, BKF-F1 pgTAP 154 stays the proof. This is a founder rule, not a new PO condition.
+2. **Time tolerance on staging (`eng` question, #1581 comment 7033651450):** contract 2 (d) and 6 stand: `lca` names the simulation test value in its gate line. `eng` delivers that row as a separate one-line PR after the BK-f merge (pattern AUT-152 / #1572), so the gate head does not move. The row is a **precondition of the BK-f acceptance and of the staging click path of point 8**, not of the BK-f merge. Until then staging shows «Kein Rechnungsentwurf: Der Zeitabgleich ist noch nicht eingerichtet.»; the ready report names this as a known limit. Amendment 09:30 (1) is unchanged: #1581 adds the invoice path to `staging-smoke`; its green run on `navora-staging` (the condition for reporting BK-f as operable) is expected only once the tolerance row is merged and applied. In CI the e2e sets its own test tolerance (pattern `tests/e2e/support/regions.ts`).
+3. AI label unchanged: every BK-f function is a fixed rule; no model. PO did not run tests.
+
+### PO review 2026-11-20 11:39 (BK-f; gate window opened; not an acceptance, no PO-added merge condition, FE-089 (3))
+
+`Paket prüfbereit:` (comment 7037015711) names head `ba19210`. The PO did not run tests; CI facts are read from check runs.
+
+| Merge condition (`PO_MERGE_PROCESS.md` §4) | Result on `ba19210` | Evidence |
+|---|---|---|
+| 1 CI green, `clean` | holds | `ci` 44713939706: `app`, `db`, `e2e` (193/193), `ui-screenshots` (attempt 2 after a Docker port bind failure before any test, ADR-174), `staging` (dry run), CodeQL all `success`; `mergeable_state` `clean` |
+| 2 `cra` | **open** | gate started 11:47 (FE-091 (p)); no `cra-gate` line on `ba19210` yet |
+| 3 `lca` (mandatory) | **open** | gate start refused by the session's permission check; founder asked to «Run now» (FE-091 (p)); no `lca-gate` line yet |
+| 4 approved brief | holds | contract 06:39, cut 08:39, amendments 09:30, 09:39 |
+| 5 no unresolved review | to be read at merge | no open role finding on #1581 at 11:39 |
+| 6 no blocked package | holds as read | no real data; no tariff, no rounding or tolerance value shipped (tolerance table empty; refusal «Der Zeitabgleich ist noch nicht eingerichtet.») |
+| 7 architecture | holds as read (diff skim, not a security review) | `team_prices`, `order_take_prices`, `invoice_time_tolerances`, `team_invoice_drafts`: RLS on, `revoke all` from app roles; only `team_prices` has a select grant, policy `is_org_member(organization_id)` plus LEAVE1-3 restrictive policy; append-only trigger; audit trigger on drafts, `audit_command` on price changes; 0154 is a full `create or replace` (FE-100 (1)); no `.github/` change |
+| `uxa` | **open** | gate started 11:47; no line yet |
+
+**PO observation (follow-up candidate, not a condition):** `team_prices_read` lets every member of the organisation read every team's price in that organisation, not only their own team's. In Phase A (one simulated organisation) this is harmless. Before several independent teams share one organisation in real use, `lca` should say whether a team's price is visible to other teams (item **BK-f-F3**, owner `lca`, OPEN).
+
+**Merge:** in the run where `lca`, `cra` and `uxa` each name `ba19210` `clear` (FE-097 §4a (3)); then the `staging` job log for 0154–0156 (BK BUILD PHASE point 4). The tolerance row PR follows after the merge (amendment 09:39 (2)).

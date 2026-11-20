@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
-import { zurichDay } from "../e2e/support/durchgang-time";
+import { hhmm, minutesBack, zurichDay, zurichMinuteOfDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
+import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
 import { smokeAccounts, smokeDayOffsets, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
@@ -12,7 +13,7 @@ import { smokeAccounts, smokeDayOffsets, type Role } from "./target";
 // Only what a person sees is asserted, never a person's name or a count of orders (staging data grow with every run;
 // the second Basel nurse of the CI seed does not exist on staging). Each run writes two synthetic orders and two takes
 // on staging, on days of its own (smokeDayOffsets); they are synthetic by construction (demo accounts, Testheim Rhein).
-// Not here: the colleague and absence paths, BK-e1c after midnight (needs a started visit at night).
+// Path 3 (BK-f) below. Not here: the colleague and absence paths, BK-e1c after midnight (needs a started visit at night).
 
 const accounts = smokeAccounts(process.env);
 const offsets = smokeDayOffsets(Number(process.env.GITHUB_RUN_NUMBER ?? 0));
@@ -104,5 +105,75 @@ test("path 2: a 22:00–07:00 night taken by the nurse is one «Übernommene Sch
   const cards = page.getByRole("article", { name: /22:00 – 07:00/ });
   await expect(cards).toHaveCount(1);
   await expect(cards.first().getByRole("heading", { level: 2 })).toHaveText(TAKE_HEADING);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
+// Path 3 (BK-f, PO amendment 2026-11-20 09:30 (1)): the nurse works a short shift today and signs it → the database
+// builds the invoice draft → the team sends it with one tap → the client reads it under «Rechnungen». On staging this
+// needs the team's price (set here through /team if none, synthetic 68.00 «Beispielwert, kein Tarif») and the time
+// tolerance row, which `lca` names at the BK-f gate and a reviewed migration ships; until that row is applied this path
+// is red with «Kein Rechnungsentwurf: Der Zeitabgleich ist noch nicht eingerichtet.» — a known limit, never a skip.
+test("path 3: nurse signs a worked shift → invoice draft → team sends it → client reads it under «Rechnungen» (390 px)", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const now = Date.now();
+  const startMin = Math.ceil((zurichMinuteOfDay(now) + 20) / 10) * 10;
+  if (startMin + 10 > 23 * 60 + 50 || zurichMinuteOfDay(now) < 30) {
+    throw new Error("staging-smoke path 3: run it between 00:30 and 23:20 Zurich (the shift and its times stay on one day)");
+  }
+  const [from, to] = [hhmm(startMin), hhmm(startMin + 10)];
+  const day = zurichDay(now);
+  const when = `${deDate(day)} ${from}`;
+
+  await signIn(page, "kunde");
+  await order(page, day, from, to);
+
+  await signIn(page, "pflegeBs");
+  await page.goto("/team");
+  const price = page.getByTestId("team-price").first(); // the demo nurse has one team; staging names may differ
+  if ((await price.getByTestId("team-price-current").textContent())?.includes("noch keiner")) {
+    await price.getByLabel("Neuer Preis pro Stunde (CHF)").fill("68.00");
+    await price.getByTestId("team-price-save").click();
+    await expect(price.getByTestId("team-price-current")).toHaveText("CHF 68.00");
+  }
+  await takeAsHerself(page, when);
+
+  await page.goto(`/field?datum=${day}`);
+  const card = page.getByRole("article", { name: new RegExp(`${from} – ${to}`) });
+  await expect(card).toHaveCount(1);
+  for (const [button, status] of [["Losfahren", "Unterwegs"], ["Einsatz starten", "Gestartet"], ["Einsatz abschliessen", "Abgeschlossen"]] as const) {
+    await card.getByRole("button", { name: button }).click();
+    await expect(card).toContainText(status);
+  }
+  const worked = Date.now();
+  await card.getByText("Zeiten ansehen und korrigieren").click();
+  const timeline = card.getByRole("list", { name: "Zeitverlauf" });
+  for (const [event, back] of [["Losgefahren", 14], ["Gestartet", 12], ["Abgeschlossen", 2]] as const) {
+    const row = timeline.getByRole("listitem").filter({ hasText: event });
+    await row.getByRole("button", { name: "Korrigieren" }).click();
+    await row.getByLabel("Richtige Uhrzeit").fill(minutesBack(worked, back));
+    await row.getByLabel("Begründung").fill("Testlauf: simulierte Einsatzdauer");
+    await row.getByRole("button", { name: "Korrektur speichern" }).click();
+    await expect(row.getByLabel("Richtige Uhrzeit")).toHaveCount(0);
+  }
+  await page.reload();
+  const report = page.getByRole("article", { name: new RegExp(`${from} – ${to}`) }).getByTestId("visit-report");
+  await report.getByRole("form", { name: "Bericht prüfen und unterschreiben" }).getByRole("button", { name: "Bericht unterschreiben" }).click();
+  await expect(report.getByTestId("report-status")).toHaveText("Bericht abgeschlossen");
+  await expect(report.getByTestId("report-invoice-line")).toHaveText("Rechnungsentwurf für das Team erstellt.");
+
+  await page.goto("/team");
+  const drafts = page.getByTestId("invoice-drafts");
+  await expect(drafts.getByTestId("invoice-label")).toHaveText(INVOICE_LABEL);
+  const draft = drafts.locator('[data-testid="invoice-draft"][data-state="draft"]').filter({ hasText: deDate(day) }).first();
+  await expect(draft.getByTestId("invoice-hours")).toHaveText("0.17 Std.");
+  await draft.getByRole("button", { name: SEND_BUTTON }).click();
+  await expect(drafts.locator('[data-testid="invoice-draft"][data-state="sent"]').filter({ hasText: deDate(day) }).first()).toBeVisible();
+
+  await signIn(page, "kunde");
+  await page.goto("/order");
+  const invoices = page.getByTestId("client-invoices");
+  await expect(invoices.getByTestId("invoice-label")).toHaveText(INVOICE_LABEL);
+  await expect(invoices.getByTestId("client-invoice").filter({ hasText: deDate(day) }).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
