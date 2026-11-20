@@ -8,7 +8,7 @@ updated: 2026-11-20
 
 # STAB1 — One readable source per database function, and staging proof per flow
 
-**Origin:** founder message to `po` and `eng`, live PO session 2026-11-20 ca. 09:20 (FE-099 (1), (2)), answering `docs/engineering/SELF_ASSESSMENT_2026-11-20.md` (#1586). **Status:** PO contract draft; `eng` confirms the technical plan and the estimate in its next run (comment on the package PR or on #1586) before the package starts. **Gate:** «Simulation, synthetic data». **Place in the order:** after BK-f, before AI1 and BK-d (§Order). PO did not run tests.
+**Origin:** founder message to `po` and `eng`, live PO session 2026-11-20 ca. 09:20 (FE-099 (1), (2)), answering `docs/engineering/SELF_ASSESSMENT_2026-11-20.md` (#1586). **Status:** PO contract (approved for the order below). Technical plan: `eng` proposal `docs/engineering/probes/STAB-1_PROPOSAL.md` (#1586, 09:40), written in parallel to this brief and accepted by the PO as the HOW: 25 functions of the BK chain (proposal §2), manifest of required properties (§3), source files plus a no-op migration plus drift check (§4), fingerprint, property and grant tests (§5), way back (§6). Where this brief and the proposal differ in the function list, **the proposal's 25 functions plus `may_perform_visit` and `end_member_access` from the table below** are the scope; `eng` confirms these two or says why not. **Gate:** «Simulation, synthetic data». **Place in the order:** after BK-f, before AI1 and BK-d (§Order). PO did not run tests.
 
 ## Problem
 
@@ -18,7 +18,7 @@ Separately, flows were long proven only in CI on the local stack. On staging, ex
 
 ## Facts read from the code by the PO (2026-11-20, `recovery/main` `269e4b5`; counts are grep results, UNKNOWN beyond them)
 
-Functions the next steps touch, with where their text is today («full» = a migration with the complete `create or replace`; «patched» = later text replacements):
+PO reading before the `eng` proposal arrived (kept as a cross-check; `eng` counted 60 functions with at least one text patch plus 16 in the 0074 loop). Functions the next steps touch, with where their text is today («full» = a migration with the complete `create or replace`; «patched» = later text replacements):
 
 | Function | Needed for | Last full definition | Text patches after it | Guards at risk (PO reading, `eng` to confirm) |
 |---|---|---|---|---|
@@ -65,7 +65,7 @@ If an applied migration was needed (only if the ADR chooses re-creation from the
 
 ## Estimate
 
-`eng` 2026-11-20: 3–5 runs (ESTIMATE, not measured). `eng` confirms or corrects before start.
+`eng` proposal 09:40: 2–3 runs including CI rounds (ESTIMATE; the self-assessment said 3–5). Measured time from start to `staging-smoke` green is recorded (scorecard criterion 14).
 
 ## Order (PO, FE-099 (3); one active package at a time)
 
