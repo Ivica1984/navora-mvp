@@ -76,7 +76,9 @@ test("BK-f at 390 px: signed take report → invoice draft on /team → one tap 
     await expect(price.getByTestId("team-price-current")).toHaveText("CHF 68.00");
     await expect(price).toContainText("Beispielwert, kein Tarif");
     const offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
-    await offer.getByRole("button", { name: "Übernehmen mit Pflegekraft" }).click();
+    // The button names the chosen member by her display name («Übernehmen mit Kollegin», shift-offers-section.tsx).
+    await expect(offer.getByRole("radio", { name: /^Ich / })).toBeChecked();
+    await offer.getByRole("button", { name: /^Übernehmen mit / }).click();
     await expect(page.getByTestId("shift-offer-card").filter({ hasText: when }).last().getByTestId("shift-offer-tag")).toHaveText("Übernommen");
 
     // 3. She works it on /field and records 60 minutes with F3 «Testlauf».
