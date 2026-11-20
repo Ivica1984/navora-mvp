@@ -7,9 +7,13 @@ name: staging-smoke
 
 # Start: push a branch `staging-smoke/<label>` pointing at a commit of recovery/main (as ci-repeat uses `repeat/**`;
 # workflow_dispatch only lists workflows of the default branch `main`, which does not have this file yet).
+# STAB1 scope (e) (FE-099 (2), ADR-222 point 7): also after every push to recovery/main (a merge commit), once the `ci`
+# `staging` job has put the migrations on navora-staging and Render serves that commit or a later one
+# (scripts/staging-smoke-after-merge.mjs). A red run comments on the merged pull request for `po` and `eng` (job
+# `notify`, the only job with write access; it never sees the demo passwords).
 on:
   push:
-    branches: ['staging-smoke/**']
+    branches: ['staging-smoke/**', recovery/main]
   workflow_dispatch:
 
 permissions:
@@ -26,7 +30,10 @@ jobs:
   smoke:
     name: staging smoke (founder click paths 1 and 2)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 90   # after a merge: up to 50 min for `ci`, up to 20 min for Render, then the click paths
+    permissions:
+      contents: read
+      actions: read       # read the `ci` run and its `staging` job on the merge commit
     steps:
       - uses: actions/checkout@v5
         with:
@@ -52,6 +59,12 @@ jobs:
             sleep 15
           done
           exit 1
+      - name: After a merge, wait for migrations (ci staging job) and for Render to serve the commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/recovery/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP_URL: https://navora-staging.onrender.com
+        run: node scripts/staging-smoke-after-merge.mjs
       - name: Tested commit (repository side)
         run: echo "::notice title=staging-smoke::workflow commit ${GITHUB_SHA}; the app commit Render serves is read from Render (not from this job)"
       - name: Click paths on navora-staging
@@ -60,3 +73,39 @@ jobs:
           STAGING_SMOKE_PW_PFLEGEBS: ${{ secrets.STAGING_SMOKE_PW_PFLEGEBS }}
           STAGING_SMOKE_PW_PFLEGE: ${{ secrets.STAGING_SMOKE_PW_PFLEGE }}
         run: npx playwright test --config playwright.staging-smoke.config.ts
+
+  # STAB1 (e): a red smoke (or an unmet precondition) is reported where `po` and `eng` read: a comment on the pull
+  # request merged as this commit, otherwise an issue labelled `agents`. Only the run link, the commit and the failed
+  # step names are written; never a log line (a log could echo a typed value).
+  notify:
+    name: report a red staging smoke
+    needs: [smoke]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Comment on the merged pull request (or open an issue)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          REF: ${{ github.ref_name }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          failed=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" \
+            --jq '[.jobs[] | select(.name|startswith("staging smoke")) | .steps[] | select(.conclusion=="failure") | .name] | join("; ")')
+          body="staging-smoke red on \`${SHA}\` (ref \`${REF}\`), run ${RUN_ID}: ${RUN_URL}
+          Failed step: ${failed:-unknown}.
+          For \`po\` and \`eng\` (STAB1 (e)): every proven path must stay green; read the job log. No log line or secret is copied here."
+          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '[.[] | select(.base.ref=="recovery/main" and .merged_at!=null)][0].number // empty' || true)
+          if [ -n "$pr" ]; then
+            gh api "repos/$REPO/issues/$pr/comments" -f body="$body" --jq '.html_url'
+          else
+            gh api "repos/$REPO/issues" -f title="staging-smoke red on ${SHA:0:7}" -f body="$body" -f 'labels[]=agents' --jq '.html_url'
+          fi
