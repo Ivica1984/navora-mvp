@@ -175,7 +175,7 @@ Heute auf Staging bedienbar sind davon die Schritte Bestätigen, Übernahme, Dur
 
 ## 7. Bau- und Prüfreihenfolge
 
-> **Überholt am 2026-11-20 ca. 16:00** (Founder: W1 kleiner schneiden, AI1 mit frühem Demopunkt): Die aktuelle Empfehlung steht in `HEIM_NAECHSTES_PAKET.md`. Sie lautet H1 → AI1 → W1a → W1b → STAB1 (begrenzt) → W2 → K-1, mit H1 als nächstem Paket. Die Tabelle unten bleibt als Version 1 stehen.
+> **Überholt am 2026-11-20 ca. 16:00** (Founder: W1 kleiner schneiden, AI1 mit frühem Demopunkt): Gültig ist jetzt `HEIM_DIENSTPLANUNG_VERTRAG.md` (ein Paketvertrag «Pflegeheim-Dienstplanung» mit technischen Zwischen-PRs, Founder-Korrektur 15:45). `HEIM_NAECHSTES_PAKET.md` ist ersetzt. Die Tabelle unten bleibt als Version 1 stehen.
 
 **Genau ein aktives Implementierungspaket, danach eine echte Demo.**
 

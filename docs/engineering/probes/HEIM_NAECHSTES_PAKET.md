@@ -1,3 +1,5 @@
+> **Ersetzt am 2026-11-20 ca. 15:50:** Der Founder hat «H1 zuerst» abgelehnt. Er will kein isoliertes Dashboard, sondern das vollständige Register «Dienstplanung». Gültig ist `HEIM_DIENSTPLANUNG_VERTRAG.md`; dieser Text bleibt als Verlauf stehen.
+
 # Erstes Heim-Paket und Reihenfolge bis zur ersten KI-Demo: kurze Entscheidungsvorlage (`eng`-Teil)
 
 **Stand:** 2026-11-20 ca. 16:00, `eng`. Grundlage: der Founder-Brief «Grundriss V1 – Richtung richtig, Heimregister kleiner schneiden, echte KI verbindlich einplanen». Der **PO-Teil fehlt noch**; der PO setzt das aktive Paket in *Active now*. Nichts davon ist gebaut. Zeitangaben sind ESTIMATE in Engineering-Läufen, ohne Gate-Fenster.
