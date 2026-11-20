@@ -9,6 +9,8 @@ Founder-Auftrag FE-101 / FE-102 (2026-11-20). Owner der Datei: `eng`. Jede Rolle
 3. Format: genau das Muster unten. Neueste Lektion oben. Bestehende Lektionen werden nicht umgeschrieben, nur ergänzt («Nachtrag <Datum>»).
 4. Nur belegte Fakten aus Code, CI-Log oder Test (Job-ID, Datei, Migration). Keine erfundenen Regeln; medizinische, tarifliche oder rechtliche Regeln gehören nicht hierher, sondern als Entscheid an ihren Owner.
 5. Wo möglich wird eine Lektion durch einen automatischen Test oder Check abgesichert. Die Zeile «Abgesichert durch» nennt ihn, oder `OPEN`, wenn es ihn noch nicht gibt.
+6. **Praktischer Ablauf (Founder 2026-11-20, nach PR #1596):** Vor der Arbeit am aktiven Paket liest `eng` die Lektionen, die für dessen Dateien und Risiken einschlägig sind. Die Paketübergabe (`Paket prüfbereit:`) enthält eine Zeile «Lektionen:»: welche Lektion angewendet wurde und welcher Test die betreffende Eigenschaft schützt, oder «keine einschlägig». Eine Behauptung im Journal allein ersetzt keinen Test.
+7. Diese Datei hält Erkenntnisse über Software-Fehler fest. Regressionstests sichern die Software; sie sind kein Training des Coding-Agenten. Ob `eng` die Lektionen anwendet, wird an seiner Arbeit geprüft (Review durch `po`). Automatische Prüfung von Format und Testverweisen: Vorschlag LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`), PLANNED nach BK-f, wenn `po` es einplant.
 
 Muster:
 
