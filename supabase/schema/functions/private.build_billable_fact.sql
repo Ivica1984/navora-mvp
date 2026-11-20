@@ -40,6 +40,9 @@ begin
   if not found or r.status <> 'final' then return null; end if;
   -- Serialise with a hold being set on the same visit (BL-8 trigger locks the same row).
   select * into v from public.care_visits where id = r.visit_id for update;
+  -- BKF-F1 (0154): a BK take visit has no case (0138). It is never a KLV-modelled J5 fact (D-44, BK-10); its billing
+  -- is the team invoice draft of BK-f. Skipped with this reason, never an error (a hold lift must not fail).
+  if v.case_id is null then return null; end if;
   if private.visit_has_open_hold(r.visit_id)
      or exists (select 1 from public.billable_facts f where f.report_id = r.id and f.rule_version = 'J5-v3' and f.cause = 'report') then
     return null;

@@ -204,7 +204,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "visit_has_open_hold"
+        "visit_has_open_hold",
+        "if v.case_id is null then return null; end if;"
       ]
     },
     {
@@ -213,7 +214,29 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "assert_access_open",
-        "LEAVE1-3"
+        "LEAVE1-3",
+        "and v.case_id is not null   -- BKF-F1"
+      ]
+    },
+    {
+      "name": "private.may_perform_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "private.access_ended(p_user)",
+        "private.has_qualification(p_team, p_user)",
+        "private.is_registered_nurse(p_team, p_user)"
+      ]
+    },
+    {
+      "name": "public.end_member_access",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command('end_member_access'",
+        "private.audit_command(",
+        "LEAVE1-C3",
+        "WORK1-C3"
       ]
     }
   ]

@@ -23,6 +23,7 @@ begin
     where r.status = 'final'
       and v.visit_date >= date_trunc('month', p_month)::date
       and v.visit_date < (date_trunc('month', p_month) + interval '1 month')::date
+      and v.case_id is not null   -- BKF-F1: take visits (no case) are billed by BK-f, never by J5 (D-44, BK-10)
       and private.is_org_member(r.organization_id)
       and (private.is_team_member(r.team_id) or private.is_coordinator(r.organization_id))
       and not exists (select 1 from public.visit_reports s
