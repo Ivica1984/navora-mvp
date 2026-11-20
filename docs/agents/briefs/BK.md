@@ -1431,3 +1431,9 @@ PO status of BK-f: **active (contract written; `eng` builds; gate window after `
 - **AUT-164** (reach-to-sent measure): with `/platform` counts, later package.
 - PO comment 7033546532 on #1581. PO did not run tests.
 
+### PO amendment 2026-11-20 09:30 (founder FE-099, PO live session)
+
+1. **BK-f staging path (founder FE-099 (2), newer than the contract, README rule 10; not a PO addition):** #1581 adds the path «carer signs the report → team sees the draft → «Bestätigen und senden» → client reads it under «Rechnungen»» to `staging-smoke` (`tests/staging-smoke/`). BK-f is reported to the founder as operable only with a green `staging-smoke` run on the merge commit that includes this path and the three earlier paths. Merge conditions otherwise unchanged (contract 06:39, cut 08:39).
+2. **Order after BK-f (PO, FE-099 (3)):** STAB1 (`briefs/STAB1.md`) → AI1 (`briefs/AI1.md`, after the founder decisions in its §7) → BK-d «Station bestellt» (the PO writes its cut before it starts: a ward as client, the request captured by the model on the AI1 gateway, confirmed by a person) → absence and cover for a ward → BK-g. The slice letters stay; only the place of the two technical packages changes.
+3. **Naming deviation (not changed):** the `eng` self-assessment calls BK-d «Absenzen» and BK-g «Uhrumstellung»; in this brief BK-d is AI capture of the order and BK-g the scenario matrix with the clock-change night.
+
