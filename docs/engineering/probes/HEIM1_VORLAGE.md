@@ -1,288 +1,260 @@
-# HEIM1 · Der Arbeitsplatz der Heimleitung: Vorlage für Founder und PO (Version 2)
+# HEIM1 · Der Arbeitsplatz der Heimleitung: Vorlage für Founder und PO (Version 3)
 
-**Autor:** `eng`, 2026-11-20 ca. 15:20. Version 2 ersetzt Version 1 von 15:05 und beantwortet den Founder-Brief «Pflegeheimansicht grundlegend weiterentwickeln» Punkt für Punkt.
-**Status:** Vorschlag. **Nichts davon ist gebaut, nichts geht in einen laufenden PR.** Der PO entscheidet Umfang und Reihenfolge. Seine Sicht fehlt in dieser Fassung noch (Abschnitte mit **PO:** markiert).
-**Lesart:** Der Haupttext ist ohne Code-Kenntnisse lesbar; technische Belege stehen im Anhang.
+**Autor:** `eng`, 2026-11-20 ca. 15:45. Version 3 ersetzt die Versionen 1 und 2. Sie beantwortet den dritten Founder-Brief:
+- Dienstplanung mit benannten Mitarbeitenden;
+- B2B und Teamplattform getrennt;
+- Diktat über das Gerät;
+- die Reihenfolge neu geprüft.
 
-| Kennzeichnung | Bedeutung |
-|---|---|
-| **auf Staging nachgewiesen** | in der echten Staging-App automatisch durchgeklickt |
-| **nur im Code** | gebaut und in der CI getestet, auf Staging nicht durchgeklickt |
-| **fehlt** | nicht gebaut |
-| ESTIMATE | eine Schätzung, keine Zusage |
-| OPEN | ein Entscheid fehlt |
+**Status:** Vorschlag. **Nichts davon ist gebaut, nichts geht in einen laufenden PR.** Der PO entscheidet den Produktumfang; seine Sicht fehlt noch (markiert **PO:**).
+**Founder-Entscheid in diesem Brief:** Die Planung des eigenen Heimpersonals (Woche, Besetzung, Lücken, später KI-Umplanung) ist das eigenständige **B2B-Planungsmodul**. Die Beauftragung externer Teams ist ein getrenntes Produkt, und beide sind einzeln nutzbar. Der PO trägt das in `FOUNDER_DECISIONS.md` ein.
+**Kennzeichnung:**
+- **Staging**: auf Staging nachgewiesen;
+- **Code**: gebaut und in der CI getestet, auf Staging nicht durchgeklickt;
+- **geplant**: nicht gebaut;
+- ESTIMATE: Schätzung, keine Zusage;
+- OPEN: Entscheid fehlt.
 
 ---
 
-## 1. Ist-Stand: Was ein Heim heute kann
+## 1. Zwei Produkte, eine Brücke
 
-**Auf Staging nachgewiesen** (Prüflauf vom 20.11., 14:27, 4 von 4 grün):
-- Als Heim einen Dienst bestellen (Datum, Zeit, Postleitzahl, Stufe, Tätigkeiten).
-- Ein anderes, nicht passendes Team sieht den Auftrag nicht.
-- Ein passendes Team übernimmt, und das Heim liest «Gedeckt · Person benannt, geprüft für HF».
-- Ein Nachtdienst 22–07 Uhr erscheint bei der Pflegekraft als ein Einsatz.
-- Die Pflegekraft unterschreibt den Bericht, das Team sendet die Rechnung, und das Heim liest sie unter «Rechnungen».
+```
+ B2B-PLANUNGSMODUL (Lizenz des Heims)        TEAMPLATTFORM (Gebühr der Teams, 0 % Provision)
+ ─────────────────────────────────────        ───────────────────────────────────────────────
+ Heim, Stationen, eigene Mitarbeitende        selbstorganisierte Teams, ihre Mitglieder,
+ (benannt), deren vom Heim bestätigte         verifizierte Qualifikationen, Abwesenheiten,
+ Qualifikationen, Dienste, Abwesenheiten,     Angebote, Übernahmen, Einsätze, Berichte,
+ Lücken                                       Rechnungen der Teams
+            │                                              ▲
+            │  BRÜCKE (nur zwei Wege, sonst nichts)         │
+            ├── 1. «Lücke als externen Auftrag anbieten» ──►│  Auftrag mit Verweis auf die Lücke
+            │      (Heim bestätigt; ohne Namen des Heimpersonals)
+            ◄── 2. Status zurück in den Plan ───────────────┤  angefragt · übernommen · Person
+                   (nur Zustand und Team, nie Teamdaten)       bestätigt · durchgeführt
+```
 
-**Nur im Code**, in der CI geprüft, auf Staging nicht durchgeklickt:
-- Ein Team lehnt ab.
-- Eine benannte Kollegin muss die Übernahme bestätigen.
-- «Ich kann nicht» gibt den Dienst wieder frei; das Heim liest «Nicht mehr gedeckt».
-- Eine Pflegekraft fällt nach der Zusage aus. Dann wird nur das Team benachrichtigt, das Heim sieht nur die geänderte Statuszeile.
-- Weitere Prüfungen, jede mit eigener Meldung:
-  - Beginn in der Vergangenheit;
-  - Postleitzahl ausserhalb der Region;
-  - Stufe passt nicht zur Tätigkeit;
-  - Distanzvorgabe.
-- Korrektur eines Berichts: Die Rechnung wird ungültig.
+**Architektur (Empfehlung `eng`):**
+- **Getrennte Daten:**
+  - Die B2B-Tabellen gehören zum Heim (Mandant = Kundenkonto des Heims), mit eigenen Rollen und Rechten (RLS).
+  - Die Tabellen der Teamplattform bleiben unverändert.
+  - Keine Tabelle enthält Personen beider Seiten.
+- **Brücke 1:**
+  - Ein Befehl erzeugt aus einer Lücke einen **Auftragsentwurf**. Er übernimmt Zeit, Station, Einsatzort, Tätigkeiten und Stufe. Namen des Heimpersonals und den Abwesenheitsgrund übernimmt er nicht.
+  - Gesendet wird erst nach Bestätigung, über den vorhandenen Weg «Prüfen → Bestätigen & Absenden». Alle festen Prüfungen der Teamplattform laufen unverändert.
+- **Brücke 2:** Eine Lesefunktion gibt dem Plan nur den Zustand des eigenen Auftrags zurück, den es heute schon gibt («Gedeckt · Person benannt, geprüft für HF», Team). Keine Mitgliederliste, keine Preise anderer Teams.
+- **Lizenz und Gebühr getrennt:**
+  - **B2B-Modul:** Freischaltung je Heim. Seine Abrechnung ist NAVORA-B2B-Umsatz (Blueprint Ledger B, PLANNED).
+  - **Monatsgebühr der Teams:** eigene Abrechnung.
+  - **Pflegerechnungen der Teams:** gehören den Teams.
+  - Es gibt keine gemeinsame Zahl und kein Provisionsfeld.
+  - Ein Heim ohne B2B-Modul sieht keine Dienstplanung, kann aber Aufträge erfassen. Ein Heim nur mit B2B-Modul kann planen, ohne Teams zu beauftragen.
+- **Jede neue Datenbankfunktion** entsteht von Anfang an als eigene, lesbare Datei (FE-100) und braucht darum kein STAB1.
 
-**Fehlt:**
-- Startseite, Wochenansicht, Stationen, eigener Dienstplan;
-- Ändern und Stornieren;
-- Benachrichtigungen an das Heim;
-- Kosten- und Monatsübersicht, Export;
-- Vorlagen für wiederkehrende Dienste;
-- mehrere Personen für einen Dienst in einem Schritt;
-- jede KI im Heimablauf.
+## 2. Heim-Navigation
 
-**Wichtig:** Das Datenmodell kennt heute **keine Station**. Ein Auftrag gehört zum Heim als Ganzes. Alles «nach Station» braucht diese Grundlage zuerst. Sie ist im Paket BK-d «Station bestellt» vorgesehen.
+Zielbild nach deinem Vorschlag, mit drei Änderungen. Sichtbar ist ein Register nur, wenn es auf Staging eine echte Aufgabe löst.
 
-## 2. Zielnavigation und Startseite
+```
+ NAVORA · Testheim Rhein                                    [Station: alle ▾]  [Woche 48 ◂ ▸]
+ ┌──────────────┐
+ │ Übersicht    │  Heute · Morgen · Diese Woche — «Jetzt zu entscheiden» (inkl. Mitteilungen)
+ │ Woche        │  Dienstplan je Station: eigene Mitarbeitende + Lücken + externe Aufträge   [B2B]
+ │ Personal     │  Mitarbeitende, vom Heim bestätigte Qualifikationen, Abwesenheiten          [B2B]
+ │ Aufträge     │  externe Anfragen: offen · Angebot gesendet · übernommen · gefährdet · erledigt
+ │ Kosten       │  bestellt · vereinbart · erbracht · in Rechnung gestellt · Klärung
+ │ Einstellungen│  Standorte, Stationen, Dienstvorlagen, Berechtigungen, gebuchte Module
+ └──────────────┘
+```
 
-### Zielnavigation
+**Die drei Änderungen:**
+1. **«Mitteilungen & Ausnahmen» zuerst in der Übersicht.** Ein eigenes Register lohnt erst bei vielen Meldungen; zwei Orte für dieselbe Meldung verwirren.
+2. **«Personal» als eigenes Register neben «Woche»,** statt in den Einstellungen. Mitarbeitende, Qualifikationen und Abwesenheiten pflegt die Planerin täglich, nicht einmalig.
+3. **Dokumentation und Angehörige** bleiben unsichtbar, bis das Modul gebucht und gebaut ist.
 
-Neun Register sind das Zielbild. Gebaut wird eines nach dem anderen, und nur wenn es eine Aufgabe löst.
+**«Woche» zeigt beide Produkte in einem Raster, aber unterscheidbar:**
+- eigene Mitarbeitende mit Namen;
+- externe Besetzung mit Team und Zustand;
+- Lücken.
 
-| Register im Zielbild | Empfehlung `eng` | Begründung |
-|---|---|---|
-| **Übersicht** (Startseite) | **zuerst** | beantwortet «wo muss ich handeln?»; nutzt die vorhandenen Daten |
-| **Externe Aufträge** | **zuerst**, mit «Auftrag erfassen» als Aktion | ersetzt die heutige Einzelformular-Seite |
-| **Kosten & Rechnungen** | früh | die Rechnungsdaten gibt es seit BK-f |
-| **Einstellungen** | vorhanden | später Stationen und Nutzer |
-| **Mitteilungen & Ausnahmen** | zunächst **in der Übersicht** («Jetzt zu entscheiden») | ein eigenes Register lohnt sich erst bei vielen Meldungen |
-| **Dienstplanung** (eigenes Personal) | später, eigener Vertrag; **vorher** ein schlanker Bedarfsplan (§3, Idee 1) | eigenes B2B-Produkt, mit Personaldaten des Heims |
-| **Teams & Kompetenzen** | **nicht als eigenes Register**, sondern im Auftrag selbst | ein Register mit Teamfähigkeiten verrät kleine Teams und Preise anderer Teams (Wettbewerb, Datenschutz) |
-| **Pflegedokumentation**, **Angehörige** | nur sichtbar, wenn das Modul gebucht ist | eigene B2B-Module mit eigenen Regeln |
+So pflegt das Heim keine zweite Liste.
 
-### Startseite
+## 3. Wochenablauf mit benannten synthetischen Mitarbeitenden
 
-Die Startseite folgt deinem Entwurf, mit zwei Korrekturen.
+**Synthetische Ausgangslage:**
+- «Testheim Rhein (synthetisch)», Stationen **Rhein 1** und **Rhein 2**, Dienste Früh 07–15, Spät 15–23, Nacht 23–07.
+- **Dienstvorlage Rhein 2, Früh:** 3 Personen, davon mindestens 1 HF. Das Heim legt diese Anforderung selbst fest; NAVORA schreibt keine Besetzungsregel vor (§6).
+- **Personal Rhein 2:** Anna Muster (HF), Ben Beispiel (FaGe), Carla Test (FaGe), David Probe (AGS). Alle Namen synthetisch.
+- **Plan Mittwoch früh:** Anna, Ben, Carla.
+- **Montag 10:00:** Carla meldet sich für Mittwoch ab.
 
-- **Heute und nächste 7 Tage**
-  - Je Dienst ein Zustand aus der Statusleiter in §5.
-  - Zahlen sind immer Links auf die Aufträge dahinter.
-- **Jetzt zu entscheiden**
-  - Nur Fälle, die das Heim lösen kann, jeweils mit einem Knopf:
-    - ungedeckt und Beginn naht;
-    - Besetzung fiel weg;
-    - Rechnung erhalten.
-- **Externe Aufträge:** offen · Angebot gesendet · Person bestätigt noch · gedeckt · durchgeführt · abgerechnet.
-- **Kosten dieses Monats:** in Spalten getrennt (§7), nie zusammengezählt.
-
-**Korrektur 1:** Den Zustand «**Team prüft**» aus deinem Entwurf kennt NAVORA nicht. Wir wissen, dass ein Angebot gesendet wurde, aber nicht, ob ein Team es gerade ansieht. Ihn anzuzeigen hiesse, einen Zustand zu erfinden. Ehrlich ist «Angebot an 3 Teams gesendet, noch keine Übernahme».
-
-**Korrektur 2:** «**Gefährdet**» zeigen wir nur, wo es einen belegten Grund gibt:
-- die Übernahme fiel weg;
-- die benannte Person fällt aus;
-- die Kollegin hat nicht bestätigt;
-- der Auftrag ist kurz vor Beginn noch offen.
-
-Ab wann «kurz vor Beginn» gilt, ist OPEN (`cra`; Simulationsvorgabe heute 240 Minuten, nicht freigegeben). Ohne belegten Grund gibt es keine Warnfarbe und keine beruhigende Kennzahl.
-
-## 3. Wochenablauf: von der Planlücke bis zur Rechnung
-
-**Fall (synthetisch):**
-- «Testheim Rhein», Station 1 und Station 2, Früh-, Spät- und Nachtdienst.
-- Für Station 2 ist am Mittwochfrüh eine Soll-Besetzung von 3 Personen eingetragen, eingeplant sind 2, weil eine Mitarbeiterin abwesend ist.
-
-| # | Was passiert | Was die Heimleitung sieht | Was im Hintergrund geschieht | Wer entscheidet | Stand |
+| # | Schritt | Was die Heimleitung sieht | Backend | Wer entscheidet | Stand |
 |---|---|---|---|---|---|
-| 1 | Wochenplan öffnen | Raster Tag × Dienst je Station: eigene Besetzung und externe Aufträge getrennt | Lesen aus Bedarfsplan und Aufträgen | – | fehlt |
-| 2 | Lücke wird sichtbar | Mi früh, Station 2: «Soll 3 · geplant 2 · 1 offen» | feste Regel: Soll minus geplant | – | fehlt |
-| 3 | Anforderungen des Dienstes | Zeit, Station, typische Tätigkeiten und Stufe aus der hinterlegten Dienstvorlage | Vorlage je Dienst und Station | Heim hat sie früher festgelegt | fehlt |
-| 4 | «Externen Bedarf prüfen» | Auftragsentwurf mit allen bekannten Angaben vorausgefüllt; nichts muss neu getippt werden | Entwurf mit Verweis auf die Lücke, **nicht gesendet** | – | fehlt |
-| 5 | Ergänzung in eigenen Worten | Feld «Was ist sonst wichtig?» → KI schlägt Felder vor, jedes markiert «aus Ihrem Text vorgeschlagen» | Modell strukturiert, feste Regeln prüfen danach | – | fehlt (geplant BK-d) |
-| 6 | Harte Voraussetzungen | «Geprüft: Region, Stufe, Tätigkeitsnachweis, eingetragene freie Zeit», oder ehrlicher Nullfall mit Grund | feste Regel (vorhanden) | – | nur im Code (intern), Anzeige fehlt |
-| 7 | Bestätigen & Absenden | Zusammenfassung, dann «Angebot an 3 Teams gesendet» | Angebote an passende Teams | **Heim** | nachgewiesen (ohne Anzahl) |
-| 8 | Team übernimmt | «Ein Team hat übernommen; Person bestätigt noch», dann «Gedeckt» | Übernahme, Bestätigung der Person | **Team** (niemand teilt für ein Team ein) | nachgewiesen / nur im Code |
-| 9 | Im Plan aktualisiert | Mi früh, Station 2: «Soll 3 · 2 eigene · 1 extern gedeckt» | Plan liest den Auftragsstatus | – | fehlt |
-| 10 | Ausfall | Startseite: «Mi früh Station 2: Besetzung weggefallen, Angebot geht wieder an Teams» + Mitteilung | vorhandenes Signal, neu auch an das Heim | Team besetzt neu; **Heim** entscheidet, ob es selbst handelt | Signal nur ans Team |
-| 11 | Durchgeführt | «Durchgeführt · Bericht unterschrieben 15:32» | Bericht | Pflegekraft | nachgewiesen |
-| 12 | Rechnung | Rechnung beim ursprünglichen Dienst, Monatsübersicht | Rechnung des Teams | **Team** sendet | nachgewiesen (ohne Bezug zum Plan) |
+| 1 | Plan erstellen | Woche Rhein 2: je Dienst die eingeplanten Namen mit Stufe | Dienste, Zuteilungen, Personal (B2B) | Heim (Planerin) | geplant |
+| 2 | Abwesenheit erfassen | Bei Carla am Mittwoch «abwesend», ohne Grund | Abwesenheit ohne Grundangabe | Heim | geplant |
+| 3 | Lücke entsteht von selbst | Mi früh Rhein 2: **«2 von 3 besetzt · HF vorhanden · 1 FaGe/AGS fehlt»** | feste Regel: Dienstvorlage minus Zuteilungen minus Abwesenheiten | – | geplant |
+| 4 | Intern vertreten? | «Kann vertreten (laut Plan frei, Stufe passt): David Probe (AGS)», dazu der Hinweis «Arbeitszeitregeln nicht geprüft» | feste Regel: nicht eingeplant, nicht abwesend, Stufe erfüllt die Vorlage | **Heim** wählt oder lehnt ab | geplant |
+| 5 | Extern anfragen | «Als externen Auftrag anbieten»: Entwurf mit Datum, Zeit, Station, Einsatzort, Stufe FaGe, Tätigkeiten aus der Vorlage | Brücke 1: Entwurf mit Lückenverweis, nicht gesendet | – | geplant |
+| 6 | Ergänzung in eigenen Worten | Feld «Was ist sonst wichtig?», getippt oder per Gerätediktat. KI schlägt zusätzliche Tätigkeiten vor, jede markiert «KI-Vorschlag aus Ihrem Text», einzeln annehmbar | angeschlossenes Modell (AI1-Anschluss), danach feste Prüfung | – | geplant |
+| 7 | Prüfen und absenden | Zusammenfassung. «Geprüft: Region, Stufe, Tätigkeitsnachweis, eingetragene freie Zeit» oder ehrlicher Nullfall. «Preis legt das übernehmende Team fest» | `preview_client_order` → `confirm_client_order` | **Heim** bestätigt | **Staging** (ohne Lückenbezug) |
+| 8 | Status im Plan | Mi früh: «2 eigene · 1 extern angefragt (Angebot an 3 Teams)» | Brücke 2 | – | geplant |
+| 9 | Team übernimmt | erst «übernommen, Person bestätigt noch», dann «besetzt extern · Testteam Basel» | `take_order`, Bestätigung der Person | **Team** | **Staging** / **Code** |
+| 10 | Ausfall der externen Person | Übersicht, «Jetzt zu entscheiden»: «Mi früh Rhein 2: externe Besetzung weggefallen · Angebot läuft wieder · *zuständig: NAVORA-Angebot*». Dazu zwei Knöpfe: intern vertreten / abwarten | vorhandenes Signal (0144), neu auch an das Heim | Team besetzt neu; **Heim** entscheidet, ob es intern handelt | Signal nur ans Team (**Code**) |
+| 11 | Durchgeführt und Rechnung | Dienstzelle: «durchgeführt · Bericht 15:02», Rechnung beim Dienst; Kosten in der Monatsübersicht | Bericht, Rechnung (BK-f) | Pflegekraft, Team | **Staging** (ohne Plan) |
 
-## 4. Das Auftragsformular einfacher machen
+**Antworten auf deine Fragen:**
+- **Lücke ohne zweite Liste:**
+  - Die Anforderung steht **einmal** in der Dienstvorlage je Station und Dienst.
+  - Die Lücke ist immer berechnet: Vorlage minus Zuteilung minus Abwesenheit.
+  - Niemand trägt eine Lücke ein. Eine Abwesenheit öffnet sie, eine Zuteilung schliesst sie.
+- **Keine doppelte Eingabe:**
+  - Der Auftrag entsteht aus der Lücke und trägt deren Angaben. Die Brücke ist die einzige Stelle, die Daten herüberreicht.
+  - Verschwindet die Lücke, weil die Abwesenheit zurückgezogen oder intern besetzt wurde, markiert NAVORA den Entwurf oder Auftrag als «Lücke besteht nicht mehr». Danach fragt NAVORA nach dem Zurückziehen; das braucht den Ablauf «Ändern und Stornieren».
+- **Wer handelt bei einem Ausfall:** Jede Lücke hat genau einen Zustand mit Zuständigkeit:
+  - offen;
+  - **intern in Klärung** (mit Namen der Heimnutzerin, die sich darum kümmert);
+  - **extern angefragt**;
+  - übernommen;
+  - besetzt.
 
-Bewertung deiner Vorschläge:
+  Wird eine Lücke intern besetzt, während extern angefragt ist, verlangt NAVORA eine Entscheidung. Es gibt also keine doppelte Besetzung ohne Hinweis.
+- **Was jeden Tag Zeit spart: die «Morgenlage».** Ein Blick um 07:00 zeigt:
+  - neue Abwesenheiten seit gestern;
+  - Lücken heute und morgen, je mit «kann vertreten» aus dem eigenen Personal;
+  - den Stand der externen Anfragen.
 
-- **«Was benötigen Sie und wann?» als erste Eingabe: ja.** Zuerst Tag, Zeit und Station, dann «Freitext oder Formular». Stufe und Tätigkeiten kommen danach, aber nicht versteckt.
-- **KI-Entwurf aus Text, später Diktat: ja.** Jedes vorgeschlagene Feld ist markiert und muss bestätigt werden. Fehlendes bleibt leer mit «bitte angeben»; das Modell rät nicht. Diktat braucht einen zweiten Anbieter für die Spracherkennung und kommt darum später (Founder-Entscheid, §10).
-- **Stufe:** NAVORA rät die Stufe nie, weder per KI noch durch eine «niedrigere Stufe genügt»-Empfehlung.
-  - Eine feste Regel kann zeigen: «Für die gewählten Tätigkeiten verlangt die Qualifikationsmatrix mindestens FaGe.»
-  - Die Matrix ist aber noch **nicht klinisch freigegeben**. Ob sie dafür als Hinweis dienen darf, entscheidet `cra` beziehungsweise der Clinical Owner (OPEN).
-- **Tätigkeitsliste:** nach Aufgabenbereichen gruppiert und aufklappbar, gewählte Tätigkeiten immer sichtbar in der Zusammenfassung. Die Gruppierung selbst ist eine fachliche Frage (`cra`), der Wortlaut gehört `uxa`.
-- **Mehrere Personen** («2× FaGe»): technisch als **2 verbundene Aufträge**, damit jede Übernahme und jede Rechnung sauber einer Person gehört. Das Heim sieht einen Dienst mit «1 von 2 gedeckt».
-- **Vorlagen für wiederkehrende Dienste: ja.** Die heutigen Dienstbezeichnungen («Frühdienst») sind ein Anfang; sie dienen bisher nur der Anzeige.
-- **Zusammenfassung vor dem Absenden:** Datum, Zeit, Station, Anzahl Personen, Tätigkeiten, Stufe, offene Angaben.
-  - **Preisgrundlage:** Vor der Übernahme gibt es **keinen Preis**, denn jedes Team setzt seinen eigenen.
-  - Die Zusammenfassung sagt das offen: «Preis legt das übernehmende Team fest; Sie sehen ihn bei der Übernahme.»
+  Das ist eine feste Regel, keine KI, und spart das Zusammensuchen aus Telefon, Excel und Mails.
 
-## 5. Teamverfügbarkeit ehrlich darstellen: die Statusleiter
+## 4. Diktat und KI-Entwurf
 
-Jeder Auftrag steht auf genau einer Stufe, und jede Stufe hat einen belegten Grund in den Daten:
+Wie von dir entschieden:
+- **Eingabe:** ein Textfeld. Das Gerätediktat (Mikrofon-Taste der Handytastatur, Diktieren in Windows/macOS) füllt es; NAVORA nimmt kein Audio auf. Die Bedienbarkeit wird auf iPhone/Safari, Android/Chrome und Windows/Edge geprüft und dokumentiert.
+- **Die Eingabe ist austauschbar:** Die KI-Funktion erhält nur Text. Eine spätere eigene Audioaufnahme ist ein neuer Eingabeweg vor demselben Text, und an der KI ändert sich dann nichts.
+- **Das Modell schlägt nur vor:**
+  - Datum, Zeit, Ort, Anzahl Personen, beschriebene Tätigkeiten, jede mit der Textstelle als Quelle;
+  - die Stufe nur, wenn sie wörtlich genannt ist;
+  - Fehlendes bleibt leer mit «bitte angeben».
 
-1. **Geprüft beim Absenden.** «Region, Stufe, Tätigkeitsnachweis und eingetragene freie Zeit geprüft, Stand 20.11. 14:31.»
-   - Der Zeitstempel ist der wirkliche Prüfzeitpunkt; NAVORA speichert das Prüfergebnis schon heute einmal beim Absenden.
-   - Eine spätere Regeländerung kann so nicht nachträglich das Bild verändern.
-2. **Angebot gesendet**, an 3 Teams; noch keine Übernahme.
-3. **Übernommen, Person bestätigt noch.**
-4. **Gedeckt**, Person benannt und geprüft für die Stufe.
-5. **Gefährdet / nicht mehr gedeckt**, mit Grund.
-6. **Durchgeführt**, Bericht unterschrieben.
-7. **Abgerechnet**, Rechnung erhalten.
+  Feste Regeln prüfen danach Region, Stufe zu Tätigkeit und Zeit.
+- **Sichtbar unterscheidbar:**
+  - «KI-Vorschlag aus Ihrem Text» (angeschlossenes Modell, nur Staging, synthetisch);
+  - «aus Ihrer Dienstvorlage» (Übernahme aus dem Plan);
+  - «geprüft nach Regel» (feste Prüfung).
+  - In der CI läuft ein Testersatz mit festem Antworttext, der nie «KI» heisst.
 
-**Kein Treffer:**
-- «Derzeit findet NAVORA in Ihrer Region kein Team, das Stufe und Tätigkeiten erfüllt und für diese Zeit frei eingetragen ist.»
-- Dazu der Grund ohne Personen, zum Beispiel «keine Person mit Nachweis für Wundversorgung frei».
-- Danach: Der Bedarf **bleibt als ungedeckt auf der Startseite stehen**. Teams sehen ihn, sobald jemand frei wird. Das Heim kann eine andere Zeit wählen.
+## 5. Baufolge, neu geprüft
 
-**Kompetenzen verständlich, ohne Personaldaten:** Das Heim sieht, **was geprüft wurde**, nicht wer. Keine Lebensläufe, keine Namen vor der Übernahme, keine Prozentzahl. Nach der Übernahme sieht es Team und benannte Person, wie heute.
+**Deine Frage:** Wann nutzt eine Heimleitung NAVORA erstmals als Arbeitsplatz für ihre Woche?
 
-## 6. Aufträge, Änderungen und Benachrichtigungen
+**Erkenntnis aus der Prüfung:**
+- Das B2B-Planungsmodul besteht aus **neuen** Tabellen und **neuen** Funktionen. Es ändert keine der Funktionen, die STAB1 aufräumt. Es kann also **vor** STAB1 starten.
+- STAB1 ist schon begrenzt: auf die Funktionen, die Auftrag, Übernahme und Abwesenheit der Teams als Nächstes ändern, ohne die vier Funktionen der Tranche 2. ESTIMATE 2–3 Läufe, Ergebnis: CI prüft, dass die Dateien gleich der Datenbank sind.
+- STAB1 wird erst vor **W2** nötig, weil W2 den Auftragsweg ändert.
 
-- **Ordnung:** Heute / Kommend / Offen / Erledigt; Filter nach Station (sobald es Stationen gibt), Datum und Status. Das ist eine reine Anzeige der vorhandenen Daten.
-- **Benachrichtigungen an das Heim:**
-  - «übernommen»;
-  - «Besetzung weggefallen»;
-  - «bald beginnender Dienst noch offen», wobei die Schwelle OPEN ist.
-
-  Der Weg dafür besteht schon für Teams und wird um den Empfänger «Heim» erweitert. Welche Angaben eine Mitteilung an ein Heim enthalten darf, prüft `lca`.
-- **Ändern und Stornieren** als Ablauf mit vier Zeitpunkten. Ein Auftrag wird nie gelöscht; Heim und Team sehen immer denselben Zustand.
-
-| Zeitpunkt | Was geschieht | Wer erfährt es | Offen |
-|---|---|---|---|
-| vor der Zusage | Angebot wird bei allen Teams zurückgezogen; eine Änderung wird neu geprüft und neu angeboten | Teams mit dem Angebot | – |
-| nach der Zusage | Übernahme endet mit Grund «vom Heim storniert». Ändert sich Zeit, Stufe oder Tätigkeit, wird **die benannte Person neu geprüft**; besteht sie nicht, entsteht ein neues offenes Angebot | Team und Person | Ausfallentschädigung, Vertragsfolge: `lca`/`owner` |
-| kurz vor Beginn | wie oben, Kennzeichen «kurzfristig», sofort Mitteilung | Team und Person sofort | was «kurzfristig» heisst, ob Kosten anfallen: `lca`/`owner` |
-| nach Einsatzbeginn | kein Stornieren; das Heim meldet «Einsatz beenden», die Pflegekraft schliesst fachlich ab, der Bericht bleibt Pflicht | Pflegekraft direkt | Abbruch eines laufenden Einsatzes: `clinical` |
-
-## 7. Kosten und Rechnungen
-
-Die Monatsübersicht hat fünf Spalten, die nie zusammengezählt werden:
-
-| Spalte | Woher | Vorhanden? |
-|---|---|---|
-| **bestellt (Stunden)**: ohne Betrag, weil vor der Übernahme kein Preis existiert | Aufträge | Daten ja, Anzeige fehlt |
-| **vereinbart**: Stunden × Preis des übernehmenden Teams | Übernahme (Preis wird dort festgehalten) | Daten ja (BK-f), Anzeige fehlt |
-| **durchgeführt, bestätigt**: Minuten aus dem unterschriebenen Bericht | Bericht | Daten ja, Anzeige fehlt |
-| **in Rechnung gestellt** | gesendete Rechnungen des Teams | **nachgewiesen** (Einzelliste) |
-| **Klärung / Korrektur**: ungültig nach Berichtskorrektur, angehalten, Zeiten weichen ab | Rechnungsstatus aus BK-f | Daten teilweise, Anzeige fehlt |
-
-- **Export:** eine CSV-Datei je Monat für die Buchhaltung des Heims.
-- **Geldflüsse bleiben getrennt.** Diese Ansicht zeigt nur die Beträge der Teams. NAVORA erscheint hier nicht: keine Provision, kein Zahlungsweg (FE-078). Plattformgebühr und B2B-Lizenzen haben eigene Abrechnungen.
-
-## 8. Innovationsvorschläge, priorisiert
-
-Massstab: weniger Aufwand bei verlässlicheren Entscheidungen.
-
-**1 · Schlanker Bedarfsplan ohne Personaldaten: Soll und geplant je Station und Dienst.** *(stärkste Wirkung, neu)*
-- **Idee:** Das Heim trägt je Dienst und Station nur Zahlen ein: «Soll 3, geplant 2». Daraus entstehen Lücken und mit einem Tipp ein Auftragsentwurf. Erst später kommt die volle Dienstplanung mit Namen.
-- **Was entfällt:** das Abtippen der Lücke ins Formular und das Suchen, wo es fehlt; das gilt für Heimleitung und Dienstplanerin.
-- **Selbstorganisation:** Teams sehen Bedarf früher.
-- **Aufwand:** mittel (zwei Tabellen, eine Wochenansicht, ein Knopf). Betriebskosten gering, keine KI nötig.
-- **Neue Fehlerquelle:** falsche Zahlen erzeugen falsche Entwürfe. Es wird darum nie automatisch gesendet.
-- **Warum zuerst:** Wochenansicht, «Lücken», «Lücke → Entwurf» und die Vorausschau brauchen alle diese Grundlage. Ohne Namen gibt es kaum Personaldaten des Heims; der Datenschutzaufwand ist klein (`lca` bestätigt).
-- **Kleinster Test:** eine synthetische Woche, zwei Stationen, eine Lücke. Erwartet sind genau ein Entwurf mit Verweis auf die Lücke und keiner bei voller Besetzung.
-
-**2 · Vorlagen aus wiederkehrenden Diensten.**
-- **Idee:** Bestellt ein Heim denselben Dienst mehrmals (gleicher Wochentag, gleiche Zeit, gleiche Anforderungen), bietet NAVORA ihn als Vorlage an. Daraus wird «Woche kopieren».
-- **Was entfällt:** wöchentliches Neuerfassen.
-- **Aufwand:** klein, feste Regel, keine KI.
-- **Neue Fehlerquelle:** eine veraltete Vorlage. Jede Vorlage zeigt deshalb, wann sie zuletzt bestätigt wurde.
-- **Kleinster Test:** drei gleiche synthetische Aufträge ergeben einen Vorlagenvorschlag; zwei ergeben keinen.
-
-**3 · Leistungsbestätigung aus dem unterschriebenen Bericht.**
-- **Idee:** Zur Rechnung sieht das Heim: Zeit, Tätigkeiten, unterschrieben wann, ohne Pflegetext.
-- **Was entfällt:** Telefonnachfragen und manuelles Abgleichen von Rechnung und Einsatz.
-- **Aufwand:** klein, nur lesend.
-- **Neue Fehlerquelle:** welche Pflegeinhalte das Heim sehen darf. Bis `lca` entscheidet: nur Zeit und Tätigkeitscodes.
-- **Kleinster Test:** nach dem Rechnungspfad stimmen Minuten und Tätigkeiten der Bestätigung mit dem Bericht überein, ohne Personennamen.
-
-**4 · Freiwillig gemeldete Teamkapazität.**
-- **Idee:** Ein Team meldet «Di–Do nachmittags 1 HF frei»; beim Erfassen sieht das Heim «zu dieser Zeit hat ein Team Kapazität gemeldet», ohne Namen.
-- **Was entfällt:** Absagen und Leerlauf.
-- **Selbstorganisation:** hoch.
-- **Aufwand:** klein bis mittel.
-- **Neue Fehlerquelle:** eine gemeldete Kapazität wird als Zusage missverstanden. Sie erlischt darum automatisch, und der Text sagt «keine Zusage». Wettbewerbsfrage zwischen Teams: `lca`.
-- **Kleinster Test:** eine Meldung im Zeitfenster ergibt den Hinweis; ausserhalb keinen.
-
-**5 · Live-Status ohne Neuladen.**
-- Erst sinnvoll, wenn die Statusleiter (§5) stimmt.
-- Aufwand mittel; der Datenbankanbieter bietet das an, es kostet aber dauerhaft Verbindungen.
-- Kleinster Test: Ein Team übernimmt, und die offene Startseite zeigt es ohne Neuladen.
-
-## 9. Empfohlene Baufolge
-
-Ein abnahmefähiges Paket nach dem anderen, jedes mit eigenem Staging-Prüfpfad.
-
-**Kritik an deinem Reihenfolge-Vorschlag:**
-- Deine Schritte 2 (Wochenansicht mit **Lücken nach Station**) und 3 (**Lücke → Entwurf**) hängen von zwei Dingen ab, die in deiner Liste erst am Ende kommen:
-  - **Stationen**, die es im Datenmodell heute nicht gibt;
-  - eine **Planung des eigenen Personals**.
-- Ohne sie kann eine Wochenansicht nur externe Aufträge zeigen, keine Lücken.
-- Darum ziehe ich Stationen (BK-d) und den schlanken Bedarfsplan (Idee 1) **vor** die Wochenansicht.
-
-| # | Paket | Neu auf Staging bedienbar (Rolle) | Abhängigkeit | ESTIMATE |
+| # | Paket | Neu auf Staging bedienbar | Braucht | ESTIMATE |
 |---|---|---|---|---|
-| – | STAB1 (beschlossen) | nichts Sichtbares; sichere Grundlage | – | 2–3 Läufe |
-| – | AI1 (beschlossen): KI-Berichtsentwurf | **Pflegekraft:** Berichtsentwurf von Claude, vor der Unterschrift ändern | Founder-Einstellung Schlüssel und Kostengrenze | 3–5 Läufe |
-| 1 | **BK-d: Station + Auftrag aus einem Satz** | **Heim:** Station wählen, Bedarf in einem Satz schreiben, vorgeschlagene Felder prüfen, bestätigen, senden. **Erste echte KI im Heimablauf.** | AI1 | 4–6 Läufe |
-| 2 | **HEIM-1: Startseite + Register «Externe Aufträge»** | **Heim:** Startseite mit «Jetzt zu entscheiden», Statusleiter, ehrlicher Nullfall, Ordnung und Filter | BK-d (Stationen) | 3–4 Läufe |
-| 3 | **Mitteilungen an das Heim** | **Heim:** Mitteilung bei Übernahme und bei weggefallener Besetzung | HEIM-1; `lca` zum Inhalt | 2–3 Läufe |
-| 4 | **Bedarfsplan + Wochenansicht + Lücke → Entwurf** (Idee 1, mit Vorlagen Idee 2) | **Heim:** Woche sehen, Lücke erkennen, mit einem Tipp Entwurf; nach Zusage aktualisiert | HEIM-1, Stationen | 4–6 Läufe |
-| 5 | **Kosten & Rechnungen** | **Heim:** Monatsübersicht in fünf Spalten, CSV | – | 2–3 Läufe |
-| 6 | **Ändern und Stornieren** | **Heim:** Auftrag ändern oder stornieren; Team sieht dasselbe | Mitteilungen; Entscheide `lca`/`owner` | 4–6 Läufe |
-| 7 | **KI-Dienstplanung für eigenes Personal** (B2B) | **Dienstplanerin:** Plan mit Namen, KI-Vorschläge | Bedarfsplan; Lizenzmodul; `lca` | eigener Vertrag |
+| **W1** | **Woche und Personal (B2B, Kern)**: Stationen, benannte Mitarbeitende mit vom Heim bestätigter Stufe, Dienstvorlagen, Zuteilung, Abwesenheit, berechnete Lücke, «kann vertreten» | **Heimleitung:** ihre Woche mit Namen planen, eine Abwesenheit erfassen, die Lücke sehen, intern vertreten | nichts (neue Tabellen); `lca` zu Personaldaten | 4–6 Läufe |
+| STAB1 | eine Quelle je Auftrags- und Übernahmefunktion (schon beschlossen) | nichts Sichtbares | – | 2–3 Läufe |
+| **W2** | **Lücke → externer Auftrag → Status im Plan**, ehrlicher Nullfall, Zustand mit Zuständigkeit | **Heimleitung:** aus der Lücke mit zwei Tipps einen Auftrag senden und im Plan sehen, wann er übernommen ist. **Erster zusammenhängender Arbeitsplatz** | W1, STAB1 | 3–5 Läufe |
+| AI1 | KI-Berichtsentwurf (schon beschlossen), Anschluss live | **Pflegekraft:** Entwurf von Claude | Founder: Schlüssel und Kostengrenze auf Render | 3–5 Läufe |
+| **K-1** | **KI-Ergänzung im Auftragsentwurf** (Text oder Gerätediktat) | **Heimleitung:** Zusatzbedarf in eigenen Worten → markierte Vorschläge → bestätigen | AI1-Anschluss, W2 | 3–4 Läufe |
+| Ü1 | Übersicht mit «Morgenlage» und «Jetzt zu entscheiden», Mitteilung an das Heim bei Übernahme und Ausfall | **Heimleitung:** Morgenlage, Mitteilungen | W2; `lca` zum Inhalt | 3–4 Läufe |
+| Ä1 | Ändern und Stornieren in vier Zeitpunkten | **Heimleitung:** ändern ohne zwei Wahrheiten | Ü1; `lca`/`owner` | 4–6 Läufe |
+| K1 | Kosten in fünf Spalten, Monat, CSV | **Heimleitung:** Monatsabgleich | – | 2–3 Läufe |
+| P2 | Monatsansicht, KI-Umplanungsvorschlag bei Ausfall (B2B) | **Planerin:** Vorschlag für eigenes Personal | W1, AI1-Anschluss | eigener Vertrag |
 
-**Das nächste kleinste Paket nach BK-f** ist nach dem bestehenden Founder-Entscheid **STAB1**. Für das Heim bringt es nichts Sichtbares. Das erste für das Heim sichtbare Paket ist **BK-d** (Nummer 1), frühestens nach STAB1 und AI1: grob 10–15 Engineering-Läufe ab heute plus die Gate-Fenster (ESTIMATE). Wer früher etwas Sichtbares für das Heim will, muss die Reihenfolge ändern; das ist Entscheid 1 in §10.
+**Der erste zusammenhängende Heim-Arbeitsplatz** steht nach **W1 + STAB1 + W2**: grob 9–14 Engineering-Läufe plus Gate-Fenster (ESTIMATE). **Zum ersten Mal sichtbar für das Heim ist schon W1:** eigene Woche mit Namen und Lücken, grob 4–6 Läufe.
 
-**Erste echte KI im Heimablauf** (Paket 1, BK-d):
-- **Was sie tut:** Aus «Morgen Frühdienst 7–15 Uhr Station 2, eine FaGe für Grundpflege» schlägt sie Datum, Zeit, Station, Tätigkeit und Stufe vor. Die Stufe nur, wenn sie wörtlich genannt ist. Jedes Feld nennt die Textstelle als Quelle.
-- **Was feste Regel bleibt:** Region, Stufe zu Tätigkeit, Zeit, Eignung der Teams.
-- **Sichtbarer Unterschied:**
-  - «KI-Vorschlag aus Ihrem Text»: angeschlossenes Modell, nur Staging, synthetische Daten;
-  - «geprüft nach Regel»: feste Regel;
-  - in der CI ein Testersatz mit festem Antworttext, nie als KI bezeichnet.
-- **Messung:** Anteil richtig erkannter Felder auf einem synthetischen Satzkorpus, Anzahl Korrekturen bis zum Absenden, Kosten und Dauer je Aufruf. Fällt das Modell aus, bleibt das Formular vollständig nutzbar.
+**KI vor oder nach der Wochenansicht? Empfehlung: danach, aber direkt** (K-1 sofort nach AI1). Begründung:
+1. **Die Lücke liefert den grössten Teil der Angaben deterministisch:** Zeit, Station, Stufe, Tätigkeiten. Die KI muss dann nur die frei formulierte Ergänzung strukturieren. Das ist weniger Fehlerfläche, besser messbar und ehrlicher.
+2. **Ohne Wochenansicht** würde die KI wieder nur ein Einzelformular füllen. Genau das hast du als schwaches Heimprodukt bezeichnet.
+3. **AI1 vor K-1 bleibt richtig:** Der Anschluss mit Not-Aus, Kostengrenze und Protokoll von Vorschlag und Entscheid ist dort fast fertig, und K-1 baut darauf.
 
-## 10. Offene Founder-Entscheide
+**Erste echte KI auf Staging:**
+- als Berichtsentwurf (AI1, Pflegekraft) nach W1 + STAB1 + W2 + AI1: grob 12–19 Läufe;
+- im Heimablauf (K-1) etwa 3–4 Läufe danach.
 
-Nur Punkte, die PO und `eng` nicht selbst entscheiden können:
+**Alternative für dich (Entscheid 1):** AI1 vor W2 ziehen. Die erste echte KI käme dann etwa 3–5 Läufe früher, der zusammenhängende Arbeitsplatz entsprechend später.
 
-1. **Reihenfolge:** Bleibt es bei STAB1 → AI1 → BK-d (FE-099)? Oder soll ein kleines, nur lesendes HEIM-1 «Startseite + Aufträge geordnet» (ESTIMATE 2–3 Läufe, ohne Stationen) **vor AI1** kommen, damit das Heim früher einen Arbeitsplatz sieht? Das würde die erste echte KI um diese Läufe verschieben.
-2. **Geschäftsmodell Bedarfsplan:** Gehört der schlanke Bedarfsplan (Idee 1) zur Grundplattform oder schon zum bezahlten B2B-Modul Dienstplanung (GM-2)?
-3. **Diktat:** Ob und mit welchem Anbieter Sprache in Text umgewandelt wird. Anbieterwahl ist dein Entscheid.
+## 6. Grenzen und offene Regeln
 
-**Nicht bei dir, sondern bei den Fachrollen (OPEN):**
-- Schwelle «gefährdet» und Matrix-Hinweis zur Stufe: `cra` / Clinical Owner.
-- Folgen kurzfristiger Stornierung: `lca` / `owner`.
-- Inhalt von Mitteilungen und Leistungsbestätigung: `lca`.
-- Gruppierung der Tätigkeiten: `cra`; Wortlaut: `uxa`.
-- KI-Kontrollen für die Auftragserfassung: `aia`.
+**Besetzungsanforderungen:** «mindestens 1 HF pro Frühdienst» legt **das Heim** in seiner Dienstvorlage fest. NAVORA schreibt keine Personalschlüssel vor und prüft sie nicht gegen kantonale Vorgaben: OPEN, `cra`/`lca`. Die Ansicht sagt: «Anforderung des Heims».
 
-**PO:** Bitte ergänze deine Sicht zu §2 (welches Register zuerst), §9 (Reihenfolge) und §10 (welche Entscheide wirklich beim Founder liegen) direkt im PR oder in einem eigenen Abschnitt. Danach ist diese Vorlage die gemeinsame.
+**Qualifikationen des Heimpersonals:**
+- Sie heissen «vom Heim bestätigt». Das Heim ist Arbeitgeber und verantwortlich.
+- Sie werden nie mit den verifizierten Nachweisen der Teamplattform vermischt und nie an Teams übermittelt.
+
+**Abwesenheiten:**
+- Gespeichert wird nur «abwesend von–bis» ohne Grund. Krankheit ist eine Gesundheitsangabe.
+- Ob und wie ein Grund erfasst wird: `lca`.
+
+**«Kann vertreten»:**
+- prüft nur Plan, Abwesenheit und Stufe;
+- **nicht** Arbeitszeit, Ruhezeiten oder Überstunden. Das wären Arbeitsgesetz-Regeln, OPEN, `lca`; sie werden nicht erfunden.
+- Die Ansicht sagt das sichtbar.
+
+**Rechte im B2B-Modul:**
+- Heimleitung und Planerin sehen Namen und Pläne.
+- Mitarbeitende sehen später nur ihren eigenen Plan.
+- Teams sehen nichts davon.
+- Die Rollen benennt der PO, die Rechte setzt `eng` mit RLS und pgTAP-Tests um.
+
+**Weitere OPEN-Punkte:**
+- Schwelle «gefährdet»: `cra`.
+- Folgen kurzfristiger Stornierung: `lca`/`owner`.
+- Inhalt der Mitteilungen an das Heim: `lca`.
+
+## 7. Innovationsvorschläge, priorisiert
+
+1. **Morgenlage mit «kann vertreten»** (§3)
+   - Spart täglich das Zusammensuchen.
+   - Aufwand klein auf W1, feste Regel.
+   - Neue Fehlerquelle: Arbeitszeit wird nicht geprüft, was sichtbar vermerkt ist.
+   - Kleinster Test: Synthetisch ist Carla abwesend und David frei. Erwartet wird genau David als Vorschlag, Ben nicht, weil er schon eingeplant ist.
+2. **Lücke mit Zuständigkeit** (§3)
+   - Verhindert, dass zwei Leute dieselbe Lücke parallel lösen oder dass niemand sie löst.
+   - Aufwand klein.
+   - Kleinster Test: Intern besetzen, während extern angefragt ist. Erwartet wird ein Entscheid-Hinweis, keine stille Doppelbesetzung.
+3. **Dienstvorlagen statt Wochen-Neuerfassung**
+   - Die Woche wird aus der Vorlage erzeugt; danach werden nur Abweichungen gepflegt.
+   - Aufwand klein.
+   - Kleinster Test: Eine neue Woche übernimmt alle Vorlagen, und eine Abweichung bleibt nur in ihrer Woche.
+4. **Leistungsbestätigung aus dem Bericht in der Dienstzelle**
+   - Zeit und Tätigkeitscodes, kein Pflegetext (`lca`).
+   - Spart den Abgleich von Rechnung und Plan.
+5. **Freiwillig gemeldete Teamkapazität**
+   - Später, nach W2.
+   - Wettbewerbsfrage: `lca`.
+
+## 8. Founder-Entscheide, die wirklich bei dir liegen
+
+1. **Reihenfolge:** Folgst du dem Vorschlag W1 → STAB1 → W2 → AI1 → K-1? Er weicht von FE-099 (7) ab, wo STAB1 → AI1 → BK-d steht. Oder soll AI1 vor W2 kommen? (§5)
+2. **Ein Heim, das nur das B2B-Modul hat:** Darf es in der Simulation auf Staging ohne Lizenzprüfung freigeschaltet sein, bis Preis und Modulabrechnung (GM-2) entschieden sind?
+
+Alles andere entscheiden PO und Fachrollen in ihrem Mandat (§6).
+
+**PO:** Bitte ergänze deine Sicht zu:
+- §2: welche Register in W1 sichtbar sind;
+- §5: deine Baufolge und den Paketvertrag W1;
+- §8: ob du die Entscheide gleich siehst.
 
 ---
 
-## Anhang: technische Belege
+## Anhang: Belege
 
-- **Staging-Nachweis:** `staging-smoke` Lauf 44744533079, Job 136316309345, App-Commit `8051283`, Datenbank bis Migration 0157. Pfade 1–3 in `tests/staging-smoke/founder-click-paths.spec.ts`.
-- **Eignungsprüfung je Person:** `private.order_member_step` (0132), Stufen 0–4: aktiv und Zugang offen / Stufe verifiziert / Tätigkeitsnachweis / frei für die ganze Schicht laut Abwesenheiten und Einsätzen / geeignet.
-  - Gesamtprüfung: `private.screen_order_reach` (0130, 0132).
-  - Das Ergebnis wird einmal beim Absenden gespeichert (AUT-117 (b)).
-- **Statustexte heute:** `clientCoverLines` in `src/features/orders/offer-rules.ts`. Ausfall-Signal an das Team: Migration 0144 `take_member_dropped`. Bestätigung und Freigabe: 0136.
-- **Rechnungen:** `team_invoice_drafts` mit den Zuständen Entwurf / gesendet / ungültig, `public.client_invoices` (0156); Preis-Snapshot bei der Übernahme (0155).
+- **Staging-Nachweis heute:** `staging-smoke` 44744533079 (4/4) auf App-Commit `8051283`, Datenbank bis 0157. Pfade 1–3 in `tests/staging-smoke/founder-click-paths.spec.ts`.
+- **Im Code vorhanden und wiederverwendbar:**
+  - Auftragsprüfung `preview_client_order` / `confirm_client_order`;
+  - Eignung je Person `private.order_member_step` (0132);
+  - Angebot an Teams `private.screen_order_reach`;
+  - Statustexte `clientCoverLines`;
+  - Ausfall-Signal 0144;
+  - Rechnungen 0155/0156;
+  - KI-Anschluss mit Testersatz (`src/lib/ai/report-draft/`, Brief `AI1.md`).
 - **Fehlt im Code:**
-  - keine Tabelle für Station oder Standort;
-  - kein Befehl zum Stornieren oder Ändern durch das Heim;
-  - keine Benachrichtigung an Kundenkonten (SIG2 nur für Mitglieder);
-  - `client_shift_plans` nur zur Anzeige.
-- **Geplante Grundlage für KI:** `docs/agents/briefs/AI1.md` (Anschluss, Not-Aus, Kostengrenze, Quelle je Zeile); BK-d laut `docs/agents/briefs/BK.md` §PO amendment, «Station bestellt» auf dem AI1-Anschluss.
+  - Station oder Standort;
+  - Heimpersonal und Dienstplan;
+  - Stornieren oder Ändern durch das Heim;
+  - Mitteilungen an Kundenkonten;
+  - Lizenz- und Modulfreischaltung.
+- **STAB1-Umfang:** `docs/agents/briefs/STAB1.md` (Tranche 1, ohne die vier Funktionen der Tranche 2; ESTIMATE 2–3 Läufe).
