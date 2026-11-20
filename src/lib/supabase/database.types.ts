@@ -1413,14 +1413,14 @@ isOneToOne: false
                   ]
                 },"order_takes": {
                   Row: {
-                    "acknowledged_at": string | null,"id": string,"member_id": string,"order_id": string,"organization_id": string,"release_reason": string | null,"released_at": string | null,"released_by": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
+                    "acknowledged_at": string | null,"id": string,"member_id": string,"order_id": string,"organization_id": string,"price_id": string | null,"price_per_hour_snapshot": number | null,"release_reason": string | null,"released_at": string | null,"released_by": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "acknowledged_at"?: string | null,"id"?: string,"member_id": string,"order_id": string,"organization_id": string,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
+                    "acknowledged_at"?: string | null,"id"?: string,"member_id": string,"order_id": string,"organization_id": string,"price_id"?: string | null,"price_per_hour_snapshot"?: number | null,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
                   }
                   Update: {
-                    "acknowledged_at"?: string | null,"id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
+                    "acknowledged_at"?: string | null,"id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"price_id"?: string | null,"price_per_hour_snapshot"?: number | null,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
                   }
                   Relationships: [
                     {
@@ -1434,6 +1434,12 @@ isOneToOne: false
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_takes_price_id_fkey"
+      columns: ["price_id"]
+isOneToOne: false
+      referencedRelation: "team_prices"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "order_takes_team_id_fkey"
@@ -2371,6 +2377,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"team_prices": {
+                  Row: {
+                    "currency": string,"id": string,"note": string | null,"organization_id": string,"price_per_hour": number,"set_at": string,"set_by": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "currency"?: string,"id"?: string,"note"?: string | null,"organization_id": string,"price_per_hour": number,"set_at"?: string,"set_by": string,"team_id": string
+                  }
+                  Update: {
+                    "currency"?: string,"id"?: string,"note"?: string | null,"organization_id"?: string,"price_per_hour"?: number,"set_at"?: string,"set_by"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_prices_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_prices_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"team_service_postcodes": {
                   Row: {
                     "created_at": string,"postcode": string,"team_id": string
@@ -3146,6 +3178,11 @@ isOneToOne: false
               "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
                            },
+"my_team_prices":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "currency": string,"price_per_hour": number,"set_at": string,"team_id": string,"team_name": string
+            }[]
+                           },
 "my_team_reach":
 { Args: Record<PropertyKey, never>; Returns: {
               "max_distance_km": number,"postcodes": (string)[],"reach_changed_at": string,"team_id": string,"team_name": string,"team_status": string
@@ -3407,6 +3444,9 @@ isOneToOne: false
                            },
 "set_team_day_proposal":
 { Args: { "p_idempotency_key": string,"p_on": boolean,"p_team_id": string }; Returns: string
+                           },
+"set_team_price":
+{ Args: { "p_idempotency_key": string,"p_price_per_hour": number,"p_team_id": string }; Returns: Json
                            },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
