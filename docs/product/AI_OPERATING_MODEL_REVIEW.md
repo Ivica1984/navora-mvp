@@ -674,6 +674,19 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Stage tracking:** since 0153 (#1572) the `report_draft_model` database gate can open in simulation organisations; no model is called because `AI_REPORT_DRAFT_MODE` and the provider key are unset (founder, FE-094 (d); `lca`, D-35). AUT-152 and AUT-158 closed.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**AI1 reviewed: the first connected model function, six controls before its contract (`aia` 2026-11-20 13:52, review 77, AUT-165 to AUT-170):**
+- **Recommendation:** AI1 (report draft from the carer's own words, Claude on `navora-staging`, synthetic data) is supported as the first connected model function (FE-099 (4)). It is assistance at the edge with a named confirmer and a safe failure. Not a gate; AI1 is PLANNED after STAB1.
+- **Controls proposed for the AI1 contract:**
+  - AUT-165: the model input stays the carer's text plus recorded start and end time; no services in the payload (L-1497-1). The brief text deviates from the code; the code is narrower and stays.
+  - AUT-166: the cost gateway reserves a call and a token budget in the database before the call, per environment; month budget in tokens with a recorded price version; CHF labelled estimate until measured.
+  - AUT-167: the system prompt and output schema are pinned to the registered agent version; a prompt change raises the version and restarts the stop-rule window.
+  - AUT-168: measures of the purpose at team level: taps and characters per report (rule against model arm), ledger outcome shares per team and week, minutes from end of visit to signed report.
+  - AUT-169: the evaluation set is frozen before the first real-model run; `cra` co-signs the safety-case expectations; three runs per case, zero invented facts in all three; share of invalid or cut JSON reported.
+  - AUT-170: NAVORA offers no dictation control; OS keyboard dictation is outside NAVORA and needs a `lca` reading before real persons.
+  - All PROPOSED (PO for the contract; `eng`, `cra`, `lca`, `uxa` as named). None needs a new founder decision.
+- **Catalogue:** `report_draft_model` unchanged (registered, closed by app configuration). BK-f (0154 to 0156) merged as fixed rules; no agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -752,3 +765,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-19 19:05 | `aia` | §12: block «BK-e2a 2b-1 (a) on its merged head; package checks named»: `aia-gate` line on #1527 `e638c57`; control AUT-158. No agent added or removed |
 | 2026-11-20 02:18 | `aia` | §12: block «BK-e2 Abschlusspaket gated; first registered `ai` agent on the branch»: `aia-gate` line on #1549 `e149e04`; controls AUT-159 to AUT-161. Catalogue: `report_draft_model` IMPLEMENTED on the PR branch (closed, `no_threshold`) |
 | 2026-11-20 08:19 | `aia` | §12: block «BK-f contract pre-read; an invoice never routes through the signed report»: fixed-rule label check on #1581; controls AUT-162 to AUT-164; AUT-152 and AUT-158 closed. No agent added or removed |
+| 2026-11-20 13:52 | `aia` | §12: block «AI1 reviewed: the first connected model function, six controls before its contract»: controls AUT-165 to AUT-170 (PROPOSED). No agent added or removed |
