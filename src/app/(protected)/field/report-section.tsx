@@ -15,6 +15,8 @@ import {
 import { returnConfirmation, reportView, type FieldReport } from "@/features/field/report";
 import { signWaitText, type SignGate } from "@/features/field/report-assist";
 import ReportAssistPanel from "./report-assist-panel";
+import type { TakeInvoiceState } from "@/features/invoices/queries";
+import { fieldInvoiceLine } from "@/features/invoices/rules";
 
 const TONE_CLASS = {
   open: "border-amber-500 bg-amber-50",
@@ -38,7 +40,10 @@ export default function ReportSection({
   visitDate,
   visitStatus,
   report,
+  invoice,
 }: {
+  /** BK-f (0156): the newest invoice row of a signed taken shift; one line, nothing to type. */
+  invoice?: TakeInvoiceState;
   visitId: string;
   /** BK-e2a part 2: the day the report-draft command reads the report from. */
   visitDate?: string | null;
@@ -105,6 +110,11 @@ export default function ReportSection({
         </p>
       )}
       {view.hint && <p className="text-xs text-secondary">{view.hint}</p>}
+      {report?.status === "final" && invoice && fieldInvoiceLine(invoice.state, invoice.refusal_reason) && (
+        <p data-testid="report-invoice-line" role="status" className="text-xs font-semibold">
+          {fieldInvoiceLine(invoice.state, invoice.refusal_reason)}
+        </p>
+      )}
       {report?.returned && report.return_reason && (
         // F6R-7: the reason is shown only to the performer and the team's registered nurses (the database nulls it otherwise).
         <div data-testid="return-reason" className="grid gap-1 rounded-lg border border-amber-300 bg-white p-2 text-xs">

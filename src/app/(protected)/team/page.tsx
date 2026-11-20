@@ -13,6 +13,7 @@ import { getContractEndHandover, getLeaverOpenReports, getSuccessorItems } from 
 import { getAssessmentInstruments, getTeamCaseAssessments } from "@/features/assessment/queries";
 import { getOpenSuggestionCount, getTeamLookbackStops, toTeamLookbackStops } from "@/features/ai/queries";
 import { getTeamShiftOffers } from "@/features/orders/team-queries";
+import { getMyTeamInvoiceDrafts, getMyTeamPrices } from "@/features/invoices/queries";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -52,11 +53,14 @@ export default async function TeamPage() {
   // PLAN3-12 (ADR-148): the count on the "Vorschläge" link, from the proposals of the teams in the caller's own case list.
   // PLAN3-11 (ADR-149): the stops with open look-back lines of the caller's own teams.
   // BK-c2 (ADR-200): the shift-order offers of the caller's teams.
-  const [leaverReports, openSuggestions, lookbackStops, shiftOffers] = await Promise.all([
+  // BK-f (0156): the invoice drafts of the caller's teams, built from signed take reports.
+  const [leaverReports, openSuggestions, lookbackStops, shiftOffers, invoiceDrafts, teamPrices] = await Promise.all([
     getLeaverOpenReports(leavers),
     getOpenSuggestionCount(cases.map((c) => c.team_id)),
     getTeamLookbackStops(),
     getTeamShiftOffers(),
+    getMyTeamInvoiceDrafts(),
+    getMyTeamPrices(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} openSuggestions={openSuggestions} lookbackStops={toTeamLookbackStops(lookbackStops)} shiftOffers={shiftOffers} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} openSuggestions={openSuggestions} lookbackStops={toTeamLookbackStops(lookbackStops)} shiftOffers={shiftOffers} invoiceDrafts={invoiceDrafts} teamPrices={teamPrices} />;
 }
