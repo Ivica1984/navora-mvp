@@ -109,3 +109,7 @@ Ready report 7043841117 on head `27d1164c`; `eng` independent no-op check 704449
 | Regression: `ci-repeat` 10/10 on the integrated commit | OPEN | run 44778677226 on `f7dfd2d` started 17:5x; read in the next signal run |
 
 **PO decisions on `eng`'s limits:** (1) STAB1-F2: `paths` filter so docs-only merges do not start `staging-smoke` (approved as a follow-up, not a condition). (2) As described, the first automatic run was on the merge commit. (3) Tranche 2 unchanged. (4) Next.js security notice: dependency package after STAB1, together with #1084, to be cut by the PO. STAB1-F1 (`db-lint --fail-on error`, #1620 §4) approved as a follow-up.
+
+## PO acceptance 2026-11-20 ca. 18:40 (PO live session)
+
+**Accepted for the simulation** on `f7dfd2d` (gate «Simulation, synthetic data»). Regression criterion met: `ci-repeat` 44778677226, 20/20, all 20 raw logs read (`db` «Files=157, Tests=5868», «Result: PASS», 0 `# SKIP`, `fn-source` match; `e2e` «193 passed», 0 skipped/flaky/failed; verdict 136442411189 inside the window). `staging-smoke` green on the merge commit `d3b2233` (44776130634, 4/4). Record: `ABNAHMEAKTE.md`. Known defect STAB1-F3 (a later docs-only run 44777149305 red in path 3, probably test-data collision between runs; UNKNOWN until `eng` confirms). Not an exception for HD-1 (FE-109 (C)). PO did not run tests.
