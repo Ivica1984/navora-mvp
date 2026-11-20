@@ -19,7 +19,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(52);
+select plan(56);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -239,6 +239,24 @@ select is(pg_temp.sign('01', pg_temp.r('o4'), 34), 'ok', 'M1 signs o4 while the 
 select is(pg_temp.status(pg_temp.r('o4')), 'final', 'contract 2 (b): a failing draft build leaves the report final');
 select is((pg_temp.last('o4')).refusal_reason, 'build_failed', 'the failed build is stored as build_failed (never silent)');
 alter table public.team_invoice_drafts drop constraint pgtap_156_fail_drafts;
+
+-- 8b. BKF-F2 (eng review 7033482091, PO cut 08:39): the amount is exact to 2 decimals also on a half-Rappen tie.
+-- 203 minutes at 70.50 = 238.525 exactly → 238.53 (round half up). Dividing first (203 / 60 × 70.50) gives 238.52.
+-- Synthetic order o6 23.11. 08:00–11:30 (210 minutes), worked 08:00–11:23 (203 minutes, within the test tolerance 15).
+-- No rounding rule is set here: 2 decimals is the contract criterion (point 5); 5-Rappen rounding stays OPEN for lca.
+-- the clock moves on 5 minutes, so the new price is the newest by set_at (team_current_price orders by set_at).
+select set_config('navora.test_now', '2026-11-16 12:05:00+01', true) is not null as clock;
+select is(pg_temp.cmd(pg_temp.m('01')::text, format('select public.set_team_price(%L, 70.50, %L)', pg_temp.t('01'), pg_temp.key(80))) ->> 'result',
+  'ok', 'T1 changes its own price to 70.50 (Beispielwert, kein Tarif; later takes only)');
+insert into made
+  select 'o6', pg_temp.cmd(pg_temp.client(), format(
+    'select public.confirm_client_order(%L, %L::date, time ''08:00'', time ''11:30'', ''4102'', ''fage_efz'', array[''C1''], array[''C1''], null, %L)',
+    pg_temp.acct(), '2026-11-23', pg_temp.key(16)));
+select is(pg_temp.take('01', 'o6', '01', 26), 'ok', 'M1 takes o6 for T1 (price snapshot 70.50)');
+insert into rep values ('o6', pg_temp.worked('o6', '01', '2026-11-23', '08:00', '11:23', 6));   -- 203 minutes
+select is(pg_temp.sign('01', pg_temp.r('o6'), 36), 'ok', 'M1 signs the o6 take report');
+select is((pg_temp.last('o6')).amount_chf, 238.53::numeric(10,2),
+  'BKF-F2: 203 / 60 × 70.50 = 238.525 → 238.53, exact to 2 decimals (no loss from dividing first)');
 
 -- 9. Table rules and least privilege (G-6) ------------------------------------------------------------------------------------
 select throws_ok(format($$ update public.team_invoice_drafts set amount_chf = 1 where id = %L $$, (pg_temp.live('o1')).id),
