@@ -8,6 +8,16 @@ describe("STAB-1 no text patch after the cutoff", () => {
     expect(findTextPatches([{ name: after, content: "select private.bk_f_patch('public.f(uuid)', array[]);" }])).toHaveLength(1);
     expect(findTextPatches([{ name: after, content: "def text := pg_get_functiondef(p_fn::regprocedure);" }])).toHaveLength(1);
   });
+  it("refuses a text patch that reads the body from pg_proc.prosrc or executes a replaced text (eng review 2026-11-20 16:20)", () => {
+    const after = "29991231000000_x.sql";
+    expect(findTextPatches([{ name: after, content: "select prosrc into b from pg_proc where proname = 'take_order';" }])).toHaveLength(1);
+    expect(findTextPatches([{ name: after, content: "execute replace(b, 'v_old', 'v_new');" }])).toHaveLength(1);
+    expect(findTextPatches([{ name: after, content: "EXECUTE regexp_replace(b, 'x', 'y');" }])).toHaveLength(1);
+  });
+  it("still accepts ordinary replace() inside a re-created function body", () => {
+    const after = "29991231000000_x.sql";
+    expect(findTextPatches([{ name: after, content: "create or replace function public.f(t text) returns text language sql as $$ select replace(t, 'a', 'b') $$;" }])).toEqual([]);
+  });
   it("accepts a whole-file re-creation and leaves history alone", () => {
     const after = "29991231000000_x.sql";
     expect(findTextPatches([{ name: after, content: "create or replace function public.f() returns int language sql as $$ select 1 $$;" }])).toEqual([]);

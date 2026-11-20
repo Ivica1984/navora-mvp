@@ -8,7 +8,15 @@ import { join } from "node:path";
 
 export const CUTOFF = "20261021000153"; // highest migration on recovery/main when the rule was set (2026-11-20)
 const DIR = "supabase/migrations";
-const FORBIDDEN = [/pg_get_functiondef\s*\(/i, /\b\w*_patch\s*\(/i, /\breplace\s*\(\s*def\b/i];
+// eng review 2026-11-20 16:20: also the two other ways to patch by text, reading the body from pg_proc.prosrc and
+// executing a replaced string; an ordinary replace() inside a re-created function body stays allowed.
+const FORBIDDEN = [
+  /pg_get_functiondef\s*\(/i,
+  /\b\w*_patch\s*\(/i,
+  /\breplace\s*\(\s*def\b/i,
+  /\bprosrc\b/i,
+  /\bexecute\s+(regexp_)?replace\s*\(/i,
+];
 
 export function findTextPatches(files) {
   const problems = [];
