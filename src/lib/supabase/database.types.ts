@@ -1089,6 +1089,20 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"invoice_time_tolerances": {
+                  Row: {
+                    "created_at": string,"key": string,"lca_ref": string,"tolerance_minutes": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"key": string,"lca_ref": string,"tolerance_minutes": number
+                  }
+                  Update: {
+                    "created_at"?: string,"key"?: string,"lca_ref"?: string,"tolerance_minutes"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"match_candidates": {
                   Row: {
                     "created_at": string,"distance_km": number | null,"fit_score": number,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string,"team_id": string | null,"utilization": number | null
@@ -2389,6 +2403,62 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"team_invoice_drafts": {
+                  Row: {
+                    "amount_chf": number | null,"client_account_id": string | null,"created_at": string,"created_by": string | null,"currency": string,"id": string,"order_id": string,"ordered_minutes": number | null,"organization_id": string,"price_per_hour": number | null,"recorded_minutes": number | null,"refusal_reason": string | null,"report_id": string,"report_snapshot_hash": string,"report_version": number,"sent_at": string | null,"sent_by": string | null,"seq": number,"state": string,"take_id": string,"team_id": string,"tolerance_minutes": number | null,"visit_id": string,"void_reason": string | null,"voided_at": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_chf"?: number | null,"client_account_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"order_id": string,"ordered_minutes"?: number | null,"organization_id": string,"price_per_hour"?: number | null,"recorded_minutes"?: number | null,"refusal_reason"?: string | null,"report_id": string,"report_snapshot_hash": string,"report_version": number,"sent_at"?: string | null,"sent_by"?: string | null,"seq"?: never,"state": string,"take_id": string,"team_id": string,"tolerance_minutes"?: number | null,"visit_id": string,"void_reason"?: string | null,"voided_at"?: string | null
+                  }
+                  Update: {
+                    "amount_chf"?: number | null,"client_account_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"order_id"?: string,"ordered_minutes"?: number | null,"organization_id"?: string,"price_per_hour"?: number | null,"recorded_minutes"?: number | null,"refusal_reason"?: string | null,"report_id"?: string,"report_snapshot_hash"?: string,"report_version"?: number,"sent_at"?: string | null,"sent_by"?: string | null,"seq"?: never,"state"?: string,"take_id"?: string,"team_id"?: string,"tolerance_minutes"?: number | null,"visit_id"?: string,"void_reason"?: string | null,"voided_at"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_invoice_drafts_client_account_id_fkey"
+      columns: ["client_account_id"]
+isOneToOne: false
+      referencedRelation: "client_accounts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_invoice_drafts_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "partner_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_invoice_drafts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_invoice_drafts_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "visit_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_invoice_drafts_take_id_fkey"
+      columns: ["take_id"]
+isOneToOne: false
+      referencedRelation: "order_takes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_invoice_drafts_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_invoice_drafts_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"team_memberships": {
                   Row: {
                     "created_at": string,"qualification": string | null,"team_id": string,"user_id": string
@@ -2965,6 +3035,9 @@ isOneToOne: false
               "billable_visits": number,"insurer_chf": number,"insurer_complete": boolean,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_billable": Json,"patient_on_file": boolean,"reference_validated": boolean,"residual_on_file": boolean,"team_id": string,"team_name": string
             }[]
                            },
+"build_team_invoice_draft":
+{ Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
+                           },
 "cancel_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
                            },
@@ -2975,6 +3048,11 @@ isOneToOne: false
                            },
 "change_absence":
 { Args: { "p_absence_id": string,"p_idempotency_key": string,"p_until": string,"p_until_time": string,"p_withdraw": boolean }; Returns: Json
+                           },
+"client_invoices":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "amount_chf": number,"client_account_id": string,"currency": string,"hours": number,"id": string,"price_per_hour": number,"sent_at": string,"state": string,"team_name": string,"visit_date": string,"voided_at": string
+            }[]
                            },
 "client_orders":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -3210,6 +3288,16 @@ isOneToOne: false
               "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
                            },
+"my_take_invoice_state":
+{ Args: { "p_visit_id": string }; Returns: {
+              "amount_chf": number,"refusal_reason": string,"state": string
+            }[]
+                           },
+"my_team_invoice_drafts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "amount_chf": number,"client_name": string,"created_at": string,"currency": string,"id": string,"ordered_minutes": number,"price_per_hour": number,"recorded_minutes": number,"refusal_reason": string,"report_version": number,"sent_at": string,"state": string,"team_id": string,"team_name": string,"visit_date": string,"void_reason": string,"voided_at": string
+            }[]
+                           },
 "my_team_prices":
 { Args: Record<PropertyKey, never>; Returns: {
               "currency": string,"price_per_hour": number,"set_at": string,"team_id": string,"team_name": string
@@ -3431,6 +3519,9 @@ isOneToOne: false
                            },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
+                           },
+"send_team_invoice_draft":
+{ Args: { "p_draft_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "set_agent_state":
 { Args: { "p_agent_key": string,"p_idempotency_key": string,"p_on": boolean,"p_organization_id": string,"p_stop_min_proposals": number,"p_stop_share": number,"p_stop_window_days": number }; Returns: Json
