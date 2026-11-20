@@ -26,6 +26,16 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-20 / PR #1611, Merge `eaa1c21`] Gelernte Lektion: Parallele Doku-PRs kollidieren in den Zeilentabellen
+- **Was war das Fehlerbild?** #1611 wurde `dirty`, nachdem #1600 gemergt war. Es gab Konflikte in `docs/agents/IMPLEMENTATION_STATUS.md` und `docs/agents/OPEN_DECISIONS.md`.
+- **Was war die technische Ursache?** Beide PRs fügten eine neue Zeile an derselben Stelle ein (nach `MERGE1` und vor `COORD-7`). Git kann zwei Einfügungen an derselben Stelle nicht ordnen.
+- **Die verbindliche Lösungsregel ab jetzt:**
+  - Bei solchen Konflikten beide Zeilen behalten. Keine Zeile einer anderen Rolle oder eines anderen PRs löschen oder umformulieren.
+  - Danach `agents-check` laufen lassen.
+  - Neue `eng-proposal`-Zeilen nicht mehr alle an dieselbe Ankerzeile hängen, solange MERGE1 (eine Datei je Zeile) nicht gebaut ist.
+  - Höchstens einen offenen Doku-PR je Thema führen; Folgen in denselben PR.
+- **Abgesichert durch:** `node scripts/agents-check.mjs`, das in CI läuft (Tabellen gültig, Verweise vorhanden). Strukturell OPEN: MERGE1.
+
 ### [2026-11-20 / EVAL0 P0] Gelernte Lektion: Kommandozeilen-Schalter nie durch einen echten Aufruf prüfen
 - **Was war das Fehlerbild?** Um zu prüfen, ob `claude` 2.1.329 `--max-turns` kennt, startete `eng` `claude -p --max-turns 1 "x"`. Das war ein echter, abgerechneter Modellaufruf in einer Umgebung mit NAVORA-Schreibzugang. Folgen: nur eine Satz-Antwort, kein Werkzeug benutzt, nichts geändert.
 - **Was war die technische Ursache?** Die Annahme «ohne `ANTHROPIC_API_KEY` kein Modellzugang» war falsch: Die CLI ist in der Cloud-Sitzung über deren eigene Anmeldung angemeldet. Ausserdem listet `--help` nicht jeden Schalter, der angenommen wird.
