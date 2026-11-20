@@ -4522,3 +4522,11 @@ Block BK, slice BK-e, part 2b-1 (brief `BK.md` §PO amendment 2026-11-19 08:39).
 6. **Q6 Security (estimate 2–3 runs):** (a) CodeQL in CI; grouped automatic dependency updates with full CI; secret scanning; SBOM per release; the `next` moderate alert fixed by a tested upgrade. **Founder decision needed (OPEN):** default branch: make `recovery/main` the default branch, or bring `main` up to it (PR #3); until then GitHub shows 25 alerts on outdated code.
 
 **Way back:** every item is its own PR and can be reverted alone; no item changes RLS, grants, audit or a clinical rule. **Not decided by `eng`:** clinical rules (D-27), providers and regions, costs. **Tests:** each package names its positive, negative and permission tests in its contract, as FE-095 requires.
+
+### ADR-220 — Q1 (a): version and migration level visible; CI checks that staging app and database match (PROPOSED, `eng` 2026-11-19 21:45, founder order #1557)
+
+1. **Footer (IMPLEMENTED):** every page ends with «Version <7-char commit> · Datenbank <last 4 digits of the migration>». The commit is Render's `RENDER_GIT_COMMIT` at run time (UNKNOWN until the first deploy shows it; without it the footer says «lokal»); the migration is the highest file in `supabase/migrations` at build time (`next.config.ts`). A tester can name exactly what she saw.
+2. **`/api/version` (IMPLEMENTED):** public, no session, no data: `{commit, migration}` only (the repository is public, so nothing new is revealed). Added to the public-path list with a unit test.
+3. **`staging-version` workflow (IMPLEMENTED):** after each merge into `recovery/main` it waits up to 20 minutes for Render to serve that commit, then compares the expected migration with the highest one applied on `navora-staging` (read-only query, project ref checked, `STAGING_DB_URL`; warns and compares only the app side if the secret is missing). Hourly as well. Fails on a mismatch, on a served commit that is not on `recovery/main`, or when Render does not deploy. This turns «is the founder's staging current?» from a manual read into a red or green check.
+4. **Way back:** delete the footer element, the route and the workflow; no migration, no data.
+5. **Tests:** `tests/unit/version.test.ts` (4). The workflow runs for the first time on the merge commit of this PR.
