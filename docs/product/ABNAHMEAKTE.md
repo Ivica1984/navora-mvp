@@ -177,6 +177,19 @@ Was die Protokolle zeigen:
 - **Vor realen Personen offen:** BK-f-F1 «Abweichung bestätigen», BK-f-F2 «Neubewertung einer Ablehnung», BK-f-F3 (Sichtbarkeit des Teampreises für andere Teams, `lca`), CGR-263 bis CGR-266, UXR-261 bis UXR-264; dazu die Listen von BK-c und BK-e.
 - **Folge:** nächstes Paket STAB1 (technisches Stabilisierungspaket, FE-099, FE-100), danach nach Founder-Entscheid FE-108 §7 entweder AI1/BK-d oder H1.
 
+### STAB1 Eine lesbare Quelle je Datenbankfunktion (technisches Paket, FE-099, FE-100)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»). Entscheid PO-Live-Sitzung 2026-11-20 ca. 18:40 auf dem benannten Commit **`f7dfd2d`** (`recovery/main` nach #1619 `d3b2233`, #1620 und #1618; beide nur Dokumentation, Code gleich `d3b2233`). Kriterien: `docs/agents/briefs/STAB1.md` mit dem PO-Nachtrag 09:39 (FE-100). Das ist eine reguläre Abnahme nach FE-071 (4) und keine Ausnahme für HD-1 (FE-109 (C)).
+- **Umfang:** 29 Definitionen in 28 Dateien unter `supabase/schema/functions/` (MANIFEST), Drift-Wächter `fn-source` in `ci` und `ci-repeat`, Sperre `no-text-patch` (Grenze 0153), Rechte- und Schutzschnappschuss pgTAP 157, `staging-smoke` nach jedem Push auf `recovery/main` mit Meldung bei Rot, Konsolidierungs-Migration 0158 (keine Verhaltensänderung).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44776130676 auf `d3b2233`: alle Jobs `success`; `staging`-Job 136431540358 «Applying migration 20261021000158 … applied to navora-staging»; `staging-version` 44781911610: App `f3149d6`, Datenbank `20261021000158`, «app and database match».
+  - `ci-repeat` 44778677226 auf `f7dfd2d` (Zweig `repeat/stab1-accept-f7dfd2d`, vom PO gestartet): **20/20 `success`**; jeder `db`-Versuch «Files=157, Tests=5868», «Result: PASS», 0 `# SKIP`, «fn-source: 29 definitions in 28 files match the database»; jeder `e2e`-Versuch «193 passed», kein übersprungener, instabiler oder fehlgeschlagener Test; Urteil 136442411189 im Fenster (17:58–18:10 Zürich).
+  - **Auf Staging ausgeführt:** erster automatischer `staging-smoke` 44776130634 auf `d3b2233` 4/4 (Render `f7dfd2d`).
+  - Negativproben (i)–(iii) rot wie verlangt: Läufe 44753270244 und 44761243635.
+- **Bekannter Mangel (kein Abnahmehindernis, Folgeposten):** `staging-smoke` 44777149305 auf `f7dfd2d` (nur Dokumentation) war in Pfad 3 rot: Die gesuchte Karte «20.11.2026 18:20» stand schon auf «Übernommen». Wahrscheinlich stammte sie aus dem vorigen Lauf, weil die Testdaten über die Uhrzeit erkannt werden (UNKNOWN, **STAB1-F3** bei `eng`: eindeutige Kennung je Lauf, Läufe nacheinander). Kein Hinweis auf einen Produktfehler; Pfad 3 war auf `d3b2233` grün und im nächsten Lauf 44781911457 auf `f3149d6` wieder grün (4/4).
+- **KI-Ehrlichkeit:** nur feste Prüfungen; kein Modell.
+- **Folgeposten:** STAB1-F1 (`db-lint --fail-on error`), STAB1-F2 (kein `staging-smoke` bei reinen Docs-Merges), STAB1-F3 (Testdatenkollision), `staging-version` nach `staging`, Tranche 2.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -209,3 +222,4 @@ Was die Protokolle zeigen:
 - 2026-11-20 05:39 (`po`): Blockakte BK-e2 (Teil von BK-e) und BK-e als Ganzes für die Simulation abgenommen auf `8155ac6` (`ci-repeat` 44669473293 20/20); §3 Zeile BK-e.
 - 2026-11-20 15:39 (`po`): Blockakte BK-f (Teilstück von BK, für die Simulation abgenommen auf `40a2ce1`, `ci-repeat` 44746720886 20/20); §3 Zeile BK-f.
 - 2026-11-20 ca. 16:00 (`po`, Live-Sitzung): BK-f für die Simulation abgenommen auf `40a2ce1`.
+- 2026-11-20 ca. 18:40 (`po`, Live-Sitzung): Blockakte STAB1 (technisches Paket, für die Simulation abgenommen auf `f7dfd2d`, `ci-repeat` 44778677226 20/20).
