@@ -26,6 +26,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-20 / staging-smoke 44777149305] Gelernte Lektion: Testdaten auf einer geteilten Umgebung brauchen einen Schlüssel je Lauf
+- **Was war das Fehlerbild?** `staging-smoke` auf `f7dfd2d0` (Lauf 44777149305, Job 136433430133) rot in Pfad 3: «Expected "Neues Angebot", unexpected value "Übernommen"» für die Karte «20.11.2026 18:20». Der Lauf auf `d3b2233d` vier Minuten vorher (44776130634) war grün. Kein App-Fehler.
+- **Was war die technische Ursache?** Pfad 3 legt seine Schicht auf heute, Beginn «jetzt + 20 Minuten, auf 10 Minuten aufgerundet». Seit STAB1 (e) läuft der Smoke nach jedem Push auf `recovery/main`, nacheinander in einer Concurrency-Gruppe. Zwei Läufe im selben 10-Minuten-Fenster bekamen dieselbe Zeit, und `.filter({ hasText: when }).last()` fand die schon übernommene Karte des früheren Laufs. Die Rundung war sicher, solange der Smoke nur von Hand lief; der neue Auslöser machte sie falsch.
+- **Die verbindliche Lösungsregel ab jetzt:** Jeder Testdatensatz auf einer geteilten, wachsenden Umgebung (Staging) trägt einen Schlüssel, den kein früherer Lauf haben kann (eigener Tag je Lauf wie `smokeDayOffsets`, oder eigene Minute wie `smokePath3Slot`). Wer die Auslösehäufigkeit eines Tests ändert, prüft im selben PR, ob dessen Daten-Schlüssel bei der neuen Häufigkeit noch eindeutig ist.
+- **Abgesichert durch:** `tests/unit/staging-smoke-target.test.ts` «smokePath3Slot» (zwei Läufe 17:53/17:58 erhalten verschiedene Schichten; jede Minute eigener Beginn), mit der alten Rundung rot gezeigt (3 failed), mit der Korrektur grün.
+
 ### [2026-11-20 / EVAL0 P0] Gelernte Lektion: Kommandozeilen-Schalter nie durch einen echten Aufruf prüfen
 - **Was war das Fehlerbild?** Um zu prüfen, ob `claude` 2.1.329 `--max-turns` kennt, startete `eng` `claude -p --max-turns 1 "x"`. Das war ein echter, abgerechneter Modellaufruf in einer Umgebung mit NAVORA-Schreibzugang. Folgen: nur eine Satz-Antwort, kein Werkzeug benutzt, nichts geändert.
 - **Was war die technische Ursache?** Die Annahme «ohne `ANTHROPIC_API_KEY` kein Modellzugang» war falsch: Die CLI ist in der Cloud-Sitzung über deren eigene Anmeldung angemeldet. Ausserdem listet `--help` nicht jeden Schalter, der angenommen wird.

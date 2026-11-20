@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SMOKE_EMAILS, smokeAccounts, smokeDayOffsets, stagingTarget } from "../staging-smoke/target";
+import { SMOKE_EMAILS, smokeAccounts, smokeDayOffsets, smokePath3Slot, stagingTarget } from "../staging-smoke/target";
 
 // ADR-205: where the staging smoke may run, with which accounts, on which days. Guards, not a skip: every refusal throws.
 const PW = { STAGING_SMOKE_PW_KUNDEBS: "a", STAGING_SMOKE_PW_PFLEGEBS: "b", STAGING_SMOKE_PW_PFLEGE: "c" };
@@ -61,5 +61,30 @@ describe("smokeDayOffsets", () => {
   it("treats a missing or odd run number as run 0", () => {
     expect(smokeDayOffsets(Number.NaN)).toEqual({ day: 40, night: 75 });
     expect(smokeDayOffsets(-3)).toEqual({ day: 40, night: 75 });
+  });
+});
+
+describe("smokePath3Slot", () => {
+  // 2026-11-20 17:53 and 17:58 Zurich (CET, UTC+1): the two push-triggered runs of staging-smoke 44776130634 and
+  // 44777149305 reached path 3 about this far apart.
+  const at = (hh: number, mm: number) => Date.UTC(2026, 10, 20, hh - 1, mm);
+  it("gives two runs a few minutes apart different shifts (staging-smoke 44777149305)", () => {
+    const a = smokePath3Slot(at(17, 53));
+    const b = smokePath3Slot(at(17, 58));
+    expect(a.from).not.toBe(b.from);
+    expect(a.to).not.toBe(b.to);
+  });
+  it("gives every minute of the day its own start", () => {
+    const starts = new Set(Array.from({ length: 60 }, (_, i) => smokePath3Slot(at(10, 0) + i * 60_000).from));
+    expect(starts.size).toBe(60);
+  });
+  it("starts 20 minutes after the current minute, lasts 10 minutes, today in Zurich", () => {
+    expect(smokePath3Slot(at(17, 53) + 59_000)).toEqual({ day: "2026-11-20", from: "18:13", to: "18:23" });
+  });
+  it("refuses outside 00:30–23:20 Zurich", () => {
+    expect(() => smokePath3Slot(at(0, 29))).toThrow(/between 00:30 and 23:20/);
+    expect(() => smokePath3Slot(at(23, 21))).toThrow(/between 00:30 and 23:20/);
+    expect(smokePath3Slot(at(0, 30)).from).toBe("00:50");
+    expect(smokePath3Slot(at(23, 20))).toEqual({ day: "2026-11-20", from: "23:40", to: "23:50" });
   });
 });

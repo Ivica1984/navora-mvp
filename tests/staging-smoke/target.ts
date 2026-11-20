@@ -4,6 +4,8 @@
 // not a verification (FE-071 (4)). Passwords come only from the environment (GitHub repository secrets); they are
 // never written to a file, a log line, an artifact or a comment.
 
+import { hhmm, zurichDay, zurichMinuteOfDay } from "../e2e/support/durchgang-time";
+
 /** The only host the smoke may open. Changing it is a reviewed code change, not a setting. */
 export const STAGING_HOSTS = Object.freeze(["navora-staging.onrender.com"]);
 
@@ -64,4 +66,23 @@ export function smokeAccounts(env: Env): Record<Role, { email: string; password:
 export function smokeDayOffsets(runNumber: number): { day: number; night: number } {
   const n = Number.isFinite(runNumber) && runNumber > 0 ? Math.floor(runNumber) % 30 : 0;
   return { day: 40 + n, night: 75 + n };
+}
+
+/**
+ * Path 3 (BK-f) shift of one run: today (Europe/Zurich), 10 minutes long, starting 20 minutes after the minute of
+ * `nowMs`. Path 3 must run on today (the nurse works and signs the shift), so it cannot use a day offset of its own like
+ * paths 1 and 2; its start minute is what keeps one run's offer card, /field card and invoice apart from an earlier
+ * run's. Since STAB1 scope (e) the smoke runs after every push to recovery/main, one run after another (concurrency
+ * group, no cancel), so two runs are minutes apart: the start is per minute, never rounded to a coarser grid
+ * (staging-smoke 44777149305: a start rounded to 10 minutes gave the run on f7dfd2d0 the same «20.11.2026 18:20» as the
+ * run on d3b2233d four minutes earlier, and the take found the earlier, already taken card).
+ * Throws outside 00:30–23:20 Zurich (the shift and its corrected times stay on one day); a refusal, never a skip.
+ */
+export function smokePath3Slot(nowMs: number): { day: string; from: string; to: string } {
+  const minute = zurichMinuteOfDay(nowMs);
+  const startMin = minute + 20;
+  if (startMin + 10 > 23 * 60 + 50 || minute < 30) {
+    throw new Error("staging-smoke path 3: run it between 00:30 and 23:20 Zurich (the shift and its times stay on one day)");
+  }
+  return { day: zurichDay(nowMs), from: hhmm(startMin), to: hhmm(startMin + 10) };
 }
