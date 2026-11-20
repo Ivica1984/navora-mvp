@@ -30,6 +30,35 @@ jobs:
         run: node scripts/fn-source.mjs dump --out stab1-out
       - name: Drift check of the committed files against this database
         run: node scripts/fn-source.mjs check
+      - name: Guard snapshot pgTAP 157 is green on this database (STAB1 (d), positive)
+        env:
+          DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          psql "$DB" -AtX -v ON_ERROR_STOP=1 -f supabase/tests/database/157_stab1_function_guards.test.sql | tee pgtap157.out
+          ok=$(grep -c '^ok ' pgtap157.out || true); bad=$(grep -c '^not ok ' pgtap157.out || true)
+          echo "pgTAP 157: ok=$ok not_ok=$bad"
+          test "$bad" = 0 && grep -q '^1\.\.' pgtap157.out && ! grep -q '^# Looks like' pgtap157.out
+      - name: Negative probe (iii) a revoked grant turns pgTAP 157 red (expected red, step passes when red)
+        env:
+          DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          psql "$DB" -X -v ON_ERROR_STOP=1 -c "revoke execute on function public.take_order(uuid, uuid, uuid, uuid) from authenticated"
+          psql "$DB" -AtX -f supabase/tests/database/157_stab1_function_guards.test.sql > probe3.out || true
+          grep '^not ok ' probe3.out | tee probe3.red
+          test "$(wc -l < probe3.red)" = 1 && grep -q 'take_order.*execute for authenticated granted' probe3.red
+          psql "$DB" -X -v ON_ERROR_STOP=1 -c "grant execute on function public.take_order(uuid, uuid, uuid, uuid) to authenticated"
+      - name: Negative probe (i) one changed character in a listed function turns the drift check red (expected red)
+        env:
+          DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          # Throwaway runner database only; this is the probe, not a migration (a migration doing this is refused by no-text-patch).
+          psql "$DB" -X -v ON_ERROR_STOP=1 <<'SQL'
+          do $$ declare d text := pg_get_functiondef('private.order_take_visit'::regproc);
+          begin execute regexp_replace(d, 'AS \$function\$', 'AS $function$ '); end $$;
+          SQL
+          if node scripts/fn-source.mjs check > probe1.out 2>&1; then cat probe1.out; echo "drift check stayed green"; exit 1; fi
+          cat probe1.out
+          grep -q 'private.order_take_visit.sql: differs from the database' probe1.out
       - name: Print the files as one archive (read by eng through the job log; public source code only)
         if: always()
         run: |

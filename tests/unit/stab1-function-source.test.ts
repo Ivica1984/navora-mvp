@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findTextPatches, CUTOFF } from "../../scripts/no-text-patch.mjs";
-import { missingRequired, qualifiedName, renderFile } from "../../scripts/fn-source.mjs";
+import { missingRequired, parseFile, qualifiedName, renderFile, renderGuardTest } from "../../scripts/fn-source.mjs";
 
 describe("STAB-1 no text patch after the cutoff", () => {
   it("refuses a new migration that patches a function by text", () => {
@@ -32,5 +32,39 @@ describe("STAB-1 function source files", () => {
     expect(missingRequired([{ name: "public.f", required: ["LEAVE1-3"] }], [{ name: "public.f", signature: "public.f(uuid)", definition: "begin end" }])).toEqual([
       "public.f(uuid): lost required «LEAVE1-3»",
     ]);
+  });
+});
+
+describe("STAB1 (d) permission and guard snapshot", () => {
+  const file = renderFile("public.f", [
+    {
+      signature: "public.f(p_id uuid)",
+      definition: "CREATE OR REPLACE FUNCTION public.f(p_id uuid)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$ begin perform private.access_ended(p_id); end $function$\n",
+      acl_set: true,
+      grantees: ["authenticated"],
+      comment: null,
+    },
+  ]);
+  it("reads signature, security properties and grantees from the committed file", () => {
+    expect(parseFile("public.f", file)).toEqual([
+      { name: "public.f", args: "p_id uuid", signature: "public.f(p_id uuid)", definer: true, emptySearchPath: true, grantees: ["authenticated"] },
+    ]);
+  });
+  it("asserts every property, each app role and each required guard", () => {
+    const sql = renderGuardTest([{ name: "public.f", required: ["access_ended"] }], new Map([["public.f.sql", file]]));
+    expect(sql).toContain("select plan(8);");
+    expect(sql).toContain("'public.f(p_id uuid): execute for anon refused'");
+    expect(sql).toContain("'public.f(p_id uuid): execute for authenticated granted'");
+    expect(sql).toContain("'public.f(p_id uuid): execute for service_role refused'");
+    expect(sql).toContain("'public.f(p_id uuid): no execute for PUBLIC'");
+    expect(sql).toContain("'public.f(p_id uuid): keeps «access_ended»'");
+    expect(sql).toContain("pg_get_function_identity_arguments(p.oid) = 'p_id uuid'");
+  });
+  it("refuses a file without the explicit revoke (default PUBLIC execute)", () => {
+    const open = file.replace(/^revoke all .*$/m, "");
+    expect(() => parseFile("public.f", open)).toThrow(/default PUBLIC execute is refused/);
+  });
+  it("refuses a file whose signature line names another function", () => {
+    expect(() => parseFile("public.g", file)).toThrow(/signature line names public.f/);
   });
 });

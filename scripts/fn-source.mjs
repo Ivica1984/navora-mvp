@@ -5,6 +5,8 @@
 //   node scripts/fn-source.mjs dump  [--out <dir>]   write supabase/schema/functions/<schema>.<name>.sql from the DB
 //   node scripts/fn-source.mjs check                 red when a file and the DB differ by one character, when a
 //                                                    required property (MANIFEST.json) is missing, or a file is stale
+//                                                    or when the generated guard test (pgTAP 157) is stale
+//   node scripts/fn-source.mjs guards                regenerate only the guard test from the committed files (no DB)
 //   node scripts/fn-source.mjs migration <names...>  print a migration body that re-creates whole files (no patch)
 //
 // The database is read only (`select` on pg_proc). FN_DB_URL defaults to the local Supabase stack used in CI.
@@ -14,6 +16,9 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from "node:path";
 
 export const DIR = "supabase/schema/functions";
+// STAB1 scope (d): permission and guard snapshot, generated from MANIFEST.json and the committed files, run in `db`.
+export const GUARD_TEST = "supabase/tests/database/157_stab1_function_guards.test.sql";
+export const APP_ROLES = ["anon", "authenticated", "service_role"];
 const DB = process.env.FN_DB_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 
 export function loadManifest(dir = DIR) {
@@ -100,6 +105,85 @@ export function missingRequired(functions, rows) {
   return problems;
 }
 
+/** Signatures, security properties and execute grantees of one committed canonical file (fail-closed parse). */
+export function parseFile(name, text) {
+  const lines = text.split("\n");
+  const sigRe = /^-- ([a-z_]+\.[a-z0-9_]+)\((.*)\)$/;
+  const out = [];
+  let cur = null;
+  for (const line of lines) {
+    const m = sigRe.exec(line);
+    if (m) {
+      if (m[1] !== name) throw new Error(`${name}.sql: signature line names ${m[1]}`);
+      cur = { name, args: m[2], signature: `${m[1]}(${m[2]})`, body: [], revoked: false, grantees: [] };
+      out.push(cur);
+      continue;
+    }
+    if (!cur) continue;
+    cur.body.push(line);
+    if (line === `revoke all on function ${cur.signature} from public, anon, authenticated, service_role;`) cur.revoked = true;
+    const g = /^grant execute on function (.*) to ([a-z_]+);$/.exec(line);
+    if (g && g[1] === cur.signature) cur.grantees.push(g[2]);
+  }
+  if (out.length === 0) throw new Error(`${name}.sql: no signature line`);
+  return out.map((d) => {
+    const body = d.body.join("\n");
+    if (!d.revoked) throw new Error(`${d.signature}: no explicit «revoke all … from public, anon, authenticated, service_role» (default PUBLIC execute is refused)`);
+    return {
+      name: d.name,
+      args: d.args,
+      signature: d.signature,
+      definer: body.includes("\n SECURITY DEFINER\n"),
+      emptySearchPath: body.includes("\n SET search_path TO ''\n"),
+      grantees: d.grantees,
+    };
+  });
+}
+
+/** The pgTAP file of scope (d): one assertion per property, so a changed guard names itself in the log. */
+export function renderGuardTest(functions, fileTexts) {
+  const asserts = [];
+  const lit = sqlLiteral;
+  for (const f of functions) {
+    const text = fileTexts.get(`${f.name}.sql`);
+    if (text === undefined) throw new Error(`${f.name}.sql: missing`);
+    const defs = parseFile(f.name, text);
+    const [schema, proname] = f.name.split(".");
+    const from = `from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = ${lit(schema)} and p.proname = ${lit(proname)}`;
+    asserts.push(`select is((select count(*)::int ${from}), ${defs.length}, ${lit(`${f.name}: exactly ${defs.length} definition(s), as in its file`)});`);
+    for (const d of defs) {
+      const oid = `(select p.oid ${from} and pg_get_function_identity_arguments(p.oid) = ${lit(d.args)})`;
+      asserts.push(`select is((select prosecdef from pg_proc where oid = ${oid}), ${d.definer}, ${lit(`${d.signature}: security definer ${d.definer ? "kept" : "absent"}`)});`);
+      asserts.push(`select is((select coalesce('search_path=""' = any(proconfig), false) from pg_proc where oid = ${oid}), ${d.emptySearchPath}, ${lit(`${d.signature}: empty search_path ${d.emptySearchPath ? "kept" : "absent"}`)});`);
+      asserts.push(`select is((select proacl is not null and not exists (select 1 from aclexplode(proacl) a where a.grantee = 0) from pg_proc where oid = ${oid}), true, ${lit(`${d.signature}: no execute for PUBLIC`)});`);
+      for (const role of APP_ROLES) {
+        const granted = d.grantees.includes(role);
+        asserts.push(`select is(has_function_privilege(${lit(role)}, ${oid}, 'execute'), ${granted}, ${lit(`${d.signature}: execute for ${role} ${granted ? "granted" : "refused"}`)});`);
+      }
+      for (const req of f.required ?? []) {
+        asserts.push(`select ok(strpos(pg_get_functiondef(${oid}), ${lit(req)}) > 0, ${lit(`${d.signature}: keeps «${req}»`)});`);
+      }
+    }
+  }
+  return [
+    "-- STAB1 scope (d): permission and guard snapshot of every MANIFEST function. GENERATED by",
+    "-- `node scripts/fn-source.mjs dump` from supabase/schema/functions (MANIFEST.json and the canonical files); do not edit.",
+    "-- `fn-source check` refuses this file when it differs from what the files produce, so a changed grant, security",
+    "-- property or required guard (LEAVE1 `access_ended`, `begin_command`, audit, CGR markers) fails here unless its",
+    "-- canonical file changed in the same PR. Catalogue reads only; no data; rolled back.",
+    "begin;",
+    "create extension if not exists pgtap with schema extensions;",
+    "",
+    `select plan(${asserts.length});`,
+    "",
+    ...asserts,
+    "",
+    "select * from finish();",
+    "rollback;",
+    "",
+  ].join("\n");
+}
+
 function main(argv) {
   const [cmd, ...rest] = argv;
   const functions = loadManifest();
@@ -111,7 +195,9 @@ function main(argv) {
       const out = rest[0] === "--out" ? rest[1] : DIR;
       mkdirSync(out, { recursive: true });
       for (const [f, text] of files) writeFileSync(join(out, f), text);
-      console.log(`fn-source: wrote ${files.size} files for ${rows.length} definitions to ${out}`);
+      const guardOut = out === DIR ? GUARD_TEST : join(out, "157_stab1_function_guards.test.sql");
+      writeFileSync(guardOut, renderGuardTest(functions, files));
+      console.log(`fn-source: wrote ${files.size} files for ${rows.length} definitions to ${out}, guard test ${guardOut}`);
       problems.forEach((p) => console.error(`fn-source: ${p}`));
       process.exit(problems.length ? 1 : 0);
     }
@@ -123,9 +209,23 @@ function main(argv) {
     for (const f of readdirSync(DIR)) {
       if (f.endsWith(".sql") && !files.has(f)) problems.push(`${join(DIR, f)}: not in MANIFEST.json`);
     }
+    try {
+      const committed = new Map([...files.keys()].filter((f) => existsSync(join(DIR, f))).map((f) => [f, readFileSync(join(DIR, f), "utf8")]));
+      const want = renderGuardTest(functions, committed);
+      if (!existsSync(GUARD_TEST)) problems.push(`${GUARD_TEST}: missing (run: node scripts/fn-source.mjs dump)`);
+      else if (readFileSync(GUARD_TEST, "utf8") !== want) problems.push(`${GUARD_TEST}: differs from the canonical files (regenerate with dump)`);
+    } catch (e) {
+      problems.push(`guard test: ${e.message}`);
+    }
     problems.forEach((p) => console.error(`::error title=fn-source drift (STAB-1)::${p}`));
     if (problems.length === 0) console.log(`fn-source: ${rows.length} definitions in ${files.size} files match the database`);
     process.exit(problems.length ? 1 : 0);
+  }
+  if (cmd === "guards") {
+    const committed = new Map(functions.map((f) => [`${f.name}.sql`, readFileSync(join(DIR, `${f.name}.sql`), "utf8")]));
+    writeFileSync(GUARD_TEST, renderGuardTest(functions, committed));
+    console.log(`fn-source: wrote ${GUARD_TEST}`);
+    return;
   }
   if (cmd === "migration") {
     if (rest.length === 0) throw new Error("name at least one function, e.g. public.take_order");
@@ -133,7 +233,7 @@ function main(argv) {
     process.stdout.write(`-- Whole-file re-creation from ${DIR} (STAB-1); generated by scripts/fn-source.mjs.\n\n${body}`);
     return;
   }
-  console.error("usage: fn-source.mjs dump [--out <dir>] | check | migration <schema.name>...");
+  console.error("usage: fn-source.mjs dump [--out <dir>] | check | guards | migration <schema.name>...");
   process.exit(2);
 }
 
