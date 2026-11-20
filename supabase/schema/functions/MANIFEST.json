@@ -53,9 +53,7 @@
     },
     {
       "name": "public.field_visits",
-      "required": [
-        "LEAVE1-3"
-      ]
+      "required": []
     },
     {
       "name": "public.reschedule_visit",

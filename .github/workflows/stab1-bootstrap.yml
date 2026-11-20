@@ -28,6 +28,12 @@ jobs:
         run: supabase db reset --no-seed
       - name: Export the canonical function files
         run: node scripts/fn-source.mjs dump --out stab1-out
+      - name: Print the files as one archive (read by eng through the job log; public source code only)
+        if: always()
+        run: |
+          echo "STAB1-ARCHIVE-BEGIN"
+          tar czf - stab1-out | base64 -w 4000
+          echo "STAB1-ARCHIVE-END"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
