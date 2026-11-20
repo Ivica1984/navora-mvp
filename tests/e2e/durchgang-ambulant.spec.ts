@@ -402,6 +402,9 @@ test("BD-2: referral → case → team takes it → assessment visit → care pl
     // The run's visits are hers (both A and C, line below). The shared e2e database also holds other specs' visits of
     // Testteam Basel today (BK-e1c: kolleginbs' night shift, `ci` 44363954836), so the count is scoped to her.
     .eq("responsible_user_id", NURSE_ID)
+    // Both run visits belong to the run's case (line below). A take visit has no case: BK-f's invoice spec leaves her
+    // signed 22:30 take visit in the shared database (`ci` 44707414690, e2e job 136190356902: 3 instead of 2).
+    .not("case_id", "is", null)
     .order("time_start");
   expect(visitError).toBeNull();
   expect(visits, "exactly the two visits of the run").toHaveLength(2);

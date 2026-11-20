@@ -63,6 +63,7 @@ import { actionsForMember } from "@/features/field/qualification";
 import { QUALIFICATION_MISSING_MESSAGE } from "@/lib/commands/result";
 import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, countersignItemNote, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
+import type { TakeInvoiceState } from "@/features/invoices/queries";
 import { openReportsText } from "@/features/admin/rules";
 import { REASON_LABEL as LIFECYCLE_REASON_LABEL, doorNoteText } from "@/features/lifecycle/rules";
 import { ACCESS_CATEGORY } from "@/features/door/rules";
@@ -135,6 +136,8 @@ type Props = {
   assessmentsToConfirm?: { count: number; firstId: string | null };
   /** BD / UXR-155 (ADR-179): referrals offered to her teams and not declined (count only, no client or request). */
   openTeamOffers?: number;
+  /** BK-f (0156): per taken-shift visit with a final report, the newest invoice row (state, refusal reason). */
+  invoiceStates?: Record<string, TakeInvoiceState>;
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -160,7 +163,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0 }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0, invoiceStates = {} }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
@@ -309,6 +312,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                   focusAt={focusAt}
                   sameSlot={sameSlot.get(visit.visit_id)}
                   unqualifiedTeams={unqualifiedTeams}
+                  invoice={invoiceStates[visit.visit_id]}
                 />
               </li>
             ))}
@@ -433,7 +437,10 @@ function VisitCard({
   focusAt = null,
   sameSlot,
   unqualifiedTeams = [],
+  invoice,
 }: {
+  /** BK-f (0156): the newest invoice row of this taken shift, if its report is final. */
+  invoice?: TakeInvoiceState;
   focusAt?: string | null;
   /** UX2-22 (ADR-124): no depart, start, resume or completion control on a visit of a team where hers is missing. */
   unqualifiedTeams?: string[];
@@ -636,7 +643,7 @@ function VisitCard({
         notes={notes.filter((n) => n.kind === "observation")}
       />
 
-      <ReportSection visitId={visit.visit_id} visitDate={visit.visit_date} visitStatus={visit.status} report={report} />
+      <ReportSection visitId={visit.visit_id} visitDate={visit.visit_date} visitStatus={visit.status} report={report} invoice={invoice} />
 
       <QualitySection
         visitId={visit.visit_id} items={quality} types={qualityTypes}
