@@ -80,3 +80,15 @@ Q3 to Q6 keep their places in `QUAL2.md` relative to BK-d and BK-g.
 - Hide pages built before FE-066 (`intake`, `visits`, `work`, `analytics`, `partners`) for BK roles (`eng` self-assessment area 3); PO decides with `uxa` after STAB1.
 - Separate the J5/KLV billing model from the BK model with a documented boundary (`eng` area 4).
 - A short work card per package (`eng` area 9): the PO writes one for each package from STAB1 on (contract, open points, last CI state, under two pages).
+
+## PO amendment 2026-11-20 09:39 (founder FE-100; newest founder decision, README rule 10; not a PO addition)
+
+Second founder message (ca. 09:35, verbatim in issue #1587 comment 7034490863) sharpens this contract. Where it differs from the text above, FE-100 applies:
+
+1. **Directory fixed by the founder:** `supabase/schema/functions/`, one readable file per function (Scope (a): no longer «a directory `eng` chooses»; the file name scheme stays `eng`'s).
+2. **One consolidation migration is mandatory:** it re-creates the listed functions once, completely, with `create or replace function` from their files (Way back: the case «only if the ADR chooses re-creation» is now the rule). Behaviour, RLS and grants stay identical; the permission snapshot (d) proves it.
+3. **Text patches are refused for good:** Scope (c) applies to every migration from STAB1 on, not only to listed functions. Historical migrations are still never rewritten.
+4. **Proof:** the full `db` and unit suites as they stand at the STAB1 start stay green (the founder's figures 5509 / 1598 are his reading; the measure is the suite on the start commit), plus a `staging-smoke` run on the merge commit with every proven path.
+5. **Founder count «25 core functions»:** matches the `eng` proposal (25 plus `may_perform_visit`, `end_member_access` to confirm). `eng` names the final list in the ADR.
+6. **Direction, not STAB1 scope:** «too much logic in SQL instead of TypeScript». `eng` proposes a documented boundary database/TypeScript as an ADR after STAB1; no business logic moves in STAB1.
+7. **Release:** `eng` prepares on `feature/STAB-1` now (allowed: preparation, FE-070 (5)); the PR opens and becomes *Active now* only after BK-f is merged. The order BK-f → STAB1 → AI1 → BK-d is unchanged (FE-099 (7), FE-100 (6)).
