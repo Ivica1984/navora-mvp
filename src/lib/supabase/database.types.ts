@@ -3295,7 +3295,7 @@ isOneToOne: false
                            },
 "my_team_invoice_drafts":
 { Args: Record<PropertyKey, never>; Returns: {
-              "amount_chf": number,"client_name": string,"created_at": string,"currency": string,"id": string,"ordered_minutes": number,"price_per_hour": number,"recorded_minutes": number,"refusal_reason": string,"report_version": number,"sent_at": string,"state": string,"team_id": string,"team_name": string,"visit_date": string,"void_reason": string,"voided_at": string
+              "amount_chf": number,"client_name": string,"created_at": string,"currency": string,"id": string,"ordered_minutes": number,"price_per_hour": number,"recorded_minutes": number,"refusal_reason": string,"report_id": string,"report_version": number,"sent_at": string,"state": string,"team_id": string,"team_name": string,"visit_date": string,"void_reason": string,"voided_at": string
             }[]
                            },
 "my_team_prices":
