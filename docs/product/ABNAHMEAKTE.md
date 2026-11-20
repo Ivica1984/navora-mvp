@@ -163,6 +163,21 @@ Was die Protokolle zeigen:
 - **Vor realen Personen offen:** CGR-261, CGR-262/AUT-160, CGR-213 (b)(iii), CR-239 (echte Schwelle durch eine benannte Clinical Owner), L-1549-1 bis L-1549-4, UXR-257, UXR-258, AUT-159; dazu die BK-e1-Liste.
 - **Folge:** nächstes Paket BK-f (Vertrag durch den PO vor dem Bau, `lca`-Gate).
 
+### BK-f Rechnungsentwurf aus dem unterschriebenen Bericht (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid PO-Live-Sitzung 2026-11-20 ca. 16:00 auf dem benannten Commit **`40a2ce1`** (`recovery/main` nach #1581 `e4e02c9`, #1604 `3d67dd4` und Docs-Merges; Code identisch mit `8051283`, das Render ausliefert). Kriterien: Vertrag `docs/agents/briefs/BK.md` §PO package contract 2026-11-20 06:39 mit Ergänzungen 08:39, 09:30, 09:39.
+- **Umfang:** #1581 (Migrationen 0154 ganze `create or replace` der J5-Funktionen mit BKF-F1, 0155 Teampreis und Preis-Schnappschuss der Übernahme, 0156 Toleranztabelle, Rechnungsentwurf, Senden, Leser, G-6), #1604 (0157 Toleranzzeile 15 Min. als `lca`-Simulationswert).
+- **Gates:** `cra-gate: #1581 ba19210 clear` (7037575054), `uxa-gate: #1581 ba19210 clear` (7037583660), `lca-gate: #1581 ba19210 clear` (7039866370), `cra-gate: #1604 43d8d7d clear` (7040382098).
+- **Nachweis (aus den Job-Protokollen, vom PO bzw. in seinem Auftrag gelesen, nicht selbst ausgeführt):**
+  - `ci-repeat` 44746720886 auf `40a2ce1` (Zweig `repeat/bk-f-accept-40a2ce1`): **20/20 `success`**; jeder `db`-Versuch vollständig gelesen: «Files=156, Tests=5566», «Result: PASS», 156 Dateizeilen «ok», keine Zeile «# SKIP» oder «# TODO»; «not ok» nur in der absichtlich roten Nachstellung B0-4; jeder `e2e`-Versuch «193 passed», kein übersprungener, instabiler oder fehlgeschlagener Test; Urteil 136334173381: im Fenster (Start 14:43, Ende 15:03 Zürich).
+  - `staging` 136300035816 (0154–0156) und 136315164205 (0157) auf `navora-staging`; `staging-version` 44744242201: App `8051283`, Datenbank `20261021000157`, «app and database match».
+  - **Auf Staging ausgeführt:** `staging-smoke` 44744533079 (Job 136316309345) auf `8051283`: 4/4 bestanden, darunter Pfad 3 «nurse signs a worked shift → invoice draft → team sends it → client reads it under «Rechnungen» (390 px)».
+- **Abgenommen:** Die Pflegekraft des übernehmenden Teams unterschreibt den Bericht; NAVORA bildet ohne Eingabe einen Rechnungsentwurf des Teams an den Auftraggeber aus den Minuten der unterschriebenen Fassung und dem Preis der Übernahme; Ablehnungen sind sichtbar und begründet; eine Korrektur macht den Entwurf ungültig; das Team sendet mit einem Tipp; der Auftraggeber liest gesendete Rechnungen ohne Mitgliedsnamen; die Unterschrift wird nie durch die Abrechnung blockiert; kein Geldfluss über NAVORA, keine Provision.
+- **KI-Ehrlichkeit:** alle Funktionen sind feste, prüfbare Regeln. Kein Modell, kein Testersatz für KI.
+- **Nicht Teil der Abnahme:** 5-Rappen-Rundung, Zuschläge, MWST, PDF, QR-Rechnung, Vier-Augen-Bestätigung, Preisobergrenze (offen bei `lca`); Freigabe für reale Personen und Daten; Toleranzwert für reale Daten (D-42).
+- **Vor realen Personen offen:** CGR-265 (S1: Entwurf für Nicht-Simulations-Organisationen sperren), CGR-263, CGR-264, CGR-266, BK-f-F1, BK-f-F2, BK-f-F3, UXR-261 bis UXR-264.
+- **Folge:** Block BK ohne aktives Teilstück; nächster Schritt nach Founder-Entscheid zur Reihenfolge (FE-108, `PLATFORM_GRUNDRISS.md` §7); STAB1 bleibt nach FE-100 angeordnet.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -192,3 +207,4 @@ Was die Protokolle zeigen:
 - 2026-11-18 02:39 (`po`): Blockakte BK-c (Teilstück von BK, für die Simulation abgenommen auf `d51d1c1`, `ci-repeat` 44215240768 20/20); §3 Zeile BK-c nachgeführt.
 - 2026-11-18 21:39-Lauf (`po`): Blockakte BK-e1 (Teil von BK-e, für die Simulation abgenommen auf `3ea17ee`, `ci-repeat` 44393766620 20/20); §3 Zeile BK-e.
 - 2026-11-20 05:39 (`po`): Blockakte BK-e2 (Teil von BK-e) und BK-e als Ganzes für die Simulation abgenommen auf `8155ac6` (`ci-repeat` 44669473293 20/20); §3 Zeile BK-e.
+- 2026-11-20 ca. 16:00 (`po`, Live-Sitzung): BK-f für die Simulation abgenommen auf `40a2ce1`.

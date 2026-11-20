@@ -1,6 +1,6 @@
 # NAVORA Plattform-Grundriss (ARCH1)
 
-**Status:** PROPOSED. Entwurf `po`, Live-Sitzung 2026-11-20 ca. 15:25, aus dem Code von `recovery/main` `37083b2` gelesen (Seiten, Navigation `src/lib/auth/nav.ts`, Rollen `organization_memberships.role`, `client_accounts.client_kind`, Specs). **`eng` bestätigt oder ersetzt jede technische Angabe** (Spalten Backend, Daten, KI, Prüfung) in einem eigenen Docs-PR, bevor H1 startet. Der PO verantwortet Umfang und Reihenfolge. Visuelle Fassung für den Founder: Artifact «NAVORA Plattform-Grundriss» (https://claude.ai/artifact/9HgXU4yQbNmf34Sx7NWzqN). Founder-Auftrag: FE-108.
+**Status:** Fassung 2, 2026-11-20 ca. 16:20: vom Founder als **Arbeitsgrundlage** bestätigt, nicht als fertiger Bauplan (Vermerk unter FE-108). Fassung 1: PROPOSED. Entwurf `po`, Live-Sitzung 2026-11-20 ca. 15:25, aus dem Code von `recovery/main` `37083b2` gelesen (Seiten, Navigation `src/lib/auth/nav.ts`, Rollen `organization_memberships.role`, `client_accounts.client_kind`, Specs). **`eng` bestätigt oder ersetzt jede technische Angabe** (Spalten Backend, Daten, KI, Prüfung) in einem eigenen Docs-PR, bevor H1 startet. Der PO verantwortet Umfang und Reihenfolge. Visuelle Fassung für den Founder: Artifact «NAVORA Plattform-Grundriss» (https://claude.ai/artifact/9HgXU4yQbNmf34Sx7NWzqN). Founder-Auftrag: FE-108.
 
 Kennzeichnung: **Staging** = mit Klicktest auf `navora-staging` nachgewiesen (staging-smoke 44744533079, App `8051283`, DB `20261021000157`); **Code** = im Code und CI, auf Staging nicht nachgewiesen; **Teilweise**; **Fehlt**.
 
@@ -63,3 +63,21 @@ Jedes Paket: Nutzeraufgabe und sichtbares Ergebnis vor dem Bau; Frontend, Backen
 ## 7. Entscheidung, die der Founder braucht
 
 Reihenfolge: bisher (FE-099 (7)) BK-f → STAB1 → AI1 → BK-d. Vorschlag: BK-f → STAB1 → H1 → H2 → H3 (mit AI1 und BK-d als KI-Teil) → H4 → H5. Offen beim Founder.
+
+## 8. Fassung 2 (2026-11-20 ca. 16:20, nach Founder-Prüfung)
+
+**Ist-Stand, korrigiert (aus Job-Protokollen):** Render liefert nach jedem Merge den neuesten Commit aus, auch bei reinen Docs-Merges. Stand 15:45: App `d86e59f` = `recovery/main` (0 Commits zurück), DB `20261021000157`, «app and database match» (`staging-version` 44756037571). Letzter Klicktest `staging-smoke` 44744533079 auf `8051283` (gleicher App-Code): 4/4. **BK-f abgenommen** auf `40a2ce1` (`ci-repeat` 44746720886, 20/20; `ABNAHMEAKTE.md`). Auf Staging nachgewiesen sind nur die vier Smoke-Pfade; alles andere ist höchstens Code+CI.
+
+**Kennzeichnung je Register:** Staging (mit Lauf-ID) · Code+CI · Entwurf (Brief oder offener PR) · Fehlt. «Auszahlung an Mitglieder» ersetzt durch «Verteilung des Teamerlöses: Rechtsform, Lohn- und Organisationslogik OPEN (Founder, `lca`)».
+
+**NAVORA getrennt:** Betreiberfinanzen (nur Abo und B2B), technischer Support (Konto, Funktion, Fehlerart, Zeit; keine Fallinhalte), betriebliche Ausnahmen (Jobs, Synchronisation, Staging-Gleichstand), neutraler Coach (nur auf Anfrage eines Teams; Teamzahlen; verborgen: Namen von Klientinnen und Bewohnern, Berichte, Beobachtungen, Sicherheitshinweise, Pflegepläne, Fallbeträge). PO-ARCH-1 bleibt: `coach` ist heute Koordinator; was die Datenbank ihm zeigt, prüft `eng`.
+
+**Geldströme je Register:** Dienstplanung = Heim zahlt NAVORA B2B-Abo; externe Aufträge und Rechnungen = Heim zahlt Team direkt (Pflegeumsatz); Team-Preis = Team zahlt NAVORA feste Monatsgebühr; Spital und Privatperson: Zahler je Fall OPEN (`lca`).
+
+**Fünf Zustände** (überall gleich): Angebot offen · kein passendes Team · Team hat zugesagt, Person bestätigt noch · Besetzung bestätigt («Gedeckt») · Ausfall nach «Gedeckt» («Nicht mehr gedeckt» + nächster Schritt). Auftraggeber-Texte bestehen in `src/features/orders/offer-rules.ts` (Code+CI); Heim-Wochenplan und Mitteilungen fehlen.
+
+**Produktvertrag:** `docs/agents/briefs/HD.md` (Dienstplanung als ein Ergebnis; HD-1 bis HD-4; gemeinsames Staging-End-to-End-Gate). Ersetzt H1–H5 aus §5 als erste Heimlieferung.
+
+**KI-Empfehlung PO:** erste Modellfunktion = AI1 (Berichtsentwurf; Anbieter, CHF 50/Monat und `lca`-Gate entschieden, FE-099 (7)); erste Heim-KI = Ausfall-Optionen erklären (HD-4). Konflikterklärung: feste Regeltexte genügen. Auftrag aus der Lücke strukturieren: kein Nutzen (Lücke ist strukturiert), später für Freitext (BK-d). Wochenplan-Vorschlag: nach HD.
+
+**Baufolge (Founder-Entscheid offen):** A (Empfehlung) STAB1 → AI1 → HD · B AI1 → STAB1 → HD (Ausnahme von FE-100 (6), nicht empfohlen) · C STAB1 → HD → AI1 (Fassung 1).
