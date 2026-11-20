@@ -2,13 +2,13 @@
 id: AI1
 title: Erste angeschlossene KI-Funktion — Berichtsentwurf aus den Worten der Pflegenden mit echtem Modell (synthetische Daten, Staging)
 author: po
-status: draft
+status: approved
 updated: 2026-11-20
 ---
 
 # AI1 — First connected model function: report draft from the carer's own words
 
-**Origin:** founder message 2026-11-20 ca. 09:20 (FE-099 (4)): «PO und AI Architect: Legt mir eine entscheidungsfähige Empfehlung für die erste tatsächlich angeschlossene Modellfunktion mit synthetischen Daten vor. Engineering bewertet ihre technische Integration.» **Status:** PO recommendation for the founder's decision; `aia` reviews it in its next run (13:17), `eng` rates the integration in its next run. It becomes a package contract only after the founder decisions in §7. **Gate:** «Simulation, synthetic data». D-35 rule A unchanged for real persons. PO did not run tests.
+**Origin:** founder message 2026-11-20 ca. 09:20 (FE-099 (4)): «PO und AI Architect: Legt mir eine entscheidungsfähige Empfehlung für die erste tatsächlich angeschlossene Modellfunktion mit synthetischen Daten vor. Engineering bewertet ihre technische Integration.» **Status:** PO recommendation for the founder's decision; `aia` reviews it in its next run (13:17), `eng` rates the integration in its next run. Founder decisions §7 answered 2026-11-20 ca. 09:45 (FE-099 (7)); the PO writes the package contract when AI1 becomes active (after STAB1). **Gate:** «Simulation, synthetic data». D-35 rule A unchanged for real persons. PO did not run tests.
 
 ## 1. What the AI does for the user
 
@@ -41,7 +41,7 @@ At the end of a shift the carer types (or dictates with her phone keyboard, Phas
 ## 5. Cost and shut-off limits (proposal; the money amount is the founder's)
 
 - Kill switch `AI_KILL_SWITCH` (IMPLEMENTED): any value except empty or `off` stops every call.
-- **New:** a hard cap per day and per month in the gateway, counted in the database, fail closed when reached (proposal: 300 calls per day; monthly amount set by the founder). At most one model draft per report version and one retry; input capped (proposal 4,000 characters); answer capped (proposal 1,024 tokens instead of today's 4,096); timeout 30 s (IMPLEMENTED).
+- **New:** a hard cap per day and per month in the gateway, counted in the database, fail closed when reached (300 calls per day; CHF 50 per month, founder FE-099 (7)). At most one model draft per report version and one retry; input capped (proposal 4,000 characters); answer capped (proposal 1,024 tokens instead of today's 4,096); timeout 30 s (IMPLEMENTED).
 - Tokens, latency and cost per call recorded (team level, never per person); a cost figure is labelled measured or estimate. Price per call: UNKNOWN until measured.
 - Automatic stop: stop rule (AUT-152) or an evaluation run with any invented fact switches the model off for the organisation until `eng` and `cra` clear it.
 
@@ -49,7 +49,7 @@ At the end of a shift the carer types (or dictates with her phone keyboard, Phas
 
 In **AI1**, right after STAB1: carer `pflegebs` → `/field` → taken shift → end → «Bericht» → type three lines → «Entwurf erstellen» → draft with source links and «KI-Entwurf» label → correct one line → «Bericht unterschreiben»; then BK-f: the team sees the invoice draft. `staging-smoke` gets this path with the model switched on for the run (and a second path with the kill switch on: rule draft, no call).
 
-## 7. Decisions only the founder makes
+## 7. Decisions only the founder makes (answered 2026-11-20 ca. 09:45, FE-099 (7): (1) FE-094 confirmed; (2) CHF 50 per month; (3) the PO starts `lca` as a gate of AI1; (4) unchanged: the founder sets the Render values after the ready report)
 
 1. **Provider for this proof:** FE-094 (2026-11-19) already chose «Anthropic API direct, synthetic data, staging only». The founder's message of 2026-11-20 says he decides the provider on the basis of this paper. **Contradiction, not resolved by the PO:** confirm FE-094, or name another provider. PO recommendation: confirm FE-094 (code, guards and host list are built for it; synthetic data only; for real persons FE-085 (A) CH/EU endpoint and zero retention stays the direction and D-35 rule A stays).
 2. **Monthly cost cap** in CHF for staging.
