@@ -24,6 +24,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-20 / EVAL0 P0] Gelernte Lektion: Kommandozeilen-Schalter nie durch einen echten Aufruf prüfen
+- **Was war das Fehlerbild?** Um zu prüfen, ob `claude` 2.1.329 `--max-turns` kennt, startete `eng` `claude -p --max-turns 1 "x"`. Das war ein echter, abgerechneter Modellaufruf in einer Umgebung mit NAVORA-Schreibzugang. Folgen: nur eine Satz-Antwort, kein Werkzeug benutzt, nichts geändert.
+- **Was war die technische Ursache?** Die Annahme «ohne `ANTHROPIC_API_KEY` kein Modellzugang» war falsch: Die CLI ist in der Cloud-Sitzung über deren eigene Anmeldung angemeldet. Ausserdem listet `--help` nicht jeden Schalter, der angenommen wird.
+- **Die verbindliche Lösungsregel ab jetzt:** Eigenschaften eines Werkzeugs nur aus `--help`, der Dokumentation oder dem Quelltext prüfen, nie durch einen Aufruf, der ein Modell, ein Deployment, eine Zahlung oder ein fremdes System auslöst. Einen solchen Aufruf gibt es nur mit ausdrücklicher Freigabe und in der dafür vorgesehenen, isolierten Umgebung. Die Voraussetzung «kein Zugang» wird belegt (E0), nicht angenommen.
+- **Abgesichert durch:** OPEN (E0-Prüfung «kein fremder Modellzugang» in der EVAL0-Sandbox, `docs/engineering/probes/EVAL0_P0_ENG.md` §2, PLANNED).
+
 ### [2026-11-20 / PR #1581, CI 44707414690] Gelernte Lektion: Browsertests teilen eine Datenbank: nur eigene Datensätze zählen
 - **Was war das Fehlerbild?** `e2e` auf `630d5ba` rot (Job 136190356902). `tests/e2e/durchgang-ambulant.spec.ts:407` (BD-2) erwartete «exactly the two visits of the run» und fand 3.
 - **Was war die technische Ursache?** Der neue `tests/e2e/bk-f-invoice.spec.ts` lässt für dieselbe Pflegekraft (`pflegebs.test`, Testteam Basel) einen unterschriebenen Übernahme-Einsatz um 22:30 ohne Fall (`case_id` null) in der gemeinsamen e2e-Datenbank zurück. Er bleibt zu Recht stehen, denn unterschriebene Datensätze werden nicht gelöscht. BD-2 zählte nach Team, Datum und Person, aber nicht nach dem eigenen Fall.
