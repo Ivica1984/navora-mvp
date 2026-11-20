@@ -220,6 +220,7 @@ The order follows value and risk: **L first**, because L agents need no clinical
 | A13 | Demand pooling matcher (POOL1, PLANNED; added 2026-11-11 by `aia`, AUT-84) | team idle intervals from existing facts (plan, ABS1), QUAL1 state in context NH-EXT, released demand | matches shown to the named member, fixed published order | the named member, within the team's pooling mandate (AUT-83) | phone and agency chains for short-term cover | 1, 4 | L (a deterministic rule, kind `rule`, stage 0) | `po`, `cra` CGR-173, `lca` L-7 before real use |
 | A14 | Order capture (BK-1a/b, PLANNED; added 2026-11-13 by `aia`, contract K-1, AUT-112) | the client's own words for one order, PLZ, level and tag lists | order fields «erkannt» with source span; shift type derived by rule | the client (per line for recognised slot, level and required-tag values) | retyping the need, the agency phone call | 5, 1 | L (`kind = 'rule'` parser in BK, stage 0) | `po`, `cra`, `lca`, `eng` (ledger scope ADR); model only after T-6 (AUT-115) |
 | A15 | Offer ranking and reason (BK-3/BK-4, PLANNED; added 2026-11-13 by `aia`, contract K-2, AUT-113) | eligible teams from Engine 1 with their facts, the order's preferred tags and language, history with the client or institution, distance | order of eligible teams, reason line per team; never a record value | none for the order; the team decides on its own offer | a dispatcher choosing who to call | 1, 4 | L (published lexicographic rule, `kind = 'rule'`, stage 0) | `po` (criterion order), `cra` (continuity vs distance), `lca` (attributes) |
+| A16 | Home roster planning (HD-3, PROPOSED; added 2026-11-20 by `aia`, AUT-171 to AUT-177) | the home's own plan (`institution_plan`): stations, shift types, minimum staffing as the home's data, grades, assignments, absences; for HD-3b the lead's own words, names replaced by request keys | HD-3a: copied week, valid draft and re-plan options (fixed rules, `kind = 'rule'`); HD-3b: soft criteria with source span, order of rule-made options with reasons | the home lead or planner, per criterion and per picked option; every write re-checked by `institution_assign_staff` | manual one-by-one rostering, phone round after an absence | 5, 1 | L (HD-3a stage 0; HD-3b stage 1, synthetic only) | `po`, `cra` (no refused person counted present), `uxa`; HD-3b after AI1, `lca` before real persons (staff data, D-35 rule A) |
 
 **Agents not to build:**
 - **Signal triage:** P1 signals stay deterministic and rule-based (D-28). An AI that re-ranks safety signals is H and less auditable than the rule.
@@ -687,6 +688,20 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** `report_draft_model` unchanged (registered, closed by app configuration). BK-f (0154 to 0156) merged as fixed rules; no agent added.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**HEIM-DP HD-3: the optimiser does the planning work, the model only orders and translates (`aia` 2026-11-20 20:18, review 78, AUT-171 to AUT-177; answer to #1627):**
+- **Label check:** HD-1 (#1623, not merged) is fixed rules only; no agent, no ledger write. No agent opened.
+- **Recommendation:** the largest gain in home rostering is deterministic. First slice of HD-3a: «Vorwoche übernehmen», every copied row re-checked like a manual one (AUT-171). HD-3a needs no AI1; HD-3b (model) follows AI1.
+- **Controls proposed:**
+  - AUT-172: §5a measures on a frozen 20-person synthetic fixture, acts not minutes, per home and period, never per planner or staff member; no target set by `aia`.
+  - AUT-173: «Sprache → Abwesenheit» is not the first model function (small gain, staff-data risk); if built: no reason field, IDs only from the home's list, ambiguous name → question, input text not stored.
+  - AUT-174: soft criteria from a closed list of types, each with a source span, confirmed one by one; never relax a hard rule.
+  - AUT-175: the model returns a permutation of rule-made option IDs; the gateway refuses foreign, missing or duplicated IDs; the pick is written through the re-checking command; cost through the AI1 reservation.
+  - AUT-176: request-scoped keys instead of names; unit test on the request body.
+  - AUT-177: fewer changes to other persons ranks first; each option shows how many others it moves.
+  - All PROPOSED (PO; `eng`, `cra`, `lca`, `uxa` as named). None is a condition of HD-1.
+- **Catalogue:** A16 added as PROPOSED.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -766,3 +781,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-20 02:18 | `aia` | §12: block «BK-e2 Abschlusspaket gated; first registered `ai` agent on the branch»: `aia-gate` line on #1549 `e149e04`; controls AUT-159 to AUT-161. Catalogue: `report_draft_model` IMPLEMENTED on the PR branch (closed, `no_threshold`) |
 | 2026-11-20 08:19 | `aia` | §12: block «BK-f contract pre-read; an invoice never routes through the signed report»: fixed-rule label check on #1581; controls AUT-162 to AUT-164; AUT-152 and AUT-158 closed. No agent added or removed |
 | 2026-11-20 13:52 | `aia` | §12: block «AI1 reviewed: the first connected model function, six controls before its contract»: controls AUT-165 to AUT-170 (PROPOSED). No agent added or removed |
+| 2026-11-20 20:18 | `aia` | §7: agent A16 «Home roster planning (HD-3)» added as PROPOSED. §12: block «HEIM-DP HD-3: the optimiser does the planning work, the model only orders and translates»: controls AUT-171 to AUT-177 (PROPOSED); HD-1 label check (fixed rules) |
