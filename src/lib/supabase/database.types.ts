@@ -1411,16 +1411,54 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"order_takes": {
+                },"order_take_prices": {
                   Row: {
-                    "acknowledged_at": string | null,"id": string,"member_id": string,"order_id": string,"organization_id": string,"price_id": string | null,"price_per_hour_snapshot": number | null,"release_reason": string | null,"released_at": string | null,"released_by": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
+                    "currency": string,"organization_id": string,"price_id": string | null,"price_per_hour": number | null,"recorded_at": string,"take_id": string,"team_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "acknowledged_at"?: string | null,"id"?: string,"member_id": string,"order_id": string,"organization_id": string,"price_id"?: string | null,"price_per_hour_snapshot"?: number | null,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
+                    "currency"?: string,"organization_id": string,"price_id"?: string | null,"price_per_hour"?: number | null,"recorded_at"?: string,"take_id": string,"team_id": string
                   }
                   Update: {
-                    "acknowledged_at"?: string | null,"id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"price_id"?: string | null,"price_per_hour_snapshot"?: number | null,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
+                    "currency"?: string,"organization_id"?: string,"price_id"?: string | null,"price_per_hour"?: number | null,"recorded_at"?: string,"take_id"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_take_prices_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_take_prices_price_id_fkey"
+      columns: ["price_id"]
+isOneToOne: false
+      referencedRelation: "team_prices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_take_prices_take_id_fkey"
+      columns: ["take_id"]
+isOneToOne: true
+      referencedRelation: "order_takes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_take_prices_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_takes": {
+                  Row: {
+                    "acknowledged_at": string | null,"id": string,"member_id": string,"order_id": string,"organization_id": string,"release_reason": string | null,"released_at": string | null,"released_by": string | null,"round": number,"taken_at": string,"taken_by": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acknowledged_at"?: string | null,"id"?: string,"member_id": string,"order_id": string,"organization_id": string,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round": number,"taken_at"?: string,"taken_by": string,"team_id": string
+                  }
+                  Update: {
+                    "acknowledged_at"?: string | null,"id"?: string,"member_id"?: string,"order_id"?: string,"organization_id"?: string,"release_reason"?: string | null,"released_at"?: string | null,"released_by"?: string | null,"round"?: number,"taken_at"?: string,"taken_by"?: string,"team_id"?: string
                   }
                   Relationships: [
                     {
@@ -1434,12 +1472,6 @@ isOneToOne: false
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "order_takes_price_id_fkey"
-      columns: ["price_id"]
-isOneToOne: false
-      referencedRelation: "team_prices"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "order_takes_team_id_fkey"
