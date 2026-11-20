@@ -3,139 +3,216 @@
   "functions": [
     {
       "name": "private.client_order_check",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
     },
     {
       "name": "public.confirm_client_order",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.preview_client_order",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
     },
     {
       "name": "private.screen_order_reach",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
     },
     {
       "name": "public.take_order",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command",
+        "access_ended",
+        "LEAVE1-3",
         "order_take_member:",
         "order_member_step"
       ]
     },
     {
       "name": "private.order_member_step",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "order_member_step"
+      ]
     },
     {
       "name": "private.recheck_member_takes",
       "required": [
-        "order_take_member:"
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "order_member_step"
       ]
     },
     {
       "name": "private.recheck_takes_trigger",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
     },
     {
       "name": "private.order_take_visit",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "order_take_member:"
       ]
     },
     {
       "name": "private.end_take_visit",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
     },
     {
       "name": "public.field_visits",
-      "required": []
+      "required": [
+        "SET search_path TO ''"
+      ]
     },
     {
       "name": "public.reschedule_visit",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.move_visit_to_today",
       "required": [
-        "begin_command"
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "LEAVE1-3"
       ]
     },
     {
       "name": "public.remove_planned_visit",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.propose_visit_responsible",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.take_open_visit",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.record_absence",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.change_absence",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "private.derived_exceptions",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_member_step"
+      ]
     },
     {
       "name": "public.operations_exceptions",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
         "LEAVE1-3"
       ]
     },
     {
       "name": "private.signal_recipients",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3"
+      ]
     },
     {
       "name": "public.take_signal",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.sign_report",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
         "begin_command"
       ]
     },
     {
       "name": "public.correct_report",
       "required": [
-        "begin_command"
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "access_ended"
       ]
     },
     {
       "name": "private.build_billable_fact",
-      "required": []
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "visit_has_open_hold"
+      ]
     },
     {
       "name": "public.generate_billable_facts",
       "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
         "LEAVE1-3"
       ]
     }

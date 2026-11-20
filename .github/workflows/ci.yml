@@ -48,6 +48,8 @@ jobs:
         env:
           MIGRATION_BASE_REF: HEAD^1
         run: scripts/ci-step.sh migration-order node scripts/migration-order.mjs
+      - name: No text patch after the cutoff (STAB-1, founder 2026-11-20)
+        run: scripts/ci-step.sh no-text-patch node scripts/no-text-patch.mjs
       - name: Lint
         run: scripts/ci-step.sh lint npm run lint
       - name: Typecheck
@@ -102,6 +104,11 @@ jobs:
       - name: Apply migrations from scratch
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh db-reset supabase db reset --no-seed
+      - name: Function sources match the database (STAB-1 drift guard)
+        if: steps.detect.outputs.present == 'true'
+        env:
+          FN_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: scripts/ci-step.sh fn-source node scripts/fn-source.mjs check
       # DST1 / ADR-081: seed and pgTAP run at a pinned clock, 10:00 of the Zurich day of the run, so their result does
       # not depend on the hour CI runs (repeated or missing hour, midnight). private.now() honours the pin only once the
       # seed has written the test-clock row (its first statement); 068 pins its own DST instants on top.
