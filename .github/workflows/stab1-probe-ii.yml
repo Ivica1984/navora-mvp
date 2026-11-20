@@ -1,0 +1,22 @@
+name: stab1-probe-ii
+
+# STAB1 negative probe (ii), probe branch only, never merged: a migration above the cutoff with a text patch on a
+# listed function. The step runs the real change-rule check unchanged; the job is expected to be RED.
+on:
+  push:
+    branches: [probe/STAB-1-ii]
+
+permissions:
+  contents: read
+
+jobs:
+  no-text-patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Change rule on the probe migration (expected red)
+        run: node scripts/no-text-patch.mjs
