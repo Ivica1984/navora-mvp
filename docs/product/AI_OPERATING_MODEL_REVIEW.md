@@ -656,6 +656,16 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control «named checks before the package» (AUT-158):** for the BK-e2 Abschlusspaket, the `aia` gate checks only nine named items (ledger-only `MODEL_LEDGER_READY`, ledger row per draft, AUT-149, AUT-152 fail closed, S2 in CI, exact labels, no accept-all, AUT-150 guards, team-level correction rate). PLANNED (`eng`, #1549).
 - No agent added or removed. Stage 1 applies to synthetic data only; stage 0 to real data.
 
+**BK-e2 Abschlusspaket gated; first registered `ai` agent on the branch (`aia` 2026-11-20 02:18, review 75, AUT-159 to AUT-161):**
+- **Gate:** `aia-gate: #1549 e149e04 clear` (Simulation, synthetic data; comment 7027369915). All nine AUT-158 checks are met in code or CI on the PR branch. IMPLEMENTED on the branch, not merged.
+- **Catalogue:** agent `report_draft_model` (kind `ai`, level G, provider `anthropic`, region `us`; field `summary_line`) is registered by migration 0151. It cannot be switched through `set_agent_state`. It opens only through the database gate: performer, open draft, simulation organisation, threshold row, stop rule. Until a threshold row exists it stays closed (`no_threshold`). This is IMPLEMENTED on the branch; on `recovery/main` the agent is PLANNED until the merge.
+- **Controls proposed:**
+  - AUT-159: one label constant on every model path.
+  - AUT-160: model lines still undecided when the report is signed count as unused in the stop-rule window. This is my proposal on CGR-262.
+  - AUT-161: the share of omitted sentences per team and week, cells under three suppressed. This is my proposal on CGR-213 (b)(iii).
+  - All three are PROPOSED (`eng`, `cra`, PO) and none is a merge condition.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -732,3 +742,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-19 08:18 | `aia` | §12: block «BK-e2a part 2a gated; guard in one place; first measured handgrips»: `aia-gate` lines on #1497 and #1503; control AUT-153; option A supported with conditions. No agent added or removed |
 | 2026-11-19 14:22 | `aia` | §12: block «BK-e2a 2b-1 (a) gated; gate lines carry over after a merge-up»: `aia-gate` lines on #1503 and #1527; controls AUT-156 and AUT-157; AUT-138 closed. No agent added or removed |
 | 2026-11-19 19:05 | `aia` | §12: block «BK-e2a 2b-1 (a) on its merged head; package checks named»: `aia-gate` line on #1527 `e638c57`; control AUT-158. No agent added or removed |
+| 2026-11-20 02:18 | `aia` | §12: block «BK-e2 Abschlusspaket gated; first registered `ai` agent on the branch»: `aia-gate` line on #1549 `e149e04`; controls AUT-159 to AUT-161. Catalogue: `report_draft_model` IMPLEMENTED on the PR branch (closed, `no_threshold`) |
