@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// Q4 (a), ADR-218: fonts are bundled with the app (no request to Google Fonts at build or run time).
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import { connection } from "next/server";
 import { appVersion, versionLine } from "@/lib/version";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "NAVORA",
@@ -28,7 +20,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="de-CH"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Required until the security foundation (M3) is complete — SR-02, SR-07. */}

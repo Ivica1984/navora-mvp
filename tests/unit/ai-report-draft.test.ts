@@ -147,10 +147,100 @@ describe("checkDraft (control layer, stop rule: no value without a source)", () 
   });
 });
 
+// AUT-149 (aia review 71, `cra` 2026-11-19 03:50, BK-e2 Abschlusspaket contract 16:40 point 2): every number, time
+// and unit token in a line must occur in the text of its cited segments or facts, else `value_not_in_source`.
+// Same for rule and model provider. Words are not checked (no clinical rule; negation and body side are S2 cases).
+describe("checkDraft: value in source (AUT-149)", () => {
+  it("rejects a line with a number, a time or a unit that is in none of its cited sources", () => {
+    const i = input("Blutdruck 120/80 mmHg gemessen. Klientin um 07:10 gegessen. 5 mg Tropfen gegeben.");
+    const r = checkDraft(i, {
+      lines: [
+        { text: "Blutdruck 130/80 mmHg gemessen.", sources: ["s1"] },
+        { text: "Klientin um 07:15 gegessen.", sources: ["s2"] },
+        { text: "5 ml Tropfen gegeben.", sources: ["s3"] },
+      ],
+      unplaced: [],
+    });
+    expect(r.lines).toEqual([]);
+    expect(r.rejected.map((x) => x.reason)).toEqual(["value_not_in_source", "value_not_in_source", "value_not_in_source"]);
+    // nothing is dropped: the three sentences stay listed for her decision
+    expect(r.unplaced).toEqual(["s1", "s2", "s3"]);
+  });
+
+  it("rejects an added value even when the line has no number in its source at all", () => {
+    const r = checkDraft(input("Klientin hat getrunken."), {
+      lines: [{ text: "Klientin hat 200 ml getrunken.", sources: ["s1"] }],
+      unplaced: [],
+    });
+    expect(r.rejected.map((x) => x.reason)).toEqual(["value_not_in_source"]);
+  });
+
+  it("accepts a reworded line whose values all occur in its cited sources", () => {
+    const r = checkDraft(input("Blutdruck 120/80 mmHg. Temperatur 37.5 °C."), {
+      lines: [{ text: "Gemessen: 120/80 mmHg und 37.5 °C.", sources: ["s1", "s2"] }],
+      unplaced: [],
+    });
+    expect(r.rejected).toEqual([]);
+    expect(r.lines).toHaveLength(1);
+  });
+
+  it("counts the text of a cited fact as a source of time tokens (`cra` view on mixed lines)", () => {
+    const r = checkDraft(input("Klientin wach."), {
+      lines: [
+        { text: "Klientin um 07:02 wach.", sources: ["f1", "s1"] },
+        { text: "Klientin um 07:02 wach.", sources: ["s1"] },
+      ],
+      unplaced: [],
+    });
+    expect(r.lines).toEqual([{ text: "Klientin um 07:02 wach.", sources: ["f1", "s1"] }]);
+    // without the fact cited, 07:02 is in no cited source
+    expect(r.rejected.map((x) => x.reason)).toEqual(["value_not_in_source"]);
+  });
+
+  it("compares tokens exactly: another spelling of a value is not the same value (fail closed)", () => {
+    const r = checkDraft(input("Temperatur 37,5 Grad. Um 07:05 geweckt."), {
+      lines: [
+        { text: "Temperatur 37.5 Grad.", sources: ["s1"] },
+        { text: "Um 7:05 geweckt.", sources: ["s2"] },
+      ],
+      unplaced: [],
+    });
+    expect(r.rejected.map((x) => x.reason)).toEqual(["value_not_in_source", "value_not_in_source"]);
+  });
+
+  it("checks unit tokens from the closed list, written with or without a space, in any case", () => {
+    const r = checkDraft(input("Gewicht 62 kg. 10 min gelaufen."), {
+      lines: [
+        { text: "Gewicht 62kg.", sources: ["s1"] },
+        { text: "10 h gelaufen.", sources: ["s2"] },
+        { text: "Gewicht 62 KG.", sources: ["s1"] },
+      ],
+      unplaced: [],
+    });
+    expect(r.rejected.map((x) => x.reason)).toEqual(["value_not_in_source"]);
+    expect(r.lines.map((l) => l.text)).toEqual(["Gewicht 62kg.", "Gewicht 62 KG."]);
+  });
+
+  it("does not read letters inside words as units («Wohnung» has no «h», «Milch» no «l»)", () => {
+    const r = checkDraft(input("Wohnung gelüftet."), {
+      lines: [{ text: "Wohnung gelüftet, Milch getrunken.", sources: ["s1"] }],
+      unplaced: [],
+    });
+    expect(r.rejected).toEqual([]);
+  });
+
+  it("the rule substitute passes its own check: every line repeats its source", async () => {
+    const i = input("Blutdruck 120/80 mmHg. Um 07:10 gegessen. 5 mg gegeben.");
+    const r = checkDraft(i, await ruleProvider.propose(i));
+    expect(r.rejected).toEqual([]);
+    expect(r.unplaced).toEqual([]);
+  });
+});
+
 describe("ruleProvider (test substitute, never called AI)", () => {
   it("is labelled rule-based and makes one sourced line per fact and per segment", async () => {
     expect(ruleProvider.kind).toBe("rule");
-    expect(RULE_ORIGIN_LABEL).toBe("regelbasiert, keine KI · synthetische Daten");
+    expect(RULE_ORIGIN_LABEL).toBe("regelbasiert, keine KI");
     expect(ruleProvider.label).toBe(RULE_ORIGIN_LABEL);
     const i = input("Klientin wach. Verband gewechselt.");
     const out = await ruleProvider.propose(i);
@@ -312,7 +402,9 @@ describe("createAnthropicProvider (Claude, founder decision 2026-11-18)", () => 
     );
     const p = createAnthropicProvider({ apiKey: "k", model: "claude-x", fetch });
     expect(p.kind).toBe("model");
-    expect(p.label).toMatch(/^KI-Entwurf · Claude claude-x · synthetische Daten/);
+    // Contract point 2 / `aia` gate point 6: the label is exactly this; the model id goes to the ledger, not the label.
+    expect(p.label).toBe("KI-Entwurf (Claude), synthetische Daten");
+    expect(p.modelId).toBe("claude-x");
     const i = input("Klientin wach. Verband gewechselt.");
     expect(await p.propose(i)).toEqual(answer);
 
@@ -324,6 +416,8 @@ describe("createAnthropicProvider (Claude, founder decision 2026-11-18)", () => 
     const body = JSON.parse(String(init.body));
     expect(body.model).toBe("claude-x");
     expect(body.temperature).toBe(0);
+    // `lca` 2026-11-19 03:43 (c) (2): the processing region is set explicitly so the registered region `us` is true.
+    expect(body.inference_geo).toBe("us");
     expect(body.messages).toHaveLength(1);
     expect(JSON.parse(body.messages[0].content)).toEqual({ segments: i.segments, facts: i.facts });
   });
