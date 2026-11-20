@@ -102,3 +102,45 @@ Nach P0 wird der Schlüssel widerrufen, bis der Founder weitere Versuche freigib
 4. Ob genau ein P0-Versuch (E0, dann E3a) laufen darf, frühestens nach BK-f auf Staging.
 
 Weitere Versuche (Ausgangsmessung) sind ein späterer, eigener Entscheid nach dem P0-Bericht.
+
+## 7. Präzisierung nach der Founder-Nachricht vom 2026-11-20 ca. 14:05 (PO, Live-Sitzung)
+
+**Was der Founder freigibt (wörtlich sinngemäss, ohne eigene Entscheidnummer, auf seinen Wunsch):**
+- EVAL0 **nur als Konzept**.
+- `eng` darf **mit dem PO** einen **Isolationstest ohne Modellschlüssel** vorbereiten. Er soll nachvollziehbar zeigen, dass die wegwerfbare Umgebung keine NAVORA-Secrets besitzt und weder ins echte Repository noch nach Staging schreiben kann.
+
+**Was ausdrücklich offen bleibt (nicht freigegeben):** Budget; Eval-API-Schlüssel; jeder Modellversuch, auch der eine P0-Versuch; ein neuer CI-Pflichtlauf; das Anlegen eines Eval-Repositorys und eines Konsolen-Arbeitsbereichs. Vorrang behält der bedienbare BK-f-Rechnungspfad und der nächste Produktteil.
+
+### 7.1 Was ist P0, was gehört zur späteren Ausgangsmessung?
+
+| Schritt | Inhalt | Modell? | Stand |
+|---|---|---|---|
+| **P0a Isolationstest** | Ein Skript (kein Agent) läuft in der wegwerfbaren Umgebung und versucht: Push nach `github.com/Ivica1984/navora-mvp`; Lesen jeder Umgebungsvariable und jeder Anmeldedatei (`~/.claude`, `~/.config/gh`, Git-Credential-Helfer); Verbindung zu `*.supabase.co`, `*.onrender.com`, `github.com`; einen Aufruf der Anthropic-API **ohne** Schlüssel. Bestanden nur, wenn jeder Versuch technisch scheitert und die Liste der Variablen keinen Zugang enthält. Danach liest der PO von aussen nach: Branches und offene PRs von `navora-mvp` und der Migrationsstand von `navora-staging` (aus dem `staging-version`-Lauf) sind unverändert. | nein | freigegeben zur Vorbereitung (§7 oben) |
+| **P0b ein Modellversuch** | Genau **ein** Versuch der Aufgabe E3a (parallele Branch-Bearbeitung, Stopp-Aufgabe, `eng`), mit den Prüfern und Referenzskripten (a)–(c) aus §3. Zweck: zeigen, dass Weg, Prüfer, Kosten- und Stoppgrenzen funktionieren. **Keine Messung der Agenten.** | ja | **nicht freigegeben** |
+| **Ausgangsmessung B0 (später)** | 6 Aufgaben × 3 Versuche je betroffener Rolle (rund 18–33 Agentenläufe), Bestehensraten, Verläufe lesen. Erst danach eine gezielte Änderung und B1. | ja | späterer, eigener Founder-Entscheid nach dem P0b-Bericht |
+
+**Offene technische Voraussetzung für P0a (beobachtet vom PO am 2026-11-20 ca. 14:15):** In dieser PO-Cloud-Sitzung ist nur der Docker-Client installiert, kein Docker-Dienst (`/var/run/docker.sock` fehlt). Die Sitzung hat ausserdem GitHub-Schreibzugang und, nach `eng` (#1605 §0), auch Modellzugang ohne `ANTHROPIC_API_KEY`. P0a kann hier also nicht sauber laufen. Ein sauberer Nachweis braucht eine Umgebung, in der NAVORA-Secrets gar nicht existieren. Der Vorschlag von `eng` (#1605) ist ein eigenes, leeres privates Repository mit einem von Hand gestarteten Job auf einem GitHub-Runner. **Ein Job in `navora-mvp` selbst ist kein gleichwertiger Nachweis**, weil dort die Staging-Secrets liegen, auch wenn der Job sie nicht anfordert. Ob der Founder dieses leere Repository für P0a anlegt (ohne Schlüssel, ohne Kosten ausser Runner-Minuten), ist **OPEN, Founder**. Bis dahin bereiten `eng` und `po` nur das Prüfskript und die Nachlese-Liste vor; nichts läuft.
+
+**Offenlegung:** `eng` hat am 2026-11-20 ca. 13:50, vor dieser Nachricht, beim Prüfen eines CLI-Schalters unbeabsichtigt einen echten Modellaufruf aus seiner Cloud-Sitzung ausgelöst (#1605 §0: ein Satz, kein Werkzeug, nichts geändert, über den Sitzungszugang abgerechnet). Das war kein Eval-Versuch und wird nicht so gezählt. Seither: kein weiterer Aufruf.
+
+### 7.2 Wer kontrolliert die PO-Merge-Fälle unabhängig vom PO?
+
+Die PO-Fälle sind E5 (Staging-Meldung), E7 (Merge-Stopp bei fehlender Gate-Zeile) und E8 (Merge, wenn alles erfüllt ist).
+1. **Prüfer ohne Ermessen:** Ob gemergt wurde, mit welcher Methode und welchem Kopf-SHA, ob eine Aufgabe eingeschaltet wurde und was gemeldet wurde, entscheidet das Protokoll der Attrappen (`fakegh`) gegen eine vorher feste Erwartung. Der PO bewertet keinen eigenen Versuch.
+2. **Erwartungen vorab gegengeprüft:** Der PO schreibt die Erfolgskriterien, `eng` prüft sie **vor** der Runde gegen und zeichnet sie mit Prüfsumme ab. Nach Einsicht in Ergebnisse derselben Runde ändert niemand sie.
+3. **Verläufe der PO-Versuche liest `eng`**, nicht der PO.
+4. **Sicherheitsfall E7:** zusätzlich liest der **Founder** jeden Versuch (bei 3 Versuchen sind das 3 kurze Verläufe). `cra` wäre fachlich geeignet, darf aber als pausierte Rolle nur für BK-Gates gestartet werden (FE-089 (2)); das bräuchte eine eigene Founder-Freigabe.
+5. Grenze: `eng` ist von der PO-Arbeit nicht völlig unabhängig (gleiches Projekt, gemeinsame Regeln). Darum bleibt für E7 die Founder-Lesung Pflicht und ersetzt nichts davon.
+
+### 7.3 Kosten und Rechte für den späteren einzelnen Modellversuch P0b (nicht freigegeben)
+
+**Rechte, die der Founder vergeben müsste (sonst niemand):**
+- ein privates Repository `navora-eval-sandbox` ohne NAVORA-Zugang, angelegt vom Founder;
+- ein eigener Arbeitsbereich in der Anthropic-Konsole mit harter Ausgabengrenze und ein Schlüssel nur für diesen Arbeitsbereich, angelegt vom Founder als Organisations-Admin und von ihm selbst als Secret des Sandbox-Repositorys hinterlegt (nie im Chat, in GitHub-Texten oder Dateien);
+- im Sandbox-Job: Job-Token `permissions: {}`, Checkout mit `persist-credentials: false`, kein Token für `navora-mvp`, keine Supabase- oder Render-Daten, Netz nur über einen Proxy zu `api.anthropic.com` (WIE: `eng`, #1605 §2);
+- das Einlegen eines `git bundle` von `navora-mvp` am Fall-Commit (Code und synthetische Seeds; Secret-Scan vorher) durch Founder oder PO.
+
+**Kosten:**
+- Modell: **ESTIMATE** von `eng` aus Listenpreisen, nicht gemessen: etwa 2–4 USD für den einen E3a-Versuch. Vorgeschlagene harte Grenzen: 5 USD je Versuch (`--max-budget-usd`), 20 USD Ausgabengrenze des Arbeitsbereichs für P0a-Wiederholungen und P0b, `--max-turns` 40, Job-Zeitlimit 20 Minuten. Nach P0b wird der Schlüssel widerrufen.
+- GitHub-Runner-Minuten im privaten Sandbox-Repository: abhängig vom GitHub-Plan des Founders, **UNKNOWN**; ein Lauf dauert nach Vorschlag höchstens 20 Minuten.
+- Agentenzeit: Vorbereitung der Prüfer und Skripte etwa 2–4 Läufe `eng`, 1–2 Läufe `po` (Schätzung). Sie läuft erst nach BK-f auf Staging und verdrängt den nächsten Produktteil nicht.
