@@ -62,6 +62,9 @@ jobs:
       - name: Build
         if: success() || failure()
         run: scripts/ci-step.sh build npm run build
+      - name: Built app serves its migration level (Q1 (a), ADR-220)
+        # The unit tests cannot see whether Next.js inlined NAVORA_MIGRATION; this reads /api/version from `next start`.
+        run: scripts/ci-step.sh built-version node scripts/built-version-check.mjs
       - name: Record versions
         if: always()
         run: scripts/ci-step.sh versions npm ls next react react-dom @supabase/supabase-js zod --depth=0

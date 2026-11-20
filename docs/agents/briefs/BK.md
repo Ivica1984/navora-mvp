@@ -1422,3 +1422,12 @@ Input: `eng` probe draft `docs/engineering/probes/BK-f_ADR_DRAFT.md` (PROPOSED, 
 **Value (owner order):** 5 less administration (the manual invoice disappears; 0 retyping), 3 nurse income (the team invoices the client directly, 0 % commission, no intermediary), 4 team autonomy (team price, team send). Patient safety: billing never touches the signature or the clinical record.
 
 PO status of BK-f: **active (contract written; `eng` builds; gate window after `Paket prüfbereit:`)**.
+
+### PO cut 2026-11-20 08:39 (BK-f; no new merge condition, FE-089 (3))
+
+- **BKF-F2** (`eng` 08:38, review comment 7033482091 on #1581): amount computed as `round(recorded / 60 * price, 2)` is 1 Rappen low on half-Rappen ties. Breach of the existing criterion «amount exact to 2 decimals» (contract point 5); fixed in #1581 before `Paket prüfbereit:` with a red-first pgTAP case. No rounding rule set; 5-Rappen rounding OPEN for `lca`.
+- **Follow-up BK-f-F1 «Abweichung bestätigen»** (AUT-162): outside the tolerance the team confirms the recorded time with a reason; the signed report is never the route to an invoice. Not in BK-f. Gate-window question to `cra` and `lca` (not a condition). Owner of the rule: `lca`, `cra` (OPEN).
+- **Follow-up BK-f-F2 «Neubewertung einer Ablehnung»** (AUT-163): a refused draft is rebuilt without a tap when its cause goes away; `no_price` named as a known limit in the ready report. Not in BK-f.
+- **AUT-164** (reach-to-sent measure): with `/platform` counts, later package.
+- PO comment 7033546532 on #1581. PO did not run tests.
+

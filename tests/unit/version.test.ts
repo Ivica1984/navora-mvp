@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isPublicPath } from "@/lib/auth/paths";
-import { appVersion, highestMigration, versionLine } from "@/lib/version";
+import { appVersion, highestMigration, runningVersion, versionLine } from "@/lib/version";
 
 describe("Q1 (a) version (ADR-220)", () => {
   it("takes the Render commit and the build's migration level, and nothing that is not one", () => {
@@ -10,6 +10,18 @@ describe("Q1 (a) version (ADR-220)", () => {
     });
     expect(appVersion({ RENDER_GIT_COMMIT: "main; rm -rf", NAVORA_MIGRATION: "x" })).toEqual({ commit: null, migration: null });
     expect(appVersion({})).toEqual({ commit: null, migration: null });
+  });
+
+  it("reads the running build's commit and migration by their literal names", () => {
+    const before = { c: process.env.RENDER_GIT_COMMIT, m: process.env.NAVORA_MIGRATION };
+    process.env.RENDER_GIT_COMMIT = "abcdef1";
+    process.env.NAVORA_MIGRATION = "20261021000153";
+    try {
+      expect(runningVersion()).toEqual({ commit: "abcdef1", migration: "20261021000153" });
+    } finally {
+      if (before.c === undefined) delete process.env.RENDER_GIT_COMMIT; else process.env.RENDER_GIT_COMMIT = before.c;
+      if (before.m === undefined) delete process.env.NAVORA_MIGRATION; else process.env.NAVORA_MIGRATION = before.m;
+    }
   });
 
   it("finds the highest migration from the file names only", () => {

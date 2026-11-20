@@ -666,6 +666,14 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
   - All three are PROPOSED (`eng`, `cra`, PO) and none is a merge condition.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**BK-f contract pre-read; an invoice never routes through the signed report (`aia` 2026-11-20 08:19, review 76, AUT-162 to AUT-164):**
+- **Label check:** BK-f is fixed rules only (contract point 9). Migrations 0154 and 0155 on draft PR #1581 contain no model, no ranking and no proposed amount or time. IMPLEMENTED on the branch, not merged. No agent added to the catalogue.
+- **Control «billing never routes through the record» (AUT-162):** when recorded and ordered times disagree, the way to an invoice is a team confirmation of the recorded time with a reason, never a correction of a correct signed report. PROPOSED (PO, `cra`, `lca`).
+- **Control «a refusal is re-evaluated when its cause goes away» (AUT-163):** hold lifted, tolerance row added or price set → the draft is rebuilt without a tap; no permanent refusal. PROPOSED (PO, `eng`).
+- **Measure (AUT-164):** share of final take reports that reach a sent draft, by refusal reason, per team and week; counts only. PROPOSED (later package).
+- **Stage tracking:** since 0153 (#1572) the `report_draft_model` database gate can open in simulation organisations; no model is called because `AI_REPORT_DRAFT_MODE` and the provider key are unset (founder, FE-094 (d); `lca`, D-35). AUT-152 and AUT-158 closed.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -743,3 +751,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-19 14:22 | `aia` | §12: block «BK-e2a 2b-1 (a) gated; gate lines carry over after a merge-up»: `aia-gate` lines on #1503 and #1527; controls AUT-156 and AUT-157; AUT-138 closed. No agent added or removed |
 | 2026-11-19 19:05 | `aia` | §12: block «BK-e2a 2b-1 (a) on its merged head; package checks named»: `aia-gate` line on #1527 `e638c57`; control AUT-158. No agent added or removed |
 | 2026-11-20 02:18 | `aia` | §12: block «BK-e2 Abschlusspaket gated; first registered `ai` agent on the branch»: `aia-gate` line on #1549 `e149e04`; controls AUT-159 to AUT-161. Catalogue: `report_draft_model` IMPLEMENTED on the PR branch (closed, `no_threshold`) |
+| 2026-11-20 08:19 | `aia` | §12: block «BK-f contract pre-read; an invoice never routes through the signed report»: fixed-rule label check on #1581; controls AUT-162 to AUT-164; AUT-152 and AUT-158 closed. No agent added or removed |
