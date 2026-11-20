@@ -92,6 +92,7 @@ Nach P0 wird der Schlüssel widerrufen, bis der Founder weitere Versuche freigib
   - Bewertet wird der Endzustand, nicht der Weg.
   - Scheitert eine gültige Lösung am Prüfer, bleibt das Ergebnis dieser Runde **unverändert stehen** und wird als «Prüfer zu eng» vermerkt.
   - Der Prüfer wird per PR mit Grund und Versionszeile korrigiert. Die Korrektur gilt erst ab der nächsten Runde; Ergebnisse werden nie nachträglich umgedeutet.
+  - **Ersetzt durch die Founder-Regel vom 2026-11-20 ca. 14:15** (`EVAL0_P0A_EINRICHTUNG.md` §7): ursprüngliches Ergebnis **und** begründete Korrektur werden beide dokumentiert; bis zur Prüfung der Korrektur gilt der Versuch als «in Klärung», nicht als Versagen; danach zählt der geprüfte, als «korrigiert» gekennzeichnete Befund für diesen Versuch.
   - Die Kriterien gehören dem PO. Niemand ändert sie nach Einsicht in die Ergebnisse derselben Runde.
 
 ## 6. Was der Founder erst nach dieser Vorlage entscheidet
