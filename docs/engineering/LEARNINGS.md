@@ -9,6 +9,8 @@ Founder-Auftrag FE-101 / FE-102 (2026-11-20). Owner der Datei: `eng`. Jede Rolle
 3. Format: genau das Muster unten. Neueste Lektion oben. Bestehende Lektionen werden nicht umgeschrieben, nur ergänzt («Nachtrag <Datum>»).
 4. Nur belegte Fakten aus Code, CI-Log oder Test (Job-ID, Datei, Migration). Keine erfundenen Regeln; medizinische, tarifliche oder rechtliche Regeln gehören nicht hierher, sondern als Entscheid an ihren Owner.
 5. Wo möglich wird eine Lektion durch einen automatischen Test oder Check abgesichert. Die Zeile «Abgesichert durch» nennt ihn, oder `OPEN`, wenn es ihn noch nicht gibt.
+6. **Praktischer Ablauf (Founder 2026-11-20, nach PR #1596):** Vor der Arbeit am aktiven Paket liest `eng` die Lektionen, die für dessen Dateien und Risiken einschlägig sind. Die Paketübergabe (`Paket prüfbereit:`) enthält eine Zeile «Lektionen:»: welche Lektion angewendet wurde und welcher Test die betreffende Eigenschaft schützt, oder «keine einschlägig». Eine Behauptung im Journal allein ersetzt keinen Test.
+7. Diese Datei hält Erkenntnisse über Software-Fehler fest. Regressionstests sichern die Software; sie sind kein Training des Coding-Agenten. Ob `eng` die Lektionen anwendet, wird an seiner Arbeit geprüft (Review durch `po`). Automatische Prüfung von Format und Testverweisen: Vorschlag LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`), PLANNED nach BK-f, wenn `po` es einplant.
 
 Muster:
 
@@ -23,6 +25,12 @@ Muster:
 ---
 
 ## Lektionen (neueste zuerst)
+
+### [2026-11-20 / EVAL0 P0] Gelernte Lektion: Kommandozeilen-Schalter nie durch einen echten Aufruf prüfen
+- **Was war das Fehlerbild?** Um zu prüfen, ob `claude` 2.1.329 `--max-turns` kennt, startete `eng` `claude -p --max-turns 1 "x"`. Das war ein echter, abgerechneter Modellaufruf in einer Umgebung mit NAVORA-Schreibzugang. Folgen: nur eine Satz-Antwort, kein Werkzeug benutzt, nichts geändert.
+- **Was war die technische Ursache?** Die Annahme «ohne `ANTHROPIC_API_KEY` kein Modellzugang» war falsch: Die CLI ist in der Cloud-Sitzung über deren eigene Anmeldung angemeldet. Ausserdem listet `--help` nicht jeden Schalter, der angenommen wird.
+- **Die verbindliche Lösungsregel ab jetzt:** Eigenschaften eines Werkzeugs nur aus `--help`, der Dokumentation oder dem Quelltext prüfen, nie durch einen Aufruf, der ein Modell, ein Deployment, eine Zahlung oder ein fremdes System auslöst. Einen solchen Aufruf gibt es nur mit ausdrücklicher Freigabe und in der dafür vorgesehenen, isolierten Umgebung. Die Voraussetzung «kein Zugang» wird belegt (E0), nicht angenommen.
+- **Abgesichert durch:** OPEN (E0-Prüfung «kein fremder Modellzugang» in der EVAL0-Sandbox, `docs/engineering/probes/EVAL0_P0_ENG.md` §2, PLANNED).
 
 ### [2026-11-20 / PR #1581, CI 44709240629] Gelernte Lektion: Knopftexte mit Personennamen nie wörtlich im Test erwarten
 - **Was war das Fehlerbild?** `e2e` auf `9d1c113` rot (Job 136196406414). `tests/e2e/bk-f-invoice.spec.ts` wartete 3 Minuten auf den Knopf «Übernehmen mit Pflegekraft», bis der Test abbrach.
