@@ -1179,6 +1179,50 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"institution_gap_orders": {
+                  Row: {
+                    "client_account_id": string,"discarded_at": string | null,"discarded_by": string | null,"grade_fixed": string | null,"id": string,"institution_id": string,"order_id": string | null,"prepared_at": string,"prepared_by": string,"sent_at": string | null,"sent_by": string | null,"shift_type_id": string,"state": string,"station_id": string,"work_date": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_account_id": string,"discarded_at"?: string | null,"discarded_by"?: string | null,"grade_fixed"?: string | null,"id"?: string,"institution_id": string,"order_id"?: string | null,"prepared_at"?: string,"prepared_by": string,"sent_at"?: string | null,"sent_by"?: string | null,"shift_type_id": string,"state"?: string,"station_id": string,"work_date": string
+                  }
+                  Update: {
+                    "client_account_id"?: string,"discarded_at"?: string | null,"discarded_by"?: string | null,"grade_fixed"?: string | null,"id"?: string,"institution_id"?: string,"order_id"?: string | null,"prepared_at"?: string,"prepared_by"?: string,"sent_at"?: string | null,"sent_by"?: string | null,"shift_type_id"?: string,"state"?: string,"station_id"?: string,"work_date"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_gap_orders_client_account_id_fkey"
+      columns: ["client_account_id"]
+isOneToOne: false
+      referencedRelation: "client_accounts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_gap_orders_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_gap_orders_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: true
+      referencedRelation: "partner_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_gap_orders_shift_type_id_institution_id_fkey"
+      columns: ["shift_type_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_shift_types"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_gap_orders_station_id_institution_id_fkey"
+      columns: ["station_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_stations"
+      referencedColumns: ["id","institution_id"]
+    }
+                  ]
                 },"institution_members": {
                   Row: {
                     "created_at": string,"institution_id": string,"role": string,"user_id": string
@@ -1299,17 +1343,23 @@ isOneToOne: false
                   ]
                 },"institutions": {
                   Row: {
-                    "created_at": string,"display_name": string,"id": string,"kind": string,"simulation": boolean
+                    "created_at": string,"display_name": string,"id": string,"kind": string,"order_postcode": string | null,"simulation": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"simulation"?: boolean
+                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"order_postcode"?: string | null,"simulation"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"simulation"?: boolean
+                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"order_postcode"?: string | null,"simulation"?: boolean
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "institutions_order_postcode_fkey"
+      columns: ["order_postcode"]
+isOneToOne: false
+      referencedRelation: "postcodes"
+      referencedColumns: ["postcode"]
+    }
                   ]
                 },"invoice_time_tolerances": {
                   Row: {
@@ -3457,17 +3507,29 @@ isOneToOne: false
 "institution_assign_staff":
 { Args: { "p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
                            },
+"institution_discard_gap_order":
+{ Args: { "p_gap_order_id": string }; Returns: Json
+                           },
 "institution_load_example":
 { Args: { "p_institution_id": string,"p_week_start": string }; Returns: Json
                            },
 "institution_plan":
 { Args: { "p_from": string,"p_institution_id": string,"p_to": string }; Returns: Json
                            },
+"institution_prepare_gap_order":
+{ Args: { "p_institution_id": string,"p_shift_type_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
+                           },
+"institution_preview_gap_order":
+{ Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
+                           },
 "institution_record_absence":
 { Args: { "p_ends_on": string,"p_institution_id": string,"p_staff_id": string,"p_starts_on": string }; Returns: Json
                            },
 "institution_remove_absence":
 { Args: { "p_absence_id": string }; Returns: Json
+                           },
+"institution_send_gap_order":
+{ Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
 "institution_set_shift_type":
 { Args: { "p_code": string,"p_ends_at": string,"p_institution_id": string,"p_label": string,"p_starts_at": string }; Returns: Json
