@@ -27,8 +27,7 @@
       "name": "private.screen_order_reach",
       "required": [
         "SECURITY DEFINER",
-        "SET search_path TO ''",
-        "withdrawn_at"
+        "SET search_path TO ''"
       ]
     },
     {
