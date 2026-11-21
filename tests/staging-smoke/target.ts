@@ -68,6 +68,52 @@ export function smokeDayOffsets(runNumber: number): { day: number; night: number
   return { day: 40 + n, night: 75 + n };
 }
 
+/**
+ * #1642 (root cause from raw data, staging-smoke 44858240792 attempt 2, job 136718352894): a re-run of a workflow run
+ * keeps GITHUB_RUN_NUMBER, so `smokeDayOffsets` gave attempt 2 the day of attempt 1 (27.01.2027). The demo nurse
+ * already held attempt 1's take 07:00–15:30 of that day, so the database correctly offered the new order to no team
+ * (overlap rule CGR-224) and the client read «Nicht gedeckt», not «Noch nicht gedeckt». The same happens whenever an
+ * earlier run (30 run numbers back, a different calendar day) left an order on the chosen day. So, as path 3 does
+ * since STAB1-F3, the day is read free in the real app: the first offset from `start` (cyclic inside [lo, hi]) on
+ * whose days (`span` days from it, 2 for a night) the client has no order at all. Any order counts, taken or not, so
+ * the result is a superset-safe choice. Throws (a refusal, never a skip) when every day of the range is used.
+ */
+export function freeDayOffset(
+  nowMs: number,
+  start: number,
+  lo: number,
+  hi: number,
+  usedDays: ReadonlySet<string>,
+  span = 1,
+): number {
+  if (!(lo <= start && start <= hi) || span < 1) throw new RangeError("freeDayOffset: start outside [lo, hi] or span < 1");
+  const width = hi - lo + 1;
+  for (let i = 0; i < width; i++) {
+    const offset = lo + ((start - lo + i) % width);
+    const days = Array.from({ length: span }, (_, k) => zurichDay(nowMs, offset + k));
+    if (days.every((d) => !usedDays.has(d))) return offset;
+  }
+  throw new Error(`staging-smoke: every day of offsets ${lo}–${hi} already holds a client order; no free day for this path`);
+}
+
+/** Every calendar day (YYYY-MM-DD) touched by an order span of the client's /order lines (from day to end day). */
+export function orderDaysFromLines(lines: readonly string[]): Set<string> {
+  const out = new Set<string>();
+  for (const line of lines) {
+    const m = ORDER_SPAN.exec(line);
+    if (!m) continue;
+    const fromDay = `${m[3]}-${m[2]}-${m[1]}`;
+    const toDay = `${m[8]}-${m[7]}-${m[6]}`;
+    for (let d = fromDay, n = 0; d <= toDay && n < 400; n++) {
+      out.add(d);
+      const next = new Date(`${d}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 1);
+      d = next.toISOString().slice(0, 10);
+    }
+  }
+  return out;
+}
+
 /** A busy interval of today in minutes of the Zurich day, [from, to); `to` may be 1440 (midnight). */
 export type BusyMinutes = [number, number];
 
