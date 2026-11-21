@@ -505,6 +505,26 @@
         "take_visit_under_way",
         "starts_at <= private.now()"
       ]
+    },
+    {
+      "name": "public.team_visit_alerts",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "signal_take_lapsed"
+      ]
+    },
+    {
+      "name": "private.evaluate_signals",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "pg_try_advisory_xact_lock",
+        "signal_kind_of",
+        "outside_after_evaluate"
+      ]
     }
   ]
 }
