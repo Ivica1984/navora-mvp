@@ -227,3 +227,53 @@ test("path 4: the home assigns a person, records an absence, sees the gap in wee
   await expect(page.getByTestId("heim-message")).toHaveText("Aus dem Dienst entfernt.");
   await expect(cellOf().getByTestId("heim-cell-status")).toHaveText("0 von 2 · Lücke: 2 fehlt, 1 HF fehlt");
 });
+
+// HD-2 (brief HD.md §6 (2); founder FE-109 (C)): the home turns a gap into an external order with one tap, checks and
+// sends it; the Basel nurse takes it in /team; the home's week and /order read «Gedeckt» for that cell (one source).
+// A sent order stays on staging (no withdraw command yet, PR #1641), so the path picks the first Rhein 2 Früh gap of its
+// week that has no order yet (weeks shared with path 4; path 4 uses Spät, never Früh).
+test("path 5: the home orders a gap externally, the Basel nurse takes it, the home's week reads «Gedeckt» (390 px)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  const week = weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40)));
+
+  await signIn(page, "kunde");
+  await page.goto("/heim");
+  await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
+  if (await page.getByTestId("heim-empty").isVisible()) {
+    await page.getByTestId("heim-load-example").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
+  }
+  await page.goto(`/heim?ansicht=woche&datum=${week}`);
+  const free = page.locator('[data-testid="heim-day"]').filter({
+    has: page.locator('[data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"] [data-testid="heim-prepare-order"]'),
+  }).first();
+  const day = (await free.getAttribute("data-date"))!;
+  const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"]`);
+  await cellOf().getByTestId("heim-prepare-order").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.");
+  const review = page.getByTestId("heim-order-review");
+  const postcode = review.getByTestId("heim-order-postcode");
+  if ((await postcode.inputValue()) === "") await postcode.selectOption("4051");
+  for (const box of await review.getByTestId("heim-order-tag").all()) if (await box.isChecked()) await box.uncheck();
+  await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
+  await review.getByTestId("heim-order-check").click();
+  await expect(review.getByTestId("heim-order-sentence")).toContainText("Schichtauftrag · HF · ");
+  await review.getByTestId("heim-order-send").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf().getByTestId("heim-cell-order")).toHaveAttribute("data-code", "A");
+  await expect(cellOf().getByTestId("heim-prepare-order")).toHaveCount(0);
+
+  await signIn(page, "pflegeBs");
+  await takeAsHerself(page, `${deDate(day)} 07:00`);
+
+  await signIn(page, "kunde");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf().getByTestId("heim-cell-order")).toHaveAttribute("data-code", "G");
+  await expect(cellOf().getByTestId("heim-cell-order-headline")).toHaveText("Externer Auftrag: Gedeckt · Person bestätigt, geprüft für HF");
+  await expect(cellOf().getByTestId("heim-cell-status")).toContainText("+ 1 extern von");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  await page.goto("/order");
+  const covered = page.getByTestId("client-orders").locator("li", { hasText: `${deDate(day)} 07:00` }).last();
+  await expect(covered.getByTestId("order-cover-state")).toHaveText(/^Gedeckt · Person benannt, geprüft für HF$/);
+});
