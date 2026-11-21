@@ -365,6 +365,34 @@ export function tagList(v: unknown): string[] {
   return [...new Set(v.split(",").map((t) => t.trim()).filter((t) => /^[A-Z][A-Z0-9]{0,5}$/.test(t)))];
 }
 
+/**
+ * UXR-269: what the review screen shows (boxes) and what the last «Prüfen» checked (snapshot) of one gap order.
+ * «Senden» sends only when both are the same; otherwise nothing is sent and the screen checks again. Tags compare as
+ * a set (order and repeats do not matter). The database checks every hard rule again on what it receives.
+ */
+export type OrderChoice = { postcode: string | null; grade: string | null; tags: string[] };
+
+export function sameOrderChoice(shown: OrderChoice, checked: OrderChoice): boolean {
+  if ((shown.postcode ?? null) !== (checked.postcode ?? null)) return false;
+  if ((shown.grade ?? null) !== (checked.grade ?? null)) return false;
+  const a = [...new Set(shown.tags)].sort();
+  const b = [...new Set(checked.tags)].sort();
+  return a.length === b.length && a.every((t, i) => t === b[i]);
+}
+
+/**
+ * UXR-269: the line next to «Senden», built from the same checked values that are sent: grade, day and time, postcode
+ * and place, every activity by code and name (a code without a name stays as its code).
+ */
+export function orderSendSummary(p: {
+  grade: string; day: string; time: string; postcode: string; place: string | null;
+  tags: string[]; activities: ReadonlyArray<{ code: string; label_de: string }>;
+}): string {
+  const names = new Map(p.activities.map((a) => [a.code, a.label_de]));
+  const acts = p.tags.map((t) => (names.has(t) ? `${t} · ${names.get(t)}` : t)).join(", ");
+  return `Wird gesendet: ${gradeLabel(p.grade)} · ${p.day} ${p.time} · ${p.postcode}${p.place ? ` ${p.place}` : ""} · Tätigkeiten: ${acts}`;
+}
+
 export function countMinutes(t: ShiftType): number {
   const [sh, sm] = t.starts_at.split(":").map(Number);
   const [eh, em] = t.ends_at.split(":").map(Number);
@@ -417,6 +445,8 @@ const PROBLEM_TEXT: Record<string, string> = {
   required_tag_not_in_tags: "Eine Pflicht-Tätigkeit muss auch als Tätigkeit gewählt sein.",
   tag_unknown: "Unbekannte Tätigkeit.",
   duplicate: "Dieser Auftrag wurde schon gesendet.",
+  // UXR-269: the boxes changed after «Prüfen»; nothing was sent.
+  order_changed_recheck: "Geändert nach dem Prüfen: Es wurde nichts gesendet. Bitte die Angaben unten erneut prüfen.",
   // HD-2 slice 5: withdrawal refusals
   not_sent: "Dieser Auftrag ist nicht gesendet; ein Entwurf wird verworfen.",
   already_withdrawn: "Dieser Auftrag ist schon zurückgezogen.",
