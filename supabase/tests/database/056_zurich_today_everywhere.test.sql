@@ -18,7 +18,9 @@ select is(
 
 select ok(
   -- ADR-081 (0067): the Zurich conversion is written private.at_zurich(...) since DST1.
-  (select p.prosrc like '%private.at_zurich(private.now())%' from pg_proc p where p.oid = 'private.derived_exceptions(uuid)'::regprocedure),
+  -- PERF1 (ADR-226, 0164): the branches moved unchanged into derived_exceptions_of; derived_exceptions delegates to it
+  -- with p_types = null (its own guard: pgTAP 157 «keeps derived_exceptions_of(p_org, null)»).
+  (select p.prosrc like '%private.at_zurich(private.now())%' from pg_proc p where p.oid = 'private.derived_exceptions_of(uuid, text[])'::regprocedure),
   'OPS1 derived exceptions judge order expiry and review dates against the Zurich date');
 
 -- A session in UTC just after midnight Zurich time: pause_case must refuse an expected end of the Zurich yesterday.

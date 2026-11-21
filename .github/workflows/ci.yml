@@ -123,6 +123,18 @@ jobs:
               execute format('alter database %I set navora.test_now = %L', current_database(),
                              private.at_zurich((private.at_zurich(now()))::date + time '10:00')::text);
             end \$\$;"
+      # PERF1 (ADR-226, AUT-186): pgTAP 164 counts private.order_cover calls in pg_stat_xact_user_functions, which needs
+      # track_functions = all; a superuser setting (PostgreSQL 15+), so set with supabase_admin like the clock pin. Only
+      # collects call statistics; changes no result, permission or other check. 164 asserts the setting first.
+      - name: Track function calls (PERF1 budget)
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          scripts/ci-step.sh db-track-functions psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -Atc "
+            do \$\$ begin
+              execute format('alter database %I set track_functions = %L', current_database(), 'all');
+            end \$\$;"
       # DST1-8 (a) / DST1-C3 (a): a database built from the migrations alone (no seed, as staging and production) reads the
       # real clock even while navora.test_now is set. Runs in a new session, so the database-level setting applies.
       - name: Real clock before the seed (DST1-8 a)

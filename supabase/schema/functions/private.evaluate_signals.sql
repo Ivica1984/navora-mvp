@@ -34,7 +34,9 @@ begin
            row(d.exception_key, d.exception_type, d.entity_id, d.team_id,
                case when r.priority = 'P1' then d.since else d.since + make_interval(hours => r.escalate_to_p1_after_hours) end
               )::private.sig1_current_signal as x
-    from private.derived_exceptions(p_org) d
+    -- PERF1 (ADR-226): only the branches of the types private.signal_kind_of maps (pgTAP 164 checks the list)
+    from private.derived_exceptions_of(p_org, array['visit_overdue', 'visit_stuck', 'visit_uncovered', 'visit_uncovered_hospital',
+                                                    'visit_interrupted', 'no_show_open', 'take_member_dropped']) d
   join private.effective_exception_rules(p_org) r on r.exception_type = d.exception_type
   where private.signal_kind_of(d.exception_type) is not null
     and d.entity_type = 'visit' and d.entity_id is not null and d.team_id is not null

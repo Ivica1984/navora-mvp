@@ -18,7 +18,9 @@ with my_teams as (
     where tm.user_id = (select auth.uid())
   ), d as (
     select o.organization_id, x.*
-    from (select distinct organization_id from my_teams) o, lateral private.derived_exceptions(o.organization_id) x
+    -- PERF1 (ADR-226): only the branches this list reads (no order_cover per confirmed order); same list as below
+    from (select distinct organization_id from my_teams) o,
+         lateral private.derived_exceptions_of(o.organization_id, array['visit_overdue', 'visit_stuck', 'visit_interrupted', 'report_correction_open', 'order_without_end_date']) x
     where x.exception_type in ('visit_overdue', 'visit_stuck', 'visit_interrupted', 'report_correction_open', 'order_without_end_date' /* ORD0-4 */)
       and x.team_id in (select mt.team_id from my_teams mt)
   ), latest as (
