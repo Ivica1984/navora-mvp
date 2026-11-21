@@ -151,7 +151,9 @@ select is((select count(*)::int from public.institution_audit_events where entit
              and command = 'institution_withdraw_gap_order' and actor_id = pg_temp.lead()::uuid
              and changed ->> 'take_released' = 'false'), 1, 'one audit row names the lead and the withdrawal');
 select is((select count(*)::int from public.audit_events where table_name = 'partner_requests' and entity_id = pg_temp.id('oA')
-             and changed ? 'withdrawn_at' and changed ? 'withdrawn_by'), 1, 'the order''s withdrawal is in the audit trail');
+             and changed -> 'withdrawn_at' ->> 'new' is not null
+             and changed -> 'withdrawn_by' ->> 'new' = pg_temp.lead()), 1,
+          'the order''s withdrawal (time and the lead) is in the audit trail once (the insert row lists the keys as null)');
 
 -- 2. T and G are not withdrawn here; N is --------------------------------------------------------------------------
 insert into ids select 'gN', (pg_temp.prep(pg_temp.lead(), pg_temp.fr()) ->> 'gap_order_id')::uuid;
