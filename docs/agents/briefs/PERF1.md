@@ -73,3 +73,16 @@ More direct care time and continuity: the carer's screen does not break after a 
 
 - Name N and the budget for (5) from the measured staging curve.
 - Whether other pages (`/team`, `/heim`) load an auxiliary list fail-hard in the same way; list them in the ready report (fix only `/field` in PERF1 unless the same helper covers them).
+
+## PO amendment 2026-11-21 20:39 (before the package starts; no package was ready, so no merge condition is added to a ready head)
+
+Inputs: `eng` 7063940738, 7067863141 (#1660), ADR-226 draft (#1666); `aia` AUT-184 to AUT-186 (#1667); `cra` CGR-272 to CGR-275 and the ADR-226 (B) recommendation (#1669, `CLINICAL_GOVERNANCE.md` 2026-11-21 20:33).
+
+1. **`/team` in scope (AUT-184, CGR-272, `eng` proposal):** the same degrade helper and the same notice line for `team_visit_alerts` on `/team` (`team/page.tsx:42`); one more e2e (forced failure → team view stays, notice line visible). The `uxa` gate sees both pages.
+2. **Degrade conditions (CGR-272), added to scope (2) and its e2e:** the notice line is shown on every render while the call fails (no cached empty list), sits where the list would be and above the visit cards, and each failure is counted per team and day (team level, never per person) in addition to the log line; the ready report names where the count can be read.
+3. **Safety lists stay fail-hard (AUT-185, CGR-273):** `field_safety_alerts` and any list `cra` names are not behind the degrade helper in PERF1. Their failure form and whether a visit may start without them are open for the Clinical Owner (UNKNOWN); no PO decision.
+4. **Budget (AUT-186):** the deterministic call-count proof (0 `order_cover` calls from `team_visit_alerts` and the evaluator derivation) is the primary acceptance signal; the timing budget is secondary. N = 300 confirmed orders per organisation is a **PO assumption** for the simulation horizon (not a measurement); `eng` names the final limit from the CI measurement. The CI setup line for `track_functions` (OPEN, `eng` 7067863141 (3)) is `eng`'s HOW; it must not weaken any other check.
+5. **Evaluator (CGR-275):** the ready report names the run durations of `evaluate_all_signals` on staging during the slowdown from read-only data, or states UNKNOWN. Reporting duty only.
+6. **ADR-226 (B) and `operations_exceptions` (CGR-274):** stay non-goals of PERF1. The `cra` recommendation (bound the live computation to orders not yet ended; keep an ended uncovered order as a stored open-or-handled record) is adopted as the direction of follow-up **PERF1-F1**, brief after PERF1; what handling an ended uncovered shift requires is for the Clinical Owner (UNKNOWN), not set here.
+
+Gates unchanged: `uxa` (wording and placement, `/field` and `/team`), `cra` (CGR-272 conditions, CGR-273 boundary, equivalence for every caller).
