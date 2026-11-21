@@ -68,6 +68,17 @@ describe("HD-2 cell rules", () => {
     expect(cellStatusText(cell())).toBe("0 von 1 · Lücke: 1 fehlt, 1 HF fehlt");
   });
 
+  // HD-2 slice 6 (found while writing the G → N browser test): `institution_plan` counts a covered order of the required
+  // grade towards the grade (`ext_grade`), so the cell text must not still say «1 HF fehlt» once the HF is confirmed.
+  it("a covered external person of the required grade fills the grade; another grade or a non-covered order does not", () => {
+    const g = cell({ required_total: 3, missing: 2, external_covered: 1, order: sent("covered") });
+    expect(cellStatusText(g)).toBe("0 + 1 extern von 3 · Lücke: 2 fehlt");
+    const other = cell({ required_total: 3, missing: 2, external_covered: 1, order: { ...sent("covered"), grade: "fage_efz" } });
+    expect(cellStatusText(other)).toBe("0 + 1 extern von 3 · Lücke: 2 fehlt, 1 HF fehlt");
+    expect(cellStatusText(cell({ required_total: 3, missing: 3, order: sent("no_longer_covered") }))).toBe("0 von 3 · Lücke: 3 fehlt, 1 HF fehlt");
+    expect(cellStatusText(cell({ required_total: 3, missing: 3, order: sent("open", "awaiting_acknowledgement") }))).toBe("0 von 3 · Lücke: 3 fehlt, 1 HF fehlt");
+  });
+
   it("the month row lists the order letters per day", () => {
     const p = plan("lead", true, [cell({ order: sent("covered") }), cell({ shift_type_id: "u", order: sent("no_longer_covered") })]);
     expect(ordersPerDay(p).get("2026-11-19")).toEqual(["G", "N"]);

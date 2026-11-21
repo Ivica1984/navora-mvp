@@ -191,8 +191,10 @@ export function cellStatusText(cell: PlanCell): string {
   if (cell.status === "ok") return `${base} · besetzt`;
   const parts: string[] = [];
   if (cell.missing > 0) parts.push(`${cell.missing} fehlt`);
-  if (cell.required_grade && cell.grade_present < cell.required_grade_count) {
-    const lack = cell.required_grade_count - cell.grade_present;
+  // HD-2 slice 6: like `ext_grade` in `institution_plan`, a covered order of the required grade counts for the grade.
+  const extGrade = ext > 0 && cell.order?.cover_state === "covered" && cell.order.grade === cell.required_grade ? 1 : 0;
+  if (cell.required_grade && cell.grade_present + extGrade < cell.required_grade_count) {
+    const lack = cell.required_grade_count - cell.grade_present - extGrade;
     parts.push(`${lack} ${gradeLabel(cell.required_grade)} fehlt`);
   }
   return `${base} · Lücke: ${parts.join(", ")}`;

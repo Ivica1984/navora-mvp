@@ -157,3 +157,136 @@ test("HD-2 at 390 px: a sent order is withdrawn; the gap stays and can be ordere
   await expect(item.getByTestId("order-cover-state")).toHaveText(/^Zurückgezogen · Beginn /);
   await expect(item).not.toContainText("läuft wieder");
 });
+
+// HD-2 slice 6: the register path of brief HD.md §6 (2) in one browser run, fixed rules only (no AI). The home sends a
+// gap (Grundpflege C1 only, so Testteam Basel can take it; prefilled tags of earlier orders of the station are cleared);
+// pflegebs takes it for Testteam Basel naming kolleginbs → the home reads T (still a gap, no withdrawal); kolleginbs
+// confirms → G in week and month and «Gedeckt» on /order, the HF counts; kolleginbs records an absence over that day on
+// /field → the take is released (CGR-223 (c), new round with the releasing team) → N with the next action in week and
+// month, «Nicht mehr gedeckt» on /order, nowhere «Gedeckt»; /team (pflegebs) and /field (kolleginbs) say the same.
+// Week eleven ahead, Thursday: weekStart(70)+3 is never in a week used above (weeks 6–9) or by the bk specs (30–37).
+const deDate = (iso: string) => iso.split("-").reverse().join(".");
+const NOT_COVERED_WORD = /(^|[:·]\s*)Gedeckt/;
+
+test("HD-2 register path: gap → order → team takes (T) → person confirms (G) → her absence → N everywhere, never «Gedeckt»", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const thu = addDays(weekStart(addDays(zurichDay(), 70)), 3);
+  const fri = addDays(thu, 1);
+  const when = `${deDate(thu)} 07:00`;
+  const week = `/heim?ansicht=woche&datum=${thu}`;
+
+  // 1. The home prepares and sends the gap of Rhein 2, early shift.
+  await signIn(page, HOME);
+  await ensureExample(page);
+  await page.goto(week);
+  const early = cell(page, thu, "Rhein 2", "F");
+  await expect(early).toHaveAttribute("data-status", "gap");
+  await early.getByTestId("heim-prepare-order").click();
+  const review = page.getByTestId("heim-order-review");
+  await expect(review.getByTestId("heim-order-review-grade")).toHaveText("HF (fehlt in diesem Dienst)");
+  await review.getByTestId("heim-order-postcode").selectOption("4051");
+  const tags = review.getByTestId("heim-order-tag");
+  for (let i = 0; i < await tags.count(); i++) await tags.nth(i).uncheck();
+  await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
+  await review.getByTestId("heim-order-check").click();
+  await review.getByTestId("heim-order-send").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
+  await page.goto(week);
+  const order = early.getByTestId("heim-cell-order");
+  await expect(order).toHaveAttribute("data-code", "A");
+  const orderId = await order.getAttribute("data-order-id");
+  expect(orderId).toMatch(/^[0-9a-f-]{36}$/);
+
+  // 2. pflegebs takes it for Testteam Basel and names her colleague (BK-c2): a take awaiting confirmation.
+  await signIn(page, "pflegebs.test@navora.test");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/team");
+  const offer = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
+  await expect(offer.getByTestId("shift-offer-tag")).toHaveText("Neues Angebot");
+  await offer.getByRole("radio", { name: "Kollegin B." }).check();
+  await offer.getByRole("button", { name: "Übernehmen mit Kollegin B." }).click();
+  await expect(page.getByTestId("shift-offer-card").filter({ hasText: when }).last().getByTestId("shift-offer-line").first())
+    .toHaveText("Es geht: Kollegin B. · Bestätigung ausstehend");
+  await noSidewaysScroll(page);
+
+  // 3. The home reads T: the team took it, the person has not confirmed; still a gap, no withdrawal offered.
+  await signIn(page, HOME);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(week);
+  await expect(order).toHaveAttribute("data-code", "T");
+  await expect(early.getByTestId("heim-cell-order-headline")).toHaveText("Externer Auftrag: Team hat übernommen · Person bestätigt noch");
+  await expect(early).toHaveAttribute("data-status", "gap");
+  await expect(early.getByTestId("heim-order-withdraw")).toHaveCount(0);
+  await expect(early).not.toContainText(NOT_COVERED_WORD);
+
+  // 4. kolleginbs confirms on /team.
+  await signIn(page, "kolleginbs.test@navora.test");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/team");
+  const named = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
+  await expect(named.getByTestId("shift-offer-tag")).toHaveText("Für dich eingeteilt");
+  await named.getByRole("button", { name: "Bestätigen" }).click();
+  await expect(page.getByTestId("shift-offer-card").filter({ hasText: when }).last().getByTestId("shift-offer-line"))
+    .toHaveText(["Du bist für diese Schicht eingeteilt."]);
+
+  // 5. G in week and month; the HF is no longer missing; /order reads «Gedeckt»; no withdrawal of a confirmed person.
+  await signIn(page, HOME);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(week);
+  await expect(order).toHaveAttribute("data-code", "G");
+  await expect(early.getByTestId("heim-cell-order-headline")).toHaveText("Externer Auftrag: Gedeckt · Person bestätigt, geprüft für HF");
+  await expect(early.getByTestId("heim-cell-status")).toHaveText("0 + 1 extern von 3 · Lücke: 2 fehlt");
+  await expect(early.getByTestId("heim-order-withdraw")).toHaveCount(0);
+  await page.goto(`/heim?ansicht=monat&datum=${thu}`);
+  await expect(page.locator(`[data-testid="heim-month-orders"][data-date="${thu}"]`)).toContainText("G");
+  await page.goto("/order");
+  const item = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
+  await expect(item.getByTestId("order-cover-state")).toHaveText("Gedeckt · Person benannt, geprüft für HF");
+
+  // 6. kolleginbs records an absence over that day on /field (the way back on her card); her take card ends.
+  await signIn(page, "kolleginbs.test@navora.test");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/field?datum=${thu}`);
+  const take = page.getByRole("article", { name: /07:00 – 15:30/ });
+  await expect(take).toHaveCount(1);
+  const absence = page.getByTestId("absence");
+  await absence.getByTestId("absence-open").click();
+  const absenceForm = absence.getByRole("form", { name: "Abwesenheit erfassen" });
+  await absenceForm.getByLabel("Von", { exact: true }).fill(thu);
+  await absenceForm.getByLabel("Bis", { exact: true }).fill(fri);
+  await absenceForm.getByTestId("absence-save").click();
+  await expect(absenceForm).toHaveCount(0);
+  await page.goto(`/field?datum=${thu}`);
+  const ended = page.getByRole("article", { name: /07:00 – 15:30/ });
+  await expect(ended.getByTestId("take-ended")).toHaveText(
+    "Die Übernahme gilt nicht mehr: du hast für diese Zeit eine Abwesenheit erfasst. Das Angebot geht wieder an alle passenden Teams.",
+  );
+  await noSidewaysScroll(page);
+
+  // 7. /team (pflegebs): the same fact, the order is offered again with the release named; no «Übernommen».
+  await signIn(page, "pflegebs.test@navora.test");
+  await page.goto("/team");
+  const again = page.getByTestId("shift-offer-card").filter({ hasText: when }).last();
+  await expect(again.getByTestId("shift-offer-tag")).toHaveText("Neues Angebot");
+  await expect(again.getByTestId("shift-offer-release")).toHaveText("Nicht mehr gedeckt: Kollegin B. erfüllt die Bedingungen für diese Schicht nicht mehr.");
+  await expect(again).not.toContainText("Es geht: Kollegin B.");
+  await noSidewaysScroll(page);
+
+  // 8. The home: N with the next action in week and month, the HF is missing again; /order «Nicht mehr gedeckt».
+  await signIn(page, HOME);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(week);
+  await expect(order).toHaveAttribute("data-code", "N");
+  await expect(early.getByTestId("heim-cell-order-headline")).toHaveText("Externer Auftrag: Nicht mehr gedeckt · Angebot läuft wieder");
+  await expect(early.getByTestId("heim-cell-order-next")).toHaveText("Nächste Handlung: eine zulässige eigene Person einteilen oder den Auftrag zurückziehen.");
+  await expect(early.getByTestId("heim-cell-status")).toHaveText("0 von 3 · Lücke: 3 fehlt, 1 HF fehlt");
+  await expect(early).toHaveAttribute("data-status", "gap");
+  await expect(early.getByTestId("heim-order-withdraw")).toHaveCount(1);
+  await expect(early).not.toContainText(NOT_COVERED_WORD);
+  await page.goto(`/heim?ansicht=monat&datum=${thu}`);
+  await expect(page.locator(`[data-testid="heim-month-orders"][data-date="${thu}"]`)).toContainText("N");
+  await page.goto("/order");
+  await expect(item.getByTestId("order-cover-state")).toHaveText(/^Nicht mehr gedeckt · /);
+  await expect(item).not.toContainText(NOT_COVERED_WORD);
+});

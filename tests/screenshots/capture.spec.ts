@@ -130,3 +130,35 @@ test.describe("dark browser setting", () => {
     reportContrast("nurse-dark", "390x844", await capture(page, "/field", fileName("nurse", "/field", "390x844", "_dark"), errors));
   });
 });
+
+// HD-2 slice 6 (brief HD.md §4 row HD-2, gate `uxa`): the home's planning views and the review screen of a prepared
+// external order, at 390 and 1440, for the home lead `kundebs.test` (a client member, so not in PEOPLE above). The
+// draft is prepared on a gap 12 weeks ahead (no e2e spec of this database uses that week; this job has its own stack)
+// and left unsent. Same render-error and contrast rules as every other capture.
+for (const viewport of VIEWPORTS) {
+  test(`home lead: /heim week, month and the order review screen at ${viewport.name}`, async ({ page }) => {
+    test.setTimeout(120_000);
+    const errors: string[] = [];
+    page.on("pageerror", (err) => errors.push(err.message));
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await signIn(page, "kundebs.test@navora.test");
+    await page.goto("/heim");
+    if (await page.getByTestId("heim-empty").isVisible()) {
+      await page.getByTestId("heim-load-example").click();
+      await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
+    }
+    const day = new Date(Date.now() + (viewport.width === 390 ? 84 : 91) * 86_400_000).toISOString().slice(0, 10);
+    const findings: ContrastFinding[] = [];
+    const week = `/heim?ansicht=woche&datum=${day}`;
+    findings.push(...(await capture(page, week, fileName("home", "/heim_woche", viewport.name), errors)));
+    findings.push(...(await capture(page, `/heim?ansicht=monat&datum=${day}`, fileName("home", "/heim_monat", viewport.name), errors)));
+    await page.goto(week);
+    await page.getByTestId("heim-prepare-order").first().click();
+    await expect(page.getByTestId("heim-order-review")).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: fileName("home", "/heim_auftrag", viewport.name), fullPage: true });
+    expect(errors, "/heim review: uncaught page errors").toEqual([]);
+    findings.push(...(await contrastFindings(page, "/heim?ansicht=auftrag")));
+    reportContrast("home", viewport.name, findings);
+  });
+}
