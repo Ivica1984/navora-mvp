@@ -11,26 +11,12 @@ AS $function$
   select p.id, p.client_account_id, p.request_title, p.starts_at, p.ends_at,
          (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
          p.required_tags, p.radius_km, p.shift_label, p.confirmed_at,
-         case when c.cover_state = 'pending_acknowledgement' then 'open'
-              -- UXR-225 (a) with `lca` F-2 (PO 12:39 (2)): «nicht mehr gedeckt» only if the client was ever shown
-              -- «gedeckt», i.e. some take of this order was acknowledged (self-named takes are acknowledged at once).
-              when c.cover_state = 'no_longer_covered' and not ever_covered.yes then 'open'
-              else c.cover_state end,
-         case when c.cover_state = 'pending_acknowledgement' then 'awaiting_acknowledgement'
-              -- HD-2 / FE-110 (b): the safety net (`no_offer_open`) never reads as «the offer goes out again».
-              when c.cover_state = 'no_longer_covered' and not ever_covered.yes and c.cover_detail = 'no_offer_open'
-                then 'take_fell_away_no_offer'
-              when c.cover_state = 'no_longer_covered' and not ever_covered.yes then 'take_fell_away'
-              when c.cover_detail in ('no_team_eligible', 'all_declined') then 'no_team_free'   -- F-1
-              when c.cover_detail = 'not_acknowledged' then 'cover_time_reached'
-              else c.cover_detail end,
-         c.latest_cover_at,
-         case when c.cover_state = 'covered' then (select t.name from public.teams t where t.id = c.take_team_id) end,
-         case when c.cover_state = 'covered' then c.taken_at end
+         c.cover_state, c.cover_detail, c.latest_cover_at,
+         (select t.name from public.teams t where t.id = c.covered_team_id),
+         c.taken_at
   from public.partner_requests p
-  cross join lateral private.order_cover(p.id, private.now()) c
-  cross join lateral (select exists (select 1 from public.order_takes t
-                                     where t.order_id = p.id and t.acknowledged_at is not null) as yes) ever_covered
+  -- HD-2: one reading of the cover for /order and the home plan (private.order_client_state).
+  cross join lateral private.order_client_state(p.id, private.now()) c
   where p.order_kind is not null and private.is_client_member(p.client_account_id)
     and not private.access_ended((select auth.uid()))  -- LEAVE1-3
   order by p.starts_at

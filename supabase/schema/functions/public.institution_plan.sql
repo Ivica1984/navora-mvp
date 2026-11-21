@@ -23,7 +23,10 @@ begin
     'result', 'ok',
     'institution', jsonb_build_object('id', inst.id, 'display_name', inst.display_name, 'simulation', inst.simulation,
       'role', (select m.role from public.institution_members m
-               where m.institution_id = inst.id and m.user_id = (select auth.uid()))),
+               where m.institution_id = inst.id and m.user_id = (select auth.uid())),
+      'order_postcode', inst.order_postcode,
+      'can_order', exists (select 1 from public.client_accounts ca
+                           where ca.institution_id = inst.id and private.is_client_member(ca.id))),
     'from', p_from, 'to', p_to,
     'stations', coalesce((select jsonb_agg(jsonb_build_object('id', s.id, 'name', s.name) order by s.sort, s.name)
                           from public.institution_stations s where s.institution_id = inst.id), '[]'::jsonb),
@@ -44,10 +47,13 @@ begin
                'required_total', c.required_total, 'required_grade', c.required_grade,
                'required_grade_count', c.required_grade_count, 'example', c.example,
                'assigned', c.assigned, 'present', c.present, 'grade_present', c.grade_present,
-               'missing', greatest(coalesce(c.required_total, 0) - c.present, 0),
+               'external_covered', c.ext,
+               'missing', greatest(coalesce(c.required_total, 0) - c.present - c.ext, 0),
                'status', case when c.required_total is null then 'no_rule'
-                              when c.present >= c.required_total and c.grade_present >= c.required_grade_count then 'ok'
-                              else 'gap' end)
+                              when c.present + c.ext >= c.required_total
+                                   and c.grade_present + c.ext_grade >= c.required_grade_count then 'ok'
+                              else 'gap' end,
+               'order', c.gap_order)
              order by c.d, c.station_sort, c.station_name, c.shift_sort, c.shift_starts)
       from (
         select d.d::date as d, s.id as station_id, s.sort as station_sort, s.name as station_name,
@@ -56,7 +62,14 @@ begin
                coalesce(r.example, false) as example,
                coalesce(x.assigned, '[]'::jsonb) as assigned,
                coalesce(x.present, 0) as present,
-               coalesce(x.grade_present, 0) as grade_present
+               coalesce(x.grade_present, 0) as grade_present,
+               (go.cover_state is not distinct from 'covered')::int as ext,
+               (go.cover_state is not distinct from 'covered' and go.grade = r.required_grade)::int as ext_grade,
+               case when go.id is null then null else jsonb_build_object(
+                 'gap_order_id', go.id, 'state', go.state, 'order_id', go.order_id, 'grade', go.grade,
+                 'grade_fixed', go.grade_fixed is not null, 'starts_at', go.starts_at,
+                 'cover_state', go.cover_state, 'cover_detail', go.cover_detail,
+                 'latest_cover_at', go.latest_cover_at) end as gap_order
         from generate_series(p_from, p_to, interval '1 day') d(d)
         cross join public.institution_stations s
         cross join public.institution_shift_types t
@@ -78,6 +91,16 @@ begin
                               as absent) ab
           where ia.station_id = s.id and ia.shift_type_id = t.id and ia.work_date = d.d::date
         ) x on true
+        -- HD-2: the active external order of the cell (at most one) and its cover, read like /order reads it.
+        left join lateral (
+          select g.id, g.state, g.order_id, g.grade_fixed, coalesce(pr.grade, g.grade_fixed) as grade, pr.starts_at,
+                 cs.cover_state, cs.cover_detail, cs.latest_cover_at
+          from public.institution_gap_orders g
+          left join public.partner_requests pr on pr.id = g.order_id
+          left join lateral private.order_client_state(g.order_id, private.now()) cs on g.order_id is not null
+          where g.station_id = s.id and g.shift_type_id = t.id and g.work_date = d.d::date
+            and g.state in ('prepared', 'sent')
+        ) go on true
         where s.institution_id = inst.id and t.institution_id = inst.id
       ) c), '[]'::jsonb));
 end $function$;

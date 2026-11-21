@@ -409,6 +409,77 @@
         "access_ended",
         "is_client_member"
       ]
+    },
+    {
+      "name": "private.order_client_state",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "private.order_cover",
+        "no_offer_open"
+      ]
+    },
+    {
+      "name": "private.institution_plan_cell",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "public.institution_plan"
+      ]
+    },
+    {
+      "name": "public.institution_prepare_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "pg_advisory_xact_lock",
+        "institution_plan_cell",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "private.institution_gap_order_args",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "grade_not_missing",
+        "not_a_gap"
+      ]
+    },
+    {
+      "name": "public.institution_preview_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "is_client_member",
+        "public.preview_client_order"
+      ]
+    },
+    {
+      "name": "public.institution_send_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "public.confirm_client_order",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "public.institution_discard_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "institution_audit"
+      ]
     }
   ]
 }
