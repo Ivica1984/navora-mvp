@@ -92,7 +92,10 @@ for (const width of [1440, 390]) {
 
     // /order («Externe Aufträge» of the client account) reads the same state from the same source.
     await page.goto("/order");
-    const item = page.getByTestId("client-orders").locator("li").filter({ hasText: "Schichtauftrag · HF · " }).filter({ hasText: "07:00" }).first();
+    // This very order: HF on this day at 07:00 (the seed has other covered HF orders; never pick one of them).
+    const item = page.getByTestId("client-orders").locator("li").filter({ hasText: `Schichtauftrag · HF · ` })
+      .filter({ hasText: `${thu.split("-").reverse().join(".")} 07:00` });
+    await expect(item).toHaveCount(1);
     await expect(item.getByTestId("order-cover-state")).toHaveText(code === "A" ? /^Noch nicht gedeckt · Beginn / : /^Nicht gedeckt · Beginn /);
   });
 }
