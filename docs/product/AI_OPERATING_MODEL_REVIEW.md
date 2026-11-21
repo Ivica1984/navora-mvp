@@ -725,6 +725,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control proposed:** AUT-183: AUT-166 to AUT-169 go into the AI1 brief before start; T-2 for AI1 is a double tap (one call), two reservations at the cap (one granted) and a timeout or truncated answer (no model line, the carer can still sign). PROPOSED (PO; `eng`, `cra` as named).
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**PERF1 reviewed: fail visible for hint lists, never for safety lists by default (`aia` 2026-11-21 20:18, review 82, AUT-184 to AUT-186):**
+- **Label check:** PERF1 (`briefs/PERF1.md`) and ADR-226 DRAFT are fixed rules only; no agent, no ledger write, no model.
+- **Controls proposed:**
+  - AUT-184: one shared degrade helper for the overdue/stuck visit list on `/field` and `/team`; load failures counted per team and day on staging, and a smoke run fails when a hint list failed.
+  - AUT-185: a safety list (safety alerts and any list `cra` names) is never put behind the generic degrade helper; its failure form is `cra`'s; until then it stays fail-hard.
+  - AUT-186: the deterministic call-count budget is the acceptance signal, N from a stated horizon (UNKNOWN, PO).
+  - All PROPOSED (PO; `eng`, `uxa`, `cra` as named). None changes PERF1's scope by itself.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -808,3 +817,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-21 02:18 | `aia` | §12: block «HD-1 merged as fixed rules; the residual list's way outs become commands»: label check on `2378c2a`; controls AUT-178, AUT-179 (PROPOSED). No agent added or removed |
 | 2026-11-21 08:19 | `aia` | §12: block «HD-2 draft pre-read: one order path, prefill and withdrawal stay lean; an unsent draft needs an end»: label check on `5781ecd`; controls AUT-180 to AUT-182 (PROPOSED). No agent added or removed |
 | 2026-11-21 14:18 | `aia` | §12: block «FE-111 places AI1 third; the AI1 brief carries the open controls»: label check on `ca334ce` and `9e6612c`; control AUT-183 (PROPOSED). No agent added or removed |
+| 2026-11-21 20:18 | `aia` | §12: block «PERF1 reviewed: fail visible for hint lists, never for safety lists by default»: label check on `briefs/PERF1.md` and ADR-226 DRAFT; controls AUT-184 to AUT-186 (PROPOSED). No agent added or removed |
