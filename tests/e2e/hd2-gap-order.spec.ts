@@ -70,6 +70,7 @@ for (const width of [1440, 390]) {
     if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
     await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
     await review.getByTestId("heim-order-check").click();
+    await expectSummary(review, await tickedCodes(review));  // UXR-269: «Senden» of the checked screen
     await expect(review.getByTestId("heim-order-sentence")).toContainText("Schichtauftrag · HF · ");
     await review.getByTestId("heim-order-send").click();
     await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
@@ -136,6 +137,7 @@ test("HD-2 at 390 px: a sent order is withdrawn; the gap stays and can be ordere
   if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
   await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
   await review.getByTestId("heim-order-check").click();
+  await expectSummary(review, await tickedCodes(review));
   await review.getByTestId("heim-order-send").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
 
@@ -190,6 +192,7 @@ test("HD-2 register path: gap → order → team takes (T) → person confirms (
   for (let i = 0; i < await tags.count(); i++) await tags.nth(i).uncheck();
   await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
   await review.getByTestId("heim-order-check").click();
+  await expectSummary(review, ["C1"]);  // UXR-269: «Senden» of the checked screen, not of the prefilled one
   await review.getByTestId("heim-order-send").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
   await page.goto(week);
@@ -297,6 +300,14 @@ test("HD-2 register path: gap → order → team takes (T) → person confirms (
 // no AI. Weeks twelve (1440) and thirteen (390) ahead, Thursday and Friday: no day used above (weeks 6–11) or by the
 // hd1 (weeks 3–5) and bk specs (30–37 days).
 const summaryCodes = (s: string) => [...s.matchAll(/(?:Tätigkeiten: |, )([A-Z][A-Z0-9]{0,5}) · /g)].map((m) => m[1]).sort();
+// «Prüfen» is a server action with a redirect: wait until the summary names exactly these activities (retrying), so a
+// tap never reaches the «Senden» of the screen before the check.
+async function expectSummary(review: Locator, codes: string[]) {
+  await expect.poll(async () => {
+    const s = review.getByTestId("heim-order-send-summary");
+    return (await s.count()) ? summaryCodes(await s.innerText()) : null;
+  }).toEqual([...codes].sort());
+}
 async function tickedCodes(review: Locator): Promise<string[]> {
   return (await review.locator('[data-testid="heim-order-tag"]:checked').evaluateAll(
     (els) => els.map((e) => (e as HTMLInputElement).value))).sort();
@@ -322,8 +333,8 @@ for (const [width, height, days] of [[1440, 900, 77], [390, 844, 84]] as const) 
     await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
     await review.getByTestId("heim-order-check").click();
     const summary = review.getByTestId("heim-order-send-summary");
+    await expectSummary(review, ["A1"]);
     await expect(summary).toContainText("Wird gesendet: HF · ");
-    expect(summaryCodes(await summary.innerText())).toEqual(["A1"]);
     // After a «Prüfen» the prefill hint is gone (the lead has checked).
     await expect(review.getByTestId("heim-order-prefill-hint")).toHaveCount(0);
 
@@ -335,7 +346,7 @@ for (const [width, height, days] of [[1440, 900, 77], [390, 844, 84]] as const) 
       "Geändert nach dem Prüfen: Es wurde nichts gesendet. Bitte die Angaben unten erneut prüfen.");
     // The screen now checks what was shown: C1 ticked, A1 not, and the summary names exactly the ticked boxes.
     expect(await tickedCodes(review)).toEqual(["C1"]);
-    expect(summaryCodes(await review.getByTestId("heim-order-send-summary").innerText())).toEqual(["C1"]);
+    await expectSummary(review, ["C1"]);
     await noSidewaysScroll(page);
 
     // The week still reads the draft (E): no order went to any team.
@@ -348,7 +359,8 @@ for (const [width, height, days] of [[1440, 900, 77], [390, 844, 84]] as const) 
     for (let i = 0; i < await tags.count(); i++) await tags.nth(i).uncheck();
     await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
     await review.getByTestId("heim-order-check").click();
-    expect(summaryCodes(await review.getByTestId("heim-order-send-summary").innerText())).toEqual(await tickedCodes(review));
+    await expectSummary(review, ["C1"]);
+    expect(await tickedCodes(review)).toEqual(["C1"]);
     await review.getByTestId("heim-order-send").click();
     await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
     await page.goto(`/heim?ansicht=woche&datum=${thu}`);
@@ -362,9 +374,7 @@ for (const [width, height, days] of [[1440, 900, 77], [390, 844, 84]] as const) 
     await next.getByTestId("heim-prepare-order").click();
     await expect(review.getByTestId("heim-order-prefill-hint")).toHaveText("Vorbelegt wie beim letzten Auftrag dieser Station; bitte prüfen.");
     expect((await tickedCodes(review)).length).toBeGreaterThan(0);
-    if (await review.getByTestId("heim-order-send-summary").count()) {
-      expect(summaryCodes(await review.getByTestId("heim-order-send-summary").innerText())).toEqual(await tickedCodes(review));
-    }
+    if (await review.getByTestId("heim-order-send-summary").count()) await expectSummary(review, await tickedCodes(review));
     await noSidewaysScroll(page);
     await review.getByTestId("heim-order-discard").click();
     await expect(page.getByTestId("heim-message")).toHaveText("Entwurf verworfen. Die Lücke bleibt.");
