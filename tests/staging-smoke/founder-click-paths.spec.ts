@@ -3,7 +3,7 @@ import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
 import { addDays, dayLabel, weekStart } from "@/features/home-plan/rules";
-import { busyFromOrderLines, freeDayOffset, orderDaysFromLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
+import { assertBelowRowCap, busyFromOrderLines, freeDayOffset, orderDaysFromLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
 // `docs/product/FOUNDER_STAGING_UEBERSICHT.md`, in the real staging app, with the three demo accounts (FE-086b):
@@ -13,7 +13,7 @@ import { busyFromOrderLines, freeDayOffset, orderDaysFromLines, smokeAccounts, s
 //      22:00 – 07:00 (CI original tests/e2e/bk-e1b-take-card.spec.ts at 390 px).
 // Only what a person sees is asserted, never a person's name or a count of orders (staging data grow with every run;
 // the second Basel nurse of the CI seed does not exist on staging). Each run writes two synthetic orders and two takes
-// on staging, on days of its own (smokeDayOffsets); they are synthetic by construction (demo accounts, Testheim Rhein).
+// on staging, on the first days without any client order (freeDayOffset, read in the app); they are synthetic by construction (demo accounts, Testheim Rhein).
 // Path 3 (BK-f) below. Not here: the colleague and absence paths, BK-e1c after midnight (needs a started visit at night).
 
 const accounts = smokeAccounts(process.env);
@@ -32,8 +32,16 @@ async function signIn(page: Page, role: Role) {
 /** #1642: the days the client already has an order on, read in the real app (/order) before choosing a day. */
 async function clientOrderDays(page: Page): Promise<Set<string>> {
   await page.goto("/order");
-  await expect(page.getByTestId("client-orders")).toBeVisible();
-  return orderDaysFromLines(await page.getByTestId("client-orders").locator("li").allTextContents());
+  return orderDaysFromLines(await clientOrderLines(page));
+}
+
+/** The client's /order lines, refused at the API row cap (STAB1-F4): a capped list would hide the latest orders. */
+async function clientOrderLines(page: Page): Promise<string[]> {
+  // The heading renders with an empty list too (an empty <ul> is not «visible» to Playwright).
+  await expect(page.getByRole("heading", { level: 2, name: /^Ihre Aufträge \(\d+\)$/ })).toBeVisible();
+  const lines = await page.getByTestId("client-orders").locator("li").allTextContents();
+  assertBelowRowCap(lines.length);
+  return lines;
 }
 
 async function order(page: Page, day: string, start: string, end: string) {
@@ -77,7 +85,7 @@ test("path 1: client orders → another team never sees it → Basel nurse takes
   await page.setViewportSize({ width: 390, height: 900 });
   await signIn(page, "kunde");
   const now = Date.now();
-  const day = zurichDay(now, freeDayOffset(now, offsets.day, 40, 69, await clientOrderDays(page)));
+  const day = zurichDay(now, freeDayOffset(now, 40, await clientOrderDays(page)));
   const when = `${deDate(day)} 07:00`;
   await order(page, day, "07:00", "15:30");
   const open = page.getByTestId("client-orders").locator("li", { hasText: when }).last();
@@ -102,7 +110,7 @@ test("path 2: a 22:00–07:00 night taken by the nurse is one «Übernommene Sch
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page, "kunde");
   const now = Date.now();
-  const day = zurichDay(now, freeDayOffset(now, offsets.night, 75, 104, await clientOrderDays(page), 2));
+  const day = zurichDay(now, freeDayOffset(now, 75, await clientOrderDays(page), 2));
   const when = `${deDate(day)} 22:00`;
   await order(page, day, "22:00", "07:00");
 
@@ -128,7 +136,7 @@ test("path 3: nurse signs a worked shift → invoice draft → team sends it →
   // client's own order list is read in the app first and the slot starts after every busy interval of today.
   await signIn(page, "kunde");
   await page.goto("/order");
-  const lines = await page.getByTestId("client-orders").locator("li").allTextContents();
+  const lines = await clientOrderLines(page);
   const now = Date.now();
   const { day, from, to } = smokePath3Slot(now, busyFromOrderLines(lines, zurichDay(now)));
   const when = `${deDate(day)} ${from}`;
