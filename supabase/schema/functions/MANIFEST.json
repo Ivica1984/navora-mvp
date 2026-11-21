@@ -39,7 +39,8 @@
         "access_ended",
         "LEAVE1-3",
         "order_take_member:",
-        "order_member_step"
+        "order_member_step",
+        "order_withdrawn"
       ]
     },
     {
@@ -391,6 +392,118 @@
         "is_institution_member",
         "institution_audit",
         "assert_access_open"
+      ]
+    },
+    {
+      "name": "private.order_cover",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "Safety net",
+        "withdrawn_at"
+      ]
+    },
+    {
+      "name": "public.client_orders",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "is_client_member"
+      ]
+    },
+    {
+      "name": "private.order_client_state",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "private.order_cover",
+        "no_offer_open"
+      ]
+    },
+    {
+      "name": "private.institution_plan_cell",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "public.institution_plan"
+      ]
+    },
+    {
+      "name": "public.institution_prepare_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "pg_advisory_xact_lock",
+        "institution_plan_cell",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "private.institution_gap_order_args",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "grade_not_missing",
+        "not_a_gap"
+      ]
+    },
+    {
+      "name": "public.institution_preview_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "is_client_member",
+        "public.preview_client_order"
+      ]
+    },
+    {
+      "name": "public.institution_send_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "public.confirm_client_order",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "public.institution_discard_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "public.team_order_offers",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_team_member",
+        "LEAVE1-3",
+        "withdrawn_at"
+      ]
+    },
+    {
+      "name": "public.institution_withdraw_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "institution_audit",
+        "take_visit_under_way",
+        "starts_at <= private.now()"
       ]
     }
   ]

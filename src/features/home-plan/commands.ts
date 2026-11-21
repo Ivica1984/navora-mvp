@@ -135,3 +135,106 @@ export async function loadExample(form: FormData) {
   const v = parse(z.object({ institution: uuid, week: date }), { institution: str(form, "institution"), week: str(form, "week") }, back);
   await run("institution_load_example", { p_institution_id: v.institution, p_week_start: v.week }, "example", back);
 }
+
+// --- HD-2: gap → external order (migration 0162). The order itself is made by confirm_client_order in the database
+// (no second order path); these actions only pass the home's choices and return to the plan with a message code.
+type GapResult = Result & { gap_order_id?: string; order_id?: string; prefill?: { activity_tags?: string[] } };
+
+async function rpc(op: string, args: Record<string, unknown>): Promise<GapResult | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc(op as never, args as never);
+  if (error) {
+    logEvent("warn", "command.failed", { op, ...errorFields(error) });
+    return null;
+  }
+  return (data ?? {}) as GapResult;
+}
+
+function codeOf(r: GapResult | null, done: string): string {
+  if (!r) return "failed";
+  if (r.result === "ok") return done;
+  if (r.result === "rejected") return "rejected";
+  if (r.result === "already_sent" || r.result === "duplicate") return "duplicate";
+  return r.problems?.[0] ?? "failed";
+}
+
+function reviewPath(back: string, gapOrderId: string, date: string, extra: Record<string, string> = {}): string {
+  const url = new URL(back, "http://x");
+  url.searchParams.set("ansicht", "auftrag");
+  url.searchParams.set("datum", date);
+  url.searchParams.set("entwurf", gapOrderId);
+  for (const [k, v] of Object.entries(extra)) if (v) url.searchParams.set(k, v);
+  return safeReturnPath(`${url.pathname}${url.search}`);
+}
+
+export async function prepareGapOrder(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({ institution: uuid, station: uuid, shift: uuid, date }), {
+    institution: str(form, "institution"), station: str(form, "station"), shift: str(form, "shift"), date: str(form, "date"),
+  }, back);
+  const r = await rpc("institution_prepare_gap_order", {
+    p_institution_id: v.institution, p_station_id: v.station, p_shift_type_id: v.shift, p_work_date: v.date,
+  });
+  revalidatePath(HOME_PLAN_PATH);
+  if (r?.result === "ok" && r.gap_order_id) {
+    redirect(withMessage(reviewPath(back, r.gap_order_id, v.date, { tags: (r.prefill?.activity_tags ?? []).join(",") }), "order_prepared"));
+  }
+  redirect(withMessage(back, codeOf(r, "order_prepared")));
+}
+
+const tagSchema = z.array(z.string().regex(/^[A-Z][A-Z0-9]{0,5}$/)).max(30);
+
+export async function sendGapOrder(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const tags = form.getAll("tag").filter((t): t is string => typeof t === "string");
+  const req = form.getAll("req").filter((t): t is string => typeof t === "string");
+  const v = parse(z.object({
+    gap: uuid, date, postcode: z.string().regex(/^\d{4}$/).nullable(), grade: grade.nullable(), tags: tagSchema, req: tagSchema,
+    key: uuid,
+  }), {
+    gap: str(form, "gap"), date: str(form, "date"), postcode: str(form, "postcode"), grade: str(form, "grade"), tags, req,
+    key: str(form, "key"),
+  }, back);
+  const r = await rpc("institution_send_gap_order", {
+    p_gap_order_id: v.gap, p_postcode: v.postcode, p_grade: v.grade, p_activity_tags: v.tags, p_required_tags: v.req,
+    p_radius_km: null, p_idempotency_key: v.key,
+  });
+  revalidatePath(HOME_PLAN_PATH);
+  revalidatePath("/order");
+  const code = codeOf(r, "order_sent");
+  if (code === "order_sent" || code === "duplicate") {
+    const week = new URL(back, "http://x");
+    week.searchParams.set("ansicht", "woche");
+    week.searchParams.delete("entwurf");
+    week.searchParams.delete("tags");
+    redirect(withMessage(safeReturnPath(`${week.pathname}${week.search}`), code));
+  }
+  // Refused: back to the review screen with the home's choices kept.
+  redirect(withMessage(reviewPath(back, v.gap, v.date, {
+    tags: v.tags.join(","), req: v.req.join(","), postcode: v.postcode ?? "", grade: v.grade ?? "",
+  }), code));
+}
+
+export async function discardGapOrder(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const gap = parse(uuid, str(form, "gap"), back);
+  const r = await rpc("institution_discard_gap_order", { p_gap_order_id: gap });
+  revalidatePath(HOME_PLAN_PATH);
+  const week = new URL(back, "http://x");
+  week.searchParams.set("ansicht", "woche");
+  week.searchParams.delete("entwurf");
+  week.searchParams.delete("tags");
+  redirect(withMessage(safeReturnPath(`${week.pathname}${week.search}`), codeOf(r, "order_discarded")));
+}
+
+// HD-2 slice 5: «Auftrag zurückziehen» (A, K, N). The database decides (state, start, cover, visit under way) and
+// releases a live take; the page only words the answer.
+export async function withdrawGapOrder(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const gap = parse(uuid, str(form, "gap"), back);
+  const r = await rpc("institution_withdraw_gap_order", { p_gap_order_id: gap });
+  revalidatePath(HOME_PLAN_PATH);
+  revalidatePath("/order");
+  const code = r?.result === "already_withdrawn" ? "already_withdrawn" : codeOf(r, "order_withdrawn");
+  redirect(withMessage(back, code));
+}

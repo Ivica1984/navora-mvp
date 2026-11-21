@@ -23,6 +23,7 @@ begin
   perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || k.member_id::text, 0));
   -- CGR-242 (a): the stored fact that released the take, read now, in the same transaction.
   why := case
+    when k.release_reason = 'withdrawn' then 'order_withdrawn'  -- HD-2 slice 5: the client took the order back
     when k.release_reason = 'step_0' then 'take_released_left_team'
     when k.release_reason = 'step_3' and exists (
            select 1 from public.member_absences x

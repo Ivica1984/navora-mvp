@@ -4,7 +4,7 @@
 
 export const HOME_PLAN_PATH = "/heim";
 
-export type PlanView = "woche" | "monat" | "personal" | "einstellungen";
+export type PlanView = "woche" | "monat" | "personal" | "einstellungen" | "auftrag";
 export const PLAN_VIEWS: ReadonlyArray<{ key: PlanView; label: string }> = [
   { key: "woche", label: "Woche" },
   { key: "monat", label: "Monat" },
@@ -31,6 +31,22 @@ export type AssignedPerson = {
   inactive: boolean;
 };
 export type CellStatus = "ok" | "gap" | "no_rule";
+/**
+ * HD-2 (migration 0162): the active external order of a cell. `state` is the home's draft state; `cover_state` and
+ * `cover_detail` are the order's cover as /order reads it (`private.order_client_state`, one source). Only
+ * `cover_state === "covered"` fills a slot (`external_covered`); the database decides that, this module only words it.
+ */
+export type CellOrder = {
+  gap_order_id: string;
+  state: "prepared" | "sent";
+  order_id: string | null;
+  grade: string | null;
+  grade_fixed: boolean;
+  starts_at: string | null;
+  cover_state: string | null;
+  cover_detail: string | null;
+  latest_cover_at: string | null;
+};
 export type PlanCell = {
   date: string;
   station_id: string;
@@ -44,9 +60,21 @@ export type PlanCell = {
   grade_present: number;
   missing: number;
   status: CellStatus;
+  /** HD-2: persons of an external order that are confirmed and checked (G); 0 or 1. */
+  external_covered?: number;
+  /** HD-2: the active external order of this cell, or null. */
+  order?: CellOrder | null;
 };
 export type Plan = {
-  institution: { id: string; display_name: string; simulation: boolean; role: InstitutionRole };
+  institution: {
+    id: string;
+    display_name: string;
+    simulation: boolean;
+    role: InstitutionRole;
+    /** HD-2: the home's postcode for its orders (set by the home), and whether this person may send orders. */
+    order_postcode?: string | null;
+    can_order?: boolean;
+  };
   from: string;
   to: string;
   stations: Station[];
@@ -110,7 +138,7 @@ export function daysBetween(from: string, to: string): string[] {
 
 /** The date range a view reads (the month is at most 31 days; the database refuses more than 42). */
 export function rangeFor(view: PlanView, date: string): { from: string; to: string } {
-  if (view === "woche" || view === "einstellungen") {
+  if (view === "woche" || view === "einstellungen" || view === "auftrag") {
     const from = weekStart(date);
     return { from, to: addDays(from, 6) };
   }
@@ -158,15 +186,77 @@ export function indexCells(cells: ReadonlyArray<PlanCell>): Map<string, PlanCell
 /** One short line for a cell: what is planned against what the home requires. */
 export function cellStatusText(cell: PlanCell): string {
   if (cell.status === "no_rule") return cell.present === 0 ? "keine Vorgabe" : `${cell.present} eingeteilt · keine Vorgabe`;
-  const base = `${cell.present} von ${cell.required_total}`;
+  const ext = cell.external_covered ?? 0;
+  const base = ext > 0 ? `${cell.present} + ${ext} extern von ${cell.required_total}` : `${cell.present} von ${cell.required_total}`;
   if (cell.status === "ok") return `${base} · besetzt`;
   const parts: string[] = [];
   if (cell.missing > 0) parts.push(`${cell.missing} fehlt`);
-  if (cell.required_grade && cell.grade_present < cell.required_grade_count) {
-    const lack = cell.required_grade_count - cell.grade_present;
+  // HD-2 slice 6: like `ext_grade` in `institution_plan`, a covered order of the required grade counts for the grade.
+  const extGrade = ext > 0 && cell.order?.cover_state === "covered" && cell.order.grade === cell.required_grade ? 1 : 0;
+  if (cell.required_grade && cell.grade_present + extGrade < cell.required_grade_count) {
+    const lack = cell.required_grade_count - cell.grade_present - extGrade;
     parts.push(`${lack} ${gradeLabel(cell.required_grade)} fehlt`);
   }
   return `${base} · Lücke: ${parts.join(", ")}`;
+}
+
+// --- HD-2: the external order of a cell in the home's words (brief HD.md §3, §3a) ----------------------------------
+export type OrderTone = "draft" | "wait" | "ok" | "alert";
+export type OrderLine = { code: "E" | "A" | "T" | "G" | "K" | "N"; headline: string; detail: string | null; tone: OrderTone; next: string | null };
+
+/** Next action of the home where the order does not cover the shift (K, N): HD.md §3 «intern besetzen oder zurückziehen». */
+export const NEXT_INTERNAL = "Nächste Handlung: eine zulässige eigene Person einteilen oder den Auftrag zurückziehen.";
+
+/**
+ * The words of §3 for one cell order. Never «Gedeckt» unless the database read `covered`; «Angebot läuft wieder» only
+ * for `no_longer_covered` without detail (a real release with an open offer, FE-110 (b), migration 0161).
+ */
+export function orderLine(o: CellOrder): OrderLine {
+  if (o.state === "prepared") {
+    return { code: "E", headline: "Auftrag vorbereitet, nicht gesendet", detail: "Prüfen und senden oder verwerfen.", tone: "draft", next: null };
+  }
+  const level = o.grade ? gradeLabel(o.grade) : null;
+  switch (o.cover_state) {
+    case "covered":
+      return { code: "G", headline: level ? `Gedeckt · Person bestätigt, geprüft für ${level}` : "Gedeckt · Person bestätigt, geprüft", detail: null, tone: "ok", next: null };
+    case "not_covered": {
+      const detail =
+        o.cover_detail === "started" ? "Die Schicht hat begonnen." :
+        o.cover_detail === "cover_time_reached" ? "Bis jetzt hat kein Team diese Schicht übernommen." :
+        "Kein passendes Team ist frei.";
+      return { code: "K", headline: "Nicht gedeckt", detail, tone: "alert", next: NEXT_INTERNAL };
+    }
+    case "no_longer_covered":
+      return o.cover_detail === "no_offer_open"
+        ? { code: "N", headline: "Nicht mehr gedeckt · kein Angebot offen", detail: "Die Übernahme gilt nicht mehr.", tone: "alert", next: NEXT_INTERNAL }
+        : { code: "N", headline: "Nicht mehr gedeckt · Angebot läuft wieder", detail: "Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.", tone: "alert", next: NEXT_INTERNAL };
+    default:
+      if (o.cover_detail === "awaiting_acknowledgement") {
+        return { code: "T", headline: "Team hat übernommen · Person bestätigt noch", detail: "Zählt noch nicht als besetzt.", tone: "wait", next: null };
+      }
+      if (o.cover_detail === "take_fell_away_no_offer") {
+        return { code: "A", headline: "Noch nicht gedeckt · kein Angebot offen", detail: "Die eingeteilte Person kann nicht.", tone: "alert", next: NEXT_INTERNAL };
+      }
+      if (o.cover_detail === "take_fell_away") {
+        return { code: "A", headline: "Angebot versandt · noch nicht gedeckt", detail: "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams.", tone: "wait", next: null };
+      }
+      return { code: "A", headline: "Angebot versandt · noch nicht gedeckt", detail: "An alle passenden Teams gleichzeitig.", tone: "wait", next: null };
+  }
+}
+
+/**
+ * HD-2 slice 5: «Auftrag zurückziehen» for a sent order in A, K or N (HD.md §3), to a planner who may order. Never for
+ * G (a confirmed person) or T (a take awaiting confirmation); the database refuses those as well, and after the start.
+ */
+export function canWithdrawOrder(plan: Pick<Plan, "institution">, order: CellOrder): boolean {
+  if (!canPlan(plan.institution.role) || plan.institution.can_order !== true || order.state !== "sent") return false;
+  const code = orderLine(order).code;
+  return code === "A" || code === "K" || code === "N";
+}
+
+/** «Externen Auftrag vorbereiten» is offered on a gap without an active order, to a planner whose access may order. */
+export function canPrepareOrder(plan: Pick<Plan, "institution">, cell: PlanCell): boolean {
+  return canPlan(plan.institution.role) && plan.institution.can_order === true && cell.status === "gap" && !cell.order;
 }
 
 /** The requirement in words, e.g. «Vorgabe 3, davon 1 HF». */
@@ -256,6 +346,25 @@ export function gapsPerDay(plan: Plan): Map<string, number> {
   return out;
 }
 
+/** HD-2: the external orders of each day as their state letters (E, A, T, G, K, N), for the month view. */
+export function ordersPerDay(plan: Plan): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const c of plan.cells) if (c.order) out.set(c.date, [...(out.get(c.date) ?? []), orderLine(c.order).code]);
+  return out;
+}
+
+/** HD-2: the cell of a draft (review screen), found through the one plan read. */
+export function cellOfDraft(plan: Plan, gapOrderId: string | undefined): PlanCell | null {
+  if (!gapOrderId) return null;
+  return plan.cells.find((c) => c.order?.gap_order_id === gapOrderId) ?? null;
+}
+
+/** HD-2: activity codes from a query value «A1,A2» (only the known code shape; the database checks them again). */
+export function tagList(v: unknown): string[] {
+  if (typeof v !== "string") return [];
+  return [...new Set(v.split(",").map((t) => t.trim()).filter((t) => /^[A-Z][A-Z0-9]{0,5}$/.test(t)))];
+}
+
 export function countMinutes(t: ShiftType): number {
   const [sh, sm] = t.starts_at.split(":").map(Number);
   const [eh, em] = t.ends_at.split(":").map(Number);
@@ -291,6 +400,30 @@ const PROBLEM_TEXT: Record<string, string> = {
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",
   not_empty: "Beispieldaten lassen sich nur in ein leeres Heim laden.",
   range_not_valid: "Dieser Zeitraum lässt sich nicht anzeigen.",
+  // HD-2: gap → external order
+  already_ordered: "Für diese Lücke gibt es schon einen Auftrag (vorbereitet oder gesendet).",
+  not_a_gap: "Dieser Dienst hat keine Lücke (mehr). Es wird nichts bestellt.",
+  starts_in_past: "Dieser Dienst hat schon begonnen oder liegt in der Vergangenheit.",
+  no_client_account: "Für dieses Heim ist kein Auftraggeber-Konto eingerichtet.",
+  not_client_member: "Sie dürfen in diesem Heim planen, aber keine externen Aufträge senden.",
+  grade_not_missing: "Es fehlt eine bestimmte Stufe; der Auftrag gilt nur für diese Stufe.",
+  not_prepared: "Dieser Auftrag ist nicht mehr im Entwurf.",
+  missing_postcode: "Bitte die Postleitzahl des Heims wählen.",
+  missing_grade: "Bitte die Stufe wählen.",
+  missing_activity_tags: "Bitte mindestens eine Tätigkeit wählen.",
+  level_activity_conflict: "Mindestens eine Tätigkeit ist für diese Stufe nicht zulässig.",
+  postcode_not_in_list: "Diese Postleitzahl ist nicht in der Liste.",
+  postcode_outside_regions: "Diese Postleitzahl liegt ausserhalb der Regionen.",
+  required_tag_not_in_tags: "Eine Pflicht-Tätigkeit muss auch als Tätigkeit gewählt sein.",
+  tag_unknown: "Unbekannte Tätigkeit.",
+  duplicate: "Dieser Auftrag wurde schon gesendet.",
+  // HD-2 slice 5: withdrawal refusals
+  not_sent: "Dieser Auftrag ist nicht gesendet; ein Entwurf wird verworfen.",
+  already_withdrawn: "Dieser Auftrag ist schon zurückgezogen.",
+  order_started: "Die Schicht hat begonnen; der Auftrag lässt sich nicht mehr zurückziehen.",
+  covered: "Eine Person ist bestätigt; der Auftrag wird hier nicht zurückgezogen.",
+  awaiting_acknowledgement: "Ein Team hat übernommen und die Person bestätigt noch; der Auftrag wird jetzt nicht zurückgezogen.",
+  visit_under_way: "Der Einsatz läuft schon; der Auftrag lässt sich nicht mehr zurückziehen.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
@@ -305,6 +438,10 @@ const DONE_TEXT: Record<string, string> = {
   shift_saved: "Dienstart gespeichert.",
   rule_saved: "Vorgabe gespeichert.",
   example: "Beispieldaten geladen (synthetisch).",
+  order_prepared: "Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.",
+  order_sent: "Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.",
+  order_discarded: "Entwurf verworfen. Die Lücke bleibt.",
+  order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
 };
 
 export function messageText(code: string | undefined): { kind: "ok" | "error"; text: string } | null {

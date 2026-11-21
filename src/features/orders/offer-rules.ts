@@ -150,6 +150,9 @@ function releaseText(kind: string | null, member: string, latestCoverAt: string 
       return `Nicht mehr übernommen: ${member} kann diese Schicht nicht übernehmen.`;
     case "not_acknowledged":
       return `Die Übernahme gilt nicht mehr: ${member} hat nicht bis ${latestCoverAt ? zurichTime(latestCoverAt) : "zur Deckungszeit"} bestätigt.`;
+    case "order_withdrawn":
+      // HD-2 slice 5: the client took the order back; no new round runs.
+      return "Der Auftrag wurde zurückgezogen. Die Übernahme gilt nicht mehr; es läuft kein Angebot.";
     case "no_longer_eligible":
       return `Nicht mehr gedeckt: ${member} erfüllt die Bedingungen für diese Schicht nicht mehr.`;
     default:
@@ -271,6 +274,14 @@ export function clientCoverLines(o: ClientCoverInput): { headline: string; detai
         return { headline: `Nicht gedeckt · ${begin}`, detail: "Kein passendes Team ist frei." };
     }
   }
+  if (o.cover_state === "withdrawn") {
+    // HD-2 slice 5 (migration 0163): the client took the order back; no team is offered it any more.
+    return { headline: `Zurückgezogen · ${begin}`, detail: "Dieser Auftrag wurde zurückgezogen. Es läuft kein Angebot." };
+  }
+  if (o.cover_state === "no_longer_covered" && o.cover_detail === "no_offer_open") {
+    // HD-2 / FE-110 (b), migration 0161: the take is not released yet, so no new round runs; never «läuft wieder».
+    return { headline: `Nicht mehr gedeckt · kein Angebot offen · ${begin}`, detail: "Die Übernahme gilt nicht mehr." };
+  }
   if (o.cover_state === "no_longer_covered") {
     // UXR-225 (b) with `lca` F-2: only after «Gedeckt» was shown (client_orders(), migration 0136); no person, no cause.
     return {
@@ -281,6 +292,10 @@ export function clientCoverLines(o: ClientCoverInput): { headline: string; detai
   if (o.cover_state === "open" && o.cover_detail === "take_fell_away") {
     // UXR-225 (a): the take fell away before «Gedeckt» was ever shown; the client was never covered.
     return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams." };
+  }
+  if (o.cover_state === "open" && o.cover_detail === "take_fell_away_no_offer") {
+    // HD-2 / FE-110 (b): as above, before «Gedeckt» was ever shown.
+    return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Die eingeteilte Person kann nicht. Zurzeit ist kein Angebot offen." };
   }
   if (o.cover_state === "open" && o.cover_detail === "awaiting_acknowledgement") {
     return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Ein Team hat übernommen; die eingeteilte Person bestätigt noch." };
@@ -311,6 +326,9 @@ export function offerCommandText(reason: string | null | undefined): string {
       return "Dieses Angebot ist für euer Team nicht mehr offen.";
     case "taken_by_us":
       return "Euer Team hat diese Schicht bereits übernommen.";
+    case "order_withdrawn":
+      // HD-2 slice 5 (take_order, migration 0163): the client took the order back.
+      return "Der Auftrag wurde zurückgezogen. Es läuft kein Angebot mehr.";
     default:
       return "Diese Übernahme ist nicht mehr offen.";
   }

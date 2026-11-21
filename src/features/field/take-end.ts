@@ -17,6 +17,8 @@ const REASON: Record<string, string> = {
 /** The reason line, or null when the visit was not ended by a released take. */
 export function takeEndedText(code: string | null | undefined): string | null {
   if (!code) return null;
+  // HD-2 slice 5: the client took the order back; no offer runs again, so the tail is not said.
+  if (code === "order_withdrawn") return "Die Übernahme gilt nicht mehr: der Auftrag wurde zurückgezogen.";
   const reason = REASON[code];
   return reason ? `Die Übernahme gilt nicht mehr: ${reason}. ${TAIL}` : `Die Übernahme gilt nicht mehr. ${TAIL}`;
 }

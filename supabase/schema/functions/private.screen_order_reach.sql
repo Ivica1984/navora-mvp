@@ -25,6 +25,10 @@ declare
   best integer;
 begin
   select * into o from public.partner_requests where id = p_order_id;
+  -- HD-2 slice 5: a withdrawn order is never screened again (no new round, no offer row).
+  if o.id is null or o.withdrawn_at is not null then
+    return;
+  end if;
   for r in
     select t.id, t.status, t.max_distance_km,
            exists (select 1 from public.team_service_postcodes s where s.team_id = t.id) as has_area,
