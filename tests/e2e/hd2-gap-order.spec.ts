@@ -70,6 +70,7 @@ for (const width of [1440, 390]) {
     if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
     await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
     await review.getByTestId("heim-order-check").click();
+    await expectSummary(review, await tickedCodes(review));  // UXR-269: «Senden» of the checked screen
     await expect(review.getByTestId("heim-order-sentence")).toContainText("Schichtauftrag · HF · ");
     await review.getByTestId("heim-order-send").click();
     await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
@@ -136,6 +137,7 @@ test("HD-2 at 390 px: a sent order is withdrawn; the gap stays and can be ordere
   if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
   await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
   await review.getByTestId("heim-order-check").click();
+  await expectSummary(review, await tickedCodes(review));
   await review.getByTestId("heim-order-send").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
 
@@ -190,6 +192,7 @@ test("HD-2 register path: gap → order → team takes (T) → person confirms (
   for (let i = 0; i < await tags.count(); i++) await tags.nth(i).uncheck();
   await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
   await review.getByTestId("heim-order-check").click();
+  await expectSummary(review, ["C1"]);  // UXR-269: «Senden» of the checked screen, not of the prefilled one
   await review.getByTestId("heim-order-send").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
   await page.goto(week);
@@ -290,3 +293,90 @@ test("HD-2 register path: gap → order → team takes (T) → person confirms (
   await expect(item.getByTestId("order-cover-state")).toHaveText(/^Nicht mehr gedeckt · /);
   await expect(item).not.toContainText(NOT_COVERED_WORD);
 });
+
+// UXR-269 (#1656): «Senden» sends exactly what the boxes show. A box changed after «Prüfen» sends nothing and asks to
+// check again; the line next to «Senden» names every activity that is sent, and the same activities are ticked. On the
+// next order of the station the prefill hint is shown before any tap, also when the preview already ran. Fixed rules,
+// no AI. Weeks twelve (1440) and thirteen (390) ahead, Thursday and Friday: no day used above (weeks 6–11) or by the
+// hd1 (weeks 3–5) and bk specs (30–37 days).
+const summaryCodes = (s: string) => [...s.matchAll(/(?:Tätigkeiten: |, )([A-Z][A-Z0-9]{0,5}) · /g)].map((m) => m[1]).sort();
+// «Prüfen» is a server action with a redirect: wait until the summary names exactly these activities (retrying), so a
+// tap never reaches the «Senden» of the screen before the check.
+async function expectSummary(review: Locator, codes: string[]) {
+  await expect.poll(async () => {
+    const s = review.getByTestId("heim-order-send-summary");
+    return (await s.count()) ? summaryCodes(await s.innerText()) : null;
+  }).toEqual([...codes].sort());
+}
+async function tickedCodes(review: Locator): Promise<string[]> {
+  return (await review.locator('[data-testid="heim-order-tag"]:checked').evaluateAll(
+    (els) => els.map((e) => (e as HTMLInputElement).value))).sort();
+}
+
+for (const [width, height, days] of [[1440, 900, 77], [390, 844, 84]] as const) {
+  test(`UXR-269 at ${width} px: a box changed after «Prüfen» is not sent; the summary names what is sent; prefill hint`, async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.setViewportSize({ width, height });
+    const thu = addDays(weekStart(addDays(zurichDay(), days)), 3);
+    const fri = addDays(thu, 1);
+    await signIn(page, HOME);
+    await ensureExample(page);
+    await page.goto(`/heim?ansicht=woche&datum=${thu}`);
+    const early = cell(page, thu, "Rhein 2", "F");
+    await expect(early).toHaveAttribute("data-status", "gap");
+    await early.getByTestId("heim-prepare-order").click();
+    const review = page.getByTestId("heim-order-review");
+    const postcode = review.getByTestId("heim-order-postcode");
+    if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
+    const tags = review.getByTestId("heim-order-tag");
+    for (let i = 0; i < await tags.count(); i++) await tags.nth(i).uncheck();
+    await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
+    await review.getByTestId("heim-order-check").click();
+    const summary = review.getByTestId("heim-order-send-summary");
+    await expectSummary(review, ["A1"]);
+    await expect(summary).toContainText("Wird gesendet: HF · ");
+    // After a «Prüfen» the prefill hint is gone (the lead has checked).
+    await expect(review.getByTestId("heim-order-prefill-hint")).toHaveCount(0);
+
+    // Change the activities after «Prüfen» and tap «Senden» without checking again: nothing is sent.
+    await review.locator('[data-testid="heim-order-tag"][value="A1"]').uncheck();
+    await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
+    await review.getByTestId("heim-order-send").click();
+    await expect(page.getByTestId("heim-message")).toHaveText(
+      "Geändert nach dem Prüfen: Es wurde nichts gesendet. Bitte die Angaben unten erneut prüfen.");
+    // The screen now checks what was shown: C1 ticked, A1 not, and the summary names exactly the ticked boxes.
+    expect(await tickedCodes(review)).toEqual(["C1"]);
+    await expectSummary(review, ["C1"]);
+    await noSidewaysScroll(page);
+
+    // The week still reads the draft (E): no order went to any team.
+    await page.goto(`/heim?ansicht=woche&datum=${thu}`);
+    await expect(early.getByTestId("heim-cell-order")).toHaveAttribute("data-code", "E");
+
+    // Check C1 and send: the order goes out with what the screen shows.
+    await early.getByTestId("heim-order-review-link").click();
+    if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
+    for (let i = 0; i < await tags.count(); i++) await tags.nth(i).uncheck();
+    await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
+    await review.getByTestId("heim-order-check").click();
+    await expectSummary(review, ["C1"]);
+    expect(await tickedCodes(review)).toEqual(["C1"]);
+    await review.getByTestId("heim-order-send").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
+    await page.goto(`/heim?ansicht=woche&datum=${thu}`);
+    await expect(early.getByTestId("heim-cell-order")).toHaveAttribute("data-code", /^[AK]$/);
+
+    // Next order of the station (postcode now stored): the prefill hint is shown before any tap, even if the preview
+    // already ran; if «Senden» is offered at once, its summary names exactly the ticked (prefilled) boxes.
+    await page.goto(`/heim?ansicht=woche&datum=${fri}`);
+    const next = cell(page, fri, "Rhein 2", "F");
+    await expect(next).toHaveAttribute("data-status", "gap");
+    await next.getByTestId("heim-prepare-order").click();
+    await expect(review.getByTestId("heim-order-prefill-hint")).toHaveText("Vorbelegt wie beim letzten Auftrag dieser Station; bitte prüfen.");
+    expect((await tickedCodes(review)).length).toBeGreaterThan(0);
+    if (await review.getByTestId("heim-order-send-summary").count()) await expectSummary(review, await tickedCodes(review));
+    await noSidewaysScroll(page);
+    await review.getByTestId("heim-order-discard").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Entwurf verworfen. Die Lücke bleibt.");
+  });
+}
