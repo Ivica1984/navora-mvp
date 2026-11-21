@@ -16,6 +16,65 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-21 10:44 CET: package gate review of **#1641** (HD-2 «Lücke → externer Auftrag → Status zurück», head `567e36b`; migrations 0161, 0162, 0163; pgTAP 160, 161, 162, 157 guards; `eng` ready report 7060210381). Gate window opened by the PO (7060747058; FE-089 (2), FE-097; `briefs/HD.md` Fassung 3 §3, §3a, §4 row HD-2, §6 (2)). **`cra-gate: #1641 567e36b clear`** (gate «Simulation, synthetic data»; two advisory findings as named follow-ups, no new merge condition, FE-089 (3)).
+
+### What I read
+
+- Diff `recovery/main...567e36b` (44 files). In full: `private.order_cover`, `private.order_client_state`, `public.institution_plan` (HD-2 part), `public.institution_prepare_gap_order`, `public.institution_send_gap_order`, `public.institution_withdraw_gap_order`, `private.institution_gap_order_args`, `private.institution_plan_cell`; the `withdrawn_at` hunks of `take_order`, `screen_order_reach`, `end_take_visit`; 0162 `grade_fixed` check; `src/features/home-plan/rules.ts` `orderLine`, `canWithdrawOrder`, `canPrepareOrder`; the test names and key assertions of pgTAP 160, 161, 162, unit `hd2-home-order.test.ts` and e2e `hd2-gap-order.spec.ts`.
+- CI on `567e36b` (check runs, all `completed`/`success`): `app` 136790893976, `db` 136790893949, `e2e` 136790893930, `ui-screenshots` 136790893761, `staging` (dry run) 136793607317, CodeQL 136791089534 and 136790792880. `db` log read: 0161 and 0162 applied, «Files=162, Tests=6370», «Result: PASS»; the `not ok 6–11` lines further down belong to the step `b0-4-sig1-lock-race` part (1), the intended red control «before #922», followed by «today: 080 … passed 59/59». `e2e` log: «203 passed (8.7m)».
+- Not re-read this run: the BK-c screening that keeps the absent person out of the new round (`order_member_step`, IMPLEMENTED in BK-c/BK-e, read in earlier reviews), `team_order_offers`, the `/heim` page. I ran no NAVORA test.
+
+### Gate criteria (HD.md §3, §3a, §6 (2))
+
+1. **Only a checked, confirmed person fills a slot: met (IMPLEMENTED on the head).** `institution_plan` counts an external order only when `order_client_state` reads `covered` (`ext`), and toward the grade only on an exact code match (`go.grade = r.required_grade`, `ext_grade`); E, A, T, K and N never count. `order_cover` returns `covered` only for a live take with `order_member_step = 4` and `acknowledged_at` set, evaluated at read time, so an absence or access end turns the cell back to a gap on the next read without any command. pgTAP 161 §4: «G: the person confirmed and was checked», «one slot is covered externally», «N: the cell is a gap again, never «ok» / «gedeckt»», «the plan cell and /order read the same state (N)».
+2. **«Angebot läuft wieder» only under the §3a condition: met.** The text comes only from `no_longer_covered` without detail, which `order_cover` returns only in its last branch: no live take (all released), current round `offs > 0` and `decl < offs`, `p_at < latest_cover_at`, shift not started. A live take whose person fails (safety net) reads `no_offer_open` → «Nicht mehr gedeckt · kein Angebot offen» (0161). Negative tests: pgTAP 160 (15 assertions, written red first per its header), unit «FE-110 (b): «läuft wieder» / «wieder an alle» never without a real release», e2e register path line 281 (positive) and line 158 (negative after withdrawal).
+3. **A lower grade never hides a grade gap: met.** A missing grade fixes the order grade (`grade_fixed`, prepare l. «A missing grade fixes the grade»); any other grade is refused (`grade_not_missing`, `institution_gap_order_args`). Exact-code matching, no grade order invented (consistent with CR-244).
+4. **No double order per cell: met for the named limit.** Advisory lock plus partial unique index; pgTAP 161 and 162 («the gap can be ordered again (it left the one-active-order index)»). One active order per cell is the named HD-2 limit (HD-2-F1).
+5. **Withdrawal (A, K, N): met.** Refused for a draft, a viewer, a stranger, a planner without client membership, G (`covered`), T (`awaiting_acknowledgement`), after the start (`order_started`) and with a visit under way (`visit_under_way`, CGR-244). It sets `withdrawn_at`, releases a live take with reason `withdrawn` (never deleted), cancels the team's planned visit through `end_take_visit` (`order_withdrawn`), and `take_order` refuses after the order-row lock, so a concurrent take cannot slip in. Audit row and LEAVE1 guard present. pgTAP 162 (40 assertions).
+
+### Answers to `eng`'s review questions (7060210381)
+
+- **(a) Withdrawal refused for G and T: yes, right for the simulation.** Refusal can only leave more cover than needed, never less. Before real persons, a home will need a way to cancel a confirmed person (resident moved, ward closed) with cancellation terms and a signal to the team; that is `lca` (terms) and `po`, not a simulation need. Part of CGR-271.
+- **(b) No team signal on withdrawal: enough for the simulation.** By the code, a withdrawal never removes a confirmed person or a take awaiting confirmation; the only take it can release is a safety-net take whose person already fails the checks, and the planned visit is cancelled. No resident goes without care through a withdrawal, because the home's own cell stays a visible gap. Before real teams: an active signal and a stated lead time (CGR-271, advisory, S2).
+- **(c) Back to all eligible teams, the releasing team included, so the home reads «Nicht mehr gedeckt · Angebot läuft wieder»: correct**, on condition 2 above (the text appears only with a released take and an open offer in the current round before the coverage time). Including the releasing team is right: another member of it may be eligible. The absent person is kept out by the BK-c screening (IMPLEMENTED earlier, not re-read this run).
+- **(d) `/team` names the released person with «erfüllt die Bedingungen nicht mehr» and no reason: acceptable.** No reason is the correct data minimisation (`lca` F-2). The text must let the team lead see that the shift is no longer theirs; it does.
+
+### PO-listed `eng` points of 7056517084 (checked in this window)
+
+- **2 home postcode:** the home's own data, set by the leader, never invented; kept from the first sent order as prefill, each order still carries its own postcode. No objection.
+- **3 activity prefill «wie beim letzten Auftrag»:** labelled as such and checked by the leader before sending; provenance is `aia` AUT-182. No objection.
+- **4 `grade_not_missing`:** right (criterion 3). It also refuses a higher grade for a missing lower grade; whether a higher level may cover a lower requirement stays a Clinical Owner question (CGR-267, D-29, waiting). Conservative in the safe direction.
+- **6 stored draft E:** right; E never counts. A forgotten draft blocking the cell is `aia` AUT-180 (follow-up).
+- **7 who may send / withdraw:** lead or planner and client member; a clear refusal otherwise (pgTAP 162 «a planner who may not order for the home cannot withdraw»). No objection.
+- **8 G counts, N never:** right (criterion 1); T, A, K also never.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-270** | #1641 internal fill with an active order | **advisory**; S2 (before real teams); follow-up | The next action for K and N reads «eine zulässige eigene Person einteilen oder den Auftrag zurückziehen». If the leader assigns her own person, the cell turns `ok` but the sent order stays active: in A or in N «Angebot läuft wieder» a team can still take and confirm it, so a team person comes for a shift the home no longer needs (double cover, a team shift and invoice without need, a person turned away). Not under-staffing, so no patient-safety defect; a billing and team-income risk. | `institution_assign_staff` unchanged in the diff (no reference to `institution_gap_orders`); `institution_plan` status `ok` when `present + ext >= required_total` while the order row stays `sent` | When an internal assignment closes a cell whose order is in A, K or N, the cell shows «Externer Auftrag läuft noch · zurückziehen?» (or the command returns that hint); e2e: assign into a cell in A → hint visible; after withdrawal no team offer |
+| **CGR-271** | #1641 withdrawal and team | **advisory**; S2 (before real teams); `lca`, `po` | A withdrawal ends offers and a released safety-net take with no active signal to the team and no lead time before the shift; a confirmed person (G) cannot be cancelled at all. Right for the simulation (answers (a), (b)); real teams and homes need cancellation terms, a signal and a stated cut-off. | `institution_withdraw_gap_order` (refusals `covered`, `awaiting_acknowledgement`, `order_started` only); team sees the change only in `/team`, `/field` text (ready report) | Before Phase B: `lca` names the cancellation terms; `po` decides signal and cut-off; pgTAP for the cut-off, e2e for the team signal |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1641 HD-2 «Lücke → externer Auftrag → Status zurück» | `567e36b` | **`cra-gate: #1641 567e36b clear`** · gate «Simulation, synthetic data». Only G fills a slot (exact grade); N and the safety net never read «gedeckt» or «läuft wieder» without a real release and an open offer; a lower grade cannot hide a grade gap; one active order per cell (named limit); withdrawal for A, K, N only, never after the start or with a visit under way. CGR-270, CGR-271 advisory follow-ups, not merge conditions. No AI model in any path. |
+
+Not reviewed as gates (out of my scope or not the active block): #1652 (merged, `eng` staging DB analysis, docs), #1650 (`aia` review 80, merged), #1649 (staging-smoke harness, merged), #1612, #1611 (docs, held), #1541, #1540.
+
+### Findings closed
+
+None. CGR-267 to CGR-269 stay open as HEIM-DP follow-ups (not touched by HD-2; HD-2 reuses the same exact-grade rule).
+
+### Decisions requested
+
+- **`po`:** place CGR-270 and CGR-271 as HEIM-DP follow-ups (next to HD-2-F1, HD-2-F2, AUT-180 to AUT-182); answer `eng`'s §6 (2) «Plan» question (not clinical).
+- **`lca`:** cancellation terms for a confirmed external person and a withdrawal cut-off before real teams (CGR-271).
+- **Clinical Owner (UNKNOWN) / owner D-29:** unchanged: may a higher level cover a lower requirement (CGR-267; HD-2 refuses it, the safe default).
+
+---
+
 ## 2026-11-20 22:36 CET: package gate review of **#1623** (HD-1 «Heim-Dienstplanung, eigenes Personal», head `1eb228a`; migrations 0159, 0160; pgTAP 158, 159, 157 catalogue; `eng` ready report 7050177132). Gate requested by the PO (FE-109, FE-110; `briefs/HD.md` Fassung 3 §4a, gate scope «Qualifikationsstatus; Unterbesetzung nie als «besetzt»»). **`cra-gate: #1623 1eb228a clear`** (gate «Simulation, synthetic data» only; not a clinical release of any staffing or qualification rule, D-27). Fixed residual list (FE-089 (3)): no new merge condition from me. New advisory CGR-267, CGR-268, CGR-269 (follow-ups; CGR-267 S1 before real data). Read on `recovery/main` `2a96141`.
 
 ### What I read
