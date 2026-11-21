@@ -79,6 +79,8 @@ for (const width of [1440, 390]) {
     const order = early.getByTestId("heim-cell-order");
     await expect(order).toHaveAttribute("data-code", /^[AK]$/);
     const code = await order.getAttribute("data-code");
+    const orderId = await order.getAttribute("data-order-id");
+    expect(orderId).toMatch(/^[0-9a-f-]{36}$/);
     await expect(early.getByTestId("heim-cell-order-headline")).toHaveText(
       code === "A" ? "Externer Auftrag: Angebot versandt · noch nicht gedeckt" : "Externer Auftrag: Nicht gedeckt");
     await expect(early).toHaveAttribute("data-status", "gap");
@@ -92,9 +94,8 @@ for (const width of [1440, 390]) {
 
     // /order («Externe Aufträge» of the client account) reads the same state from the same source.
     await page.goto("/order");
-    // This very order: HF on this day at 07:00 (the seed has other covered HF orders; never pick one of them).
-    const item = page.getByTestId("client-orders").locator("li").filter({ hasText: `Schichtauftrag · HF · ` })
-      .filter({ hasText: `${thu.split("-").reverse().join(".")} 07:00` });
+    // This very order, by its id from the home's cell (other specs order HF at 07:00 on the same calendar day).
+    const item = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
     await expect(item).toHaveCount(1);
     await expect(item.getByTestId("order-cover-state")).toHaveText(code === "A" ? /^Noch nicht gedeckt · Beginn / : /^Nicht gedeckt · Beginn /);
   });

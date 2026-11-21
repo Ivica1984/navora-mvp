@@ -263,6 +263,7 @@ test("path 5: the home orders a gap externally, the Basel nurse takes it, the ho
   await page.goto(`/heim?ansicht=woche&datum=${day}`);
   await expect(cellOf().getByTestId("heim-cell-order")).toHaveAttribute("data-code", "A");
   await expect(cellOf().getByTestId("heim-prepare-order")).toHaveCount(0);
+  const orderId = await cellOf().getByTestId("heim-cell-order").getAttribute("data-order-id");
 
   await signIn(page, "pflegeBs");
   await takeAsHerself(page, `${deDate(day)} 07:00`);
@@ -274,6 +275,6 @@ test("path 5: the home orders a gap externally, the Basel nurse takes it, the ho
   await expect(cellOf().getByTestId("heim-cell-status")).toContainText("+ 1 extern von");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   await page.goto("/order");
-  const covered = page.getByTestId("client-orders").locator("li", { hasText: `${deDate(day)} 07:00` }).last();
+  const covered = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
   await expect(covered.getByTestId("order-cover-state")).toHaveText(/^Gedeckt · Person benannt, geprüft für HF$/);
 });

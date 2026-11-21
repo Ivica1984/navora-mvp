@@ -534,7 +534,7 @@ function OrderBlock({ order, reviewHref, planner }: { order: CellOrder; reviewHr
   const line = orderLine(order);
   return (
     <div role="status" className={`grid gap-0.5 rounded-md border p-2 text-xs ${toneClass[line.tone]}`}
-      data-testid="heim-cell-order" data-code={line.code}>
+      data-testid="heim-cell-order" data-code={line.code} data-order-id={order.order_id ?? undefined}>
       <p className="font-semibold" data-testid="heim-cell-order-headline">Externer Auftrag: {line.headline}</p>
       {line.detail && <p>{line.detail}</p>}
       {line.next && <p className="font-semibold" data-testid="heim-cell-order-next">{line.next}</p>}

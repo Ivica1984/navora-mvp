@@ -42,7 +42,7 @@ export default async function OrderPage() {
             // decides the state (`client_orders()`); no team count, no other team, no decline or exclusion reason.
             const cover = clientCoverLines(o);
             return (
-              <li key={o.id} className="grid gap-1 rounded-lg border border-stone-200 bg-white p-3 text-sm">
+              <li key={o.id} className="grid gap-1 rounded-lg border border-stone-200 bg-white p-3 text-sm" data-order-id={o.id}>
                 <div role="status" className="grid gap-0.5">
                   <p data-testid="order-cover-state" className="font-semibold">{cover.headline}</p>
                   {cover.detail && <p data-testid="order-cover-detail">{cover.detail}</p>}
