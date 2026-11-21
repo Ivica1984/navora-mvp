@@ -98,7 +98,9 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       returned={returned}
       cover={cover}
       sinceLast={withCarriedRows(sinceLast, prev?.[4] ?? [], carried, byVisit)}
-      openFollowups={visitAlerts.filter((a) => a.exception_type === "visit_interrupted")}
+      openFollowups={visitAlerts.rows.filter((a) => a.exception_type === "visit_interrupted")}
+      // PERF1 (CGR-272): the hint list failed; the day view and its commands stay, one notice line replaces the list.
+      visitAlertsUnavailable={visitAlerts.unavailable}
       absence={{ today, ...absence }}
       signals={signals}
       doorNotes={withCarriedRows(doorNotes, prev?.[5] ?? [], carried, byVisit)}

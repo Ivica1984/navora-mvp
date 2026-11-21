@@ -71,6 +71,7 @@ import type { TeamPushRow } from "@/features/push/queries";
 import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
 import { GP_CHANNELS, GP_CHANNEL_LABEL, GP_MESSAGES, gpInformedText, informedOnProblem, latestNoticeByCase, type GpNotice } from "@/features/gp/rules";
 import { TEAM_OFFERS_ANCHOR, TEAM_OFFERS_HEADING } from "@/features/field/todo";
+import HintsUnavailableNotice from "@/components/visits/HintsUnavailableNotice";
 
 function hoursSince(iso: string) {
   return Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 3_600_000));
@@ -85,6 +86,7 @@ export default function TeamClient({
   lifecycle,
   planStatus,
   visitAlerts = [],
+  visitAlertsUnavailable = false,
   signals = [],
   gpNotices = [],
   pushStatus = [],
@@ -109,6 +111,8 @@ export default function TeamClient({
   lifecycle: CaseLifecycle[];
   planStatus: PlanStatus[];
   visitAlerts?: TeamVisitAlert[];
+  /** PERF1 (CGR-272): team_visit_alerts could not be loaded; show the notice line instead of the list. */
+  visitAlertsUnavailable?: boolean;
   /** SIG1: the caller's open P1 safety signals. */
   signals?: SignalRow[];
   /** ORD0-3: "Hausärztin/Hausarzt informiert" records of the team's cases. */
@@ -177,7 +181,8 @@ export default function TeamClient({
 
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <SignalBanner initial={signals} onRows={setLiveSignals} />
-        <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />
+        {/* PERF1 (CGR-272): where the list would be, on every render while it fails. */}
+        {visitAlertsUnavailable ? <HintsUnavailableNotice /> : <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />}
         <TeamLookback stops={lookbackStops} />
         <SuccessorItems items={successorItems} />
         <TeamHandover leavers={leavers} openReports={leaverReports} />

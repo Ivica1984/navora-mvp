@@ -3,6 +3,7 @@ import "server-only";
 import type { Database } from "@/lib/supabase/database.types";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import { loaded, unavailable, type AuxList } from "./aux-list";
 
 export type TeamOffer = Database["public"]["Functions"]["team_offers"]["Returns"][number];
 export type TeamCase = Database["public"]["Functions"]["team_cases"]["Returns"][number];
@@ -42,13 +43,26 @@ export async function getContinuity(month: string): Promise<ContinuityRow[]> {
   return data ?? [];
 }
 
-/** CSR1 / CGR-04: overdue and stuck visits of the caller's teams (public.team_visit_alerts, pgTAP 038). */
-export async function getTeamVisitAlerts(): Promise<TeamVisitAlert[]> {
+/** CSR1 / CGR-04: overdue and stuck visits of the caller's teams (public.team_visit_alerts, pgTAP 038).
+ * PERF1 (CGR-272): an auxiliary hint list, so a failed load degrades instead of throwing: the page keeps its day view
+ * and commands and shows VISIT_ALERTS_UNAVAILABLE_NOTICE; the failure is logged and counted per team and day
+ * (public.record_aux_list_failure → private.aux_list_failures, migration 0165). Never used for a safety list (CGR-273). */
+export async function getTeamVisitAlerts(): Promise<AuxList<TeamVisitAlert>> {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("team_visit_alerts");
-  if (error) {
-    logEvent("error", "team.visit_alerts_load_failed", errorFields(error));
-    throw new Error("Hinweise zu Einsätzen konnten nicht geladen werden.");
+  try {
+    const { data, error } = await supabase.rpc("team_visit_alerts");
+    if (!error) return loaded(data);
+    logEvent("error", "team.visit_alerts_unavailable", errorFields(error));
+  } catch (e) {
+    // A transport failure (no PostgREST answer) degrades the same way; its code only, never its message.
+    logEvent("error", "team.visit_alerts_unavailable", errorFields(e));
   }
-  return data ?? [];
+  // Best effort: the count must never take the page down either (its own failure is logged, not thrown).
+  try {
+    const counted = await supabase.rpc("record_aux_list_failure", { p_list: "team_visit_alerts" });
+    if (counted.error) logEvent("warn", "team.visit_alerts_failure_not_counted", errorFields(counted.error));
+  } catch (e) {
+    logEvent("warn", "team.visit_alerts_failure_not_counted", errorFields(e));
+  }
+  return unavailable();
 }

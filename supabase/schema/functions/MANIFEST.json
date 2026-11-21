@@ -537,6 +537,16 @@
         "PERF1 gate",
         "order_member_step"
       ]
+    },
+    {
+      "name": "public.record_aux_list_failure",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "aux_list_unknown"
+      ]
     }
   ]
 }

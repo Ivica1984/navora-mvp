@@ -62,5 +62,5 @@ export default async function TeamPage() {
     getMyTeamInvoiceDrafts(),
     getMyTeamPrices(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} openSuggestions={openSuggestions} lookbackStops={toTeamLookbackStops(lookbackStops)} shiftOffers={shiftOffers} invoiceDrafts={invoiceDrafts} teamPrices={teamPrices} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts.rows} visitAlertsUnavailable={visitAlerts.unavailable} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} openSuggestions={openSuggestions} lookbackStops={toTeamLookbackStops(lookbackStops)} shiftOffers={shiftOffers} invoiceDrafts={invoiceDrafts} teamPrices={teamPrices} />;
 }
