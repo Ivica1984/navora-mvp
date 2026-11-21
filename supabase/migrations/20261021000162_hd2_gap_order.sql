@@ -17,7 +17,8 @@
 --     `confirm_client_order` (row lock; refuses: wrong grade for a missing grade, the gap closed meanwhile; a second
 --     send is `already_sent`), `institution_discard_gap_order` (a draft only). The commands read the cell through the
 --     plan itself (`private.institution_plan_cell`): one status source.
---   * Not here (named on PR #1641): withdrawing a sent order (no client withdraw command exists yet).
+--   * Withdrawing a sent order: migration 0163 (the `withdrawn` state and its columns are defined here, while 0162 is
+--     unmerged, so the table has its final shape in one place; PO 2026-11-21 06:39).
 -- Every function is created whole from its canonical file (STAB-1, TESTS 6, scripts/fn-source.mjs migration);
 -- `client_orders` and `institution_plan` keep security definer, search_path, grants and their LEAVE1-3 guards (157).
 -- Idempotent (if not exists / create or replace). Way back: drop the seven new functions and the table and column,
@@ -38,7 +39,10 @@ create table if not exists public.institution_gap_orders (
   work_date         date not null,
   client_account_id uuid not null references public.client_accounts (id),
   grade_fixed       text check (grade_fixed is null or grade_fixed in ('ags_eba', 'fage_efz', 'nurse_hf_fh')),
-  state             text not null default 'prepared' check (state in ('prepared', 'sent', 'discarded')),
+  -- `withdrawn` (HD-2 slice 5, PO 06:39): a sent order the home took back; it leaves the one-active-order index.
+  state             text not null default 'prepared'
+                      constraint institution_gap_orders_state_check
+                      check (state in ('prepared', 'sent', 'discarded', 'withdrawn')),
   order_id          uuid unique references public.partner_requests (id),
   prepared_by       uuid not null,
   prepared_at       timestamptz not null default private.now(),
@@ -46,13 +50,18 @@ create table if not exists public.institution_gap_orders (
   sent_at           timestamptz,
   discarded_by      uuid,
   discarded_at      timestamptz,
+  withdrawn_by      uuid,
+  withdrawn_at      timestamptz,
   foreign key (station_id, institution_id) references public.institution_stations (id, institution_id) on delete cascade,
   foreign key (shift_type_id, institution_id) references public.institution_shift_types (id, institution_id) on delete cascade,
-  check ((state = 'sent') = (order_id is not null and sent_at is not null and sent_by is not null)),
-  check ((state = 'discarded') = (discarded_at is not null and discarded_by is not null))
+  -- A withdrawn order was sent first: it keeps its order and its sending (nothing is rewritten).
+  check ((state in ('sent', 'withdrawn')) = (order_id is not null and sent_at is not null and sent_by is not null)),
+  check ((state = 'discarded') = (discarded_at is not null and discarded_by is not null)),
+  check ((state = 'withdrawn') = (withdrawn_at is not null and withdrawn_by is not null))
 );
 comment on table public.institution_gap_orders is
-  'HD-2: an external shift order prepared from one gap cell of the home plan (state prepared → sent | discarded). '
+  'HD-2: an external shift order prepared from one gap cell of the home plan (state prepared → sent | discarded; '
+  'sent → withdrawn). '
   'The order itself is a partner_requests row made by confirm_client_order (no second order path). At most one '
   'active (prepared or sent) row per cell. Read and written only through the institution_* functions.';
 -- The double-order lock: at most one active order per cell (the commands also take a transaction lock per cell).

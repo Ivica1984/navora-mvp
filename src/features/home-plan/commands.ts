@@ -226,3 +226,15 @@ export async function discardGapOrder(form: FormData) {
   week.searchParams.delete("tags");
   redirect(withMessage(safeReturnPath(`${week.pathname}${week.search}`), codeOf(r, "order_discarded")));
 }
+
+// HD-2 slice 5: «Auftrag zurückziehen» (A, K, N). The database decides (state, start, cover, visit under way) and
+// releases a live take; the page only words the answer.
+export async function withdrawGapOrder(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const gap = parse(uuid, str(form, "gap"), back);
+  const r = await rpc("institution_withdraw_gap_order", { p_gap_order_id: gap });
+  revalidatePath(HOME_PLAN_PATH);
+  revalidatePath("/order");
+  const code = r?.result === "already_withdrawn" ? "already_withdrawn" : codeOf(r, "order_withdrawn");
+  redirect(withMessage(back, code));
+}

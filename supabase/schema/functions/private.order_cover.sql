@@ -19,6 +19,11 @@ begin
   select * into o from public.partner_requests where id = p_order_id;
   if o.id is null or o.order_kind is null then return; end if;
   lat := private.order_latest_cover_at(o.id);
+  -- HD-2 slice 5: a withdrawn order reads `withdrawn` before any take, round or start; no offer and no cover is shown.
+  if o.withdrawn_at is not null then
+    return query select 'withdrawn'::text, null::text, null::uuid, null::timestamptz, lat;
+    return;
+  end if;
   select * into k from public.order_takes t where t.order_id = o.id and t.released_at is null;
   if k.id is not null and private.order_member_step(o.id, k.team_id, k.member_id) = 4 then
     if k.acknowledged_at is not null then

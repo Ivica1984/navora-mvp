@@ -2,12 +2,12 @@ import Link from "next/link";
 import { zurichToday } from "@/features/orders/queries";
 import { getMyInstitutions, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
 import {
-  addStaff, addStation, assignStaff, discardGapOrder, loadExample, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
+  addStaff, addStation, assignStaff, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
   setShiftType, setStaffActive, setStaffingRule, unassignStaff,
 } from "@/features/home-plan/commands";
 import {
   EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, addDays, assignableStaff, canPlan, canPrepareOrder,
-  canSettle, cellOfDraft, cellStatusText, orderLine, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
+  canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
   monthCode, monthLabel, monthPeople, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
@@ -230,7 +230,10 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
                           </li>
                         ))}
                       </ul>
-                      {c.order && <OrderBlock order={c.order} reviewHref={`${HOME_PLAN_PATH}?ansicht=auftrag&datum=${d}&entwurf=${c.order.gap_order_id}`} planner={planner} />}
+                      {c.order && (
+                        <OrderBlock order={c.order} reviewHref={`${HOME_PLAN_PATH}?ansicht=auftrag&datum=${d}&entwurf=${c.order.gap_order_id}`}
+                          planner={planner} withdraw={canWithdrawOrder(plan, c.order)} back={back} />
+                      )}
                       {canPrepareOrder(plan, c) && (
                         <form action={prepareGapOrder}>
                           <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
@@ -530,7 +533,9 @@ const toneClass: Record<string, string> = {
 };
 
 // HD-2: the external order of a cell in the words of brief HD.md §3; the database decides the state (one source).
-function OrderBlock({ order, reviewHref, planner }: { order: CellOrder; reviewHref: string; planner: boolean }) {
+function OrderBlock({ order, reviewHref, planner, withdraw, back }: {
+  order: CellOrder; reviewHref: string; planner: boolean; withdraw: boolean; back: string;
+}) {
   const line = orderLine(order);
   return (
     <div role="status" className={`grid gap-0.5 rounded-md border p-2 text-xs ${toneClass[line.tone]}`}
@@ -540,6 +545,15 @@ function OrderBlock({ order, reviewHref, planner }: { order: CellOrder; reviewHr
       {line.next && <p className="font-semibold" data-testid="heim-cell-order-next">{line.next}</p>}
       {planner && order.state === "prepared" && (
         <Link href={reviewHref} className="underline" data-testid="heim-order-review-link">Prüfen und senden</Link>
+      )}
+      {withdraw && (
+        // HD-2 slice 5: no team is offered it afterwards; a live take is released and its planned visit removed.
+        <form action={withdrawGapOrder}>
+          <Hidden values={{ gap: order.gap_order_id, back }} />
+          <button type="submit" className="min-h-11 text-left font-semibold underline" data-testid="heim-order-withdraw">
+            Auftrag zurückziehen
+          </button>
+        </form>
       )}
     </div>
   );

@@ -296,3 +296,39 @@ test("path 5: the home orders a gap externally, the Basel nurse takes it, the ho
   const covered = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
   await expect(covered.getByTestId("order-cover-state")).toHaveText(/^Gedeckt · Person benannt, geprüft für HF$/);
 });
+
+test("path 6: the home orders a gap externally and withdraws it; the gap stays and /order reads «Zurückgezogen» (390 px)", async ({ page }) => {
+  // HD-2 slice 5 (migration 0163). A late shift of the path-5 week; the order is never taken (no nurse step).
+  await page.setViewportSize({ width: 390, height: 900 });
+  const week = weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40)));
+  await signIn(page, "kunde");
+  await page.goto(`/heim?ansicht=woche&datum=${week}`);
+  await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
+  const free = page.locator('[data-testid="heim-day"]').filter({
+    has: page.locator('[data-testid="heim-cell"][data-station="Rhein 2"][data-shift="S"] [data-testid="heim-prepare-order"]'),
+  }).first();
+  const day = (await free.getAttribute("data-date"))!;
+  const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="Rhein 2"][data-shift="S"]`);
+  await cellOf().getByTestId("heim-prepare-order").click();
+  const review = page.getByTestId("heim-order-review");
+  const postcode = review.getByTestId("heim-order-postcode");
+  if ((await postcode.inputValue()) === "") await postcode.selectOption("4051");
+  for (const box of await review.getByTestId("heim-order-tag").all()) if (await box.isChecked()) await box.uncheck();
+  await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
+  const grade = review.getByTestId("heim-order-grade");
+  if (await grade.count()) await grade.selectOption("nurse_hf_fh");
+  await review.getByTestId("heim-order-check").click();
+  await review.getByTestId("heim-order-send").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  const orderId = await cellOf().getByTestId("heim-cell-order").getAttribute("data-order-id");
+  await cellOf().getByTestId("heim-order-withdraw").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf().getByTestId("heim-cell-order")).toHaveCount(0);
+  await expect(cellOf()).toHaveAttribute("data-status", "gap");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  await page.goto("/order");
+  const withdrawn = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
+  await expect(withdrawn.getByTestId("order-cover-state")).toHaveText(/^Zurückgezogen · Beginn /);
+});

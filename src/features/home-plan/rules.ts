@@ -202,8 +202,8 @@ export function cellStatusText(cell: PlanCell): string {
 export type OrderTone = "draft" | "wait" | "ok" | "alert";
 export type OrderLine = { code: "E" | "A" | "T" | "G" | "K" | "N"; headline: string; detail: string | null; tone: OrderTone; next: string | null };
 
-/** Next action of the home where the order does not cover the shift (K, N). Withdrawing is not built yet (PR #1641). */
-export const NEXT_INTERNAL = "Nächste Handlung: eine zulässige eigene Person einteilen.";
+/** Next action of the home where the order does not cover the shift (K, N): HD.md §3 «intern besetzen oder zurückziehen». */
+export const NEXT_INTERNAL = "Nächste Handlung: eine zulässige eigene Person einteilen oder den Auftrag zurückziehen.";
 
 /**
  * The words of §3 for one cell order. Never «Gedeckt» unless the database read `covered`; «Angebot läuft wieder» only
@@ -240,6 +240,16 @@ export function orderLine(o: CellOrder): OrderLine {
       }
       return { code: "A", headline: "Angebot versandt · noch nicht gedeckt", detail: "An alle passenden Teams gleichzeitig.", tone: "wait", next: null };
   }
+}
+
+/**
+ * HD-2 slice 5: «Auftrag zurückziehen» for a sent order in A, K or N (HD.md §3), to a planner who may order. Never for
+ * G (a confirmed person) or T (a take awaiting confirmation); the database refuses those as well, and after the start.
+ */
+export function canWithdrawOrder(plan: Pick<Plan, "institution">, order: CellOrder): boolean {
+  if (!canPlan(plan.institution.role) || plan.institution.can_order !== true || order.state !== "sent") return false;
+  const code = orderLine(order).code;
+  return code === "A" || code === "K" || code === "N";
 }
 
 /** «Externen Auftrag vorbereiten» is offered on a gap without an active order, to a planner whose access may order. */
@@ -405,6 +415,13 @@ const PROBLEM_TEXT: Record<string, string> = {
   required_tag_not_in_tags: "Eine Pflicht-Tätigkeit muss auch als Tätigkeit gewählt sein.",
   tag_unknown: "Unbekannte Tätigkeit.",
   duplicate: "Dieser Auftrag wurde schon gesendet.",
+  // HD-2 slice 5: withdrawal refusals
+  not_sent: "Dieser Auftrag ist nicht gesendet; ein Entwurf wird verworfen.",
+  already_withdrawn: "Dieser Auftrag ist schon zurückgezogen.",
+  order_started: "Die Schicht hat begonnen; der Auftrag lässt sich nicht mehr zurückziehen.",
+  covered: "Eine Person ist bestätigt; der Auftrag wird hier nicht zurückgezogen.",
+  awaiting_acknowledgement: "Ein Team hat übernommen und die Person bestätigt noch; der Auftrag wird jetzt nicht zurückgezogen.",
+  visit_under_way: "Der Einsatz läuft schon; der Auftrag lässt sich nicht mehr zurückziehen.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
@@ -422,6 +439,7 @@ const DONE_TEXT: Record<string, string> = {
   order_prepared: "Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.",
   order_sent: "Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.",
   order_discarded: "Entwurf verworfen. Die Lücke bleibt.",
+  order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
 };
 
 export function messageText(code: string | undefined): { kind: "ok" | "error"; text: string } | null {

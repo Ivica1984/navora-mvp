@@ -59,3 +59,10 @@ describe("offerCommandText (CGR-244)", () => {
     );
   });
 });
+
+describe("takeEndedText: HD-2 slice 5 (migration 0163)", () => {
+  it("a withdrawn order ends her visit without claiming the offer runs again", () => {
+    expect(takeEndedText("order_withdrawn")).toBe("Die Übernahme gilt nicht mehr: der Auftrag wurde zurückgezogen.");
+    expect(takeEndedText("order_withdrawn")).not.toMatch(/wieder an alle/);
+  });
+});

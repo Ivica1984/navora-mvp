@@ -40,6 +40,10 @@ begin
     perform private.end_command('refused');
     return jsonb_build_object('result', 'refused', 'reason', 'not_offered');
   end if;
+  if o.withdrawn_at is not null then  -- HD-2 slice 5: the client took the order back; nothing is offered any more
+    perform private.end_command('refused');
+    return jsonb_build_object('result', 'refused', 'reason', 'order_withdrawn');
+  end if;
   if exists (select 1 from public.order_takes t where t.order_id = o.id and t.released_at is null) then
     perform private.end_command('refused');
     return jsonb_build_object('result', 'refused', 'reason', 'already_taken');

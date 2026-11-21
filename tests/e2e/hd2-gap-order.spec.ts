@@ -118,3 +118,42 @@ test("HD-2: a discarded draft leaves the gap and can be prepared again", async (
   await expect(late).toHaveAttribute("data-status", "gap");
   await expect(late.getByTestId("heim-prepare-order")).toHaveCount(1);
 });
+
+// HD-2 slice 5 (migration 0163): «Auftrag zurückziehen» on a sent order (A or K) ends the offer; the cell is a gap
+// without an order and can be ordered again; /order reads «Zurückgezogen». Week nine ahead, Thursday (own day).
+test("HD-2 at 390 px: a sent order is withdrawn; the gap stays and can be ordered again", async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 390, height: 900 });
+  const thu = addDays(weekStart(addDays(zurichDay(), 63)), 3);
+  await signIn(page, HOME);
+  await ensureExample(page);
+  await page.goto(`/heim?ansicht=woche&datum=${thu}`);
+  const early = cell(page, thu, "Rhein 2", "F");
+  await expect(early).toHaveAttribute("data-status", "gap");
+  await early.getByTestId("heim-prepare-order").click();
+  const review = page.getByTestId("heim-order-review");
+  const postcode = review.getByTestId("heim-order-postcode");
+  if ((await postcode.inputValue()) === "") await postcode.selectOption("4102");
+  await review.locator('[data-testid="heim-order-tag"][value="A1"]').check();
+  await review.getByTestId("heim-order-check").click();
+  await review.getByTestId("heim-order-send").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
+
+  await page.goto(`/heim?ansicht=woche&datum=${thu}`);
+  const order = early.getByTestId("heim-cell-order");
+  await expect(order).toHaveAttribute("data-code", /^[AK]$/);
+  const orderId = await order.getAttribute("data-order-id");
+  expect(orderId).toMatch(/^[0-9a-f-]{36}$/);
+  await order.getByTestId("heim-order-withdraw").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.");
+  await page.goto(`/heim?ansicht=woche&datum=${thu}`);
+  await expect(early.getByTestId("heim-cell-order")).toHaveCount(0);
+  await expect(early).toHaveAttribute("data-status", "gap");
+  await expect(early.getByTestId("heim-prepare-order")).toHaveCount(1);
+  await noSidewaysScroll(page);
+
+  await page.goto("/order");
+  const item = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
+  await expect(item.getByTestId("order-cover-state")).toHaveText(/^Zurückgezogen · Beginn /);
+  await expect(item).not.toContainText("läuft wieder");
+});

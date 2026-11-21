@@ -27,7 +27,8 @@
       "name": "private.screen_order_reach",
       "required": [
         "SECURITY DEFINER",
-        "SET search_path TO ''"
+        "SET search_path TO ''",
+        "withdrawn_at"
       ]
     },
     {
@@ -39,7 +40,8 @@
         "access_ended",
         "LEAVE1-3",
         "order_take_member:",
-        "order_member_step"
+        "order_member_step",
+        "order_withdrawn"
       ]
     },
     {
@@ -398,7 +400,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "Safety net"
+        "Safety net",
+        "withdrawn_at"
       ]
     },
     {
@@ -479,6 +482,29 @@
         "is_institution_member",
         "for update",
         "institution_audit"
+      ]
+    },
+    {
+      "name": "public.team_order_offers",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_team_member",
+        "LEAVE1-3",
+        "withdrawn_at"
+      ]
+    },
+    {
+      "name": "public.institution_withdraw_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "institution_audit",
+        "take_visit_under_way",
+        "starts_at <= private.now()"
       ]
     }
   ]

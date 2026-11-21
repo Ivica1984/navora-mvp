@@ -150,6 +150,9 @@ function releaseText(kind: string | null, member: string, latestCoverAt: string 
       return `Nicht mehr übernommen: ${member} kann diese Schicht nicht übernehmen.`;
     case "not_acknowledged":
       return `Die Übernahme gilt nicht mehr: ${member} hat nicht bis ${latestCoverAt ? zurichTime(latestCoverAt) : "zur Deckungszeit"} bestätigt.`;
+    case "order_withdrawn":
+      // HD-2 slice 5: the client took the order back; no new round runs.
+      return "Der Auftrag wurde zurückgezogen. Die Übernahme gilt nicht mehr; es läuft kein Angebot.";
     case "no_longer_eligible":
       return `Nicht mehr gedeckt: ${member} erfüllt die Bedingungen für diese Schicht nicht mehr.`;
     default:
@@ -271,6 +274,10 @@ export function clientCoverLines(o: ClientCoverInput): { headline: string; detai
         return { headline: `Nicht gedeckt · ${begin}`, detail: "Kein passendes Team ist frei." };
     }
   }
+  if (o.cover_state === "withdrawn") {
+    // HD-2 slice 5 (migration 0163): the client took the order back; no team is offered it any more.
+    return { headline: `Zurückgezogen · ${begin}`, detail: "Dieser Auftrag wurde zurückgezogen. Es läuft kein Angebot." };
+  }
   if (o.cover_state === "no_longer_covered" && o.cover_detail === "no_offer_open") {
     // HD-2 / FE-110 (b), migration 0161: the take is not released yet, so no new round runs; never «läuft wieder».
     return { headline: `Nicht mehr gedeckt · kein Angebot offen · ${begin}`, detail: "Die Übernahme gilt nicht mehr." };
@@ -319,6 +326,9 @@ export function offerCommandText(reason: string | null | undefined): string {
       return "Dieses Angebot ist für euer Team nicht mehr offen.";
     case "taken_by_us":
       return "Euer Team hat diese Schicht bereits übernommen.";
+    case "order_withdrawn":
+      // HD-2 slice 5 (take_order, migration 0163): the client took the order back.
+      return "Der Auftrag wurde zurückgezogen. Es läuft kein Angebot mehr.";
     default:
       return "Diese Übernahme ist nicht mehr offen.";
   }

@@ -2,7 +2,7 @@
 // (institution_plan → private.order_client_state); these tests pin the words and the honesty rules.
 import { describe, expect, it } from "vitest";
 import {
-  canPrepareOrder, cellStatusText, orderLine, ordersPerDay, tagList, type CellOrder, type Plan, type PlanCell,
+  canPrepareOrder, canWithdrawOrder, cellStatusText, messageText, orderLine, ordersPerDay, tagList, type CellOrder, type Plan, type PlanCell,
 } from "@/features/home-plan/rules";
 
 const sent = (cover_state: string, cover_detail: string | null = null): CellOrder => ({
@@ -47,7 +47,7 @@ describe("HD-2 order line (§3 words)", () => {
 
   it("K and N name the next action of the home; no person and no cause", () => {
     for (const l of [orderLine(sent("not_covered", "started")), orderLine(sent("no_longer_covered")), orderLine(sent("no_longer_covered", "no_offer_open"))]) {
-      expect(l.next).toBe("Nächste Handlung: eine zulässige eigene Person einteilen.");
+      expect(l.next).toBe("Nächste Handlung: eine zulässige eigene Person einteilen oder den Auftrag zurückziehen.");
       expect(JSON.stringify(l)).not.toMatch(/abwesend|krank|Nachweis|Vertrag/);
     }
   });
@@ -76,5 +76,36 @@ describe("HD-2 cell rules", () => {
   it("tag lists keep only the known code shape", () => {
     expect(tagList("A1,A2, B3H,x;drop,A1")).toEqual(["A1", "A2", "B3H"]);
     expect(tagList(undefined)).toEqual([]);
+  });
+});
+
+describe("HD-2 slice 5: «Auftrag zurückziehen» (HD.md §3 rows A, K, N)", () => {
+  it("offered for A, K and N of a sent order, to a planner who may order", () => {
+    for (const o of [sent("open"), sent("open", "take_fell_away"), sent("open", "take_fell_away_no_offer"),
+      sent("not_covered", "no_team_free"), sent("not_covered", "cover_time_reached"), sent("no_longer_covered"),
+      sent("no_longer_covered", "no_offer_open")]) {
+      expect(canWithdrawOrder(plan("planner", true), o)).toBe(true);
+      expect(canWithdrawOrder(plan("lead", true), o)).toBe(true);
+    }
+  });
+
+  it("never for G (confirmed person), T (awaiting confirmation) or a draft", () => {
+    expect(canWithdrawOrder(plan("planner", true), sent("covered"))).toBe(false);
+    expect(canWithdrawOrder(plan("planner", true), sent("open", "awaiting_acknowledgement"))).toBe(false);
+    expect(canWithdrawOrder(plan("planner", true), { ...sent("open"), state: "prepared", order_id: null })).toBe(false);
+  });
+
+  it("never for a viewer or a planner who may not order", () => {
+    expect(canWithdrawOrder(plan("viewer", true), sent("not_covered"))).toBe(false);
+    expect(canWithdrawOrder(plan("planner", false), sent("not_covered"))).toBe(false);
+  });
+
+  it("the answer never claims an offer runs again", () => {
+    expect(messageText("order_withdrawn")).toEqual({ kind: "ok", text: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt." });
+    for (const c of ["not_sent", "already_withdrawn", "order_started", "covered", "awaiting_acknowledgement", "visit_under_way"]) {
+      const m = messageText(c);
+      expect(m?.kind).toBe("error");
+      expect(m?.text).not.toMatch(/läuft wieder|wieder an alle/);
+    }
   });
 });
