@@ -18,7 +18,16 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(18);
+
+-- CGR-110 (#919): hold the SIG1 lock of org S before the first evaluation, so the scheduler's evaluator cannot make
+-- evaluate_signals return early (which would read as 0 order_cover calls without evaluating).
+select pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext('00000000-0000-4000-b000-000000000019'));
+select is((select count(*)::int from pg_locks
+           where locktype = 'advisory' and pid = pg_backend_pid() and granted and objsubid = 2
+             and classid::text::bigint = (hashtext('navora.sig1')::bigint & 4294967295)
+             and objid::text::bigint = (hashtext('00000000-0000-4000-b000-000000000019')::bigint & 4294967295)),
+  1, 'CGR-110: this file holds the SIG1 evaluation lock of org S, so no concurrent evaluator takes it');
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -451,6 +460,8 @@ begin
   insert into budget values ('evaluate_signals', pg_temp.order_cover_calls() - c0, extract(epoch from clock_timestamp() - t0) * 1000);
 end $$;
 select diag('PERF1 budget (N = 300, CI runner): ' || string_agg(step || ' ' || calls || ' order_cover calls, ' || round(ms) || ' ms', '; ' order by step)) from budget;
+select is((select e.evaluated_at from private.signal_evaluations e where e.organization_id = '00000000-0000-4000-b000-000000000019'),
+          private.now(), 'the evaluation really ran (not skipped by the lock or the 15 s guard), so its 0 below measures');
 select ok((select calls from budget where step = 'derived_exceptions') >= 300,
           'positive control: the full derivation calls order_cover at least once per confirmed order (the counter counts)');
 select is((select calls from budget where step = 'team_visit_alerts'), 0::bigint,
