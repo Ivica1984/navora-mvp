@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
-import { addDays, weekStart } from "@/features/home-plan/rules";
-import { busyFromOrderLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
+import { addDays, dayLabel, weekStart } from "@/features/home-plan/rules";
+import { busyFromOrderLines, freeDayOffset, orderDaysFromLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
 // `docs/product/FOUNDER_STAGING_UEBERSICHT.md`, in the real staging app, with the three demo accounts (FE-086b):
@@ -27,6 +27,13 @@ async function signIn(page: Page, role: Role) {
   await page.getByLabel("Passwort").fill(accounts[role].password);
   await page.getByRole("button", { name: "Anmelden" }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
+}
+
+/** #1642: the days the client already has an order on, read in the real app (/order) before choosing a day. */
+async function clientOrderDays(page: Page): Promise<Set<string>> {
+  await page.goto("/order");
+  await expect(page.getByTestId("client-orders")).toBeVisible();
+  return orderDaysFromLines(await page.getByTestId("client-orders").locator("li").allTextContents());
 }
 
 async function order(page: Page, day: string, start: string, end: string) {
@@ -68,10 +75,10 @@ test("staging is up and each demo account can sign in", async ({ page }) => {
 
 test("path 1: client orders → another team never sees it → Basel nurse takes it → client reads «Gedeckt»", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  const day = zurichDay(Date.now(), offsets.day);
-  const when = `${deDate(day)} 07:00`;
-
   await signIn(page, "kunde");
+  const now = Date.now();
+  const day = zurichDay(now, freeDayOffset(now, offsets.day, 40, 69, await clientOrderDays(page)));
+  const when = `${deDate(day)} 07:00`;
   await order(page, day, "07:00", "15:30");
   const open = page.getByTestId("client-orders").locator("li", { hasText: when }).last();
   await expect(open.getByTestId("order-cover-state")).toHaveText(/^Noch nicht gedeckt/);
@@ -93,10 +100,10 @@ test("path 1: client orders → another team never sees it → Basel nurse takes
 
 test("path 2: a 22:00–07:00 night taken by the nurse is one «Übernommene Schicht» card on her /field day (390 px)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const day = zurichDay(Date.now(), offsets.night);
-  const when = `${deDate(day)} 22:00`;
-
   await signIn(page, "kunde");
+  const now = Date.now();
+  const day = zurichDay(now, freeDayOffset(now, offsets.night, 75, 104, await clientOrderDays(page), 2));
+  const when = `${deDate(day)} 22:00`;
   await order(page, day, "22:00", "07:00");
 
   await signIn(page, "pflegeBs");
@@ -184,7 +191,7 @@ test("path 3: nurse signs a worked shift → invoice draft → team sends it →
 // gap in the week and in the month, and removes both again, so staging keeps no row of the run.
 test("path 4: the home assigns a person, records an absence, sees the gap in week and month, then removes both (390 px)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  const day = addDays(weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40))), 2);
+  let day = addDays(weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40))), 2);
   const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="Rhein 2"][data-shift="S"]`);
 
   await signIn(page, "kunde");
@@ -195,7 +202,16 @@ test("path 4: the home assigns a person, records an absence, sees the gap in wee
     await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
   }
 
-  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  // #1642: a run that failed before its clean-up (staging-smoke 44857264600: the Render deploy of d5107f3 went live
+  // at 02:54:02 UTC, inside path 4) leaves Gina Simul assigned on its day; a later run whose week lands there moves on
+  // by one week (at most 8) instead of failing on a person who is no longer free.
+  for (let tries = 0; ; tries++) {
+    await page.goto(`/heim?ansicht=woche&datum=${day}`);
+    await expect(cellOf()).toBeVisible();
+    if ((await cellOf().getByTestId("heim-assigned").filter({ hasText: "Gina Simul" }).count()) === 0) break;
+    expect(tries, "staging-smoke path 4: Gina Simul is already assigned in 8 weeks in a row").toBeLessThan(8);
+    day = addDays(day, 7);
+  }
   await expect(cellOf()).toHaveAttribute("data-status", "gap");
   await cellOf().getByTestId("heim-assign-select").selectOption({ label: "Gina Simul (HF)" });
   await cellOf().getByTestId("heim-assign").click();
@@ -220,7 +236,9 @@ test("path 4: the home assigns a person, records an absence, sees the gap in wee
   // Clean up: absence and assignment removed; the cell is a gap of the example requirement again.
   await page.goto(`/heim?ansicht=personal&datum=${day}`);
   await page.getByTestId("heim-staff-link").filter({ hasText: "Gina Simul" }).click();
-  await page.getByTestId("heim-absences").locator("li").first().getByRole("button", { name: "entfernen" }).click();
+  // #1642: the absence of this run's day, not the first one listed (a failed earlier run may have left another).
+  await page.getByTestId("heim-absences").locator("li").filter({ hasText: `Abwesend ${dayLabel(day)}` }).first()
+    .getByRole("button", { name: "entfernen" }).click();
   await expect(page.getByTestId("heim-message")).toHaveText("Abwesenheit entfernt.");
   await page.goto(`/heim?ansicht=woche&datum=${day}`);
   await cellOf().getByTestId("heim-assigned").filter({ hasText: "Gina Simul" }).getByRole("button", { name: /entfernen/ }).click();

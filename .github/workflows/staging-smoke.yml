@@ -67,12 +67,26 @@ jobs:
         run: node scripts/staging-smoke-after-merge.mjs
       - name: Tested commit (repository side)
         run: echo "::notice title=staging-smoke::workflow commit ${GITHUB_SHA}; the app commit Render serves is read from Render (not from this job)"
+      # #1642: a Render deploy that goes live while the click paths run (staging-smoke 44857264600: d5107f3 live at
+      # 02:54:02 UTC, inside path 4) is named in the log, so a red path is not mistaken for an app defect. Diagnostic
+      # only: it never turns a red run green or a green run red.
+      - name: App commit Render serves before the click paths
+        run: echo "SERVED_BEFORE=$(node scripts/staging-served-commit.mjs)" >> "$GITHUB_ENV"
       - name: Click paths on navora-staging
         env:
           STAGING_SMOKE_PW_KUNDEBS: ${{ secrets.STAGING_SMOKE_PW_KUNDEBS }}
           STAGING_SMOKE_PW_PFLEGEBS: ${{ secrets.STAGING_SMOKE_PW_PFLEGEBS }}
           STAGING_SMOKE_PW_PFLEGE: ${{ secrets.STAGING_SMOKE_PW_PFLEGE }}
         run: npx playwright test --config playwright.staging-smoke.config.ts
+      - name: App commit Render serves after the click paths
+        if: always()
+        run: |
+          after="$(node scripts/staging-served-commit.mjs)"
+          if [ "$after" != "$SERVED_BEFORE" ]; then
+            echo "::warning title=staging-smoke::Render served ${SERVED_BEFORE:-unknown} before and ${after:-unknown} after the click paths: a deploy went live during the run; a red path may be the instance swap, not an app defect"
+          else
+            echo "::notice title=staging-smoke::Render served ${after:-unknown} before and after the click paths (no deploy during the run)"
+          fi
 
   # STAB1 (e): a red smoke (or an unmet precondition) is reported where `po` and `eng` read: a comment on the pull
   # request merged as this commit, otherwise an issue labelled `agents`. Only the run link, the commit and the failed

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   busyFromOrderLines,
+  freeDayOffset,
+  orderDaysFromLines,
   SMOKE_EMAILS,
   smokeAccounts,
   smokeDayOffsets,
@@ -124,3 +126,36 @@ describe("smokePath3Slot", () => {
     expect(smokePath3Slot(at(23, 20), [])).toEqual({ day: "2026-11-20", from: "23:40", to: "23:50" });
   });
 });
+
+describe("freeDayOffset / orderDaysFromLines (#1642)", () => {
+  // 2026-11-21 04:43 Zurich: staging-smoke 44858240792 attempt 2 (run number 27, offset 67 = 27.01.2027 like attempt 1).
+  const now = Date.UTC(2026, 10, 21, 3, 43);
+  const attempt1 = "Schichtauftrag · HF · Mi 27.01.2027 07:00 – Mi 27.01.2027 15:30 (8.5 Std.) · 4051 Basel";
+  const night = "Schichtauftrag · HF · Do 04.03.2027 22:00 – Fr 05.03.2027 07:00 (9 Std.) · 4051 Basel";
+
+  it("reproduces the re-run collision: the run-number offset lands on attempt 1's day, the free day moves past it", () => {
+    const start = 40 + (27 % 30);
+    const used = orderDaysFromLines([attempt1]);
+    expect(used.has("2027-01-27")).toBe(true);
+    expect(freeDayOffset(now, start, 40, 69, new Set())).toBe(67); // the old behaviour: day of attempt 1
+    expect(freeDayOffset(now, start, 40, 69, used)).toBe(68);
+  });
+  it("reads every day of a span, so a night blocks both of its days", () => {
+    expect([...orderDaysFromLines([night])]).toEqual(["2027-03-04", "2027-03-05"]);
+    expect(orderDaysFromLines(["Auftrag ohne Zeitraum", ""]).size).toBe(0);
+  });
+  it("needs all days of a night free and wraps inside the range", () => {
+    const used = new Set(["2027-03-05"]); // offset 104 is 2027-03-05
+    expect(freeDayOffset(now, 103, 75, 104, used, 2)).toBe(75); // 103 needs 103+104, 104 needs 104+105: both touch it
+    expect(freeDayOffset(now, 69, 40, 69, new Set([zurich(now, 69)]))).toBe(40);
+  });
+  it("refuses, never skips, when the whole range is used or the start is outside it", () => {
+    const all = new Set(Array.from({ length: 30 }, (_, i) => zurich(now, 40 + i)));
+    expect(() => freeDayOffset(now, 50, 40, 69, all)).toThrow(/no free day/);
+    expect(() => freeDayOffset(now, 39, 40, 69, new Set())).toThrow(RangeError);
+  });
+});
+
+function zurich(nowMs: number, offset: number): string {
+  return new Date(nowMs + offset * 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" });
+}
