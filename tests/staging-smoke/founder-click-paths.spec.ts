@@ -326,6 +326,18 @@ test("path 6: the home orders a gap externally and withdraws it; the gap stays a
   const grade = review.getByTestId("heim-order-grade");
   if (await grade.count()) await grade.selectOption("nurse_hf_fh");
   await review.getByTestId("heim-order-check").click();
+  // UXR-269 (#1656): a box ticked after «Prüfen» is not sent; the screen asks to check again and nothing goes out.
+  await expect(review.getByTestId("heim-order-send-summary")).toContainText("Tätigkeiten: C1 · ");
+  const extraCode = (await review.locator('[data-testid="heim-order-tag"]:not([value="C1"])').first().getAttribute("value"))!;
+  const extra = review.locator(`[data-testid="heim-order-tag"][value="${extraCode}"]`);
+  await extra.check();
+  await review.getByTestId("heim-order-send").click();
+  await expect(page.getByTestId("heim-message")).toHaveText(
+    "Geändert nach dem Prüfen: Es wurde nichts gesendet. Bitte die Angaben unten erneut prüfen.");
+  await expect(extra).toBeChecked();
+  await extra.uncheck();
+  await review.getByTestId("heim-order-check").click();
+  await expect(review.getByTestId("heim-order-send-summary")).toHaveText(/Tätigkeiten: C1 · [^,]*$/);
   await review.getByTestId("heim-order-send").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
   await page.goto(`/heim?ansicht=woche&datum=${day}`);

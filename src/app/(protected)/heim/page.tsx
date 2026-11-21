@@ -2,12 +2,12 @@ import Link from "next/link";
 import { zurichToday } from "@/features/orders/queries";
 import { getMyInstitutions, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
 import {
-  addStaff, addStation, assignStaff, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
+  addStaff, addStation, assignStaff, checkGapOrder, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
   setShiftType, setStaffActive, setStaffingRule, unassignStaff,
 } from "@/features/home-plan/commands";
 import {
   EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, addDays, assignableStaff, canPlan, canPrepareOrder,
-  canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
+  canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
   monthCode, monthLabel, monthPeople, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
@@ -98,8 +98,9 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
         <OrderReview plan={plan} back={back} draft={one(sp.entwurf)} weekHref={href({ ansicht: "woche", entwurf: undefined })}
           values={{
             postcode: one(sp.postcode) || null, grade: one(sp.grade) || null,
-            // «Prüfen» sends the checked boxes as `t` (with the marker `geprueft`); a redirect carries `tags` / `req`.
-            tags: one(sp.geprueft) ? tagList([sp.t ?? []].flat().join(",")) : tagList(one(sp.tags)), req: tagList(one(sp.req)),
+            // «Prüfen» returns the shown boxes as `tags` / `req` with the marker `geprueft` (UXR-269); without the marker the
+            // tags are the prefill of the last order of this station.
+            tags: tagList(one(sp.tags)), req: tagList(one(sp.req)), checked: one(sp.geprueft) === "1",
           }} />
       ) : view === "personal" ? (
         <StaffView plan={plan} back={back} person={person} personHref={(id) => href({ person: id })}
@@ -563,7 +564,7 @@ function OrderBlock({ order, reviewHref, planner, withdraw, back }: {
 // postcode and the activities. «Prüfen» runs preview_client_order; «Senden» runs confirm_client_order (one order path).
 async function OrderReview({ plan, back, draft, weekHref, values }: {
   plan: Plan; back: string; draft: string | undefined; weekHref: string;
-  values: { postcode: string | null; grade: string | null; tags: string[]; req: string[] };
+  values: { postcode: string | null; grade: string | null; tags: string[]; req: string[]; checked: boolean };
 }) {
   const cell = cellOfDraft(plan, draft);
   if (!cell || !cell.order || cell.order.state !== "prepared") {
@@ -585,6 +586,16 @@ async function OrderReview({ plan, back, draft, weekHref, values }: {
     : null;
   const problems = preview?.result === "ok" ? (preview.preview?.problems ?? []) : (preview?.problems ?? []);
   const key = crypto.randomUUID();
+  const canSend = Boolean(preview && problems.length === 0 && postcode && grade);
+  // UXR-269: the line next to «Senden» comes from the same values the preview checked and the snapshot carries.
+  const summary = canSend
+    ? orderSendSummary({
+      grade: grade!, day: dayLabel(cell.date), time: `${shift?.starts_at ?? ""}–${shift?.ends_at ?? ""}`, postcode: postcode!,
+      place: choices.postcodes.find((p) => p.postcode === postcode)?.place_name ?? null, tags: values.tags, activities: choices.activities,
+    })
+    : null;
+  // A new key per checked state remounts the form, so the boxes always start from the values that were checked.
+  const formKey = `${postcode ?? ""}|${grade ?? ""}|${[...values.tags].sort().join(",")}|${values.checked ? 1 : 0}`;
   return (
     <section aria-label="Externen Auftrag prüfen" className="grid max-w-2xl gap-3 rounded-lg border border-stone-300 bg-white p-4" data-testid="heim-order-review">
       <h2 className="text-lg font-bold">Externen Auftrag prüfen</h2>
@@ -595,8 +606,12 @@ async function OrderReview({ plan, back, draft, weekHref, values }: {
         <dd>{cellStatusText(cell)}</dd>
         {order.grade_fixed && (<><dt className="text-secondary">Stufe</dt><dd data-testid="heim-order-review-grade">{gradeLabel(order.grade)} (fehlt in diesem Dienst)</dd></>)}
       </dl>
-      <form className="grid gap-3" method="get" action={HOME_PLAN_PATH}>
-        <Hidden values={{ ansicht: "auftrag", datum: cell.date, entwurf: order.gap_order_id }} />
+      {/* UXR-269: one form for «Prüfen» and «Senden», so «Senden» submits the boxes exactly as shown; the server sends
+          only when they equal the checked snapshot below, otherwise it asks to check again. Works without a script. */}
+      <form key={formKey} className="grid gap-3" action={checkGapOrder}>
+        <Hidden values={{ gap: order.gap_order_id, date: cell.date, back }} />
+        {order.grade_fixed && grade && <input type="hidden" name="grade" value={grade} />}
+        {values.req.map((t) => <input key={t} type="hidden" name="req" value={t} />)}
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Postleitzahl des Heims</span>
           <select name="postcode" defaultValue={postcode ?? ""} className={input} data-testid="heim-order-postcode">
@@ -615,39 +630,42 @@ async function OrderReview({ plan, back, draft, weekHref, values }: {
         )}
         <fieldset className="grid gap-1 text-sm">
           <legend className="font-semibold">Tätigkeiten</legend>
-          {values.tags.length > 0 && !preview && <p className="text-xs text-secondary">Vorbelegt wie beim letzten Auftrag dieser Station; bitte prüfen.</p>}
-          <input type="hidden" name="geprueft" value="1" />
+          {values.tags.length > 0 && !values.checked && (
+            <p className="text-xs text-secondary" data-testid="heim-order-prefill-hint">Vorbelegt wie beim letzten Auftrag dieser Station; bitte prüfen.</p>
+          )}
           <div className="grid gap-1 sm:grid-cols-2">
             {choices.activities.map((a) => (
               <label key={a.code} className="flex min-h-11 items-center gap-2">
-                <input type="checkbox" name="t" value={a.code} defaultChecked={values.tags.includes(a.code)} data-testid="heim-order-tag" />
+                <input type="checkbox" name="tag" value={a.code} defaultChecked={values.tags.includes(a.code)} data-testid="heim-order-tag" />
                 <span>{a.code} · {a.label_de}</span>
               </label>
             ))}
           </div>
         </fieldset>
         <button type="submit" className={btn} data-testid="heim-order-check">Prüfen</button>
-      </form>
-      {preview && (
-        problems.length === 0 ? (
-          <p role="status" className="rounded-md border border-emerald-900/20 bg-emerald-50 p-2 text-sm" data-testid="heim-order-sentence">
-            {preview.preview?.sentence}
-          </p>
-        ) : (
-          <ul role="alert" className="grid gap-1 rounded-md border border-rose-300 bg-rose-50 p-2 text-sm text-rose-800" data-testid="heim-order-problems">
-            {problems.map((p) => <li key={p}>{messageText(p)?.text ?? p}</li>)}
-          </ul>
-        )
-      )}
-      <div className="flex flex-wrap gap-2">
-        {preview && problems.length === 0 && postcode && grade && (
-          <form action={sendGapOrder}>
-            <Hidden values={{ gap: order.gap_order_id, date: cell.date, postcode, grade, key, back }} />
-            {values.tags.map((t) => <input key={t} type="hidden" name="tag" value={t} />)}
-            {values.req.map((t) => <input key={t} type="hidden" name="req" value={t} />)}
-            <button type="submit" className={btnPrimary} data-testid="heim-order-send">Senden: Angebot an alle passenden Teams</button>
-          </form>
+        {preview && (
+          problems.length === 0 ? (
+            <p role="status" className="rounded-md border border-emerald-900/20 bg-emerald-50 p-2 text-sm" data-testid="heim-order-sentence">
+              {preview.preview?.sentence}
+            </p>
+          ) : (
+            <ul role="alert" className="grid gap-1 rounded-md border border-rose-300 bg-rose-50 p-2 text-sm text-rose-800" data-testid="heim-order-problems">
+              {problems.map((p) => <li key={p}>{messageText(p)?.text ?? p}</li>)}
+            </ul>
+          )
         )}
+        {canSend && (
+          <div className="grid gap-2">
+            <Hidden values={{ key, checked_postcode: postcode!, checked_grade: grade! }} />
+            {values.tags.map((t) => <input key={t} type="hidden" name="checked_tag" value={t} />)}
+            <p className="break-words text-sm" data-testid="heim-order-send-summary">{summary}</p>
+            <button type="submit" formAction={sendGapOrder} className={`${btnPrimary} justify-self-start`} data-testid="heim-order-send">
+              Senden: Angebot an alle passenden Teams
+            </button>
+          </div>
+        )}
+      </form>
+      <div className="flex flex-wrap gap-2">
         <form action={discardGapOrder}>
           <Hidden values={{ gap: order.gap_order_id, back }} />
           <button type="submit" className={btn} data-testid="heim-order-discard">Verwerfen</button>

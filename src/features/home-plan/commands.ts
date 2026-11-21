@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { HOME_PLAN_PATH, safeReturnPath, withMessage } from "./rules";
+import { HOME_PLAN_PATH, safeReturnPath, sameOrderChoice, withMessage } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -184,17 +184,43 @@ export async function prepareGapOrder(form: FormData) {
 
 const tagSchema = z.array(z.string().regex(/^[A-Z][A-Z0-9]{0,5}$/)).max(30);
 
+const tagsOf = (form: FormData, k: string) => form.getAll(k).filter((t): t is string => typeof t === "string");
+
+// UXR-269: «Prüfen» and «Senden» are two buttons of one form, so both read the boxes exactly as they are shown.
+// «Prüfen» only returns to the review screen with the shown values (the page runs the preview, writes nothing).
+export async function checkGapOrder(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({
+    gap: uuid, date, postcode: z.string().regex(/^\d{4}$/).nullable(), grade: grade.nullable(), tags: tagSchema, req: tagSchema,
+  }), {
+    gap: str(form, "gap"), date: str(form, "date"), postcode: str(form, "postcode"), grade: str(form, "grade"),
+    tags: tagsOf(form, "tag"), req: tagsOf(form, "req"),
+  }, back);
+  redirect(reviewPath(back, v.gap, v.date, {
+    tags: v.tags.join(","), req: v.req.join(","), postcode: v.postcode ?? "", grade: v.grade ?? "", geprueft: "1",
+  }));
+}
+
 export async function sendGapOrder(form: FormData) {
   const back = safeReturnPath(form.get("back"));
-  const tags = form.getAll("tag").filter((t): t is string => typeof t === "string");
-  const req = form.getAll("req").filter((t): t is string => typeof t === "string");
   const v = parse(z.object({
     gap: uuid, date, postcode: z.string().regex(/^\d{4}$/).nullable(), grade: grade.nullable(), tags: tagSchema, req: tagSchema,
     key: uuid,
+    checkedPostcode: z.string().regex(/^\d{4}$/).nullable(), checkedGrade: grade.nullable(), checkedTags: tagSchema,
   }), {
-    gap: str(form, "gap"), date: str(form, "date"), postcode: str(form, "postcode"), grade: str(form, "grade"), tags, req,
-    key: str(form, "key"),
+    gap: str(form, "gap"), date: str(form, "date"), postcode: str(form, "postcode"), grade: str(form, "grade"),
+    tags: tagsOf(form, "tag"), req: tagsOf(form, "req"), key: str(form, "key"),
+    checkedPostcode: str(form, "checked_postcode"), checkedGrade: str(form, "checked_grade"), checkedTags: tagsOf(form, "checked_tag"),
   }, back);
+  const kept = { tags: v.tags.join(","), req: v.req.join(","), postcode: v.postcode ?? "", grade: v.grade ?? "", geprueft: "1" };
+  // UXR-269: send only what the screen showed when it was checked. A change after «Prüfen» (or a missing snapshot)
+  // sends nothing and checks the shown values again (fail closed; the database re-checks every rule on send anyway).
+  if (!sameOrderChoice(
+    { postcode: v.postcode, grade: v.grade, tags: v.tags },
+    { postcode: v.checkedPostcode, grade: v.checkedGrade, tags: v.checkedTags },
+  )) {
+    redirect(withMessage(reviewPath(back, v.gap, v.date, kept), "order_changed_recheck"));
+  }
   const r = await rpc("institution_send_gap_order", {
     p_gap_order_id: v.gap, p_postcode: v.postcode, p_grade: v.grade, p_activity_tags: v.tags, p_required_tags: v.req,
     p_radius_km: null, p_idempotency_key: v.key,
@@ -209,10 +235,8 @@ export async function sendGapOrder(form: FormData) {
     week.searchParams.delete("tags");
     redirect(withMessage(safeReturnPath(`${week.pathname}${week.search}`), code));
   }
-  // Refused: back to the review screen with the home's choices kept.
-  redirect(withMessage(reviewPath(back, v.gap, v.date, {
-    tags: v.tags.join(","), req: v.req.join(","), postcode: v.postcode ?? "", grade: v.grade ?? "",
-  }), code));
+  // Refused: back to the review screen with the home's (checked) choices kept.
+  redirect(withMessage(reviewPath(back, v.gap, v.date, kept), code));
 }
 
 export async function discardGapOrder(form: FormData) {
