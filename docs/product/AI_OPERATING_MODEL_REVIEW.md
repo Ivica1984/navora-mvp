@@ -720,6 +720,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
   - All PROPOSED (PO; `eng`, `uxa` as named). None is a condition of HD-2.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**FE-111 places AI1 third; the AI1 brief carries the open controls (`aia` 2026-11-21 14:18, review 81, AUT-183):**
+- **Label check:** HD-2 merged (`ca334ce`) and UXR-269 (#1661, `9e6612c`) are fixed rules only; no agent, no ledger write. AUT-180 stands on the merged code.
+- **Control proposed:** AUT-183: AUT-166 to AUT-169 go into the AI1 brief before start; T-2 for AI1 is a double tap (one call), two reservations at the cap (one granted) and a timeout or truncated answer (no model line, the carer can still sign). PROPOSED (PO; `eng`, `cra` as named).
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -802,3 +807,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-20 20:18 | `aia` | §7: agent A16 «Home roster planning (HD-3)» added as PROPOSED. §12: block «HEIM-DP HD-3: the optimiser does the planning work, the model only orders and translates»: controls AUT-171 to AUT-177 (PROPOSED); HD-1 label check (fixed rules) |
 | 2026-11-21 02:18 | `aia` | §12: block «HD-1 merged as fixed rules; the residual list's way outs become commands»: label check on `2378c2a`; controls AUT-178, AUT-179 (PROPOSED). No agent added or removed |
 | 2026-11-21 08:19 | `aia` | §12: block «HD-2 draft pre-read: one order path, prefill and withdrawal stay lean; an unsent draft needs an end»: label check on `5781ecd`; controls AUT-180 to AUT-182 (PROPOSED). No agent added or removed |
+| 2026-11-21 14:18 | `aia` | §12: block «FE-111 places AI1 third; the AI1 brief carries the open controls»: label check on `ca334ce` and `9e6612c`; control AUT-183 (PROPOSED). No agent added or removed |
