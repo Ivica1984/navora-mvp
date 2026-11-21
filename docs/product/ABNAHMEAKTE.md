@@ -190,6 +190,21 @@ Was die Protokolle zeigen:
 - **KI-Ehrlichkeit:** nur feste Prüfungen; kein Modell.
 - **Folgeposten:** STAB1-F1 (`db-lint --fail-on error`), STAB1-F2 (kein `staging-smoke` bei reinen Docs-Merges), STAB1-F3 (Testdatenkollision), `staging-version` nach `staging`, Tranche 2.
 
+### HD-1 Planen im Heim (Teilabnahme im Block HEIM-DP, FE-109, FE-110)
+
+- **Status:** **für die Simulation teilabgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid geplanter PO-Lauf 2026-11-21 03:39 auf dem benannten Commit **`9debf74`** (`recovery/main` nach #1623 `2378c2a`, #1624 `494dd0e` und den reinen Dokumentations-Merges #1635–#1637; Code gleich `494dd0e`). Kriterien: `docs/agents/briefs/HD.md` §4a (feste Restliste R1–R3, Ready-Report, Pfad 4) und §6 (1). Ausdrücklich eine **Teilabnahme**, nicht die Registerabnahme HEIM-DP (§6 (2) nach HD-2). «Geliefert» gilt erst, wenn der Founder den Weg auf Staging selbst bedient hat (§6).
+- **Umfang:** Heim-Mandant `institutions` (unabhängig von Netzwerk-Organisationen), Stammdaten, Woche, Monat, Plan je Mitarbeiterin (`/heim?ansicht=personal`), Abwesenheit (ganzer Kalendertag, R3), Lücke (feste Regeln), inaktive Person zählt nie als anwesend (R1), keine Zeitänderung einer eingesetzten Dienstart (R2, `shift_type_in_use`); Migrationen 0159, 0160; 16 Funktionen als Dateien nach STAB1; `staging-smoke` Pfad 4; Testharness-Korrektur STAB1-F3 (#1624).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - Gates auf dem Endstand `1eb228a` von #1623: `cra-gate: #1623 1eb228a clear` (7051236096), `uxa-gate: #1623 1eb228a clear` (7051219005), beide «Simulation, synthetic data».
+  - `ci` 44822518383 auf `2378c2a` und 44851559796 auf `494dd0e`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` `success`; `staging`-Job 136591358260 hat 0159 und 0160 auf `navora-staging` eingespielt.
+  - **Auf Staging ausgeführt:** `staging-smoke` 44851559771 auf `494dd0e` (Job 136683851893) 5/5, darunter Pfad 4 «the home assigns a person, records an absence, sees the gap in week and month, then removes both (390 px)»; Render liefert `9debf74` (aus dem Smoke-Protokoll; Bestätigung `eng` 7055695812).
+  - `ci-repeat` 44852899930 auf `9debf74` (Zweig `repeat/hd1-accept-9debf74`, vom PO gestartet): **20/20 `success`**; jeder `db`-Versuch «Files=159, Tests=6135», «Result: PASS», keine Zeile `not ok`, keine `# SKIP`-Zeile, `159_hd1_residual_r1_r3.test.sql … ok`; jeder `e2e`-Versuch «198 passed», kein übersprungener, instabiler oder fehlgeschlagener Test, `hd1-home-plan.spec.ts` (390 und 1440 px, R1, Berechtigung, Navigation) in allen zehn; Urteil 136691925871: im Fenster (Start 02:54, Ende 03:07 Zürich).
+- **Abgenommen:** Die Heimleitung eines synthetischen Heims teilt eigenes Personal je Station ein, sieht in Woche, Monat und Plan je Mitarbeiterin denselben Stand, erfasst eine Abwesenheit und sieht die Lücke überall; eine inaktive Person zählt nie als anwesend; eine Abwesenheit gilt für den ganzen Kalendertag, auch für eine Nacht in diesen Tag hinein. Eine NAVORA-Teampflegekraft sieht keine Heimdaten.
+- **KI-Ehrlichkeit:** Jede Funktion von HD-1 ist eine **feste, prüfbare Regel**; kein Testersatz für KI, kein KI-Modell in einem getesteten Pfad.
+- **Nicht Teil der Abnahme:** externer Auftrag aus der Lücke und gemeinsamer Status (HD-2), KI-Planung (HD-3), Arbeitszeitgesetz (OPEN `lca`), Lohn, reale Daten; `lca`-Gate (vor realen Daten Pflicht, FE-109 (A)); G-COACH (§4).
+- **Vor realen Personen offen:** CGR-267 (nur drei der fünf Matrix-Stufencodes; S1 vor realen Personaldaten), CGR-268, CGR-269, UXR-265 bis UXR-268; Gleichzeitigkeit zweier Planender (OPEN, laut Ready-Report).
+- **Folge:** nächstes Paket HD-2 (Lücke → externer Auftrag → Status zurück; FE-110 (b) `order_cover`-Text), danach Registerabnahme HEIM-DP «funktionsfähig, feste Regeln».
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -231,3 +246,4 @@ Was die Protokolle zeigen:
 - 2026-11-20 ca. 16:00 (`po`, Live-Sitzung): BK-f für die Simulation abgenommen auf `40a2ce1`.
 - 2026-11-20 ca. 18:40 (`po`, Live-Sitzung): Blockakte STAB1 (technisches Paket, für die Simulation abgenommen auf `f7dfd2d`, `ci-repeat` 44778677226 20/20).
 - 2026-11-20 ca. 20:05 (`po`, Live-Sitzung): §4 Offene Gates vor realen Daten; G-COACH (FE-110 (4)).
+- 2026-11-21 03:39 (`po`): Blockakte HD-1 (Teilabnahme im Block HEIM-DP, für die Simulation abgenommen auf `9debf74`, `ci-repeat` 44852899930 20/20).

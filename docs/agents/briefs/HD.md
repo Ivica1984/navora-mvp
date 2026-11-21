@@ -65,7 +65,7 @@ Es ist immer genau ein Paket aktiv (Blockregel unverändert).
 
 | Paket | Inhalt | Abhängig | Gates (ein Fenster nach `Paket prüfbereit:`) | Stand |
 |---|---|---|---|---|
-| **HD-1** (#1623) | Heim-Mandant `institutions` (unabhängig von Netzwerk-Organisationen, ARCH1 A1), Stammdaten, Woche, Monat, Plan je Mitarbeiterin, Abwesenheit, Lücke (feste Regeln); 16 Funktionen als Dateien nach STAB1; Beispieldaten; `staging-smoke` Pfad 4 | STAB1 (abgenommen) | `cra` (Qualifikationsstatus; Unterbesetzung nie als «besetzt»), `uxa` (neue Bildschirme 390/1440 px). Kein `lca`-Gate für die Simulation (FE-109 (A)); vor realen Daten Pflicht | **aktiv**, Draft, CI läuft |
+| **HD-1** (#1623) | Heim-Mandant `institutions` (unabhängig von Netzwerk-Organisationen, ARCH1 A1), Stammdaten, Woche, Monat, Plan je Mitarbeiterin, Abwesenheit, Lücke (feste Regeln); 16 Funktionen als Dateien nach STAB1; Beispieldaten; `staging-smoke` Pfad 4 | STAB1 (abgenommen) | `cra` (Qualifikationsstatus; Unterbesetzung nie als «besetzt»), `uxa` (neue Bildschirme 390/1440 px). Kein `lca`-Gate für die Simulation (FE-109 (A)); vor realen Daten Pflicht | **für die Simulation teilabgenommen** auf `9debf74` (2026-11-21 03:39, §PO-Teilabnahme) |
 | **HD-2** | Lücke → vorbefüllter Auftrag über `preview_client_order`/`confirm_client_order` (kein zweiter Bestellweg); gemeinsamer Status §3 in allen Heim-Ansichten; N mit nächster Handlung; Doppelbestellung je Lücke gesperrt; `staging-smoke` Pfad 5 | HD-1 | `cra`, `uxa` | PLANNED |
 | **AI1** | Modellanschluss über das bestehende Gateway: Kostendeckel (CHF 50/Monat, 300 Aufrufe/Tag), Protokoll, Auswertung, Not-Aus; erste Modellfunktion Berichtsentwurf (`briefs/AI1.md`) | HD-2 | `cra`, `lca` (Anbieterbedingungen, FE-099 (7)), `aia` | approved, verschoben nach FE-109 (b) |
 | **HD-3** | KI-gestützte Planung §5: (a) Optimierung: zulässiger Wochen- und Monatsentwurf, Umplanungsoptionen nach Abwesenheit; (b) Modell: Sprache → Abwesenheit und Planungswünsche, Rangfolge und Abwägung zwischen zulässigen Optionen | AI1 (für b) | `cra`, `uxa`, `aia` | PROPOSED bis `aia`/`eng` §5 bestätigen |
@@ -139,3 +139,22 @@ Pflegeplanung von Bewohnenden, Arbeitszeitgesetzprüfung (OPEN `lca`), Lohn und 
 ## 9. Vision-Check (FE-070 (7), kurz)
 
 Mehr direkte Pflegezeit: keine Telefonkette und kein Abtippen bei Lücken. Kontinuität: Der Status bleibt ehrlich, ein Ausfall ist sofort sichtbar. Einkommen: Das Heim zahlt den Teampreis direkt, ohne Agenturaufschlag und ohne Provision. Autonomie: Das Team entscheidet über die Übernahme; das Heim teilt keine externe Person ein. Weniger Verwaltung: Der Optimierer bereitet zulässige Pläne vor. Geschäftsmodell: Die Dienstplanung ist getrennter B2B-Umsatz (Modul 1), Pflegeumsatz bleibt beim Team, und es fliesst kein Geld über NAVORA.
+
+## PO-Teilabnahme HD-1 (geplanter PO-Lauf 2026-11-21 03:39, Signal FE-105 (1) (d))
+
+Benannter Commit `9debf74` (Code gleich `494dd0e`). Gate «Simulation, synthetische Daten». Der PO hat keine Tests lokal ausgeführt; alle Nachweise aus GitHub-Jobdaten und Roh-Protokollen.
+
+| Kriterium | Ergebnis | Nachweis |
+|---|---|---|
+| R1 inaktive Person nie anwesend | erfüllt | pgTAP `159_hd1_residual_r1_r3` ok ×10; e2e «HD-1 R1 …» ×10 |
+| R2 keine Zeitänderung einer eingesetzten Dienstart | erfüllt | pgTAP 159 (`shift_type_in_use`) ok ×10 |
+| R3 Abwesenheit ganzer Kalendertag, auch Nacht hinein | erfüllt | pgTAP 159 ok ×10 |
+| Ready-Report (Midnight-Test, LEAVE1 ehrlich, Gleichzeitigkeit) | erfüllt; Gleichzeitigkeit als OPEN benannt | `Paket prüfbereit:` 7050177132 |
+| Gates | `cra`, `uxa` clear auf `1eb228a` | 7051236096, 7051219005 |
+| §6 (1) Weg Woche, Monat, Plan je Person, Abwesenheit, Lücke | erfüllt | e2e `hd1-home-plan.spec.ts` 390/1440 px ×10 |
+| Negativ: Teampflegekraft sieht keine Heimdaten | erfüllt | e2e «HD-1 permission …» ×10; Netzwerk-Admin/Koordinator per pgTAP (Gate-Nachweis #1623) |
+| `ci` grün auf Merge-Commits | erfüllt | 44822518383 (`2378c2a`), 44851559796 (`494dd0e`) |
+| `staging-smoke` Pfad 4 grün auf Merge-Commit | erfüllt | 44851559771 auf `494dd0e`, 5/5; Render `9debf74` |
+| `ci-repeat` 10/10 `db`, `e2e` | erfüllt, 20/20, 0 skipped | 44852899930; `db` «Files=159, Tests=6135», PASS; `e2e` «198 passed»; im Fenster 02:54–03:07 |
+
+PO-Status: **accepted** (Teilabnahme). Folgeposten unverändert: CGR-267 bis CGR-269, UXR-265 bis UXR-268. Nächstes Paket: HD-2 (§4).
