@@ -1181,14 +1181,14 @@ isOneToOne: false
                   ]
                 },"institution_gap_orders": {
                   Row: {
-                    "client_account_id": string,"discarded_at": string | null,"discarded_by": string | null,"grade_fixed": string | null,"id": string,"institution_id": string,"order_id": string | null,"prepared_at": string,"prepared_by": string,"sent_at": string | null,"sent_by": string | null,"shift_type_id": string,"state": string,"station_id": string,"work_date": string
+                    "client_account_id": string,"discarded_at": string | null,"discarded_by": string | null,"grade_fixed": string | null,"id": string,"institution_id": string,"order_id": string | null,"prepared_at": string,"prepared_by": string,"sent_at": string | null,"sent_by": string | null,"shift_type_id": string,"state": string,"station_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null,"work_date": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "client_account_id": string,"discarded_at"?: string | null,"discarded_by"?: string | null,"grade_fixed"?: string | null,"id"?: string,"institution_id": string,"order_id"?: string | null,"prepared_at"?: string,"prepared_by": string,"sent_at"?: string | null,"sent_by"?: string | null,"shift_type_id": string,"state"?: string,"station_id": string,"work_date": string
+                    "client_account_id": string,"discarded_at"?: string | null,"discarded_by"?: string | null,"grade_fixed"?: string | null,"id"?: string,"institution_id": string,"order_id"?: string | null,"prepared_at"?: string,"prepared_by": string,"sent_at"?: string | null,"sent_by"?: string | null,"shift_type_id": string,"state"?: string,"station_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null,"work_date": string
                   }
                   Update: {
-                    "client_account_id"?: string,"discarded_at"?: string | null,"discarded_by"?: string | null,"grade_fixed"?: string | null,"id"?: string,"institution_id"?: string,"order_id"?: string | null,"prepared_at"?: string,"prepared_by"?: string,"sent_at"?: string | null,"sent_by"?: string | null,"shift_type_id"?: string,"state"?: string,"station_id"?: string,"work_date"?: string
+                    "client_account_id"?: string,"discarded_at"?: string | null,"discarded_by"?: string | null,"grade_fixed"?: string | null,"id"?: string,"institution_id"?: string,"order_id"?: string | null,"prepared_at"?: string,"prepared_by"?: string,"sent_at"?: string | null,"sent_by"?: string | null,"shift_type_id"?: string,"state"?: string,"station_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null,"work_date"?: string
                   }
                   Relationships: [
                     {
@@ -1843,14 +1843,14 @@ isOneToOne: false
                   ]
                 },"partner_requests": {
                   Row: {
-                    "activity_tags": (string)[] | null,"city": string | null,"client_account_id": string | null,"confirmed_at": string | null,"confirmed_by": string | null,"converted_case_id": string | null,"created_at": string,"ends_at": string | null,"grade": string | null,"id": string,"need_summary": string,"notes": string | null,"order_kind": string | null,"organization_id": string,"partner_name": string,"partner_type": string | null,"postcode": string | null,"radius_km": number | null,"referrer_requested_start": string | null,"region": string,"request_title": string,"requested_services": (string)[] | null,"required_tags": (string)[] | null,"shift_label": string | null,"starts_at": string | null,"status": string,"time_info": string | null,"urgency": string | null,"urgency_source": string
+                    "activity_tags": (string)[] | null,"city": string | null,"client_account_id": string | null,"confirmed_at": string | null,"confirmed_by": string | null,"converted_case_id": string | null,"created_at": string,"ends_at": string | null,"grade": string | null,"id": string,"need_summary": string,"notes": string | null,"order_kind": string | null,"organization_id": string,"partner_name": string,"partner_type": string | null,"postcode": string | null,"radius_km": number | null,"referrer_requested_start": string | null,"region": string,"request_title": string,"requested_services": (string)[] | null,"required_tags": (string)[] | null,"shift_label": string | null,"starts_at": string | null,"status": string,"time_info": string | null,"urgency": string | null,"urgency_source": string,"withdrawn_at": string | null,"withdrawn_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "activity_tags"?: (string)[] | null,"city"?: string | null,"client_account_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"ends_at"?: string | null,"grade"?: string | null,"id"?: string,"need_summary": string,"notes"?: string | null,"order_kind"?: string | null,"organization_id": string,"partner_name": string,"partner_type"?: string | null,"postcode"?: string | null,"radius_km"?: number | null,"referrer_requested_start"?: string | null,"region": string,"request_title": string,"requested_services"?: (string)[] | null,"required_tags"?: (string)[] | null,"shift_label"?: string | null,"starts_at"?: string | null,"status"?: string,"time_info"?: string | null,"urgency"?: string | null,"urgency_source"?: string
+                    "activity_tags"?: (string)[] | null,"city"?: string | null,"client_account_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"ends_at"?: string | null,"grade"?: string | null,"id"?: string,"need_summary": string,"notes"?: string | null,"order_kind"?: string | null,"organization_id": string,"partner_name": string,"partner_type"?: string | null,"postcode"?: string | null,"radius_km"?: number | null,"referrer_requested_start"?: string | null,"region": string,"request_title": string,"requested_services"?: (string)[] | null,"required_tags"?: (string)[] | null,"shift_label"?: string | null,"starts_at"?: string | null,"status"?: string,"time_info"?: string | null,"urgency"?: string | null,"urgency_source"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Update: {
-                    "activity_tags"?: (string)[] | null,"city"?: string | null,"client_account_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"ends_at"?: string | null,"grade"?: string | null,"id"?: string,"need_summary"?: string,"notes"?: string | null,"order_kind"?: string | null,"organization_id"?: string,"partner_name"?: string,"partner_type"?: string | null,"postcode"?: string | null,"radius_km"?: number | null,"referrer_requested_start"?: string | null,"region"?: string,"request_title"?: string,"requested_services"?: (string)[] | null,"required_tags"?: (string)[] | null,"shift_label"?: string | null,"starts_at"?: string | null,"status"?: string,"time_info"?: string | null,"urgency"?: string | null,"urgency_source"?: string
+                    "activity_tags"?: (string)[] | null,"city"?: string | null,"client_account_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"ends_at"?: string | null,"grade"?: string | null,"id"?: string,"need_summary"?: string,"notes"?: string | null,"order_kind"?: string | null,"organization_id"?: string,"partner_name"?: string,"partner_type"?: string | null,"postcode"?: string | null,"radius_km"?: number | null,"referrer_requested_start"?: string | null,"region"?: string,"request_title"?: string,"requested_services"?: (string)[] | null,"required_tags"?: (string)[] | null,"shift_label"?: string | null,"starts_at"?: string | null,"status"?: string,"time_info"?: string | null,"urgency"?: string | null,"urgency_source"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -3542,6 +3542,9 @@ isOneToOne: false
                            },
 "institution_unassign_staff":
 { Args: { "p_assignment_id": string }; Returns: Json
+                           },
+"institution_withdraw_gap_order":
+{ Args: { "p_gap_order_id": string }; Returns: Json
                            },
 "intake_cases":
 { Args: Record<PropertyKey, never>; Returns: {
