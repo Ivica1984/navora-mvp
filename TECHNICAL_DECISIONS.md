@@ -1,5 +1,7 @@
 # NAVORA — Technical Decisions and Rejected Approaches
 
+> **ARCHIVIERT (FE-077, 2026-11-13):** Historisches Übergabedokument (Stand Oktober 2026). Massgeblich sind allein [Blueprint V3.2](docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md) (fachlich) und [Architecture Handbook V2.2](docs/architecture/ARCHITECTURE_HANDBOOK_V2.md) (technisch). Kein Agent leitet aus diesem Dokument Vorgaben ab.
+
 **Status:** Verlaufskonsolidierung, kein impliziter Beschluss für nie besprochene Anbieter. Implementierungen: **VERIFY AGAINST REPOSITORY**.
 
 | Thema | Beschluss / Status | Begründung / Grenze |

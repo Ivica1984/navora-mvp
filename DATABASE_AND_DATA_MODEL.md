@@ -1,5 +1,7 @@
 # NAVORA — Database and Data Model
 
+> **ARCHIVIERT (FE-077, 2026-11-13):** Historisches Übergabedokument (Stand Oktober 2026). Massgeblich sind allein [Blueprint V3.2](docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md) (fachlich) und [Architecture Handbook V2.2](docs/architecture/ARCHITECTURE_HANDBOOK_V2.md) (technisch). Kein Agent leitet aus diesem Dokument Vorgaben ab.
+
 **Quelle:** älterer Code plus damalige Supabase-SQL-Screenshots. Aktueller Live-Stand **VERIFY AGAINST DATABASE AND REPOSITORY**. Schemata in früheren NAVORA-Dokumenten sind Entwürfe, nicht automatisch angewandte Migrationen.
 
 ## Bestätigte Tabellen [IMPLEMENTED im damaligen Datenbankstand]

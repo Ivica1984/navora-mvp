@@ -1,0 +1,82 @@
+name: staging-version
+
+# Q1 (a), ADR-220 (founder order 2026-11-19, #1557): do the app on Render `navora-staging` and the database on the
+# Supabase project `navora-staging` match? Reads only: GET /api/version (public, commit and migration number) and
+# the highest applied migration (read-only query). After a merge into recovery/main it waits up to 20 minutes for
+# Render to serve that commit. Fails when the app expects a migration the database does not have (or the reverse),
+# or when Render serves a commit that is not on recovery/main.
+on:
+  push:
+    branches: [recovery/main]
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-version
+  cancel-in-progress: true
+
+env:
+  APP_URL: https://navora-staging.onrender.com
+  STAGING_PROJECT_REF: qpmdryxkktbqqkqpsnkj
+
+jobs:
+  match:
+    name: staging-version (app commit · database migration)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Read the app version (after a merge, wait for Render to serve it)
+        id: app
+        run: |
+          want=""
+          [ "$GITHUB_EVENT_NAME" = "push" ] && want="$GITHUB_SHA"
+          for i in $(seq 1 40); do
+            body=$(curl -fsS --max-time 20 "$APP_URL/api/version" || true)
+            commit=$(echo "$body" | jq -r '.commit // empty' 2>/dev/null || true)
+            migration=$(echo "$body" | jq -r '.migration // empty' 2>/dev/null || true)
+            if [ -n "$commit" ] && { [ -z "$want" ] || [ "$commit" = "$want" ]; }; then break; fi
+            [ -z "$want" ] && [ "$i" -ge 3 ] && break
+            sleep 30
+          done
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "migration=$migration" >> "$GITHUB_OUTPUT"
+          echo "::notice title=app::navora-staging serves commit ${commit:-unknown}, expects migration ${migration:-unknown}"
+          if [ -z "$commit" ] || [ -z "$migration" ]; then
+            echo "::error title=app::/api/version gave no commit or migration (not deployed yet, or RENDER_GIT_COMMIT missing)"; exit 1
+          fi
+          if [ -n "$want" ] && [ "$commit" != "$want" ]; then
+            echo "::error title=app::after 20 minutes Render still serves $commit, not the merge commit $want"; exit 1
+          fi
+      - name: Served commit is on recovery/main
+        run: |
+          git fetch --no-tags origin recovery/main
+          if ! git merge-base --is-ancestor "${{ steps.app.outputs.commit }}" origin/recovery/main; then
+            echo "::error title=app::served commit is not on recovery/main"; exit 1
+          fi
+          behind=$(git rev-list --count "${{ steps.app.outputs.commit }}..origin/recovery/main")
+          echo "::notice title=app::served commit is $behind commit(s) behind recovery/main"
+      - name: Highest migration applied on navora-staging (read only)
+        env:
+          STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
+        run: |
+          if [ -z "$STAGING_DB_URL" ]; then
+            echo "::warning title=staging-version::STAGING_DB_URL not set; database side not compared"; exit 0
+          fi
+          case "$STAGING_DB_URL" in
+            *"postgres.$STAGING_PROJECT_REF:"*|*"@db.$STAGING_PROJECT_REF.supabase.co"*) ;;
+            *) echo "::error title=staging-version::STAGING_DB_URL does not name navora-staging"; exit 1 ;;
+          esac
+          applied=$(PGOPTIONS='-c default_transaction_read_only=on' psql "$STAGING_DB_URL" -tAc \
+            "select max(version) from supabase_migrations.schema_migrations")
+          echo "::notice title=database::navora-staging has migrations up to $applied"
+          if [ "$applied" != "${{ steps.app.outputs.migration }}" ]; then
+            echo "::error title=mismatch::app expects migration ${{ steps.app.outputs.migration }}, database has $applied"; exit 1
+          fi
+          echo "::notice title=match::app and database match (migration $applied)"

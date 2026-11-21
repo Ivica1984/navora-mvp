@@ -1,0 +1,249 @@
+# NAVORA Test- und Abnahmeakte je Block
+
+**Besitzer:** Product Owner (`po`) · **Grundlage:** FE-070 (6), FE-071 · **Angelegt:** 2026-11-12 15:45 (Europe/Zurich) · **Regel:** Eine Abnahme gilt nur auf einem benannten integrierten Commit, auf dem die Tests des Blocks tatsächlich gelaufen und reproduzierbar grün sind. Dazu gehören die erforderlichen Reviews und ein dokumentierter Entscheid. Jede Abnahme nennt ihr Gate: «Simulation, synthetische Daten» oder «Freigabe für reale Personen und Daten». Eine Gesamtzahl bestandener Tests ersetzt diese Akte nie. Der PO führt keine Tests selbst aus; Testumgebung ist GitHub Actions (FE-056). Die Angaben unten stammen aus den Job-Protokollen, nicht nur aus der Statusanzeige.
+
+## 1. Lauf auf dem benannten Commit `4a543c0` (abgeschlossen)
+
+`4a543c0` ist der Stand von `recovery/main` nach #1127 (BD-7) und vier reinen Dokument-Merges.
+
+| Lauf | Jobs | Ergebnis | Inhalt je Versuch |
+|---|---|---|---|
+| `ci` 43229659680 auf `00b4700` (Merge-Commit #1127; `00b4700..4a543c0` ändert nur Dokumente) | `app`, `db`, `e2e`, `ui-screenshots` | 4/4 `success` | `app`: 110 Testdateien, 1203 Unit-Tests bestanden; `db`: 128 pgTAP-Dateien, 4646 Tests; `e2e`: 163 Tests bestanden |
+| `ci-repeat` 43231715012 auf `4a543c0` (gestartet 14:53, beendet 15:04) | 10 × `db`, 10 × `e2e` | **20/20 `success`** | je `db`-Versuch 128 Dateien / 4646 Tests «All tests successful»; je `e2e`-Versuch 163 bestanden |
+
+Was die Protokolle zeigen:
+
+- **Übersprungen:** 0. Es gibt keine `# SKIP`- oder `# TODO`-Zeilen in pgTAP, und Playwright meldet weder «skipped» noch «did not run».
+- **Instabil:** 0. Playwright läuft mit `retries: 0` und einem Worker (`playwright.config`). Ein instabiler Test kann sich also nicht hinter einer Wiederholung verstecken.
+- **Abgebrochen:** 0 Jobs. Abgebrochen wurden nur die parallelen `pull_request`-Läufe für PR #3 nach `main`. Sie gehören nicht zu diesem Nachweis.
+- **Warnungen:** einzig die GitHub-Hinweise zu Node.js 20. Die Browser-Installation wurde in keinem Versuch wiederholt.
+- **Erwartet rot, mit Absicht:** Zwei Reproduktionsproben laufen den alten, fehlerhaften Stand nach und prüfen, dass er rot ist. Sie bestehen, wenn das Rot erscheint:
+  - B0-4: «vor #922: 080 rot, 17 von 58 fehlgeschlagen»;
+  - B0-3: «READ COMMITTED: Katalog geändert, wie 079 Test 44».
+- **Erwartet rot, aber nicht in der Testsuite:** Die Testfälle B2-T7 und B2-T8 sind beschrieben, aber noch nicht geschrieben (Tabelle §3).
+
+**Zuvor auffällige Sicherheitsprüfungen, 10 von 10 Versuchen:**
+
+| Prüfung | Was sie zeigt | Ergebnis |
+|---|---|---|
+| B0-4 / SIG1-Sperre (`b0-4-sig1-lock-race`) | 080 wartet auf die Sperre einer zweiten Sitzung und besteht dann | 10/10 «080 waited for the lock, then passed 59/59» |
+| erzwungener Scheduler-Lauf während 062, 078, 080 | Sicherheitssignale gehen nicht verloren und werden nicht doppelt zugestellt | 10/10: 062 55/55, 078 51/51, 080 59/59, je ≥ 1 Scheduler-Lauf in der Datei, 0 Fehler |
+| B0-3 / 079-Schnappschuss | Arbeitstag-Katalog stabil unter REPEATABLE READ | 10/10 «identical catalogue (640 role:object rows)» |
+| BD-Durchgang (`durchgang-ambulant.spec.ts:185`, ein serieller Test) | Anfrage bis Abrechnungsfakt | 10/10 bestanden |
+| BD-Stoppfälle pgTAP 124-128 | Simulationskennzeichen, Abrechnungsleser, Stoppfälle | 10/10 ok |
+
+**Grenze:** Ein grüner Lauf beweist nur, was die Tests prüfen. Δ11 zeigt das: Der Fehler liegt in integriertem, getestetem Code und ist von keinem Test erfasst.
+
+## 2. Blockakten
+
+### B0 Technische Basis und Datenbanksicherheit
+
+- **Status:** **für die Simulation abgenommen, ohne B0-6.** Entscheid 2026-11-11 03:39 auf dem benannten Commit `9bb38d1`, `ci-repeat` 42944657786 20/20.
+- **Abgenommen:**
+  - B0-1 jeder Merge-Commit vollständig getestet;
+  - B0-2 Wiederholbarkeit 10/10;
+  - B0-3 Flakes mit Ursache behoben;
+  - B0-4 #919/080 reproduziert und behoben;
+  - B0-7 Datenbankrechte;
+  - B0-8 Migrationsreihenfolge;
+  - B0-5 über die Alternative FE-056 (GitHub Actions statt lokaler Tests).
+- **Ausdrücklich ausgeschlossen: B0-6 Repository-Schutz Stufe 1** (Pflicht-Checks, kein Force-Push, Secret Scanning; Owner-Handlung, D-7/FE-045). Er hat ein **eigenes Gate: vor B12 und vor jeden realen Daten**. Bis dahin gilt die Ersatzkontrolle: Der PO mergt nur mit Head-SHA und den sieben Bedingungen.
+- Der Status wird nicht zurückgenommen, aber ab jetzt mit diesem Ausschluss benannt, nie mehr als «B0 abgenommen» ohne Zusatz.
+- **Bestätigt auf `4a543c0`:** B0-2, B0-3 und B0-4 erneut 10/10 (§1).
+
+### BD Durchgang ambulant
+
+- **Status:** **Teilabnahme für die Simulation: ambulante Schritte 1, 1b, 2, 3, 4, 5, 8 und 9** (Schrittliste `PRODUCT_BLOCKS.md` §5). Entscheid 2026-11-12 14:39, wirksam mit `ci-repeat` 43231715012 20/20 auf `4a543c0`.
+- **Abgenommene Schritte:**
+  - 1 Anfrage → Fall → Teamsuche, Team übernimmt (J1, J2);
+  - 1b Abklärungsbesuch → Pflegeplan (ASM1);
+  - 2 Qualifikationsprüfung (QUAL1-**Mechanismus** mit VORGESCHLAGENEN Zellen v0.2, nicht die Zellen);
+  - 3 PLAN3-Tagesvorschlag;
+  - 4 Team bestätigt je Wert (AIG1);
+  - 5 Einsatz auf 390 px mit Zeitkorrektur «Testlauf»;
+  - 8 Bericht unterschrieben;
+  - 9 abrechenbarer Fakt aus A- und C-Minuten, Referenztarif «nicht validiert». Kein Rechnungsentwurf (BILL1 nicht gebaut).
+- **Negativfälle abgenommen:** fremdes Team, fremde Organisation und `anon` lesen und handeln nicht.
+- **Nicht nachgewiesen, nicht Teil der Abnahme:**
+  - Schritt 6 Diktat und Schritt 7 KI-Dokumentationsentwurf (B6, nicht gebaut);
+  - Stoppfälle (a) Start an der Tür verweigert, was folgt, (b) Nachweis läuft beim Fortsetzen ab, (e) Pflegeheim-Bewohnerin ohne Zuständige: UNKNOWN bis zur Regel des Clinical Owners;
+  - die Pflegeheim-Spalte BD-H (Abnahmebedingung von B9);
+  - bekannte Lücke CGR-187.
+- **Keine klinische Freigabe, kein Tarifnachweis, keine Freigabe für reale Daten.**
+
+### SAFE-D11 Sicherheitsausnahme Δ11 (wiedereröffneter Fall ohne Team)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»). Entscheid 2026-11-13 02:39 auf dem benannten Commit `29e54ec` (`recovery/main` nach #1159; gegenüber dem Merge-Commit `873e212` von #1151 nur Dokumente).
+- **Nachweis (aus den Job-Protokollen):**
+  - `ci` 43341179263, Versuch 2 (gestartet 02:29 Zürich): 4/4 `success`; `e2e` 164 bestanden, 0 übersprungen; `db` 131 Dateien, 4711 Tests.
+  - `ci-repeat` 43345332342: **20/20 `success`**; jeder `db`-Versuch 131 Dateien / 4711 Tests «All tests successful»; jeder `e2e`-Versuch 164 bestanden, 0 übersprungen, 0 instabil.
+  - Die tageszeitabhängigen Tests BD-2, F3 und F7/F6R liefen in allen elf e2e-Protokollen und bestanden. Der Nachtlauf auf `873e212` (3 übersprungen) zählt nicht.
+  - SAFE-D11-Tests: pgTAP 129 (Reproduktion), 130, 131 «ok»; e2e `safe-d11.spec.ts` bestanden.
+- **Abgenommen:** Ein wiedereröffneter Fall ohne Team erhält eine neue zulässige Teamsuche oder eine sichtbare, Operations zugewiesene Ausnahme, nie keines von beiden (FE-072 (2)).
+- **Nicht Teil der Abnahme:** Übergabe eines Falls eines inaktiven Teams an ein neues Team (CGR-195, CGR-196, B1.3); Freigabe für reale Personen und Daten.
+- **Korrektur:** Die Bedingung «Anzahl übersprungen = Tageswert 1» vom 13.11. 00:39 beruhte auf einem Abendlauf (23:21, UX2-Verschiebetest übersprungen ab 23:15). Der volle Tageswert ist 0. Ab jetzt gilt: jeder tageszeitabhängige Test bestanden.
+
+### B1.1 Sichere Anfrage (verkürzt nach FE-073)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»). Entscheid 2026-11-13 18:40 auf dem benannten Commit `33523a5` (`recovery/main` nach #1226; gegenüber dem letzten B1.1-Code-Merge `925946b` von #1224 nur Dokumente von `cra`).
+- **Umfang (FE-073):** B1.1-1 Regionsliste (#1164), B1.1-1b gleichzeitiges Zuordnen (#1181), CGR-203 Zuordnen gegen «Fall eröffnen» (#1184), B1.1-1c Seed nur BS/BL mit PLZ (#1196), UXR-189 Streuzeilen-e2e (#1224).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 43466084913 auf `925946b` und `ci` 43466127449 auf `33523a5`: je 4/4 `success`.
+  - `ci-repeat` 43466210984 auf `33523a5`: **20/20 `success`**; jeder `db`-Versuch 134 Dateien / 4775 Tests «Result: PASS»; jeder `e2e`-Versuch 170 bestanden, 0 übersprungen, 0 instabil, keine Wiederholung.
+  - In allen zehn `db`-Protokollen: CGR-201 (map-first, insert-first) «ok» und «CGR-203 region-map-convert-race: 29 ok, 0 not ok».
+  - In allen zehn `e2e`-Protokollen: beide UXR-189-Tests (390 und 1440 px) «✓».
+  - Lauf 17:47 bis 18:01 Zürich, also im Tagesfenster; die tageszeitabhängigen Tests bestanden.
+- **Abgenommen:** Regionen nur aus der Liste (Basel-Stadt, Basel-Landschaft); Altwerte werden zugeordnet oder unter «Region nicht zugeordnet» gelistet, mit Audit; kein Fall und keine offene Teamsuche geht verloren, auch nicht bei gleichzeitigem Zuordnen und Erfassen oder «Fall eröffnen».
+- **Nicht Teil der Abnahme:** B1.1-2 bis B1.1-5 (nach BK, FE-073 (4)); Korrekturbefehl für eine falsche Zuordnung (CGR-202 (a), Gate «freigegeben für reale Personen und Daten»); Freigabe für reale Personen und Daten.
+- **Folge:** BK ist ab jetzt der aktive Block.
+
+### BK-a Auftrag erfassen (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen, bevor BK-c-Angebote und die BK-6-Ausnahme bestehen, CGR-215 (a)). Entscheid 2026-11-14 09:39 auf dem benannten Commit `634ccb7` (`recovery/main` nach #1257).
+- **Umfang:** Auftragsart Schicht, Formular des Auftraggebers, Zusammenfassung, «Bestätigen & Absenden» (#1238 `abd6f82`, #1246 `54aa56e`, #1252 `ad8eaef`, #1257 `634ccb7`); ohne KI.
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 43572223613 auf `634ccb7`: 4/4 `success`.
+  - `ci-repeat` 43572290695 auf `634ccb7`: **20/20 `success`**, erster Versuch; jeder `db`-Versuch 135 Dateien / 4833 Tests «Result: PASS»; jeder `e2e`-Versuch 174 bestanden, 0 instabil, 0 fehlgeschlagen, 0 übersprungen.
+  - In allen zehn `db`-Protokollen: Gleichzeitigkeitsprüfungen «ok», «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; «not ok» nur in der absichtlich roten B0-4-Nachstellung.
+  - Lauf 08:41 bis 08:56 Zürich, im Tagesfenster.
+  - CGR-214 (b) (Audit behält `referrer_requested_start`): beim ersten Lauf grün, Regressionsschutz. CGR-206 (d) Zeitumstellung (600 und 480 Minuten, 02:30 als 03:30 vor der Bestätigung): pgTAP 135.
+- **Abgenommen:** Eine Nachtschicht über Mitternacht ist ein Auftrag; ein unklares Datum wird nie still gefüllt; nichts geht vor «Bestätigen & Absenden» an ein Team; ein zweiter Druck erzeugt keinen zweiten Auftrag; niemand bestätigt für einen Auftraggeber; kein Strassen- oder Koordinatenfeld; «Dringlichkeit fehlt» wird gezeigt, nie still weggelassen. Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 09:39.
+- **Nicht Teil der Abnahme:** KI- und Spracherfassung (BK-d), Filter, Angebote und Teamsicht (BK-b, BK-c), Preis (BK-f), Prüfung «Schichtplan ändert nie die Eignung» (nach BK-b verschoben), Freigabe für reale Personen und Daten.
+- **Folge:** BK-b ist das aktive Teilstück.
+
+### BK-b Harte Prüfung: Distanz, Stufe, Verfügbarkeit (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten: kein Team sieht oder übernimmt einen Auftrag vor BK-c, CGR-215 (a); CR-180, K-8 und alle Matrixzellen bleiben VORGESCHLAGEN beim Clinical Owner, D-27). Entscheid 2026-11-17 02:39 auf dem benannten Commit `ab90875` (`recovery/main` nach #1295).
+- **Umfang:** PLZ-Distanzen und Einsatzgebiet des Teams (#1268, #1270, #1276), Prüfung je Teammitglied für Stufe, Tätigkeit, Nachweis und ganze Schicht (#1273, #1291), Team-Protokoll nach Änderung (#1295, CGR-220).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 43682107812 (push) auf `ab90875`: 4/4 `success`.
+  - `ci-repeat` 43994886883 auf `ab90875`: **20/20 `success`**, erster Versuch; jeder `db`-Versuch 140 Dateien / 4965 Tests «Result: PASS», pgTAP 136 bis 140 «ok»; jeder `e2e`-Versuch 182 bestanden, 0 übersprungen, 0 instabil, 0 fehlgeschlagen.
+  - In allen zehn `db`-Protokollen: Gleichzeitigkeitsprüfungen «ok», «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; «not ok» nur in der absichtlich roten B0-4-Nachstellung.
+  - Lauf 02:21 bis 02:30 Zürich, im Tagesfenster. Der Nachtlauf 43977104731 (3 übersprungen) zählt nicht.
+- **Abgenommen:** Ein bestätigter Auftrag erreicht nur Teams innerhalb ihrer Höchstdistanz und eines allfälligen Radius des Auftraggebers, mit einer einzigen aktiven Person der verlangten Stufe, Tätigkeit und Nachweise, frei für die ganze Schicht; ein Team im Aufbau oder ohne Einsatzgebiet erhält nie ein Angebot; jedes ausgeschlossene Team trägt seinen Grund; ein Team ist nie zugleich angeboten und ausgeschlossen; eine Änderung des Schichtplans ändert nie die Eignung. Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-17 02:39.
+- **Nicht Teil der Abnahme:** Rangfolge, Angebotskarte, Rundruf, Übernahme und «nicht gedeckt» (BK-c); erneute Prüfung bei der Übernahme (CGR-204 (b), CGR-223); KI- und Spracherfassung (BK-d); Freigabe für reale Personen und Daten.
+- **Folge:** BK-c ist das aktive Teilstück.
+
+### BK-c Übernahme, Deckungsstand, Begründung je Team (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten: CR-224 bis CR-228 VORGESCHLAGEN beim Clinical Owner, K-8, D-27; CGR-226 (b), CGR-235 (c), CGR-238 (a), (b) offen; 0136 und 0137 nicht auf `navora-staging`). Entscheid 2026-11-18 02:39 auf dem benannten Commit `d51d1c1` (`recovery/main` nach #1411; ausserhalb `docs/` gegenüber `a71c0bc` nur `ROADMAP.md`).
+- **Umfang:** Übernahme und Deckungsstand in der Datenbank (#1342 `781944f`), Bildschirme `/team` und Kundenstatus mit Bestätigung und «Ich kann nicht» (#1358 `25d7cdf`), Begründung je eigenem Team ohne Rangfolge zwischen Teams (#1388 `ad21dd2`), drei Datenschutztests (#1403 `a71c0bc`, pgTAP 147).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44209867556 (push) auf `d51d1c1`: 5/5 `success`.
+  - `ci-repeat` 44215240768 auf `d51d1c1`: **20/20 `success`** plus Fenster-Start und Urteil, erster Versuch; jeder `db`-Versuch 147 Dateien / 5213 Tests «Result: PASS», pgTAP 141 bis 147 «ok», 0 übersprungen; jeder `e2e`-Versuch 188 bestanden, 0 übersprungen, 0 instabil, 0 fehlgeschlagen.
+  - In allen zehn `db`-Protokollen: «CGR-203 region-map-convert-race: 29 ok, 0 not ok»; «not ok» nur in der absichtlich roten B0-4-Nachstellung.
+  - Lauf 02:22 bis 02:33 Zürich, im Tagesfenster (Urteilsjob 134508250721).
+- **Abgenommen:** Ein bestätigter Auftrag geht gleichzeitig an jedes Team, das alle harten Prüfungen besteht; ein Mitglied übernimmt für sein Team, genau eine Übernahme gewinnt, auch bei gleichzeitigen Tipps und bei einer Person in zwei Teams; die benannte Kollegin bestätigt oder sagt «Ich kann nicht»; die Auftraggeberin sieht «gedeckt» erst danach und nie eine Teamzahl; fällt eine Person weg, geht der Auftrag sofort wieder an alle passenden Teams; «nicht gedeckt» wird rechtzeitig gezeigt und als Ausnahme gemeldet; ein Haushalt ist vor der Übernahme für kein Team erkennbar; eine Person in zwei Rollen sieht die andere Seite nicht. Kriterientabelle: `docs/agents/briefs/BK.md` §PO review 2026-11-17 21:39 und §PO acceptance 2026-11-18 02:39.
+- **Nicht Teil der Abnahme:** `/field`-Verknüpfung und Berichtsentwurf (BK-e), Rechnungsentwurf (BK-f), KI-Erfassung (BK-d), Szenario-Matrix (BK-g), Staging, Freigabe für reale Personen und Daten.
+- **Folge:** BK-e ist das aktive Teilstück.
+
+### BK-e1 Einsatz aus der Übernahme in `/field` (Teil von BK-e, Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid 2026-11-18 21:39-Lauf (geschrieben ca. 22:10) auf dem benannten Commit `3ea17ee` (`recovery/main` nach #1460 und #1487). **Teilabnahme:** BK-e als Ganzes ist erst nach BK-e2 (Berichtsentwurf, Unterschrift) abgenommen; die Teilung ist eine PO-Entscheidung (Brief `BK.md` §PO acceptance 2026-11-18 21:39), nicht eine neue Regel.
+- **Umfang:** Ortszeile (#1417 `3d9f1e6`), Einsatz aus der Übernahme mit Karte «Übernommene Schicht», Zeitablauf, Abwesenheit gibt die Übernahme frei, Prüfung unter Personensperre (#1421 `7c04240`, Migrationen 0138–0148), laufende Nachtschicht nach Mitternacht unter «Heute» (#1476 `0ca04b6`, Migration 0149).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` auf `3ea17ee` (push und PR): `app`, `db`, `e2e`, `ui-screenshots`, `staging` alle `success`; `staging`-Job 135123399657: «Remote database is up to date», «migrations applied to navora-staging at 3ea17ee4».
+  - `ci-repeat` 44393766620 auf `3ea17ee` (Zweig `repeat/bk-e-accept-3ea17ee`, vom PO gestartet): **20/20 `success`** plus Fenster-Start 135118069839 und Urteil 135130932572, erster Versuch; jeder `db`-Versuch «Files=149, Tests=5393», «Result: PASS», pgTAP 148 und 149 «ok», «not ok» nur in der absichtlich roten B0-4-Nachstellung; CGR-233-Wettlauf je Versuch «invariant violations: 0»; jeder `e2e`-Versuch «191 passed», kein übersprungener, instabiler oder fehlgeschlagener Test. Keine ADR-204-Wiederholung nötig (keine Zeile «registry limit» in den 20 Protokollen).
+  - Lauf 21:42 bis 22:03 Zürich.
+- **Abgenommen:** Nur die benannte Person einer lebenden, gedeckten Übernahme sieht den Auftrag in `/field` als «Übernommene Schicht» mit Zeiten, Ort (ohne Strasse in der Simulation) und Tags; andere sehen ihn nie. Das Schreiben des Einsatzes gibt die Übernahme nicht frei; Handzuteilung und Übernahme schliessen sich unter derselben Sperre aus. Eine Schicht 22:00–07:00 ist ein Einsatz mit 9 h und steht nach Mitternacht unter «Heute» samt Sicherheitshinweisen, «Abschliessen» und «Ereignis melden». Eine Abwesenheit vor Beginn beendet die Übernahme sichtbar; die Auftraggeberin liest dann nicht mehr «Gedeckt». Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-18 21:39.
+- **Nicht Teil der Abnahme:** Berichtsentwurf, Liste «nicht übernommen», Unterschrift (BK-e2a, BK-e2b); Rechnung (BK-f); KI (BK-d); Bedienung auf Staging (Klickpfad UNKNOWN, niemand hat ihn dort ausgeführt); Freigabe für reale Personen und Daten.
+- **Vor realen Personen offen:** CGR-256 (Überschneidung zweier Handeinsätze über Mitternacht), CGR-258 (a)–(d), CGR-254, UXR-249, UXR-250, CGR-246 (i).
+- **Folge:** BK-e bleibt aktiv; nächster Engineering-Schritt CGR-256, dann BK-e2a.
+
+### BK-e2 Berichtsentwurf, Liste «nicht übernommen», Unterschrift (Teil von BK-e); BK-e als Ganzes
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid 2026-11-20 05:39-Lauf auf dem benannten Commit `8155ac6` (`recovery/main` nach #1572). Mit BK-e1 (18.11., `3ea17ee`) ist **BK-e als Ganzes abgenommen**. Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-20 05:39.
+- **Umfang:** Steuerschicht (#1494), Entwurf aus Notizen mit Entscheid je Zeile (#1497 `30bf219`), BK-e2-Abschlusspaket mit Protokoll ohne Text, Stoppregel, AUT-149, S2-Prüfsatz und gespeicherter Eingabe (#1549 `9f1d673`, Migrationen 0151, 0152), Schwellenzeile der Stoppregel als Simulationsparameter (#1572 `8155ac6`, Migration 0153).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44669357371 auf `8155ac6`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` alle `success`; `staging`-Job 136069607340: «Applying migration 20261021000153 … Finished supabase db push».
+  - `ci-repeat` 44669473293 auf `8155ac6` (Zweig `repeat/bk-e-accept-8155ac6`, vom PO gestartet 04:41:56): **20/20 `success`**, erster Versuch; jeder `db`-Versuch «Files=153, Tests=5483», «Result: PASS», pgTAP 151, 152, 153 «ok», CGR-233-Wettlauf «invariant violations: 0», keine `# SKIP`-Zeile, «not ok» nur in den absichtlich roten Nachstellungen B0-4 und B0-3; jeder `e2e`-Versuch «192 passed», kein übersprungener, instabiler oder fehlgeschlagener Test, keine Zeile «registry limit»; Urteil 136071960780: im Fenster (Start 04:42, Ende 04:56 Zürich).
+- **Abgenommen:** Die Pflegekraft tippt am Schichtende ihre Notizen und erhält einen Entwurf; jede Zeile zeigt ihren Quellsatz, jeder nicht verwendete Satz steht unter «Nicht übernommen» mit «Einfügen» und «Bewusst weglassen»; sie entscheidet jede Zeile einzeln, ohne «alles übernehmen»; unterschreiben geht erst, wenn nichts offen ist; die unterschriebene Fassung hält ihre Eingabe mit dem Entscheid je Satz fest; nur die Pflegekraft der Schicht unterschreibt, ein nicht unterschriebener Entwurf erzeugt keinen abrechenbaren Fakt. Der Modellweg (Claude) ist gebaut und mit einem Testersatz geprüft, öffnet sich nur auf `navora-staging`, nur für eine Simulationsorganisation, nur mit Schwellenzeile und Founder-Schlüssel, und schliesst bei Notaus oder ausgelöster Stoppregel.
+- **KI-Ehrlichkeit:** Auf Staging läuft der Entwurf als **Testersatz mit festen Regeln** («regelbasiert, keine KI»). Kein KI-Modell ist in irgendeiner Umgebung angeschlossen.
+- **Nicht Teil der Abnahme:** Bedienung auf Staging (Klickpfad von niemandem dort ausgeführt, UNKNOWN); echter Modellentwurf (Schlüssel nicht gesetzt); Rechnung (BK-f); KI-Erfassung (BK-d); Freigabe für reale Personen und Daten; klinische Freigabe (D-27).
+- **Vor realen Personen offen:** CGR-261, CGR-262/AUT-160, CGR-213 (b)(iii), CR-239 (echte Schwelle durch eine benannte Clinical Owner), L-1549-1 bis L-1549-4, UXR-257, UXR-258, AUT-159; dazu die BK-e1-Liste.
+- **Folge:** nächstes Paket BK-f (Vertrag durch den PO vor dem Bau, `lca`-Gate).
+
+### BK-f Rechnungsentwurf aus dem unterschriebenen Bericht (Teilstück von BK)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid 2026-11-20 15:39-Lauf auf dem benannten Commit `40a2ce1` (`recovery/main` nach #1581, #1604 und den reinen Dokumentations-Merges bis #1608; Code gleich `8051283`). Kriterientabelle: `docs/agents/briefs/BK.md` §PO acceptance 2026-11-20 15:39.
+- **Umfang:** Rechnungsentwurf aus dem unterschriebenen Bericht (#1581 `e4e02c9`, Migrationen 0154 J5 überspringt Übernahme-Einsätze, 0155 Teampreis und Preis-Momentaufnahme bei der Übernahme, 0156 Toleranztabelle ohne Zeile, Entwurfstabelle, Bau beim `final`-Bericht, Senden, Lesen, G-6), Toleranzzeile der Simulation 15 Minuten von `lca` (#1604 `3d67dd4`, Migration 0157).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44746633595 (push) auf `40a2ce1`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` alle `success` (ein paralleler Lauf 44746645294 durch die Concurrency-Gruppe abgebrochen).
+  - `staging`-Job 136300035816 auf `e4e02c9` (0154–0156) und 136315164205 auf `3d67dd4` («Applying migration 20261021000157 … migrations applied to navora-staging at 3d67dd48»); `staging-version` 44744242201: Render `8051283`, Datenbank `20261021000157`; `staging-smoke` 44744533079 auf `8051283`: 4/4, darunter Pfad 3 «Bericht unterschreiben → Rechnungsentwurf → Team sendet → Auftraggeberin liest unter «Rechnungen»» (390 px).
+  - `ci-repeat` 44746720886 auf `40a2ce1` (Zweig `repeat/bk-f-accept-40a2ce1`, vom PO gestartet): **20/20 `success`**, erster Versuch; jeder `db`-Versuch «Files=156, Tests=5566», «Result: PASS», pgTAP 154, 155, 156 «ok», CGR-233-Wettlauf «invariant violations: 0», keine `# SKIP`-Zeile; jeder `e2e`-Versuch «193 passed», kein übersprungener, instabiler oder fehlgeschlagener Test, `bk-f-invoice.spec.ts` (390 px) in allen zehn, Zeile «BK-f Q8: taps from «Bericht unterschreiben» to «gesendet» = 2»; keine Zeile «registry limit»; Urteil 136334173381: im Fenster (Start 14:43, Ende 15:03 Zürich).
+- **Abgenommen:** Unterschreibt die Pflegekraft den Bericht einer übernommenen Schicht, erstellt NAVORA ohne Eingabe genau einen Rechnungsentwurf vom Team an die Auftraggeberin: Minuten aus der unterschriebenen Fassung, Preis aus der Momentaufnahme bei der Übernahme, Betrag auf 2 Stellen. Die Unterschrift wird durch die Rechnung nie blockiert oder zurückgenommen; jede Ablehnung (Bericht nicht `final`, zweiter Entwurf, Zeiten ausserhalb der Toleranz, keine Toleranzzeile, offene Qualitätssperre, kein Preis) steht mit Grund beim Team. Eine Korrektur des Berichts macht den Entwurf ungültig. Ein Mitglied des Übernahme-Teams sendet mit einem Tipp; die Auftraggeberin liest nur gesendete Rechnungen ihres eigenen Kontos, ohne Mitgliedsnamen und ohne Tag. Jede Ansicht trägt «Simulierte Rechnung – synthetische Daten, Beispielpreis, kein Tarif, keine Zahlung über NAVORA». Kein Feld für Provision, Prozent, NAVORA-Gebühr, IBAN oder Zahlung; ein Übernahme-Einsatz erreicht den KLV-Pfad J5 nie.
+- **KI-Ehrlichkeit:** Jede Funktion von BK-f ist eine **feste, prüfbare Regel**. Kein Modell schlägt Betrag oder Zeit vor; nichts davon ist ein Testersatz für KI. Kein KI-Modell ist in einem getesteten Pfad angeschlossen.
+- **Nicht Teil der Abnahme:** Preisobergrenze je Auftrag, Zuschläge, Rundung auf 5 Rappen, MWST, PDF, QR-Rechnung, Zahlung jeder Art, Vier-Augen-Bestätigung, Rechnungssteller (Team oder Genossenschaft, offen bei `lca` und dem Founder), Toleranzwert für reale Daten, KVG/KLV; Freigabe für reale Personen und Daten.
+- **Vor realen Personen offen:** BK-f-F1 «Abweichung bestätigen», BK-f-F2 «Neubewertung einer Ablehnung», BK-f-F3 (Sichtbarkeit des Teampreises für andere Teams, `lca`), CGR-263 bis CGR-266, UXR-261 bis UXR-264; dazu die Listen von BK-c und BK-e.
+- **Folge:** nächstes Paket STAB1 (technisches Stabilisierungspaket, FE-099, FE-100), danach nach Founder-Entscheid FE-108 §7 entweder AI1/BK-d oder H1.
+
+### STAB1 Eine lesbare Quelle je Datenbankfunktion (technisches Paket, FE-099, FE-100)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»). Entscheid PO-Live-Sitzung 2026-11-20 ca. 18:40 auf dem benannten Commit **`f7dfd2d`** (`recovery/main` nach #1619 `d3b2233`, #1620 und #1618; beide nur Dokumentation, Code gleich `d3b2233`). Kriterien: `docs/agents/briefs/STAB1.md` mit dem PO-Nachtrag 09:39 (FE-100). Das ist eine reguläre Abnahme nach FE-071 (4) und keine Ausnahme für HD-1 (FE-109 (C)).
+- **Umfang:** 29 Definitionen in 28 Dateien unter `supabase/schema/functions/` (MANIFEST), Drift-Wächter `fn-source` in `ci` und `ci-repeat`, Sperre `no-text-patch` (Grenze 0153), Rechte- und Schutzschnappschuss pgTAP 157, `staging-smoke` nach jedem Push auf `recovery/main` mit Meldung bei Rot, Konsolidierungs-Migration 0158 (keine Verhaltensänderung).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - `ci` 44776130676 auf `d3b2233`: alle Jobs `success`; `staging`-Job 136431540358 «Applying migration 20261021000158 … applied to navora-staging»; `staging-version` 44781911610: App `f3149d6`, Datenbank `20261021000158`, «app and database match».
+  - `ci-repeat` 44778677226 auf `f7dfd2d` (Zweig `repeat/stab1-accept-f7dfd2d`, vom PO gestartet): **20/20 `success`**; jeder `db`-Versuch «Files=157, Tests=5868», «Result: PASS», 0 `# SKIP`, «fn-source: 29 definitions in 28 files match the database»; jeder `e2e`-Versuch «193 passed», kein übersprungener, instabiler oder fehlgeschlagener Test; Urteil 136442411189 im Fenster (17:58–18:10 Zürich).
+  - **Auf Staging ausgeführt:** erster automatischer `staging-smoke` 44776130634 auf `d3b2233` 4/4 (Render `f7dfd2d`).
+  - Negativproben (i)–(iii) rot wie verlangt: Läufe 44753270244 und 44761243635.
+- **Bekannter Mangel (kein Abnahmehindernis, Folgeposten):** `staging-smoke` 44777149305 auf `f7dfd2d` (nur Dokumentation) war in Pfad 3 rot: Die gesuchte Karte «20.11.2026 18:20» stand schon auf «Übernommen». Wahrscheinlich stammte sie aus dem vorigen Lauf, weil die Testdaten über die Uhrzeit erkannt werden (UNKNOWN, **STAB1-F3** bei `eng`: eindeutige Kennung je Lauf, Läufe nacheinander). Kein Hinweis auf einen Produktfehler; Pfad 3 war auf `d3b2233` grün und im nächsten Lauf 44781911457 auf `f3149d6` wieder grün (4/4).
+- **KI-Ehrlichkeit:** nur feste Prüfungen; kein Modell.
+- **Folgeposten:** STAB1-F1 (`db-lint --fail-on error`), STAB1-F2 (kein `staging-smoke` bei reinen Docs-Merges), STAB1-F3 (Testdatenkollision), `staging-version` nach `staging`, Tranche 2.
+
+### HD-1 Planen im Heim (Teilabnahme im Block HEIM-DP, FE-109, FE-110)
+
+- **Status:** **für die Simulation teilabgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid geplanter PO-Lauf 2026-11-21 03:39 auf dem benannten Commit **`9debf74`** (`recovery/main` nach #1623 `2378c2a`, #1624 `494dd0e` und den reinen Dokumentations-Merges #1635–#1637; Code gleich `494dd0e`). Kriterien: `docs/agents/briefs/HD.md` §4a (feste Restliste R1–R3, Ready-Report, Pfad 4) und §6 (1). Ausdrücklich eine **Teilabnahme**, nicht die Registerabnahme HEIM-DP (§6 (2) nach HD-2). «Geliefert» gilt erst, wenn der Founder den Weg auf Staging selbst bedient hat (§6).
+- **Umfang:** Heim-Mandant `institutions` (unabhängig von Netzwerk-Organisationen), Stammdaten, Woche, Monat, Plan je Mitarbeiterin (`/heim?ansicht=personal`), Abwesenheit (ganzer Kalendertag, R3), Lücke (feste Regeln), inaktive Person zählt nie als anwesend (R1), keine Zeitänderung einer eingesetzten Dienstart (R2, `shift_type_in_use`); Migrationen 0159, 0160; 16 Funktionen als Dateien nach STAB1; `staging-smoke` Pfad 4; Testharness-Korrektur STAB1-F3 (#1624).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - Gates auf dem Endstand `1eb228a` von #1623: `cra-gate: #1623 1eb228a clear` (7051236096), `uxa-gate: #1623 1eb228a clear` (7051219005), beide «Simulation, synthetic data».
+  - `ci` 44822518383 auf `2378c2a` und 44851559796 auf `494dd0e`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` `success`; `staging`-Job 136591358260 hat 0159 und 0160 auf `navora-staging` eingespielt.
+  - **Auf Staging ausgeführt:** `staging-smoke` 44851559771 auf `494dd0e` (Job 136683851893) 5/5, darunter Pfad 4 «the home assigns a person, records an absence, sees the gap in week and month, then removes both (390 px)»; Render liefert `9debf74` (aus dem Smoke-Protokoll; Bestätigung `eng` 7055695812).
+  - `ci-repeat` 44852899930 auf `9debf74` (Zweig `repeat/hd1-accept-9debf74`, vom PO gestartet): **20/20 `success`**; jeder `db`-Versuch «Files=159, Tests=6135», «Result: PASS», keine Zeile `not ok`, keine `# SKIP`-Zeile, `159_hd1_residual_r1_r3.test.sql … ok`; jeder `e2e`-Versuch «198 passed», kein übersprungener, instabiler oder fehlgeschlagener Test, `hd1-home-plan.spec.ts` (390 und 1440 px, R1, Berechtigung, Navigation) in allen zehn; Urteil 136691925871: im Fenster (Start 02:54, Ende 03:07 Zürich).
+- **Abgenommen:** Die Heimleitung eines synthetischen Heims teilt eigenes Personal je Station ein, sieht in Woche, Monat und Plan je Mitarbeiterin denselben Stand, erfasst eine Abwesenheit und sieht die Lücke überall; eine inaktive Person zählt nie als anwesend; eine Abwesenheit gilt für den ganzen Kalendertag, auch für eine Nacht in diesen Tag hinein. Eine NAVORA-Teampflegekraft sieht keine Heimdaten.
+- **KI-Ehrlichkeit:** Jede Funktion von HD-1 ist eine **feste, prüfbare Regel**; kein Testersatz für KI, kein KI-Modell in einem getesteten Pfad.
+- **Nicht Teil der Abnahme:** externer Auftrag aus der Lücke und gemeinsamer Status (HD-2), KI-Planung (HD-3), Arbeitszeitgesetz (OPEN `lca`), Lohn, reale Daten; `lca`-Gate (vor realen Daten Pflicht, FE-109 (A)); G-COACH (§4).
+- **Vor realen Personen offen:** CGR-267 (nur drei der fünf Matrix-Stufencodes; S1 vor realen Personaldaten), CGR-268, CGR-269, UXR-265 bis UXR-268; Gleichzeitigkeit zweier Planender (OPEN, laut Ready-Report).
+- **Folge:** nächstes Paket HD-2 (Lücke → externer Auftrag → Status zurück; FE-110 (b) `order_cover`-Text), danach Registerabnahme HEIM-DP «funktionsfähig, feste Regeln».
+
+## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
+
+| Block | Offen | Vor der Abnahme zu tun |
+|---|---|---|
+| B1 | kein e2e für B1-UX-2 (390 px, Doppeltipp), B1-UX-3 (Ablehnung), B1-UX-6 (Sicherheitshinweise, Negativfall CGR-162); ~~Δ11 ohne Test~~ (SAFE-D11 abgenommen 13.11. 02:39, §2); B1.1-2 bis B1.1-5 nicht gebaut | B1.1 (verkürzt) abgenommen 13.11. 18:40 (§2); B1.1-2 bis -5 nach BK; die drei e2e-Tests in B1.2 und B1.3 |
+| B2 | B2-T7 (CGR-154) und B2-T8 (CGR-155) beschrieben, nicht geschrieben, nach heutigem Code erwartet rot; B2-T4 und B2-T9 neu; alle 115 Matrixzellen PROPOSED | QUAL1 Teil 2 und die Tests; Matrix bleibt Simulationsregel (FE-069) |
+| B3 | B3-UX-3, B3-UX-4 (braucht UXR-146), B3-UX-5, B3-UX-8; QUAL1-Anbindung an PLAN3 | Tests schreiben; Prüfung auf jedem Zuteilungsweg (FE-070 (3)) |
+| B4 | kein e2e für B4-UX-1 (390 px) und B4-UX-2 (verweigerter Start); frühere e2e-Instabilität VIS1, F1 | Tests; die F1-Ursache. Auf `4a543c0` lief e2e 10/10 ohne Wiederholung, die Ursache ist trotzdem nicht belegt |
+| B5 | **B5-T7** verlangt 10/10 um 03:00 und 20:00 Zürich (tageszeitabhängig, PS-99), nicht nachgewiesen; B5-T11 neu | zwei `ci-repeat`-Läufe zu diesen Zeiten auf dem Kandidaten-Commit; **B5-T9 ist auf `4a543c0` 10/10 belegt** (§1) |
+| B6 | Diktat, KI-Entwurf nicht gebaut | Bau, D-35 Stufe |
+| B7 | B7-T1 bis B7-T3 (pgTAP) nicht geschrieben; Fach-/Legal-Gate | Tests; Gates |
+| B8 | BILL1 und J5-v4 nicht gebaut; D-18 Phase B, D-22 offen | Bau als Simulationsregel (FE-069) |
+| B9 | NH-A1 bis NH-A5 nicht gebaut; BD-H | Bau; BD-H grün |
+| B10 | **AN3 widersprüchlich:** Code integriert (Migration 0108, pgTAP 109, Analyseansicht), die `eng`-Zeile steht auf `in-review`, die PO-Warteschlange führt AN3 noch als genehmigt und nicht begonnen (*Next up* Rang 2). AN3-C1 bis AN3-C3 nicht gebaut. | Der PO prüft AN3 gegen den Brief auf dem dann aktuellen Commit und bereinigt die Zeile; C1-C3 mit Tests. Bis dahin ist AN3 nicht abgenommen, gleichgültig was eine Zeile sagt |
+| BK-c | ~~Drei Datenschutzkriterien ohne Test~~: pgTAP 147 (#1403) gemergt, `ci-repeat` 44215240768 auf `d51d1c1` 20/20. **Abgenommen 18.11. 02:39 (§2).** Vor realen Personen offen: CR-224 bis CR-228, CGR-226 (b), CGR-235 (c), CGR-238 (a), (b), Staging 0136/0137 | – (Simulation); vor realen Daten die genannten Punkte |
+| BK-e | **BK-e als Ganzes für die Simulation abgenommen** 20.11. (05:39-Lauf, `8155ac6`, `ci-repeat` 44669473293 20/20); BK-e1 am 18.11. (`3ea17ee`). Vor realen Personen offen: CGR-256b, CGR-258, CGR-254, CGR-261, CGR-262, UXR-249, UXR-250, UXR-257, UXR-258, CR-239, L-1549-1 bis -4 | – (Simulation); Staging-Klickpfad; vor realen Daten die genannten Punkte |
+| BK-f | **Für die Simulation abgenommen** 20.11. (15:39-Lauf, `40a2ce1`, `ci-repeat` 44746720886 20/20; `staging-smoke` Pfad 3 grün auf `8051283`). Vor realen Personen offen: BK-f-F1 bis -F3, CGR-263 bis CGR-266, UXR-261 bis UXR-264, Rechnungssteller und Toleranzwert für reale Daten (`lca`, Founder) | – (Simulation); vor realen Daten die genannten Punkte |
+| B11/B12 | Staging-Migration (#1087) wartet auf das Owner-Secret; B0-6 | Owner-Handlungen |
+
+## 4. Offene Gates vor realen Personen und Daten (blockübergreifend)
+
+| Gate | Inhalt | Stand | Prüfbare Begrenzung (Schliessbedingung) | Owner |
+|---|---|---|---|---|
+| **G-COACH** (FE-110 (4)) | Die Rolle `coach` ist heute ein Koordinator: `is_coordinator` gilt für `admin`, `coach`, `operations`, mit organisationsweitem Zeilenzugriff auf 26 Tabellen, u. a. `cases`, `care_visits`, `visit_reports`, `quality_events` (IMPLEMENTED, `docs/engineering/probes/ARCH1_ENG_REVIEW.md` §3). Ob Gesundheitsspalten gesperrt sind: UNKNOWN. | **OFFEN.** Zulässig nur mit synthetischen Daten. Keine Freigabe für reale Personen und Daten, solange offen. | Beschrieben in `briefs/HD.md` §7 C3, Paket vor Phase B: eigene neutrale Coach-Rolle ausserhalb der Organisationsmitgliedschaft; liest nur Teamkennzahlen über Funktionen und nur auf Anfrage eines Teams; kein direkter Tabellenzugriff. Nachweis: pgTAP, dass `coach` auf jede der 26 Tabellen 0 Zeilen liest und jede Funktion mit Akten- oder Gesundheitsinhalt ablehnt; Prüfung `cra`, `lca`. | `po` (Reihenfolge), `eng`, `cra`, `lca` |
+| **B0-6** | Repository-Schutz Stufe 1 (§2 B0) | OFFEN (Owner-Handlung) | wie §2 B0 | Founder |
+
+## Änderungsprotokoll
+
+- 2026-11-12 15:45 (`po`): angelegt nach FE-071 (Founder-Rückmeldung auf Lieferung 1).
+- 2026-11-13 02:39 (`po`): Blockakte SAFE-D11 (für die Simulation abgenommen auf `29e54ec`); B1-Zeile in §3 nachgeführt.
+- 2026-11-13 18:40 (`po`): Blockakte B1.1 (verkürzt nach FE-073, für die Simulation abgenommen auf `33523a5`, `ci-repeat` 43466210984 20/20); B1-Zeile in §3 nachgeführt.
+- 2026-11-14 09:39 (`po`): Blockakte BK-a (Teilstück von BK, für die Simulation abgenommen auf `634ccb7`, `ci-repeat` 43572290695 20/20).
+- 2026-11-17 02:39 (`po`): Blockakte BK-b (Teilstück von BK, für die Simulation abgenommen auf `ab90875`, `ci-repeat` 43994886883 20/20).
+- 2026-11-17 21:39 (`po`): §3 Zeile BK-c (Abnahmeprüfung auf `ad21dd2`: Lauf grün, drei Datenschutzkriterien ohne Test, `changes-requested`).
+- 2026-11-18 02:39 (`po`): Blockakte BK-c (Teilstück von BK, für die Simulation abgenommen auf `d51d1c1`, `ci-repeat` 44215240768 20/20); §3 Zeile BK-c nachgeführt.
+- 2026-11-18 21:39-Lauf (`po`): Blockakte BK-e1 (Teil von BK-e, für die Simulation abgenommen auf `3ea17ee`, `ci-repeat` 44393766620 20/20); §3 Zeile BK-e.
+- 2026-11-20 05:39 (`po`): Blockakte BK-e2 (Teil von BK-e) und BK-e als Ganzes für die Simulation abgenommen auf `8155ac6` (`ci-repeat` 44669473293 20/20); §3 Zeile BK-e.
+- 2026-11-20 15:39 (`po`): Blockakte BK-f (Teilstück von BK, für die Simulation abgenommen auf `40a2ce1`, `ci-repeat` 44746720886 20/20); §3 Zeile BK-f.
+- 2026-11-20 ca. 16:00 (`po`, Live-Sitzung): BK-f für die Simulation abgenommen auf `40a2ce1`.
+- 2026-11-20 ca. 18:40 (`po`, Live-Sitzung): Blockakte STAB1 (technisches Paket, für die Simulation abgenommen auf `f7dfd2d`, `ci-repeat` 44778677226 20/20).
+- 2026-11-20 ca. 20:05 (`po`, Live-Sitzung): §4 Offene Gates vor realen Daten; G-COACH (FE-110 (4)).
+- 2026-11-21 03:39 (`po`): Blockakte HD-1 (Teilabnahme im Block HEIM-DP, für die Simulation abgenommen auf `9debf74`, `ci-repeat` 44852899930 20/20).
