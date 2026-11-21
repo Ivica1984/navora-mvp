@@ -314,8 +314,9 @@ select is(pg_temp.cs('o7'), 'covered', 'the client reads «gedeckt»');
 set local session_replication_role = replica;
 delete from public.team_memberships where team_id = pg_temp.t('01') and user_id = pg_temp.m('02');
 set local session_replication_role = origin;
-select is(pg_temp.cs('o7'), 'no_longer_covered',
-          'UXR-225 (b): after «gedeckt» was shown, the safety net reads «nicht mehr gedeckt» (the words carry no person, F-2)');
+-- HD-2 / FE-110 (b), migration 0161: with detail `no_offer_open` (no release yet, so no new round runs).
+select is(pg_temp.cs('o7'), 'no_longer_covered/no_offer_open',
+          'UXR-225 (b): after «gedeckt» was shown, the safety net reads «nicht mehr gedeckt» (the words carry no person, F-2), no open offer');
 
 -- 9. Whole client read model (F-1, UXR-223 negative) -------------------------------------------------------------------
 create temp table cl (id uuid, cover_state text, cover_detail text);

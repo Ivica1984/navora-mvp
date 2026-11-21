@@ -271,6 +271,10 @@ export function clientCoverLines(o: ClientCoverInput): { headline: string; detai
         return { headline: `Nicht gedeckt · ${begin}`, detail: "Kein passendes Team ist frei." };
     }
   }
+  if (o.cover_state === "no_longer_covered" && o.cover_detail === "no_offer_open") {
+    // HD-2 / FE-110 (b), migration 0161: the take is not released yet, so no new round runs; never «läuft wieder».
+    return { headline: `Nicht mehr gedeckt · kein Angebot offen · ${begin}`, detail: "Die Übernahme gilt nicht mehr." };
+  }
   if (o.cover_state === "no_longer_covered") {
     // UXR-225 (b) with `lca` F-2: only after «Gedeckt» was shown (client_orders(), migration 0136); no person, no cause.
     return {
@@ -281,6 +285,10 @@ export function clientCoverLines(o: ClientCoverInput): { headline: string; detai
   if (o.cover_state === "open" && o.cover_detail === "take_fell_away") {
     // UXR-225 (a): the take fell away before «Gedeckt» was ever shown; the client was never covered.
     return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Die eingeteilte Person kann nicht. Das Angebot geht wieder an alle passenden Teams." };
+  }
+  if (o.cover_state === "open" && o.cover_detail === "take_fell_away_no_offer") {
+    // HD-2 / FE-110 (b): as above, before «Gedeckt» was ever shown.
+    return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Die eingeteilte Person kann nicht. Zurzeit ist kein Angebot offen." };
   }
   if (o.cover_state === "open" && o.cover_detail === "awaiting_acknowledgement") {
     return { headline: `Noch nicht gedeckt · ${begin}`, detail: "Ein Team hat übernommen; die eingeteilte Person bestätigt noch." };

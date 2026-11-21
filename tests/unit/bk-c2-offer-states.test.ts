@@ -285,6 +285,20 @@ describe("client side (template §4, F-1, UXR-223, CGR-226 (a))", () => {
     expect(JSON.stringify(l)).not.toMatch(/Person kann nicht|Person|abwesend|krank|Nachweis|erfüllt/);
   });
 
+  it("HD-2 / FE-110 (b): the safety net (take not released) never claims that the offer runs again", () => {
+    const n = clientCoverLines({ ...base, cover_state: "no_longer_covered", cover_detail: "no_offer_open" });
+    expect(n).toEqual({ headline: "Nicht mehr gedeckt · kein Angebot offen · Beginn Sa 21.11., 07:00", detail: "Die Übernahme gilt nicht mehr." });
+    const o = clientCoverLines({ ...base, cover_state: "open", cover_detail: "take_fell_away_no_offer" });
+    expect(o).toEqual({
+      headline: "Noch nicht gedeckt · Beginn Sa 21.11., 07:00",
+      detail: "Die eingeteilte Person kann nicht. Zurzeit ist kein Angebot offen.",
+    });
+    for (const l of [n, o]) {
+      expect(JSON.stringify(l)).not.toMatch(/wieder an alle|läuft wieder|Gedeckt ·/);
+      expect(JSON.stringify(n)).not.toMatch(/abwesend|krank|Nachweis|erfüllt/);
+    }
+  });
+
   it("an unknown state is never shown as covered", () => {
     expect(clientCoverLines({ ...base, cover_state: "something", cover_detail: null }).headline).toBe("Noch nicht gedeckt · Beginn Sa 21.11., 07:00");
   });

@@ -34,13 +34,15 @@ begin
     return;
   end if;
   if k.id is not null then
-    -- Safety net (ADR-199 (5)), unchanged: a live take whose member no longer passes is never shown as covered.
+    -- Safety net (ADR-199 (5)): a live take whose member no longer passes is never shown as covered.
+    -- HD-2 / FE-110 (b): the take is not released here (a stable read cannot release), so no new round runs and every
+    -- other team still reads `already_taken`. Detail `no_offer_open`: no screen may claim that the offer runs again.
     if p_at >= o.starts_at then
       return query select 'not_covered'::text, 'started'::text, null::uuid, null::timestamptz, lat;
     elsif p_at >= lat then
       return query select 'not_covered'::text, 'cover_time_reached'::text, null::uuid, null::timestamptz, lat;
     else
-      return query select 'no_longer_covered'::text, null::text, null::uuid, null::timestamptz, lat;
+      return query select 'no_longer_covered'::text, 'no_offer_open'::text, null::uuid, null::timestamptz, lat;
     end if;
     return;
   end if;

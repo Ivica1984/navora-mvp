@@ -1,18 +1,16 @@
--- HD-2 RED REPRODUCTION PROBE (unmerged branch `probe/hd-2-safety-net-red`, WORKING MODE 7; not a feature PR).
--- Brief `docs/agents/briefs/HD.md` §3, condition «Angebot läuft wieder» (HD-2 acceptance criterion, negative test
--- required): the client may read that the offer runs again only if (1) the take is released (`released_at` set),
--- (2) a new round has at least one open offer, and (3) the latest coverage time is not reached. FE-110 note (b): the
--- «safety net» branch of `private.order_cover` (0136) does not meet this; `eng` checks and proves it with pgTAP.
+-- HD-2 (brief docs/agents/briefs/HD.md §3, §3a): condition «Angebot läuft wieder» (HD-2 acceptance criterion, negative
+-- test required): the client may read that the offer runs again only if (1) the take is released (`released_at` set),
+-- (2) a new round has at least one open offer, and (3) the latest coverage time is not reached. FE-110 note (b).
+-- History: written red on the unmerged probe branch `probe/hd-2-safety-net-red` (3588454b, test 8 `not ok` on
+-- recovery/main 24ad2834), turned green by migration 0161 (safety net → detail `no_offer_open`).
 --
--- How the client reads «the offer runs again» today (code, IMPLEMENTED on `recovery/main` 24ad2834):
---   `src/features/orders/offer-rules.ts` `clientCoverLines`:
---     cover_state `no_longer_covered`            → «Die Übernahme gilt nicht mehr. Das Angebot geht wieder an alle passenden Teams.»
---     cover_state `open` + detail `take_fell_away` → «… Das Angebot geht wieder an alle passenden Teams.»
---   `public.client_orders()` (0136) maps `private.order_cover` to these two states.
--- This file checks the invariant «claims the offer runs again ⇒ conditions (1)–(3) hold» on the same fixture path as
--- pgTAP 142 (a released take, then a live take whose member no longer passes, triggers off = a path no trigger sees).
--- Expected on `recovery/main`: tests 1–7 pass (fixture, positive control, precondition), test 8 FAILS (the defect),
--- tests 9–10 pass.
+-- How the client reads «the offer runs again» (`src/features/orders/offer-rules.ts` `clientCoverLines`):
+--   `no_longer_covered` (no detail) and `open / take_fell_away` → «Das Angebot geht wieder an alle passenden Teams.»
+--   `no_longer_covered / no_offer_open` and `open / take_fell_away_no_offer` → «kein Angebot offen» (0161).
+-- Sections: 1 a real release (positive control); 2 the safety net on a path no trigger sees (triggers off);
+-- 3 the time-based neighbours; 4 the safety net reached WITHOUT any command or trigger gap: a recorded contract end
+-- passes while the take is live (`private.access_ended` is time-based; FE-110 (b) question «does this branch occur
+-- outside a moment?» → yes).
 -- No clinical rule is set here; the 240 min lead stays PROPOSED (K-8). Synthetic data only; rolled back.
 --
 -- Users: kundebs …9e8 (seed client), fixture admin …a160-…09 of Testorganisation S. Teams …b160-…01 (M1, M2),
@@ -20,7 +18,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(10);
+select plan(15);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -129,8 +127,9 @@ delete from public.team_memberships where team_id = pg_temp.t('02') and user_id 
 set local session_replication_role = origin;
 select is((select count(*)::int from public.order_takes where order_id = pg_temp.o() and released_at is null), 1,
           'precondition: the take of M3 stays live (released_at null), so no new round is running');
--- RED on recovery/main 24ad2834: client_orders() reads `no_longer_covered` → «Das Angebot geht wieder an alle passenden
--- Teams», although no release happened, every other team still gets `already_taken`, and no new round runs.
+-- Was RED on recovery/main 24ad2834: client_orders() read `no_longer_covered` → «Das Angebot geht wieder an alle
+-- passenden Teams», although no release happened, every other team still gets `already_taken`, and no new round runs.
+select is(pg_temp.cs(), 'no_longer_covered/no_offer_open', 'safety net (0161): «nicht mehr gedeckt», detail no_offer_open');
 select ok(not pg_temp.claims_again() or pg_temp.really_again(),
           'HD.md §3: the client never reads «Angebot läuft wieder» while the take is live (safety net, FE-110 (b))');
 
@@ -139,6 +138,27 @@ select set_config('navora.test_now', '2026-11-19 18:00:00+01', true);  -- starts
 select is(pg_temp.cs(), 'not_covered/cover_time_reached', 'at the latest coverage time the safety net reads not_covered');
 select set_config('navora.test_now', '2026-11-19 22:00:00+01', true);
 select is(pg_temp.cs(), 'not_covered/started', 'at the start it reads not_covered / started');
+
+-- 4. The safety net without any command: a recorded contract end passes while the take is live -----------------------
+select set_config('navora.test_now', '2026-11-16 12:00:00+01', true);
+delete from made;
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+insert into made select public.confirm_client_order('00000000-0000-4000-a000-000000000460', date '2026-11-18', time '22:00',
+  time '07:00', '4102', 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8160-000000000002');
+reset role;
+select pg_temp.as_owner();
+select is(pg_temp.take('01', '02', 'ffff0000-0000-4000-8160-000000000004') ->> 'result', 'ok',
+          'T1 takes a second order (Wed 22:00) with M2 while her access is still open');
+select is(pg_temp.cs(), 'covered', 'the client reads «gedeckt»');
+-- Her contract end is recorded after the take (Tue 17 Nov; access ends at the start of Wed 18 Nov, ADM2-13).
+insert into public.member_contract_events (organization_id, user_id, start_date, end_date, actor_id) values
+  ('00000000-0000-4000-b000-000000000019', pg_temp.m('02'), null, date '2026-11-17', pg_temp.m('09'));
+select set_config('navora.test_now', '2026-11-18 10:00:00+01', true);  -- the day after her contract end, before the deadline
+select is(pg_temp.cs(), 'no_longer_covered/no_offer_open',
+          'no command ran, the take is still live: «nicht mehr gedeckt · kein Angebot offen» (never «gedeckt», never «läuft wieder»)');
+select ok(not pg_temp.claims_again() or pg_temp.really_again(),
+          'HD.md §3 on the time-based path: no claim that the offer runs again while the take is live');
 
 select * from finish();
 rollback;

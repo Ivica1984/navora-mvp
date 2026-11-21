@@ -17,6 +17,9 @@ AS $function$
               when c.cover_state = 'no_longer_covered' and not ever_covered.yes then 'open'
               else c.cover_state end,
          case when c.cover_state = 'pending_acknowledgement' then 'awaiting_acknowledgement'
+              -- HD-2 / FE-110 (b): the safety net (`no_offer_open`) never reads as «the offer goes out again».
+              when c.cover_state = 'no_longer_covered' and not ever_covered.yes and c.cover_detail = 'no_offer_open'
+                then 'take_fell_away_no_offer'
               when c.cover_state = 'no_longer_covered' and not ever_covered.yes then 'take_fell_away'
               when c.cover_detail in ('no_team_eligible', 'all_declined') then 'no_team_free'   -- F-1
               when c.cover_detail = 'not_acknowledged' then 'cover_time_reached'

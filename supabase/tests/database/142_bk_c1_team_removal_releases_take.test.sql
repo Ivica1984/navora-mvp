@@ -130,7 +130,8 @@ set local session_replication_role = replica;
 delete from public.team_memberships where team_id = pg_temp.t('02') and user_id = pg_temp.m('03');
 set local session_replication_role = origin;
 select is(pg_temp.live(), 1, 'precondition: with triggers off the take of M3 stays live although M3 no longer passes');
-select is(pg_temp.cs(), 'no_longer_covered', 'safety net: a live take whose member no longer passes is never «gedeckt»');
+-- HD-2 / FE-110 (b), migration 0161: the safety net carries detail `no_offer_open` (no release, no new round).
+select is(pg_temp.cs(), 'no_longer_covered/no_offer_open', 'safety net: a live take whose member no longer passes is never «gedeckt» and claims no open offer');
 select ok(not pg_temp.exc(), 'before the latest coverage time: no exception yet (same rule as a released take)');
 select set_config('navora.test_now', '2026-11-19 18:00:00+01', true);  -- starts_at − 240 min (PROPOSED lead)
 select is(pg_temp.cs(), 'not_covered/cover_time_reached',
