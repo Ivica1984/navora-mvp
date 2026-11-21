@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  API_ROW_CAP,
+  assertBelowRowCap,
   busyFromOrderLines,
   freeDayOffset,
   orderDaysFromLines,
@@ -128,31 +130,67 @@ describe("smokePath3Slot", () => {
 });
 
 describe("freeDayOffset / orderDaysFromLines (#1642)", () => {
-  // 2026-11-21 04:43 Zurich: staging-smoke 44858240792 attempt 2 (run number 27, offset 67 = 27.01.2027 like attempt 1).
+  // 2026-11-21 04:43 Zurich: staging-smoke 44858240792 attempt 2 (offset 67 = 27.01.2027 like attempt 1).
   const now = Date.UTC(2026, 10, 21, 3, 43);
   const attempt1 = "Schichtauftrag · HF · Mi 27.01.2027 07:00 – Mi 27.01.2027 15:30 (8.5 Std.) · 4051 Basel";
   const night = "Schichtauftrag · HF · Do 04.03.2027 22:00 – Fr 05.03.2027 07:00 (9 Std.) · 4051 Basel";
+  const nightLine = (offset: number) => {
+    const de = (o: number) => zurich(now, o).split("-").reverse().join(".");
+    return `Schichtauftrag · HF · Mo ${de(offset)} 22:00 – Di ${de(offset + 1)} 07:00 (9 Std.) · 4051 Basel`;
+  };
 
-  it("reproduces the re-run collision: the run-number offset lands on attempt 1's day, the free day moves past it", () => {
-    const start = 40 + (27 % 30);
+  it("moves past the day of an earlier order (the re-run collision of attempt 1)", () => {
     const used = orderDaysFromLines([attempt1]);
     expect(used.has("2027-01-27")).toBe(true);
-    expect(freeDayOffset(now, start, 40, 69, new Set())).toBe(67); // the old behaviour: day of attempt 1
-    expect(freeDayOffset(now, start, 40, 69, used)).toBe(68);
+    expect(freeDayOffset(now, 67, new Set())).toBe(67);
+    expect(freeDayOffset(now, 67, used)).toBe(68);
   });
   it("reads every day of a span, so a night blocks both of its days", () => {
     expect([...orderDaysFromLines([night])]).toEqual(["2027-03-04", "2027-03-05"]);
     expect(orderDaysFromLines(["Auftrag ohne Zeitraum", ""]).size).toBe(0);
   });
-  it("needs all days of a night free and wraps inside the range", () => {
-    const used = new Set(["2027-03-05"]); // offset 104 is 2027-03-05
-    expect(freeDayOffset(now, 103, 75, 104, used, 2)).toBe(75); // 103 needs 103+104, 104 needs 104+105: both touch it
-    expect(freeDayOffset(now, 69, 40, 69, new Set([zurich(now, 69)]))).toBe(40);
+  it("needs all days of a night free", () => {
+    const used = new Set([zurich(now, 76)]);
+    expect(freeDayOffset(now, 75, used, 2)).toBe(77); // 75 needs 75+76, 76 is used itself
   });
-  it("refuses, never skips, when the whole range is used or the start is outside it", () => {
-    const all = new Set(Array.from({ length: 30 }, (_, i) => zurich(now, 40 + i)));
-    expect(() => freeDayOffset(now, 50, 40, 69, all)).toThrow(/no free day/);
-    expect(() => freeDayOffset(now, 39, 40, 69, new Set())).toThrow(RangeError);
+  it("reproduces 44873616277: with offsets 75–104 full, the old window refused; the forward search finds 105", () => {
+    // 15 nights at 75, 77, …, 103 occupy every day of 75–104 (each night touches two days), like staging on 2026-11-21.
+    const lines = Array.from({ length: 15 }, (_, i) => nightLine(75 + 2 * i));
+    const used = orderDaysFromLines(lines);
+    for (let o = 75; o <= 104; o++) expect(used.has(zurich(now, o))).toBe(true);
+    expect(freeDayOffset(now, 75, used, 2)).toBe(105);
+  });
+  it("cannot run out of days through repeated runs: 120 nights in a row (8 times the old window) each get their own two days", () => {
+    const lines: string[] = [];
+    let last = 0;
+    for (let run = 0; run < 120; run++) {
+      const offset = freeDayOffset(now, 75, orderDaysFromLines(lines), 2);
+      expect(offset).toBeGreaterThan(last);
+      lines.push(nightLine(offset));
+      last = offset + 1;
+    }
+    expect(last).toBe(75 + 2 * 120 - 1);
+  });
+  it("refuses, never skips, beyond the horizon or with an invalid start", () => {
+    const all = new Set(Array.from({ length: 11 }, (_, i) => zurich(now, 40 + i)));
+    expect(() => freeDayOffset(now, 40, all, 1, 10)).toThrow(/no free day in the 10 days/);
+    expect(freeDayOffset(now, 40, all, 1, 11)).toBe(51);
+    expect(() => freeDayOffset(now, 0, new Set())).toThrow(RangeError);
+    expect(() => freeDayOffset(now, 40.5, new Set())).toThrow(RangeError);
+    expect(() => freeDayOffset(now, 40, new Set(), 0)).toThrow(RangeError);
+  });
+});
+
+describe("assertBelowRowCap (STAB1-F4)", () => {
+  it("accepts a list below the API row cap", () => {
+    expect(API_ROW_CAP).toBe(1000);
+    expect(() => assertBelowRowCap(0)).not.toThrow();
+    expect(() => assertBelowRowCap(999)).not.toThrow();
+  });
+  it("refuses at the cap, because client_orders() is ordered by start and a capped list hides the latest orders", () => {
+    expect(() => assertBelowRowCap(1000)).toThrow(/API row cap \(1000\)/);
+    expect(() => assertBelowRowCap(5, 5)).toThrow(/later orders may be hidden/);
+    expect(() => assertBelowRowCap(-1)).toThrow(RangeError);
   });
 });
 
