@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { zurichToday } from "@/features/orders/queries";
-import { getMyInstitutions, getPlan } from "@/features/home-plan/queries";
+import { getMyInstitutions, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
 import {
-  addStaff, addStation, assignStaff, loadExample, recordAbsence, removeAbsence, setShiftType, setStaffActive,
-  setStaffingRule, unassignStaff,
+  addStaff, addStation, assignStaff, discardGapOrder, loadExample, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
+  setShiftType, setStaffActive, setStaffingRule, unassignStaff,
 } from "@/features/home-plan/commands";
 import {
-  EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, addDays, assignableStaff, canPlan, canSettle,
-  cellStatusText, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
+  EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, addDays, assignableStaff, canPlan, canPrepareOrder,
+  canSettle, cellOfDraft, cellStatusText, orderLine, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
   monthCode, monthLabel, monthPeople, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
-  type PlanView,
+  type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 
@@ -19,7 +19,7 @@ import { PAGE_LABEL } from "@/lib/auth/nav";
 export default async function HomePlanPage({ searchParams }: PageProps<"/heim">) {
   const sp = await searchParams;
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-  const asked: PlanView = PLAN_VIEWS.find((v) => v.key === one(sp.ansicht))?.key ?? "woche";
+  const asked: PlanView = one(sp.ansicht) === "auftrag" ? "auftrag" : (PLAN_VIEWS.find((v) => v.key === one(sp.ansicht))?.key ?? "woche");
   const today = zurichToday();
   const date = isIsoDate(one(sp.datum)) ? (one(sp.datum) as string) : today;
   const person = one(sp.person);
@@ -94,6 +94,13 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
       ) : view === "monat" ? (
         <MonthView plan={plan} prev={href({ datum: addDays(from, -1) })} next={href({ datum: addDays(to, 1) })}
           personHref={(id) => href({ ansicht: "personal", person: id })} />
+      ) : view === "auftrag" ? (
+        <OrderReview plan={plan} back={back} draft={one(sp.entwurf)} weekHref={href({ ansicht: "woche", entwurf: undefined })}
+          values={{
+            postcode: one(sp.postcode) || null, grade: one(sp.grade) || null,
+            // «Prüfen» sends the checked boxes as `t` (with the marker `geprueft`); a redirect carries `tags` / `req`.
+            tags: one(sp.geprueft) ? tagList([sp.t ?? []].flat().join(",")) : tagList(one(sp.tags)), req: tagList(one(sp.req)),
+          }} />
       ) : view === "personal" ? (
         <StaffView plan={plan} back={back} person={person} personHref={(id) => href({ person: id })}
           prev={href({ datum: addDays(from, -1) })} next={href({ datum: addDays(to, 1) })} />
@@ -223,6 +230,13 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
                           </li>
                         ))}
                       </ul>
+                      {c.order && <OrderBlock order={c.order} reviewHref={`${HOME_PLAN_PATH}?ansicht=auftrag&datum=${d}&entwurf=${c.order.gap_order_id}`} planner={planner} />}
+                      {canPrepareOrder(plan, c) && (
+                        <form action={prepareGapOrder}>
+                          <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
+                          <button type="submit" className={`${btn} w-full`} data-testid="heim-prepare-order">Externen Auftrag vorbereiten</button>
+                        </form>
+                      )}
                       {planner && free.length > 0 && (
                         <form action={assignStaff} className="flex flex-wrap gap-1">
                           <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
@@ -250,6 +264,7 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
 function MonthView({ plan, prev, next, personHref }: { plan: Plan; prev: string; next: string; personHref: (id: string) => string }) {
   const days = daysBetween(plan.from, plan.to);
   const gaps = gapsPerDay(plan);
+  const orders = ordersPerDay(plan);
   const people = monthPeople(plan);
   return (
     <section aria-label="Monatsplan" className="grid gap-3">
@@ -257,6 +272,7 @@ function MonthView({ plan, prev, next, personHref }: { plan: Plan; prev: string;
       <p className="text-xs text-secondary">
         Kürzel je Tag: {plan.shift_types.map((t) => `${t.code} = ${t.label} ${t.starts_at}–${t.ends_at}`).join(" · ")} · A = abwesend
         {" "}· (N) = eingeteilt, zählt aber nicht (abwesend oder nicht mehr aktiv) · eine Nacht steht am Tag ihres Beginns
+        {" "}· Extern: E = vorbereitet, A = Angebot versandt, T = Team hat übernommen, G = gedeckt, K = nicht gedeckt, N = nicht mehr gedeckt
       </p>
       <div className="max-w-full overflow-x-auto rounded-lg border border-stone-200 bg-white">
         <table className="border-collapse text-xs" data-testid="heim-month">
@@ -295,6 +311,15 @@ function MonthView({ plan, prev, next, personHref }: { plan: Plan; prev: string;
                 <td key={d} className={`p-1 text-center font-semibold ${(gaps.get(d) ?? 0) > 0 ? "bg-rose-50 text-rose-800" : "text-secondary"}`}
                   data-testid="heim-month-gaps" data-date={d}>
                   {gaps.get(d) ?? 0}
+                </td>
+              ))}
+              <td />
+            </tr>
+            <tr className="border-t border-stone-200">
+              <th scope="row" className="sticky left-0 z-10 bg-white p-1 text-left">Extern</th>
+              {days.map((d) => (
+                <td key={d} className="p-1 text-center" data-testid="heim-month-orders" data-date={d}>
+                  {(orders.get(d) ?? []).join(" ")}
                 </td>
               ))}
               <td />
@@ -492,6 +517,128 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
             }),
           )}
         </div>
+      </div>
+    </section>
+  );
+}
+
+const toneClass: Record<string, string> = {
+  draft: "border-stone-300 bg-stone-50",
+  wait: "border-amber-300 bg-amber-50 text-amber-900",
+  ok: "border-emerald-900/20 bg-emerald-50 text-emerald-900",
+  alert: "border-rose-400 bg-rose-50 text-rose-800",
+};
+
+// HD-2: the external order of a cell in the words of brief HD.md §3; the database decides the state (one source).
+function OrderBlock({ order, reviewHref, planner }: { order: CellOrder; reviewHref: string; planner: boolean }) {
+  const line = orderLine(order);
+  return (
+    <div role="status" className={`grid gap-0.5 rounded-md border p-2 text-xs ${toneClass[line.tone]}`}
+      data-testid="heim-cell-order" data-code={line.code}>
+      <p className="font-semibold" data-testid="heim-cell-order-headline">Externer Auftrag: {line.headline}</p>
+      {line.detail && <p>{line.detail}</p>}
+      {line.next && <p className="font-semibold" data-testid="heim-cell-order-next">{line.next}</p>}
+      {planner && order.state === "prepared" && (
+        <Link href={reviewHref} className="underline" data-testid="heim-order-review-link">Prüfen und senden</Link>
+      )}
+    </div>
+  );
+}
+
+// HD-2: review screen of a draft. Date, shift and (for a missing grade) the grade come from the cell; the home adds its
+// postcode and the activities. «Prüfen» runs preview_client_order; «Senden» runs confirm_client_order (one order path).
+async function OrderReview({ plan, back, draft, weekHref, values }: {
+  plan: Plan; back: string; draft: string | undefined; weekHref: string;
+  values: { postcode: string | null; grade: string | null; tags: string[]; req: string[] };
+}) {
+  const cell = cellOfDraft(plan, draft);
+  if (!cell || !cell.order || cell.order.state !== "prepared") {
+    return (
+      <section className="grid gap-2 rounded-lg border border-stone-300 bg-white p-4" data-testid="heim-order-review-missing">
+        <p>Dieser Entwurf ist nicht mehr offen.</p>
+        <Link href={weekHref} className="underline">Zur Woche</Link>
+      </section>
+    );
+  }
+  const order = cell.order;
+  const station = plan.stations.find((x) => x.id === cell.station_id);
+  const shift = plan.shift_types.find((x) => x.id === cell.shift_type_id);
+  const postcode = values.postcode ?? plan.institution.order_postcode ?? null;
+  const grade = order.grade_fixed ? order.grade : values.grade;
+  const choices = await getOrderChoices();
+  const preview = postcode && grade && values.tags.length > 0
+    ? await previewGapOrder({ gap: order.gap_order_id, postcode, grade, tags: values.tags, req: values.req })
+    : null;
+  const problems = preview?.result === "ok" ? (preview.preview?.problems ?? []) : (preview?.problems ?? []);
+  const key = crypto.randomUUID();
+  return (
+    <section aria-label="Externen Auftrag prüfen" className="grid max-w-2xl gap-3 rounded-lg border border-stone-300 bg-white p-4" data-testid="heim-order-review">
+      <h2 className="text-lg font-bold">Externen Auftrag prüfen</h2>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+        <dt className="text-secondary">Dienst</dt>
+        <dd data-testid="heim-order-review-shift">{dayLabel(cell.date)} · {station?.name} · {shift?.label} {shift?.starts_at}–{shift?.ends_at}</dd>
+        <dt className="text-secondary">Lücke</dt>
+        <dd>{cellStatusText(cell)}</dd>
+        {order.grade_fixed && (<><dt className="text-secondary">Stufe</dt><dd data-testid="heim-order-review-grade">{gradeLabel(order.grade)} (fehlt in diesem Dienst)</dd></>)}
+      </dl>
+      <form className="grid gap-3" method="get" action={HOME_PLAN_PATH}>
+        <Hidden values={{ ansicht: "auftrag", datum: cell.date, entwurf: order.gap_order_id }} />
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Postleitzahl des Heims</span>
+          <select name="postcode" defaultValue={postcode ?? ""} className={input} data-testid="heim-order-postcode">
+            <option value="">Bitte wählen</option>
+            {choices.postcodes.map((p) => <option key={p.postcode} value={p.postcode}>{p.postcode} {p.place_name}</option>)}
+          </select>
+        </label>
+        {!order.grade_fixed && (
+          <label className="grid gap-1 text-sm">
+            <span className="font-semibold">Stufe</span>
+            <select name="grade" defaultValue={grade ?? ""} className={input} data-testid="heim-order-grade">
+              <option value="">Bitte wählen</option>
+              {GRADE_CHOICES.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+            </select>
+          </label>
+        )}
+        <fieldset className="grid gap-1 text-sm">
+          <legend className="font-semibold">Tätigkeiten</legend>
+          {values.tags.length > 0 && !preview && <p className="text-xs text-secondary">Vorbelegt wie beim letzten Auftrag dieser Station; bitte prüfen.</p>}
+          <input type="hidden" name="geprueft" value="1" />
+          <div className="grid gap-1 sm:grid-cols-2">
+            {choices.activities.map((a) => (
+              <label key={a.code} className="flex min-h-11 items-center gap-2">
+                <input type="checkbox" name="t" value={a.code} defaultChecked={values.tags.includes(a.code)} data-testid="heim-order-tag" />
+                <span>{a.code} · {a.label_de}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <button type="submit" className={btn} data-testid="heim-order-check">Prüfen</button>
+      </form>
+      {preview && (
+        problems.length === 0 ? (
+          <p role="status" className="rounded-md border border-emerald-900/20 bg-emerald-50 p-2 text-sm" data-testid="heim-order-sentence">
+            {preview.preview?.sentence}
+          </p>
+        ) : (
+          <ul role="alert" className="grid gap-1 rounded-md border border-rose-300 bg-rose-50 p-2 text-sm text-rose-800" data-testid="heim-order-problems">
+            {problems.map((p) => <li key={p}>{messageText(p)?.text ?? p}</li>)}
+          </ul>
+        )
+      )}
+      <div className="flex flex-wrap gap-2">
+        {preview && problems.length === 0 && postcode && grade && (
+          <form action={sendGapOrder}>
+            <Hidden values={{ gap: order.gap_order_id, date: cell.date, postcode, grade, key, back }} />
+            {values.tags.map((t) => <input key={t} type="hidden" name="tag" value={t} />)}
+            {values.req.map((t) => <input key={t} type="hidden" name="req" value={t} />)}
+            <button type="submit" className={btnPrimary} data-testid="heim-order-send">Senden: Angebot an alle passenden Teams</button>
+          </form>
+        )}
+        <form action={discardGapOrder}>
+          <Hidden values={{ gap: order.gap_order_id, back }} />
+          <button type="submit" className={btn} data-testid="heim-order-discard">Verwerfen</button>
+        </form>
+        <Link href={weekHref} className={`${btn} grid place-items-center`}>Zur Woche</Link>
       </div>
     </section>
   );
