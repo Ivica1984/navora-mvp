@@ -66,7 +66,7 @@ Es ist immer genau ein Paket aktiv (Blockregel unverändert).
 | Paket | Inhalt | Abhängig | Gates (ein Fenster nach `Paket prüfbereit:`) | Stand |
 |---|---|---|---|---|
 | **HD-1** (#1623) | Heim-Mandant `institutions` (unabhängig von Netzwerk-Organisationen, ARCH1 A1), Stammdaten, Woche, Monat, Plan je Mitarbeiterin, Abwesenheit, Lücke (feste Regeln); 16 Funktionen als Dateien nach STAB1; Beispieldaten; `staging-smoke` Pfad 4 | STAB1 (abgenommen) | `cra` (Qualifikationsstatus; Unterbesetzung nie als «besetzt»), `uxa` (neue Bildschirme 390/1440 px). Kein `lca`-Gate für die Simulation (FE-109 (A)); vor realen Daten Pflicht | **für die Simulation teilabgenommen** auf `9debf74` (2026-11-21 03:39, §PO-Teilabnahme) |
-| **HD-2** | Lücke → vorbefüllter Auftrag über `preview_client_order`/`confirm_client_order` (kein zweiter Bestellweg); gemeinsamer Status §3 in allen Heim-Ansichten; N mit nächster Handlung; Doppelbestellung je Lücke gesperrt; `staging-smoke` Pfad 5 | HD-1 | `cra`, `uxa` | PLANNED |
+| **HD-2** | Lücke → vorbefüllter Auftrag über `preview_client_order`/`confirm_client_order` (kein zweiter Bestellweg); gemeinsamer Status §3 in allen Heim-Ansichten; N mit nächster Handlung; Doppelbestellung je Lücke gesperrt; `staging-smoke` Pfad 5 | HD-1 | `cra`, `uxa` | **für die Simulation teilabgenommen** auf `0b8f537` (2026-11-21 14:39, §PO-Teilabnahme HD-2); Registerabnahme §6 (2) OPEN |
 | **AI1** | Modellanschluss über das bestehende Gateway: Kostendeckel (CHF 50/Monat, 300 Aufrufe/Tag), Protokoll, Auswertung, Not-Aus; erste Modellfunktion Berichtsentwurf (`briefs/AI1.md`) | HD-2 | `cra`, `lca` (Anbieterbedingungen, FE-099 (7)), `aia` | approved, verschoben nach FE-109 (b) |
 | **HD-3** | KI-gestützte Planung §5: (a) Optimierung: zulässiger Wochen- und Monatsentwurf, Umplanungsoptionen nach Abwesenheit; (b) Modell: Sprache → Abwesenheit und Planungswünsche, Rangfolge und Abwägung zwischen zulässigen Optionen | AI1 (für b) | `cra`, `uxa`, `aia` | PROPOSED bis `aia`/`eng` §5 bestätigen |
 
@@ -158,3 +158,19 @@ Benannter Commit `9debf74` (Code gleich `494dd0e`). Gate «Simulation, synthetis
 | `ci-repeat` 10/10 `db`, `e2e` | erfüllt, 20/20, 0 skipped | 44852899930; `db` «Files=159, Tests=6135», PASS; `e2e` «198 passed»; im Fenster 02:54–03:07 |
 
 PO-Status: **accepted** (Teilabnahme). Folgeposten unverändert: CGR-267 bis CGR-269, UXR-265 bis UXR-268. Nächstes Paket: HD-2 (§4).
+
+## PO-Teilabnahme HD-2 (geplanter PO-Lauf 2026-11-21 14:39, Signal FE-105 (1) (d))
+
+Benannter Commit `0b8f537` (`recovery/main` nach #1641 `ca334ce` und den reinen Dokumentations-Merges #1657 `13e8606`, #1658 `0b8f537`; Code gleich `ca334ce`). Gate «Simulation, synthetische Daten». Der PO hat keine Tests lokal ausgeführt; alle Nachweise aus GitHub-Jobdaten und Roh-Protokollen.
+
+| Kriterium | Ergebnis | Nachweis |
+|---|---|---|
+| Lücke → vorbefüllter Auftrag über `preview_client_order`/`confirm_client_order`, kein zweiter Bestellweg | erfüllt | Gates #1641; e2e `hd2-gap-order.spec.ts` ×10 |
+| Gemeinsamer Status §3/§3a in Woche, Monat, «Externe Aufträge»; FE-110 (b) `order_cover`-Text | erfüllt | `cra-gate: #1641 567e36b clear` 7060791013; `uxa-gate: #1641 567e36b clear` 7061441903 |
+| Doppelbestellung je Lücke gesperrt; Rückzug als letztes Teilstück (Grenze: ein aktiver Auftrag je Zelle, HD-2-F1) | erfüllt | pgTAP (Files=162, Tests=6370) PASS ×10 |
+| `ci` grün auf Merge-Commits | erfüllt | `ca334ce`, `13e8606`, `0b8f537` (Journal 13:39) |
+| Migrationen auf `navora-staging` | erfüllt | `staging`-Job 136836350592: 0161–0163 |
+| `staging-smoke` Pfade 5 und 6 grün auf dem Merge-Stand | erfüllt | 44900296031 auf `0b8f537`, 7/7; Render `0b8f537` |
+| `ci-repeat` 10/10 `db`, `e2e` | erfüllt, 20/20, 0 skipped | 44905215040 auf `0b8f537` (Zweig `repeat/hd2-accept-0b8f537`); jeder `db`-Versuch «Files=162, Tests=6370», «Result: PASS», keine Zeile `not ok`, kein `# SKIP`; jeder `e2e`-Versuch «203 passed», kein übersprungener, instabiler oder fehlgeschlagener Test; Urteil 136852996371: im Fenster (Start 13:42, Ende 13:57 Zürich) |
+
+PO-Status: **accepted** (Teilabnahme Paket HD-2, Simulation). **Nicht die Registerabnahme §6 (2):** der Weg T → G → N mit Abwesenheit der bestätigten Person und die gleiche Sicht in `/team` und `/field` sind auf Staging nicht als eigener Pfad nachgewiesen, und `/field` fällt auf Staging derzeit ganz aus, wenn `team_visit_alerts` die 8-s-Grenze überschreitet (`staging-smoke` Pfad 3 rot 44902700301, 44906414779; Ursache `docs/engineering/STAGING_DB_SLOWDOWN_2026-11-21.md` §4). Registerabnahme nach PERF1 mit diesem Pfad. Folgeposten unverändert: UXR-269 (#1661, vor dem Founder-Rundgang), UXR-270 bis UXR-273, CGR-270, CGR-271, HD-2-F1, HD-2-F2, AUT-180 bis AUT-182. KI: feste Regeln, kein Modell.

@@ -205,6 +205,22 @@ Was die Protokolle zeigen:
 - **Vor realen Personen offen:** CGR-267 (nur drei der fünf Matrix-Stufencodes; S1 vor realen Personaldaten), CGR-268, CGR-269, UXR-265 bis UXR-268; Gleichzeitigkeit zweier Planender (OPEN, laut Ready-Report).
 - **Folge:** nächstes Paket HD-2 (Lücke → externer Auftrag → Status zurück; FE-110 (b) `order_cover`-Text), danach Registerabnahme HEIM-DP «funktionsfähig, feste Regeln».
 
+### HD-2 Lücke → externer Auftrag → Status zurück (Teilabnahme im Block HEIM-DP, FE-109, FE-110, FE-111)
+
+- **Status:** **für die Simulation teilabgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid geplanter PO-Lauf 2026-11-21 14:39 auf dem benannten Commit **`0b8f537`** (`recovery/main` nach #1641 `ca334ce` und den reinen Dokumentations-Merges #1657, #1658; Code gleich `ca334ce`). Kriterien: `docs/agents/briefs/HD.md` §3, §3a, §4 (HD-2) und §PO-Teilabnahme HD-2. Ausdrücklich eine **Teilabnahme des Pakets**, nicht die Registerabnahme HEIM-DP §6 (2).
+- **Umfang:** Aus einer Lücke ein vorbefüllter externer Auftrag über den bestehenden Bestellweg; gemeinsamer Status (vorbereitet, Angebot versandt, übernommen, gedeckt, nicht gedeckt, nicht mehr gedeckt, zurückgezogen) in Woche, Monat und «Externe Aufträge»; Doppelbestellung je Lücke gesperrt; Rückzug eines offenen Auftrags; Migrationen 0161–0163; `staging-smoke` Pfade 5 und 6.
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - Gates auf dem Endstand `567e36b` von #1641: `cra-gate: #1641 567e36b clear` (7060791013), `uxa-gate: #1641 567e36b clear` (7061441903).
+  - `ci` grün auf `ca334ce`, `13e8606`, `0b8f537`; `staging`-Job 136836350592 hat 0161–0163 auf `navora-staging` eingespielt.
+  - **Auf Staging ausgeführt:** `staging-smoke` 44900296031 auf `0b8f537` 7/7, darunter Pfad 5 (Lücke extern bestellt, Basler Pflegekraft übernimmt, Woche zeigt «Gedeckt») und Pfad 6 (Auftrag zurückgezogen, Lücke bleibt, /order «Zurückgezogen»); Render lieferte `0b8f537`.
+  - `ci-repeat` 44905215040 auf `0b8f537` (Zweig `repeat/hd2-accept-0b8f537`, vom PO gestartet): **20/20 `success`**; jeder `db`-Versuch «Files=162, Tests=6370», «Result: PASS», keine Zeile `not ok`, keine `# SKIP`-Zeile; jeder `e2e`-Versuch «203 passed», kein übersprungener, instabiler oder fehlgeschlagener Test; Urteil 136852996371: im Fenster (Start 13:42, Ende 13:57 Zürich).
+- **Abgenommen:** Die Heimleitung eines synthetischen Heims macht aus einer Lücke einen vorbefüllten externen Auftrag, prüft und sendet ihn, sieht denselben Status in Woche, Monat und «Externe Aufträge», kann einen offenen Auftrag zurückziehen und kann dieselbe Lücke nicht doppelt bestellen.
+- **KI-Ehrlichkeit:** Jede Funktion von HD-2 ist eine **feste, prüfbare Regel**; kein Testersatz für KI, kein KI-Modell in einem getesteten Pfad.
+- **Nicht Teil der Abnahme:** Registerabnahme §6 (2) (Weg T → G → N mit Abwesenheit, gleiche Sicht in `/team` und `/field` auf Staging); UXR-269 (#1661: «Senden» sendet genau, was die Felder zeigen; vor dem Founder-Rundgang); mehrere Aufträge je Lücke (HD-2-F1); periodische Nachprüfung (HD-2-F2).
+- **Bekannte Staging-Grenze (Stand 14:39):** `staging-smoke` Pfad 3 rot auf `b44b96a` und `4d88399` (gleicher App-Code): `/field` fällt ganz aus, wenn `team_visit_alerts` die 8-s-Grenze überschreitet (Ursache `docs/engineering/STAGING_DB_SLOWDOWN_2026-11-21.md` §4). Behebung PERF1 (`briefs/PERF1.md`). Betrifft nicht die HD-2-Nachweise auf `0b8f537`.
+- **Vor realen Personen offen:** CGR-270, CGR-271 (`lca`/`po`), UXR-270 bis UXR-273, AUT-180 bis AUT-182; `lca`-Gate (FE-109 (A)); G-COACH (§4).
+- **Folge:** UXR-269 (#1661), dann PERF1, dann AI1 (FE-111); Registerabnahme HEIM-DP «funktionsfähig, feste Regeln» nach PERF1.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -247,3 +263,4 @@ Was die Protokolle zeigen:
 - 2026-11-20 ca. 18:40 (`po`, Live-Sitzung): Blockakte STAB1 (technisches Paket, für die Simulation abgenommen auf `f7dfd2d`, `ci-repeat` 44778677226 20/20).
 - 2026-11-20 ca. 20:05 (`po`, Live-Sitzung): §4 Offene Gates vor realen Daten; G-COACH (FE-110 (4)).
 - 2026-11-21 03:39 (`po`): Blockakte HD-1 (Teilabnahme im Block HEIM-DP, für die Simulation abgenommen auf `9debf74`, `ci-repeat` 44852899930 20/20).
+- 2026-11-21 14:39 (`po`): Blockakte HD-2 (Teilabnahme Paket im Block HEIM-DP, für die Simulation abgenommen auf `0b8f537`, `ci-repeat` 44905215040 20/20); bekannte Staging-Grenze Pfad 3.
