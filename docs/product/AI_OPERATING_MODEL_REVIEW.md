@@ -702,6 +702,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** A16 added as PROPOSED.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**HD-1 merged as fixed rules; the residual list's way outs become commands, not re-typing (`aia` 2026-11-21 02:18, review 79, AUT-178, AUT-179):**
+- **Label check:** HD-1 on `recovery/main` (`2378c2a`, migration 0160, ADR-223) is fixed rules only; no agent, no ledger write. No agent opened.
+- **Controls proposed:**
+  - AUT-178: «Dienst ersetzen ab Datum» as a planner command next to «Vorwoche übernehmen» (HD-3a); every row re-checked like a manual one; past rows untouched; R2 unchanged.
+  - AUT-179: future assignments of a deactivated person shown as open items; release only by the lead's tap, row by row in the list; freed cells are ordinary gaps for HD-2.
+  - Both PROPOSED (PO; `eng`, `uxa`, `cra` as named). Neither is a condition of HD-1 or HD-2.
+- **HD-2:** prefilled order from a gap supported (eliminate step); «Nicht mehr gedeckt · kein Angebot offen» (FE-110 (b), #1636 probe) supported as a safety monitoring fix.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -782,3 +791,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-20 08:19 | `aia` | §12: block «BK-f contract pre-read; an invoice never routes through the signed report»: fixed-rule label check on #1581; controls AUT-162 to AUT-164; AUT-152 and AUT-158 closed. No agent added or removed |
 | 2026-11-20 13:52 | `aia` | §12: block «AI1 reviewed: the first connected model function, six controls before its contract»: controls AUT-165 to AUT-170 (PROPOSED). No agent added or removed |
 | 2026-11-20 20:18 | `aia` | §7: agent A16 «Home roster planning (HD-3)» added as PROPOSED. §12: block «HEIM-DP HD-3: the optimiser does the planning work, the model only orders and translates»: controls AUT-171 to AUT-177 (PROPOSED); HD-1 label check (fixed rules) |
+| 2026-11-21 02:18 | `aia` | §12: block «HD-1 merged as fixed rules; the residual list's way outs become commands»: label check on `2378c2a`; controls AUT-178, AUT-179 (PROPOSED). No agent added or removed |
