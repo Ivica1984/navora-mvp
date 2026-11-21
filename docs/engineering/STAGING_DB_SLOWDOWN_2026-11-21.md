@@ -38,3 +38,34 @@ All numbers below were read **read-only** on Supabase `navora-staging` (`qpmdryx
 **Way back:** (A) is one migration with whole `create or replace` of two or three functions from their source files; reverting is the previous source file in a new migration. No table, grant or RLS change.
 
 **Not touched by this proposal:** HD-2 (#1641, ready-reported, stable head). (A) would be its own small `fix/` or `stab/` package after HD-2 merges, because HD-2's migration 0161 re-creates `order_cover`.
+
+## 4. Addendum 2026-11-21 14:20: cause of the red `staging-smoke` path 3 (FE-110 (3), *Active now* 13:39)
+
+Author: `eng` (scheduled run 2026-11-21 14:10 Europe/Zurich). **Root cause from raw data, not a guess.** Read-only: GitHub job logs, Supabase `navora-staging` edge and Postgres logs, `cron.job_run_details`, `pg_roles`. Nothing written; synthetic data only.
+
+### 4.1 Facts (IMPLEMENTED state, measured)
+
+| Run (commit) | Failing step | What the logs show |
+|---|---|---|
+| `staging-smoke` 44902700301 job 136841753355 (`b44b96a`, Render served `b44b96a` before and after) | path 3, after «Losfahren»: card shows «Wird gespeichert …», then «Losfahren» again; «Unterwegs» never appears (20 s) | `rpc/depart_visit` **200** (3.2 s, 12:24:24 UTC) — the command was written. The refresh of `/field` that follows (12:24:27–28) calls `rpc/team_visit_alerts` twice: **500 after 11.7 s / 11.8 s**; Postgres logs «canceling statement due to statement timeout» at 12:24:37 and 12:24:38. |
+| `staging-smoke` 44906414779 job 136852845393 (`4d88399`, docs-only PO merge, Render served `4d88399` before and after) | path 3, after the three time corrections and `page.reload()`: the «Bericht unterschreiben» form never appears (test timeout 240 s) | `rpc/correct_visit_time` **200** three times (13:09:39–44 UTC). Every `team_visit_alerts` call from 13:09:40 to 13:09:46 is **500 after 10.1–12.3 s**; after 13:09:46 no further `/field` data call: the reloaded page did not render. |
+
+- Statement timeout of role `authenticated` on staging: **8 s** (`pg_roles.rolconfig`).
+- `team_visit_alerts` in the minute before (13:08:37–13:09:32, same run): 2.2–7.2 s, i.e. already close to the 8 s limit before it was crossed.
+- Minute evaluator `navora-sig1-signals`: 12:22 UTC 361 ms, 12:23 **2964 ms**, 12:24 started 5 s late and took **5212 ms** (overlapping the failing step); mean of the last hour **2103 ms** (08:00 UTC: 1184 ms, §1).
+- `partner_requests` on staging: **102** (10:09: 71). Staging migration level: `20261021000163`.
+
+### 4.2 Chain (IMPLEMENTED code)
+
+1. The nurse's command succeeds (`depart_visit`, `correct_visit_time`: 200).
+2. `/field` re-renders on the server (`router.refresh()` in `field-client.tsx` `run()`, or `page.reload()`); `page.tsx` loads `getTeamVisitAlerts()` together with the day's data.
+3. `public.team_visit_alerts` computes every branch of `private.derived_exceptions`, including `order_cover` for every confirmed order (§2); under the smoke's own parallel load plus the minute evaluator it runs past 8 s and is cancelled (57014 → HTTP 500).
+4. `getTeamVisitAlerts()` throws on any error (`src/features/team/queries.ts`), so the **whole `/field` render fails**: in run 1 the client keeps the old card («Geplant», «Losfahren») although the visit is already «Unterwegs»; in run 2 the reloaded page shows no report form.
+
+So path 3 is red because of (a) the linear cost of §2 (ADR-226 (A)), which crosses the 8 s statement timeout as the smoke adds about 10 orders an hour, and (b) a **fail-hard design in `/field`**: a failing auxiliary hint list (overdue/stuck visits) takes down the carer's whole day view, so she sees a stale state after a successful command. Not the Next.js upgrade, not a Render deploy (both runs: same commit before and after), not old test data. (b) is a real availability defect for carers, not only a test artefact; it will hit any organisation whose `team_visit_alerts` call fails.
+
+### 4.3 Consequence and proposal (PLANNED, decision `po`)
+
+- **Every further `staging-smoke` run is likely red at path 3** until (A) lands (growth since 10:09: evaluator +78 %, orders +44 %; estimate). Paths 4–6 are then not reached, so «verified on staging» for UXR-269 (#1661) after its merge is likely blocked by this, not by #1661.
+- **PERF1 scope proposal for the brief:** (1) ADR-226 (A) as agreed; (2) STAB1-F5 and STAB1-F2 as agreed; (3) **new, needs `po` and a `uxa`/`cra` view:** `/field` must not fail as a whole when `team_visit_alerts` (or another hint list) fails: keep the day view and show one visible line «Hinweise zu Einsätzen konnten nicht geladen werden» instead of the list (a silent omission of safety hints would be wrong; a visible notice keeps the carer informed). Test: unit/e2e with a failing RPC; T-2 «one interrupted step» fits exactly this. (4) PERF1 `db` budget: `team_visit_alerts` on the CI seed with N orders below a stated limit.
+- Until then the PO may read path 3 red with the evidence above; no test is weakened or skipped.
