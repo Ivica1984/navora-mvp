@@ -84,6 +84,59 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
     });
   }
 
+  // T-1 «sent = shown» and T-2 «one interrupted or double step» (FE-111; brief acceptance criteria 3-5). Own fixture
+  // in Testorganisation S, which no spec after this file reads (checked: plan3 … work use no org-S account), so no count
+  // of another spec changes: one case and one planned needs-assessment visit of Testteam Basel today at 23:47, the
+  // seeded registered nurse responsible. Written as the table owner like supabase/seed.sql; new ids on every run, so a
+  // local re-run never finds an earlier run's state. visit_events stay append-only: nothing is deleted afterwards.
+  test("T-1/T-2: while the hint list fails, a double tap on «Losfahren» moves the card once to «Unterwegs», as stored (390 px)", async ({ page }) => {
+    const ORG_S = "00000000-0000-4000-b000-000000000019";
+    const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel
+    const NURSE_S = "00000000-0000-4000-a000-0000000009e6"; // pflegebs.test, registered nurse HF (seed, ADR-180)
+    const caseId = psql(`insert into public.cases (organization_id, created_at, name, first_name, last_name, region, plz,
+        status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id)
+      values ('${ORG_S}', private.now() - interval '1 day', 'Testfall PERF1', 'Testfall', 'PERF1', 'Basel-Stadt', '4051',
+        'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Bedarfsabklärung', 'Testteam Basel', '${TEAM_S}')
+      returning id`);
+    const visitId = psql(`insert into public.care_visits (organization_id, created_at, case_id, team_id, visit_date, time_start,
+        time_end, services_provided, billable, status, planned_minutes_a, responsible_user_id, is_needs_assessment)
+      values ('${ORG_S}', private.now() - interval '1 day', '${caseId}', '${TEAM_S}', (private.now() at time zone 'Europe/Zurich')::date,
+        '23:47', '23:58', array['Grundpflege'], false, 'planned', 11, '${NURSE_S}', true)
+      returning id`);
+    const stored = () => psql(`select status from public.care_visits where id = '${visitId}'`);
+    const departures = () => Number(psql(`select count(*) from public.visit_events where visit_id = '${visitId}' and to_status = 'on_the_way'`));
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/login");
+    await page.getByLabel("E-Mail").fill("pflegebs.test@navora.test");
+    await page.getByLabel("Passwort").fill(PASSWORD);
+    await page.getByRole("button", { name: "Anmelden" }).click();
+    await page.waitForURL(/\/field$/);
+
+    breakAlerts();
+    try {
+      await page.reload();
+      // Interrupted step: the hint list fails, the notice stands, the card and its command stay.
+      await expect(page.getByTestId("visit-alerts-unavailable")).toHaveText(NOTICE + ".");
+      const card = page.getByRole("article", { name: /23:47 – 23:58/ });
+      await expect(card.getByTestId("visit-status")).toHaveText("Geplant");
+      // Double step: two taps in quick succession on the same button.
+      await card.getByRole("button", { name: "Losfahren" }).dblclick();
+      await expect(card.getByTestId("visit-status")).toHaveText("Unterwegs");
+      await expect(card.getByRole("button", { name: "Einsatz starten" })).toBeEnabled();
+      await expect(card.getByTestId("command-error")).toHaveCount(0);
+      // T-1: what the card shows is what the server stored, also after a fresh load; exactly one state change.
+      expect(stored()).toBe("on_the_way");
+      expect(departures()).toBe(1);
+      await page.reload();
+      await expect(page.getByTestId("visit-alerts-unavailable")).toHaveCount(1);
+      await expect(page.getByRole("article", { name: /23:47 – 23:58/ }).getByTestId("visit-status")).toHaveText("Unterwegs");
+    } finally {
+      restoreAlerts();
+    }
+    expect(departures()).toBe(1);
+  });
+
   test("/team: the team view stays and the notice stands in place of «Einsätze mit Handlungsbedarf»", async ({ page }) => {
     await signIn(page, NURSE);
     await page.goto("/team");
