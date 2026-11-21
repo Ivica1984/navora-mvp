@@ -392,6 +392,23 @@
         "institution_audit",
         "assert_access_open"
       ]
+    },
+    {
+      "name": "private.order_cover",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "Safety net"
+      ]
+    },
+    {
+      "name": "public.client_orders",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "is_client_member"
+      ]
     }
   ]
 }
