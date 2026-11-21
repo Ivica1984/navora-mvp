@@ -711,6 +711,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **HD-2:** prefilled order from a gap supported (eliminate step); «Nicht mehr gedeckt · kein Angebot offen» (FE-110 (b), #1636 probe) supported as a safety monitoring fix.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**HD-2 draft pre-read: one order path, prefill and withdrawal stay lean; an unsent draft needs an end (`aia` 2026-11-21 08:19, review 80, AUT-180 to AUT-182):**
+- **Label check:** HD-2 draft #1641 (`5781ecd`) is fixed rules only; the send goes through `confirm_client_order`; no agent, no ledger write. No agent opened.
+- **Controls proposed:**
+  - AUT-180: a prepared, unsent order is listed before its shift starts and stops blocking the cell once the shift has started; no automatic send, no invented lead time.
+  - AUT-181: «Lücken dieser Woche vorbereiten» as one prepare for all open gaps; each order still sent by its own tap with its own preview (no select-all).
+  - AUT-182: prefill source and prefilled activities stored on the draft, so the unchanged-prefill share per home is the baseline any later activity proposer must beat.
+  - All PROPOSED (PO; `eng`, `uxa` as named). None is a condition of HD-2.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -792,3 +801,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-20 13:52 | `aia` | §12: block «AI1 reviewed: the first connected model function, six controls before its contract»: controls AUT-165 to AUT-170 (PROPOSED). No agent added or removed |
 | 2026-11-20 20:18 | `aia` | §7: agent A16 «Home roster planning (HD-3)» added as PROPOSED. §12: block «HEIM-DP HD-3: the optimiser does the planning work, the model only orders and translates»: controls AUT-171 to AUT-177 (PROPOSED); HD-1 label check (fixed rules) |
 | 2026-11-21 02:18 | `aia` | §12: block «HD-1 merged as fixed rules; the residual list's way outs become commands»: label check on `2378c2a`; controls AUT-178, AUT-179 (PROPOSED). No agent added or removed |
+| 2026-11-21 08:19 | `aia` | §12: block «HD-2 draft pre-read: one order path, prefill and withdrawal stay lean; an unsent draft needs an end»: label check on `5781ecd`; controls AUT-180 to AUT-182 (PROPOSED). No agent added or removed |
