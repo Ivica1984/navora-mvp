@@ -16,6 +16,58 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-21 20:33 CET: gate line for **#1661** (UXR-269 «Senden» sends exactly what the boxes show, head `9e6612c`) and specification review of **PERF1** (`briefs/PERF1.md`, #1665) with the `cra` questions addressed to me (FE-111 (d) ADR-226 (B); `aia` AUT-184, AUT-185 in #1667; `eng` #1666). **`cra-gate: #1661 9e6612c clear`** (gate «Simulation, synthetic data»; not a merge condition: the PO named `uxa` as the only gate, 7063570465). Four advisory findings for the PERF1 gate, no blocking finding.
+
+### What I read
+
+- Read on `recovery/main` `b882404`. Changes since my 10:44 section: #1641 HD-2 merged (`ca334ce`, my gate `567e36b`), accepted for the simulation on `0b8f537` (PO 14:39, `ABNAHMEAKTE.md` §2 HD-2); #1663 (`eng` root cause of red `staging-smoke` path 3, `docs/engineering/STAGING_DB_SLOWDOWN_2026-11-21.md`); #1664 (`aia` 81); #1662, #1665 (PO; FE-111 «Stabil zuerst», PERF1 brief). Open: #1661, #1666 (`eng` journals, ADR-226 draft), #1667 (`aia` 82).
+- #1661: `git diff recovery/main...9e6612c` (8 files); in full `checkGapOrder`, `sendGapOrder` (`src/features/home-plan/commands.ts`), `sameOrderChoice`, `orderSendSummary` (`rules.ts`), the `OrderReview` form in `heim/page.tsx` (hidden `req`, `checked_*` snapshot, `formAction={sendGapOrder}`). CI on `9e6612c` from `eng`'s ready report 7062965979 and the check-run API (all `success`); I did not read the job logs this run.
+- PERF1: the brief; `getTeamVisitAlerts` (`src/features/team/queries.ts:46-54`), `getSafetyAlerts` (`src/features/field/queries.ts:130-141`), the `Promise.all` of `field/page.tsx:33-55`; `getOperationsData` (`src/features/operations/queries.ts:25-58`); the evaluator schedule (`20261021000064_sig2_followup_liveness_watched_hours.sql:178, 237-242`); `team_visit_alerts` kinds in `20261021000080` (`visit_overdue`, `visit_stuck`, `visit_interrupted`, `responsible_absent`, `report_correction_open`, …).
+- I ran no NAVORA test. Live projects not touched.
+
+### #1661: gate criteria
+
+1. **What is sent equals what was checked: met (IMPLEMENTED on the head).** «Prüfen» and «Senden» are one form; `sendGapOrder` compares the shown postcode, grade and activity set with the snapshot of the checked preview (`sameOrderChoice`, set compare) and sends nothing on any difference or a missing snapshot (`order_changed_recheck`, fail closed). The database re-checks every hard rule on send (`institution_send_gap_order`, unchanged). This removes a documentation-integrity defect: before, an order could go out with activities the leader had un-ticked (#1656).
+2. **Required activities cannot drift: met.** `req` is a hidden field carried from the prefill, not editable on the screen; a required activity un-ticked as an activity is refused by the database (`required_tag_not_in_tags`).
+3. **The send line invents nothing:** activity names come from `qual_activities.label_de` (same source as `/order`); a code without a name is shown as its code. No qualification rule added or changed.
+- The snapshot travels in the form (client side); it is a guard against a mistaken send, not an authorisation control. Authorisation and every rule stay in the database. No finding.
+
+### PERF1: specification review (for the gate after `Paket prüfbereit:`)
+
+Today (IMPLEMENTED) `/field` and `/team` fail as a whole when `team_visit_alerts` fails, and `/field` also when `field_safety_alerts` fails. A whole-page failure is not silent (the carer sees an error), but she loses the day view, the visit commands and the report form: a continuity hazard of its own (H-56). The PERF1 degrade is therefore a safety improvement for hint lists, provided the conditions below hold.
+
+**ADR-226 (B) (FE-111 (d), asked of me). Clinical Architect 2026-11-21 recommendation, decision `po`:** do **not** simply drop `order_not_covered` for ended orders. An uncovered shift that has ended is a past staffing gap in a ward: Operations must still see it until someone has handled it. Recommended form: bound the *live* computation to orders that have not ended, and keep an ended uncovered order as a stored, handled-or-open record (written once when the order ends, then read, not recomputed). What handling an uncovered past shift requires (incident review, notice to the Clinical Owner) is UNKNOWN; owner: Clinical Owner. Reason for urgency: after (A) `operations_exceptions` alone keeps the unbounded cost, and the Operations page fails as a whole on it (CGR-274).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-272** | PERF1 scope (2): hint-list degrade on `/field` | **advisory**; S2; `cra` conditions for the PERF1 gate | A degrade is safe only if a failed list can never read as «no hints». The brief states the notice line but not: that it is shown on every reload while the call fails (no cached empty list), that it sits where the hints would be and above the visit cards, that the failure is counted (today only a log line `team.visit_alerts_load_failed`), and `/team`, where the lead decides cover on `visit_overdue` / `visit_stuck`, which fails hard in the same way (`team/page.tsx:42`; AUT-184). | `team/queries.ts:46-54` throws on any error; brief §Scope (2), §Open questions | e2e (forced RPC error): notice visible on `/field` and `/team`, no empty hint list, notice again after reload; a passing call removes the notice; one shared helper; staging-smoke or a counter shows load failures (target 0) |
+| **CGR-273** | Failure form of safety lists (`field_safety_alerts`) | **advisory**; S2 (before real data); decision Clinical Owner (UNKNOWN), `po` | Agrees with `aia` AUT-185: a safety list is not a hint list and must not go behind the generic degrade helper in PERF1; it stays fail-hard until decided. Fail-hard is the safer of today's two forms but costs the carer her day view. Proposal (PROPOSED, not a rule): day view stays, a distinct warning naming the safety notes on every visit card of the day, retry, the team lead informed. Whether a visit may start while safety notes cannot be loaded is a clinical decision (UNKNOWN). | `field/queries.ts:130-141` (throws «Sicherheitshinweise konnten nicht geladen werden.»); `field/page.tsx:47` | PERF1: unit/e2e shows `getSafetyAlerts` unchanged and not behind the helper; later: Clinical Owner names the form; e2e for that form |
+| **CGR-274** | Operations exceptions after ADR-226 (A) | **advisory**; S2; `po` (B), `eng` | `getOperationsData` throws when `operations_exceptions` fails, so a timeout hides every exception from Operations, missed and overdue visits included. (A) leaves `operations_exceptions` with the full `order_cover` cost (`eng`, #1666 DECISIONS draft), so growth in orders moves the timeout from the carer page to the coordinator page. | `operations/queries.ts:36-48`; `STAGING_DB_SLOWDOWN_2026-11-21.md` §2, §3 (B) | ADR-226 (B) as recommended above, or the PERF1 budget test extended to `operations_exceptions` with N orders; until then, a named follow-up with a limit |
+| **CGR-275** | Scheduled signal evaluator under the same cost | **advisory**; S2; `eng` (evidence) | `private.evaluate_all_signals` runs every minute (pg_cron `navora-sig1-signals`) and today computes every branch of `derived_exceptions` for each organisation. Whether its runs overran or failed on staging during the slowdown (late or missed escalation of overdue visits) is UNKNOWN. | `20261021000064_…:178, 237-242`; brief §Scope (1) | Ready report names the evaluator's run durations on staging from read-only data, or states UNKNOWN; PERF1 call-count test (AUT-186) covers the evaluator path: 0 calls of `private.order_cover` |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1661 UXR-269 «Senden» sends exactly what the boxes show | `9e6612c` | **`cra-gate: #1661 9e6612c clear`** · gate «Simulation, synthetic data». Fail-closed compare of shown and checked values, required activities not editable, database re-checks every rule. Not a merge condition (PO 7063570465); `uxa` gave its clear line (7068083421). |
+| PERF1 | not built | Specification reviewed. At the gate `cra` checks CGR-272 (conditions), CGR-273 (safety list not behind the helper) and that ADR-226 (A) is row-equivalent for every caller (pgTAP). CGR-274, CGR-275 are follow-ups, not PERF1 merge conditions unless the PO places them there. |
+
+Not reviewed as gates: #1666 (`eng` journals, docs; ADR-226 draft read for CGR-274), #1667 (`aia` 82; AUT-184 to AUT-186 read), #1612, #1611, #1541, #1540 (docs or not the active package).
+
+### Findings closed
+
+None. CGR-270, CGR-271 (HD-2 follow-ups) and CGR-267 to CGR-269 stay open.
+
+### Decisions requested
+
+- **`po`:** ADR-226 (B) along the recommendation above (live bound plus stored record for ended uncovered orders); place CGR-272 as a PERF1 acceptance condition (`/team` in scope or a named follow-up); place CGR-274, CGR-275.
+- **Clinical Owner (UNKNOWN) / owner:** failure form of safety notes and whether a visit may start without them (CGR-273); what an ended uncovered shift requires (ADR-226 (B)); unchanged: higher level for a lower requirement (CGR-267, D-29).
+- **`lca`:** unchanged: cancellation terms and cut-off (CGR-271).
+
+---
+
 ## 2026-11-21 10:44 CET: package gate review of **#1641** (HD-2 «Lücke → externer Auftrag → Status zurück», head `567e36b`; migrations 0161, 0162, 0163; pgTAP 160, 161, 162, 157 guards; `eng` ready report 7060210381). Gate window opened by the PO (7060747058; FE-089 (2), FE-097; `briefs/HD.md` Fassung 3 §3, §3a, §4 row HD-2, §6 (2)). **`cra-gate: #1641 567e36b clear`** (gate «Simulation, synthetic data»; two advisory findings as named follow-ups, no new merge condition, FE-089 (3)).
 
 ### What I read
