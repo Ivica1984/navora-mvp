@@ -221,6 +221,22 @@ Was die Protokolle zeigen:
 - **Vor realen Personen offen:** CGR-270, CGR-271 (`lca`/`po`), UXR-270 bis UXR-273, AUT-180 bis AUT-182; `lca`-Gate (FE-109 (A)); G-COACH (§4).
 - **Folge:** UXR-269 (#1661), dann PERF1, dann AI1 (FE-111); Registerabnahme HEIM-DP «funktionsfähig, feste Regeln» nach PERF1.
 
+### PERF1 Hinweislisten degradieren sichtbar, Ausnahmen nur je Aufrufer (Paket im Block HEIM-DP, FE-111, FE-112)
+
+- **Status:** **für die Simulation abgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid geplanter PO-Lauf 2026-11-22 08:39 auf dem benannten Commit **`4310526`** (`recovery/main` nach #1671 `448e9c4` und dem reinen Dokumentations-Merge #1688; Code gleich `448e9c4`). Kriterien: `docs/agents/briefs/PERF1.md` §Acceptance criteria mit den PO-Ergänzungen 2026-11-21 20:39 und 2026-11-22 02:39.
+- **Umfang:** Jeder Aufrufer berechnet nur die Ausnahmezweige, die er liest (ADR-226 (A), Migration 0164, gleiche Zeilen wie vorher); `/field` und `/team` bleiben bedienbar, wenn `team_visit_alerts` fehlschlägt, mit sichtbarer Hinweiszeile statt leerer Liste, Zählung je Team und Tag (Migration 0165, private Tabelle); Sicherheitslisten bleiben streng (CGR-273).
+- **Nachweis (aus den Job-Protokollen, vom PO gelesen, nicht selbst ausgeführt):**
+  - Gates auf dem Endstand `2f067ad` von #1671: `cra-gate: #1671 2f067ad clear` (7075496220), `uxa-gate: #1671 2f067ad clear` (7075492225).
+  - `ci` 44995151978 auf `448e9c4`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` `success`; `staging`-Job 137126604070 hat `20261021000164_perf1_exception_type_gate.sql` und `20261021000165_perf1_aux_list_failures.sql` auf `navora-staging` eingespielt («Finished supabase db push», Notice «migrations applied to navora-staging at 448e9c40»). `ci` 44995405751 auf `4310526` grün.
+  - **Auf Staging ausgeführt:** `staging-smoke` 44997017084 auf `4310526` (Job 137130156565, von `eng` über `staging-smoke/perf1-4310526` gestartet) **7 passed**: Anmeldung und Pfade 1–6, darunter Pfad 3 (Losfahren, Unterschrift, Rechnungsentwurf) und Pfade 5, 6; 0 × `57014` im Job-Protokoll (vom PO gezählt); Render lieferte `4310526d` vor und nach den Pfaden. `staging-version` (Job 137130223828): App und Datenbank auf Migration 20261021000165.
+  - `ci-repeat` 44999346857 auf `4310526` (Zweig `repeat/perf1-accept-4310526`, vom PO gestartet): **20/20 `success`**; jeder `db`-Versuch «Files=164, Tests=6451», «Result: PASS», keine `# SKIP`-Zeile; die Zeilen `not ok` stehen nur in den absichtlich roten Reproduktionsschritten (pgTAP 079/080, B0-3, B0-4, «exit 0»), nicht in der Testsuite; jeder `e2e`-Versuch «215 passed», kein übersprungener, instabiler oder fehlgeschlagener Test; Urteil 137140203807: im Fenster (Start 08:41, Ende 08:54 Zürich).
+- **Abgenommen:** Eine Pflegekraft eines synthetischen Teams sieht ihren Tag auf `/field` und das Team seine Ansicht auf `/team` auch dann, wenn die Hinweisliste nicht lädt; sie sieht dann einen klaren Hinweis statt einer scheinbar leeren Liste, und «Losfahren» wirkt weiter genau einmal. Die Staging-Klickpfade 1 und 3 laufen ohne Zeitüberschreitung.
+- **KI-Ehrlichkeit:** Jede Funktion von PERF1 ist eine **feste, prüfbare Regel**; kein Testersatz für KI, kein KI-Modell in einem getesteten Pfad.
+- **Abweichung (benannt, keine Abnahmebedingung):** Auf dem Merge-Commit `448e9c4` lief kein automatischer `staging-smoke` (44995151975 `cancelled` durch die Concurrency-Gruppe; der Lauf auf `4310526` übersprang die Pfade, Umfang nur gegen `^1`), und `staging-version` war zuerst rot (Prüfung vor dem `staging`-Job). Der Nachweis stützt sich auf den von `eng` gestarteten Lauf auf `4310526` (Code gleich). Folgepunkt **STG-SMOKE-1** (im AI1-Paketvertrag als Schritt 0).
+- **Nicht Teil der Abnahme:** PERF1-F1 (ADR-226 (B), beendete ungedeckte Aufträge), PERF1-F2 (weitere Lader auf `/team`, `/heim`), STAB1-F5 (a), CGR-275, CGR-280, UXR-282; Registerabnahme HEIM-DP §6 (2).
+- **Vor realen Personen offen:** CGR-273 (Fehlerform der Sicherheitslisten, Clinical Owner, UNKNOWN), CGR-276 (S-1), UXR-282; `lca`-Gate (FE-109 (A)).
+- **Folge:** AI1 wird aktiv (Paketvertrag `docs/agents/briefs/AI1.md` §PO-Paketvertrag 2026-11-22 08:39); Registerabnahme HEIM-DP «funktionsfähig, feste Regeln» als Founder-Rundgang auf Staging offen.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |

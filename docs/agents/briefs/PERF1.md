@@ -97,3 +97,20 @@ Answer to `eng` 7070751986 (repeated in the latest #1671 comment), question «sc
 4. Order to S-1 (#1677): unchanged FE-112 (c). S-1 was ready first (7072089149) and is merged first once its gate window is `clear`; PERF1 then merges `recovery/main` in and needs green CI on its new head.
 
 Gates unchanged.
+
+## PO acceptance 2026-11-22 08:39 (scheduled PO run, signal (d)); PO did not run tests, evidence read from job logs
+
+Named integrated commit `4310526` (code equal to merge commit `448e9c4`). Gate «Simulation, synthetic data». Record: `docs/product/ABNAHMEAKTE.md` §PERF1.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| pgTAP equivalence for every caller (incl. `operations_exceptions`, `order_not_covered`) | met | `ci` 44995151978 `db` success; `ci-repeat` 44999346857 10/10 `db` «Files=164, Tests=6451», «Result: PASS»; `cra-gate` clear on `2f067ad` (7075496220) |
+| `team_visit_alerts` budget (call count primary, AUT-186) | met | `db` step «Track function calls (PERF1 budget)» success in every run; ready report 7074967663 |
+| e2e forced failure on `/field` and `/team`: view stays, notice line, «Losfahren» works; negative no silent empty list | met | `ci-repeat` 10/10 `e2e` «215 passed», 0 skipped, 0 flaky |
+| T-1 «sent = shown», T-2 double tap = one state change | met | same e2e runs; `uxa-gate` clear (7075492225) |
+| `staging-smoke` all paths incl. 3, 5, 6; no 57014 | met, on `4310526` (code equal) | 44997017084, job 137130156565: 7 passed, 0 × 57014 (counted by PO), Render `4310526d` before and after |
+| Migrations on `navora-staging` | met | `staging` job 137126604070 applied 0164, 0165 |
+| No test skipped or weakened; `ci` green on head and merge commit; `ci-repeat` 10/10 | met | head `2f067ad` all jobs success; 44995151978 on `448e9c4`; 44999346857 20/20, verdict 137140203807 in the window |
+| A docs-only merge starts no smoke (STAB1-F2) | met, with a gap | the code merge `448e9c4` also got no automatic smoke (cancelled); follow-up STG-SMOKE-1 |
+
+**PO status: `accepted`** (simulation, synthetic data). Not released for real persons or data.

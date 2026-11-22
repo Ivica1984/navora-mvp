@@ -3,7 +3,7 @@ id: AI1
 title: Erste angeschlossene KI-Funktion — Berichtsentwurf aus den Worten der Pflegenden mit echtem Modell (synthetische Daten, Staging)
 author: po
 status: approved
-updated: 2026-11-20
+updated: 2026-11-22
 ---
 
 # AI1 — First connected model function: report draft from the carer's own words
@@ -59,3 +59,31 @@ In **AI1**, right after STAB1: carer `pflegebs` → `/field` → taken shift →
 ## 8. Not in scope
 
 Audio recorded or processed by NAVORA; any real person; another model function; automatic signature; any change to matching, qualification limits or billing rules; production.
+
+## PO package contract 2026-11-22 08:39 (AI1 becomes active after the PERF1 acceptance; WHAT and WHY, HOW stays `eng`'s)
+
+Inputs: ADR-227 DRAFT (`eng` 07:20, `docs/engineering/DECISIONS.md`), `aia` review 84 (AUT-190 to AUT-193, #1692), `eng` STG-SMOKE-1 proposal (#1671 7075826347, LEARNINGS 2026-11-22), FE-094, FE-099 (7), FE-111. Labels IMPLEMENTED / PLANNED / OPEN / UNKNOWN.
+
+**Problem and benefit:** see §1, §2. Value order 1 and 5 (less typing at every shift end); continuity unchanged; safety: nothing binding without the carer's signature.
+
+**Integration basis:** ADR-227 points 1 to 8 are adopted by the PO as the integration basis of this package (WHAT: atomic reservation before every call, one draft per report version plus one retry, kill switch without redeploy, evaluation run on staging, input refused not cut, `max_tokens` 1,024 with `stop_reason = max_tokens` invalid, label honesty in the smoke, two evidence steps). The table and function design stays `eng`'s HOW.
+
+**Fixed residual list (closes the package; FE-089 (3): findings outside it go to named follow-ups):**
+0. **STG-SMOKE-1** (may be its own small PR, first in AI1 order): the post-merge smoke scope compares against the last commit with a green smoke (fail open), and `staging-version` waits for the `ci` `staging` job. Reason: AI1 step (b) and every later acceptance need an automatic smoke on the code merge.
+1. ADR-227 points 1 to 8 as written, with the tests ADR-227 names (pgTAP reservation race at `cap - 1` gives exactly one row; refusal for non-performer, ended membership, non-simulation organisation, switch row on; settle cannot touch another organisation; RLS and grant catalogue; unit `max_tokens` invalid, >4,000 characters refused before reservation, request body without name, birth date or address; e2e double tap = one reservation, kill switch = 0 provider calls, third attempt refused).
+2. **AUT-167 (via AUT-191):** a prompt digest tied to `agent_version`; a test fails when the prompt text changes without a version change; a new version opens a fresh stop-rule window.
+3. **AUT-168 (via AUT-191):** purpose measure from events NAVORA already records, no new carer field: median minutes from visit end to signed report and typed characters, rule arm against model arm, per team and week (team level, never per person).
+4. **Live evaluation set (AUT-190), separate from the control set S2:** per note a reference quoted from the note (values, negations, side and place words that the draft must keep, «nothing else»); multi-sentence notes shaped like a shift end, including the S2-15 to S2-17 kinds; the run report shows each note beside the draft plus counts; frozen before the first run, three runs per case (AUT-169). **Size: n = 60 notes (PO decision on size only; ≈ 5 % upper bound at 0 invented facts, rule of three).** Content and expectations are `cra`'s in its gate (co-sign); the PO writes no clinical content.
+5. **Price row (ADR-227 point 5, AUT-192):** stays NULL and fail closed until a dated reading of the provider's published price (source, date, conversion rate) is recorded as a reviewed migration row. Who reads it: `lca` in its AI1 gate together with the terms reading (FE-099 (7) (3)). The alternative «founder's console cap alone for Phase A» is a founder choice; the PO asks the founder and does not take it.
+
+**Two evidence steps (ADR-227 point 8):**
+- (a) **Merge:** `Paket prüfbereit:` on a stable green head with the fake provider in CI. One gate window (FE-097): `cra` (no invented or dropped clinical fact in the design, evaluation reference content), `aia` (evaluation design, AUT-190/191 met), `lca` (provider terms reading, `inference_geo`, price reading, counts-only result rows), `uxa` (labels, third-attempt and «zu lang für den KI-Entwurf» wording, 390 and 1440 px). Merge in the run in which all four lines name that head `clear`.
+- (b) **Acceptance:** after the merge and the founder's Render values (FE-099 (7) (4); only the founder sets key and mode, never in chat, GitHub or a document): the evaluation run on staging (run IDs, counts, invented facts 0 against the reference), one `staging-smoke` run with the model on (label matches `report_draft` of `/api/version`), `ci-repeat` 10/10 on the integrated commit. Only then the status says «connected AI model» (FE-089 (5)).
+
+**Non-goals:** §8; ADR-226 (B) / PERF1-F1; PERF1-F2; STAB1-F5 (a); any real person; AI order capture (BK-d); matching, qualification or billing changes.
+
+**Roles:** owner `eng`; gates `cra`, `aia`, `lca`, `uxa` (paused roles started only under FE-089 (2)); founder for Render values and the console-cap question.
+
+**Vision check (FE-070 (7), short):** more care time (less typing), continuity unchanged, income unchanged, team autonomy unchanged (no dispatcher), administration down, outcomes: no invented fact (target 0), scalability: cost cap per organisation, platform: first connected model. No new hierarchy.
+
+**Follow-ups (not conditions):** PERF1-F1, PERF1-F2 (after AI1, stability), STAB1-F5 (a), CGR-280, UXR-282, AUT-193 / H-PERF1-07:39 (snapshot for hint lists only; safety signals stay with `cra`).
