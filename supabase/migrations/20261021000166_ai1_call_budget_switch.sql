@@ -206,7 +206,7 @@ declare
   prior   private.model_call_reservations%rowtype;
   why     text;
   n       integer;
-  today   date := (private.now() at time zone 'Europe/Zurich')::date;
+  today   date := private.at_zurich(private.now())::date;  -- ADR-081: the Zurich day via the DST helper
   m0      date;
   used    integer;
   charged bigint;

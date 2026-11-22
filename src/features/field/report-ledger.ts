@@ -14,7 +14,9 @@ export type LedgerClosedReason =
   | "not_simulation_org"
   | "not_team_member"
   | "not_draft"
-  | "not_performer";
+  | "not_performer"
+  /** AI1 (0166): the database kill switch is on for this organisation or for all. */
+  | "switched_off";
 
 const KNOWN: readonly LedgerClosedReason[] = [
   "ledger_missing",
@@ -24,6 +26,7 @@ const KNOWN: readonly LedgerClosedReason[] = [
   "not_team_member",
   "not_draft",
   "not_performer",
+  "switched_off",
 ];
 
 export type LedgerGate = { ready: true } | { ready: false; reason: LedgerClosedReason };
@@ -62,4 +65,29 @@ export function ledgerOutcome(decision: LineDecision): "confirmed" | "rejected" 
   if (decision === "taken") return "confirmed";
   if (decision === "dropped") return "rejected";
   return null;
+}
+
+/** Why the database refused to reserve a model call (0166 `reserve_report_draft_call`), beyond the gate's reasons. */
+export type ReservationRefusal = LedgerClosedReason | "attempt_limit" | "budget_day" | "budget_month" | "price_missing" | "limits_missing";
+
+const REFUSALS: readonly string[] = [...KNOWN, "attempt_limit", "budget_day", "budget_month", "price_missing", "limits_missing"];
+
+export type Reservation =
+  | { kind: "call"; reservationId: string }
+  /** The same request (same key) already holds a reservation: no second provider call (T-2). */
+  | { kind: "duplicate" }
+  | { kind: "refused"; reason: ReservationRefusal };
+
+/**
+ * AI1 (ADR-227 points 1, 2): reads the reservation answer. Only `{result: "ok", reservation_id}` allows a provider call;
+ * an error, an unknown answer or an unknown reason is a refusal (`ledger_missing`), so doubt never calls the model.
+ */
+export function reservation(res: { data: unknown; error: unknown }): Reservation {
+  const d = (res.error ? null : res.data) as { result?: unknown; reservation_id?: unknown; reason?: unknown } | null;
+  if (d?.result === "ok" && typeof d.reservation_id === "string" && d.reservation_id.length > 0) {
+    return { kind: "call", reservationId: d.reservation_id };
+  }
+  if (d?.result === "duplicate") return { kind: "duplicate" };
+  const reason = typeof d?.reason === "string" && REFUSALS.includes(d.reason) ? d.reason : "ledger_missing";
+  return { kind: "refused", reason: reason as ReservationRefusal };
 }

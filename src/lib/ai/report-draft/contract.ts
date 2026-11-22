@@ -13,7 +13,23 @@ export type DraftInput = { segments: Segment[]; facts: Fact[] };
 /** A proposed report line. `sources` names the segment and fact ids it comes from. */
 export type DraftLine = { text: string; sources: string[] };
 
-export type ProviderOutput = { lines: DraftLine[]; unplaced: string[] };
+/** Tokens the provider reported for one call (AI1, ADR-227 point 1): settled against the reservation, never per person. */
+export type ModelUsage = { inputTokens: number; outputTokens: number };
+
+export type ProviderOutput = { lines: DraftLine[]; unplaced: string[]; usage?: ModelUsage };
+
+/** How one model call ended (AI1 settle outcome, migration 0166). */
+export type ModelCallOutcome = "ok" | "invalid" | "max_tokens" | "timeout" | "provider_error";
+
+/** A failed model call with what it still cost (tokens the API reported), so its reservation is settled honestly. */
+export class ModelCallError extends Error {
+  constructor(
+    readonly outcome: Exclude<ModelCallOutcome, "ok">,
+    readonly usage?: ModelUsage,
+  ) {
+    super(`model_${outcome}`);
+  }
+}
 
 export type ProviderKind = "rule" | "model";
 
