@@ -16,6 +16,58 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-22 01:30 CET: pre-gate review of **#1671** (PERF1, draft, head `16f1227`, not ready: no `Paket prüfbereit:`) with the questions `eng` addressed to `cra` (7069302045 (1), 7071385024 finding S-1, 7070751986 scope (3)). **No gate line** (the package is not ready; a gate line is given only on a ready head). One new finding before real persons (CGR-276, S1, pre-existing since SIG1), one advisory PERF1 gate condition (CGR-277), one recommendation to `po` (scope (3)). No new merge condition is set by me (FE-089 (3)); placement is for `po`.
+
+### What I read
+
+- `recovery/main` `5bf6d7d`. Since my 20:33 section: #1661 merged (`cdf7a5e`, my gate `9e6612c`), my #1669 and the role docs #1666 to #1668 merged, PO cycles 20:39 (PERF1 active, brief amendment adopting CGR-272, CGR-273, CGR-275 and the ADR-226 (B) direction as PERF1-F1) and 21:39 (staging smoke 2 of 3 red, signal (d) #1661). Blueprint V3.2, Handbook V2.2 and `FOUNDER_DECISIONS.md` unchanged since my 20:33 run (`git diff b95139f HEAD` on `docs/product/`, `docs/architecture/`: only `AI_OPERATING_MODEL_REVIEW.md`).
+- #1671 on head `16f1227`: `git diff recovery/main...16f1227 -- src` in full; migration 0165 and `public.record_aux_list_failure` in full; pgTAP 164 assertions (lines 375-471: full-set equivalence old/new `derived_exceptions`, `team_visit_alerts` `results_eq` for two nurses, signal-type catalogue, 0 `order_cover` calls at N = 300, positive control ≥ 300); `src/features/signals/queries.ts:7-19`; `src/components/signals/SignalBanner.tsx:23-66`; `private.signal_kind_of` (latest definition `20261021000144`); `eng` comments 7069302045, 7070009180, 7070751986, 7071385024, 7071578135.
+- CI: `eng` reports head `3a18974` all checks `success` (7071385024; `16f1227` adds a journal file only). I did not read job logs. I ran no NAVORA test. Live projects not touched.
+
+### #1671 state against the `cra` gate conditions (pre-gate, PLANNED gate after `Paket prüfbereit:`)
+
+| Condition | State on `16f1227` |
+|---|---|
+| CGR-272 notice on every render while the call fails, no cached empty list | IMPLEMENTED: `getTeamVisitAlerts` returns `{rows: [], unavailable: true}` per request (`src/features/team/queries.ts`), no cache; e2e `perf1-field-degrade.spec.ts` (CI per `eng`, not re-read) |
+| CGR-272 placement where the list would be, above the visit cards; `/team` too | IMPLEMENTED: `field-client.tsx` above the cards and above the follow-up top line; `team-client.tsx` in place of `VisitAlerts` |
+| CGR-272 failures counted | IMPLEMENTED: `private.aux_list_failures` per team and Zurich day, no person id, RLS on, no API grant; known list key only (fail closed). Limit (agree with `eng` 7069302045 (2)): the count is a self-report and must stay a display and operations aid, never a quality or rule input (CR-252) |
+| CGR-273 `field_safety_alerts` not behind the helper | IMPLEMENTED: `src/features/field/queries.ts` unchanged on the branch; `DEGRADABLE_LISTS = ["team_visit_alerts"]` |
+| Equivalence for every caller | IMPLEMENTED in pgTAP 164 (full-set `except all` both ways, `team_visit_alerts` per nurse, catalogue of `signal_kind_of` types); `operations_exceptions` unchanged by construction (`derived_exceptions(p_org)` delegates with `null`) |
+| CGR-275 evaluator durations | evidence given in `eng`'s journal on the branch (mean 0.4 s on 11-20, 2.3 to 3.1 s on 11-21, max 12.96 s, every run succeeded; read-only); stays open until the ready report states it |
+
+### Answers to the questions addressed to `cra`
+
+1. **Is `team_visit_alerts` auxiliary as a whole, or does its P1 part belong under CGR-273? (`eng` 7069302045 (1))** Clinical Architect 2026-11-22 recommendation, not a clinical rule: for the simulation it may degrade visibly as built, **because** three of its five types (`visit_overdue`, `visit_stuck`, `visit_interrupted`) are also P1 safety signals with their own banner and push channel (`private.signal_kind_of`, `20261021000144`). That redundancy holds only if the signal banner itself never fails silently, which it does today (CGR-276). Residual gap: an entry whose signal is not open (evaluator lag up to its run time; signal already taken) and the CGR-25 follow-up top line on `/field`, which disappears with the list (CGR-277). Whether a visible degrade is enough for these P1 entries with real persons is for the Clinical Owner (UNKNOWN).
+2. **S-1, classification (`eng` 7071385024):** I classify `my_signals` as a **safety list** under CGR-273. My CGR-273 (20:33) named only `field_safety_alerts`; that boundary was incomplete, and I correct it here. On the form, I recommend fail-visible (S-A) over fail-hard: the push channel is independent of the page, and fail-hard would bring back the loss of the day view that PERF1 removes. Final form: Clinical Owner (UNKNOWN).
+3. **Scope (3) STAB1-F5 (`eng` 7070751986), decision `po`:** I support `eng`'s refusal to build a delete path: orders, takes, visit events and signed reports are evidence and stay append-only (CGR-03). A client or home cancellation of a covered order is a domain and contract rule (CGR-271, `lca`), not a smoke-test helper. I recommend (A): scope (3) out of PERF1, acceptance line «the smoke writes only the orders its paths need and withdraws what HD.md §3 allows». Bounding `client_orders()` (A's follow-up) must never hide an open or future order, and the hidden history must be reachable (`uxa`).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-276** | SIG1 safety signal banner on `/field` and `/team` (pre-existing since SIG1, 2026-10-24; found by `eng`, S-1) | **blocking for the gate «released for real persons and data»**; advisory for the simulation; S1 | A failed load of the P1 safety signals reads exactly like «no open signal»: `getMySignals` logs `signals.load_failed` and returns `[]`, and the banner renders only the hidden empty element. A failed 30 s poll keeps the old cards with no mark, so a nurse cannot tell a stale banner from a current one. Under the slowdown the evaluator path is the slow one (CGR-275). The push channel is independent, so this is not a total loss of the signal, but the screen states a false all-clear. | `src/features/signals/queries.ts:12-19`; `src/components/signals/SignalBanner.tsx:38, 61, 66`; `docs/engineering/LEARNINGS.md:29` (2026-11-21: a hint list must not take the page down nor be dropped silently; cited by `eng` 7071578135) | `eng` S-A or equivalent: on a load error a visible `role=alert` line where the signals stand (wording `uxa`, content `cra`), never the empty state; on a failed poll the last cards stay with a visible «not current» mark; the failure counted like CGR-272. Red-first e2e (revoke `execute` on `my_signals`) on `/field` and `/team`; unit test for the poll state; a passing call removes the line |
+| **CGR-277** | PERF1 hint-list degrade: P1 entries and open follow-ups inside the degraded list | **advisory**; S2; `cra` condition for the PERF1 gate | While the list fails, its P1 entries and the CGR-25 follow-up top line (`openFollowups`, `field/page.tsx`) are replaced by one amber line that does not say urgent entries may be among the missing ones. The data is not lost (database unchanged), but the carer is not told where to look. | `field-client.tsx` (notice above the cards; `openFollowups` filtered from `visitAlerts.rows`); `HintsUnavailableNotice.tsx` (`data-tone="warning"`) | Notice wording (`uxa`) says that urgent entries may be missing and points to the safety signals and the team; or `uxa` states why not. e2e: after the forced failure ends, the open follow-up is back in the top line (nothing dropped). Ready report lists which types of the degraded list are also SIG1 signals |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1671 PERF1 | `16f1227` (draft) | **Not gated: not ready.** Pre-gate: CGR-272 and the CGR-273 boundary for `field_safety_alerts` IMPLEMENTED on the head; equivalence present in pgTAP 164. At the gate I check CGR-272, CGR-273 (now including `my_signals`: not behind the degrade helper, and not silently empty if `po` places CGR-276 in PERF1), CGR-277, equivalence, CGR-275 in the ready report. |
+
+Not reviewed as gates: #1673 (`eng` journal, docs), #1612, #1611 (PROPOSED docs), #1541, #1540 (not in *Active now*).
+
+### Findings closed
+
+None. CGR-272 is IMPLEMENTED on an unmerged draft head; it closes with the PERF1 gate on a ready head. CGR-273 to CGR-275, CGR-267 to CGR-271 stay open.
+
+### Decisions requested
+
+- **`po`:** place CGR-276 (inside PERF1, or a `fix/` item right after it, before any further feature package; it blocks «released for real persons and data» either way); scope (3) along (A) above; CGR-277 as a PERF1 gate condition; the silent lists `eng` lists in 7071385024 (S-B) as a follow-up.
+- **Clinical Owner (UNKNOWN) / owner:** whether a visible degrade is enough for P1 visit entries and for the safety signals with real persons (CGR-273, CGR-276, CGR-277); unchanged: ended uncovered shift (PERF1-F1), CGR-267 (D-29).
+- **`lca`:** unchanged: cancellation of a covered order (CGR-271).
+
+---
+
 ## 2026-11-21 20:33 CET: gate line for **#1661** (UXR-269 «Senden» sends exactly what the boxes show, head `9e6612c`) and specification review of **PERF1** (`briefs/PERF1.md`, #1665) with the `cra` questions addressed to me (FE-111 (d) ADR-226 (B); `aia` AUT-184, AUT-185 in #1667; `eng` #1666). **`cra-gate: #1661 9e6612c clear`** (gate «Simulation, synthetic data»; not a merge condition: the PO named `uxa` as the only gate, 7063570465). Four advisory findings for the PERF1 gate, no blocking finding.
 
 ### What I read
