@@ -22,7 +22,7 @@ describe("PERF1 auxiliary hint list", () => {
       "Es können offene Punkte fehlen, z. B. nicht erfolgte Einsätze oder Folgeentscheide nach einem Abbruch.");
     expect(VISIT_ALERTS_UNAVAILABLE_NEXT).toMatch(/Sicherheitssignale/);
     expect(VISIT_ALERTS_UNAVAILABLE_NEXT).toMatch(/Team/);
-    expect(VISIT_ALERTS_RELOAD_LABEL).toBe("Neu laden");
+    expect(VISIT_ALERTS_RELOAD_LABEL).toBe("Erneut laden");
   });
 
   it("the reload control re-reads on the server and sits outside the live region (UXR-276)", () => {

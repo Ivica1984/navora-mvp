@@ -66,7 +66,7 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
         await expect(notice).toHaveCount(1);
         await expect(notice.getByRole("status")).toHaveText(FULL_TEXT);
         // UXR-276: one action to read again, a real button of at least 44 px, outside the live region.
-        const reload = notice.getByRole("button", { name: "Neu laden" });
+        const reload = notice.getByRole("button", { name: "Erneut laden" });
         await expect(reload).toBeVisible();
         expect((await reload.boundingBox())!.height).toBeGreaterThanOrEqual(44);
         await expect(notice.getByRole("status").getByRole("button")).toHaveCount(0);
@@ -145,9 +145,9 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
     expect(departures()).toBe(1);
   });
 
-  // UXR-276: at 390 × 844 the notice with «Neu laden» sits in the first viewport, above the first visit card (the
+  // UXR-276: at 390 × 844 the notice with «Erneut laden» sits in the first viewport, above the first visit card (the
   // seeded org-A nurse of the tests above; the card check runs when her day holds a card).
-  test("UXR-276: at 390 × 844 the notice and «Neu laden» are in the first viewport, above the first card", async ({ page }) => {
+  test("UXR-276: at 390 × 844 the notice and «Erneut laden» are in the first viewport, above the first card", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, NURSE);
     breakAlerts();
@@ -159,7 +159,7 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
       const box = (await notice.boundingBox())!;
       expect(box.y).toBeGreaterThanOrEqual(0);
       expect(box.y + box.height).toBeLessThanOrEqual(844);
-      await expect(notice.getByRole("button", { name: "Neu laden" })).toBeInViewport();
+      await expect(notice.getByRole("button", { name: "Erneut laden" })).toBeInViewport();
       const firstCard = page.getByRole("article").first();
       if (await firstCard.count()) expect(box.y).toBeLessThan((await firstCard.boundingBox())!.y);
     } finally {
@@ -168,9 +168,9 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
   });
 
   // CGR-277: while the list fails, an open follow-up after an interrupted visit is not shown (the notice says so);
-  // once the failure ends, «Neu laden» brings the follow-up back on the same page without a full reload. Own fixture
+  // once the failure ends, «Erneut laden» brings the follow-up back on the same page without a full reload. Own fixture
   // in Testorganisation S as in T-1/T-2 (new ids every run; visit_events append-only, nothing deleted).
-  test("CGR-277: after the failure ends, «Neu laden» brings the open follow-up back (390 px)", async ({ page }) => {
+  test("CGR-277: after the failure ends, «Erneut laden» brings the open follow-up back (390 px)", async ({ page }) => {
     const ORG_S = "00000000-0000-4000-b000-000000000019";
     const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel
     const NURSE_S = "00000000-0000-4000-a000-0000000009e6"; // pflegebs.test, registered nurse HF (seed, ADR-180)
@@ -209,7 +209,7 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
     } finally {
       restoreAlerts();
     }
-    await page.getByTestId("visit-alerts-unavailable").getByRole("button", { name: "Neu laden" }).click();
+    await page.getByTestId("visit-alerts-unavailable").getByRole("button", { name: "Erneut laden" }).click();
     await expect(page.getByTestId("visit-alerts-unavailable")).toHaveCount(0);
     await expect(page.getByTestId("followup-queue")).toContainText("Klient:in verlegt bzw. ins Spital gebracht");
   });
@@ -224,7 +224,7 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
       await page.reload();
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.getByTestId("visit-alerts-unavailable").getByRole("status")).toHaveText(FULL_TEXT);
-      await expect(page.getByTestId("visit-alerts-unavailable").getByRole("button", { name: "Neu laden" })).toBeVisible();
+      await expect(page.getByTestId("visit-alerts-unavailable").getByRole("button", { name: "Erneut laden" })).toBeVisible();
       await expect(page.getByTestId("visit-alerts")).toHaveCount(0);
     } finally {
       restoreAlerts();

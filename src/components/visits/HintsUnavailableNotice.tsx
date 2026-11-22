@@ -11,7 +11,7 @@ import {
 
 // PERF1 (CGR-272): one visible block in place of the visit hint list while it cannot be loaded; sits where the list
 // would be and above the visit cards. The text is a `role="status"` line (announced once, never steals focus); the
-// «Neu laden» control sits outside the live region (UXR-276). It re-reads the page on the server (router.refresh), so
+// «Erneut laden» control sits outside the live region (UXR-276). It re-reads the page on the server (router.refresh), so
 // the day view, its scroll position and any open form stay; the notice disappears only when the list loads again.
 // Wording and placement are for the `uxa` gate; `cra` checks the content (CGR-277).
 export default function HintsUnavailableNotice() {

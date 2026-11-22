@@ -12,7 +12,7 @@ export const VISIT_ALERTS_UNAVAILABLE_MISSING =
  *  not a promise that the signals hold every missing entry (not every degraded type is a signal); `uxa`/`cra` gate. */
 export const VISIT_ALERTS_UNAVAILABLE_NEXT = "Achte auf die Sicherheitssignale und frag im Zweifel im Team nach.";
 /** UXR-276: the one action to read again (DESIGN_SYSTEM §1). */
-export const VISIT_ALERTS_RELOAD_LABEL = "Neu laden";
+export const VISIT_ALERTS_RELOAD_LABEL = "Erneut laden";
 
 /** The only lists that may degrade (fail closed: an unknown list is not degradable). Mirrors migration 0165. */
 export const DEGRADABLE_LISTS = ["team_visit_alerts"] as const;
