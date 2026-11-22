@@ -96,3 +96,17 @@ export function resolveReportDraftProvider(
     throw e;
   }
 }
+
+export type ReportDraftMode = "off" | "rule" | "model";
+
+/**
+ * AI1 / ADR-227 point 7: which report draft this running server is configured to give, for the public version endpoint,
+ * so a staging smoke can check that the label on screen is honest for the configured state. Only the environment
+ * guards are applied (mode, kill switch, staging host, provider, key present); the database answers per request
+ * (gate, switch, caps, price) and are not part of it. Returns a word only: never a key, a model name or a host.
+ */
+export function configuredReportDraftMode(env: Env): ReportDraftMode {
+  const never: typeof fetch = () => Promise.reject(new Error("not called"));
+  const r = resolveReportDraftProvider(env, { simulationOrg: true, ledgerReady: true, fetch: never });
+  return r.provider === null ? "off" : r.provider.kind;
+}

@@ -39,3 +39,39 @@ describe("Q1 (a) version (ADR-220)", () => {
     expect(isPublicPath("/api/versions")).toBe(false);
   });
 });
+
+describe("AI1 /api/version report_draft (ADR-227 point 7)", () => {
+  const model = {
+    AI_REPORT_DRAFT_MODE: "model",
+    AI_MODEL_PROVIDER: "anthropic",
+    AI_MODEL_API_KEY: "secret-test-key",
+    AI_MODEL_NAME: "claude-x",
+    NEXT_PUBLIC_SUPABASE_URL: "https://qpmdryxkktbqqkqpsnkj.supabase.co",
+  };
+
+  it("names the configured draft by the environment guards only", async () => {
+    const { configuredReportDraftMode } = await import("@/lib/ai/report-draft/config");
+    expect(configuredReportDraftMode({})).toBe("rule");
+    expect(configuredReportDraftMode({ AI_REPORT_DRAFT_MODE: "off" })).toBe("off");
+    expect(configuredReportDraftMode(model)).toBe("model");
+    expect(configuredReportDraftMode({ ...model, AI_KILL_SWITCH: "on" })).toBe("rule");
+    expect(configuredReportDraftMode({ ...model, AI_MODEL_API_KEY: "" })).toBe("rule");
+    expect(configuredReportDraftMode({ ...model, NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321" })).toBe("rule");
+  });
+
+  it("the endpoint answers one word and never the key or the model name", async () => {
+    const before = { ...process.env };
+    Object.assign(process.env, model);
+    try {
+      const { GET } = await import("@/app/api/version/route");
+      const text = await GET().text();
+      expect(JSON.parse(text).report_draft).toBe("model");
+      expect(text).not.toMatch(/secret-test-key|claude-x|anthropic/);
+    } finally {
+      for (const k of Object.keys(model)) {
+        if (before[k] === undefined) delete process.env[k];
+        else process.env[k] = before[k];
+      }
+    }
+  });
+});
