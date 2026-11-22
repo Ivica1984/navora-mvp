@@ -15,7 +15,7 @@ declare
   prior   private.model_call_reservations%rowtype;
   why     text;
   n       integer;
-  today   date := private.at_zurich(private.now())::date;  -- ADR-081: the Zurich day via the DST helper
+  today   date := (private.at_zurich(private.now()))::date;  -- ADR-081 and pgTAP 058 R1: the Zurich day
   m0      date;
   used    integer;
   charged bigint;
