@@ -16,6 +16,7 @@ import { overlapAfterSave, overlapNote } from "@/features/visits/overlap-rules";
 import MemberOverlapNote, { MemberOverlapAfterSave, useMemberOverlapNote } from "@/components/visits/MemberOverlapNote";
 import { memberOverlapAfterSave, memberOverlapNote } from "@/features/visits/member-overlap-rules";
 import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
+import type { SignalLoad } from "@/features/signals/banner-state";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ShiftOffersSection from "./shift-offers-section";
@@ -85,7 +86,7 @@ export default function TeamClient({
   lifecycle,
   planStatus,
   visitAlerts = [],
-  signals = [],
+  signals,
   gpNotices = [],
   pushStatus = [],
   outsideWatched = [],
@@ -109,8 +110,8 @@ export default function TeamClient({
   lifecycle: CaseLifecycle[];
   planStatus: PlanStatus[];
   visitAlerts?: TeamVisitAlert[];
-  /** SIG1: the caller's open P1 safety signals. */
-  signals?: SignalRow[];
+  /** SIG1: the caller's open P1 safety signals, or that they could not be read (S-1: never silently empty). */
+  signals: SignalLoad;
   /** ORD0-3: "Hausärztin/Hausarzt informiert" records of the team's cases. */
   gpNotices?: GpNotice[];
   /** SIG2-2: per member, whether delivery outside the app is active. */
@@ -144,7 +145,7 @@ export default function TeamClient({
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
   // UX1-22: the cards the banner shows now (polled), so a pointer line never points at a card that is gone.
-  const [liveSignals, setLiveSignals] = useState<SignalRow[]>(signals);
+  const [liveSignals, setLiveSignals] = useState<SignalRow[]>(signals.rows);
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">

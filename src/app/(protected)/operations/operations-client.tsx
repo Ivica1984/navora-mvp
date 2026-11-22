@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import SignalBanner from "@/components/signals/SignalBanner";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
-import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
+import type { EvaluatorHealth } from "@/features/signals/rules";
+import type { SignalLoad } from "@/features/signals/banner-state";
 import { PageFrame } from "@/components/layout/PageFrame";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { TEAM_PANEL_HEADING } from "@/features/operations/labels";
@@ -33,8 +34,8 @@ type OperationsClientProps = {
   billing: BillingPreviewRow[];
   month: string;
   lifecycle: CaseLifecycle[];
-  /** SIG1: P1 safety signals delivered to Operations (fallback or untaken). */
-  signals?: SignalRow[];
+  /** SIG1: P1 safety signals delivered to Operations (fallback or untaken), or that they could not be read (S-1). */
+  signals: SignalLoad;
   /** SIG2-11: the scheduled evaluator's health ("Signalprüfung läuft nicht"). */
   evaluator?: EvaluatorHealth[];
   /** B1.1-1 (ADR-186): «Region nicht zugeordnet» (null without an admin or Operations role). */
@@ -48,7 +49,7 @@ function getAverageUtilization(teams: TeamRow[]) {
   return Math.round(total / teams.length);
 }
 
-export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [], evaluator = [], unmappedRegions = null }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals, evaluator = [], unmappedRegions = null }: OperationsClientProps) {
   const { cases, teams } = dashboard;
 
   const [selectedEntity, setSelectedEntity] = useState<SelectedEntity | null>(null);
