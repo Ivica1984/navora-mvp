@@ -16,6 +16,46 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-22 07:41 CET: package gate review of **#1671** (PERF1, brief `briefs/PERF1.md` incl. PO amendments 2026-11-21 20:39 and 2026-11-22 02:39; head `2f067ad33ec457b4d3b305e49d65b6ec3806260e`; `eng` ready report 7074967663) with the three questions `eng` named for `cra` (PO gate start FE-089 (2), FE-097). **`cra-gate: #1671 2f067ad clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). Fixed residual list (FE-089 (3)): brief PERF1; no new merge condition from me. One new advisory finding as a named follow-up (CGR-280).
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `548782a`. Since my 02:45 section: #1677 S-1 merged (`0194937`), PO cycles 03:39 and 04:39, `eng` journals; `FOUNDER_DECISIONS.md` v68 (a note only, no decision changed); Blueprint V3.2, Handbook V2.2 unchanged.
+- #1671 diff against `recovery/main` in full for `src/`, migrations 0164 and 0165, the canonical function files, pgTAP 164 and 165, e2e `perf1-field-degrade.spec.ts`. `git diff` shows `src/features/field/queries.ts` (`getSafetyAlerts`) and `src/features/signals/` unchanged.
+- `ci` 44989862562 on `2f067ad`: `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run) `success`. Raw job logs read: `db` 137108395966 «Files=164, Tests=6451», «Result: PASS», diagnostic «PERF1 budget (N = 300, CI runner): derived_exceptions 300 order_cover calls, 16 ms; evaluate_signals 0 order_cover calls, 6 ms; team_visit_alerts 0 order_cover calls, 5 ms»; `e2e` 137108395783 «215 passed», all six `perf1-field-degrade.spec.ts` tests ✓ (`/field` 390 and 1440 px, T-1/T-2 double tap, UXR-276 first viewport, CGR-277 follow-up back after recovery, `/team`), S-1 tests ✓.
+
+### Answers to `eng` (7074967663)
+
+1. **CGR-272: is a carer never left without hints silently?** Yes, for the simulation. Every condition of CGR-272 holds on `2f067ad`: (a) per request, no cache: `getTeamVisitAlerts` returns `unavailable()` with empty rows on any RPC error or transport exception (`src/features/team/queries.ts`, `aux-list.ts` `AuxList`), and the e2e reloads and sees the notice again; (b) placement: `/field` above the cards and above the follow-up top line (`field-client.tsx`, e2e asserts notice `y` < first card `y`), `/team` in place of `VisitAlerts` (`team-client.tsx`); (c) never an empty list without the notice: `rows` is always empty when `unavailable`, and the notice is rendered only from that flag; (d) counted per team and Zurich day, team level only, RLS on, no grant (`0165`, pgTAP 165, e2e counter rises by ≥ 2). The wording meets CGR-277: it says open points may be missing, names missed visits and follow-up decisions, and points to the safety signals and the team. Limits, not conditions: the count is read only by SQL; nobody is told when it rises. For real persons who reads it, from which count, and who acts is UNKNOWN (Clinical Owner, `po`) and belongs to the same follow-up as the S-1 counting (AUT-187, CGR-276, CGR-278). The count rises per page render, not per failure episode, so it is a display and operations aid only (CR-252), never a rate.
+2. **CGR-273: is it right that `field_safety_alerts` stays fail-hard and outside the helper?** Yes. Inside PERF1 that is the only correct choice: changing the failure form of a safety list is a clinical decision (Clinical Owner, UNKNOWN), and PERF1 adds no rule. Evidence: `getSafetyAlerts` unchanged on the branch; `DEGRADABLE_LISTS = ["team_visit_alerts"]`; the database refuses any other key (`list_key` check and `aux_list_unknown` 22023, pgTAP 165). `my_signals` (classified by me as a safety list, 01:30) is not behind the helper either; it has its own S-1 fail-visible form (merged `0194937`). CGR-273 stays open for the Clinical Owner.
+3. **Equivalence: does pgTAP 164 cover every caller?** Yes, for the callers PERF1 changes and for the ungated path. `derived_exceptions(org)` is now `derived_exceptions_of(org, null)`, and each branch only gained the conjunct `(p_types is null or …)`, so the ungated path is the old text. pgTAP 164 compares the frozen pre-PERF1 body with the new one for every organisation (`except all` both ways, 0 rows), on a fixture with ≥ 150 `order_not_covered` rows and ≥ 3 types: this covers `operations_exceptions`, `sync_exceptions` and `open_exception_org`, which read `derived_exceptions`. It also compares the gated variant for the `team_visit_alerts` types and for the evaluator's signal types, and `team_visit_alerts` row by row for two nurses in two organisations. The call-count proof (0 `order_cover` calls from `team_visit_alerts` and `evaluate_signals`, positive control 300) is read from the log. Limit (CGR-280, advisory): the row equivalence is only as wide as the types present in the seed, and the catalogue check that keeps a signal type from being gated out uses a fixed list of 24 names, not the cases of `private.signal_kind_of`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-280** | PERF1 evaluator gate list (`evaluate_signals` passes a fixed type list to `derived_exceptions_of`) | **advisory**; S2; follow-up, not a merge condition | The evaluator now computes only the types in its literal list. pgTAP 164 checks that every type `private.signal_kind_of` maps is in that list, but only over a fixed array of 24 type names written into the test. If a later package adds a new exception branch and maps it as a P1 signal in `signal_kind_of` without adding it to the evaluator list, the test would still pass and the signal would never be raised or pushed: a silent loss of escalation. The same holds for `team_visit_alerts`' list. No such type exists today. | `supabase/tests/database/164_perf1_exception_type_gate.test.sql` §3 (catalogue, fixed `unnest(array[…24 names…])`); `supabase/schema/functions/private.evaluate_signals.sql:37-41` on `2f067ad` | The catalogue check derives the type set from the code, not from a list in the test: e.g. every type literal in `derived_exceptions_of` (parsed from `pg_get_functiondef`, as the test already does for the evaluator) for which `signal_kind_of` is not null must be in the evaluator's list; red-first by adding a dummy mapped type in a test transaction |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1671 PERF1 | `2f067ad` | **`cra-gate: #1671 2f067ad clear`** (gate «Simulation, synthetic data»). CGR-272 and CGR-277 IMPLEMENTED on this head (code, e2e and job log read); CGR-273 boundary held. `uxa` gate is separate. Post-merge, as in the brief: `ci` on the merge commit, `ci-repeat` 10/10 (`db`, `e2e`), `staging-smoke` paths 1 and 3 green without 57014 timeouts. |
+
+Not reviewed as gates: #1612, #1611, #1541, #1540 (docs or not the active package).
+
+### Findings closed with evidence
+
+None closed yet. CGR-272 and CGR-277 close when #1671 is merged on a green head (code and e2e as cited above). CGR-275 (evaluator durations): the ready report states them (mean 0.4 s on 11-20, 2.3 to 3.1 s on 11-21, max 12.96 s, every run succeeded, read-only); reporting duty met, closes with the merge.
+
+### Decisions requested
+
+- **`po`:** merge #1671 when `uxa` has gated; place CGR-280 as a named follow-up (with PERF1-F1, before the next change to exception branches or signal types); keep the counter reading (who, from which count) in the AUT-187 / CGR-278 follow-up.
+- **Clinical Owner (UNKNOWN) / owner:** unchanged: failure form of safety lists (CGR-273), whether a visible degrade is enough for P1 visit entries with real persons (CGR-277), CGR-276, CGR-278, ended uncovered shift (PERF1-F1), CGR-267 (D-29).
+- **`lca`:** unchanged: CGR-271.
+
+---
+
 ## 2026-11-22 02:45 CET: package gate review of **#1677** (S-1, named safety fix, FE-112; head `97d02566b99354ebac852c8b76ae2c248f6f21c6`; `eng` ready report 7072089149) with the three clinical questions `eng` named for `cra` (FE-112 (b), PO gate start FE-089 (2), FE-097). **`cra-gate: #1677 97d0256 clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). Fixed residual list (FE-089 (3)): S-1 scope only, no new merge condition from me. Two new advisory findings as named follow-ups (CGR-278, CGR-279).
 
 ### What I read
