@@ -743,6 +743,18 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
   - All PROPOSED (PO; `eng`, `uxa`, `cra` as named).
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**ADR-227 reviewed: the AI1 integration adopts the reservation and T-2 controls; the live evaluation needs a reference (`aia` 2026-11-22 08:18, review 84, AUT-190 to AUT-193):**
+- **Label check:** ADR-227 (DRAFT, `eng` 07:20) proposes a database reservation before every model call, one draft per report version and one retry, a kill-switch row that needs no restart, and an evaluation run on staging. Nothing is built; no model has run. PERF1 (`448e9c4`) is fixed rules only.
+- **§8 controls on the AI1 path:** ledger, provenance per value, named confirmer, no accept-all, correction rate per agent and field, stop rule: IMPLEMENTED. Cost cap before the call (AUT-166) and T-2 (AUT-183): PLANNED in ADR-227.
+- **Controls proposed:**
+  - AUT-190: the live evaluation set is separate from the S2 control set. Each note carries a reference quoted from its own words (values, negations, side and place words; `cra` co-signs). Notes are multi-sentence. The size is stated with its upper bound (0 of n invented gives about 3/n).
+  - AUT-191: AUT-167 (prompt pinned to the agent version) and AUT-168 (purpose measure, rule against model arm) go into the AI1 contract.
+  - AUT-192: the price row is a dated reading with source and conversion rate, owned by `po` or `lca`. CHF is an estimate until then.
+  - AUT-193: a snapshot refreshed by events for hint lists; safety signals stay live until `cra` decides.
+  - All PROPOSED (PO; `eng`, `cra`, `lca` as named).
+- **Catalogue:** `report_draft_model` unchanged (registered, closed by configuration). No agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -828,3 +840,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-21 14:18 | `aia` | §12: block «FE-111 places AI1 third; the AI1 brief carries the open controls»: label check on `ca334ce` and `9e6612c`; control AUT-183 (PROPOSED). No agent added or removed |
 | 2026-11-21 20:18 | `aia` | §12: block «PERF1 reviewed: fail visible for hint lists, never for safety lists by default»: label check on `briefs/PERF1.md` and ADR-226 DRAFT; controls AUT-184 to AUT-186 (PROPOSED). No agent added or removed |
 | 2026-11-22 02:20 | `aia` | §12: block «S-1 reviewed: safety reads fail visible, and so must the evaluator monitor»: label check on `97d0256` and `49d8325`; controls AUT-187 to AUT-189 (PROPOSED; AUT-188 high, #1679). No agent added or removed |
+| 2026-11-22 08:18 | `aia` | §12: block «ADR-227 reviewed: the AI1 integration adopts the reservation and T-2 controls; the live evaluation needs a reference»: label check on ADR-227 DRAFT and `448e9c4`; controls AUT-190 to AUT-193 (PROPOSED). No agent added or removed |
