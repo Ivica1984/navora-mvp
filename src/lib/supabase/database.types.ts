@@ -3745,6 +3745,9 @@ isOneToOne: false
 "record_assessment":
 { Args: { "p_assessment_date": string,"p_assessor_id": string,"p_case_id": string,"p_document_ref": string,"p_idempotency_key": string,"p_instrument_id": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_period_a": string,"p_period_b": string,"p_period_c": string,"p_reason": string,"p_supersedes_id": string }; Returns: Json
                            },
+"record_aux_list_failure":
+{ Args: { "p_list": string }; Returns: number
+                           },
 "record_delegation":
 { Args: { "p_activity_code": string,"p_case_id": string,"p_conditions": string,"p_delegate_id": string,"p_idempotency_key": string,"p_instructed_on": string,"p_supervisor_id": string,"p_team_id": string,"p_valid_from": string,"p_valid_until": string }; Returns: Json
                            },
