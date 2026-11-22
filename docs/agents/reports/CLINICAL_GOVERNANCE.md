@@ -16,6 +16,57 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-22 02:45 CET: package gate review of **#1677** (S-1, named safety fix, FE-112; head `97d02566b99354ebac852c8b76ae2c248f6f21c6`; `eng` ready report 7072089149) with the three clinical questions `eng` named for `cra` (FE-112 (b), PO gate start FE-089 (2), FE-097). **`cra-gate: #1677 97d0256 clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). Fixed residual list (FE-089 (3)): S-1 scope only, no new merge condition from me. Two new advisory findings as named follow-ups (CGR-278, CGR-279).
+
+### What I read
+
+- `recovery/main` `9f32076` (since my 01:30 section: #1673, #1675, #1676, #1678, #1680 merged; FE-112 recorded in `FOUNDER_DECISIONS.md` v67). Blueprint V3.2 and Handbook V2.2 unchanged since `b95139f` (`git diff --stat` empty); no FE-079 renewal due.
+- #1677 on head `97d0256`: `git diff recovery/main...97d0256 -- src tests` in full: `src/features/signals/banner-state.ts` (new, 77 lines), `src/components/signals/SignalBanner.tsx`, `src/features/signals/queries.ts:7-21`, the three clients (`signals: SignalLoad` required, no default), `pollSignals`/`takeSignal` (`src/features/signals/commands.ts`, unchanged), `tests/e2e/s1-safety-signals-unavailable.spec.ts`, `tests/unit/s1-signal-banner-state.test.ts`. All callers of `getMySignals` and `<SignalBanner`: `/field`, `/team`, `/operations` only (`git grep` on the head).
+- CI: run 44969524241 (`ci`) on `97d0256`, conclusion `success`, all five jobs `success` (check API). **`e2e` job log 137046072798 read:** the three S-1 tests at `:50` (1440 px), `:88` (`/team`, `/operations`) and `:116` (stale after a good read) pass, «208 passed», with `signals.load_failed` / `signals.poll_failed` code 42501 in the server log, i.e. the failure path was really taken. The 390 px case is in the same loop (not re-read line by line). Red first per `eng`: `549bd69`, `e2e` job 137039982089 (not re-read). `ci-repeat` not read; not required for a gate line.
+- `aia` review 83 (7072153713; AUT-187, AUT-188 #1679). I ran no NAVORA test. Live projects not touched.
+
+### #1677 against CGR-276 (testable remedy of 01:30)
+
+| Remedy part | State on `97d0256` |
+|---|---|
+| Load error → visible `role=alert` line where the signals stand, never the empty state | IMPLEMENTED: `getMySignals` returns `{rows: [], unavailable: true}` (`queries.ts:16-18`); `showsEmptyMarker` only for `ok` with no rows (`banner-state.ts:65-67`); e2e `:50`, `:88` assert `role=alert`, text, no `safety-signals-empty`, on `/field` (390, 1440), `/team`, `/operations` |
+| Failed poll → last cards stay with a visible «not current» mark | IMPLEMENTED: `onReadFailed` keeps rows, status `stale` (`banner-state.ts:50-53`); line «… nicht aktualisiert werden. Stand HH:MM.»; e2e `:116` |
+| No answer within one interval counts as failed | IMPLEMENTED: `SignalBanner.tsx` tick sets `onReadFailed` while `inFlight`; unit test (not re-read line by line) |
+| Failure counted (like CGR-272) | OPEN, not in S-1 scope: only log lines; a hung poll logs nothing (agree with `aia` AUT-187). Follow-up, placement `po`; stays a condition for «released for real persons and data» |
+| Form confirmed by the Clinical Owner | OPEN / UNKNOWN (Clinical Owner) |
+
+### Answers to `eng`'s three questions (Clinical Architect 2026-11-22; recommendations, not clinical rules)
+
+1. **Is fail-visible enough for CGR-273, or must a safety list fail harder?** For the simulation: yes, fail-visible as built is the right form, and safer than fail-hard here. Reasons: (a) the false all-clear, which was the hazard (H-57), is gone; (b) fail-hard would take away the day view and the visit commands, which is the harm PERF1 removes, and would not bring the signals back; (c) the push channel is independent of the page (the scheduled evaluator is primary; `pollSignals` only kicks the dispatch, `commands.ts:20-21`). With real persons, whether a visible line is enough, or whether a persistent failure must also reach someone who is not looking at the screen, is a decision of the Clinical Owner (UNKNOWN). The counting (AUT-187) is the precondition for that decision, because nobody can see today how often or how long the line stood.
+2. **Is «Stand HH:MM» on kept cards safe, or could kept cards that have since ended mislead?** Safe for the simulation. A kept card that has since ended errs toward over-warning (a nurse checks a situation that has resolved); the opposite error, missing a new signal, is what the line now states. «Ich übernehme» on an ended signal is decided by the database (`take_signal`, `takeOutcome` reasons), not by the stale card. Two limits, advisory: the time has no date, so a page left open across midnight shows a time that reads as today (CGR-279, wording `uxa`); the mark is one line above the cards, not on each card, which is acceptable while the line is directly above them (e2e `:50` places it inside the signal section).
+3. **Should the line point to an action beyond «Erneut laden» (e.g. call the team)?** Not now. A named action («call the team lead / Operations») is an operating process with a responsible person and a time, and neither exists as a verified rule; adding one would be inventing a process (CLAUDE.md). The present wording states the fact without implying safety, which is what CGR-276 required. Who must act when the line stands for longer, and after how long, is UNKNOWN (Clinical Owner, `po`); proposed as part of the follow-up with the counting.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-278** | `/operations` evaluator health notice (SIG2-11; same class as CGR-276, found by `aia` AUT-188, #1679) | **blocking for the gate «released for real persons and data»**; advisory for the simulation; S1 | When `signal_evaluator_health` cannot be read, `getSignalEvaluatorHealth` returns `[]` by design («shows no warning») and `EvaluatorHealthNotice` renders nothing, so Operations sees the same screen as with a running evaluator. The evaluator is what raises the P1 signals and pushes; a silent health read failure hides that the escalation path may be down. Not in S-1 scope; not a merge condition for #1677. | `src/features/signals/queries.ts:20-32` (on `recovery/main` `9f32076`); `src/components/signals/EvaluatorHealth.tsx:5`; used on `/operations` and `admin-client.tsx:102` | S-1 pattern: on a read error a visible line in place of the notice («Zustand der Signalprüfung unbekannt», wording `uxa`), never the running or empty state; e2e with forced error (revoke execute, as in S-1) on `/operations` and `/admin`; counted with AUT-187 |
+| **CGR-279** | S-1 banner residuals (#1677 `97d0256`) | **advisory**; S3; follow-up, not a merge condition | (a) If one poll never answers, `inFlight` stays true: every tick marks `stale` (visible, so not silent), but no new read starts and «Erneut laden» returns without effect or feedback (`retry` returns early while `inFlight`), so the line can stand for the rest of the page's life although the database recovered. (b) «Stand HH:MM» carries no date. | `SignalBanner.tsx` `read`, `tick`, `retry` on `97d0256`; `banner-state.ts:69-77` | (a) a client timeout per read (one interval), after which the read is dropped and the next tick starts a new one; «Erneut laden» always starts a read or says it is waiting; unit or e2e with a read that never resolves. (b) date shown when the last good read is not today (`uxa`) |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1677 S-1 | `97d0256` | **`cra-gate: #1677 97d0256 clear`** (gate «Simulation, synthetic data»). CGR-276 IMPLEMENTED on this head for the display part (line, stale mark, interval timeout; e2e and job log read); counting and the Clinical Owner's form stay OPEN, so CGR-276 stays **blocking for «released for real persons and data»**. `uxa` gate is separate (FE-112 (b)). |
+| #1671 PERF1 | draft | Not gated (no ready report). After S-1 merges, PERF1 merges `recovery/main` in; at its gate I check CGR-272, CGR-273 (incl. `my_signals` not behind the degrade helper), CGR-277. |
+
+### Findings closed
+
+None. CGR-276 closes for the display part when #1677 is merged on a green head; it closes fully only with the counting and the Clinical Owner's confirmation.
+
+### Decisions requested
+
+- **`po`:** merge #1677 under FE-112 (b) when `uxa` has gated; place CGR-278 (AUT-188, #1679) and the S-1 counting (AUT-187) as named follow-ups before any further feature package that touches signals; CGR-279 as a follow-up.
+- **Clinical Owner (UNKNOWN) / owner:** whether a visible line is enough for the P1 safety signals with real persons, and who must act, after how long, when it stands (CGR-276, CGR-278); unchanged: CGR-273, CGR-277, CGR-267 (D-29), ended uncovered shift (PERF1-F1).
+- **`lca`:** unchanged: CGR-271.
+
+---
+
 ## 2026-11-22 01:30 CET: pre-gate review of **#1671** (PERF1, draft, head `16f1227`, not ready: no `Paket prüfbereit:`) with the questions `eng` addressed to `cra` (7069302045 (1), 7071385024 finding S-1, 7070751986 scope (3)). **No gate line** (the package is not ready; a gate line is given only on a ready head). One new finding before real persons (CGR-276, S1, pre-existing since SIG1), one advisory PERF1 gate condition (CGR-277), one recommendation to `po` (scope (3)). No new merge condition is set by me (FE-089 (3)); placement is for `po`.
 
 ### What I read
