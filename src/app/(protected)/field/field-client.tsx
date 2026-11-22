@@ -80,6 +80,7 @@ import type { SinceLastRowDb } from "@/features/field/queries";
 import QualitySection from "./quality-section";
 import VisitLifecycle from "./visit-lifecycle";
 import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
+import HintsUnavailableNotice from "@/components/visits/HintsUnavailableNotice";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 import type { TeamVisitAlert } from "@/features/team/queries";
@@ -122,6 +123,8 @@ type Props = {
   alertHistory?: SafetyAlertHistoryEntry[];
   /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
   openFollowups?: TeamVisitAlert[];
+  /** PERF1 (CGR-272): team_visit_alerts could not be loaded; show the notice line instead of the list. */
+  visitAlertsUnavailable?: boolean;
   /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
   absence?: { today: string; absences: TeamAbsence[]; open: OpenVisit[]; colleagues: TeamColleague[] };
   /** SIG1: her open P1 safety signals at the top, refreshed without a reload, or that they could not be read (S-1). */
@@ -163,7 +166,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals, doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0, invoiceStates = {} }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], visitAlertsUnavailable = false, absence, signals, doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0, invoiceStates = {} }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
@@ -237,6 +240,8 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
         )}
         {/* VIS1-3d / VIS1-3e: when the moved visit is not among her cards of this day, the notice stands above the list. */}
         {moved && !visits.some((v) => v.visit_id === movedId) && <MovedNoticeBlock moved={moved} overlapText={movedOverlapText} />}
+        {/* PERF1 (CGR-272): above the visit cards, on every render while the hint list fails. */}
+        {visitAlertsUnavailable && <HintsUnavailableNotice />}
         {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0 || assessmentsToConfirm.count > 0 || openTeamOffers > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
           // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the

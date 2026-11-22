@@ -27,8 +27,25 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
+  # STAB1-F2 (PERF1 scope (4)): a docs-only merge into recovery/main starts no click paths (scripts/staging-smoke-scope.mjs;
+  # any doubt runs them). Manual starts and `staging-smoke/**` pushes always run.
+  scope:
+    name: staging smoke scope (docs-only merges skip)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.scope.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      - id: scope
+        run: node scripts/staging-smoke-scope.mjs "$GITHUB_EVENT_NAME" "$GITHUB_REF" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
   smoke:
     name: staging smoke (founder click paths 1 and 2)
+    needs: [scope]
+    if: needs.scope.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90   # after a merge: up to 50 min for `ci`, up to 20 min for Render, then the click paths
     permissions:
@@ -93,7 +110,7 @@ jobs:
   # step names are written; never a log line (a log could echo a typed value).
   notify:
     name: report a red staging smoke
-    needs: [smoke]
+    needs: [scope, smoke]
     if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 5

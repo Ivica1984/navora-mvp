@@ -154,7 +154,7 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "order_member_step"
+        "derived_exceptions_of(p_org, null)"
       ]
     },
     {
@@ -504,6 +504,48 @@
         "institution_audit",
         "take_visit_under_way",
         "starts_at <= private.now()"
+      ]
+    },
+    {
+      "name": "public.team_visit_alerts",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "signal_take_lapsed",
+        "derived_exceptions_of"
+      ]
+    },
+    {
+      "name": "private.evaluate_signals",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "pg_try_advisory_xact_lock",
+        "signal_kind_of",
+        "outside_after_evaluate",
+        "derived_exceptions_of"
+      ]
+    },
+    {
+      "name": "private.derived_exceptions_of",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_cover",
+        "PERF1 gate",
+        "order_member_step"
+      ]
+    },
+    {
+      "name": "public.record_aux_list_failure",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "aux_list_unknown"
       ]
     }
   ]
