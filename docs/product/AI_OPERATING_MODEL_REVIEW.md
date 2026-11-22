@@ -734,6 +734,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
   - All PROPOSED (PO; `eng`, `uxa`, `cra` as named). None changes PERF1's scope by itself.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**S-1 reviewed: safety reads fail visible, and so must the evaluator monitor (`aia` 2026-11-22 02:20, review 83, AUT-187 to AUT-189):**
+- **Label check:** S-1 (#1677, `97d0256`) and PERF1 (#1671, draft `49d8325`) are fixed rules only. No agent, no ledger write, no model.
+- **Controls proposed:**
+  - AUT-187: signal read failures (server read, failed and hung poll) are counted per team and day under their own safety key; `staging-smoke` fails when the banner's unavailable or stale line appeared. Not a condition for #1677.
+  - AUT-188 (high, #1679): the SIG2-11 evaluator health read returns `[]` on error and shows no warning. It must show a visible line (S-1 pattern).
+  - AUT-189: a deterministic guard over getters that return an empty value on error, with an allowlist that names each getter's class.
+  - All PROPOSED (PO; `eng`, `uxa`, `cra` as named).
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -818,3 +827,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-21 08:19 | `aia` | §12: block «HD-2 draft pre-read: one order path, prefill and withdrawal stay lean; an unsent draft needs an end»: label check on `5781ecd`; controls AUT-180 to AUT-182 (PROPOSED). No agent added or removed |
 | 2026-11-21 14:18 | `aia` | §12: block «FE-111 places AI1 third; the AI1 brief carries the open controls»: label check on `ca334ce` and `9e6612c`; control AUT-183 (PROPOSED). No agent added or removed |
 | 2026-11-21 20:18 | `aia` | §12: block «PERF1 reviewed: fail visible for hint lists, never for safety lists by default»: label check on `briefs/PERF1.md` and ADR-226 DRAFT; controls AUT-184 to AUT-186 (PROPOSED). No agent added or removed |
+| 2026-11-22 02:20 | `aia` | §12: block «S-1 reviewed: safety reads fail visible, and so must the evaluator monitor»: label check on `97d0256` and `49d8325`; controls AUT-187 to AUT-189 (PROPOSED; AUT-188 high, #1679). No agent added or removed |
