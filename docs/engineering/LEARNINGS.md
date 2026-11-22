@@ -10,7 +10,8 @@ Founder-Auftrag FE-101 / FE-102 (2026-11-20). Owner der Datei: `eng`. Jede Rolle
 4. Nur belegte Fakten aus Code, CI-Log oder Test (Job-ID, Datei, Migration). Keine erfundenen Regeln; medizinische, tarifliche oder rechtliche Regeln gehören nicht hierher, sondern als Entscheid an ihren Owner.
 5. Wo möglich wird eine Lektion durch einen automatischen Test oder Check abgesichert. Die Zeile «Abgesichert durch» nennt ihn, oder `OPEN`, wenn es ihn noch nicht gibt.
 6. **Praktischer Ablauf (Founder 2026-11-20, nach PR #1596):** Vor der Arbeit am aktiven Paket liest `eng` die Lektionen, die für dessen Dateien und Risiken einschlägig sind. Die Paketübergabe (`Paket prüfbereit:`) enthält eine Zeile «Lektionen:»: welche Lektion angewendet wurde und welcher Test die betreffende Eigenschaft schützt, oder «keine einschlägig». Eine Behauptung im Journal allein ersetzt keinen Test.
-7. Diese Datei hält Erkenntnisse über Software-Fehler fest. Regressionstests sichern die Software; sie sind kein Training des Coding-Agenten. Ob `eng` die Lektionen anwendet, wird an seiner Arbeit geprüft (Review durch `po`). Automatische Prüfung von Format und Testverweisen: Vorschlag LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`), PLANNED nach BK-f, wenn `po` es einplant.
+7. Diese Datei hält Erkenntnisse über Software-Fehler fest **und (Nachtrag 2026-11-22, Punkt 8) über Fehler in der eigenen Arbeitsweise.** Regressionstests sichern die Software; sie sind kein Training des Coding-Agenten. Ob `eng` die Lektionen anwendet, wird an seiner Arbeit geprüft (Review durch `po`). Automatische Prüfung von Format und Testverweisen: Vorschlag LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`), PLANNED nach BK-f, wenn `po` es einplant.
+8. **Founder 2026-11-22 ca. 10:05 (Live-Sitzung mit `eng`, Wortlaut: «Ich erwarte das du jedes learning protokollierst und aus den fehlern lernst»):** Jede Lektion wird hier eingetragen, nicht nur Software-Fehler: auch Fehler in Berichten, im Ablauf und in der Arbeitsweise von `eng` (falsche Angaben, zu früher Start, übersehene Regel). Sie wird im selben Lauf eingetragen, in dem der Fehler bemerkt wird. Vor jeder Arbeit liest `eng` die einschlägigen Lektionen und wendet sie an; das Journal nennt, welche angewendet wurde. Als Founder-Entscheid in `FOUNDER_DECISIONS.md` einzutragen ist Sache von `po` (Bitte auf PR #1696).
 
 Muster:
 
@@ -25,6 +26,12 @@ Muster:
 ---
 
 ## Lektionen (neueste zuerst)
+
+### [2026-11-22 / STG-SMOKE-1, PR #1694, PO-PR #1693] Gelernte Lektion: Gebaut wird erst, wenn *Active now* auf `recovery/main` den Schritt nennt
+- **Was war das Fehlerbild?** Im Lauf 09:09 habe ich STG-SMOKE-1 gebaut und als PR #1694 geöffnet, während *Active now* auf `recovery/main` noch «AI1 erst nach der PERF1-Abnahme» sagte. Die PO-Freigabe (AI1 aktiv, Schritt 0 = STG-SMOKE-1) stand nur im offenen PO-PR #1693. Ich habe die Abweichung im PR und im Journal genannt; #1693 wurde um 09:16 gemergt, vor meinem Prüfbericht. Schaden: keiner, aber nur durch Glück in der Reihenfolge.
+- **Was war die technische Ursache?** Ich habe den Inhalt eines offenen PO-PRs wie einen gültigen Entscheid behandelt, um eine Stunde zu sparen. Ein offener PR kann noch geändert oder verworfen werden.
+- **Die verbindliche Lösungsregel ab jetzt:** Massgeblich ist nur *Active now* auf `recovery/main`. Steht ein neuer Schritt erst in einem offenen PO-PR, bereite ich höchstens vor (Analyse, roter Reproduktionstest auf einem Entwurfs-Branch) und öffne keinen Feature- oder Fix-PR, bis der PO-PR gemergt ist.
+- **Abgesichert durch:** OPEN (kein automatischer Check; ich prüfe zu Beginn jedes Laufs `git log origin/recovery/main -- docs/agents/NEXT_CAPABILITY.md` und schreibe die Fundstelle ins Journal).
 
 ### [2026-11-22 / STG-SMOKE-1, PR #1694, Kommentar 7076559868] Gelernte Lektion: Eine volle Commit-ID wird kopiert, nie aus einem Kurz-SHA ergänzt
 - **Was war das Fehlerbild?** Die erste Fassung von `Paket prüfbereit:` auf #1694 nannte als Head `acc36e17a5c7f3d81cc2a0fb7a85ab97d79b6c10`. Der echte Head war `acc36e17131b504804810a7021b0aecd780bbd00`. Nur die ersten 8 Zeichen stimmten. Bemerkt beim Gegenlesen mit `gh api …/pulls/1694 --jq .head.sha`, korrigiert im selben Kommentar, vor jeder Gate-Zeile und vor dem Merge.
