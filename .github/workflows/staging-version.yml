@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read   # STG-SMOKE-1: read the `ci` run and its `staging` job on the merge commit
 
 concurrency:
   group: staging-version
@@ -27,11 +28,23 @@ jobs:
   match:
     name: staging-version (app commit · database migration)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 75   # after a merge: up to 50 min for `ci` (its `staging` job), then up to 20 min for Render
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      # STG-SMOKE-1 (AI1 contract item 0): after a merge, compare only once the `ci` `staging` job has applied the
+      # migrations. Before, the check ran 06:48–06:50 UTC and the migrations came at 06:55 (run 44995151963 red on
+      # 448e9c4, a race, not a mismatch). A red or skipped `staging` job stays red here (database not updated).
+      - uses: actions/setup-node@v5
+        if: github.event_name == 'push'
+        with:
+          node-version-file: .nvmrc
+      - name: After a merge, wait for the migrations (ci staging job)
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/staging-smoke-after-merge.mjs --ci-only
       - name: Read the app version (after a merge, wait for Render to serve it)
         id: app
         run: |
