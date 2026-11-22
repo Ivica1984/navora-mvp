@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { pollSignals, takeSignal } from "@/features/signals/commands";
 import {
   SIGNAL_POLL_MS,
@@ -15,35 +15,65 @@ import {
   takenText,
   type SignalRow,
 } from "@/features/signals/rules";
+import {
+  SIGNALS_RETRY_LABEL,
+  bannerNotice,
+  initialBannerState,
+  onReadFailed,
+  onReadOk,
+  onServerLoad,
+  showsEmptyMarker,
+  type BannerState,
+  type SignalLoad,
+} from "@/features/signals/banner-state";
 
 // SIG1-3 / SIG1-4: P1 safety signals of the signed-in person at the top of /field, /team and OPS1, refreshed every
 // 30 s without a reload. "Ich übernehme" records who takes it; the signal stays open until its cause ends (CR-041).
 // UX1-22 (ADR-109): `onRows` reports the rows on screen, so a list below that points up to a signal card ("Steht oben
 // als Sicherheitssignal") follows the cards as they are polled, never a card that is gone.
-export default function SignalBanner({ initial, onRows }: { initial: SignalRow[]; onRows?: (rows: SignalRow[]) => void }) {
-  const [rows, setRows] = useState<SignalRow[]>(initial);
+// S-1 (banner-state.ts): a failed read never empties the banner and never looks like «no signal». Without any
+// successful read the banner shows one visible `role=alert` line; after one, the last known cards stay and the line
+// says they are not current. A poll still running when the next one is due counts as failed (no answer within one
+// interval). «Erneut laden» reads at once.
+export default function SignalBanner({ initial, onRows }: { initial: SignalLoad; onRows?: (rows: SignalRow[]) => void }) {
+  const [state, setState] = useState<BannerState>(() => initialBannerState(initial, Date.now()));
   const [pending, setPending] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inFlight = useRef(false);
+  const alive = useRef(true);
+  const rows = state.rows;
 
-  // A server refresh (router.refresh after a command) brings new initial rows (derived during render, not in an effect).
+  // A server refresh (router.refresh after a command) brings a new read (derived during render, not in an effect).
   const [seen, setSeen] = useState(initial);
   if (initial !== seen) {
     setSeen(initial);
-    setRows(initial);
+    setState((s) => onServerLoad(s, initial, Date.now()));
   }
 
+  const read = useCallback(async () => {
+    inFlight.current = true;
+    const r = await pollSignals().catch(() => ({ ok: false as const }));
+    inFlight.current = false;
+    if (!alive.current) return;
+    setState((s) => (r.ok ? onReadOk(r.rows, Date.now()) : onReadFailed(s)));
+  }, []);
+
   useEffect(() => {
-    let alive = true;
-    const tick = async () => {
-      const r = await pollSignals().catch(() => ({ ok: false as const }));
-      if (alive && r.ok) setRows(r.rows);
+    alive.current = true;
+    const tick = () => {
+      if (inFlight.current) {
+        setState((s) => onReadFailed(s));
+        return;
+      }
+      void read();
     };
     const id = setInterval(tick, SIGNAL_POLL_MS);
     return () => {
-      alive = false;
+      alive.current = false;
       clearInterval(id);
     };
-  }, []);
+  }, [read]);
 
   useEffect(() => {
     onRows?.(rows);
@@ -58,15 +88,37 @@ export default function SignalBanner({ initial, onRows }: { initial: SignalRow[]
       setError(r.error);
       return;
     }
-    const next = await pollSignals().catch(() => ({ ok: false as const }));
-    if (next.ok) setRows(next.rows);
+    await read();
   }
 
+  async function retry() {
+    if (inFlight.current) return;
+    setRetrying(true);
+    await read();
+    setRetrying(false);
+  }
+
+  const notice = bannerNotice(state);
+  const noticeLine = notice && (
+    <div role="alert" data-testid="safety-signals-unavailable" data-status={notice.status}
+         className="flex flex-wrap items-center gap-2 rounded-xl border-l-4 border-rose-700 bg-rose-50 p-3 font-semibold text-rose-900">
+      <span>{notice.text}</span>
+      <button type="button" onClick={retry} disabled={retrying}
+              className="min-h-11 rounded-lg border border-rose-800 px-3 font-bold text-rose-900 disabled:opacity-60">
+        {SIGNALS_RETRY_LABEL}
+      </button>
+    </div>
+  );
+
   const { open, taken } = splitSignals(rows);
-  if (open.length === 0 && taken.length === 0) return <div data-testid="safety-signals-empty" hidden />;
+  if (open.length === 0 && taken.length === 0) {
+    if (showsEmptyMarker(state)) return <div data-testid="safety-signals-empty" hidden />;
+    return <section aria-label="Sicherheitssignale" data-testid="safety-signals" className="mb-4 grid gap-2 text-sm">{noticeLine}</section>;
+  }
 
   return (
     <section aria-label="Sicherheitssignale" aria-live="polite" data-testid="safety-signals" className="mb-4 grid gap-2 text-sm">
+      {noticeLine}
       {open.length > 0 && (
         <ol aria-label="Offene Sicherheitssignale" className="grid gap-2">
           {open.map((s) => (
