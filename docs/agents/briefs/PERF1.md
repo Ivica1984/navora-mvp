@@ -31,7 +31,7 @@ A carer's day view always renders after a successful command, also when a hint l
 
 1. **ADR-226 (A):** behaviour-preserving split of `derived_exceptions` so each caller computes only the branches it reads (`evaluate_signals` and `team_visit_alerts` no longer compute the `order` branch). Same rows, same texts for every caller (pgTAP equivalence).
 2. **`/field` degrades visibly, never silently (new, from #1663 §4.3 (3)):** when `team_visit_alerts` (or another auxiliary hint list) fails, the day view and the visit commands stay; in place of the list one visible line says that the hints could not be loaded (working wording «Hinweise zu Einsätzen konnten nicht geladen werden»; final wording at the `uxa` gate, content check by `cra`). Hints are never dropped without that line.
-3. **STAB1-F5:** the smoke removes the orders it creates; the `/order` list stays bounded (as agreed 09:39).
+3. ~~**STAB1-F5:** the smoke removes the orders it creates; the `/order` list stays bounded (as agreed 09:39).~~ Moved to follow-up STAB1-F5 (a) (PO amendment 2026-11-22 02:39).
 4. **STAB1-F2:** no `staging-smoke` run for docs-only merges (`paths` filter).
 5. **`db` performance budget:** `team_visit_alerts` (and the evaluator's derivation) on the CI seed with a stated number of orders below a stated limit; the limit and N are named in the ready report.
 
@@ -48,7 +48,7 @@ A carer's day view always renders after a successful command, also when a hint l
 - [ ] e2e: with `team_visit_alerts` failing (forced error), `/field` renders the day view, shows the notice line, and «Losfahren» still moves the card to «Unterwegs»; negative: no hint list is shown as empty without the notice.
 - [ ] **T-1 «sent = shown» (FE-111):** after every carer command in path 3 the card shows the state the server stored (no stale card after a 200).
 - [ ] **T-2 «one wrong, interrupted or double step» (FE-111):** interrupted = the failing hint list above; double = a double tap on «Losfahren» yields one state change.
-- [ ] `staging-smoke` on the merge commit: all paths green incl. 3, 5, 6; the smoke leaves no orders behind (STAB1-F5); a docs-only merge starts no smoke (STAB1-F2).
+- [ ] `staging-smoke` on the merge commit: all paths green incl. 3, 5, 6; ~~the smoke leaves no orders behind (STAB1-F5)~~ the smoke writes only the orders its paths need and withdraws what HD.md §3 allows (path 6) (PO amendment 2026-11-22 02:39); a docs-only merge starts no smoke (STAB1-F2).
 - [ ] No test skipped or weakened; `ci` green on the head; after the merge `ci` green on the merge commit and `ci-repeat` 10/10 (`db`, `e2e`).
 
 ## Rules and their input class
@@ -86,3 +86,14 @@ Inputs: `eng` 7063940738, 7067863141 (#1660), ADR-226 draft (#1666); `aia` AUT-1
 6. **ADR-226 (B) and `operations_exceptions` (CGR-274):** stay non-goals of PERF1. The `cra` recommendation (bound the live computation to orders not yet ended; keep an ended uncovered order as a stored open-or-handled record) is adopted as the direction of follow-up **PERF1-F1**, brief after PERF1; what handling an ended uncovered shift requires is for the Clinical Owner (UNKNOWN), not set here.
 
 Gates unchanged: `uxa` (wording and placement, `/field` and `/team`), `cra` (CGR-272 conditions, CGR-273 boundary, equivalence for every caller).
+
+## PO amendment 2026-11-22 02:39 (scope decision before the package is ready; removes a scope item, adds no merge condition, FE-089 (3))
+
+Answer to `eng` 7070751986 (repeated in the latest #1671 comment), question «scope (3) STAB1-F5: (A) or (B)» (#1671). **PO decision: (A).**
+
+1. Scope item 3 (STAB1-F5) leaves PERF1 and becomes its own follow-up item **STAB1-F5 (a)**: `client_orders()` returns orders not yet ended plus ended orders of the last *N* days; open and future work first (H-STAB1-F5). *N* and the «history on demand» design are OPEN for `po` with `uxa`; brief after PERF1. No delete path for orders, takes, visits or signed reports is built (audit and append-only stay, CSR1, CGR-03); no client or home cancellation of a covered order is invented (domain rule, CGR-234/242, `lca`).
+2. The acceptance line «the smoke leaves no orders behind (STAB1-F5)» is replaced by: «the smoke writes only the orders its paths need and withdraws what HD.md §3 allows (path 6)». STAB1-F2 (a docs-only merge starts no smoke) stays as written.
+3. Reason (WHAT/WHY): «no orders behind» cannot be met without either breaking audit or inventing a domain rule; PERF1's outcome does not depend on it (ADR-226 already removed order growth from `team_visit_alerts` and `my_signals`, pgTAP 164, as reported by `eng`). `cra` supports (A) (as reported by `eng` on #1671).
+4. Order to S-1 (#1677): unchanged FE-112 (c). S-1 was ready first (7072089149) and is merged first once its gate window is `clear`; PERF1 then merges `recovery/main` in and needs green CI on its new head.
+
+Gates unchanged.
