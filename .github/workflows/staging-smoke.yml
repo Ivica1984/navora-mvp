@@ -29,17 +29,24 @@ env:
 jobs:
   # STAB1-F2 (PERF1 scope (4)): a docs-only merge into recovery/main starts no click paths (scripts/staging-smoke-scope.mjs;
   # any doubt runs them). Manual starts and `staging-smoke/**` pushes always run.
+  # STG-SMOKE-1: «docs-only» is measured against the last commit whose click paths ran green, not against `^1`, so a
+  # code merge whose pending run the concurrency group replaced is smoked by the next run (448e9c4 → 4310526).
   scope:
     name: staging smoke scope (docs-only merges skip)
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read       # list earlier staging-smoke runs and their jobs (the base «last green smoke»)
     outputs:
       run: ${{ steps.scope.outputs.run }}
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 2
+          fetch-depth: 0   # the base may be several merges back
       - id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: node scripts/staging-smoke-scope.mjs "$GITHUB_EVENT_NAME" "$GITHUB_REF" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
 
   smoke:

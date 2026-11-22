@@ -4,6 +4,8 @@
 // there. Two preconditions, both read only from the GitHub API and the public /api/version endpoint:
 //   1. the `ci` push run on the merge commit has finished and its `staging` job (migrations → navora-staging) is green;
 //   2. Render serves that commit or a later commit of recovery/main.
+// STG-SMOKE-1: with `--ci-only` only precondition 1 is awaited (used by `staging-version`, which must not compare the
+// app with the database before the `staging` job has applied the migrations: race on 448e9c4, run 44995151963).
 // The decisions are pure functions (unit test tests/unit/stab1-staging-smoke-after-merge.test.ts); `main()` polls.
 // No secret is read here: the GitHub token is the job's own read token, /api/version is public.
 
@@ -60,6 +62,9 @@ async function main() {
   const appUrl = process.env.APP_URL ?? "https://navora-staging.onrender.com";
   const ciMinutes = Number(process.env.WAIT_CI_MINUTES ?? 50);
   const renderMinutes = Number(process.env.WAIT_RENDER_MINUTES ?? 20);
+  const ciOnly = process.argv.includes("--ci-only");
+  const title = ciOnly ? "staging-version" : "staging-smoke";
+  const stopped = ciOnly ? "the app and database versions were not compared" : "the smoke was not started";
   if (!repo || !want) throw new Error("GITHUB_REPOSITORY and GITHUB_SHA are required");
   const gh = (path) => JSON.parse(execFileSync("gh", ["api", path], { encoding: "utf8" }));
   const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000));
@@ -73,8 +78,14 @@ async function main() {
     await sleep(60);
   }
   if (ci.state !== "go") {
-    console.log(`::error title=staging-smoke precondition::${ci.state === "wait" ? `after ${ciMinutes} min: ` : ""}${ci.reason}; the smoke was not started`);
+    console.log(`::error title=${title} precondition::${ci.state === "wait" ? `after ${ciMinutes} min: ` : ""}${ci.reason}; ${stopped}`);
     process.exit(1);
+  }
+  // STG-SMOKE-1: `staging-version` only needs the migrations on navora-staging before it compares; it waits for
+  // Render itself (and for exactly the merge commit), so it stops here.
+  if (ciOnly) {
+    console.log(`::notice title=${title}::${ci.reason}; the migrations are on navora-staging`);
+    return;
   }
 
   const isAncestor = (a, d) => {
