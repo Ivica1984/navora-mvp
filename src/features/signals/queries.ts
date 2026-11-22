@@ -3,19 +3,21 @@ import "server-only";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import type { EvaluatorHealth, OutsideWatchedVisit, SignalRow } from "./rules";
+import { signalsLoaded, signalsUnavailable, type SignalLoad } from "./banner-state";
 
 /**
  * SIG1-3: the caller's open P1 safety signals for the first render (public.my_signals, pgTAP 062). A failure never
- * blocks the page: the banner then starts empty and the poll retries.
+ * blocks the page and is never shown as «no signal» (S-1): it returns `unavailable`, the banner shows a visible line
+ * and the poll retries.
  */
-export async function getMySignals(): Promise<SignalRow[]> {
+export async function getMySignals(): Promise<SignalLoad> {
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("my_signals");
   if (error) {
     logEvent("error", "signals.load_failed", errorFields(error));
-    return [];
+    return signalsUnavailable();
   }
-  return (data ?? []) as SignalRow[];
+  return signalsLoaded((data ?? []) as SignalRow[]);
 }
 
 /**

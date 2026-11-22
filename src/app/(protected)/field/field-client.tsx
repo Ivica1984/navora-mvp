@@ -85,7 +85,7 @@ import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 import type { TeamVisitAlert } from "@/features/team/queries";
 import SignalBanner from "@/components/signals/SignalBanner";
-import type { SignalRow } from "@/features/signals/rules";
+import type { SignalLoad } from "@/features/signals/banner-state";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
 import { placeLine } from "@/features/field/place";
@@ -127,8 +127,8 @@ type Props = {
   visitAlertsUnavailable?: boolean;
   /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
   absence?: { today: string; absences: TeamAbsence[]; open: OpenVisit[]; colleagues: TeamColleague[] };
-  /** SIG1: her open P1 safety signals at the top, refreshed without a reload. */
-  signals?: SignalRow[];
+  /** SIG1: her open P1 safety signals at the top, refreshed without a reload, or that they could not be read (S-1). */
+  signals: SignalLoad;
   /** LEAVE1-12 (1): registered nurses only: team members with open reports (counts by kind, access-end date). */
   teamOpenReports?: TeamOpenReport[];
   /** WORK1-C4 (b): opened from /work to correct a visit time: the instant of one of the visit's events. */
@@ -166,7 +166,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], visitAlertsUnavailable = false, absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0, invoiceStates = {} }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], visitAlertsUnavailable = false, absence, signals, doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null }, openTeamOffers = 0, invoiceStates = {} }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
