@@ -16,8 +16,12 @@ const NURSE = "pflege.test@navora.test"; // org A, nurse, Testteam Nord (supabas
 const PASSWORD = "navora-local-only";
 const DB_URL = process.env.E2E_DB_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 const LOCAL_DB = /^postgres(ql)?:\/\/[^@]+@(127\.0\.0\.1|localhost):54322\//;
-// Working wording from the PERF1 brief (2); final wording at the `uxa` gate, content check by `cra`.
+// Headline from the PERF1 brief (2), followed by UXR-276 (what may be missing) and CGR-277 (signals and team); final
+// wording at the `uxa` gate, content check by `cra` (src/features/team/aux-list.ts).
 const NOTICE = "Hinweise zu Einsätzen konnten nicht geladen werden";
+const MISSING = "Es können offene Punkte fehlen, z. B. nicht erfolgte Einsätze oder Folgeentscheide nach einem Abbruch.";
+const NEXT = "Achte auf die Sicherheitssignale und frag im Zweifel im Team nach.";
+const FULL_TEXT = `${NOTICE}. ${MISSING} ${NEXT}`;
 
 function psql(sql: string): string {
   if (!LOCAL_DB.test(DB_URL)) throw new Error("PERF1 probe fixture: only the local Supabase database (port 54322)");
@@ -60,8 +64,12 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
         await expect(page.getByRole("navigation", { name: "Tag wechseln" })).toBeVisible();
         const notice = page.getByTestId("visit-alerts-unavailable");
         await expect(notice).toHaveCount(1);
-        await expect(notice).toHaveText(NOTICE + ".");
-        await expect(notice).toHaveAttribute("role", "status");
+        await expect(notice.getByRole("status")).toHaveText(FULL_TEXT);
+        // UXR-276: one action to read again, a real button of at least 44 px, outside the live region.
+        const reload = notice.getByRole("button", { name: "Neu laden" });
+        await expect(reload).toBeVisible();
+        expect((await reload.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        await expect(notice.getByRole("status").getByRole("button")).toHaveCount(0);
         // Where the list would be and above the visit cards (CGR-272).
         const cards = page.getByRole("list", { name: "Einsätze" });
         if (await cards.count()) {
@@ -117,7 +125,7 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
     try {
       await page.reload();
       // Interrupted step: the hint list fails, the notice stands, the card and its command stay.
-      await expect(page.getByTestId("visit-alerts-unavailable")).toHaveText(NOTICE + ".");
+      await expect(page.getByTestId("visit-alerts-unavailable").getByRole("status")).toHaveText(FULL_TEXT);
       const card = page.getByRole("article", { name: /23:47 – 23:58/ });
       await expect(card.getByTestId("visit-status")).toHaveText("Geplant");
       // Double step: two taps in quick succession on the same button.
@@ -137,6 +145,75 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
     expect(departures()).toBe(1);
   });
 
+  // UXR-276: at 390 × 844 the notice with «Neu laden» sits in the first viewport, above the first visit card (the
+  // seeded org-A nurse of the tests above; the card check runs when her day holds a card).
+  test("UXR-276: at 390 × 844 the notice and «Neu laden» are in the first viewport, above the first card", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, NURSE);
+    breakAlerts();
+    try {
+      await page.reload();
+      await page.evaluate(() => window.scrollTo(0, 0));
+      const notice = page.getByTestId("visit-alerts-unavailable");
+      await expect(notice).toBeVisible();
+      const box = (await notice.boundingBox())!;
+      expect(box.y).toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height).toBeLessThanOrEqual(844);
+      await expect(notice.getByRole("button", { name: "Neu laden" })).toBeInViewport();
+      const firstCard = page.getByRole("article").first();
+      if (await firstCard.count()) expect(box.y).toBeLessThan((await firstCard.boundingBox())!.y);
+    } finally {
+      restoreAlerts();
+    }
+  });
+
+  // CGR-277: while the list fails, an open follow-up after an interrupted visit is not shown (the notice says so);
+  // once the failure ends, «Neu laden» brings the follow-up back on the same page without a full reload. Own fixture
+  // in Testorganisation S as in T-1/T-2 (new ids every run; visit_events append-only, nothing deleted).
+  test("CGR-277: after the failure ends, «Neu laden» brings the open follow-up back (390 px)", async ({ page }) => {
+    const ORG_S = "00000000-0000-4000-b000-000000000019";
+    const TEAM_S = "00000000-0000-4000-a000-0000000001b9"; // Testteam Basel
+    const NURSE_S = "00000000-0000-4000-a000-0000000009e6"; // pflegebs.test, registered nurse HF (seed, ADR-180)
+    const caseId = psql(`insert into public.cases (organization_id, created_at, name, first_name, last_name, region, plz,
+        status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id)
+      values ('${ORG_S}', private.now() - interval '1 day', 'Testfall PERF1 F', 'Testfall', 'PERF1 F', 'Basel-Stadt', '4051',
+        'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Bedarfsabklärung', 'Testteam Basel', '${TEAM_S}')
+      returning id`);
+    psql(`insert into public.care_visits (organization_id, created_at, case_id, team_id, visit_date, time_start,
+        time_end, services_provided, billable, status, planned_minutes_a, responsible_user_id, is_needs_assessment)
+      values ('${ORG_S}', private.now() - interval '1 day', '${caseId}', '${TEAM_S}', (private.now() at time zone 'Europe/Zurich')::date,
+        '23:31', '23:42', array['Grundpflege'], false, 'planned', 11, '${NURSE_S}', true)
+      returning id`);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/login");
+    await page.getByLabel("E-Mail").fill("pflegebs.test@navora.test");
+    await page.getByLabel("Passwort").fill(PASSWORD);
+    await page.getByRole("button", { name: "Anmelden" }).click();
+    await page.waitForURL(/\/field$/);
+
+    breakAlerts();
+    try {
+      await page.reload();
+      const card = page.getByRole("article", { name: /23:31 – 23:42/ });
+      await card.getByRole("button", { name: "Einsatz starten" }).click();
+      await expect(card.getByTestId("visit-status")).toHaveText("Gestartet");
+      await card.getByRole("button", { name: "Nicht abgeschlossen beenden" }).click();
+      const endForm = card.getByRole("form", { name: "Einsatz nicht abgeschlossen beenden" });
+      await endForm.locator("select[name=code]").selectOption("client_transferred");
+      await endForm.getByRole("button", { name: "Nicht abgeschlossen speichern" }).click();
+      await expect(card.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
+      // The follow-up comes from the failing list: not shown, and the notice says that follow-ups may be missing.
+      await expect(page.getByTestId("followup-queue")).toHaveCount(0);
+      await expect(page.getByTestId("visit-alerts-unavailable").getByRole("status")).toContainText("Folgeentscheide");
+    } finally {
+      restoreAlerts();
+    }
+    await page.getByTestId("visit-alerts-unavailable").getByRole("button", { name: "Neu laden" }).click();
+    await expect(page.getByTestId("visit-alerts-unavailable")).toHaveCount(0);
+    await expect(page.getByTestId("followup-queue")).toContainText("Klient:in verlegt bzw. ins Spital gebracht");
+  });
+
   test("/team: the team view stays and the notice stands in place of «Einsätze mit Handlungsbedarf»", async ({ page }) => {
     await signIn(page, NURSE);
     await page.goto("/team");
@@ -146,7 +223,8 @@ test.describe("PERF1: /field and /team when the visit hint list fails", () => {
     try {
       await page.reload();
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.getByTestId("visit-alerts-unavailable")).toHaveText(NOTICE + ".");
+      await expect(page.getByTestId("visit-alerts-unavailable").getByRole("status")).toHaveText(FULL_TEXT);
+      await expect(page.getByTestId("visit-alerts-unavailable").getByRole("button", { name: "Neu laden" })).toBeVisible();
       await expect(page.getByTestId("visit-alerts")).toHaveCount(0);
     } finally {
       restoreAlerts();

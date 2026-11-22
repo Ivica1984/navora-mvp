@@ -3,8 +3,16 @@
 // the page keeps its day view and commands and shows one notice line where the list would be. Pure; no I/O.
 // Safety lists (field_safety_alerts and any list `cra` names) are NOT auxiliary lists: they stay fail-hard (CGR-273).
 
-/** Working wording from the brief (2); final wording at the `uxa` gate, content check by `cra`. */
+/** Headline from the brief (2); final wording at the `uxa` gate, content check by `cra`. */
 export const VISIT_ALERTS_UNAVAILABLE_NOTICE = "Hinweise zu Einsätzen konnten nicht geladen werden.";
+/** UXR-276 (`uxa` early review 2026-11-22 01:30, wording verbatim): what may be missing. */
+export const VISIT_ALERTS_UNAVAILABLE_MISSING =
+  "Es können offene Punkte fehlen, z. B. nicht erfolgte Einsätze oder Folgeentscheide nach einem Abbruch.";
+/** CGR-277 (`cra` pre-gate 2026-11-22 01:30): point to the safety signals and the team. `eng` wording, an instruction,
+ *  not a promise that the signals hold every missing entry (not every degraded type is a signal); `uxa`/`cra` gate. */
+export const VISIT_ALERTS_UNAVAILABLE_NEXT = "Achte auf die Sicherheitssignale und frag im Zweifel im Team nach.";
+/** UXR-276: the one action to read again (DESIGN_SYSTEM §1). */
+export const VISIT_ALERTS_RELOAD_LABEL = "Neu laden";
 
 /** The only lists that may degrade (fail closed: an unknown list is not degradable). Mirrors migration 0165. */
 export const DEGRADABLE_LISTS = ["team_visit_alerts"] as const;

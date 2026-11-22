@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { DEGRADABLE_LISTS, VISIT_ALERTS_UNAVAILABLE_NOTICE, loaded, showsUnavailableNotice, unavailable } from "@/features/team/aux-list";
+import { DEGRADABLE_LISTS, VISIT_ALERTS_RELOAD_LABEL, VISIT_ALERTS_UNAVAILABLE_MISSING, VISIT_ALERTS_UNAVAILABLE_NEXT, VISIT_ALERTS_UNAVAILABLE_NOTICE, loaded, showsUnavailableNotice, unavailable } from "@/features/team/aux-list";
 
 // PERF1 (brief docs/agents/briefs/PERF1.md scope (2), PO amendment 20:39 (2), (3); CGR-272, CGR-273).
 describe("PERF1 auxiliary hint list", () => {
@@ -16,8 +16,21 @@ describe("PERF1 auxiliary hint list", () => {
     expect(showsUnavailableNotice(l)).toBe(true);
   });
 
-  it("uses the brief's working wording", () => {
+  it("uses the brief's headline, says what may be missing (UXR-276) and points to signals and team (CGR-277)", () => {
     expect(VISIT_ALERTS_UNAVAILABLE_NOTICE).toBe("Hinweise zu Einsätzen konnten nicht geladen werden.");
+    expect(VISIT_ALERTS_UNAVAILABLE_MISSING).toBe(
+      "Es können offene Punkte fehlen, z. B. nicht erfolgte Einsätze oder Folgeentscheide nach einem Abbruch.");
+    expect(VISIT_ALERTS_UNAVAILABLE_NEXT).toMatch(/Sicherheitssignale/);
+    expect(VISIT_ALERTS_UNAVAILABLE_NEXT).toMatch(/Team/);
+    expect(VISIT_ALERTS_RELOAD_LABEL).toBe("Neu laden");
+  });
+
+  it("the reload control re-reads on the server and sits outside the live region (UXR-276)", () => {
+    const c = readFileSync("src/components/visits/HintsUnavailableNotice.tsx", "utf8");
+    expect(c).toContain("router.refresh()");
+    expect(c).toContain("min-h-11");
+    const status = c.slice(c.indexOf('<p role="status">'), c.indexOf("</p>"));
+    expect(status).not.toContain("<button");
   });
 
   it("only team_visit_alerts degrades; the safety list stays fail-hard (CGR-273)", () => {
