@@ -9,8 +9,9 @@ CREATE OR REPLACE FUNCTION private.report_draft_model_closed(p_report visit_repo
  SET search_path TO ''
 AS $function$
 declare
-  rule public.report_draft_stop_rules%rowtype;
-  st   record;
+  rule  public.report_draft_stop_rules%rowtype;
+  st    record;
+  since timestamptz;
 begin
   if p_uid is null or p_report.id is null or not private.is_org_member(p_report.organization_id)
      or not private.is_team_member(p_report.team_id) or private.access_ended(p_uid) then
@@ -27,10 +28,17 @@ begin
   if not exists (select 1 from public.ai_agent_fields f where f.agent_key = 'report_draft_model' and f.field = 'summary_line') then
     return 'ledger_missing';
   end if;
+  -- AI1 contract item 2 (AUT-167): the current agent version must have a registered prompt digest; its registration
+  -- time starts the stop-rule window, so a new prompt version is never judged by the corrections of the previous one.
+  select pv.registered_at into since
+  from public.ai_agent_definitions d
+  join private.ai_agent_prompt_versions pv on pv.agent_key = d.key and pv.version = d.version
+  where d.key = 'report_draft_model';
+  if since is null then return 'prompt_unregistered'; end if;
   select * into rule from public.report_draft_stop_rules r where r.agent_key = 'report_draft_model';
   if not found then return 'no_threshold'; end if;
   select * into st from private.aig1_window_stats(p_report.organization_id, 'report_draft_model',
-                                                  private.now() - make_interval(days => rule.stop_window_days),
+                                                  greatest(private.now() - make_interval(days => rule.stop_window_days), since),
                                                   private.now() + interval '1 second');
   if st.decided >= rule.stop_min_decided and st.share > rule.stop_share then return 'stop_rule'; end if;
   return null;
@@ -38,4 +46,4 @@ end;
 $function$;
 
 revoke all on function private.report_draft_model_closed(p_report visit_reports, p_uid uuid) from public, anon, authenticated, service_role;
-comment on function private.report_draft_model_closed(p_report visit_reports, p_uid uuid) is 'ADR-215, ADR-227: why the caller may not get a model report draft for this report now (null = open): not_team_member (incl. LEAVE1 access end), not_draft, not_performer, not_simulation_org, switched_off, ledger_missing, no_threshold, stop_rule. Shared by gate, record and reservation.';
+comment on function private.report_draft_model_closed(p_report visit_reports, p_uid uuid) is 'ADR-215, ADR-227: why the caller may not get a model report draft for this report now (null = open): not_team_member (incl. LEAVE1 access end), not_draft, not_performer, not_simulation_org, switched_off, ledger_missing, prompt_unregistered, no_threshold, stop_rule (window from the current prompt version''s registration, AUT-167). Shared by gate, record and reservation.';

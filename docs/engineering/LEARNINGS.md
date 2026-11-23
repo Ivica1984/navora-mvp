@@ -27,6 +27,18 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-24 / AI1 #1697, migration 0167] Gelernte Lektion: Eine neue Pflichtprüfung in einer Funktion braucht das Entfernen der alten Signatur
+- **Was war das Fehlerbild?** Kein Fehler aufgetreten; beim Bau von AUT-167 erkannt: `create or replace` mit einem zusätzlichen Parameter (`reserve_report_draft_call(uuid, uuid)` → `(uuid, uuid, text)`) legt in PostgreSQL eine **zweite Überladung** an. Die alte Form ohne Digest-Prüfung bliebe mit ihrem `grant execute … to authenticated` aufrufbar und würde die neue Prüfung umgehen.
+- **Was war die technische Ursache?** PostgreSQL identifiziert eine Funktion über Name und Argumenttypen; `create or replace` ersetzt nur dieselbe Signatur.
+- **Die verbindliche Lösungsregel ab jetzt:** Wer einer Funktion eine Pflichtprüfung über einen neuen Parameter gibt, entfernt in derselben Migration die alte Signatur (`drop function if exists <name>(<alte Typen>)`, idempotent) und beweist im pgTAP, dass genau eine Überladung mit der neuen Signatur existiert.
+- **Abgesichert durch:** pgTAP 167 Test 5 (genau eine Signatur) und pgTAP 157 (Anzahl Überladungen je Name aus MANIFEST).
+
+### [2026-11-22 / #1694, Kommentare 7077343737 und 7077497187] Gelernte Lektion: Zwei `eng`-Läufe, zwei widersprüchliche Befunde zum selben Auftrag
+- **Was war das Fehlerbild?** Auf die PO-Frage nach der Ursache von Pfad 3 posteten zwei `eng`-Sitzungen im Abstand von 15 Minuten zwei Befunde: einer nannte die Ursache («gespeichert, aber erst nach 14–18 s angezeigt»), der andere «Ursache UNKNOWN», ohne den ersten zu erwähnen. Der PO bekam zwei Antworten, die sich widersprechen.
+- **Was war die technische Ursache?** Der zweite Lauf las die neuen PR-Kommentare nicht unmittelbar vor dem Posten; jede Sitzung arbeitete von ihrem eigenen Lesestand aus.
+- **Die verbindliche Lösungsregel ab jetzt:** Unmittelbar vor einem Befund-Kommentar die neuesten Kommentare desselben Threads erneut lesen. Gibt es schon einen `eng`-Befund, wird er bestätigt, ergänzt oder begründet korrigiert (mit Kommentar-ID), nie stillschweigend ein zweiter daneben gestellt.
+- **Abgesichert durch:** OPEN (Arbeitsweise; kein automatischer Check).
+
 ### [2026-11-22 / AI1 #1697, `ci` 45007134760 Job 137161108329 und 45007808760 Job 137163343258] Gelernte Lektion: Eine neue Funktion besteht erst, wenn die globalen Katalog-Wächter sie gesehen haben
 - **Was war das Fehlerbild?** `db` zweimal rot auf einer neuen Funktion, alle eigenen Tests (pgTAP 166, 157, `fn-source`) grün: zuerst pgTAP 068 Test 43 («no function body converts with a native AT TIME ZONE 'Europe/Zurich'»), nach dem ersten Fix pgTAP 058 R1 Test 3 («no function … derives a day from the session time zone», `have: reserve_report_draft_call(uuid,uuid) [now_cast]`).
 - **Was war die technische Ursache?** Ich schrieb den Zürcher Tag erst als `(private.now() at time zone 'Europe/Zurich')::date`, dann als `private.at_zurich(private.now())::date`. Beide Formen verbieten Katalog-Tests über **alle** Funktionen in `public` und `private` (ADR-081, DST1): die erste Form direkt, die zweite trifft das Muster `now()\s*\)?\s*::date`. Die Repository-Form ist `(private.at_zurich(private.now()))::date` (12 Funktionsdateien). Ich hatte nur meine eigenen Tests im Blick, nicht die Wächter, die jede neue Funktion mitprüfen.

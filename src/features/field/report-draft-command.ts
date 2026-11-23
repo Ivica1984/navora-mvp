@@ -11,6 +11,7 @@ import { resolveReportDraftProvider } from "@/lib/ai/report-draft/config";
 import { buildReportDraft } from "@/lib/ai/report-draft/draft";
 import type { Provider } from "@/lib/ai/report-draft/contract";
 import { ruleProvider } from "@/lib/ai/report-draft/rule-provider";
+import { reportDraftPromptDigest } from "@/lib/ai/report-draft/prompt-version";
 import { MAX_MODEL_INPUT_CHARS } from "@/lib/ai/report-draft/segment";
 import { errorFields, logEvent } from "@/lib/log";
 import { assistAllowed, assistFromDraft, factsForProvider, type ReportAssist } from "./report-assist";
@@ -86,8 +87,14 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
       modelBlocked = "too_long_for_model";
       notice = NOTICE_TOO_LONG_FOR_MODEL;
     } else {
+      // AUT-167 (0167): the digest of the prompt this server sends; the database refuses it unless it is the current
+      // agent version's, so a prompt change without a registered version never reaches the model.
       const rsv = reservation(
-        await supabase.rpc("reserve_report_draft_call", { p_report_id: report!.report_id, p_idempotency_key: parsed.data.idempotencyKey }),
+        await supabase.rpc("reserve_report_draft_call", {
+          p_report_id: report!.report_id,
+          p_idempotency_key: parsed.data.idempotencyKey,
+          p_prompt_digest: reportDraftPromptDigest(),
+        }),
       );
       if (rsv.kind === "duplicate") {
         logEvent("info", "report_draft.proposed", { op: "report_draft.model", code: "duplicate", count: 0 });

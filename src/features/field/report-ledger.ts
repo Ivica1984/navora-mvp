@@ -16,7 +16,9 @@ export type LedgerClosedReason =
   | "not_draft"
   | "not_performer"
   /** AI1 (0166): the database kill switch is on for this organisation or for all. */
-  | "switched_off";
+  | "switched_off"
+  /** AI1 (0167, AUT-167): the current agent version has no registered prompt digest. */
+  | "prompt_unregistered";
 
 const KNOWN: readonly LedgerClosedReason[] = [
   "ledger_missing",
@@ -27,6 +29,7 @@ const KNOWN: readonly LedgerClosedReason[] = [
   "not_draft",
   "not_performer",
   "switched_off",
+  "prompt_unregistered",
 ];
 
 export type LedgerGate = { ready: true } | { ready: false; reason: LedgerClosedReason };
@@ -68,9 +71,25 @@ export function ledgerOutcome(decision: LineDecision): "confirmed" | "rejected" 
 }
 
 /** Why the database refused to reserve a model call (0166 `reserve_report_draft_call`), beyond the gate's reasons. */
-export type ReservationRefusal = LedgerClosedReason | "attempt_limit" | "budget_day" | "budget_month" | "price_missing" | "limits_missing";
+export type ReservationRefusal =
+  | LedgerClosedReason
+  | "attempt_limit"
+  | "budget_day"
+  | "budget_month"
+  | "price_missing"
+  | "limits_missing"
+  /** AI1 (0167, AUT-167): this server's prompt digest is not the current agent version's. */
+  | "prompt_version_mismatch";
 
-const REFUSALS: readonly string[] = [...KNOWN, "attempt_limit", "budget_day", "budget_month", "price_missing", "limits_missing"];
+const REFUSALS: readonly string[] = [
+  ...KNOWN,
+  "attempt_limit",
+  "budget_day",
+  "budget_month",
+  "price_missing",
+  "limits_missing",
+  "prompt_version_mismatch",
+];
 
 export type Reservation =
   | { kind: "call"; reservationId: string }

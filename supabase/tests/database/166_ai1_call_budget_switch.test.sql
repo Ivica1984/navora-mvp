@@ -45,8 +45,13 @@ begin
   execute 'reset role';
   return r;
 end $$;
+-- 0167 (AUT-167): every reservation carries the app's prompt digest; here the registered digest of the current version.
+select set_config('t166.dg', (select pv.prompt_digest from public.ai_agent_definitions d
+                              join private.ai_agent_prompt_versions pv on pv.agent_key = d.key and pv.version = d.version
+                              where d.key = 'report_draft_model'), true) is not null as digest;
 create function pg_temp.res(p_user text, p_report int, p_key int) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.reserve_report_draft_call(%L, %L)', pg_temp.id(p_report), pg_temp.k(p_key))) $$;
+  select pg_temp.cmd(p_user, format('select public.reserve_report_draft_call(%L, %L, %L)', pg_temp.id(p_report), pg_temp.k(p_key),
+                                    current_setting('t166.dg'))) $$;
 create function pg_temp.settle(p_user text, p_rid uuid, p_outcome text, p_in int, p_out int) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.settle_report_draft_call(%L, %L, %s, %s, 1200)', p_rid, p_outcome,
                                     coalesce(p_in::text, 'null'), coalesce(p_out::text, 'null'))) $$;
@@ -97,9 +102,9 @@ select is((select count(*)::int from information_schema.role_table_grants g
              and g.table_name in ('ai_function_limits', 'model_call_budget', 'model_call_reservations', 'ai_function_switch_events')
              and g.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')),
           0, 'no table privilege for any API role');
-select ok(has_function_privilege('authenticated', 'public.reserve_report_draft_call(uuid, uuid)', 'execute')
+select ok(has_function_privilege('authenticated', 'public.reserve_report_draft_call(uuid, uuid, text)', 'execute')
           and has_function_privilege('authenticated', 'public.settle_report_draft_call(uuid, text, integer, integer, integer)', 'execute')
-          and not has_function_privilege('anon', 'public.reserve_report_draft_call(uuid, uuid)', 'execute')
+          and not has_function_privilege('anon', 'public.reserve_report_draft_call(uuid, uuid, text)', 'execute')
           and not has_function_privilege('anon', 'public.settle_report_draft_call(uuid, text, integer, integer, integer)', 'execute')
           and not has_function_privilege('authenticated', 'private.ai_function_off(text, uuid)', 'execute'),
   'reserve and settle: authenticated only; the switch reader has no API grant');
@@ -137,7 +142,7 @@ select is((select zurich_day from private.model_call_budget where organization_i
           (private.now() at time zone 'Europe/Zurich')::date, 'the budget row is the Zurich day');
 select pg_temp.act_as(pg_temp.u('p'));
 set local role authenticated;
-select throws_ok(format($$ select public.reserve_report_draft_call(%L, %L) $$, pg_temp.id(4), pg_temp.k(10)),
+select throws_ok(format($$ select public.reserve_report_draft_call(%L, %L, %L) $$, pg_temp.id(4), pg_temp.k(10), current_setting('t166.dg')),
   '22023', null, 'a key used for another report is refused');
 reset role;
 
@@ -215,7 +220,7 @@ values ('00000000-0000-4000-b000-000000000019', pg_temp.u('p'), 'ended', 'access
 select set_config('t166.rid40', pg_temp.rid(40)::text, true);
 select pg_temp.act_as(pg_temp.u('p'));
 set local role authenticated;
-select throws_ok(format($$ select public.reserve_report_draft_call(%L, %L) $$, pg_temp.id(6), pg_temp.k(50)),
+select throws_ok(format($$ select public.reserve_report_draft_call(%L, %L, %L) $$, pg_temp.id(6), pg_temp.k(50), current_setting('t166.dg')),
   '42501', null, 'LEAVE1: an ended access cannot reserve a model call');
 select throws_ok(format($$ select public.settle_report_draft_call(%L, 'ok', 1, 1, 10) $$, current_setting('t166.rid40')),
   '42501', null, 'LEAVE1: an ended access cannot settle');

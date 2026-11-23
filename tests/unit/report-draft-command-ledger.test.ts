@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { reportDraftPromptDigest } from "@/lib/ai/report-draft/prompt-version";
 
 /**
  * BK-e2 Abschlusspaket (ADR-216): the /field command uses the model only when the database gate is open, shows a model
@@ -106,7 +107,11 @@ describe("proposeReportDraft with the ledger (ADR-216)", () => {
     expect(r.ok).toBe(true);
     const order = calls.map((c) => c.fn).filter((f) => f.endsWith("_report_draft_call"));
     expect(order).toEqual(["reserve_report_draft_call", "settle_report_draft_call"]);
-    expect(called("reserve_report_draft_call")[0].args).toEqual({ p_report_id: REPORT, p_idempotency_key: KEY });
+    expect(called("reserve_report_draft_call")[0].args).toEqual({
+      p_report_id: REPORT,
+      p_idempotency_key: KEY,
+      p_prompt_digest: reportDraftPromptDigest(), // AUT-167: the server's prompt digest goes with every reservation
+    });
     const st = called("settle_report_draft_call")[0].args;
     expect(st).toMatchObject({ p_reservation_id: RSV, p_outcome: "ok", p_input_tokens: 812, p_output_tokens: 64 });
     expect(st.p_latency_ms).toBeGreaterThanOrEqual(0);
@@ -136,6 +141,8 @@ describe("proposeReportDraft with the ledger (ADR-216)", () => {
       { data: { result: "rejected", reason: "budget_month" }, error: null },
       { data: { result: "rejected", reason: "price_missing" }, error: null },
       { data: { result: "rejected", reason: "switched_off" }, error: null },
+      { data: { result: "rejected", reason: "prompt_version_mismatch" }, error: null },
+      { data: { result: "rejected", reason: "prompt_unregistered" }, error: null },
       { data: { result: "ok" }, error: null },
       { data: null, error: { message: "boom" } },
     ]) {

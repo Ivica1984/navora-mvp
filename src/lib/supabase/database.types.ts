@@ -3822,7 +3822,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
 "reserve_report_draft_call":
-{ Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_prompt_digest": string,"p_report_id": string }; Returns: Json
                            },
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string

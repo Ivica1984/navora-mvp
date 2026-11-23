@@ -565,7 +565,9 @@
         "not_performer",
         "not_simulation_org",
         "ai_function_off",
-        "stop_rule"
+        "stop_rule",
+        "prompt_unregistered",
+        "ai_agent_prompt_versions"
       ]
     },
     {
@@ -580,7 +582,8 @@
         "attempt_limit",
         "price_missing",
         "budget_day",
-        "budget_month"
+        "budget_month",
+        "prompt_version_mismatch"
       ]
     },
     {
