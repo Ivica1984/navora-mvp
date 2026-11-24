@@ -3784,7 +3784,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
 "record_report_draft_proposal":
-{ Args: { "p_idempotency_key": string,"p_lines": Json,"p_model": string,"p_report_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_lines": Json,"p_model": string,"p_report_id": string,"p_reservation_id": string }; Returns: Json
                            },
 "record_report_input":
 { Args: { "p_idempotency_key": string,"p_lines": Json,"p_origin": string,"p_report_id": string,"p_segments": Json }; Returns: Json
@@ -3820,6 +3820,9 @@ isOneToOne: false
                            },
 "reschedule_visit":
 { Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+                           },
+"reserve_report_draft_call":
+{ Args: { "p_idempotency_key": string,"p_prompt_digest": string,"p_report_id": string }; Returns: Json
                            },
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
@@ -3907,6 +3910,9 @@ isOneToOne: false
                            },
 "set_watched_hours":
 { Args: { "p_hours": Json,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
+                           },
+"settle_report_draft_call":
+{ Args: { "p_input_tokens": number,"p_latency_ms": number,"p_outcome": string,"p_output_tokens": number,"p_reservation_id": string }; Returns: Json
                            },
 "sign_report":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_snapshot_hash": string }; Returns: Json

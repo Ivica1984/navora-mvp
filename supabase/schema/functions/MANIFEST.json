@@ -547,6 +547,72 @@
         "LEAVE1-3",
         "aux_list_unknown"
       ]
+    },
+    {
+      "name": "private.ai_function_off",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "ai_function_switch_events"
+      ]
+    },
+    {
+      "name": "private.report_draft_model_closed",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "not_performer",
+        "not_simulation_org",
+        "ai_function_off",
+        "stop_rule",
+        "prompt_unregistered",
+        "ai_agent_prompt_versions",
+        "AUT-194",
+        "e.created_at >= ver.to_at"
+      ]
+    },
+    {
+      "name": "public.record_report_draft_proposal",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "report_draft_model_closed",
+        "for update",
+        "reservation_missing",
+        "reservation_not_ok",
+        "reservation_used",
+        "m.agent_version",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.reserve_report_draft_call",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "report_draft_model_closed",
+        "for update",
+        "pg_advisory_xact_lock",
+        "attempt_limit",
+        "price_missing",
+        "budget_day",
+        "budget_month",
+        "prompt_version_mismatch",
+        "agent_version"
+      ]
+    },
+    {
+      "name": "public.settle_report_draft_call",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "performer_id is distinct from uid",
+        "pg_advisory_xact_lock"
+      ]
     }
   ]
 }

@@ -30,6 +30,8 @@ In scope: non-breaking patches (`npm audit fix`), a major bump only after a comp
 | 2 CI on head `847148b` | met | `ci` 45402495245: `app`, `db` (pgTAP 6451), `e2e` (215), `ui-screenshots`, `staging` success; `codeql` success |
 | 2 CI on merge commit `323e6df` | met | `ci` 45405736532 all jobs success |
 | 3 `staging-smoke` on `323e6df` | **not met** | 45405736913, job 138486064329: path 2 tag «Neues Angebot» instead of «Übernommen» (20 s), paths 3-6 not run; Render served `323e6df` before and after. Cause UNKNOWN, asked of `eng` ([7133499504](https://github.com/Ivica1984/navora-mvp/pull/1713#issuecomment-7133499504)); same symptom 2026-11-22 on `ad6aa25` without an app change |
-| 4 Dependabot count | OPEN | founder reads the Security tab; expected 0 for npm |
+| 4 Dependabot count | met for `recovery/main` (PO 15:39) | founder FE-119 (4): the 33 alerts belong to the default branch `main`; PO `npm audit --package-lock-only` on `4c56b0e`: «found 0 vulnerabilities»; repository default branch is `main`; Dependabot PR #1716 targets `main`. The GitHub count falls only when M2 (#3) brings `recovery/main` to `main` |
 
 **PO status:** merged (`323e6df`, 2026-11-24 14:39:40 CET; merge actor UNKNOWN, no PO merge record, recorded on #1713), **not accepted**. Acceptance gate when met: «Simulation, synthetic data» (no runtime change). #1710 stays open until criteria 3 and 4 hold.
+
+**Update 2026-11-24 15:39 (PO):** criterion 4 met for `recovery/main` (FE-119 (4)). Criterion 3: `staging-smoke` 45410980067 on the integrated commit `4653c83` red again, this time path 5 (cell code «K» instead of «A» after «Auftrag gesendet», job 138505601603, Render served `4653c83` before and after; path 2 green); SEC-DEP1 changed no runtime package, so the PO does not attribute this to SEC-DEP1; cause UNKNOWN, follow-up STAB1-F6 (`eng`). #1710 stays open until one green `staging-smoke` on an integrated commit.

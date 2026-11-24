@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   applyLabel,
   composeSummary,
@@ -44,6 +44,9 @@ export default function ReportAssistPanel({
   const [assist, setAssist] = useState<ReportAssist | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  // AI1 (ADR-227 point 2): one key per request. A second tap while it runs reuses it, so the database reserves one call.
+  const proposeKey = useRef<string | null>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -61,14 +64,18 @@ export default function ReportAssistPanel({
   const locked = assist !== null || notes.trim().length > 0;
 
   async function propose() {
+    proposeKey.current ??= crypto.randomUUID();
     setPending(true);
     setError(null);
-    const result = await proposeReportDraft({ visitId, day, text: notes });
+    setNotice(null);
+    const result = await proposeReportDraft({ visitId, day, text: notes, idempotencyKey: proposeKey.current });
+    proposeKey.current = null;
     setPending(false);
     if (!result.ok) {
       setError(result.error);
       return;
     }
+    setNotice(result.notice ?? null);
     update(result.assist);
   }
 
@@ -160,6 +167,12 @@ export default function ReportAssistPanel({
       {error && (
         <p role="alert" data-testid="report-assist-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 text-xs font-semibold text-rose-800">
           {error}
+        </p>
+      )}
+
+      {notice && assist && (
+        <p role="status" data-testid="report-assist-notice" className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs font-semibold text-amber-900">
+          {notice}
         </p>
       )}
 

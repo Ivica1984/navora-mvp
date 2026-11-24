@@ -26,6 +26,15 @@ begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(42);
+-- CI pins private.now() to 10:00 Zurich of the run day (DST1, ci.yml «Pin the database clock»), but the migrations stamp
+-- prompt version 1 (0167, `registered_at default private.now()`) with the real clock before the pin takes effect. On a run
+-- after 10:00 Zurich that is later than the test clock, the stop-rule window (from registered_at) is empty and the stop
+-- rule never fires (ci 45383814970, job 138409432521, 12:26 CET). Simulated as the table owner: version 1 was registered
+-- an hour before the test clock (append-only guard lifted for this one update, inside this rolled-back transaction).
+alter table private.ai_agent_prompt_versions disable trigger ai_agent_prompt_versions_append_only;
+update private.ai_agent_prompt_versions set registered_at = private.now() - interval '1 hour'
+ where agent_key = 'report_draft_model' and version = '1';
+alter table private.ai_agent_prompt_versions enable trigger ai_agent_prompt_versions_append_only;
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' when 'a' then '00000000-0000-4000-a000-0000000009e7'
@@ -50,9 +59,10 @@ begin
 end $$;
 create function pg_temp.gate(p_user text, p_report int) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.report_draft_model_gate(%L)', pg_temp.id(p_report))) $$;
+-- 0170 (#1697 R7): a proposal names its call's reservation; key n uses the fixture reservation id(900 + n) (below).
 create function pg_temp.rec(p_user text, p_report int, p_lines jsonb, p_key int) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.record_report_draft_proposal(%L, %L, %L::jsonb, %L)',
-    pg_temp.id(p_report), 'claude-test-model', p_lines, pg_temp.k(p_key))) $$;
+  select pg_temp.cmd(p_user, format('select public.record_report_draft_proposal(%L, %L, %L, %L::jsonb, %L)',
+    pg_temp.id(p_report), pg_temp.id(900 + p_key), 'claude-test-model', p_lines, pg_temp.k(p_key))) $$;
 create function pg_temp.dec(p_user text, p_sid uuid, p_outcome text, p_text text, p_key int) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.decide_report_draft_line(%L, %L, %L, %L)',
     p_sid, p_outcome, p_text, pg_temp.k(p_key))) $$;
@@ -86,6 +96,16 @@ from (values (1, '00000000-0000-4000-b000-000000000019'::uuid, pg_temp.id(200), 
              (2, '00000000-0000-4000-b000-000000000019'::uuid, pg_temp.id(200), '00000000-0000-4000-a000-0000000001b9'::uuid, pg_temp.u('p')),
              (3, '00000000-0000-4000-b000-000000000011'::uuid, '00000000-0000-4000-a000-000000000208'::uuid,
                  '00000000-0000-4000-a000-000000000101'::uuid, pg_temp.u('c'))) f(n, o, c, t, pf);
+-- 0170 (#1697 R7): the two proposals on report 1 (keys 10, 30) each need a reserved call settled ok. Synthetic fixture
+-- rows as the table owner (the reservation path itself is pgTAP 166/170); version = the current agent version.
+insert into private.model_call_reservations (id, organization_id, team_id, function_key, report_id, attempt, idempotency_key,
+                                             zurich_day, reserved_micro_chf, settled_at, outcome, settled_micro_chf,
+                                             cost_basis, agent_version)
+select pg_temp.id(900 + key), '00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9',
+       'report_draft_model', pg_temp.id(1), att, pg_temp.k(800 + key), (private.at_zurich(private.now()))::date, 0,
+       private.now(), 'ok', 0, 'measured_tokens',
+       (select d.version from public.ai_agent_definitions d where d.key = 'report_draft_model')
+from (values (10, 1), (30, 2)) v(key, att);
 
 -- 1. Registration and grants -----------------------------------------------------------------------------------------------
 select is((select jsonb_build_object('kind', kind, 'level', level, 'provider', provider, 'region', region)
@@ -132,8 +152,8 @@ select is(pg_temp.gate('c', 3) ->> 'reason', 'not_simulation_org', 'negative: st
 select is(pg_temp.gate('p', 2) ->> 'reason', 'not_draft', 'negative: a signed report gets no model draft');
 select is(pg_temp.rec('c', 1, '[{"text": "Patientin mobilisiert.", "sources": ["s1"]}]', 2) ->> 'reason', 'not_team_member',
   'negative: another organisation''s member cannot write into this team''s ledger');
-select throws_ok(format($$ select public.record_report_draft_proposal(%L, 'm', '[{"text": "x", "sources": []}]', %L) $$,
-                        pg_temp.id(1), pg_temp.k(3)), '22023', null, 'a line without a source is refused');
+select throws_ok(format($$ select public.record_report_draft_proposal(%L, %L, 'm', '[{"text": "x", "sources": []}]', %L) $$,
+                        pg_temp.id(1), pg_temp.id(910), pg_temp.k(3)), '22023', null, 'a line without a source is refused');
 
 -- 3. A recorded proposal: no text ----------------------------------------------------------------------------------------
 select is(pg_temp.rec('p', 1, '[{"text": "Patientin um 08:10 mobilisiert.", "sources": ["s1", "f1"]},

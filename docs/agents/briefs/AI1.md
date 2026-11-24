@@ -87,3 +87,53 @@ Inputs: ADR-227 DRAFT (`eng` 07:20, `docs/engineering/DECISIONS.md`), `aia` revi
 **Vision check (FE-070 (7), short):** more care time (less typing), continuity unchanged, income unchanged, team autonomy unchanged (no dispatcher), administration down, outcomes: no invented fact (target 0), scalability: cost cap per organisation, platform: first connected model. No new hierarchy.
 
 **Follow-ups (not conditions):** PERF1-F1, PERF1-F2 (after AI1, stability), STAB1-F5 (a), CGR-280, UXR-282, AUT-193 / H-PERF1-07:39 (snapshot for hint lists only; safety signals stay with `cra`).
+
+## PO amendment 2026-11-24 15:39 (FE-118, founder scope freeze on #1697; WHAT only)
+
+Source: founder comment [#1697 7133780206](https://github.com/Ivica1984/navora-mvp/pull/1697#issuecomment-7133780206) (ca. 15:03), recorded as FE-118. `eng` asked for this record ([7134161857](https://github.com/Ivica1984/navora-mvp/pull/1697#issuecomment-7134161857)). Labels IMPLEMENTED / PLANNED / OPEN / UNKNOWN.
+
+**1. Merge step (a), new wording (replaces the gate-window sentence of step (a) for this package only):** `eng` posts `Paket prüfbereit: AI1 (Head: 2e4d5d8, …)` without a further code push; all CI jobs on `2e4d5d8` are `success` (run 45384831186 or a re-run on the same head); the PR is not draft and `clean`. Then the PO merges in that signal run. The four gate lines (`cra`, `aia`, `lca`, `uxa`) are not merge conditions for AI1 by founder order; they move to step (b). If `recovery/main` has moved and the PR is no longer `clean`, `eng` merges `recovery/main` in (merge commit only, no other change) and names the new head; that is not a scope change.
+
+**2. Moved to AI1-F1 (named follow-up, not a condition of the merge):** residual item 3 (AUT-168 purpose measure); item 4 (live evaluation set n = 60: `eng` transcribes `docs/agents/clinical/AI1_EVAL_REFERENCE.md` verbatim, digest in the run report); the e2e with the CI fake provider through the screen (if not on `2e4d5d8`); AUT-200; UXR-283 to UXR-287 (`uxa` pre-read 14:58; UXR-284: PO decides in AI1-F1 for the rule draft plus «KI-Entwurf noch einmal versuchen», as `uxa` proposes); CGR-281 (a) required `note` on `cleared`, `evaluation_failed`, `stop_rule` with a pgTAP test, (b) `evaluation_failed` row before any smoke with the model on.
+
+**3. Step (b), acceptance and first activation (unchanged in substance, now also carrying the gates):** AI1-F1 delivered; then one gate window on the AI1-F1 head (`cra` no invented or dropped clinical fact and the transcription; `aia` evaluation design; `uxa` wording at 390/1440 px; `lca` provider terms, `inference_geo`, price row); then the founder's Render values; evaluation run on staging with 0 invented facts; `staging-smoke` with the model on; `ci-repeat` 10/10. **Until then the status stays «test substitute: regelbasiert, keine KI»** (FE-089 (5)); no model call without a reviewed price row (fail closed, ADR-227 point 5, as built: UNKNOWN until `eng`'s ready report confirms it on `2e4d5d8`).
+
+**4. OPEN for the founder (contradiction, not resolved by the PO):** FE-099 (7) (3) puts the `lca` terms reading before the first activation. FE-118 does not say it is dropped. PO reading: it holds before the Render values are set, not before the merge.
+
+**5. Smoke hold:** the red `staging-smoke` runs (path 2 on `323e6df`; path 5 «K» instead of «A» on `4653c83`, job 138505601603) no longer hold the AI1 merge (FE-118 (4) «unblock»). They become **STAB1-F6** (`eng`, PLANNED): cause from raw data per path, then a deterministic state check instead of retries. If the first `staging-smoke` after the AI1 merge is red on a path AI1 touches (`/field` report, path 3), `eng` opens a revert or fix PR at once.
+
+**Ready-report content still asked (FE-095, no new condition):** tests per CI job on `2e4d5d8`, migrations 0166–0170, known limits, which residual items are on the head and which went to AI1-F1, and that the model path cannot run on staging without the founder's Render values.
+
+
+## PO note 2026-11-24 16:39 (merge step (a) done; not acceptance)
+
+- **Merged:** #1697 head `2e4d5d8` → `2f2d785` (record [7136470154](https://github.com/Ivica1984/navora-mvp/pull/1697#issuecomment-7136470154)), on `eng`'s ready report 7135797060 and `cra-gate: #1697 2e4d5d8 clear` 7136171072 (step (a), «Simulation, synthetic data»).
+- **FE-118 (d) resolved by FE-120:** the `lca` provider-terms reading comes before the production key is set on Render, not before the merge.
+- **Evidence on the merge commit `2f2d785`** (raw logs read by the PO; PO ran no tests locally):
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| `ci` app | success | job 138566336117 |
+| `ci` db | success | job 138566337069, «Files=167, Tests=6629», «Result: PASS» |
+| `ci` e2e | success | job 138566336030, «215 passed (8.3m)» |
+| `ci` ui-screenshots | success | job 138566336454 |
+| `staging` (migrations → `navora-staging`) | success, **applied** | job 138574181200: «Applying migration» 0166–0170, «Finished supabase db push.» `navora-staging` now at 20261021000170 |
+| `codeql` | failure, infrastructure | run 45428323403, «Resource not accessible by integration … get-a-workflow-run» (#1723, FE-120 (3)) |
+| `staging-smoke` | pending at publish | run 45428323436; read in the next signal run (signal (d)) |
+| `ci-repeat` 10/10 | not yet run | acceptance waits for it |
+
+- **Placed findings (`cra` 16:26, advisory, not conditions):** CGR-282 → AI1-F1 (price only through a migration PR naming the evaluation run and the four step (b) gate lines; smoke asserts `report_draft` is `rules` or `off` until step (b)). CGR-283 → post-merge duty `eng`: record path 3 (`/field` report) on `2f2d785` even if an earlier path is red; red path 3 → revert or fix PR. CGR-284 → HD-3a contract (`HD.md` §5b, 16:39).
+- **AI honesty:** report draft on staging = test substitute «regelbasiert, keine KI»; CI fake provider = test substitute; Claude path built, never run; price NULL keeps it closed.
+
+## PO note 2026-11-24 17:39 (post-merge step (a) complete; not acceptance)
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| `staging-smoke` on an integrated commit containing `2f2d785` | success, 7 of 7 | run 45428533219 on `532fbf2`, job 138576459831: «7 passed (5.9m)»; path 3 «nurse signs a worked shift → invoice draft → team sends it → client reads it under «Rechnungen» (390 px)» green (1.5m); «Render served 532fbf2… before and after the click paths (no deploy during the run)» (raw log read by the PO) |
+| `staging-smoke` on `2f2d785` | failure, not an AI1 path | run 45428323436: shift-offer tag «Neues Angebot» instead of «Übernommen»; green on the next commit with no app change → no revert (amendment §5); cause → STAB1-F6 |
+| CGR-283 path 3 recorded | met | `eng` 7137342697 and the run above |
+| App commit on Render, migration version (BK BUILD PHASE 4) | met | `eng` 7137342697: Render serves `532fbf2`; `navora-staging` at 20261021000170; Render deploy ID UNKNOWN |
+| `ci-repeat` 10/10 | not run | belongs to step (b) on the integrated commit after AI1-F1 |
+
+PO ran no tests locally. **PO status:** merged at step (a), post-merge duties complete; **not accepted**; acceptance at step (b). AI honesty unchanged: test substitute «regelbasiert, keine KI»; no connected model has run.
+

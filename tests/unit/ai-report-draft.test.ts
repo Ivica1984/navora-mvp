@@ -8,10 +8,10 @@ import {
   createModelProvider,
   ModelConfigError,
 } from "@/lib/ai/report-draft/model-provider";
-import { ANTHROPIC_HOST, createAnthropicProvider } from "@/lib/ai/report-draft/anthropic-provider";
+import { ANTHROPIC_HOST, CLAUDE_MAX_OUTPUT_TOKENS, createAnthropicProvider } from "@/lib/ai/report-draft/anthropic-provider";
 import { RULE_ORIGIN_LABEL, ruleProvider } from "@/lib/ai/report-draft/rule-provider";
 import { MAX_INPUT_CHARS, segmentInput } from "@/lib/ai/report-draft/segment";
-import type { DraftInput, Provider, ProviderOutput } from "@/lib/ai/report-draft/contract";
+import { ModelCallError, type DraftInput, type Provider, type ProviderOutput } from "@/lib/ai/report-draft/contract";
 
 /**
  * BK-e2a (ADR-206): Engine 3 report draft behind the provider-neutral adapter (AUT-135, AUT-136).
@@ -373,7 +373,7 @@ describe("buildReportDraft", () => {
   it("reports a provider failure and does not fall back silently to another provider", async () => {
     const failing: Provider = { kind: "model", label: "x", propose: vi.fn(async () => Promise.reject(new Error("boom"))) };
     const d = await buildReportDraft({ text: "A.", facts: [] }, failing);
-    expect(d).toEqual({ ok: false, error: "provider_failed", origin: "model" });
+    expect(d).toEqual({ ok: false, error: "provider_failed", origin: "model", outcome: "provider_error" });
   });
 
   it("refuses an over-long input before any provider call", async () => {
@@ -435,9 +435,48 @@ describe("createAnthropicProvider (Claude, founder decision 2026-11-18)", () => 
       model: "c",
       fetch: vi.fn(async () => new Response(JSON.stringify({ content: [{ type: "text", text: "Hier ist der Bericht." }] }))),
     });
-    await expect(junk.propose(input("A."))).rejects.toThrow(/model_output_invalid/);
+    await expect(junk.propose(input("A."))).rejects.toThrow(/model_invalid/);
     const down = createAnthropicProvider({ apiKey: "k", model: "c", fetch: vi.fn(async () => new Response("x", { status: 529 })) });
-    await expect(down.propose(input("A."))).rejects.toThrow(/model_http_529/);
+    await expect(down.propose(input("A."))).rejects.toThrow(/model_provider_error/);
+  });
+
+  it("AI1 ADR-227 point 6: max_tokens 1024; an answer cut at the cap is invalid even when its JSON parses", async () => {
+    const answer = { lines: [{ text: "A.", sources: ["s1"] }], unplaced: [] };
+    const fetch = vi.fn(async () =>
+      new Response(
+        JSON.stringify({ content: [{ type: "text", text: JSON.stringify(answer) }], stop_reason: "max_tokens", usage: { input_tokens: 700, output_tokens: 1024 } }),
+      ),
+    );
+    const p = createAnthropicProvider({ apiKey: "k", model: "c", fetch });
+    const err = await p.propose(input("A.")).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ModelCallError);
+    expect(err).toMatchObject({ outcome: "max_tokens", usage: { inputTokens: 700, outputTokens: 1024 } });
+    const body = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(body.max_tokens).toBe(CLAUDE_MAX_OUTPUT_TOKENS);
+    expect(CLAUDE_MAX_OUTPUT_TOKENS).toBe(1024);
+  });
+
+  it("AI1: the reported tokens come back with the draft; a timeout is its own outcome", async () => {
+    const ok = createAnthropicProvider({
+      apiKey: "k",
+      model: "c",
+      fetch: vi.fn(async () =>
+        new Response(JSON.stringify({ content: [{ type: "text", text: '{"lines":[],"unplaced":[]}' }], stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 5 } })),
+      ),
+    });
+    expect((await ok.propose(input("A."))).usage).toEqual({ inputTokens: 10, outputTokens: 5 });
+    const timeout = Object.assign(new Error("t"), { name: "TimeoutError" });
+    const slow = createAnthropicProvider({ apiKey: "k", model: "c", fetch: vi.fn(async () => Promise.reject(timeout)) });
+    await expect(slow.propose(input("A."))).rejects.toMatchObject({ outcome: "timeout" });
+  });
+
+  it("AI1 brief §4: the request carries only model, limits, region, system prompt and the segments and facts", async () => {
+    const fetch = vi.fn(async () => new Response(JSON.stringify({ content: [{ type: "text", text: '{"lines":[],"unplaced":[]}' }] })));
+    await createAnthropicProvider({ apiKey: "k", model: "c", fetch }).propose(input("Klientin wach."));
+    const body = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(Object.keys(body).sort()).toEqual(["inference_geo", "max_tokens", "messages", "model", "system", "temperature"]);
+    expect(Object.keys(JSON.parse(body.messages[0].content)).sort()).toEqual(["facts", "segments"]);
+    expect(JSON.stringify(body)).not.toMatch(/birth|geburt|address|adresse|first_name|last_name|vorname|nachname/i);
   });
 });
 

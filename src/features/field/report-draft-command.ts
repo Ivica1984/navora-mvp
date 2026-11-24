@@ -9,10 +9,13 @@ import { requireUser } from "@/lib/auth/session";
 import { randomUUID } from "node:crypto";
 import { resolveReportDraftProvider } from "@/lib/ai/report-draft/config";
 import { buildReportDraft } from "@/lib/ai/report-draft/draft";
+import type { Provider } from "@/lib/ai/report-draft/contract";
 import { ruleProvider } from "@/lib/ai/report-draft/rule-provider";
+import { reportDraftPromptDigest } from "@/lib/ai/report-draft/prompt-version";
+import { MAX_MODEL_INPUT_CHARS } from "@/lib/ai/report-draft/segment";
 import { errorFields, logEvent } from "@/lib/log";
 import { assistAllowed, assistFromDraft, factsForProvider, type ReportAssist } from "./report-assist";
-import { attachSuggestions, ledgerGate, ledgerLines, ledgerOutcome, type LedgerGate } from "./report-ledger";
+import { attachSuggestions, ledgerGate, ledgerLines, ledgerOutcome, reservation, type LedgerGate } from "./report-ledger";
 
 // AUT-138, AUT-153 (ADR-216): there is no constant any more. Whether the model may run is the database gate's answer
 // (0151 `report_draft_model_gate`: performer, open draft, simulation organisation, threshold row, stop rule), read on
@@ -22,14 +25,22 @@ const schema = z.object({
   visitId: z.uuid(),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   text: z.string().max(8000),
+  /** AI1 (ADR-227 point 2): one key per «Entwurf vorschlagen» request; a repeat of it (double tap) never calls twice. */
+  idempotencyKey: z.uuid(),
 });
 
 export type ProposeResult =
-  | { ok: true; assist: ReportAssist; modelBlocked?: string }
+  | { ok: true; assist: ReportAssist; modelBlocked?: string; notice?: string }
   | { ok: false; error: string };
 
 const NOT_ALLOWED = "Einen Entwurf kann nur die Pflegekraft dieses Einsatzes für ihren offenen Bericht anfordern.";
 const FAILED = "Der Entwurf konnte nicht erstellt werden. Du kannst den Bericht wie bisher selbst schreiben.";
+// AI1 wording, for `uxa` in the gate window (ADR-227 decisions): honest, short, no technical reason.
+const NOTICE_TOO_LONG_FOR_MODEL = "Deine Notizen sind zu lang für den KI-Entwurf (höchstens 4000 Zeichen). Hier ist der regelbasierte Entwurf.";
+const NOTICE_ATTEMPT_LIMIT =
+  "Für diese Fassung wurde schon zweimal ein KI-Entwurf erstellt. Du kannst selbst schreiben. Hier ist der regelbasierte Entwurf.";
+const NOTICE_MODEL_UNAVAILABLE = "Der KI-Entwurf ist gerade nicht verfügbar. Hier ist der regelbasierte Entwurf.";
+const ALREADY_RUNNING = "Der Entwurf wird schon erstellt. Bitte einen Moment warten.";
 
 export async function proposeReportDraft(input: unknown): Promise<ProposeResult> {
   const parsed = schema.safeParse(input);
@@ -65,21 +76,78 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
   let modelBlocked: string | undefined =
     resolved.modelBlocked === "ledger_missing" && !gate.ready ? gate.reason : resolved.modelBlocked;
 
-  let draft = await buildReportDraft({ text: parsed.data.text, facts: factsForProvider(report!.snapshot, resolved.provider.kind) }, resolved.provider);
+  // AI1 (ADR-227 points 1, 2, 6): no provider call without a reservation in the database. Notes over the model limit
+  // are refused for the model before anything is reserved; any refusal or doubt falls back to the rule substitute.
+  let provider: Provider = resolved.provider;
+  let notice: string | undefined;
+  let reservationId: string | null = null;
+  if (provider.kind === "model") {
+    if (parsed.data.text.length > MAX_MODEL_INPUT_CHARS) {
+      provider = ruleProvider;
+      modelBlocked = "too_long_for_model";
+      notice = NOTICE_TOO_LONG_FOR_MODEL;
+    } else {
+      // AUT-167 (0167): the digest of the prompt this server sends; the database refuses it unless it is the current
+      // agent version's, so a prompt change without a registered version never reaches the model.
+      const rsv = reservation(
+        await supabase.rpc("reserve_report_draft_call", {
+          p_report_id: report!.report_id,
+          p_idempotency_key: parsed.data.idempotencyKey,
+          p_prompt_digest: reportDraftPromptDigest(),
+        }),
+      );
+      if (rsv.kind === "duplicate") {
+        logEvent("info", "report_draft.proposed", { op: "report_draft.model", code: "duplicate", count: 0 });
+        return { ok: false, error: ALREADY_RUNNING };
+      }
+      if (rsv.kind === "refused") {
+        provider = ruleProvider;
+        modelBlocked = rsv.reason;
+        notice = rsv.reason === "attempt_limit" ? NOTICE_ATTEMPT_LIMIT : NOTICE_MODEL_UNAVAILABLE;
+      } else reservationId = rsv.reservationId;
+    }
+  }
+
+  const started = Date.now();
+  let draft = await buildReportDraft({ text: parsed.data.text, facts: factsForProvider(report!.snapshot, provider.kind) }, provider);
+  if (reservationId) {
+    // Outcome, tokens and latency of the reserved call; never the text. If settling fails the call stays charged at its
+    // reserve (fail closed for money) and the draft is still shown.
+    const settled = await supabase.rpc("settle_report_draft_call", {
+      p_reservation_id: reservationId,
+      p_outcome: draft.ok ? "ok" : (draft.outcome ?? "provider_error"),
+      p_input_tokens: (draft.usage?.inputTokens ?? null) as number,
+      p_output_tokens: (draft.usage?.outputTokens ?? null) as number,
+      p_latency_ms: Math.min(Math.max(Date.now() - started, 0), 600000),
+    });
+    const result = (settled.data as { result?: unknown } | null)?.result;
+    if (settled.error || (result !== "ok" && result !== "duplicate")) {
+      logEvent("warn", "report_draft.settle_failed", { op: "report_draft.model", code: settled.error ? "error" : String(result ?? "none") });
+    } else if ((settled.data as { cost_basis?: unknown } | null)?.cost_basis === "bounded") {
+      // #1697 R4 (0169): more input tokens than 2 x the reserve input were reported; the bound was charged. Visible for the
+      // ADR-227 evaluation run, which measures the real worst case.
+      logEvent("warn", "report_draft.settle_bounded", { op: "report_draft.model", code: "bounded", count: draft.usage?.inputTokens ?? 0 });
+    }
+  }
   let assist = draft.ok ? assistFromDraft(draft) : null;
 
   // No model line on screen without its ledger row (ADR-216): record first; on any failure fall back to the rule
   // substitute with its own label. Only line index, sources, a keyed digest, length and model id are stored (ADR-215).
+  // #1697 R7 / AUT-197 (0170): the database records only for this call's reservation, settled ok, once; no reservation
+  // id (should not happen on the model path) means no ledger row, so the rule substitute is shown.
   if (draft.ok && draft.origin === "model" && assist && assist.lines.length > 0) {
-    const recorded = attachSuggestions(
-      assist,
-      await supabase.rpc("record_report_draft_proposal", {
-        p_report_id: report!.report_id,
-        p_model: draft.modelId ?? "",
-        p_lines: ledgerLines(assist),
-        p_idempotency_key: randomUUID(),
-      }),
-    );
+    const recorded = reservationId
+      ? attachSuggestions(
+          assist,
+          await supabase.rpc("record_report_draft_proposal", {
+            p_report_id: report!.report_id,
+            p_reservation_id: reservationId,
+            p_model: draft.modelId ?? "",
+            p_lines: ledgerLines(assist),
+            p_idempotency_key: randomUUID(),
+          }),
+        )
+      : null;
     if (recorded) assist = recorded;
     else {
       logEvent("warn", "report_draft.ledger_failed", { op: "report_draft.model", code: "ledger_missing" });
@@ -95,7 +163,7 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
     count: draft.ok ? draft.unplaced.length : 0,
   });
   if (!draft.ok || !assist) return { ok: false, error: !draft.ok && draft.error === "input_too_long" ? "Bitte höchstens 8000 Zeichen eingeben." : FAILED };
-  return { ok: true, assist, modelBlocked };
+  return { ok: true, assist, modelBlocked, notice };
 }
 
 const decideSchema = z.object({
