@@ -22,7 +22,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(53);
+select plan(56);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' when 'a' then '00000000-0000-4000-a000-0000000009e7'
@@ -229,6 +229,17 @@ select is(pg_temp.settle('p', pg_temp.rid(40), 'ok', 50000, 1024),
 select is(pg_temp.charged(), 33360::bigint + 6000 + 51360, 'R4: the budget moved by exactly bound cost minus reserve');
 select is((select input_tokens from private.model_call_reservations where id = pg_temp.rid(40)), 50000,
   'R4: the reported count is kept as reported, so a bounded settle is visible');
+-- #1697 review 11:2x: a call already made is settled even after a switch-off (settle has no closed-check on purpose; with
+-- one, the reserve would stay the charged cost). Pinned so a later change cannot add the check by mistake.
+select is(pg_temp.res('p', 5, 43) ->> 'result', 'ok', 'switch-off after reserve: the reservation is made while open');
+insert into private.ai_function_switch_events (function_key, organization_id, off, reason, note)
+values ('report_draft_model', '00000000-0000-4000-b000-000000000019', true, 'manual', 'pgTAP 166 fixture');
+select is(pg_temp.gate('p', 5) ->> 'reason', 'switched_off', 'switch-off after reserve: the switch is in force');
+select is(pg_temp.settle('p', pg_temp.rid(43), 'ok', 1000, 200),
+          '{"result": "ok", "cost_basis": "measured_tokens", "settled_micro_chf": 6000}'::jsonb,
+  'switch-off after reserve: the settle is still accepted and charged as measured');
+insert into private.ai_function_switch_events (function_key, organization_id, off, reason, note)
+values ('report_draft_model', '00000000-0000-4000-b000-000000000019', false, 'cleared', 'pgTAP 166 fixture');
 
 -- 7. LEAVE1: an ended access neither reserves nor settles ------------------------------------------------------------------
 insert into public.member_access_events (organization_id, user_id, kind, reason_code, actor_id)
@@ -243,7 +254,7 @@ select throws_ok(format($$ select public.reserve_report_draft_call(%L, %L, %L) $
 select throws_ok(format($$ select public.settle_report_draft_call(%L, 'ok', 1, 1, 10) $$, current_setting('t166.rid40')),
   '42501', null, 'LEAVE1: an ended access cannot settle');
 reset role;
-select is(pg_temp.calls(), 3, 'nothing counted after the access end');
+select is(pg_temp.calls(), 4, 'nothing counted after the access end (3 before, 1 in the switch-off case)');
 
 select * from finish();
 rollback;

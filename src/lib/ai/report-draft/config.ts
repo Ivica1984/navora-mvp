@@ -1,4 +1,5 @@
 import { createAnthropicProvider } from "./anthropic-provider";
+import { CI_FAKE_MODEL_ID, createCiFakeProvider } from "./ci-fake-provider";
 import type { Provider } from "./contract";
 import { ALLOWED_MODEL_HOSTS, createModelProvider, ModelConfigError } from "./model-provider";
 import { ruleProvider } from "./rule-provider";
@@ -14,6 +15,11 @@ export type ModelBlockedReason =
   | "not_staging"
   | "not_simulation_org"
   | "provider_unknown"
+  /**
+   * #1697 F1 (ADR-227 addendum 2026-11-24 12:17): `AI_MODEL_PROVIDER=ci-fake` outside a GitHub Actions job on the local Supabase
+   * stack. Its own reason, so `/api/version` can report `misconfigured` and the staging smoke turns red instead of silent.
+   */
+  | "ci_fake_outside_ci"
   | "base_url_invalid"
   | "https_required"
   | "credentials_in_url"
@@ -44,6 +50,33 @@ function isStagingUrl(url: string): boolean {
   }
 }
 
+/** Port of the local Supabase API in CI (`supabase start`, config.toml `[api] port`). */
+const LOCAL_STACK_PORT = "54321";
+
+/**
+ * #1697 F2: the CI fake is allowed only against the local stack: http, hostname exactly 127.0.0.1 or localhost, the
+ * stack port, no credentials. No substring test; no other loopback form ([::1], 127.0.0.2, …) is accepted.
+ */
+function isLocalStackUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return (
+      u.protocol === "http:" &&
+      (u.hostname === "127.0.0.1" || u.hostname === "localhost") &&
+      u.port === LOCAL_STACK_PORT &&
+      u.username === "" &&
+      u.password === ""
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** ADR-227 addendum point 1: every condition must hold; `RENDER` set in any form (even empty) blocks. */
+function ciFakeAllowed(env: Env, supabaseUrl: string): boolean {
+  return env.GITHUB_ACTIONS === "true" && env.RENDER === undefined && isLocalStackUrl(supabaseUrl);
+}
+
 /**
  * Picks the report-draft provider (AUT-136 guards, ADR-206 (4)).
  * AI_REPORT_DRAFT_MODE: "off" (no draft), "rule" (default), "model".
@@ -67,10 +100,18 @@ export function resolveReportDraftProvider(
   const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   // Any mention of the live project blocks first (most protective); staging needs the exact host.
   if (supabaseUrl.includes(LIVE_PROJECT_REF)) return blocked("live_project");
+  const kind = env.AI_MODEL_PROVIDER ?? "openai-compatible";
+  // ADR-227 addendum (CI fake): order kill switch → live project → ci-fake conditions; `not_staging` stays unchanged for
+  // every real provider. The fake makes no network call.
+  if (kind === "ci-fake") {
+    if (!ciFakeAllowed(env, supabaseUrl)) return blocked("ci_fake_outside_ci");
+    if (!ctx.simulationOrg) return blocked("not_simulation_org");
+    if (!ctx.ledgerReady) return blocked("ledger_missing");
+    return { provider: createCiFakeProvider({ callsFile: env.NAVORA_CI_FAKE_CALLS || undefined }) };
+  }
   if (!isStagingUrl(supabaseUrl)) return blocked("not_staging");
   if (!ctx.simulationOrg) return blocked("not_simulation_org");
 
-  const kind = env.AI_MODEL_PROVIDER ?? "openai-compatible";
   if (kind !== "anthropic" && kind !== "openai-compatible") return blocked("provider_unknown");
 
   try {
@@ -97,7 +138,11 @@ export function resolveReportDraftProvider(
   }
 }
 
-export type ReportDraftMode = "off" | "rule" | "model";
+/**
+ * `ci-fake`: the CI test substitute on the model path (never on a deployed server). `misconfigured`: the fake was asked
+ * for outside CI; the staging smoke treats both words as red (#1697 F1).
+ */
+export type ReportDraftMode = "off" | "rule" | "model" | "ci-fake" | "misconfigured";
 
 /**
  * AI1 / ADR-227 point 7: which report draft this running server is configured to give, for the public version endpoint,
@@ -108,5 +153,7 @@ export type ReportDraftMode = "off" | "rule" | "model";
 export function configuredReportDraftMode(env: Env): ReportDraftMode {
   const never: typeof fetch = () => Promise.reject(new Error("not called"));
   const r = resolveReportDraftProvider(env, { simulationOrg: true, ledgerReady: true, fetch: never });
-  return r.provider === null ? "off" : r.provider.kind;
+  if (r.modelBlocked === "ci_fake_outside_ci") return "misconfigured";
+  if (r.provider === null) return "off";
+  return r.provider.kind === "model" && r.provider.modelId === CI_FAKE_MODEL_ID ? "ci-fake" : r.provider.kind;
 }
