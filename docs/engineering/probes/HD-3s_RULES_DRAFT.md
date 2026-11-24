@@ -99,3 +99,9 @@ The tests are `tests/unit/hd3s-split-shift.test.ts`, 50 tests, green locally.
 - 5 working days per week;
 - the ArG reading of the pause, rest after block 2, 50 h, 14 h and the night rule (`lca`);
 - the 7-day model and the 9-h rest reduction (not built, K4/A2).
+
+**Founder decisions, live 2026-11-25 ca. 00:20 (choice questions under FE-124):**
+1. Split shift for the shift models «alle Dienste» (`any`) and «keine Nacht» (`no_night`); never for «nur Früh/Spät/Nacht».
+2. Daily target = weekly target hours ÷ working days per week, as a field per home with default 5.
+
+Both are IMPLEMENTED on the probe (`modelAllows`, `Limits.workDaysPerWeek`). The OPEN points 1 and 2 of §4 are settled; the `lca` reading stays OPEN.

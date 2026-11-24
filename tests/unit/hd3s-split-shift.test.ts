@@ -148,10 +148,16 @@ describe("HD-3s evaluateShift: each rule, and the first failing rule wins", () =
   it("R-b before everything: no Pensum => pensum_missing even if also absent", () => {
     expect(evaluateShift(base({ person: { pensum_pct: null, shift_model: "early_only", absences: [{ starts_on: "2027-02-10", ends_on: "2027-02-10" }] } }))).toMatchObject({ reason: "pensum_missing" });
   });
-  it("R-c: a split shift only for «any» until decided (OPEN)", () => {
-    expect(modelAllows("no_night", "split")).toBe(false);
+  it("R-c (founder 00:20): a split shift for «any» and «no_night», never for early/late/night only", () => {
     expect(modelAllows("any", "split")).toBe(true);
-    expect(evaluateShift(base({ person: { pensum_pct: 100, shift_model: "no_night", absences: [] } }))).toMatchObject({ reason: "shift_model" });
+    expect(modelAllows("no_night", "split")).toBe(true);
+    for (const m of ["early_only", "late_only", "night_only"] as const) expect(modelAllows(m, "split")).toBe(false);
+    expect(evaluateShift(base({ person: { pensum_pct: 100, shift_model: "no_night", absences: [] } }))).toMatchObject({ result: "ok" });
+    expect(evaluateShift(base({ person: { pensum_pct: 100, shift_model: "late_only", absences: [] } }))).toMatchObject({ reason: "shift_model" });
+  });
+  it("S5 (founder 00:20): weekly target ÷ the home's working days per week (field, default 5)", () => {
+    expect(dailyTargetHint(474, 39.5)).toBeNull();
+    expect(dailyTargetHint(510, 42, 6)).toEqual({ targetMinutes: 420, diffMinutes: 90 });
   });
   it("R-d: absence on the work date", () => {
     expect(evaluateShift(base({ person: { pensum_pct: 100, shift_model: "any", absences: [{ starts_on: "2027-02-10", ends_on: "2027-02-12" }] } }))).toMatchObject({ reason: "absent" });

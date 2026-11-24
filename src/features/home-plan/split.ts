@@ -172,7 +172,7 @@ export type Limits = {
   maxDaySpanHours: number; // R-j, Art. 10 Abs. 3 ArG 14
   nightMaxWorkHours: number; // R-k, Art. 17a ArG 9
   nightMaxSpanHours: number; // R-k, Art. 17a ArG 10
-  workDaysPerWeek: number; // S5, 5 (`eng` reading, OPEN)
+  workDaysPerWeek: number; // S5, 5 as a field per home (founder live 2026-11-25 ca. 00:20)
 };
 export const DEFAULT_LIMITS: Limits = {
   minRestHours: 11,
@@ -244,11 +244,12 @@ export type Evaluation =
   | { result: "blocked"; reason: RuleBreach; mark: typeof WORKING_TIME_LAW_MARK }
   | { result: "ok"; workMinutes: number; hints: Hint[]; mark: typeof WORKING_TIME_LAW_MARK };
 
-/** R-c: `any` takes every class (also none); a split shift only `any` until the founder decides (OPEN, fail closed). */
+/** R-c: `any` takes every class (also none); a split shift `any` and `no_night` (founder live 2026-11-25 ca. 00:20). */
 export function modelAllows(model: ShiftModel, cls: ShiftClass | null): boolean {
   if (model === "any") return true;
-  if (cls === null || cls === "split") return false;
-  if (model === "no_night") return cls === "early" || cls === "late";
+  if (cls === null) return false;
+  if (model === "no_night") return cls === "early" || cls === "late" || cls === "split";
+  if (cls === "split") return false;
   return model === `${cls}_only`;
 }
 
