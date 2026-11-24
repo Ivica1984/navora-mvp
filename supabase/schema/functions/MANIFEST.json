@@ -296,7 +296,8 @@
         "SET search_path TO ''",
         "is_institution_member",
         "institution_shift_days",
-        "institution_rule_breaches"
+        "institution_rule_breaches",
+        "institution_staff_wishes"
       ]
     },
     {
@@ -394,6 +395,19 @@
         "institution_audit",
         "assert_access_open",
         "shift_class_not_valid"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_wishes",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "for update",
+        "wishes_not_valid",
+        "wish_conflict"
       ]
     },
     {

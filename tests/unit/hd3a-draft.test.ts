@@ -18,7 +18,10 @@ import {
   type DraftRow,
   type DraftShiftType,
   type DraftStaff,
+  type DraftWish,
   type ShiftModel,
+  isoWeekday,
+  unmetWishReasonText,
 } from "@/features/home-plan/draft";
 import { addDays, gradeLabel, type Absence, type AssignedPerson, type PlanCell } from "@/features/home-plan/rules";
 
@@ -57,6 +60,7 @@ type Fixture = {
   rule?: { total: number; grade: string | null; gradeCount: number } | null;
   existing?: Array<{ date: string; station: string; type: string; staff: string }>;
   limits?: Partial<DraftInput["limits"]>;
+  wishes?: DraftWish[];
 };
 
 function input(f: Fixture): DraftInput {
@@ -101,7 +105,7 @@ function input(f: Fixture): DraftInput {
       }
     }
   }
-  return { from: f.from, to: f.to, shiftTypes: types, staff: f.staff, absences, cells, limits };
+  return { from: f.from, to: f.to, shiftTypes: types, staff: f.staff, absences, cells, limits, wishes: f.wishes };
 }
 
 function ok(i: DraftInput) {
@@ -409,3 +413,89 @@ describe("HD-3a draft: time and runtime", () => {
     expect(verifyDraft(i, r.rows as DraftRow[])).toEqual([]);
   });
 });
+
+// HD-3a slice 2d (FE-125, rule catalogue W-1, W-2, §4): wishes are an order among permitted persons only.
+describe("HD-3a draft: wishes per person", () => {
+  const MON = "2026-12-07";
+  const one = { total: 1, grade: null, gradeCount: 0 };
+  const earlyOnly = [TYPES[0]];
+  const work = (staff: string, weekday: number, type = "t1-early"): DraftWish => ({ staff_id: staff, weekday, kind: "work", shift_type_id: type });
+  const off = (staff: string, weekday: number): DraftWish => ({ staff_id: staff, weekday, kind: "off", shift_type_id: null });
+
+  it("reads ISO weekdays (1 = Monday, 7 = Sunday)", () => {
+    expect(isoWeekday("2026-12-07")).toBe(1);
+    expect(isoWeekday("2026-12-01")).toBe(2);
+    expect(isoWeekday("2026-03-29")).toBe(7);
+  });
+
+  it("meets a satisfiable work wish: the wishing person gets the shift instead of the default pick", () => {
+    const base: Fixture = { from: MON, to: MON, stations: ["st"], types: earlyOnly, rule: one, staff: [person("a", FAGE), person("b", FAGE)] };
+    expect(ok(input(base)).rows.map((r) => r.staff_id)).toEqual(["a"]);
+    const r = ok(input({ ...base, wishes: [work("b", 1)] }));
+    expect(r.rows.map((x) => x.staff_id)).toEqual(["b"]);
+    expect(r.wishes).toEqual({ total: 1, met: 1, unmet: [] });
+  });
+
+  it("meets an off wish: somebody else is planned that day", () => {
+    const r = ok(input({ from: MON, to: MON, stations: ["st"], types: earlyOnly, rule: one, staff: [person("a", FAGE), person("b", FAGE)], wishes: [off("a", 1)] }));
+    expect(r.rows.map((x) => x.staff_id)).toEqual(["b"]);
+    expect(r.wishes).toEqual({ total: 1, met: 1, unmet: [] });
+  });
+
+  it("minimum staffing wins over an off wish: the person is planned and the wish is listed with its reason", () => {
+    const i = input({ from: MON, to: MON, stations: ["st"], types: earlyOnly, rule: { total: 2, grade: null, gradeCount: 0 },
+      staff: [person("a", FAGE), person("b", FAGE)], wishes: [off("a", 1)] });
+    const r = ok(i);
+    expect(r.rows.map((x) => x.staff_id)).toEqual(["a", "b"]);
+    expect(r.gaps).toEqual([]);
+    expect(r.wishes.unmet).toEqual([{ staff_id: "a", date: MON, kind: "off", shift_type_id: null, reason: "needed_for_staffing" }]);
+    expect(unmetWishReasonText(r.wishes.unmet[0])).toBe("für die Mindestbesetzung gebraucht");
+    expect(verifyDraft(i, r.rows)).toEqual([]);
+  });
+
+  it("never makes a person permitted: a night_only wish for the early shift stays unmet with the rule as reason", () => {
+    const i = input({ from: MON, to: MON, stations: ["st"], types: earlyOnly, rule: one,
+      staff: [person("a", FAGE), person("b", FAGE, { shift_model: "night_only" })], wishes: [work("b", 1)] });
+    const r = ok(i);
+    expect(r.rows.map((x) => x.staff_id)).toEqual(["a"]);
+    expect(r.wishes.unmet).toEqual([{ staff_id: "b", date: MON, kind: "work", shift_type_id: "t1-early", reason: "shift_model" }]);
+    expect(unmetWishReasonText(r.wishes.unmet[0])).toBe("Schichtmodell passt nicht");
+  });
+
+  it("lists an unsatisfiable wish with its reason: absence, a full shift, an existing assignment on the day off", () => {
+    const r = ok(input({ from: MON, to: addDays(MON, 1), stations: ["st"], types: earlyOnly, rule: one,
+      staff: [person("a", FAGE), person("b", FAGE), person("c", FAGE)],
+      absences: [{ id: "ab", staff_id: "a", starts_on: MON, ends_on: MON }],
+      existing: [{ date: MON, station: "st", type: "t1-early", staff: "c" }, { date: addDays(MON, 1), station: "st", type: "t1-early", staff: "c" }],
+      wishes: [work("a", 1), work("b", 2), off("c", 2)] }));
+    expect(r.rows).toEqual([]);
+    expect(r.wishes.total).toBe(3);
+    expect(r.wishes.unmet.map((w) => `${w.staff_id}:${w.reason}`)).toEqual(["a:absent", "b:no_open_place", "c:existing_assignment"]);
+  });
+
+  it("a wish on another weekday or outside the period does not count", () => {
+    const r = ok(input({ from: MON, to: MON, stations: ["st"], types: earlyOnly, rule: one, staff: [person("a", FAGE)], wishes: [work("a", 3), off("a", 5)] }));
+    expect(r.wishes).toEqual({ total: 0, met: 0, unmet: [] });
+  });
+
+  it.each(Array.from({ length: 20 }, (_, k) => k + 1))("seed %i: with random wishes 0 violations and every wish accounted", (seed) => {
+    const f = randomFixture(seed);
+    const r0 = rng(seed + 1000);
+    const wishes: DraftWish[] = [];
+    for (const s of f.staff) {
+      for (let wd = 1; wd <= 7; wd++) {
+        const x = r0();
+        if (x < 0.15) wishes.push(off(s.id, wd));
+        else if (x < 0.4) wishes.push(work(s.id, wd, TYPES[Math.floor(r0() * 3)].id));
+      }
+    }
+    const i = input({ ...f, wishes });
+    const r = ok(i);
+    expect(verifyDraft(i, r.rows)).toEqual([]);
+    expect(r.wishes.met + r.wishes.unmet.length).toBe(r.wishes.total);
+    // Shuffled wishes give the same draft (determinism).
+    const shuffled = [...wishes].map((w) => [r0(), w] as const).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
+    expect(buildDraft({ ...i, wishes: shuffled })).toEqual(r);
+  });
+});
+

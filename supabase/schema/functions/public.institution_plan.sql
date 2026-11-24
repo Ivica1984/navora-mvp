@@ -46,6 +46,10 @@ begin
                                   'starts_on', a.starts_on, 'ends_on', a.ends_on) order by a.starts_on, a.id)
                           from public.institution_absences a
                           where a.institution_id = inst.id and a.starts_on <= p_to and a.ends_on >= p_from), '[]'::jsonb),
+    -- HD-3a wishes (FE-125): read like the other person data of the home; the draft uses them as an order only.
+    'wishes', coalesce((select jsonb_agg(jsonb_build_object('staff_id', w.staff_id, 'weekday', w.weekday, 'kind', w.kind,
+                                'shift_type_id', w.shift_type_id) order by w.staff_id, w.weekday, w.kind, w.shift_type_id)
+                        from public.institution_staff_wishes w where w.institution_id = inst.id), '[]'::jsonb),
     'cells', coalesce((
       select jsonb_agg(jsonb_build_object(
                'date', c.d, 'station_id', c.station_id, 'shift_type_id', c.shift_type_id,

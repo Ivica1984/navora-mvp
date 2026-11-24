@@ -12,6 +12,11 @@
 //   R-d no absence day touched (HD-1 R3)        R-h shift minutes per ISO week <= Pensum x full-time reference
 // Rest time and days in a row carry the mark «Arbeitszeitgesetz nicht abschliessend geprüft» (`lca` before real data).
 //
+// Wishes (FE-125, slice 2d; rule catalogue HD_RULE_CATALOGUE.md W-1, W-2, §4) are an ORDER among permitted persons only:
+//   W-1 `work` weekday + shift type: such a person is picked first for that cell (still after every hard rule).
+//   W-2 `off` weekday: such a person is picked last, only when nobody else is permitted (minimum staffing wins).
+// A wish never makes a person permitted. Every wish not met in the period is listed with its reason.
+//
 // Founder answers (FE-123, brief HD.md §5b PO amendment 19:39), taken as inputs of the home, never invented here:
 //   Q1 100 % Pensum = the home's «Sollstunden pro Woche» (`institutions.weekly_target_hours`, test home 42 h, marked
 //      «Beispielwert des Heims»); not entered => the draft refuses to run (fail closed, `pensum_reference_missing`).
@@ -61,6 +66,8 @@ export type DraftLimits = {
   /** Q1 (FE-123): minutes of shift time per ISO week at 100 % Pensum (`fullTimeMinutes(weekly_target_hours)`). */
   fullTimeMinutesPerWeek: number | null;
 };
+/** A wish of the home for one person (`institution_staff_wishes`): ISO weekday 1 = Monday ... 7 = Sunday. */
+export type DraftWish = { staff_id: string; weekday: number; kind: "work" | "off"; shift_type_id: string | null };
 export type DraftInput = {
   /** Dates the draft may fill (inclusive). Cells outside count only through their existing assignments. */
   from: string;
@@ -71,6 +78,8 @@ export type DraftInput = {
   /** `institution_plan` cells over at least `draftContextRange(from, to, limits)`. */
   cells: ReadonlyArray<PlanCell>;
   limits: DraftLimits;
+  /** W-1 and W-2 (FE-125); absent = no wishes. */
+  wishes?: ReadonlyArray<DraftWish>;
 };
 
 export type DraftRow = { date: string; station_id: string; shift_type_id: string; staff_id: string };
@@ -104,10 +113,23 @@ export type DraftGap = {
   pool_active: number;
   blocked: Record<BlockReason, number>;
 };
+/**
+ * A wish not met on one date of the period. `reason`: a hard rule that blocks the person (work wish), `no_open_place`
+ * (permitted, but every place of that shift was already filled), `needed_for_staffing` (off wish: the draft needed the
+ * person for the minimum staffing) or `existing_assignment` (off wish: an assignment the home made already).
+ */
+export type UnmetWish = {
+  staff_id: string;
+  date: string;
+  kind: DraftWish["kind"];
+  shift_type_id: string | null;
+  reason: BlockReason | "no_open_place" | "needed_for_staffing" | "existing_assignment";
+};
+export type WishSummary = { total: number; met: number; unmet: UnmetWish[] };
 export type PredictedCell = { date: string; station_id: string; shift_type_id: string; status: "ok" | "gap" };
 export type DraftResult =
   | { result: "pensum_reference_missing" }
-  | { result: "ok"; rows: DraftRow[]; gaps: DraftGap[]; predicted: PredictedCell[] };
+  | { result: "ok"; rows: DraftRow[]; gaps: DraftGap[]; predicted: PredictedCell[]; wishes: WishSummary };
 
 // --- Time ---------------------------------------------------------------------------------------------------------------
 const MIN = 60_000;
@@ -155,6 +177,12 @@ export function shiftSpan(date: string, starts: string, ends: string): Span {
   spanCache.set(key, span);
   return span;
 }
+/** ISO weekday of a date string: 1 = Monday ... 7 = Sunday. */
+export function isoWeekday(date: string): number {
+  const d = new Date(dayWall(date)).getUTCDay();
+  return d === 0 ? 7 : d;
+}
+
 /** Calendar days a shift touches, as `private.institution_shift_days` (inclusive range). */
 export function shiftDays(date: string, starts: string, ends: string): { first: string; last: string } {
   const e = hm(ends);
@@ -175,7 +203,7 @@ export function draftContextRange(from: string, to: string, limits: Pick<DraftLi
 }
 
 // --- Model ----------------------------------------------------------------------------------------------------------------
-type Shift = { date: string; week: string; span: Span; minutes: number; proposed: boolean };
+type Shift = { date: string; week: string; typeId: string; span: Span; minutes: number; proposed: boolean };
 type Person = DraftStaff & { shifts: Shift[]; dates: Map<string, number>; minutesInPeriod: number };
 
 const cmp = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
@@ -233,10 +261,24 @@ export function buildDraft(input: DraftInput): DraftResult {
     persons.set(s.id, { ...s, shifts: [], dates: new Map(), minutesInPeriod: 0 });
   }
   const inPeriod = (d: string) => d >= input.from && d <= input.to;
+  // Wishes as two lookups (input order does not matter): `${staff}|${weekday}|${type}` and `${staff}|${weekday}`.
+  const wishWork = new Set<string>();
+  const wishOff = new Set<string>();
+  for (const w of input.wishes ?? []) {
+    if (!persons.has(w.staff_id) || !(w.weekday >= 1 && w.weekday <= 7)) continue;
+    if (w.kind === "work" && w.shift_type_id) wishWork.add(`${w.staff_id}|${w.weekday}|${w.shift_type_id}`);
+    else if (w.kind === "off") wishOff.add(`${w.staff_id}|${w.weekday}`);
+  }
+  // 0 = wishes this weekday with this shift type, 1 = no wish, 2 = wishes this weekday off (W-2 wins over W-1).
+  const wishTier = (p: Person, date: string, typeId: string): number => {
+    const wd = isoWeekday(date);
+    if (wishOff.has(`${p.id}|${wd}`)) return 2;
+    return wishWork.has(`${p.id}|${wd}|${typeId}`) ? 0 : 1;
+  };
   const addShift = (p: Person, date: string, t: DraftShiftType, proposed: boolean) => {
     const span = shiftSpan(date, t.starts_at, t.ends_at);
     const minutes = (span.end - span.start) / MIN;
-    p.shifts.push({ date, week: weekStart(date), span, minutes, proposed });
+    p.shifts.push({ date, week: weekStart(date), typeId: t.id, span, minutes, proposed });
     p.dates.set(date, (p.dates.get(date) ?? 0) + 1);
     if (inPeriod(date)) p.minutesInPeriod += minutes;
   };
@@ -296,14 +338,18 @@ export function buildDraft(input: DraftInput): DraftResult {
 
   const rows: DraftRow[] = [];
   const pick = (n: Need, grade: string | null): Person | null => {
+    // Hard rules first (a wish never makes a person permitted), then the wish tier, then the load, then the lowest id.
     let best: Person | null = null;
+    let bestTier = Infinity;
     let bestLoad = Infinity;
     for (const p of persons.values()) {
       if (!p.active || (grade !== null && p.grade !== grade)) continue;
       if (blockFor(p, n.cell.date, n.t, input, absent) !== null) continue;
+      const tier = wishTier(p, n.cell.date, n.t.id);
       const load = p.minutesInPeriod / (p.pensum_pct as number);
-      if (load < bestLoad) {
+      if (tier < bestTier || (tier === bestTier && load < bestLoad)) {
         best = p;
+        bestTier = tier;
         bestLoad = load;
       }
     }
@@ -355,11 +401,52 @@ export function buildDraft(input: DraftInput): DraftResult {
     predicted.push({ date: c.date, station_id: c.station_id, shift_type_id: c.shift_type_id, status: ok ? "ok" : "gap" });
   }
   gaps.sort((a, b) => cmp(a.date, b.date) || cmp(a.station_id, b.station_id) || cmp(a.shift_type_id, b.shift_type_id));
+  // Every wish on every date of the period, met or not (inactive persons are not planned and are left out).
+  const wishes: WishSummary = { total: 0, met: 0, unmet: [] };
+  const periodDates: string[] = [];
+  for (let d = input.from; d <= input.to; d = addDays(d, 1)) periodDates.push(d);
+  const sortedWishes = [...(input.wishes ?? [])].sort(
+    (a, b) => cmp(a.staff_id, b.staff_id) || a.weekday - b.weekday || cmp(a.kind, b.kind) || cmp(a.shift_type_id ?? "", b.shift_type_id ?? ""),
+  );
+  const counted = new Set<string>();
+  for (const w of sortedWishes) {
+    const p = persons.get(w.staff_id);
+    if (!p || !p.active) continue;
+    const t = w.shift_type_id ? types.get(w.shift_type_id) : undefined;
+    if (w.kind === "work" && !t) continue;
+    // W-2 wins over W-1 on the same weekday (the command refuses the pair; this keeps the solver total).
+    if (w.kind === "work" && wishOff.has(`${p.id}|${w.weekday}`)) continue;
+    const key = `${p.id}|${w.weekday}|${w.kind}|${t?.id ?? ""}`;
+    if (counted.has(key)) continue;
+    counted.add(key);
+    for (const date of periodDates) {
+      if (isoWeekday(date) !== w.weekday) continue;
+      wishes.total++;
+      if (w.kind === "work") {
+        if (p.shifts.some((s) => s.date === date && s.typeId === t!.id)) {
+          wishes.met++;
+          continue;
+        }
+        const r = blockFor(p, date, t!, input, absent);
+        wishes.unmet.push({ staff_id: p.id, date, kind: "work", shift_type_id: t!.id, reason: r ?? "no_open_place" });
+      } else {
+        // A day off by work date (as R-g counts days): no shift whose work date is that day.
+        const that = p.shifts.filter((s) => s.date === date);
+        if (that.length === 0) {
+          wishes.met++;
+          continue;
+        }
+        const reason = that.some((s) => s.proposed) ? "needed_for_staffing" : "existing_assignment";
+        wishes.unmet.push({ staff_id: p.id, date, kind: "off", shift_type_id: null, reason });
+      }
+    }
+  }
+  wishes.unmet.sort((a, b) => cmp(a.date, b.date) || cmp(a.staff_id, b.staff_id) || cmp(a.kind, b.kind));
   rows.sort(
     (a, b) =>
       cmp(a.date, b.date) || cmp(a.station_id, b.station_id) || cmp(a.shift_type_id, b.shift_type_id) || cmp(a.staff_id, b.staff_id),
   );
-  return { result: "ok", rows, gaps, predicted };
+  return { result: "ok", rows, gaps, predicted, wishes };
 }
 
 const cellId = (c: Pick<PlanCell, "date" | "station_id" | "shift_type_id">) => `${c.date}|${c.station_id}|${c.shift_type_id}`;
@@ -494,4 +581,15 @@ export function gapReasonText(g: DraftGap, gradeLabel: (code: string | null) => 
   const parts = BLOCK_ORDER.filter((r) => g.blocked[r] > 0).map((r) => `${g.blocked[r]} ${BLOCK_LABEL[r]}`);
   if (g.pool_active === 0) return `${head} – keine aktive Person${g.missing_grade > 0 ? ` mit ${gradeLabel(g.grade)}` : ""}`;
   return `${head} – ${g.pool_active} aktiv${parts.length ? `: ${parts.join(", ")}` : ""}`;
+}
+
+const WISH_REASON_LABEL: Record<Exclude<UnmetWish["reason"], BlockReason>, string> = {
+  no_open_place: "kein offener Platz in diesem Dienst",
+  needed_for_staffing: "für die Mindestbesetzung gebraucht",
+  existing_assignment: "bereits von Hand eingeteilt",
+};
+
+/** Why a wish is not met, from plan data only: «Wunsch Mo Frühdienst nicht erfüllt – Ruhezeit zu kurz». */
+export function unmetWishReasonText(w: UnmetWish): string {
+  return w.reason in BLOCK_LABEL ? BLOCK_LABEL[w.reason as BlockReason] : WISH_REASON_LABEL[w.reason as keyof typeof WISH_REASON_LABEL];
 }

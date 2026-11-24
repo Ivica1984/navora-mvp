@@ -1289,6 +1289,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"institution_staff_wishes": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"kind": string,"shift_type_id": string | null,"staff_id": string,"weekday": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"kind": string,"shift_type_id"?: string | null,"staff_id": string,"weekday": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"kind"?: string,"shift_type_id"?: string | null,"staff_id"?: string,"weekday"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_staff_wishes_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_staff_wishes_shift_type_id_institution_id_fkey"
+      columns: ["shift_type_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_shift_types"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_staff_wishes_staff_id_institution_id_fkey"
+      columns: ["staff_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_staff"
+      referencedColumns: ["id","institution_id"]
+    }
+                  ]
                 },"institution_staffing_rules": {
                   Row: {
                     "example": boolean,"institution_id": string,"required_grade": string | null,"required_grade_count": number,"required_total": number,"shift_type_id": string,"station_id": string
@@ -3545,6 +3577,9 @@ isOneToOne: false
                            },
 "institution_set_staff_planning":
 { Args: { "p_pensum_pct": number,"p_shift_model": string,"p_staff_id": string }; Returns: Json
+                           },
+"institution_set_staff_wishes":
+{ Args: { "p_staff_id": string,"p_wishes": Json }; Returns: Json
                            },
 "institution_set_staffing_rule":
 { Args: { "p_institution_id": string,"p_required_grade": string,"p_required_grade_count": number,"p_required_total": number,"p_shift_type_id": string,"p_station_id": string }; Returns: Json
