@@ -103,3 +103,24 @@ Source: founder comment [#1697 7133780206](https://github.com/Ivica1984/navora-m
 **5. Smoke hold:** the red `staging-smoke` runs (path 2 on `323e6df`; path 5 «K» instead of «A» on `4653c83`, job 138505601603) no longer hold the AI1 merge (FE-118 (4) «unblock»). They become **STAB1-F6** (`eng`, PLANNED): cause from raw data per path, then a deterministic state check instead of retries. If the first `staging-smoke` after the AI1 merge is red on a path AI1 touches (`/field` report, path 3), `eng` opens a revert or fix PR at once.
 
 **Ready-report content still asked (FE-095, no new condition):** tests per CI job on `2e4d5d8`, migrations 0166–0170, known limits, which residual items are on the head and which went to AI1-F1, and that the model path cannot run on staging without the founder's Render values.
+
+
+## PO note 2026-11-24 16:39 (merge step (a) done; not acceptance)
+
+- **Merged:** #1697 head `2e4d5d8` → `2f2d785` (record [7136470154](https://github.com/Ivica1984/navora-mvp/pull/1697#issuecomment-7136470154)), on `eng`'s ready report 7135797060 and `cra-gate: #1697 2e4d5d8 clear` 7136171072 (step (a), «Simulation, synthetic data»).
+- **FE-118 (d) resolved by FE-120:** the `lca` provider-terms reading comes before the production key is set on Render, not before the merge.
+- **Evidence on the merge commit `2f2d785`** (raw logs read by the PO; PO ran no tests locally):
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| `ci` app | success | job 138566336117 |
+| `ci` db | success | job 138566337069, «Files=167, Tests=6629», «Result: PASS» |
+| `ci` e2e | success | job 138566336030, «215 passed (8.3m)» |
+| `ci` ui-screenshots | success | job 138566336454 |
+| `staging` (migrations → `navora-staging`) | success, **applied** | job 138574181200: «Applying migration» 0166–0170, «Finished supabase db push.» `navora-staging` now at 20261021000170 |
+| `codeql` | failure, infrastructure | run 45428323403, «Resource not accessible by integration … get-a-workflow-run» (#1723, FE-120 (3)) |
+| `staging-smoke` | pending at publish | run 45428323436; read in the next signal run (signal (d)) |
+| `ci-repeat` 10/10 | not yet run | acceptance waits for it |
+
+- **Placed findings (`cra` 16:26, advisory, not conditions):** CGR-282 → AI1-F1 (price only through a migration PR naming the evaluation run and the four step (b) gate lines; smoke asserts `report_draft` is `rules` or `off` until step (b)). CGR-283 → post-merge duty `eng`: record path 3 (`/field` report) on `2f2d785` even if an earlier path is red; red path 3 → revert or fix PR. CGR-284 → HD-3a contract (`HD.md` §5b, 16:39).
+- **AI honesty:** report draft on staging = test substitute «regelbasiert, keine KI»; CI fake provider = test substitute; Claude path built, never run; price NULL keeps it closed.
