@@ -8,6 +8,19 @@
 
 ---
 
+## 2026-11-24 11:56 CET · csa · Correction: STR-47 closed «by design» (founder clarification)
+
+**Founder statement in the `csa` session, 2026-11-24 about 11:55 CET (not heard by the PO; for the PO to record).** Summary in my words: NAVORA has two models. (1) The B2B institution module (`/heim`, HD-3) is a standalone product sold to nursing homes and hospitals for their internal shift operations; there, operational and legal authority lies with the Heimleitung / Stationsleitung, so confirmation by the Heimleitung is correct and intentional. (2) The self-organised team model (FE-039) applies to autonomous caregiver teams (`/team`, `/field`) that replace the traditional Spitex model; there the team confirms. **Decision (founder):** HD-3 proceeds as planned with Heimleitung confirmation; STR-47 is closed as «by design».
+
+**What changes in my section of 11:33 above (that section is kept as written; this one wins):**
+- **STR-47: closed, by design.** My reading treated the home's own staff as falling under FE-039. The founder rejects that reading. PKG-STR-47 is withdrawn, and so are the proposals «confirming party per station» and «staff self-entry». HD-3 needs no change from `csa`. The supplier-drift watch item (§2 (4)) no longer covers HD-3 confirmation. It keeps only the measure BM-10 (GM-1 stays larger than GM-2) and BK-g before M9 (STR-49).
+- **What remains (documentation only, no product change):** two texts still state the invariant without this scope. They are Blueprint §1 («keine zentrale Disposition … Die KI schlägt vor, das Team entscheidet», FE-039) and `PRODUCT_BLOCKS.md` («… in jeder Konstellation (auch GM-2, Pflegeheim)»). Proposal for the PO (**STR-53, low**): record the founder's scope in `FOUNDER_DECISIONS.md`, then align both texts, for example: «FE-039 gilt für selbstorganisierte Pflegeteams (GM-1, `/team`, `/field`); im B2B-Institutionsmodul (GM-2, `/heim`) bestätigt die Heim- oder Stationsleitung.» This sentence is in my field (§1), so the change is a reason to renew my FE-079 sign-off once the Blueprint carries it.
+- **O-5 (FD-25):** the clarification settles the B2B module: there, the home plans its own staff under its own authority. Whether a Phase B home may also run self-organised ward teams (KON-2) is a separate open question, and I do not treat it as decided. The PO records the founder's scope.
+- **Legal authority of the Heimleitung:** I record this as the founder's statement. No `lca` reading of it exists in my sources. Question 20 in `STRATEGY.md` §6 is withdrawn, because it served only PKG-STR-47.
+- **Not affected:** STR-48 to STR-52 stand unchanged.
+
+---
+
 ## 2026-11-24 11:33 CET · csa · Week 6: the nursing-home register, the invariant, BK left open, first real model
 
 **Read (evidence):** `recovery/main` at `7c1fdc59` (Blueprint 3.2.84, Handbook V2.2); `CLAUDE.md`; `docs/agents/README.md`; `FOUNDER_DECISIONS.md` v69 (new since my last run: FE-089 to FE-113); Blueprint §1, §2, §8, §10, Annex A and the version table 3.2.42 to 3.2.84; `NEXT_CAPABILITY.md` *Active now* 2026-11-24 00:39; `ABNAHMEAKTE.md` §2; `briefs/HD.md` (Fassung 3), `briefs/AI1.md`; `docs/architecture/PLATFORM_GRUNDRISS.md`; `PRODUCT_BLOCKS.md` invariant line; `BK_ROADMAP.md`; `ROADMAP.md` entries 18.11. to 24.11.; journals of the week (PO, `aia` 2026-11-24); `OPEN_DECISIONS.md` (new rows LRN-1, EVAL-0); `decisions/INDEX.md` (no package entered `awaiting-approval` this week); issue #1393 (PO answer 2026-11-17 21:39); open PRs (#1697 AI1 draft). Code read for facts: `supabase/schema/functions/public.institution_assign_staff.sql`, migrations 0151, 0156, 0163 to 0165, `tests/e2e/handgrip-baseline.json`.
