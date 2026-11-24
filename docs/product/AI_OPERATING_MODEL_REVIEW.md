@@ -755,6 +755,26 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** `report_draft_model` unchanged (registered, closed by configuration). No agent added.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**AI1 draft #1697 pre-read: prompt pin met; a new version must not lift a reached stop (`aia` 2026-11-24 02:19, review 85, AUT-194 to AUT-196):**
+- **Label check:** #1697 is a draft on `d5912c6`. Reservation, caps, kill switch and the prompt pin are IMPLEMENTED on the branch, not merged. No model has run. The purpose measure (AUT-168) and the live evaluation set (AUT-190) are not built yet.
+- **Controls proposed:**
+  - AUT-194: a fresh stop-rule window never opens a stop. The closed-check also reads the previous version's last window. A reached stop is lifted only by a switch event (`eng` and `cra`).
+  - AUT-195: the measured values in the evaluation report and in AUT-168 come only from rows the server settled (supports `eng` R1).
+  - AUT-196: the window key is (prompt version, model id). A model change repeats the evaluation run. Follow-up after the AI1 merge.
+  - All PROPOSED (PO; `eng`, `cra`, `lca` as named).
+- **Catalogue:** `report_draft_model` unchanged (version 1 registered on the branch, closed by configuration). No agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
+**AI1 #1697 re-read: stop carry-over met; the stop rule must count only lines a reserved call produced (`aia` 2026-11-24 08:21, review 86, AUT-197 to AUT-199):**
+- **Label check:** #1697 is a draft on `20e81b3`. AUT-194 (a stop carries over a prompt version change until a `cleared` event) is IMPLEMENTED on the branch, not merged. No model has run. AUT-168 and AUT-190 are not built yet.
+- **Controls proposed:**
+  - AUT-197: a report-draft proposal needs a settled `ok` reservation of the same report, one proposal per reservation; agent version and model id come from the reservation. Only such lines count in the stop rule and the correction rate (supports `eng` R7).
+  - AUT-198: a `cleared` event names what it clears; only a `stop_rule` clear lifts a carried stop. Follow-up after the AI1 merge.
+  - AUT-199: evaluation and AUT-168 figures use `measured_tokens` rows only and show the `bounded` and `reserve` counts; the kill-switch claim names in-flight calls.
+  - All PROPOSED (PO; `eng`, `cra`, `lca` as named).
+- **Catalogue:** `report_draft_model` unchanged. No agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -841,3 +861,5 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-21 20:18 | `aia` | §12: block «PERF1 reviewed: fail visible for hint lists, never for safety lists by default»: label check on `briefs/PERF1.md` and ADR-226 DRAFT; controls AUT-184 to AUT-186 (PROPOSED). No agent added or removed |
 | 2026-11-22 02:20 | `aia` | §12: block «S-1 reviewed: safety reads fail visible, and so must the evaluator monitor»: label check on `97d0256` and `49d8325`; controls AUT-187 to AUT-189 (PROPOSED; AUT-188 high, #1679). No agent added or removed |
 | 2026-11-22 08:18 | `aia` | §12: block «ADR-227 reviewed: the AI1 integration adopts the reservation and T-2 controls; the live evaluation needs a reference»: label check on ADR-227 DRAFT and `448e9c4`; controls AUT-190 to AUT-193 (PROPOSED). No agent added or removed |
+| 2026-11-24 02:19 | `aia` | §12: block «AI1 draft #1697 pre-read: prompt pin met; a new version must not lift a reached stop»: label check on `d5912c6`; controls AUT-194 to AUT-196 (PROPOSED). No agent added or removed |
+| 2026-11-24 08:21 | `aia` | §12: block «AI1 #1697 re-read: stop carry-over met; the stop rule must count only lines a reserved call produced»: label check on `20e81b3`; controls AUT-197 to AUT-199 (PROPOSED). No agent added or removed |
