@@ -784,6 +784,18 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** `report_draft_model` unchanged. The CI fake is not an agent and is not listed. No agent added.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**HD-3a pre-read and INTAKE-E2E controls (`aia` 2026-11-24 20:20, review 88, AUT-201 to AUT-206):**
+- **Label check:** AI1 merged at step (a) (`2f2d785`), status «regelbasiert, keine KI» until step (b); no model has run. HD-3a (#1729, draft `0c79ae8`) is a fixed-rule optimiser with the mark «Optimierung (feste Regeln)»; no model plans (FE-125 (1)). INTAKE-E2E IE-1 is fixed rules; IE-2 (model extraction) is PLANNED after AI1-F1 and step (b).
+- **Controls proposed:**
+  - AUT-201: a draft takeover writes one run record and stamps each inserted assignment with its run id; hand changes keep the stamp, so M1 is a query. Team level only.
+  - AUT-202: M1 (founder wording), M1b (unchanged automatic shifts over all shifts of the plan) and gaps, at a named cut-off; M2 as measured durations plus hand steps; every figure «Simulation, synthetische Daten»; no target reported as reached on a scripted lead.
+  - AUT-204: IE-1 uses Engine 1 as built (reach, eligibility, offer reasons, take); the click is the team's take.
+  - AUT-205: extraction agent controls: source span per value, `null` kept, no accept-all on J1 safety items and J3 orders, catalogue entry only from the Fedlex list, correction rate and stop rule per field, synthetic evaluation set with absent, contradictory and negated values before any model call.
+  - AUT-203, AUT-206: form proposals (own wish entry; countersignature inside the existing RN step).
+  - All PROPOSED (PO; `eng`, `cra`, `lca`, `uxa` as named).
+- **Catalogue:** `report_draft_model` unchanged. Candidate (PLANNED, not registered): `intake_extraction_model` (IE-2, level G, stage 1 synthetic only). The HD-3a optimiser is a rule, not an agent. No agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -873,3 +885,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-24 02:19 | `aia` | §12: block «AI1 draft #1697 pre-read: prompt pin met; a new version must not lift a reached stop»: label check on `d5912c6`; controls AUT-194 to AUT-196 (PROPOSED). No agent added or removed |
 | 2026-11-24 08:21 | `aia` | §12: block «AI1 #1697 re-read: stop carry-over met; the stop rule must count only lines a reserved call produced»: label check on `20e81b3`; controls AUT-197 to AUT-199 (PROPOSED). No agent added or removed |
 | 2026-11-24 14:24 | `aia` | §12: block «AI1 #1697 re-read: proposals bound to a reserved call; the CI fake must never feed a measure»: label check on `2e4d5d8`; control AUT-200 and AUT-196 extension (PROPOSED). No agent added or removed |
+| 2026-11-24 20:20 | `aia` | §12: block «HD-3a pre-read and INTAKE-E2E controls»: label check (AI1 step (a), HD-3a fixed rules); controls AUT-201 to AUT-206 (PROPOSED); `intake_extraction_model` named as a PLANNED candidate, not registered. No agent added or removed |
