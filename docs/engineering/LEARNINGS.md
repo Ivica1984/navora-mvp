@@ -27,6 +27,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-24 / HD-3a #1729, ci 45486454697, Job 138773037222] Gelernte Lektion: Hand-Nachtrag in `database.types.ts` folgt dem Generator-Format
+- **Was war das Fehlerbild?** `db` rot auf `a0103c8` nur im Schritt «db-types drift» («src/lib/supabase/database.types.ts is out of date»), pgTAP «Files=170, Tests=6796, Result: PASS»; der Types-Bot schob sofort `83a79dc`.
+- **Was war die technische Ursache?** Ich hatte die neuen Array-Spalten von Hand als `string[]` eingetragen; der Generator schreibt `(string)[]`. Ein Zeichenunterschied genügt für den Drift-Check.
+- **Die verbindliche Lösungsregel ab jetzt:** Beim Hand-Nachtrag in `database.types.ts` die Schreibweise der Nachbarzeilen exakt übernehmen (Arrays `(string)[]`, Felder alphabetisch, Optionale mit `?`). Rot nur im Drift-Schritt ist kein Code-Fehler; der Bot-Commit wird zum Kopf, und sein wartender Lauf muss freigegeben werden («action_required» → approve), sonst läuft auf dem Kopf kein `ci`.
+- **Abgesichert durch:** der bestehende Drift-Schritt im `db`-Job und `db-types-sync`.
+
 ### [2026-11-24 / AI1 #1697, ci 45383814970, Job 138409432521] Gelernte Lektion: Ein Zeitstempel aus einer Migration liegt nach der gepinnten CI-Uhr
 - **Was war das Fehlerbild?** `db` rot um 12:26 CET: pgTAP 151 Test 39 und 167 Tests 13, 15, 17-19 («have: NULL», die Stoppregel schliesst nicht), auf einem Kopf ohne SQL-Änderung an diesen Funktionen. Derselbe Code war um 09:45 CET grün.
 - **Was war die technische Ursache?** CI pinnt `private.now()` auf 10:00 Zürich (DST1), aber erst nach den Migrationen. 0167 stempelt die Promptversion 1 mit `default private.now()`, also mit der echten Uhr. Läuft CI nach 10:00 Zürich, liegt `registered_at` nach der Testuhr; das Stoppregel-Fenster beginnt bei `registered_at` und ist leer. Vor 10:00 fiel es nie auf.
