@@ -124,3 +124,16 @@ Source: founder comment [#1697 7133780206](https://github.com/Ivica1984/navora-m
 
 - **Placed findings (`cra` 16:26, advisory, not conditions):** CGR-282 → AI1-F1 (price only through a migration PR naming the evaluation run and the four step (b) gate lines; smoke asserts `report_draft` is `rules` or `off` until step (b)). CGR-283 → post-merge duty `eng`: record path 3 (`/field` report) on `2f2d785` even if an earlier path is red; red path 3 → revert or fix PR. CGR-284 → HD-3a contract (`HD.md` §5b, 16:39).
 - **AI honesty:** report draft on staging = test substitute «regelbasiert, keine KI»; CI fake provider = test substitute; Claude path built, never run; price NULL keeps it closed.
+
+## PO note 2026-11-24 17:39 (post-merge step (a) complete; not acceptance)
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| `staging-smoke` on an integrated commit containing `2f2d785` | success, 7 of 7 | run 45428533219 on `532fbf2`, job 138576459831: «7 passed (5.9m)»; path 3 «nurse signs a worked shift → invoice draft → team sends it → client reads it under «Rechnungen» (390 px)» green (1.5m); «Render served 532fbf2… before and after the click paths (no deploy during the run)» (raw log read by the PO) |
+| `staging-smoke` on `2f2d785` | failure, not an AI1 path | run 45428323436: shift-offer tag «Neues Angebot» instead of «Übernommen»; green on the next commit with no app change → no revert (amendment §5); cause → STAB1-F6 |
+| CGR-283 path 3 recorded | met | `eng` 7137342697 and the run above |
+| App commit on Render, migration version (BK BUILD PHASE 4) | met | `eng` 7137342697: Render serves `532fbf2`; `navora-staging` at 20261021000170; Render deploy ID UNKNOWN |
+| `ci-repeat` 10/10 | not run | belongs to step (b) on the integrated commit after AI1-F1 |
+
+PO ran no tests locally. **PO status:** merged at step (a), post-merge duties complete; **not accepted**; acceptance at step (b). AI honesty unchanged: test substitute «regelbasiert, keine KI»; no connected model has run.
+
