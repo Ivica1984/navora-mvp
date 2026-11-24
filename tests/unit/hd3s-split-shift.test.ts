@@ -4,6 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   dailyTargetHint,
+  daySpanMinutes,
   restMinutesBetween,
   splitShiftSpans,
   splitWorkDays,
@@ -85,5 +86,118 @@ describe("HD-3s S5: daily target is a hint, never a block", () => {
   });
   it("no weekly target entered => no hint, nothing invented", () => {
     expect(dailyTargetHint(510, null)).toBeNull();
+  });
+});
+
+describe("HD-3s R-j (Art. 10 Abs. 3 ArG, [A] p. 4): the working day including the pause lies within 14 h", () => {
+  it("07:00–12:00 + 16:30–20:00 spans 13 h (780 min), allowed", () => {
+    expect(daySpanMinutes("2027-02-10", testHome)).toBe(780);
+  });
+  it("06:00–11:00 + 16:00–20:30 spans 14 h 30 (870 min), above 14 h", () => {
+    expect(daySpanMinutes("2027-02-10", t("06:00", "11:00", "16:00", "20:30"))).toBe(870);
+  });
+});
+
+// --- evaluateShift: all rules in their fixed order (draft §5) --------------------------------------------------------------
+import {
+  DEFAULT_LIMITS,
+  evaluateShift, modelAllows, requiredPauseMinutes, validateLimits, type Candidate, type ShiftDef } from "@/features/home-plan/split";
+
+const SPLIT: ShiftDef = { cls: "split", blocks: [{ starts_at: "07:00", ends_at: "12:00" }, { starts_at: "16:30", ends_at: "20:00" }] };
+const EARLY: ShiftDef = { cls: "early", blocks: [{ starts_at: "07:00", ends_at: "15:30" }] };
+const LATE: ShiftDef = { cls: "late", blocks: [{ starts_at: "14:30", ends_at: "23:00" }] };
+const NIGHT: ShiftDef = { cls: "night", blocks: [{ starts_at: "22:30", ends_at: "07:15" }] };
+const LIMITS = { ...DEFAULT_LIMITS, weeklyTargetHours: 42 };
+const base = (over: Partial<Candidate> = {}): Candidate => ({
+  person: { pensum_pct: 100, shift_model: "any", absences: [] },
+  existing: [],
+  date: "2027-02-10",
+  def: SPLIT,
+  limits: LIMITS,
+  ...over,
+});
+
+describe("HD-3s evaluateShift: invalid input is refused before any rule", () => {
+  it("a broken split shift => invalid_shift", () => {
+    expect(evaluateShift(base({ def: { cls: "split", blocks: [{ starts_at: "12:00", ends_at: "16:00" }, { starts_at: "07:00", ends_at: "11:00" }] } }))).toEqual({ result: "invalid_shift", reason: "block_order" });
+  });
+  it("three blocks => block_count", () => {
+    expect(evaluateShift(base({ def: { cls: "split", blocks: [...SPLIT.blocks, { starts_at: "21:00", ends_at: "22:00" }] } }))).toEqual({ result: "invalid_shift", reason: "block_count" });
+  });
+  it.each([
+    [{ minRestHours: 0 }, "min_rest_hours"],
+    [{ minRestHours: 10.5 }, "min_rest_hours"],
+    [{ maxConsecutiveDays: 15 }, "max_consecutive_days"],
+    [{ weeklyTargetHours: 0 }, "weekly_target_hours"],
+    [{ maxWeeklyHours: Number.NaN }, "max_weekly_hours"],
+    [{ maxDaySpanHours: 25 }, "max_day_span_hours"],
+    [{ nightMaxWorkHours: 10, nightMaxSpanHours: 9 }, "night_limits"],
+    [{ workDaysPerWeek: 0 }, "work_days_per_week"],
+    [{ weeklyTargetHours: null }, "pensum_reference_missing"],
+  ])("limits %o => %s (fail closed)", (over, reason) => {
+    expect(validateLimits({ ...LIMITS, ...over })).toEqual({ ok: false, reason });
+    expect(evaluateShift(base({ limits: { ...LIMITS, ...over } }))).toEqual({ result: "invalid_limits", reason });
+  });
+});
+
+describe("HD-3s evaluateShift: each rule, and the first failing rule wins", () => {
+  it("the test home's split shift is ok: 510 worked minutes, one hint: daily target +6 min (no block exceeds 5.5 h, so no pause hint)", () => {
+    const r = evaluateShift(base());
+    expect(r).toEqual({ result: "ok", workMinutes: 510, hints: [{ kind: "daily_target", targetMinutes: 504, diffMinutes: 6 }], mark: "Arbeitszeitgesetz nicht abschliessend geprüft" });
+  });
+  it("R-b before everything: no Pensum => pensum_missing even if also absent", () => {
+    expect(evaluateShift(base({ person: { pensum_pct: null, shift_model: "early_only", absences: [{ starts_on: "2027-02-10", ends_on: "2027-02-10" }] } }))).toMatchObject({ reason: "pensum_missing" });
+  });
+  it("R-c: a split shift only for «any» until decided (OPEN)", () => {
+    expect(modelAllows("no_night", "split")).toBe(false);
+    expect(modelAllows("any", "split")).toBe(true);
+    expect(evaluateShift(base({ person: { pensum_pct: 100, shift_model: "no_night", absences: [] } }))).toMatchObject({ reason: "shift_model" });
+  });
+  it("R-d: absence on the work date", () => {
+    expect(evaluateShift(base({ person: { pensum_pct: 100, shift_model: "any", absences: [{ starts_on: "2027-02-10", ends_on: "2027-02-12" }] } }))).toMatchObject({ reason: "absent" });
+  });
+  it("R-e / K3: a shift inside the pause is busy, not rest", () => {
+    const inPause: ShiftDef = { cls: null, blocks: [{ starts_at: "12:30", ends_at: "16:00" }] };
+    expect(evaluateShift(base({ existing: [{ date: "2027-02-10", def: inPause }] }))).toMatchObject({ reason: "busy" });
+  });
+  it("R-j: 06:00–11:00 + 16:00–20:30 spans 14 h 30 > 14 h => day_span", () => {
+    const long: ShiftDef = { cls: "split", blocks: [{ starts_at: "06:00", ends_at: "11:00" }, { starts_at: "16:00", ends_at: "20:30" }] };
+    expect(evaluateShift(base({ def: long }))).toMatchObject({ reason: "day_span" });
+  });
+  it("R-f: rest starts after block 2: split 20:00 → early 06:30 next day (10 h 30) => rest; → 07:00 (11 h) ok", () => {
+    const early0630: ShiftDef = { cls: "early", blocks: [{ starts_at: "06:30", ends_at: "15:00" }] };
+    expect(evaluateShift(base({ existing: [{ date: "2027-02-11", def: early0630 }] }))).toMatchObject({ reason: "rest" });
+    expect(evaluateShift(base({ existing: [{ date: "2027-02-11", def: EARLY }] }))).toMatchObject({ result: "ok" });
+  });
+  it("R-f: late 14:30–23:00 the day before => only 8 h rest before block 1 => rest", () => {
+    expect(evaluateShift(base({ existing: [{ date: "2027-02-09", def: LATE }] }))).toMatchObject({ reason: "rest" });
+  });
+  it("R-g: a split shift counts as one day; 6 days before it => the 7th is consecutive", () => {
+    const six = [4, 5, 6, 7, 8, 9].map((d) => ({ date: `2027-02-0${d}`, def: EARLY }));
+    expect(evaluateShift(base({ existing: six.slice(1), limits: { ...LIMITS, weeklyTargetHours: 80, maxWeeklyHours: 80 } }))).toMatchObject({ result: "ok" });
+    expect(evaluateShift(base({ existing: six, limits: { ...LIMITS, weeklyTargetHours: 80, maxWeeklyHours: 80 } }))).toMatchObject({ reason: "consecutive" });
+  });
+  it("R-k: the test home's night 22:30–07:15 (8 h 45) is ok; 21:00–07:00 (10 h) => night", () => {
+    expect(evaluateShift(base({ def: NIGHT }))).toMatchObject({ result: "ok" });
+    expect(evaluateShift(base({ def: { cls: "night", blocks: [{ starts_at: "21:00", ends_at: "07:00" }] } }))).toMatchObject({ reason: "night" });
+  });
+  it("R-h: 50 % of 42 h = 1260 min; two earlier early shifts (1020) + split (510) => pensum_full", () => {
+    const week = [{ date: "2027-02-08", def: EARLY }, { date: "2027-02-12", def: EARLY }];
+    expect(evaluateShift(base({ person: { pensum_pct: 50, shift_model: "any", absences: [] }, existing: week }))).toMatchObject({ reason: "pensum_full" });
+  });
+  it("R-i / K8: with a weekly target of 60 h, the 50 h law cap binds after the Pensum cap", () => {
+    const week = [8, 9].map((d) => ({ date: `2027-02-0${d}`, def: EARLY })).concat([11, 12, 13].map((d) => ({ date: `2027-02-${d}`, def: EARLY })));
+    // 5 × 510 = 2550 + 510 = 3060 > 3000 (50 h) but ≤ 3600 (100 % of 60 h)
+    expect(evaluateShift(base({ existing: week, limits: { ...LIMITS, weeklyTargetHours: 60 } }))).toMatchObject({ reason: "weekly_max" });
+  });
+  it("same input in any order => the same result (deterministic)", () => {
+    const ex = [{ date: "2027-02-11", def: EARLY }, { date: "2027-02-08", def: LATE }];
+    expect(evaluateShift(base({ existing: ex }))).toEqual(evaluateShift(base({ existing: [...ex].reverse() })));
+  });
+});
+
+describe("HD-3s S6 pause (Art. 15 ArG)", () => {
+  it.each([[330, 0], [331, 15], [421, 30], [541, 60]])("%i min => %i min pause", (w, p) => {
+    expect(requiredPauseMinutes(w)).toBe(p);
   });
 });

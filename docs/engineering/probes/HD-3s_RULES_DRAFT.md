@@ -42,7 +42,7 @@ The database refuses the same values with a check constraint. The screen and the
 |---|---|---|
 | K1 | Rest ≥ 11 h against a pause of, for example, 4 h 30 | The rest rule applies only between **different** shifts, never between the two blocks of one split shift (founder (2)) |
 | K2 | «One full working day» against times the home sets freely | Hint, no block (founder (3) «Zählen, nicht erzwingen») |
-| K3 | A second shift inside the pause | It does not overlap a block, but its rest gap is < 11 h, so it is blocked with `rest`. In a hand assignment: a warning (FE-123 (7)) |
+| K3 | A second shift inside the pause | It lies inside the working day of the split shift, so it is blocked with `busy` (R-e), before the rest rule is checked. In a hand assignment: a warning (FE-123 (7)) |
 | K4 | Unia 2020 allows reducing rest to 9 h in homes; the founder rule is ≥ 11 h | 11 h stays a parameter of the home; `lca` decides the legal reading before real data |
 | K5 | Hand assignment against a rule | Warning plus audit (FE-123 (7)); absence and overlap stay blocked |
 | K6 | DST change | Each block is turned into instants on its own (as `at_zurich`/`at_zurich_end`). Blocks in the daytime are unaffected; a block in 02:00–03:00 follows the HD-3a reading |
@@ -52,3 +52,50 @@ The database refuses the same values with a check constraint. The screen and the
 1. Which shift models allow a split shift (founder, choice question per FE-124).
 2. Five working days per week for the daily target, or a field «Arbeitstage pro Woche» per home (founder).
 3. Pause as non-working time, and rest after block 2, under the ArG (`lca`, before real data).
+
+## 5. Researched working-time rules for homes and hospitals (addendum 2026-11-25 ca. 00:00, on the founder's request)
+
+**Status:** research only. These are public implementation aids, not legal checks:
+- [A] Basel-Stadt, «Merkblatt Arbeitszeiten für Heime», as of 12.06.2025 (Art. 16 Abs. 2 ArGV 2);
+- [B] SECO guidance ArGV 2 Art. 15, hospitals and clinics (2017, excerpt);
+- [C] BAG page on the BGAP (draft law, Botschaft 21.05.2025, business 25.054; status in parliament today UNKNOWN).
+
+NAVORA takes no legal reading from them. Each value becomes a **parameter of the home** with the mark «Arbeitszeitgesetz nicht abschliessend geprüft», and `lca` checks it before real data. Home care (Spitex) is not covered by these sources (UNKNOWN).
+
+| # | Rule (source) | In NAVORA | Proposal (PLANNED) |
+|---|---|---|---|
+| A1 | Daily rest ≥ 11 h (Art. 15a ArG) [A p. 6] | IMPLEMENTED in HD-3a (R-f, `min_rest_hours`) | unchanged. Reduction to 9 h when the 2-week average is ≥ 12 h (Art. 9 ArGV 2) is **not** built; the founder rule ≥ 11 h stays hard (K4) |
+| A2 | ≤ 6 working days in a row (Art. 21 ArGV 1) [A p. 6]; 7 only with ≤ 9 h per day, the weekly limit kept on the 2-week average and ≥ 83 h free right after (Art. 7 Abs. 2 ArGV 2) [A p. 4, B] | IMPLEMENTED (R-g, `max_consecutive_days` 6) | the 7-day model is not built; the home can raise the parameter only once all three conditions are checked (later package) |
+| A3 | Maximum weekly working time 50 h (Art. 9 ArG) [A p. 4, B]; BGAP draft 45 h [C] | not built (only the Pensum cap R-h) | **R-i**: minutes per ISO week ≤ `max_weekly_hours` of the home (default 50, «Beispielwert»), checked on top of R-h |
+| A4 | Individual working day **including pauses** within **14 h** (Art. 10 Abs. 3 ArG) [A p. 4] | not built | **R-j, important for the split shift:** start of block 1 to end of block 2 ≤ `max_day_span_hours` (default 14). The test home's 07:00–20:00 is 13 h, so it is allowed; 06:00–20:30 is refused |
+| A5 | Day and evening work 06:00–23:00 [A p. 4]; night 23:00–06:00, night work at most 9 h within 10 h including pauses (Art. 17a ArG) [A p. 5] | not built | **R-k**: a shift that touches 23:00–06:00 has ≤ 9 h of work within ≤ 10 h. The 10-h-in-12-h variant (Art. 10 Abs. 2 ArGV 2) is **not** built: [A] and [B] describe it differently (OPEN, `lca`) |
+| A6 | Pauses 15/30/60 min at > 5.5/7/9 h (Art. 15 ArG) [A p. 6]; a pause counts as working time if the person may not leave [A p. 7] | not built | **S6 hint**: a block over 5.5 h without a pause shows a hint. The split-shift pause is not working time (founder (1)); whether the person may leave during it is the home's responsibility (shown as a hint, OPEN `lca`) |
+| A7 | ≥ 12 free Sundays per year (Art. 12 Abs. 2 ArGV 2) [A p. 6, B] | not built | later package (HD-3b fairness/weekends) |
+| A8 | Normal weekly working time 40–42 h (BGAP draft) [C]; per house, e.g. the founder's examples 39.5 h and 42 h | IMPLEMENTED as `weekly_target_hours` per home (1–80) | unchanged |
+
+**Order with the new rules (deterministic):** R-b → R-c → R-d → R-e → **V/R-j (span)** → R-f → R-g → **R-k (night)** → R-h (Pensum) → **R-i (50 h)** → hints S5, S6. Shape checks come before limits on hours; the first rule that fails is the reason the screen shows.
+
+**Conflicts:**
+- **K7:** [A] and [B] contradict each other on the 10-h-in-12-h night variant. The variant is not built until `lca` reads the original.
+- **K8:** the Pensum cap R-h and the 50 h rule R-i both apply. The smaller limit binds, and the reason shown is the one of the rule that failed first in the order above.
+
+## 6. Status of the implementation (2026-11-25 ca. 00:15, founder live: «Setze alle definierten Regeln im Algorithmus um»)
+
+**IMPLEMENTED on the probe branch, not merged:** `src/features/home-plan/split.ts` `evaluateShift()` checks one or two blocks against every rule of §2 and §5. The order is:
+1. shape V1–V5, then the limits of the home (fail closed; `pensum_reference_missing` when no weekly target is entered);
+2. R-b → R-c → R-d → R-e → R-j → R-f → R-g → R-k → R-h → R-i;
+3. then the hints S5 and S6.
+
+The tests are `tests/unit/hd3s-split-shift.test.ts`, 50 tests, green locally.
+
+**Not yet in the plan proposal or the database (PLANNED, after HD-3a):**
+- `draft.ts` (HD-3a, other writer) calls these rules;
+- the shift type gets a second block (migration, `create or replace` from the function source files, TESTS 6);
+- the database repeats the check under the person lock;
+- the screen shows the reasons and hints.
+
+**OPEN:**
+- which shift models allow a split shift (until then only `any`);
+- 5 working days per week;
+- the ArG reading of the pause, rest after block 2, 50 h, 14 h and the night rule (`lca`);
+- the 7-day model and the 9-h rest reduction (not built, K4/A2).
