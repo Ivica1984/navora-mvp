@@ -71,6 +71,13 @@ jobs:
           total=0
           high=0
           for f in "${files[@]}"; do
+            # Fail closed: a SARIF file without any rule means the query suite did not run.
+            rules=$(jq '[.runs[] | ((.tool.driver.rules // []) + ([.tool.extensions[]?.rules[]?]))[]] | length' "$f")
+            echo "$f: ${rules} rules"
+            if [ "$rules" -eq 0 ]; then
+              echo "::error::$f lists no rules; the scan did not run its queries, so the gate cannot pass"
+              exit 1
+            fi
             # Severity is a property of the rule; a result points to its rule by ruleId (driver or extension rules).
             report=$(jq -r '
               .runs[] as $run
