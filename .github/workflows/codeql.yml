@@ -22,7 +22,10 @@ jobs:
     name: codeql (javascript-typescript)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # #1723, FE-120 (3): since the repository became private (2026-11-24 14:40 UTC) the CodeQL action reads the
+    # workflow run (get-a-workflow-run) and needs `actions: read`; without it the analysis ends as «configuration error».
     permissions:
+      actions: read
       contents: read
       security-events: write
     steps:
