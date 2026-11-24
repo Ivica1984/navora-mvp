@@ -130,8 +130,8 @@ select is(pg_temp.res('p', 1, 10) - 'reservation_id', '{"result": "ok", "attempt
   'the performer of the open draft reserves attempt 1');
 select is((select reserved_micro_chf from private.model_call_reservations where id = pg_temp.rid(10)), 33360::bigint,
   'the reserve is the upper estimate: 6000 input and 1024 output tokens at the fixture price = 33 360 micro-CHF');
-select is((pg_temp.res('p', 1, 10) ->> 'reservation_id')::uuid, pg_temp.rid(10),
-  'T-2: a repeat of the key (double tap) returns the same reservation');
+select is(pg_temp.res('p', 1, 10), '{"result": "duplicate", "attempt": 1, "settled": false}'::jsonb,
+  'T-2 and #1697 R1: a repeat of the key (double tap) answers duplicate of attempt 1 without the reservation id');
 select is(pg_temp.res('p', 1, 10) ->> 'result', 'duplicate', 'marked duplicate, so the app makes no second call');
 select is(pg_temp.calls(), 1, 'the double tap counted one call');
 select is(pg_temp.res('p', 1, 11) - 'reservation_id', '{"result": "ok", "attempt": 2}'::jsonb, 'a second key is the one retry');

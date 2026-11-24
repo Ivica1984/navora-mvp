@@ -46,8 +46,9 @@ begin
     if prior.report_id <> r.id then
       raise exception 'idempotency key already used for another report' using errcode = '22023';
     end if;
-    return jsonb_build_object('result', 'duplicate', 'reservation_id', prior.id, 'attempt', prior.attempt,
-                              'settled', prior.settled_at is not null);
+    -- #1697 R1: a repeat never returns the reservation id. Only the first answer (to the app server) carries it, so a
+    -- signed-in caller who repeats the browser's key cannot learn the id and settle the server's call first.
+    return jsonb_build_object('result', 'duplicate', 'attempt', prior.attempt, 'settled', prior.settled_at is not null);
   end if;
   -- One draft per report version plus one retry (ADR-227 point 2); a version is one visit_reports row.
   select count(*)::int into n from private.model_call_reservations m where m.report_id = r.id;
@@ -93,4 +94,4 @@ $function$;
 
 revoke all on function public.reserve_report_draft_call(p_report_id uuid, p_idempotency_key uuid, p_prompt_digest text) from public, anon, authenticated, service_role;
 grant execute on function public.reserve_report_draft_call(p_report_id uuid, p_idempotency_key uuid, p_prompt_digest text) to authenticated;
-comment on function public.reserve_report_draft_call(p_report_id uuid, p_idempotency_key uuid, p_prompt_digest text) is 'AI1, ADR-227 points 1, 2, 5: reserves one model call for the performer''s open report before the provider is called. Same closed-check as the gate; at most two attempts per report version; a repeat of the key returns the same reservation (no second call); global day and month caps under one lock; no reviewed price reading = refused; a prompt digest that is not the current agent version''s = refused (AUT-167). Result ok | duplicate | rejected (reason).';
+comment on function public.reserve_report_draft_call(p_report_id uuid, p_idempotency_key uuid, p_prompt_digest text) is 'AI1, ADR-227 points 1, 2, 5: reserves one model call for the performer''s open report before the provider is called. Same closed-check as the gate; at most two attempts per report version; a repeat of the key returns duplicate without the reservation id (no second call, #1697 R1); global day and month caps under one lock; no reviewed price reading = refused; a prompt digest that is not the current agent version''s = refused (AUT-167). Result ok | duplicate | rejected (reason).';

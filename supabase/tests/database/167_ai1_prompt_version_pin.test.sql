@@ -8,16 +8,17 @@
 --     refused (`prompt_version_mismatch`) and counts nothing; the right digest passes the check (and then meets the
 --     shipped empty price, `price_missing`, so nothing is counted either);
 --   * a new agent version without its registered row closes gate and reservation (`prompt_unregistered`);
---   * AUT-167 «a new version opens a fresh stop-rule window»: with the stop rule reached under version 1, registering
---     version 2 opens the model again because the corrections of version 1 are outside the new window; the old
---     version's digest is then refused.
--- The stop-rule row and the version-2 row are synthetic test fixtures (rolled back), not clinical values or a real prompt.
+--   * AUT-167 / AUT-194 (migration 0168): a new version opens a fresh window for its own corrections, but a stop an
+--     earlier version reached carries over (also across a later version without decided lines) until a «cleared»
+--     switch event of all organisations or this organisation at or after the end of that version's window; a version
+--     below the stop leaves the next one open; the old version's digest is then refused.
+-- The stop-rule rows, the switch events and the version-2/3 rows are synthetic test fixtures (rolled back), not clinical values or a real prompt.
 -- Seed users as in pgTAP 151: Testorganisation S …019 (simulation, Testteam Basel …1b9): pflegebs …9e6 (performer).
 -- All data synthetic; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(17);
+select plan(22);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' end)::uuid $$;
@@ -58,6 +59,7 @@ create function pg_temp.counted() returns int language sql as $$
 -- The app's digest of prompt version 1 (prompt-version.ts); a synthetic digest for a version-2 fixture.
 select set_config('t167.v1', '6385db265f21c2ac0ede72a630bd1ca93034661176bf0166b724fd560d74f3c9', true) is not null as v1;
 select set_config('t167.v2', repeat('ab', 32), true) is not null as v2;
+select set_config('t167.v3', repeat('cd', 32), true) is not null as v3;
 
 -- Fixtures (as the table owner): Org S, one synthetic case, an open draft (1) by 9e6 -------------------------------------------
 insert into public.cases (organization_id, id, name, first_name, last_name, region, status, urgency, assigned_team_id)
@@ -122,12 +124,44 @@ select is((pg_temp.gate(1) ->> 'reason') || ',' || (pg_temp.res(1, 30, current_s
 -- Its row, registered one second after the version-1 corrections (the transaction clock does not move inside a test).
 insert into private.ai_agent_prompt_versions (agent_key, version, prompt_digest, registered_at)
 values ('report_draft_model', '2', current_setting('t167.v2'), private.now() + interval '1 second');
+select is((pg_temp.gate(1) ->> 'reason') || ',' || (pg_temp.res(1, 31, current_setting('t167.v2')) ->> 'reason') || ','
+          || pg_temp.counted(), 'stop_rule,stop_rule,0',
+  'AUT-194: the stop version 1 reached carries over to version 2 (gate and reservation closed, nothing counted)');
+-- Synthetic fixture change: with a minimum of 5 decided lines the four version-1 lines are below the stop.
+delete from public.report_draft_stop_rules where agent_key = 'report_draft_model';
+insert into public.report_draft_stop_rules (agent_key, stop_share, stop_min_decided, stop_window_days, cra_ref)
+values ('report_draft_model', 50, 5, 30, 'pgTAP 167 synthetic fixture');
 select is(pg_temp.gate(1), '{"result": "ok", "open": true, "reason": null}'::jsonb,
-  'AUT-167: version 2 opens a fresh stop-rule window; the version-1 corrections no longer count');
-select is(pg_temp.res(1, 31, current_setting('t167.v1')) ->> 'reason', 'prompt_version_mismatch',
+  'AUT-194: version 1 below the stop, so version 2 is open');
+delete from public.report_draft_stop_rules where agent_key = 'report_draft_model';
+insert into public.report_draft_stop_rules (agent_key, stop_share, stop_min_decided, stop_window_days, cra_ref)
+values ('report_draft_model', 50, 4, 30, 'pgTAP 167 synthetic fixture');
+-- Version 3, two seconds later; version 2 has no decided line in its own window.
+insert into private.ai_agent_prompt_versions (agent_key, version, prompt_digest, registered_at)
+values ('report_draft_model', '3', current_setting('t167.v3'), private.now() + interval '2 seconds');
+update public.ai_agent_definitions set version = '3' where key = 'report_draft_model';
+select is(pg_temp.gate(1) ->> 'reason', 'stop_rule',
+  'AUT-194: the version-1 stop also carries over a later version without decided lines (no chain gap)');
+-- A «cleared» event before version 1's window ended is not a clearance of that stop.
+insert into private.ai_function_switch_events (function_key, organization_id, off, reason, note, created_at)
+values ('report_draft_model', '00000000-0000-4000-b000-000000000019', false, 'cleared', 'pgTAP 167 early clear', private.now());
+select is(pg_temp.gate(1) ->> 'reason', 'stop_rule',
+  'negative: a cleared event dated before the end of the stopped version''s window does not lift the stop');
+-- A «cleared» event for another organisation does not lift the stop of Org S.
+insert into private.ai_function_switch_events (function_key, organization_id, off, reason, note, created_at)
+select 'report_draft_model', o.id, false, 'cleared', 'pgTAP 167 other org', private.now() + interval '1 second'
+from public.organizations o where o.id <> '00000000-0000-4000-b000-000000000019' order by o.id limit 1;
+select is(pg_temp.gate(1) ->> 'reason', 'stop_rule', 'negative: a cleared event of another organisation does not lift it');
+-- Only a «cleared» switch event at or after that end (eng and cra, ADR-227 point 3) lifts it.
+insert into private.ai_function_switch_events (function_key, organization_id, off, reason, note, created_at)
+values ('report_draft_model', '00000000-0000-4000-b000-000000000019', false, 'cleared', 'pgTAP 167 clear',
+        private.now() + interval '1 second');
+select is(pg_temp.gate(1), '{"result": "ok", "open": true, "reason": null}'::jsonb,
+  'AUT-194: a cleared switch event at the end of the version-1 window lifts the carried stop');
+select is(pg_temp.res(1, 32, current_setting('t167.v1')) ->> 'reason', 'prompt_version_mismatch',
   'negative: after the bump the version-1 digest is refused');
-select is((pg_temp.res(1, 32, current_setting('t167.v2')) ->> 'reason') || ',' || pg_temp.counted(), 'price_missing,0',
-  'the version-2 digest passes the check; nothing is counted');
+select is((pg_temp.res(1, 33, current_setting('t167.v3')) ->> 'reason') || ',' || pg_temp.counted(), 'price_missing,0',
+  'the version-3 digest passes the check; nothing is counted');
 
 select * from finish();
 rollback;

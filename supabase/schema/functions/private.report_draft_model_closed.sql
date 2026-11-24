@@ -12,6 +12,7 @@ declare
   rule  public.report_draft_stop_rules%rowtype;
   st    record;
   since timestamptz;
+  ver   record;
 begin
   if p_uid is null or p_report.id is null or not private.is_org_member(p_report.organization_id)
      or not private.is_team_member(p_report.team_id) or private.access_ended(p_uid) then
@@ -41,9 +42,30 @@ begin
                                                   greatest(private.now() - make_interval(days => rule.stop_window_days), since),
                                                   private.now() + interval '1 second');
   if st.decided >= rule.stop_min_decided and st.share > rule.stop_share then return 'stop_rule'; end if;
+  -- AUT-194: a stop an earlier prompt version reached carries over to every later version. Each earlier version is
+  -- judged on its last window, which ends at the next version's registration; only a «cleared» switch event (eng and
+  -- cra) for all organisations or this organisation at or after that end lifts it. A version bump never lifts a stop.
+  for ver in
+    select x.from_at, x.to_at
+    from (select p.registered_at as from_at,
+                 lead(p.registered_at) over (order by p.registered_at, p.version) as to_at
+          from private.ai_agent_prompt_versions p
+          where p.agent_key = 'report_draft_model') x
+    where x.from_at < since and x.to_at is not null and x.to_at <= since
+  loop
+    select * into st from private.aig1_window_stats(p_report.organization_id, 'report_draft_model',
+                                                    greatest(ver.to_at - make_interval(days => rule.stop_window_days), ver.from_at),
+                                                    ver.to_at);
+    if st.decided >= rule.stop_min_decided and st.share > rule.stop_share
+       and not exists (select 1 from private.ai_function_switch_events e
+                       where e.function_key = 'report_draft_model' and not e.off and e.created_at >= ver.to_at
+                         and (e.organization_id is null or e.organization_id = p_report.organization_id)) then
+      return 'stop_rule';
+    end if;
+  end loop;
   return null;
 end;
 $function$;
 
 revoke all on function private.report_draft_model_closed(p_report visit_reports, p_uid uuid) from public, anon, authenticated, service_role;
-comment on function private.report_draft_model_closed(p_report visit_reports, p_uid uuid) is 'ADR-215, ADR-227: why the caller may not get a model report draft for this report now (null = open): not_team_member (incl. LEAVE1 access end), not_draft, not_performer, not_simulation_org, switched_off, ledger_missing, prompt_unregistered, no_threshold, stop_rule (window from the current prompt version''s registration, AUT-167). Shared by gate, record and reservation.';
+comment on function private.report_draft_model_closed(p_report visit_reports, p_uid uuid) is 'ADR-215, ADR-227: why the caller may not get a model report draft for this report now (null = open): not_team_member (incl. LEAVE1 access end), not_draft, not_performer, not_simulation_org, switched_off, ledger_missing, prompt_unregistered, no_threshold, stop_rule (window from the current prompt version''s registration, AUT-167; a stop an earlier version reached carries over until a cleared switch event, AUT-194). Shared by gate, record and reservation.';

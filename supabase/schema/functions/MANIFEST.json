@@ -567,7 +567,9 @@
         "ai_function_off",
         "stop_rule",
         "prompt_unregistered",
-        "ai_agent_prompt_versions"
+        "ai_agent_prompt_versions",
+        "AUT-194",
+        "e.created_at >= ver.to_at"
       ]
     },
     {

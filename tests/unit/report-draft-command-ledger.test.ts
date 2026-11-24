@@ -119,7 +119,7 @@ describe("proposeReportDraft with the ledger (ADR-216)", () => {
   });
 
   it("AI1 T-2: a repeat of the key (double tap) makes no provider call and no second draft", async () => {
-    reserve = { data: { result: "duplicate", reservation_id: RSV, attempt: 1, settled: false }, error: null };
+    reserve = { data: { result: "duplicate", attempt: 1, settled: false }, error: null };
     const r = await propose();
     expect(r).toEqual({ ok: false, error: "Der Entwurf wird schon erstellt. Bitte einen Moment warten." });
     expect(claude).not.toHaveBeenCalled();

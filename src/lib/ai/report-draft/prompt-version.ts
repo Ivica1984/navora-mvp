@@ -13,7 +13,8 @@ import { REPORT_DRAFT_SYSTEM_PROMPT } from "./model-provider";
  *   (append-only, 0167). The app sends its digest with every reservation; the database refuses the call when it is not
  *   the digest of the current version (`prompt_version_mismatch`, fail closed: rule draft, no provider call).
  * - A new version opens a fresh stop-rule window (AUT-152): the window starts no earlier than the version's
- *   registration, so correction shares of two prompts are never mixed.
+ *   registration, so correction shares of two prompts are never mixed. A stop an earlier version reached carries
+ *   over until a «cleared» switch event (AUT-194, migration 0168): a version bump never lifts a stop.
  *
  * Changing the prompt: change the text, add `"<n+1>": "<new digest>"` here, and in the same PR a migration that inserts
  * the new row and sets `ai_agent_definitions.version` to `<n+1>`. `tests/unit/ai1-prompt-version.test.ts` is red until

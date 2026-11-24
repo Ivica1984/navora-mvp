@@ -27,6 +27,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-24 / AI1 #1697, migration 0168] Gelernte Lektion: Eine PL/pgSQL-Variable darf nie wie ein Tabellenalias derselben Funktion heissen
+- **Was war das Fehlerbild?** Nach dem Einbau der AUT-194-Schleife in `private.report_draft_model_closed` brach jeder Aufruf mit `record "pv" is not assigned yet` ab (lokal, pgTAP 166 und 167); die Migration selbst lief fehlerfrei durch.
+- **Was war die technische Ursache?** Die neue Schleifenvariable hiess `pv`, und eine ältere Abfrage derselben Funktion nutzt `pv` als Alias für `private.ai_agent_prompt_versions` (`pv.registered_at`). PL/pgSQL löst `pv.registered_at` dann als Feld der noch leeren Variable auf, nicht als Spalte. Der Funktionstext wird erst beim Aufruf geprüft, nicht beim `create or replace`.
+- **Die verbindliche Lösungsregel ab jetzt:** Neue Variablen in einer bestehenden Funktion bekommen einen Namen, der in ihrem Text weder als Alias noch als Spalte vorkommt (vorher `grep` im kanonischen File). Jede geänderte Funktion wird vor dem Push mindestens einmal aufgerufen (pgTAP lokal, sonst CI `db`), nie nur angelegt.
+- **Abgesichert durch:** pgTAP 166 und 167 rufen gate und Reservierung auf (lokal rot mit `pv`, grün mit `ver`); CI `db`.
+
 ### [2026-11-24 / AI1 #1697, migration 0167] Gelernte Lektion: Eine neue Pflichtprüfung in einer Funktion braucht das Entfernen der alten Signatur
 - **Was war das Fehlerbild?** Kein Fehler aufgetreten; beim Bau von AUT-167 erkannt: `create or replace` mit einem zusätzlichen Parameter (`reserve_report_draft_call(uuid, uuid)` → `(uuid, uuid, text)`) legt in PostgreSQL eine **zweite Überladung** an. Die alte Form ohne Digest-Prüfung bliebe mit ihrem `grant execute … to authenticated` aufrufbar und würde die neue Prüfung umgehen.
 - **Was war die technische Ursache?** PostgreSQL identifiziert eine Funktion über Name und Argumenttypen; `create or replace` ersetzt nur dieselbe Signatur.
