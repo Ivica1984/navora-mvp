@@ -50,10 +50,11 @@ test("Pilot-Hypothesen render at 390 px with base and period on every row, no ho
   const rows = section.locator("li[data-measure]");
   const n = await rows.count();
   expect(n).toBeGreaterThan(0);
-  for (let i = 0; i < n; i++) {
-    await expect(rows.nth(i).getByTestId("hyp-base")).toContainText("Basis");
-    await expect(rows.nth(i).getByTestId("hyp-period")).not.toBeEmpty();
-  }
+  // AN2-F1: one auto-retrying assertion over all rows instead of 2 × n sequential round trips. The loop spent
+  // 13–23 s of the 30 s test budget on green runs and overran it on a slower runner (ci 45008816183). Same check:
+  // exactly one base containing "Basis" and one non-empty period per row, in row order.
+  await expect(rows.getByTestId("hyp-base")).toHaveText(Array.from({ length: n }, () => /Basis/));
+  await expect(rows.getByTestId("hyp-period")).toHaveText(Array.from({ length: n }, () => /\S/));
   // AN2-M7: the minimum-duration reason has its own row in every scope.
   await expect(org.locator('li[data-measure="not_billable_reason"][data-detail="below_minimum"]')).toContainText("unter der Mindestdauer");
   // AN2-M8a: moves before the CGR-35 mark was captured have their own row, never "nicht abwesend".
