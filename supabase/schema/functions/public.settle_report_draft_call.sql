@@ -40,9 +40,21 @@ begin
     return jsonb_build_object('result', 'duplicate', 'settled_micro_chf', m.settled_micro_chf);
   end if;
   select * into lim from private.ai_function_limits l where l.function_key = m.function_key;
+  -- #1697 R3: the call is sent with max_tokens = lim.max_output_tokens, so more output tokens cannot be true. Rejected; the
+  -- reservation stays open and charged at its reserve (fail closed for money).
+  if p_output_tokens > lim.max_output_tokens then
+    raise exception 'token counts invalid' using errcode = '22023';
+  end if;
   if p_input_tokens is null or lim.price_in_micro_chf_per_mtok is null or lim.price_out_micro_chf_per_mtok is null then
     settled := m.reserved_micro_chf;  -- nothing measured: the call stays charged at its reserve
     basis := 'reserve';
+  elsif p_input_tokens > 2 * lim.reserve_input_tokens then
+    -- #1697 R3/R4: the browser-side session reports the tokens, so one settle may not move the month cap without limit.
+    -- Engineering bound (2 x reserve input), not a measurement: above it the bound is charged, never less than an honest
+    -- call up to the bound, and cost_basis 'bounded' makes it visible. The reported count is kept as reported.
+    settled := ceil(((2 * lim.reserve_input_tokens)::numeric * lim.price_in_micro_chf_per_mtok
+                     + p_output_tokens::numeric * lim.price_out_micro_chf_per_mtok) / 1000000)::bigint;
+    basis := 'bounded';
   else
     settled := ceil((p_input_tokens::numeric * lim.price_in_micro_chf_per_mtok
                      + p_output_tokens::numeric * lim.price_out_micro_chf_per_mtok) / 1000000)::bigint;
@@ -62,4 +74,4 @@ $function$;
 
 revoke all on function public.settle_report_draft_call(p_reservation_id uuid, p_outcome text, p_input_tokens integer, p_output_tokens integer, p_latency_ms integer) from public, anon, authenticated, service_role;
 grant execute on function public.settle_report_draft_call(p_reservation_id uuid, p_outcome text, p_input_tokens integer, p_output_tokens integer, p_latency_ms integer) to authenticated;
-comment on function public.settle_report_draft_call(p_reservation_id uuid, p_outcome text, p_input_tokens integer, p_output_tokens integer, p_latency_ms integer) is 'AI1, ADR-227 point 1: records outcome, measured tokens and latency of one reserved model call (team level, no person column, no text) and replaces the reserve with the measured cost. Only the performer of the reserved report; once only; organisation from the reservation.';
+comment on function public.settle_report_draft_call(p_reservation_id uuid, p_outcome text, p_input_tokens integer, p_output_tokens integer, p_latency_ms integer) is 'AI1, ADR-227 point 1: records outcome, measured tokens and latency of one reserved model call (team level, no person column, no text) and replaces the reserve with the measured cost (above 2 x the reserve input tokens: the bound, cost_basis bounded; output above max_output_tokens: rejected). Only the performer of the reserved report; once only; organisation from the reservation.';

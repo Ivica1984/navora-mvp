@@ -123,6 +123,10 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
     const result = (settled.data as { result?: unknown } | null)?.result;
     if (settled.error || (result !== "ok" && result !== "duplicate")) {
       logEvent("warn", "report_draft.settle_failed", { op: "report_draft.model", code: settled.error ? "error" : String(result ?? "none") });
+    } else if ((settled.data as { cost_basis?: unknown } | null)?.cost_basis === "bounded") {
+      // #1697 R4 (0169): more input tokens than 2 x the reserve input were reported; the bound was charged. Visible for the
+      // ADR-227 evaluation run, which measures the real worst case.
+      logEvent("warn", "report_draft.settle_bounded", { op: "report_draft.model", code: "bounded", count: draft.usage?.inputTokens ?? 0 });
     }
   }
   let assist = draft.ok ? assistFromDraft(draft) : null;

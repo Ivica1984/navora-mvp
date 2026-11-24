@@ -46,7 +46,8 @@ const fakeClient = {
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/session", () => ({ requireUser: async () => ({ supabase: fakeClient }) }));
-vi.mock("@/lib/log", () => ({ logEvent: () => undefined, errorFields: () => ({}) }));
+const { logEvent } = vi.hoisted(() => ({ logEvent: vi.fn() }));
+vi.mock("@/lib/log", () => ({ logEvent: (...a: unknown[]) => logEvent(...a), errorFields: () => ({}) }));
 
 const claude = vi.fn(async () =>
   new Response(
@@ -178,6 +179,21 @@ describe("proposeReportDraft with the ledger (ADR-216)", () => {
     settle = { data: null, error: { message: "boom" } };
     const r = await propose();
     expect(r).toMatchObject({ ok: true, assist: { origin: "model" } });
+  });
+
+  it("AI1 #1697 R4: a bounded settle keeps the draft and logs settle_bounded with the count only (no text)", async () => {
+    settle = { data: { result: "ok", settled_micro_chf: 51360, cost_basis: "bounded" }, error: null };
+    logEvent.mockClear();
+    const r = await propose();
+    expect(r).toMatchObject({ ok: true, assist: { origin: "model" } });
+    expect(logEvent).toHaveBeenCalledWith("warn", "report_draft.settle_bounded", { op: "report_draft.model", code: "bounded", count: 812 });
+    expect(logEvent.mock.calls.some((c) => c[1] === "report_draft.settle_failed")).toBe(false);
+  });
+
+  it("AI1 #1697 R4: a measured settle logs no settle_bounded line", async () => {
+    logEvent.mockClear();
+    await propose();
+    expect(logEvent.mock.calls.some((c) => c[1] === "report_draft.settle_bounded")).toBe(false);
   });
 
   it("AI1: a request without a key is refused before anything", async () => {

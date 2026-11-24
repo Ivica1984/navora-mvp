@@ -22,7 +22,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(53);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' when 'a' then '00000000-0000-4000-a000-0000000009e7'
@@ -211,6 +211,24 @@ select is((select count(*)::int from information_schema.columns where table_sche
   'no person or text column in reservations and budget (team level only)');
 select throws_ok(format($$ select public.settle_report_draft_call(%L, 'ok', 5, null, 10) $$, pg_temp.rid(40)),
   '22023', null, 'token counts come in pairs');
+-- #1697 R3/R4 (0169): the session reports the tokens, so a settle is bounded by the function's own limits.
+-- Run as the performer: the output bound is checked after the membership check (a stranger only ever sees not_found).
+-- The id is read as the owner first (a helper reading private tables under the app role fails with 42501).
+select set_config('t166.r3', pg_temp.rid(40)::text, true);
+select pg_temp.act_as(pg_temp.u('p'));
+set local role authenticated;
+select throws_ok(format($$ select public.settle_report_draft_call(%L, 'ok', 100, 1025, 10) $$, current_setting('t166.r3')),
+  '22023', 'token counts invalid', 'R3: output above max_output_tokens (1024, the max_tokens sent) is rejected');
+reset role;
+select is(pg_temp.charged(), 2 * 33360::bigint + 6000, 'R3: the rejected settle moved no budget (the reserve stays)');
+select is((select settled_at from private.model_call_reservations where id = pg_temp.rid(40)), null,
+  'R3: the reservation stays open and charged at its reserve');
+select is(pg_temp.settle('p', pg_temp.rid(40), 'ok', 50000, 1024),
+          '{"result": "ok", "cost_basis": "bounded", "settled_micro_chf": 51360}'::jsonb,
+  'R4: input above 2 x reserve (12000) is charged at the bound: 12000 x 3 + 1024 x 15 = 51360 micro-CHF, bounded');
+select is(pg_temp.charged(), 33360::bigint + 6000 + 51360, 'R4: the budget moved by exactly bound cost minus reserve');
+select is((select input_tokens from private.model_call_reservations where id = pg_temp.rid(40)), 50000,
+  'R4: the reported count is kept as reported, so a bounded settle is visible');
 
 -- 7. LEAVE1: an ended access neither reserves nor settles ------------------------------------------------------------------
 insert into public.member_access_events (organization_id, user_id, kind, reason_code, actor_id)
