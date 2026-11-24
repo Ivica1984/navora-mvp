@@ -133,16 +133,21 @@ export async function proposeReportDraft(input: unknown): Promise<ProposeResult>
 
   // No model line on screen without its ledger row (ADR-216): record first; on any failure fall back to the rule
   // substitute with its own label. Only line index, sources, a keyed digest, length and model id are stored (ADR-215).
+  // #1697 R7 / AUT-197 (0170): the database records only for this call's reservation, settled ok, once; no reservation
+  // id (should not happen on the model path) means no ledger row, so the rule substitute is shown.
   if (draft.ok && draft.origin === "model" && assist && assist.lines.length > 0) {
-    const recorded = attachSuggestions(
-      assist,
-      await supabase.rpc("record_report_draft_proposal", {
-        p_report_id: report!.report_id,
-        p_model: draft.modelId ?? "",
-        p_lines: ledgerLines(assist),
-        p_idempotency_key: randomUUID(),
-      }),
-    );
+    const recorded = reservationId
+      ? attachSuggestions(
+          assist,
+          await supabase.rpc("record_report_draft_proposal", {
+            p_report_id: report!.report_id,
+            p_reservation_id: reservationId,
+            p_model: draft.modelId ?? "",
+            p_lines: ledgerLines(assist),
+            p_idempotency_key: randomUUID(),
+          }),
+        )
+      : null;
     if (recorded) assist = recorded;
     else {
       logEvent("warn", "report_draft.ledger_failed", { op: "report_draft.model", code: "ledger_missing" });

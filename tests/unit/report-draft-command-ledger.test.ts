@@ -99,6 +99,9 @@ describe("proposeReportDraft with the ledger (ADR-216)", () => {
     expect(claude).toHaveBeenCalledTimes(1);
     const rec = calls.find((c) => c.fn === "record_report_draft_proposal")!;
     expect(rec.args.p_report_id).toBe(REPORT);
+    // #1697 R7 / AUT-197 (0170): the proposal names the reservation of this call; the database checks it is settled ok.
+    expect(rec.args.p_reservation_id).toBe(RSV);
+    expect(Object.keys(rec.args).sort()).toEqual(["p_idempotency_key", "p_lines", "p_model", "p_report_id", "p_reservation_id"]);
     expect(rec.args.p_model).toBe("claude-test");
     expect(rec.args.p_lines).toEqual([{ text: "Klientin wach.", sources: ["s1"] }]);
   });
@@ -231,6 +234,16 @@ describe("proposeReportDraft with the ledger (ADR-216)", () => {
     expect(r).toMatchObject({ ok: true, modelBlocked: "ledger_missing", assist: { origin: "rule", label: "regelbasiert, keine KI" } });
     if (r.ok) expect(r.assist.lines.every((l) => l.suggestionId === undefined)).toBe(true);
   });
+
+  it.each(["reservation_missing", "reservation_not_ok", "reservation_used", "reservation_unversioned"])(
+    "#1697 R7 (0170): the database refuses the proposal (%s): the model draft is not shown; rule substitute",
+    async (reason) => {
+      record = { data: { result: "rejected", reason }, error: null };
+      const r = await propose();
+      expect(r).toMatchObject({ ok: true, modelBlocked: "ledger_missing", assist: { origin: "rule", label: "regelbasiert, keine KI" } });
+      if (r.ok) expect(r.assist.lines.every((l) => l.suggestionId === undefined)).toBe(true);
+    },
+  );
 });
 
 describe("decideReportDraftLine (one line per call, never bulk)", () => {

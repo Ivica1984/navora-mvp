@@ -21,6 +21,8 @@ declare
   charged bigint;
   reserve bigint;
   rid     uuid;
+  ver     text;
+  dg      text;
 begin
   if p_idempotency_key is null then
     raise exception 'idempotency key is required' using errcode = '22023';
@@ -35,10 +37,12 @@ begin
   end if;
   -- AI1 contract item 2 (AUT-167): the app's prompt must be the one registered for the current agent version, else no
   -- call (fail closed); a deploy whose prompt is not yet registered (or no longer current) gets the rule draft.
-  if p_prompt_digest is null or p_prompt_digest is distinct from (
-       select pv.prompt_digest from public.ai_agent_definitions d
-       join private.ai_agent_prompt_versions pv on pv.agent_key = d.key and pv.version = d.version
-       where d.key = 'report_draft_model') then
+  -- #1697 R7 / AUT-197: the version whose digest is checked here is stamped on the reservation; the ledger proposal takes
+  -- it from there (no second read of the current version, so a version change in between cannot relabel the lines).
+  select d.version, pv.prompt_digest into ver, dg from public.ai_agent_definitions d
+    join private.ai_agent_prompt_versions pv on pv.agent_key = d.key and pv.version = d.version
+    where d.key = 'report_draft_model';
+  if p_prompt_digest is null or p_prompt_digest is distinct from dg then
     return jsonb_build_object('result', 'rejected', 'reason', 'prompt_version_mismatch');
   end if;
   select * into prior from private.model_call_reservations m where m.idempotency_key = p_idempotency_key;
@@ -85,8 +89,8 @@ begin
   do update set calls = b.calls + 1, charged_micro_chf = b.charged_micro_chf + excluded.charged_micro_chf;
   -- The call counts from here, whatever happens next (invalid answer, timeout, lost settle): fail closed for money.
   insert into private.model_call_reservations (organization_id, team_id, function_key, report_id, attempt,
-                                               idempotency_key, zurich_day, reserved_micro_chf)
-  values (r.organization_id, r.team_id, 'report_draft_model', r.id, n + 1, p_idempotency_key, today, reserve)
+                                               idempotency_key, zurich_day, reserved_micro_chf, agent_version)
+  values (r.organization_id, r.team_id, 'report_draft_model', r.id, n + 1, p_idempotency_key, today, reserve, ver)
   returning id into rid;
   return jsonb_build_object('result', 'ok', 'reservation_id', rid, 'attempt', n + 1);
 end;

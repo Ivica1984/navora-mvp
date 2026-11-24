@@ -44,16 +44,19 @@ create function pg_temp.gate(p_report int) returns jsonb language sql as $$
 create function pg_temp.res(p_report int, p_key int, p_digest text) returns jsonb language sql as $$
   select pg_temp.cmd('p', format('select public.reserve_report_draft_call(%L, %L, %L)', pg_temp.id(p_report), pg_temp.k(p_key),
                                  p_digest)) $$;
+-- 0170 (#1697 R7): a proposal names its call's reservation; key n uses the fixture reservation id(900 + n) (below).
 create function pg_temp.rec(p_report int, p_lines jsonb, p_key int) returns jsonb language sql as $$
-  select pg_temp.cmd('p', format('select public.record_report_draft_proposal(%L, %L, %L::jsonb, %L)',
-    pg_temp.id(p_report), 'claude-test-model', p_lines, pg_temp.k(p_key))) $$;
+  select pg_temp.cmd('p', format('select public.record_report_draft_proposal(%L, %L, %L, %L::jsonb, %L)',
+    pg_temp.id(p_report), pg_temp.id(900 + p_key), 'claude-test-model', p_lines, pg_temp.k(p_key))) $$;
 create function pg_temp.dec(p_sid uuid, p_key int) returns jsonb language sql as $$
   select pg_temp.cmd('p', format('select public.decide_report_draft_line(%L, %L, %L, %L)', p_sid, 'rejected', null, pg_temp.k(p_key))) $$;
 create function pg_temp.sid(p_key int, p_line int) returns uuid language sql as $$
   select s.id from public.ai_suggestions s
   where s.proposal_id = pg_temp.k(p_key) and (s.proposed_value ->> 'line_index')::int = p_line $$;
+-- The fixture reservation id(910) (0170, inserted below as the table owner, not by the reservation path) is not counted.
 create function pg_temp.counted() returns int language sql as $$
-  select (select count(*)::int from private.model_call_reservations where function_key = 'report_draft_model')
+  select (select count(*)::int from private.model_call_reservations where function_key = 'report_draft_model'
+            and id <> pg_temp.id(910))
        + (select coalesce(sum(calls), 0)::int from private.model_call_budget where function_key = 'report_draft_model') $$;
 
 -- The app's digest of prompt version 1 (prompt-version.ts); a synthetic digest for a version-2 fixture.
@@ -110,6 +113,14 @@ select is(pg_temp.res(1, 3, current_setting('t167.v1')) ->> 'reason', 'price_mis
 select is(pg_temp.counted(), 0, 'no refused reservation counted a call or wrote a reservation row');
 
 -- 3. Stop rule under version 1, then a new version opens a fresh window (AUT-167) -------------------------------------------
+-- 0170 (#1697 R7): the version-1 proposal (key 10) needs a reserved call settled ok, stamped with version 1. Synthetic
+-- fixture row as the table owner (the shipped empty price admits no reservation through the path; that is pgTAP 170).
+insert into private.model_call_reservations (id, organization_id, team_id, function_key, report_id, attempt, idempotency_key,
+                                             zurich_day, reserved_micro_chf, settled_at, outcome, settled_micro_chf,
+                                             cost_basis, agent_version)
+values (pg_temp.id(910), '00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', 'report_draft_model',
+        pg_temp.id(1), 1, pg_temp.k(810), (private.at_zurich(private.now()))::date, 0, private.now(), 'ok', 0,
+        'measured_tokens', '1');
 select is(pg_temp.rec(1, '[{"text": "A.", "sources": ["s1"]}, {"text": "B.", "sources": ["s2"]},
                            {"text": "C.", "sources": ["s3"]}, {"text": "D.", "sources": ["s4"]}]', 10) ->> 'result', 'ok',
   'version 1: a proposal with four lines is recorded');

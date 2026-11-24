@@ -573,6 +573,21 @@
       ]
     },
     {
+      "name": "public.record_report_draft_proposal",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "report_draft_model_closed",
+        "for update",
+        "reservation_missing",
+        "reservation_not_ok",
+        "reservation_used",
+        "m.agent_version",
+        "begin_command"
+      ]
+    },
+    {
       "name": "public.reserve_report_draft_call",
       "required": [
         "SECURITY DEFINER",
@@ -585,7 +600,8 @@
         "price_missing",
         "budget_day",
         "budget_month",
-        "prompt_version_mismatch"
+        "prompt_version_mismatch",
+        "agent_version"
       ]
     },
     {

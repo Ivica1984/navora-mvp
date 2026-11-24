@@ -3784,7 +3784,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
 "record_report_draft_proposal":
-{ Args: { "p_idempotency_key": string,"p_lines": Json,"p_model": string,"p_report_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_lines": Json,"p_model": string,"p_report_id": string,"p_reservation_id": string }; Returns: Json
                            },
 "record_report_input":
 { Args: { "p_idempotency_key": string,"p_lines": Json,"p_origin": string,"p_report_id": string,"p_segments": Json }; Returns: Json

@@ -158,8 +158,8 @@ insert into private.ai_function_switch_events (function_key, organization_id, of
 values ('report_draft_model', '00000000-0000-4000-b000-000000000019', true, 'manual', 'pgTAP 166 fixture');
 select is(pg_temp.res('p', 4, 30) ->> 'reason', 'switched_off', 'switch on for the organisation: the reservation is refused');
 select is(pg_temp.gate('p', 4) ->> 'reason', 'switched_off', 'and the gate closes on the same request (no restart)');
-select is(pg_temp.cmd('p', format('select public.record_report_draft_proposal(%L, %L, %L::jsonb, %L)', pg_temp.id(4),
-            'claude-test-model', '[{"text": "Synthetische Zeile.", "sources": ["s1"]}]', pg_temp.k(31))) ->> 'reason',
+select is(pg_temp.cmd('p', format('select public.record_report_draft_proposal(%L, %L, %L, %L::jsonb, %L)', pg_temp.id(4),
+            pg_temp.id(999), 'claude-test-model', '[{"text": "Synthetische Zeile.", "sources": ["s1"]}]', pg_temp.k(31))) ->> 'reason',
           'switched_off', 'and the ledger record command refuses too');
 insert into private.ai_function_switch_events (function_key, organization_id, off, reason, note)
 values ('report_draft_model', '00000000-0000-4000-b000-000000000019', false, 'cleared', 'pgTAP 166 fixture');
