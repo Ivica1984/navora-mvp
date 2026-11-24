@@ -150,6 +150,30 @@ Der Founder hat HD-3a in Issue #1712 beschrieben. Das ist der Inhalt von **HD-3a
 
 **Nicht in HD-3a (Folgepakete, Reihenfolge nach FE-125 (3)):** **HD-3s** geteilter Dienst; **HD-3c** Wochenenden pro Monat, Ausgleichstage, Fairness, HiGHS (ADR-224 Punkt 3b); **HD-AI** Regeleingabe in eigenen Worten durch ein Sprachmodell (nach AI1 Schritt (b), nur synthetische Daten, D-35 A, Heimleitung bestätigt). **Widerspruch Reihenfolge (gemeldet):** FE-122 (16:46) nennt INTAKE-E2E als nächstes Paket nach HD-3a; FE-125 (ca. 19:20, neuer) nennt HD-3c «direkt nach HD-3a». Nach README-Regel 10 gilt bis zur Founder-Antwort der neuere Entscheid: **HD-3c direkt nach HD-3a**. Die Reihenfolge danach (INTAKE-E2E, HD-3s) ist OPEN und geht als Auswahlfrage (FE-124) an den Founder: (A) HD-3c → HD-3s → INTAKE-E2E (Dienstplanung zuerst ganz fertig; Zuweiser-Flow später); (B) INTAKE-E2E → HD-3c → HD-3s (FE-122 wörtlich; 80-%-Ziel später messbar); (C, **Empfehlung PO**) HD-3c → INTAKE-E2E → HD-3s (80-%-Ziel zuerst messbar, dann der Kernweg Zuweisung → Team; der geteilte Dienst ist klein und betrifft nur Heime, die ihn nutzen). Beide Folgepakete erhalten vor Start einen Brief nach `_TEMPLATE.md`; kein Paket startet vor der HD-3a-Abnahme (README-Regel 12).
 
+### 5c. Zielarchitektur der automatisierten Dienstplanung (FE-126; PO-Einordnung 2026-11-24 20:39)
+
+Quelle: Founder-Freigabe in der `eng`-Live-Sitzung ca. 19:40, Wiedergabe durch `eng` auf [#1712 7141895771](https://github.com/Ivica1984/navora-mvp/issues/1712#issuecomment-7141895771) (vom PO nicht selbst gehört). Leitsatz: **Das Rechenwerk plant, die Heimleitung entscheidet, die KI hilft.** Diese Einordnung ändert den HD-3a-Vertrag (§5b) **nicht** und fügt ihm keine Merge-Bedingung hinzu (FE-089 (3)).
+
+**Paketfolge (ersetzt die Paketnamen aus FE-125 (3); Schätzungen in stündlichen `eng`-Läufen, vom Founder):**
+
+| Paket | Inhalt | Schätzung | Status |
+|---|---|---|---|
+| HD-3a (#1729) | Greedy, Pflichtregeln, Wunschtage und Nicht-Tage, Übernehmen, Bildschirm, Staging-Smoke (Vertrag §5b) | noch 4–6 | aktiv; Greedy IMPLEMENTED auf dem Branch (Teil 2), Übernehmen PLANNED (Teil 3) |
+| HD-3b | HiGHS (MIT, WebAssembly im Server, kein neuer Dienst; Zeitgrenze 10 s als Vorschlag; Greedy als Rückfall, offen gemeldet), Wochenenden pro Monat, Ausgleichstage, Fairness, Stabilität, Kennzahlen (Abdeckung, Wunscherfüllung, Fairness), gespeicherte Planungsläufe | 5–8 | PLANNED; Laufzeit HiGHS UNKNOWN bis gemessen (erster Schritt) |
+| HD-3s | geteilter Dienst (zwei Blöcke) | 1–2 | PLANNED |
+| HD-3c | KI: Text in eigenen Worten → strukturierte Regeln (Heimleitung bestätigt); Erklärungen nur aus Daten des Rechenwerks; nach AI1 Schritt (b) | 3–5 | PLANNED; angeschlossenes Modell nur mit synthetischen Daten (D-35 A), `lca` vor echten Daten |
+| HD-3d | Ausfall-Umplanung: Rechenwerk rechnet 2–3 Optionen, KI ordnet und erklärt | 3–5 | PLANNED |
+
+**Umbenennung (kein Inhaltswechsel):** «HD-3c» aus FE-125 (Wochenenden, Ausgleich, Fairness, HiGHS) heisst jetzt **HD-3b**; «HD-AI» aus FE-125 heisst jetzt **HD-3c**. Ältere Journal- und Brieftexte bleiben unverändert; massgeblich ist diese Tabelle.
+
+**Feste Grundsätze (in Kraft, Simulation):** Pflichtregeln sind harte Nebenbedingungen, Regelverstösse immer 0; eine Lücke ist nie ein Regelbruch und nie «besetzt» (Schlupfvariable «fehlender Platz»); Wünsche, Fairness und Stabilität nur als Strafpunkte; drei Prüfungen (Rechenwerk, unabhängiger Prüfer `verifyDraft`, Datenbank beim Übernehmen unter Personensperre); die KI plant nie selbst. Kennzeichnung je Funktion: Greedy und HiGHS = **feste Regel**; HD-3c/HD-3d-Texte = **angeschlossenes Modell** (erst nach AI1 (b)), bis dahin Testersatz.
+
+**Messung:** Automatisierungsgrad = vorgeschlagene Dienste, die unverändert übernommen werden ÷ alle besetzten Dienste des Monats, Ziel ≥ 80 % (entspricht M1 aus §5b); dazu Abdeckung, Wunscherfüllung, Fairness, Rechenzeit (< 2 s Greedy, < 10 s Optimierung), Planungszeit der Heimleitung (Minuten von Menschen UNKNOWN bis gemessen). In CI ein festes 60-Personen-Testheim als Qualitäts-Regressionstest; alle Werte «Simulation, synthetische Daten».
+
+**OPEN:** Startgewichte der Strafpunkte (Founder); Laufzeit HiGHS (UNKNOWN); Lesart des Arbeitsgesetzes vor echten Daten (`lca`); Stelle von **INTAKE-E2E** (FE-122) in dieser Folge — die Founder-Tabelle nennt nur HD-Pakete; Auswahlfrage an den Founder (FE-124), PO-Empfehlung: HD-3a → HD-3b → INTAKE-E2E → HD-3s → HD-3c → HD-3d. Bis zur Antwort gilt nach README-Regel 10 die neueste Founder-Folge (FE-126): nach HD-3a kommt HD-3b.
+
+**Nicht HD-3a-Bedingung (benannte Folgepunkte):** gespeicherter Planungslauf je Übernahme (AUT-201) und M1b/Stichtag (AUT-202) gehören nach der Founder-Tabelle zu HD-3b; `eng` darf eine Lauf-Kennung (`apply_id`) schon in HD-3a schreiben, wie in §5b für M1 nötig (WIE bei `eng`).
+
 ## 6. Gemeinsames End-to-End-Abnahmekriterium auf Staging
 
 Es gibt drei ausdrücklich benannte Abnahmen, jede auf einem benannten Commit mit `ci` grün, `ci-repeat` 10/10 (`db`, `e2e`) und `staging-smoke` grün auf dem Merge-Commit. Danach schickt der PO eine Meldung mit App-Commit, Migrationsstand und Lauf-ID. Der Founder bedient den Weg selbst, bevor «geliefert» gilt.
