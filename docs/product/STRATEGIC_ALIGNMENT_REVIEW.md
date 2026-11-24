@@ -8,6 +8,95 @@
 
 ---
 
+## 2026-11-24 12:01 CET · csa · Founder confirmation: scope rule for `/heim`; STR-53 approved
+
+**Founder confirmation in the `csa` session (about 12:00 CET; the PO did not hear it):**
+1. Future weekly runs treat the B2B module (`/heim`) as outside FE-039 from the start. Confirmation there by the Heimleitung / Stationsleitung is by design and triggers no drift finding.
+2. FE-039 applies strictly to the autonomous care teams (`/team`, `/field`).
+3. Approved: Blueprint §1 and `PRODUCT_BLOCKS.md` are updated with the STR-53 wording, through the PO.
+4. O-5 stays open as an option for Phase B; for now `/heim` follows the standard institutional hierarchy.
+
+**`csa` consequence:**
+- The rule is recorded as a standing review rule at the top of `STRATEGY.md`.
+- STR-53 changes from «proposal» to «founder-approved, for the PO to carry out». The PO writes the FE row and the two text changes; `csa` does not edit those files.
+- I renew my FE-079 sign-off once Blueprint §1 carries the wording.
+- My 11:56 reading of O-5 is confirmed as written.
+
+---
+
+## 2026-11-24 11:56 CET · csa · Correction: STR-47 closed «by design» (founder clarification)
+
+**Founder statement in the `csa` session, 2026-11-24 about 11:55 CET (not heard by the PO; for the PO to record).** Summary in my words: NAVORA has two models. (1) The B2B institution module (`/heim`, HD-3) is a standalone product sold to nursing homes and hospitals for their internal shift operations; there, operational and legal authority lies with the Heimleitung / Stationsleitung, so confirmation by the Heimleitung is correct and intentional. (2) The self-organised team model (FE-039) applies to autonomous caregiver teams (`/team`, `/field`) that replace the traditional Spitex model; there the team confirms. **Decision (founder):** HD-3 proceeds as planned with Heimleitung confirmation; STR-47 is closed as «by design».
+
+**What changes in my section of 11:33 above (that section is kept as written; this one wins):**
+- **STR-47: closed, by design.** My reading treated the home's own staff as falling under FE-039. The founder rejects that reading. PKG-STR-47 is withdrawn, and so are the proposals «confirming party per station» and «staff self-entry». HD-3 needs no change from `csa`. The supplier-drift watch item (§2 (4)) no longer covers HD-3 confirmation. It keeps only the measure BM-10 (GM-1 stays larger than GM-2) and BK-g before M9 (STR-49).
+- **What remains (documentation only, no product change):** two texts still state the invariant without this scope. They are Blueprint §1 («keine zentrale Disposition … Die KI schlägt vor, das Team entscheidet», FE-039) and `PRODUCT_BLOCKS.md` («… in jeder Konstellation (auch GM-2, Pflegeheim)»). Proposal for the PO (**STR-53, low**): record the founder's scope in `FOUNDER_DECISIONS.md`, then align both texts, for example: «FE-039 gilt für selbstorganisierte Pflegeteams (GM-1, `/team`, `/field`); im B2B-Institutionsmodul (GM-2, `/heim`) bestätigt die Heim- oder Stationsleitung.» This sentence is in my field (§1), so the change is a reason to renew my FE-079 sign-off once the Blueprint carries it.
+- **O-5 (FD-25):** the clarification settles the B2B module: there, the home plans its own staff under its own authority. Whether a Phase B home may also run self-organised ward teams (KON-2) is a separate open question, and I do not treat it as decided. The PO records the founder's scope.
+- **Legal authority of the Heimleitung:** I record this as the founder's statement. No `lca` reading of it exists in my sources. Question 20 in `STRATEGY.md` §6 is withdrawn, because it served only PKG-STR-47.
+- **Not affected:** STR-48 to STR-52 stand unchanged.
+
+---
+
+## 2026-11-24 11:33 CET · csa · Week 6: the nursing-home register, the invariant, BK left open, first real model
+
+**Read (evidence):** `recovery/main` at `7c1fdc59` (Blueprint 3.2.84, Handbook V2.2); `CLAUDE.md`; `docs/agents/README.md`; `FOUNDER_DECISIONS.md` v69 (new since my last run: FE-089 to FE-113); Blueprint §1, §2, §8, §10, Annex A and the version table 3.2.42 to 3.2.84; `NEXT_CAPABILITY.md` *Active now* 2026-11-24 00:39; `ABNAHMEAKTE.md` §2; `briefs/HD.md` (Fassung 3), `briefs/AI1.md`; `docs/architecture/PLATFORM_GRUNDRISS.md`; `PRODUCT_BLOCKS.md` invariant line; `BK_ROADMAP.md`; `ROADMAP.md` entries 18.11. to 24.11.; journals of the week (PO, `aia` 2026-11-24); `OPEN_DECISIONS.md` (new rows LRN-1, EVAL-0); `decisions/INDEX.md` (no package entered `awaiting-approval` this week); issue #1393 (PO answer 2026-11-17 21:39); open PRs (#1697 AI1 draft). Code read for facts: `supabase/schema/functions/public.institution_assign_staff.sql`, migrations 0151, 0156, 0163 to 0165, `tests/e2e/handgrip-baseline.json`.
+
+**What changed since 2026-11-17:** BK-c, BK-e and BK-f accepted for the simulation (18.11., 20.11., 20.11.); STAB1 accepted (20.11.); **block switch to HEIM-DP** (FE-109, 20.11.), HD-1 and HD-2 accepted (21.11.), PERF1 accepted (22.11.), S-1 merged; AI1 (first connected model, report draft) active as #1697 draft. Founder: FE-094 (Anthropic API direct, synthetic data, staging only), FE-095 to FE-098, FE-105 (event-driven review), FE-108 (platform Grundriss, register by register), FE-109/FE-110 (HEIM-DP now), FE-111 («Stabil zuerst»: UXR-269 → PERF1 → AI1 → next home package), FE-112, FE-113. No package entered or left `awaiting-approval: owner`; every package at that status is frozen and gets no note from me (`DECISION_PACKAGES.md` §Frozen).
+
+Dimensions: (1) self-organised teams; (2) AI-assisted operations; (3) planning; (4) documentation; (5) billing preparation; (6) interRAI-supported care planning and governance (set aside by FE-085 (1)); (7) independence from hierarchical operating models.
+
+### 1 Strategic fit notes (founder decisions of the week; no new owner package exists)
+
+| STR | Decision | Fit | Lock-in risk | Challenge | Proposal (equal safety) |
+|---|---|---|---|---|---|
+| **STR-47** (**high**, drift against a recorded invariant) | **FE-109 (B)(2) and `briefs/HD.md` §5** (HD-3 PROPOSED): every AI planning step in the home ends with «Heimleitung bestätigt»; HD-1 (IMPLEMENTED) lets only the home's roles `lead` and `planner` assign staff (`institution_assign_staff`: `is_institution_member(…, array['lead','planner'])`); staff are records without their own view | Strong for (3) and for the B2B revenue stream (FE-079 (3)); (2) good: optimiser first, model only for language (honest split). Weak for (1) and (7) **inside the home**: the home's own care staff neither confirm, nor wish, nor swap; the autonomy claim in HD §9 covers only external teams | **High.** HD-3 would be the first AI planning function in a nursing home, and its confirmation path becomes the default product shape for the Phase B partner. That answers O-5 (FD-25, open) by code, and it narrows the product invariant without a recorded decision: Blueprint §1 Kernsatz (line «keine zentrale Disposition und kein ‹für das Team zuteilen› (Produkt-Invariante, FE-039). Die KI schlägt vor, das Team entscheidet.») and `PRODUCT_BLOCKS.md` («bestätigt immer das Team, dessen Mitglieder geplant werden … auch GM-2, Pflegeheim»). Neither HD.md nor FE-109 mentions FE-039 | Added: one confirmation role (Heimleitung) per step and a re-typing step (Heimleitung types staff wishes, «Maria keine Nächte»). Patient-care benefit of Heimleitung-only confirmation: **none shown** in HD.md; whether a home's legally responsible function must hold the plan is UNKNOWN (`STRATEGY.md` §6 question 13; `lca`) | Before HD-3 leaves PROPOSED: (a) the PO records how FE-109 (B)(2) relates to the FE-039 invariant (proposed owner package **PKG-STR-47**, issue below); (b) until answered, HD-3 builds the confirming party as a **per-station setting** (default «Heimleitung», option «Stationsteam») with the same optimiser, the same hard rules, the same AIG1 ledger and the same audit; (c) staff enter their own wishes and absences in a minimal staff view, the Heimleitung sees them (removes the re-typing step; no reason for an absence is asked, as in HD §5 row 2). Equal safety: no rule, check or record is removed; only who presses «übernehmen» changes. Benchmark below: self-rostering raises equity and overtime risks, so the optimiser's fairness rules stay mandatory in both settings |
+| **STR-50** (fit; low) | **FE-094, FE-111 (3), AI1** (#1697 draft): Claude through the Anthropic API, synthetic data, staging only, cost cap, kill switch, evaluation n = 60 | Serves (2) and (4) directly; closes my STR-45 worry (AI without a date): the first model function is built and gated, acceptance waits on the founder's Render values. FE-094 keeps D-35 rule A for real persons | Low: one prompt, one function, staging only; the CH/EU endpoint (FE-085 (A)) stays the Phase B direction, so no provider lock-in for real data | None: no step added for the carer; the signature was already there | Use AI1's acceptance as the **first H-4 measurement**: the AUT-168 figures (median minutes visit end → signed report, typed characters, rule arm against model arm, per team) go into the acceptance record. Add the role `pflege_nach_schicht` to the handgrip ratchet in the same package: today `tests/e2e/handgrip-baseline.json` holds only `auftraggeber: 8` and `team: 2` (IMPLEMENTED), although BK-e2 is accepted and the note says it «joins with BK-e2» |
+| (fit, no finding) | **FE-108, FE-110** (one platform, register by register; founder walks each register on staging; honest status) | Good for every dimension: it forbids a second platform for homes and keeps «gedeckt» honest (HD §3) | Low | None; the walk is the founder's own acceptance, not an added approval in the product | – |
+
+### 2 Drift and course check (founder statement 6 on #1393: per block and milestone, target / state / deviation / who acts)
+
+| Item | Target (source) | State on `recovery/main` 7c1fdc59 | Deviation | Who acts |
+|---|---|---|---|---|
+| Block BK | universal run-through incl. BK-d (capture) and BK-g (scenario matrix) on a named commit (Blueprint §8 step 1, §10 M9) | BK-a, b, c, e, f accepted for the simulation; **BK-d and BK-g not built; block not accepted**; Blueprint §8 row still says «aktiv», while *Active now* names HEIM-DP | **STR-49** | `po` |
+| Block HEIM-DP | three acceptances (HD §6): HD-1 partial, register «feste Regeln», register «KI-gestützt» | HD-1, HD-2 accepted; register acceptance (2) waits for the founder's staging walk; HD-3 PROPOSED | on course; HD-3 shape: STR-47 | `po`, founder |
+| AI path | first connected model before M4 (my STR-45 proposal) | AI1 active (#1697 draft, `aia` review 86: conditions AUT-197 open); no model called in any tested path | on course if AI1 is accepted by 2026-12-18 | `eng`, `aia`, founder (Render values) |
+| M4 2026-12-18 | AI Foundation I (`NEXT_CAPABILITY.md` milestone table) | AI1 is the only AI item in flight | on course for one function | `po` |
+| M9 2027-03-12 | ambulant flow, home flow and the BK order flow on one named commit on staging, all stop cases (Blueprint §10) | about 15 weeks left; open: BK-d, BK-g, HEIM-DP (2) and (3), B11 | **STR-52** | `po` |
+| Phase B contract (D-42) | operating model written in before it returns to the owner (STR-28) | `inputs-requested`; O-5 open | STR-47 makes it urgent: the code will answer O-5 first | `po`, founder |
+
+1. **STR-49 (medium: block rule clarity and M9).** FE-109 moved the active block from BK to HEIM-DP after BK-f; BK-d («Auftrag aus Text oder Diktat», `BK_ROADMAP.md` row 70) and BK-g («Alle Schritte zusammen auf Staging», row 60) have no status, no date and no re-entry point in *Active now*, `BK_ROADMAP.md` or Blueprint §8, whose BK row still reads «aktiv seit 13.11.» and whose table header says «Status am 2026-11-13». Two documents now name two active blocks (README rule 12). H-3 («offene Schicht ohne Telefonkette gedeckt», Annex A §6) needs the BK-g scenario matrix as evidence, so H-3 has no measurement path. **Proposal (Blueprint §8, PO's file):** BK row «unterbrochen seit 20.11. (FE-109); BK-a, b, c, e, f für die Simulation abgenommen; BK-d und BK-g offen; Wiederaufnahme: nach der HEIM-DP-Registerabnahme (2), spätestens so, dass BK-g vor M9 auf Staging liegt»; HD-2 already proves part of the BK path from the home side, so BK-g can reuse its smoke paths. This is a recorded status, not a new decision.
+2. **STR-52 (medium: M9 load).** In about 15 weeks the queue holds AI1, HD-3 (two parts), BK-d, BK-g, the ambulant end-to-end flow and B11, one package at a time (FE-070, FE-111). Recent packages took from under one day to about two days from active to accepted (BK-e about 2 days, HD-1, HD-2 and PERF1 each under about one day; `ABNAHMEAKTE.md`, *Active now* history), so the count fits if no package grows. The risk is HD-3: HD §5a makes it acceptable only on measured work against the manual case, with values `aia` and `eng` still have to define (#1627). **Proposal:** the PO names, in `BK_ROADMAP.md` or *Active now*, the latest start date of BK-g that still reaches M9 (`csa` estimate: start by 2027-02-15 at the latest, leaving three weeks for the run-through and stop cases), and keeps HD-3b (model part) behind BK-g if time runs short; HD-3a (optimiser, no model) already carries most of the planning relief.
+3. **No hierarchy step added for external teams.** HD-2 keeps the broadcast and the team's own decision; «Team hat übernommen» is not «besetzt» until the person confirms (HD §3). R-11, R-12 and FE-078 hold in code: the invoice draft is the team's to the client (migration 0156), no money path.
+4. **Supplier drift (dimension 7), watch item.** Since the block switch on 20.11. the accepted packages are HD-1 and HD-2 (the home's own planning and its external order) and PERF1 (stability). That is the founder's order (FE-109, FE-111) and the B2B stream is a decided revenue line, so it is not drift by itself. It becomes drift if HD-3 locks in Heimleitung-only confirmation (STR-47) or if BK-g slips past M9 (STR-49): then Phase B would test planning software for a hierarchical home, not the team model. BM-10 (GM-1 stays larger than GM-2) is the measure.
+
+### 3 Sign-off check of my field (Blueprint §1, §2, Annex A), 3.2.84
+
+My field has not changed since 3.2.42 (diff 3.2.42 → 3.2.84 touches only the header, §8, §13 and §14). My renewed sign-off of 2026-11-17 on #1279 stands; STR-43 was transferred in 3.2.42 and is closed. No new sign-off is due (renewal only when a later version changes my field). Two new findings in my field, to be fixed by the PO in a later version; they are not a renewal:
+
+- **STR-48 (medium: status labels in Annex A lag the code).** Annex A §4.3 row «Bericht schreiben»: «Diktat und Entwurf PLANNED (B6)» → rule-based draft with source per line and signature IMPLEMENTED and accepted for the simulation 20.11. (BK-e, migrations 0151, 0152); model draft PLANNED (AI1). Row «Rechnung erstellen»: «Rechnung PLANNED (B8)» → team invoice draft from the signed report IMPLEMENTED and accepted 20.11. (BK-f, migration 0156); validation and the three ledgers PLANNED (B8, GMSEP). §4.5 module 1: «Schichtmodell Heim PLANNED (NH-A1, B9)» → home staff planning (week, month, plan per staff member, absence, gap → external order, status back) IMPLEMENTED, HD-1 and HD-2 accepted 21.11., fixed rules only; AI planning PLANNED (HD-3). §4.5 module 2: «Diktat PLANNED» → as row «Bericht». §5 line «Rechnungen … PLANNED» → as row «Rechnung». §1 Kernsatz on FE-039: see STR-47 (wording depends on the owner answer). Every new label names «Simulation, synthetische Daten».
+- **STR-47** (above) also concerns §1 of my field. Until the owner answers, the sentence stays as it is; it is the newer founder text (FE-109) that needs a recorded reading, not the Blueprint.
+
+### 4 Proposal tracker (for the PO's role review of 2026-11-24: did `csa` notes change decisions?)
+
+| Proposal | Outcome | Evidence |
+|---|---|---|
+| STR-43 (a) to (d) Annex A stale lines | adopted | Blueprint 3.2.42 (Annex A §1 point 2, §2.2, §3.2 `L_äqu` sentence) |
+| STR-42 / P-14 founder figures as a range | lowered to «only before external use» after founder statement 10 | #1393 |
+| STR-45 / P-16 AI provider before M4 | answered by the founder (FE-094) through `eng`; AI1 active | FE-094, `NEXT_CAPABILITY.md` |
+| P-19 O-5 for KON-1 only | answered by the PO | #1393, Blueprint 3.2.43 |
+| INN-5 admin minutes as product metric | adopted; now AUT-168 in the AI1 contract | #1393 PO 21:39; `briefs/AI1.md` contract point 3 |
+| INN-1, INN-2 «kept for BK-f» | **not carried**: no brief contains them; BK-f accepted without them (**STR-51**, low) | `briefs/`, `ABNAHMEAKTE.md` §BK-f |
+| STR-44 interRAI re-entry trigger | no answer yet | – |
+| STR-46 closed task list of the Verwaltung | no answer yet (no cooperative package active) | – |
+
+**STR-51 (low).** INN-1 (income view per nurse on synthetic data with UWG labels) and INN-2 (package instead of hour) were placed with BK-f on 2026-11-17 and fell out. Proposal: the PO places them as named follow-ups of BK-f in `BK_ROADMAP.md`, to be taken up with the next GM-1 package; no price or wage is set by them.
+
+### 5 What the PO should escalate
+
+One proposed owner package (in the issue of this run): **PKG-STR-47 «Scope of the FE-039 invariant in the B2B home module»**. Ask: «Gilt die Produkt-Invariante FE-039 (das geplante Team bestätigt jeden KI-Planungsvorschlag) auch für das eigene Personal eines Heims im B2B-Modul 1? (A) Nein: das Heim plant sein Personal selbst, die Invariante gilt nur für NAVORA-Teams. (B) Ja, als Einstellung je Station: Heimleitung oder Stationsteam bestätigt; Standard Heimleitung.» Default until answered: HD-3 is built with the confirming party as a setting (B's mechanism, Heimleitung as default), which serves A as well. Blocks: HD-3 leaving PROPOSED; D-42 drafting. `csa` recommendation: B, because it keeps O-5 open at no safety cost; `lca` reads whether a ward team may confirm its own plan (UNKNOWN).
+
+---
+
 ## 2026-11-17 20:11 CET · csa · Week 5: founder figures against Annex A, the cooperative, interRAI set aside, AI without a date
 
 **Read (evidence):** `recovery/main` at `7a054518` (Blueprint 3.2.41, Handbook V2.2); `CLAUDE.md`; `docs/agents/README.md`; `FOUNDER_DECISIONS.md` v35 (new since my last run: FE-080 to FE-088, with FE-086a/FE-086b); Blueprint §1, §2, Annex A in full and the version table 3.2.22 to 3.2.41; `decisions/D-44.md` `lca` sections of 2026-11-17 (T-1, T-3, G-1 to G-5, V-1 to V-3); `OPEN_DECISIONS.md` (D-36, D-37 set aside 14:39/15:39); `NEXT_CAPABILITY.md` *Active now* 19:39; `docs/product/BK_ROADMAP.md` v1; `ABNAHMEAKTE.md` headings; PO journals 2026-11-15-0140 and 2026-11-17-1430; open PRs and `strategy` issues. Tests: none run by me. Live project not touched. Arithmetic below is mine, on example values; no figure is a price, a wage or a promise (R-10, FE-084 (5)).

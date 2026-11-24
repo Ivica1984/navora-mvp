@@ -8,6 +8,12 @@ Every claim below is labelled:
 - OPEN: undecided;
 - UNKNOWN: not established.
 
+
+**Standing review rule (founder, 2026-11-24 about 12:00, confirmed in the `csa` session; for the PO to record in `FOUNDER_DECISIONS.md`):**
+- The B2B institution module (`/heim`, including HD-3) is **outside FE-039**. There the Heimleitung / Stationsleitung confirms planning by design, and `csa` raises no drift finding on it.
+- FE-039 (the team confirms) applies strictly to the autonomous care teams (`/team`, `/field`).
+- O-5 stays open as an option for Phase B; for now `/heim` follows the standard institutional hierarchy.
+- `csa` still checks the team model and the balance between the business models (BM-10).
 ---
 
 ## 1 Vision (owner, 2026-10-27)
@@ -122,6 +128,18 @@ Updated by `csa` 2026-10-27 13:55 CET. Month 0 = the partner's letter of intent 
 | **Money flows and payroll** | R-12 approved (FE-084 (4)): NAVORA never controls team accounts; the cooperative pays wages through a Swiss payroll provider; NAVORA sends hours only (`lca` T-2, D-44 brief text). | in the data model of BK-f and GMSEP | without it BK-f could imply a money path the red line forbids |
 | **Fee (D-14)** | Unchanged: amount OPEN. The founder letter uses 120 CHF per member and month (= 7.50 CHF per shift at 16 shifts) as an example; the PO did not adopt it (FE-084 note (c)). | after the Phase A cost measurement (FE-023) | none before Phase B; no amount in any external text |
 
+**Update `csa` 2026-11-24 11:33 CET (FE-089 to FE-113).** Rows above are kept as written; where they conflict, this update wins. Dates are PO or founder targets unless marked as a `csa` estimate.
+
+| Track | Change | When it must happen | Cost of each month of delay |
+|---|---|---|---|
+| **Delivery (block rule)** | Active block **HEIM-DP** since 20.11. (FE-109); HD-1, HD-2, PERF1 accepted for the simulation; package AI1 active (#1697 draft). Block BK: a, b, c, e, f accepted; **BK-d and BK-g open without status or date**; Blueprint §8 still shows BK «aktiv» (STR-49). | BK-g on staging before M9 2027-03-12 (`csa` estimate: start by 2027-02-15 at the latest, STR-52) | without BK-g, M9 cannot pass (Blueprint §10) and H-3 has no evidence |
+| **AI path** | FE-094: Anthropic API direct for synthetic data on `navora-staging`; FE-085 (A) (CH/EU endpoint, zero retention) stays the direction for real data; D-35 rule A unchanged. AI1 built with cost cap (CHF 50/month, 300 calls/day, FE-099 (7)), kill switch and evaluation; acceptance needs the founder's Render values. HD-3b (model for planning language) follows AI1. | AI1 accepted before M4 2026-12-18 | each month moves the first H-4 measurement (AUT-168) and HD-3b by a month |
+| **Nursing home (B2B module, O-5)** | B2B module 1 (home staff planning, `/heim`) is a standalone B2B product; the Heimleitung / Stationsleitung confirms planning, including HD-3 (founder clarification 2026-11-24 about 11:55, STR-47 closed «by design»; to be recorded by the PO). FE-039 applies to the self-organised teams (`/team`, `/field`). Whether a Phase B home may also run self-organised ward teams (KON-2) stays OPEN (O-5). | founder scope recorded in `FOUNDER_DECISIONS.md`; Blueprint §1 and `PRODUCT_BLOCKS.md` aligned (STR-53) | none for HD-3; until the texts are aligned, roles read two different scopes of FE-039 |
+| **Cooperative (C path)** | Unchanged since 2026-11-17 (FE-082 to FE-084; legal points with the adviser, Q1 2027). No package this week. | adviser catalogue before quotes (December 2026) | unchanged |
+| **interRAI** | Unchanged: set aside (FE-085 (1)); STR-44 re-entry trigger unanswered. | before D-42 is drafted | unchanged |
+| **Clinical rule approval (D-43)** | Unchanged: owner target 2027-01-15. HD-1 and HD-2 rely on a PROPOSED qualification matrix for the simulation (HD §3, FE-108 note (6)). | as stated | every rule stays PROPOSED; Phase B cannot start |
+| **Fee (D-14), B2B price** | Unchanged: amount OPEN; no B2B module price exists. HEIM-DP makes the B2B stream the first visible one (BM-17). | after the Phase A cost measurement (FE-023) | none before Phase B |
+
 ## 5 Business model hypotheses (OPEN)
 
 Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
@@ -158,6 +176,13 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 
 **Status note 2026-11-17:** BM-5 and BM-6 now refer to the cooperative (FE-083, FE-084 (2)) instead of an unnamed team-owned provider. BM-4 (surplus): in an employment the surplus reaches the nurse as an annual result share whose status as wage is UNKNOWN (`lca` T-3 (8) (e)); the hypothesis stays OPEN. No amount above is a fee or wage proposal.
 
+| # | Hypothesis | Status | Evidence needed | Source of evidence |
+|---|---|---|---|---|
+| BM-17 | (2026-11-24) The B2B home module (scheduling) is the door to KON-1: a home that plans in NAVORA turns its gaps into external team orders instead of agency calls, so B2B revenue pulls GM-1 care revenue to the teams rather than replacing it | hypothesis, `csa`; no price | share of gaps sent as external orders vs filled internally or left; share of external orders taken by a team; time from gap to «gedeckt» | HD-2 counts on the synthetic home (Phase A); the Phase B home |
+| BM-18 | (2026-11-24, **withdrawn** 11:56) Staff self-entry in the home module: withdrawn with STR-47 («by design», founder); in the B2B module the home decides its own planning process | withdrawn | – | – |
+
+**Status note 2026-11-24:** H-4 gets its first measurement path with AI1 (AUT-168: minutes from visit end to signed report, typed characters, rule against model, per team); the handgrip ratchet still lacks the role `pflege_nach_schicht` (STR-50). BM-10 (GM-1 larger than GM-2) is now the measure for the supplier-drift watch item (`STRATEGIC_ALIGNMENT_REVIEW.md` 2026-11-24 §2 (4)). No amount in this file is a price, fee or wage proposal.
+
 ## 6 Open strategic questions for `csa`
 
 1. **How fast can the pilot move from the partner (B) to a team-owned provider (C) without a gap in licence or admission?** *Partial answer, 2026-10-27:* not by a licence transfer, which `lca` reads as impossible (D-12 note 3); only by a new licence and a new OKP admission, two procedures of about 8 weeks each, plus each client's consent to move. Earliest admission about month 4-5 if the file is complete at month 0; latest safe file date about month 7 for the 12-month sunset (§4). What is still unknown is written as STR-15.
@@ -188,7 +213,24 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 17. **New 2026-11-17:** which assessment instrument does the Phase B nursing home use and have to use, and does NAVORA read, write or ignore it? UNKNOWN; `cra`, `lca`; proposed as the re-entry trigger for dimension 6 (STR-44).
 18. **New 2026-11-17:** who pre-finances the first payroll runs of a new cooperative when no money runs through NAVORA (BM-15)? OPEN; owner, adviser.
 
+*Update to question 13 (2026-11-24, corrected 11:56):* answered for the B2B module by the founder: in `/heim` the home's own authority (Heimleitung / Stationsleitung) confirms planning; FE-039 applies to the self-organised teams. Recording by the PO (STR-53).
+
+19. **New 2026-11-24:** can BK-d and BK-g still be accepted before M9 while HEIM-DP and HD-3 run first? *Partial answer:* yes by count (recent packages took under one to about two days), no margin if HD-3 grows; `csa` proposes a latest start date for BK-g (STR-52). OPEN; `po`.
+20. ~~**New 2026-11-24:** may staff of a BS or BL nursing home roster themselves?~~ Withdrawn 11:56 with STR-47 (founder clarification); it served only PKG-STR-47.
+
 ## 7 Benchmarks (one per `csa` run, newest first)
+
+### 2026-11-24 · Self-rostering of nursing staff (systematic review 2024; NHS Royal Free London case)
+
+**Sources:** M. O'Connell, J. Barry, I. Hartigan, N. Cornally, M. M. Saab, «The impact of electronic and self-rostering systems on healthcare organisations and healthcare workers: A mixed-method systematic review», *Journal of Clinical Nursing*, published 2024-03-13 (abstract read via https://read.qxmd.com/read/38481071/the-impact-of-electronic-and-self-rostering-systems-on-healthcare-organisations-and-healthcare-workers-a-mixed-method-systematic-review, 2026-11-24; full text not read); NHS England, «Improving joy at work – electronic self-rostering (The Royal Free London NHS Foundation Trust)», https://www.england.nhs.uk/looking-after-our-people/the-programme-and-resources/we-work-flexibly/improving-joy-at-work-electronic-self-rostering-the-royal-free-london-nhs-foundation-trust/ (no date shown; read 2026-11-24 through a summarising fetch tool).
+
+**In my words:** The review pools 18 studies (12 on self-rostering, 6 on electronic rostering; mostly descriptive or non-randomised). It reports gains in roster efficiency, staff satisfaction and sense of control, work-life balance, retention and absence, and two costs: self-rostering was less equitable than fixed rostering and came with more overtime and more requests to change shifts. It asks for randomised and longitudinal studies. The NHS case is one hospital ICU and then 32 wards in London (2018–2019): turnover fell from 29.8 % to 17.2 % and the vacancy rate from 33.6 % to 27.1 % while staff-requested shifts rose from about 4 % to 38 % of duties; a single before-after series without a comparator. Neither source is about nursing homes, and neither says who gives the final approval of the roster.
+
+**Where NAVORA must exceed it:**
+- **Fairness by rule, not by goodwill.** The known cost of self-rostering is unequal spread and overtime. Wherever NAVORA lets people choose shifts (the teams' own planning in `/team`), the planning rules must enforce fairness and rest, so choice never buys inequity. In the B2B module the home sets its own process (founder, 2026-11-24).
+- **Choice without losing coverage.** The NHS gains came from choice. NAVORA's self-organised teams have that choice by design (FE-039). On top of that, a gap in a home becomes a visible external order (HD-2), which a self-rostering tool alone does not do.
+- **Measured, not asserted.** The evidence base is weak. NAVORA should measure planning minutes, overtime and spread before and after on the synthetic home (HD §5a) and in Phase B, and claim nothing before that.
+- **Nursing homes are a gap in the evidence.** Neither source covers nursing homes. Team-level retention and absence in NAVORA's teams (GM-1) would be new evidence; measure them in Phase B before claiming any effect.
 
 ### 2026-11-17 · Home-care worker cooperatives in the US (Cooperative Home Care Associates and the sector)
 
