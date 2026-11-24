@@ -50,7 +50,9 @@ Each line is one ask. Answer in one line, for example "D-7: approved". Each pack
 
 ## Waiting for the Clinical Owner (G-1), not for the owner
 
-[D-28](D-28.md), [D-31](D-31.md), [D-3](D-3.md), [D-30](D-30.md), [D-16](D-16.md), [D-19](D-19.md), [D-17](D-17.md), [D-15](D-15.md), [D-10](D-10.md). Each is complete and waits; the strict defaults stay in force.
+**D-10 answered 2026-11-24** (#56, A for the pilot, B after the pilot, R stands); removed from the list below. Open: name the signer under D-43.
+
+[D-28](D-28.md), [D-31](D-31.md), [D-3](D-3.md), [D-30](D-30.md), [D-16](D-16.md), [D-19](D-19.md), [D-17](D-17.md), [D-15](D-15.md). Each is complete and waits; the strict defaults stay in force.
 
 ## Coming once the inputs are in (not asked yet)
 
