@@ -775,6 +775,15 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** `report_draft_model` unchanged. No agent added.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**AI1 #1697 re-read: proposals bound to a reserved call; the CI fake must never feed a measure (`aia` 2026-11-24 14:24, review 87, AUT-200):**
+- **Label check:** #1697 is a draft on `2e4d5d8`. AUT-197 (a proposal needs a settled `ok` reservation of the same report, once; agent version from the reservation) is IMPLEMENTED on the branch (0170, pgTAP 170), not merged. The model id is still named by the session (residual carried to AUT-196). The CI fake provider is a test substitute, labelled so, guarded to the local CI stack. No model has run.
+- **Controls proposed:**
+  - AUT-200: every measure of the model (stop-rule window, correction rate, evaluation and AUT-168 reports, cost figures) excludes `ci-fake` rows; a `ci-fake` settle is labelled a fixture, not `measured_tokens`.
+  - AUT-196 extended: when the window is keyed by model id, the id comes from the server, not from the session.
+  - All PROPOSED (PO; `eng`, `cra` as named).
+- **Catalogue:** `report_draft_model` unchanged. The CI fake is not an agent and is not listed. No agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -863,3 +872,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-22 08:18 | `aia` | §12: block «ADR-227 reviewed: the AI1 integration adopts the reservation and T-2 controls; the live evaluation needs a reference»: label check on ADR-227 DRAFT and `448e9c4`; controls AUT-190 to AUT-193 (PROPOSED). No agent added or removed |
 | 2026-11-24 02:19 | `aia` | §12: block «AI1 draft #1697 pre-read: prompt pin met; a new version must not lift a reached stop»: label check on `d5912c6`; controls AUT-194 to AUT-196 (PROPOSED). No agent added or removed |
 | 2026-11-24 08:21 | `aia` | §12: block «AI1 #1697 re-read: stop carry-over met; the stop rule must count only lines a reserved call produced»: label check on `20e81b3`; controls AUT-197 to AUT-199 (PROPOSED). No agent added or removed |
+| 2026-11-24 14:24 | `aia` | §12: block «AI1 #1697 re-read: proposals bound to a reserved call; the CI fake must never feed a measure»: label check on `2e4d5d8`; control AUT-200 and AUT-196 extension (PROPOSED). No agent added or removed |
