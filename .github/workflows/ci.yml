@@ -361,7 +361,7 @@ jobs:
         run: supabase stop --no-backup
 
   # UX1-14 (ADR-103): screenshots of every protected route at 390 × 844 and 1440 × 900 for each role that may open it,
-  # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (14 days); never committed.
+  # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (3 days on a PR, 1 day otherwise); never committed.
   # Runs on every push to recovery/main and on every PR that changes src/app or src/components. Fails on a render
   # error (HTTP 5xx, uncaught page error, the Next.js error page) and, since UX1-18, on an axe color-contrast
   # violation of impact serious or critical; never on a visual difference.
@@ -460,7 +460,9 @@ jobs:
         with:
           name: ui-screenshots
           path: ui-screenshots/
-          retention-days: 14
+          # FIX-ART1 (2026-11-24): the Actions artifact quota was full (1187 screenshot sets of ~66 MB, 80 % from pushes to
+          # recovery/main). The `uxa` gate reviews pull-request heads, so: 3 days on a pull request, 1 day otherwise.
+          retention-days: ${{ github.event_name == 'pull_request' && 3 || 1 }}
           if-no-files-found: warn
       - name: Stop
         if: always() && steps.ui.outputs.run == 'true'
