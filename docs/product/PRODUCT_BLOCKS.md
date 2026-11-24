@@ -78,7 +78,7 @@ Die Datei ist die führende Übersicht für Blöcke und Abnahmen. Die Briefs (`d
 
 **Begriff (PO 10.11. 04:39, `csa` STR-33, FE-039):** „Clinical Owner“ bedeutet in dieser Datei die **Funktion zur Freigabe klinischer Regeln nach D-43** (Mandat offen: benannte Fachperson, Gremium oder externer Dienst). Sie ist weder eine Pflegeleitung noch eine Person, die Einsätze verteilt, und heute nicht besetzt.
 
-**Produkt-Invariante (PO 10.11. 04:39, `csa` STR-27, FE-039 (1)):** Einen KI-Planungsvorschlag bestätigt **immer das Team, dessen Mitglieder geplant werden** (PLAN3/AIG1, je Wert), in jeder Konstellation (auch GM-2, Pflegeheim). NAVORA baut **keinen Modus „für das Team zuteilen“** und keine zentrale Disposition. Die vertragliche Seite (D-44) bleibt beim Founder.
+**Produkt-Invariante (PO 10.11. 04:39, `csa` STR-27, FE-039 (1)):** Einen KI-Planungsvorschlag bestätigt **immer das Team, dessen Mitglieder geplant werden** (PLAN3/AIG1, je Wert), in jeder Konstellation des Teamgeschäfts. ~~(auch GM-2, Pflegeheim)~~ **Geltung (FE-114, Founder 2026-11-24):** FE-039 gilt für selbstorganisierte Pflegeteams (GM-1, `/team`, `/field`); im B2B-Institutionsmodul (GM-2, `/heim`) bestätigt die Heim- oder Stationsleitung. NAVORA baut **keinen Modus „für das Team zuteilen“** und keine zentrale Disposition. Die vertragliche Seite (D-44) bleibt beim Founder.
 
 **Rollen:** *liefert* = baut und testet technisch; *prüft* = fachliche, rechtliche oder UX-Prüfung (beratend); *gibt frei* = entscheidet. Die Produktabnahme jedes Blocks macht der **PO mit Belegen**. Klinische Regeln gibt nur der **Clinical Owner** frei (nicht ernannt). Owner-Einstellungen und -Verträge macht der **Founder**.
 
