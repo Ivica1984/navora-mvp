@@ -154,13 +154,14 @@ Der Founder hat HD-3a in Issue #1712 beschrieben. Das ist der Inhalt von **HD-3a
 
 Quelle: Founder-Freigabe in der `eng`-Live-Sitzung ca. 19:40, Wiedergabe durch `eng` auf [#1712 7141895771](https://github.com/Ivica1984/navora-mvp/issues/1712#issuecomment-7141895771) (vom PO nicht selbst gehört). Leitsatz: **Das Rechenwerk plant, die Heimleitung entscheidet, die KI hilft.** Diese Einordnung ändert den HD-3a-Vertrag (§5b) **nicht** und fügt ihm keine Merge-Bedingung hinzu (FE-089 (3)).
 
-**Paketfolge (ersetzt die Paketnamen aus FE-125 (3); Schätzungen in stündlichen `eng`-Läufen, vom Founder):**
+**Paketfolge (ersetzt die Paketnamen aus FE-125 (3); Reihenfolge nach FE-127 (PO-Nachführung 2026-11-24 23:39): HD-3a → HD-3s → HD-3b → INTAKE-E2E → HD-3c → HD-3d; Schätzungen in stündlichen `eng`-Läufen, vom Founder):**
 
 | Paket | Inhalt | Schätzung | Status |
 |---|---|---|---|
 | HD-3a (#1729) | Greedy, Pflichtregeln, Wunschtage und Nicht-Tage, Übernehmen, Bildschirm, Staging-Smoke (Vertrag §5b) | noch 4–6 | aktiv; Greedy IMPLEMENTED auf dem Branch (Teil 2), Übernehmen PLANNED (Teil 3) |
-| HD-3b | HiGHS (MIT, WebAssembly im Server, kein neuer Dienst; Zeitgrenze 10 s als Vorschlag; Greedy als Rückfall, offen gemeldet), Wochenenden pro Monat, Ausgleichstage, Fairness, Stabilität, Kennzahlen (Abdeckung, Wunscherfüllung, Fairness), gespeicherte Planungsläufe | 5–8 | PLANNED; Laufzeit HiGHS UNKNOWN bis gemessen (erster Schritt) |
-| HD-3s | geteilter Dienst (zwei Blöcke) | 1–2 | PLANNED |
+| HD-3s | geteilter Dienst (zwei Blöcke): Pause keine Arbeitszeit, Ruhezeit nach Block 2, ein Arbeitstag, Pensum ohne Pause, Soll pro Tag nur Hinweis (Sollstunden ÷ Arbeitstage pro Woche, Feld je Heim, Vorgabe 5), zulässig für Schichtmodelle «alle Dienste» und «keine Nacht» (FE-127 (3)) | 1–2 | PLANNED, **direkt nach HD-3a** (FE-127 (1)); Regeln und Tests vorbereitet auf `probe/hd3s-split-shift-red` (nicht gemergt); ArG-Lesart `lca` vor echten Daten |
+| HD-3b | HiGHS (MIT, WebAssembly im Server, kein neuer Dienst; Zeitgrenze 10 s als Vorschlag; Greedy als Rückfall, offen gemeldet), Wochenenden pro Monat, Ausgleichstage, Fairness, Stabilität, Kennzahlen (Abdeckung, Wunscherfüllung, Fairness), gespeicherte Planungsläufe | 5–8 | PLANNED nach HD-3s; erster Schritt: Laufzeit HiGHS (UNKNOWN) und Messung der drei Gewichtsprofile, danach wählt der Founder die Startwerte (FE-127 (2)) |
+| INTAKE-E2E | durchgehender Zuweiser-Flow Spitalaustritt → Extraktion → Quartier-Match → 1-Klick-Übernahme auf `/field` (FE-122, #1726, geschnitten IE-1/IE-2) | — | PLANNED nach HD-3b (FE-127 (1)); KLV-Katalog (D-15 C) bis dahin mit `cra` und Clinical Owner vorbereitbar |
 | HD-3c | KI: Text in eigenen Worten → strukturierte Regeln (Heimleitung bestätigt); Erklärungen nur aus Daten des Rechenwerks; nach AI1 Schritt (b) | 3–5 | PLANNED; angeschlossenes Modell nur mit synthetischen Daten (D-35 A), `lca` vor echten Daten |
 | HD-3d | Ausfall-Umplanung: Rechenwerk rechnet 2–3 Optionen, KI ordnet und erklärt | 3–5 | PLANNED |
 
@@ -170,7 +171,7 @@ Quelle: Founder-Freigabe in der `eng`-Live-Sitzung ca. 19:40, Wiedergabe durch `
 
 **Messung:** Automatisierungsgrad = vorgeschlagene Dienste, die unverändert übernommen werden ÷ alle besetzten Dienste des Monats, Ziel ≥ 80 % (entspricht M1 aus §5b); dazu Abdeckung, Wunscherfüllung, Fairness, Rechenzeit (< 2 s Greedy, < 10 s Optimierung), Planungszeit der Heimleitung (Minuten von Menschen UNKNOWN bis gemessen). In CI ein festes 60-Personen-Testheim als Qualitäts-Regressionstest; alle Werte «Simulation, synthetische Daten».
 
-**OPEN:** Startgewichte der Strafpunkte (Founder); Laufzeit HiGHS (UNKNOWN); Lesart des Arbeitsgesetzes vor echten Daten (`lca`); Stelle von **INTAKE-E2E** (FE-122) in dieser Folge — die Founder-Tabelle nennt nur HD-Pakete; Auswahlfrage an den Founder (FE-124), PO-Empfehlung: HD-3a → HD-3b → INTAKE-E2E → HD-3s → HD-3c → HD-3d. Bis zur Antwort gilt nach README-Regel 10 die neueste Founder-Folge (FE-126): nach HD-3a kommt HD-3b.
+**OPEN:** Startgewichte der Strafpunkte: Founder wählt nach der Messung der drei Profile in HD-3b (FE-127 (2)); Laufzeit HiGHS (UNKNOWN); Lesart des Arbeitsgesetzes vor echten Daten (`lca`), für HD-3s insbesondere: 14-h-Tagesspanne mit geteiltem Dienst, Pause als Nicht-Arbeitszeit, Ruhezeit nach Block 2, 50 h/Woche gegenüber dem BGAP-Entwurf, Nachtvariante (Fragen von `eng`, 7146360770). **Gelöst (FE-127 (1)):** Stelle von INTAKE-E2E nach HD-3b; geteilter Dienst vor HD-3b.
 
 **Nicht HD-3a-Bedingung (benannte Folgepunkte):** gespeicherter Planungslauf je Übernahme (AUT-201) und M1b/Stichtag (AUT-202) gehören nach der Founder-Tabelle zu HD-3b; `eng` darf eine Lauf-Kennung (`apply_id`) schon in HD-3a schreiben, wie in §5b für M1 nötig (WIE bei `eng`).
 
