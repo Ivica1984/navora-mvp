@@ -320,7 +320,8 @@
         "SET search_path TO ''",
         "is_institution_member",
         "institution_audit",
-        "assert_access_open"
+        "assert_access_open",
+        "kind_not_valid"
       ]
     },
     {
@@ -345,6 +346,26 @@
     },
     {
       "name": "public.institution_set_staff_active",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_planning",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_planning_limits",
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",

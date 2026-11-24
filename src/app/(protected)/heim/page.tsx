@@ -6,7 +6,7 @@ import {
   setShiftType, setStaffActive, setStaffingRule, unassignStaff,
 } from "@/features/home-plan/commands";
 import {
-  EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, addDays, assignableStaff, canPlan, canPrepareOrder,
+  ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
   monthCode, monthLabel, monthPeople, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
   type PlanView, type CellOrder,
@@ -415,8 +415,13 @@ function PersonPanel({ plan, staff, back, planner, prev, next }: {
             <label className="grid gap-1 text-sm">bis
               <input type="date" name="to" className={input} />
             </label>
+            <label className="grid gap-1 text-sm">Art
+              <select name="kind" defaultValue="absent" className={input} data-testid="heim-absence-kind">
+                {ABSENCE_KINDS.map((k) => <option key={k} value={k}>{absenceKindLabel(k)}</option>)}
+              </select>
+            </label>
             <button type="submit" className={btn}>Abwesenheit erfassen</button>
-            <p className="w-full text-xs text-secondary">Ohne Grund: NAVORA fragt und speichert keinen Abwesenheitsgrund.</p>
+            <p className="w-full text-xs text-secondary">Ohne Grund: NAVORA fragt und speichert keinen Abwesenheitsgrund, nur die Art.</p>
           </form>
           <form action={setStaffActive}>
             <Hidden values={{ staff: staff.id, active: staff.active ? "false" : "true", back }} />

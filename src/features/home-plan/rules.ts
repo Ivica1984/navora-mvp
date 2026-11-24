@@ -93,6 +93,20 @@ export const GRADE_CHOICES = [
 
 export const gradeLabel = (code: string | null): string => (code ? (GRADE_LABEL[code] ?? code) : "");
 
+/**
+ * HD-3a (FE-119, FE-120; migration 0171): the four neutral absence kinds. The database refuses every other value; there
+ * is no sickness kind and no reason field (no health data). Fixed list, no AI.
+ */
+export const ABSENCE_KINDS = ["vacation", "training", "compensation", "absent"] as const;
+export type AbsenceKind = (typeof ABSENCE_KINDS)[number];
+const ABSENCE_KIND_LABEL: Record<AbsenceKind, string> = {
+  vacation: "Ferien",
+  training: "Weiterbildung",
+  compensation: "Kompensation",
+  absent: "Abwesend",
+};
+export const absenceKindLabel = (kind: AbsenceKind): string => ABSENCE_KIND_LABEL[kind];
+
 export const canPlan = (role: InstitutionRole): boolean => role === "lead" || role === "planner";
 export const canSettle = (role: InstitutionRole): boolean => role === "lead";
 
@@ -423,6 +437,7 @@ const PROBLEM_TEXT: Record<string, string> = {
     "Diese Dienstart ist im Plan eingeteilt; ihre Zeiten bleiben unverändert. Für andere Zeiten bitte eine neue Dienstart anlegen.",
   dates_not_valid: "Bitte gültige Daten angeben (bis höchstens ein Jahr).",
   absence_overlaps: "Für diese Tage ist schon eine Abwesenheit erfasst.",
+  kind_not_valid: "Bitte eine Art der Abwesenheit wählen: Ferien, Weiterbildung, Kompensation oder Abwesend.",
   input_not_valid: "Bitte die Angaben prüfen.",
   name_exists: "Diesen Namen gibt es schon.",
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",

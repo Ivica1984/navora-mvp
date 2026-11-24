@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { HOME_PLAN_PATH, safeReturnPath, sameOrderChoice, withMessage } from "./rules";
+import { ABSENCE_KINDS, HOME_PLAN_PATH, safeReturnPath, sameOrderChoice, withMessage } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -63,11 +63,12 @@ export async function unassignStaff(form: FormData) {
 
 export async function recordAbsence(form: FormData) {
   const back = safeReturnPath(form.get("back"));
-  const v = parse(z.object({ institution: uuid, staff: uuid, from: date, to: date }), {
+  const v = parse(z.object({ institution: uuid, staff: uuid, from: date, to: date, kind: z.enum(ABSENCE_KINDS) }), {
     institution: str(form, "institution"), staff: str(form, "staff"), from: str(form, "from"), to: str(form, "to") ?? str(form, "from"),
+    kind: str(form, "kind") ?? "absent",
   }, back);
   await run("institution_record_absence", {
-    p_institution_id: v.institution, p_staff_id: v.staff, p_starts_on: v.from, p_ends_on: v.to,
+    p_institution_id: v.institution, p_staff_id: v.staff, p_starts_on: v.from, p_ends_on: v.to, p_kind: v.kind,
   }, "absence", back);
 }
 
