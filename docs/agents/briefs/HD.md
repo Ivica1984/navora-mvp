@@ -113,6 +113,21 @@ Prüfweg der Heimleitung: Jeder Vorschlag zeigt die Änderungen gegenüber dem a
 
 **Offene Fragen an `aia`/`eng` (Issue, vor HD-3):** Verfahren und Laufzeit des Optimierers für 8 bis 60 Personen und einen Monat; ob die Übersetzung «Sprache → weiche Kriterien» messbar zuverlässig ist (Auswertungsset); Kosten je Vorschlag gegen den Deckel; was mit synthetischen Namen an das Modell geht (Datenminimierung).
 
+### 5b. Founder-Spezifikation HD-3a (#1712, FE-117; PO-Ergänzung 2026-11-24 14:39)
+
+Der Founder hat HD-3a in Issue #1712 beschrieben. Das ist der Inhalt von **HD-3a «Optimierung (feste Regeln)»**, ohne Modell (Schritt 1 und 2 der Tabelle §5, linke Spalte). Stand: **approved als Inhalt, nicht aktiv**; Start nach AI1 (FE-111), ausser der Founder ordnet ausdrücklich anderes an (Frage auf #1712).
+
+| Teil | Inhalt nach #1712 | PO-Einordnung |
+|---|---|---|
+| Stammdaten | Pensum 10–100 %, Schichtmodell `any`, `day_only`, `late_only`, `night_only`, `no_night` | synthetisch; WIE (Spalten, Funktion) entscheidet `eng` |
+| Absenzen | Zeitraum und Typ (`Ferien`, `Weiterbildung`, `Kompensation`, `Krankheit`) | bestehender Weg `institution_absences` (HD-1), kein zweiter; **Typ «Krankheit» OPEN** (Gesundheitsdatum bei realen Personen; §5 Schritt 2 «kein Grund gespeichert»); PO-Vorschlag bis Entscheid Founder/`lca`: ohne «Krankheit», neutral «Abwesend» |
+| Planungslauf | ein Button in Woche und Monat, deterministischer Solver (ADR-224), Ziel < 2 s | Laufzeit wird gemessen und berichtet; Entwurf gilt erst nach Übernahme durch die Heimleitung (§5 rechte Spalte, FE-114) |
+| Harte Kriterien | Mindestbesetzung je Station (z. B. 2 Personen, davon 1 HF), Pensum, Absenzen, Schichtmodell, Ruhezeit ≥ 11 h, ≤ 6 Arbeitstage in Folge | Ruhezeit und Tage in Folge: Founder-Vorgabe für die Simulation, als Parameter, Marke «Regel nach Founder-Vorgabe, rechtlich nicht geprüft»; ArG-Lesart `lca` vor realen Daten; Mindestbesetzung ist Heim-Konfiguration, keine klinische Regel (D-27) |
+| Rest-Lücken | rote Lücke mit Begründung («1 HF fehlt – alle verfügbaren HF im Dienst oder abwesend»), «Externen Auftrag vorbereiten» (HD-2) | Begründung nur aus Plandaten; keine Unterbesetzung als «besetzt» (HD-1 R1) |
+| Nicht-Ziele | kein Lohnlauf, keine automatische Buchung externen Personals, keine automatische Ferienbewilligung | übernommen |
+
+**Abnahmekriterien HD-3a (zusätzlich zu §5a und §6 (3) ohne Modellteil):** pgTAP für jede neue Prüfung; Unit-Tests: kein Dienstpaar mit < 11 h Ruhe, niemand über seinem Pensum, `no_night` nie in der Nacht, eine Absenz nie überplant; Negativtest: ein unlösbarer Monat liefert Lücken mit Begründung, nie einen Regelverstoss (Verstösse = 0); T-1 «übernommen = gezeigt»; `staging-smoke` Pfad «automatisch generieren → übernehmen → Lücke als Auftrag»; `ci-repeat` 10/10 (`db`, `e2e`). Gates in einem Fenster: `cra` (Stufen, Mindestbesetzung, Lücke nie «besetzt»), `uxa` (390/1440 px), `aia` (Marken, Messung §5a). `lca` vor realen Daten.
+
 ## 6. Gemeinsames End-to-End-Abnahmekriterium auf Staging
 
 Es gibt drei ausdrücklich benannte Abnahmen, jede auf einem benannten Commit mit `ci` grün, `ci-repeat` 10/10 (`db`, `e2e`) und `staging-smoke` grün auf dem Merge-Commit. Danach schickt der PO eine Meldung mit App-Commit, Migrationsstand und Lauf-ID. Der Founder bedient den Weg selbst, bevor «geliefert» gilt.
