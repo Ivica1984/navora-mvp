@@ -1097,14 +1097,14 @@ isOneToOne: false
                   ]
                 },"institution_absences": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"ends_on": string,"id": string,"institution_id": string,"staff_id": string,"starts_on": string
+                    "created_at": string,"created_by": string | null,"ends_on": string,"id": string,"institution_id": string,"kind": string,"staff_id": string,"starts_on": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"ends_on": string,"id"?: string,"institution_id": string,"staff_id": string,"starts_on": string
+                    "created_at"?: string,"created_by"?: string | null,"ends_on": string,"id"?: string,"institution_id": string,"kind"?: string,"staff_id": string,"starts_on": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"ends_on"?: string,"id"?: string,"institution_id"?: string,"staff_id"?: string,"starts_on"?: string
+                    "created_at"?: string,"created_by"?: string | null,"ends_on"?: string,"id"?: string,"institution_id"?: string,"kind"?: string,"staff_id"?: string,"starts_on"?: string
                   }
                   Relationships: [
                     {
@@ -1265,14 +1265,14 @@ isOneToOne: false
                   ]
                 },"institution_staff": {
                   Row: {
-                    "active": boolean,"created_at": string,"display_name": string,"grade": string,"home_station_id": string | null,"id": string,"institution_id": string
+                    "active": boolean,"created_at": string,"display_name": string,"grade": string,"home_station_id": string | null,"id": string,"institution_id": string,"pensum_pct": number | null,"shift_model": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "active"?: boolean,"created_at"?: string,"display_name": string,"grade": string,"home_station_id"?: string | null,"id"?: string,"institution_id": string
+                    "active"?: boolean,"created_at"?: string,"display_name": string,"grade": string,"home_station_id"?: string | null,"id"?: string,"institution_id": string,"pensum_pct"?: number | null,"shift_model"?: string
                   }
                   Update: {
-                    "active"?: boolean,"created_at"?: string,"display_name"?: string,"grade"?: string,"home_station_id"?: string | null,"id"?: string,"institution_id"?: string
+                    "active"?: boolean,"created_at"?: string,"display_name"?: string,"grade"?: string,"home_station_id"?: string | null,"id"?: string,"institution_id"?: string,"pensum_pct"?: number | null,"shift_model"?: string
                   }
                   Relationships: [
                     {
@@ -1343,14 +1343,14 @@ isOneToOne: false
                   ]
                 },"institutions": {
                   Row: {
-                    "created_at": string,"display_name": string,"id": string,"kind": string,"order_postcode": string | null,"simulation": boolean
+                    "created_at": string,"display_name": string,"id": string,"kind": string,"max_consecutive_days": number,"min_rest_hours": number,"order_postcode": string | null,"simulation": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"order_postcode"?: string | null,"simulation"?: boolean
+                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"order_postcode"?: string | null,"simulation"?: boolean
+                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean
                   }
                   Relationships: [
                     {
@@ -3523,7 +3523,7 @@ isOneToOne: false
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
 "institution_record_absence":
-{ Args: { "p_ends_on": string,"p_institution_id": string,"p_staff_id": string,"p_starts_on": string }; Returns: Json
+{ Args: { "p_ends_on": string,"p_institution_id": string,"p_kind"?: string,"p_staff_id": string,"p_starts_on": string }; Returns: Json
                            },
 "institution_remove_absence":
 { Args: { "p_absence_id": string }; Returns: Json
@@ -3531,11 +3531,17 @@ isOneToOne: false
 "institution_send_gap_order":
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
+"institution_set_planning_limits":
+{ Args: { "p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number }; Returns: Json
+                           },
 "institution_set_shift_type":
 { Args: { "p_code": string,"p_ends_at": string,"p_institution_id": string,"p_label": string,"p_starts_at": string }; Returns: Json
                            },
 "institution_set_staff_active":
 { Args: { "p_active": boolean,"p_staff_id": string }; Returns: Json
+                           },
+"institution_set_staff_planning":
+{ Args: { "p_pensum_pct": number,"p_shift_model": string,"p_staff_id": string }; Returns: Json
                            },
 "institution_set_staffing_rule":
 { Args: { "p_institution_id": string,"p_required_grade": string,"p_required_grade_count": number,"p_required_total": number,"p_shift_type_id": string,"p_station_id": string }; Returns: Json
