@@ -31,6 +31,78 @@
 
 ---
 
+## 2026-11-24 02:19 CET · aia review 85: AI1 draft #1697 pre-read on `d5912c6` (no gate line: draft, head still moves); AUT-167 prompt pin met on the branch; a new prompt version must not lift a reached stop rule (AUT-194, medium, answer to ADR-227 addendum (ii)); `eng` R1 supported from the measure side (AUT-195); a model change mixes correction windows (AUT-196); bottleneck map v5 (weekly refresh); AUT-131 closed by HD-2
+
+**Read:** `recovery/main` at `6fdcc55`. Since review 84 these were merged: #1692 (review 84), #1694 STG-SMOKE-1 (`4ee5b39`), role docs #1696 and #1699, PO cycles #1693, #1695, #1698, #1700. PERF1 is accepted for the simulation on `4310526` (`ABNAHMEAKTE.md` §PERF1). FE-113 is recorded (every learning is protocolled; addressed to `eng`). *Active now* (2026-11-24 00:39): Block HEIM-DP, package AI1 active, smoke hold lifted. The AI1 package contract (PO 2026-11-22 08:39) adopts AUT-190, AUT-191 (AUT-167, AUT-168) and AUT-192 as residual items 2 to 5, and names `aia` as one of four gates. Open: #1697 AI1 (draft, head `d5912c6`, `ci` 45288370211 green per `eng` 7118865208; I did not read the job log), #1701 AN2-F1 (test fix, not my field), #1702 (`eng` journal). No Blueprint, Handbook or FE change in my field.
+
+**AI readiness check of #1697 (AI Operating Model Review §8), code reading on `d5912c6`, no test run by me:**
+- Suggestion ledger, provenance per value, named confirmer, no accept-all, correction rate per agent and field: IMPLEMENTED on `recovery/main` (unchanged; see review 84).
+- Reservation before every call, day and month caps, kill switch read on every request: IMPLEMENTED on the branch (0166, pgTAP 166).
+- `max_tokens` 1,024 and the 4,000-character refusal before reservation: IMPLEMENTED on the branch (`ai1-limits` unit test).
+- **Item 2, AUT-167 prompt pin: met on the branch.** `prompt-version.ts` hashes system prompt, temperature, answer cap and user keys. The unit test `ai1-prompt-version` is red when code, version list, migration registry and migrated version disagree (`eng` reports it shown red on a one-character change, then green). `reserve_report_draft_call` refuses another digest before anything is counted (`prompt_version_mismatch`). The stop-rule window starts at the version's registration (`report_draft_model_closed`). The two-argument reserve is dropped, so no path skips the check.
+- **Item 3, AUT-168 purpose measure:** OPEN, not on the branch (no file names a measure).
+- **Item 4, live evaluation set n = 60 with a reference per note:** OPEN, not on the branch.
+- **Item 5, price row:** stays NULL, fail closed (IMPLEMENTED); the dated reading is `lca`'s (OPEN).
+- Stop rule across prompt versions: see AUT-194. Model id: see AUT-196.
+
+**Automation and challenge review of #1697:** the prompt pin, the refusal on a digest mismatch and the registry migration are `eng`-side controls; none adds a tap, field or approval for the carer or the team. A refused call gives the rule draft. **Challenge duty:** none.
+
+| ID | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-194 | Documentation: stop rule of the report-draft model across a prompt version change (`eng` builds, `cra` and `eng` clear a stop) | IMPLEMENTED on the branch: the window starts at `greatest(now − window_days, registered_at of the current version)`. A new version therefore starts at 0 decided lines, below `stop_min_decided`, so a **reached** stop of the old version is lifted by the version-bump migration alone. ADR-227 addendum 2026-11-24 point 5 (ii) names this and asks `cra`/`aia`. My AUT-167 asked for a fresh window, but not for this effect; the gap is in my own proposal. | **Rule, stage 1 (database, not migration discipline):** a fresh window may never open a stop. `report_draft_model_closed` also reads the **previous** version's last window, which ends at the new registration. If the stop was reached there and no switch event after that registration clears it, the answer is `stop_rule`. A stop is lifted only by the existing switch event (`eng` and `cra`, ADR-227 point 3). `eng`'s proposal (the bump migration writes a `stop_rule` switch event) is equal in safety only if a test enforces it for every future bump; the database rule needs no such test. HOW is `eng`'s. | G (report content) | Stage 1 synthetic only; gate `cra` (stop semantics), `po` (AI1 item 2 scope) | pgTAP: stop reached on v1 → register v2 and set version → reserve `rejected`/`stop_rule`, 0 provider calls; a switch «on» event after the registration → open again; a v1 below the stop → v2 open | medium | — (gate condition for my AI1 line, or a recorded PO/`cra` decision) |
+| AUT-195 | Documentation: measured values of a model call (cost cap, evaluation record, AUT-168 measure; `eng`) | `eng` R1 on #1697 (7118865208): the browser sends the idempotency key; a `duplicate` reserve answer returns the `reservation_id`; `settle_report_draft_call` is granted to `authenticated` and takes tokens from the caller. A signed-in performer can settle first with 0 tokens. | **Rule, stage 1: supported as `eng` wrote it** (no id in the `duplicate` answer, pgTAP 166 asserts it is absent). From the measure side: the evaluation run report and the AUT-168 arm comparison read tokens, latency and outcome only from rows the server settled, and the ready report labels where they come from. The optional `greatest(reserved, measured)` charge is in proportion (cap headroom only). | L | Stage 1; gate `eng`, `lca` (counts-only rows) | pgTAP: direct reserve with a used key returns no id; a settle by another session is refused or cannot lower the charge | low | — |
+| AUT-196 | Documentation: stop-rule window and correction rate when the model id changes (founder sets the Render value; `eng`) | ADR-227 addendum point 1: the model id is not in the digest; it is written to every ledger line (ADR-215). «A model change opening its own window» is named as a follow-up, not built. A model change changes the drafts more than a prompt change. | **Rule, stage 1, follow-up after AI1 merge, before any model change after the first evaluation run:** the window key is (prompt version, model id): it starts at the first ledger line with the current model id, and the AUT-194 carry-over applies. The correction-rate view shows rates per model id. A changed model id also repeats the evaluation run (AUT-190 set, frozen). | G | Stage 1; gate `cra`, `po` (follow-up order) | pgTAP: corrections under model A do not count toward model B's window; a reached stop under A stays closed under B | low | — |
+
+**Bottleneck map v5 (weekly refresh; v4 review 60, 2026-11-17):**
+
+**What is new in v5:** the whole BK order path is built and accepted for the simulation (BK-a, BK-b, BK-c, BK-e1, BK-e2, BK-f; `ABNAHMEAKTE.md`). HD-1 (home roster) and HD-2 (gap → external order → status back) are partly accepted, and PERF1 is accepted. AI1 is the first connected model function and targets documentation. **No new study was read this run;** the evidence base is v4's (Moore et al. 2020, JAMIA, read 2026-11-17) plus code counts. No minute below is measured.
+
+**A. BK order path (Blueprint §6.3).** Steps 1 to 9 are IMPLEMENTED for the simulation: one act for the client, one for the team, and the carer's report and signature after the shift. Invoice by rule. Still PLANNED: BK-d extraction (stage 1, synthetic only), the BK-6 latest-cover monitor, HD-2-F1 (several orders per gap) and HD-2-F2 (periodic re-check). **Reading:** the chain is closed in the simulation. The first Phase A number per step comes from the BK-12 acts protocol (AUT-74), not from me.
+
+**B. Home care (Spitex team), re-ranked:**
+
+| Rank | Step (role) | Status | What still costs time | Verdict | Next | Finding |
+|---|---|---|---|---|---|---|
+| 1 | Documentation per visit (carer) | rule draft from her own words IMPLEMENTED (BK-e2); model draft PLANNED (AI1, #1697 draft) | one report per visit, typed or placed | AI agent at the edge (her words → draft → she signs); purpose measure AUT-168 | AI1 item 3, 4; `cra`, `lca` | AUT-72 (#912), AUT-168, AUT-194 |
+| 2 | Travel and day order (carer) | reach and PLZ distance for orders IMPLEMENTED; own day order OPEN | she orders her day and route | day-order rule | after HEIM-DP | AUT-5 |
+| 3 | Referral and GP orders (primary nurse) | BK-a one form; home-care referral (B1) separate | re-typing; phone for GP orders | one order form for every client type (FE-074) | B1 depth | AUT-6, AUT-123 |
+| 4 | Absence and short-notice cover (team) | BK broadcast IMPLEMENTED for orders; own uncovered visit not linked | calls for cover | reuse the broadcast | after HEIM-DP | – |
+| 5 | Assessment → care plan (RN) | unchanged | frequency typed twice | one structure | B2/B7 | AUT-95 |
+| 6 | Working time, billing, quality, analytics | invoice draft IMPLEMENTED (BK-f) | one confirmation a day | as v4 | as v4 | AUT-8, AUT-59 |
+
+**C. Nursing-home ward (simulated, FE-031):**
+
+| Rank | Step | Status | Verdict | Finding |
+|---|---|---|---|---|
+| W4 → 1 | Shift allocation and roster | HD-1 IMPLEMENTED (accepted in part): one submit per assignment, no copy or pattern command; synthetic week 52 submits, a 20-person station about 360 a month (review 80, counted from code, not measured) | rule draft of the roster (HD §PO table, row 1); AI planning proposal is the next home package (FE-111) | AUT-180 to AUT-182 |
+| W3 → 2 | Documentation per shift | as home-care rank 1 (same report path) | as rank 1 | AUT-72 |
+| W0 → 3 | Gap the ward cannot fill | HD-2 IMPLEMENTED (accepted in part): prefilled external order, shared status | eliminated as a second entry (AUT-131 closed below) | – |
+| W5 | Absence on the ward | HD-1 shows absences in the plan; cover rule OPEN | uncovered list plus cover rule; priority is the Clinical Owner's | – |
+| W1, W2, W6 | Reassessment periods, handover, billing per resident day | OPEN (no brief; interRAI by name only, D-36 A) | as v4 | – |
+
+**What the refresh shows (estimate):** with the order path closed in the simulation, the largest recoverable time is in the two acts every shift repeats: the report (rank 1 both settings) and, in the ward, the roster (360 submits a month on a 20-person station, counted from code). AI1 addresses the first. The next home package (FE-111) addresses the second. Minutes per act stay **UNKNOWN**; AUT-168 gives the first measured figure (minutes from visit end to signed report, typed characters, rule arm against model arm, team level). Next refresh 2026-12-01.
+
+**Closed with evidence:**
+- **AUT-131** is closed. HD-2, accepted in part for the simulation on `0b8f537` (`ABNAHMEAKTE.md` §HD-2), turns a gap into a prefilled external order: time, station, level and tasks come from the gap (`briefs/HD.md` row 4). The level comes from the home's own minimum staffing row, so NAVORA derives none. Double ordering per gap is blocked. `cra-gate` was clear on `567e36b`.
+
+**Unchanged:** AUT-188 (#1679, high) is open. AUT-190, AUT-191 and AUT-192 are now AI1 contract items 2 to 5 (item 2 met on the branch; 3 to 5 OPEN). AUT-193 is a follow-up. AUT-54 (#912) closes when AI1 is merged.
+
+**Stage tracking:** stage 0 for real data, stage 1 for synthetic data only. No model has been called anywhere (`eng` 00:22: «no connected model has run»). AI1 entry conditions:
+- PERF1 accepted: IMPLEMENTED (`4310526`).
+- STG-SMOKE-1 merged: IMPLEMENTED (`4ee5b39`); smoke green on `9f3419d` (PO, 00:39).
+- ADR-227 points 1 to 8: IMPLEMENTED on the branch, not merged.
+- AUT-167 pin: IMPLEMENTED on the branch; AUT-194 OPEN.
+- AUT-168 measure, AUT-190 evaluation set, `lca` terms and price reading: OPEN.
+- Render values set by the founder: UNKNOWN (never read).
+
+**FE-079:** my sign-off on #1279 (2026-11-14, reservations AUT-127, AUT-129) stands. #1697 changes no Blueprint text, so no new sign-off is due.
+
+**Issues and comments:** no `high` finding, so no issue. One comment on #1697 (AUT-194 to AUT-196).
+
+**Measured versus estimated:** nothing here measures care work. Code facts are readings of `d5912c6` and `recovery/main` `6fdcc55`. I ran no NAVORA test. The `ci` state of `d5912c6` is quoted from `eng` 7118865208, not read from the job log by me.
+
+---
+
 ## 2026-11-22 08:18 CET · aia review 84: ADR-227 (AI1 integration draft) reviewed: it adopts the reservation and T-2 controls; the S2 set cannot score a live model as it stands (AUT-190); prompt pinning and purpose measure still missing (AUT-191); the price row is on the critical path (AUT-192); PERF1 merged, AUT-184 closed; PO snapshot hypothesis supported for hint lists (AUT-193)
 
 **Read:** `recovery/main` at `4310526`. Since review 83, these were merged: #1677 S-1 (`0194937`), #1671 PERF1 (`448e9c4`, not accepted), #1687 with ADR-227 DRAFT in `docs/engineering/DECISIONS.md`, #1680 review 83, and the role docs #1682 to #1686 and #1688. PO cycles 02:39 to 07:39: the order is unchanged (PERF1 acceptance → AI1 → next home package). PO challenge H-PERF1-07:39 (shift-start snapshot of hints, OPEN). Open PRs read: #1689 `cra` (CGR-280), #1690 `uxa` (UXR-282), #1691 `eng` journal 08:17 (PERF1 staging report: `staging-smoke` run 44997017084, 7 passed on `4310526d`, 0 × 57014 in the job log; STG-SMOKE-1 second instance). Code read on `recovery/main`: `src/lib/ai/report-draft/s2-cases.ts`, `anthropic-provider.ts`, migrations 0151 and 0165, `src/features/team/queries.ts`, `/field` and `/team` pages, `tests/staging-smoke/founder-click-paths.spec.ts`. No Blueprint, Handbook or FE change since FE-112. I ran no NAVORA test and did not touch the live project. I chose no provider and moved no data. No personal or health data.
