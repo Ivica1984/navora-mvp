@@ -58,7 +58,8 @@ jobs:
           name: codeql-sarif
           path: codeql-sarif
           if-no-files-found: error
-          retention-days: 30
+          # FIX-ART1 (2026-11-24): 3 days; the verdict is the next step's log, the SARIF is only for reading it.
+          retention-days: 3
       - name: fail on high or critical findings (security-severity >= 7.0)
         run: |
           set -euo pipefail
