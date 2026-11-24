@@ -27,6 +27,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-24 / AI1 #1697, ci 45383814970, Job 138409432521] Gelernte Lektion: Ein Zeitstempel aus einer Migration liegt nach der gepinnten CI-Uhr
+- **Was war das Fehlerbild?** `db` rot um 12:26 CET: pgTAP 151 Test 39 und 167 Tests 13, 15, 17-19 («have: NULL», die Stoppregel schliesst nicht), auf einem Kopf ohne SQL-Änderung an diesen Funktionen. Derselbe Code war um 09:45 CET grün.
+- **Was war die technische Ursache?** CI pinnt `private.now()` auf 10:00 Zürich (DST1), aber erst nach den Migrationen. 0167 stempelt die Promptversion 1 mit `default private.now()`, also mit der echten Uhr. Läuft CI nach 10:00 Zürich, liegt `registered_at` nach der Testuhr; das Stoppregel-Fenster beginnt bei `registered_at` und ist leer. Vor 10:00 fiel es nie auf.
+- **Die verbindliche Lösungsregel ab jetzt:** Ein Test, der einen von einer Migration gestempelten Zeitpunkt mit `private.now()` vergleicht, setzt diesen Zeitpunkt als Fixture relativ zur Testuhr (als Tabelleneigentümer, in der zurückgerollten Transaktion). Neue Migrationen mit `default private.now()` auf Stammdaten: im PR prüfen, welcher Test den Wert gegen die gepinnte Uhr liest.
+- **Abgesichert durch:** pgTAP 151 und 167 (Fixture nach `plan`); CI `db` auf dem neuen Kopf, und `ci-repeat` läuft zu jeder Stunde.
+
 ### [2026-11-24 / AI1 #1697, migration 0168] Gelernte Lektion: Eine PL/pgSQL-Variable darf nie wie ein Tabellenalias derselben Funktion heissen
 - **Was war das Fehlerbild?** Nach dem Einbau der AUT-194-Schleife in `private.report_draft_model_closed` brach jeder Aufruf mit `record "pv" is not assigned yet` ab (lokal, pgTAP 166 und 167); die Migration selbst lief fehlerfrei durch.
 - **Was war die technische Ursache?** Die neue Schleifenvariable hiess `pv`, und eine ältere Abfrage derselben Funktion nutzt `pv` als Alias für `private.ai_agent_prompt_versions` (`pv.registered_at`). PL/pgSQL löst `pv.registered_at` dann als Feld der noch leeren Variable auf, nicht als Spalte. Der Funktionstext wird erst beim Aufruf geprüft, nicht beim `create or replace`.

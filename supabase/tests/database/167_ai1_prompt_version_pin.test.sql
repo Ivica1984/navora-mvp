@@ -19,6 +19,15 @@ begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(22);
+-- CI pins private.now() to 10:00 Zurich of the run day (DST1, ci.yml «Pin the database clock»), but the migrations stamp
+-- prompt version 1 (0167, `registered_at default private.now()`) with the real clock before the pin takes effect. On a run
+-- after 10:00 Zurich that is later than the test clock, the stop-rule window (from registered_at) is empty and the stop
+-- rule never fires (ci 45383814970, job 138409432521, 12:26 CET). Simulated as the table owner: version 1 was registered
+-- an hour before the test clock (append-only guard lifted for this one update, inside this rolled-back transaction).
+alter table private.ai_agent_prompt_versions disable trigger ai_agent_prompt_versions_append_only;
+update private.ai_agent_prompt_versions set registered_at = private.now() - interval '1 hour'
+ where agent_key = 'report_draft_model' and version = '1';
+alter table private.ai_agent_prompt_versions enable trigger ai_agent_prompt_versions_append_only;
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'p' then '00000000-0000-4000-a000-0000000009e6' end)::uuid $$;
