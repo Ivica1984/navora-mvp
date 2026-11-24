@@ -1245,14 +1245,14 @@ isOneToOne: false
                   ]
                 },"institution_shift_types": {
                   Row: {
-                    "code": string,"ends_at": string,"id": string,"institution_id": string,"label": string,"sort": number,"starts_at": string
+                    "code": string,"ends_at": string,"id": string,"institution_id": string,"label": string,"shift_class": string | null,"sort": number,"starts_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "code": string,"ends_at": string,"id"?: string,"institution_id": string,"label": string,"sort"?: number,"starts_at": string
+                    "code": string,"ends_at": string,"id"?: string,"institution_id": string,"label": string,"shift_class"?: string | null,"sort"?: number,"starts_at": string
                   }
                   Update: {
-                    "code"?: string,"ends_at"?: string,"id"?: string,"institution_id"?: string,"label"?: string,"sort"?: number,"starts_at"?: string
+                    "code"?: string,"ends_at"?: string,"id"?: string,"institution_id"?: string,"label"?: string,"shift_class"?: string | null,"sort"?: number,"starts_at"?: string
                   }
                   Relationships: [
                     {
@@ -1343,14 +1343,14 @@ isOneToOne: false
                   ]
                 },"institutions": {
                   Row: {
-                    "created_at": string,"display_name": string,"id": string,"kind": string,"max_consecutive_days": number,"min_rest_hours": number,"order_postcode": string | null,"simulation": boolean
+                    "created_at": string,"display_name": string,"id": string,"kind": string,"max_consecutive_days": number,"min_rest_hours": number,"order_postcode": string | null,"simulation": boolean,"weekly_target_hours": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean
+                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean
+                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null
                   }
                   Relationships: [
                     {
@@ -3532,7 +3532,10 @@ isOneToOne: false
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
 "institution_set_planning_limits":
-{ Args: { "p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number }; Returns: Json
+{ Args: { "p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number,"p_weekly_target_hours": number }; Returns: Json
+                           },
+"institution_set_shift_class":
+{ Args: { "p_shift_class": string,"p_shift_type_id": string }; Returns: Json
                            },
 "institution_set_shift_type":
 { Args: { "p_code": string,"p_ends_at": string,"p_institution_id": string,"p_label": string,"p_starts_at": string }; Returns: Json

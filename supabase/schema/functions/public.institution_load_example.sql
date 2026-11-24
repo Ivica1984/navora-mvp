@@ -29,12 +29,15 @@ begin
   end if;
   insert into public.institution_stations (institution_id, name, sort) values (inst.id, 'Rhein 1', 0) returning id into s1;
   insert into public.institution_stations (institution_id, name, sort) values (inst.id, 'Rhein 2', 1) returning id into s2;
-  insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort) values
-    (inst.id, 'F', 'Früh', '07:00', '15:30', 0) returning id into f;
-  insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort) values
-    (inst.id, 'S', 'Spät', '14:30', '23:00', 1) returning id into sp;
-  insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort) values
-    (inst.id, 'N', 'Nacht', '22:30', '07:15', 2) returning id into n;
+  -- Example times and classes of the synthetic test home (FE-123, «Beispielwert des Heims»; NAVORA sets no times).
+  insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort, shift_class) values
+    (inst.id, 'F', 'Früh', '07:00', '15:30', 0, 'early') returning id into f;
+  insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort, shift_class) values
+    (inst.id, 'S', 'Spät', '14:30', '23:00', 1, 'late') returning id into sp;
+  insert into public.institution_shift_types (institution_id, code, label, starts_at, ends_at, sort, shift_class) values
+    (inst.id, 'N', 'Nacht', '22:30', '07:15', 2, 'night') returning id into n;
+  -- FE-123: test home 42 h per week at 100 % Pensum («Beispielwert des Heims»), only when the home has not entered one.
+  update public.institutions set weekly_target_hours = coalesce(weekly_target_hours, 42) where id = inst.id;
   insert into public.institution_staffing_rules (institution_id, station_id, shift_type_id, required_total,
                                                  required_grade, required_grade_count, example) values
     (inst.id, s1, f, 2, 'nurse_hf_fh', 1, true), (inst.id, s1, sp, 2, 'nurse_hf_fh', 1, true),
@@ -42,11 +45,14 @@ begin
     (inst.id, s2, f, 3, 'nurse_hf_fh', 1, true), (inst.id, s2, sp, 2, 'nurse_hf_fh', 1, true),
     (inst.id, s2, n, 1, null, 0, true);
   with ins as (
-    insert into public.institution_staff (institution_id, display_name, grade, home_station_id)
-    select inst.id, v.name, v.grade, case when v.st = 1 then s1 else s2 end
-    from (values ('Anna Muster', 'nurse_hf_fh', 2, 1), ('Ben Beispiel', 'fage_efz', 2, 2), ('Carla Test', 'fage_efz', 2, 3),
-                 ('David Probe', 'ags_eba', 2, 4), ('Eva Fiktiv', 'nurse_hf_fh', 1, 5), ('Felix Demo', 'fage_efz', 1, 6),
-                 ('Gina Simul', 'nurse_hf_fh', 2, 7), ('Hugo Platz', 'ags_eba', 1, 8)) v(name, grade, st, ord)
+    -- Pensum and shift model are synthetic example values (HD-3a), so the rule-based draft can plan the example.
+    insert into public.institution_staff (institution_id, display_name, grade, home_station_id, pensum_pct, shift_model)
+    select inst.id, v.name, v.grade, case when v.st = 1 then s1 else s2 end, v.pensum, v.model
+    from (values ('Anna Muster', 'nurse_hf_fh', 2, 1, 100, 'any'), ('Ben Beispiel', 'fage_efz', 2, 2, 80, 'no_night'),
+                 ('Carla Test', 'fage_efz', 2, 3, 100, 'any'), ('David Probe', 'ags_eba', 2, 4, 60, 'late_only'),
+                 ('Eva Fiktiv', 'nurse_hf_fh', 1, 5, 100, 'any'), ('Felix Demo', 'fage_efz', 1, 6, 80, 'early_only'),
+                 ('Gina Simul', 'nurse_hf_fh', 2, 7, 90, 'no_night'), ('Hugo Platz', 'ags_eba', 1, 8, 100, 'any'))
+         v(name, grade, st, ord, pensum, model)
     order by v.ord
     returning id, display_name)
   select array_agg(id order by display_name) into staff_ids from ins;

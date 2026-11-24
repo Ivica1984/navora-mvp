@@ -6,8 +6,12 @@ import {
   buildDraft,
   draftContextRange,
   gapReasonText,
+  fullTimeMinutes,
+  modelAllows,
   shiftSpan,
   verifyDraft,
+  SHIFT_CLASSES,
+  SHIFT_MODELS,
   DRAFT_MARK,
   WORKING_TIME_LAW_MARK,
   type DraftInput,
@@ -109,7 +113,7 @@ function ok(i: DraftInput) {
 function randomFixture(seed: number, persons = 20, days = 14, stations = 2): Fixture {
   const r = rng(seed);
   const grades = [HF, FAGE, AGS];
-  const models: ShiftModel[] = ["any", "any", "any", "day_only", "late_only", "night_only", "no_night"];
+  const models: ShiftModel[] = ["any", "any", "any", "early_only", "late_only", "night_only", "no_night"];
   const from = "2026-12-01";
   const to = addDays(from, days - 1);
   const staff: DraftStaff[] = [];
@@ -144,7 +148,17 @@ describe("HD-3a draft: marks and fail closed", () => {
     expect(DRAFT_MARK).toBe("Optimierung (feste Regeln)");
     expect(WORKING_TIME_LAW_MARK).toBe("Arbeitszeitgesetz nicht abschliessend geprüft");
   });
-  it("refuses to draft without the full-time reference (Q1 OPEN)", () => {
+  it("reads the home's weekly target hours as the full-time reference, fail closed when missing (Q1, FE-123)", () => {
+    expect(fullTimeMinutes(42)).toBe(2520);
+    expect(fullTimeMinutes(41.5)).toBe(2490);
+    expect(fullTimeMinutes(null)).toBeNull();
+    expect(fullTimeMinutes(undefined)).toBeNull();
+    expect(fullTimeMinutes(0)).toBeNull();
+    expect(fullTimeMinutes(-5)).toBeNull();
+    expect(fullTimeMinutes(Number.NaN)).toBeNull();
+  });
+
+  it("refuses to draft without the full-time reference (Q1)", () => {
     const i = input({ from: "2026-12-01", to: "2026-12-07", stations: ["st0"], staff: [person("a", HF)], limits: { fullTimeMinutesPerWeek: null } });
     expect(buildDraft(i)).toEqual({ result: "pensum_reference_missing" });
   });
@@ -198,7 +212,7 @@ describe("HD-3a draft: hard rules", () => {
       stations: ["st0"],
       types: [TYPES[2], unclassified],
       rule: { total: 1, grade: null, gradeCount: 0 },
-      staff: [person("n", AGS, { shift_model: "no_night" }), person("d", AGS, { shift_model: "day_only" })],
+      staff: [person("n", AGS, { shift_model: "no_night" }), person("d", AGS, { shift_model: "early_only" })],
     });
     const r = ok(i);
     expect(r.rows).toEqual([]);
@@ -208,6 +222,35 @@ describe("HD-3a draft: hard rules", () => {
     expect(r2.rows.length).toBeGreaterThan(0);
     expect(r2.rows.every((x) => x.staff_id === "z")).toBe(true);
     expect(verifyDraft(anyone, r2.rows)).toEqual([]);
+  });
+
+  it("never places `early_only` on a late or night shift, and fills its early shifts (FE-123)", () => {
+    const i = input({
+      from: "2026-12-01",
+      to: "2026-12-03",
+      stations: ["st0"],
+      rule: { total: 1, grade: null, gradeCount: 0 },
+      staff: [person("e", AGS, { shift_model: "early_only" })],
+    });
+    const r = ok(i);
+    expect(verifyDraft(i, r.rows)).toEqual([]);
+    expect(r.rows.length).toBeGreaterThan(0);
+    expect(r.rows.every((x) => x.shift_type_id === "t1-early")).toBe(true);
+    const lateOrNight = r.gaps.filter((g) => g.shift_type_id !== "t1-early");
+    expect(lateOrNight.length).toBe(6);
+    expect(lateOrNight.every((g) => g.blocked.shift_model === 1)).toBe(true);
+  });
+
+  it("has no day class and no `day_only` model any more (FE-123 forward migration)", () => {
+    expect([...SHIFT_CLASSES]).toEqual(["early", "late", "night"]);
+    expect([...SHIFT_MODELS]).toEqual(["any", "early_only", "late_only", "night_only", "no_night"]);
+    expect(modelAllows("early_only", "early")).toBe(true);
+    expect(modelAllows("early_only", "late")).toBe(false);
+    expect(modelAllows("early_only", "night")).toBe(false);
+    expect(modelAllows("no_night", "night")).toBe(false);
+    expect(modelAllows("no_night", "late")).toBe(true);
+    for (const m of SHIFT_MODELS) if (m !== "any") expect(modelAllows(m, null)).toBe(false);
+    expect(modelAllows("any", null)).toBe(true);
   });
 
   it("never plans over an absence, also not the night into an absence day", () => {

@@ -18,10 +18,11 @@ begin
     return jsonb_build_object('result', 'rejected');
   end if;
   -- HD-3a master data (#1712): Pensum 10-100 % or not entered (NULL: the person is not planned automatically).
+  -- Shift models after FE-123: `early_only` replaces `day_only` (there is no day class).
   if p_pensum_pct is not null and (p_pensum_pct < 10 or p_pensum_pct > 100) then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('pensum_not_valid'));
   end if;
-  if p_shift_model is null or p_shift_model not in ('any', 'day_only', 'late_only', 'night_only', 'no_night') then
+  if p_shift_model is null or p_shift_model not in ('any', 'early_only', 'late_only', 'night_only', 'no_night') then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('shift_model_not_valid'));
   end if;
   select * into p from public.institution_staff where id = p_staff_id for update;

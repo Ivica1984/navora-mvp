@@ -371,7 +371,19 @@
         "SET search_path TO ''",
         "is_institution_member",
         "institution_audit",
-        "assert_access_open"
+        "assert_access_open",
+        "weekly_target_hours_not_valid"
+      ]
+    },
+    {
+      "name": "public.institution_set_shift_class",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_class_not_valid"
       ]
     },
     {

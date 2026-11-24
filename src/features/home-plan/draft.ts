@@ -12,9 +12,11 @@
 //   R-d no absence day touched (HD-1 R3)        R-h shift minutes per ISO week <= Pensum x full-time reference
 // Rest time and days in a row carry the mark «Arbeitszeitgesetz nicht abschliessend geprüft» (`lca` before real data).
 //
-// OPEN decisions this module takes as inputs instead of inventing them (#1712 7135821089):
-//   Q1 the full-time reference (`fullTimeMinutesPerWeek`); null => the draft refuses to run (fail closed).
-//   Q2 the class of each shift type (`shift_class`); a restricted shift model is never placed on an unclassified type.
+// Founder answers (FE-123, brief HD.md §5b PO amendment 19:39), taken as inputs of the home, never invented here:
+//   Q1 100 % Pensum = the home's «Sollstunden pro Woche» (`institutions.weekly_target_hours`, test home 42 h, marked
+//      «Beispielwert des Heims»); not entered => the draft refuses to run (fail closed, `pensum_reference_missing`).
+//   Q2 each shift type has the class `early`, `late` or `night` chosen by the home, or none; there is no day class.
+//      A restricted shift model is never placed on an unclassified type (only `any` may take it).
 //
 // Time follows the database exactly: a shift starts at work_date + starts_at and ends on the same day when ends_at >
 // starts_at, else on the next day (`private.institution_shift_span`); local Zurich time is turned into an instant like
@@ -26,17 +28,17 @@ import { addDays, weekStart, type Absence, type PlanCell, type ShiftType, type S
 export const DRAFT_MARK = "Optimierung (feste Regeln)";
 export const WORKING_TIME_LAW_MARK = "Arbeitszeitgesetz nicht abschliessend geprüft";
 
-export const SHIFT_CLASSES = ["early", "day", "late", "night"] as const;
+export const SHIFT_CLASSES = ["early", "late", "night"] as const;
 export type ShiftClass = (typeof SHIFT_CLASSES)[number];
-export const SHIFT_MODELS = ["any", "day_only", "late_only", "night_only", "no_night"] as const;
+export const SHIFT_MODELS = ["any", "early_only", "late_only", "night_only", "no_night"] as const;
 export type ShiftModel = (typeof SHIFT_MODELS)[number];
 
 /** Which shift classes a shift model allows. `any` also allows an unclassified type; every other model does not (Q2). */
 const MODEL_ALLOWS: Record<Exclude<ShiftModel, "any">, ReadonlyArray<ShiftClass>> = {
-  day_only: ["early", "day"],
+  early_only: ["early"],
   late_only: ["late"],
   night_only: ["night"],
-  no_night: ["early", "day", "late"],
+  no_night: ["early", "late"],
 };
 
 export function modelAllows(model: ShiftModel, cls: ShiftClass | null): boolean {
@@ -44,12 +46,19 @@ export function modelAllows(model: ShiftModel, cls: ShiftClass | null): boolean 
   return cls !== null && MODEL_ALLOWS[model].includes(cls);
 }
 
+/** The home's «Sollstunden pro Woche» as minutes; null, non-finite or <= 0 => null (no draft, fail closed). */
+export function fullTimeMinutes(weeklyTargetHours: number | null | undefined): number | null {
+  if (weeklyTargetHours === null || weeklyTargetHours === undefined) return null;
+  const h = Number(weeklyTargetHours);
+  return Number.isFinite(h) && h > 0 ? Math.round(h * 60) : null;
+}
+
 export type DraftShiftType = ShiftType & { shift_class: ShiftClass | null };
 export type DraftStaff = Staff & { pensum_pct: number | null; shift_model: ShiftModel };
 export type DraftLimits = {
   minRestHours: number;
   maxConsecutiveDays: number;
-  /** Q1 (OPEN): minutes of shift time per ISO week at 100 % Pensum, entered by the home. null => no draft. */
+  /** Q1 (FE-123): minutes of shift time per ISO week at 100 % Pensum (`fullTimeMinutes(weekly_target_hours)`). */
   fullTimeMinutesPerWeek: number | null;
 };
 export type DraftInput = {

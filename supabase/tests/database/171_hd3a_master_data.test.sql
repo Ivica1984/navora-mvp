@@ -63,7 +63,8 @@ create function pg_temp.planning(p_user text, staff uuid, pensum integer, model 
     staff, coalesce(pensum::text, 'null'), model))
 $$;
 create function pg_temp.limits(p_user text, inst uuid, rest integer, days integer) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.institution_set_planning_limits(%L, %s, %s)', inst, rest, days))
+  -- 0172 added the weekly target hours (FE-123); NULL keeps «not entered». 172 tests that argument.
+  select pg_temp.cmd(p_user, format('select public.institution_set_planning_limits(%L, %s, %s, null)', inst, rest, days))
 $$;
 
 -- 1. Schema ------------------------------------------------------------------------------------------------------------
@@ -116,10 +117,10 @@ select is(pg_temp.planning(pg_temp.lead(), pg_temp.id('x'), 5, 'any') -> 'proble
 select is(pg_temp.planning(pg_temp.lead(), pg_temp.id('x'), 101, 'any') -> 'problems' ->> 0, 'pensum_not_valid', 'Pensum 101 % is refused');
 select is(pg_temp.planning(pg_temp.lead(), pg_temp.id('x'), 50, 'nights') -> 'problems' ->> 0, 'shift_model_not_valid',
           'an unknown shift model is refused');
-select is(pg_temp.planning(pg_temp.u('03')::text, pg_temp.id('x'), null, 'day_only') ->> 'result', 'ok',
-          'the planner clears the Pensum and sets day_only');
+select is(pg_temp.planning(pg_temp.u('03')::text, pg_temp.id('x'), null, 'early_only') ->> 'result', 'ok',
+          'the planner clears the Pensum and sets early_only (0172: replaces day_only)');
 select is((select coalesce(pensum_pct::text, 'none') || ' ' || shift_model from public.institution_staff where id = pg_temp.id('x')),
-          'none day_only', 'a cleared Pensum is stored as not entered');
+          'none early_only', 'a cleared Pensum is stored as not entered');
 select is(pg_temp.planning(pg_temp.u('02')::text, pg_temp.id('x'), 60, 'any') ->> 'result', 'rejected', 'a viewer cannot change it');
 select is(pg_temp.planning(pg_temp.u('01')::text, pg_temp.id('x'), 60, 'any') ->> 'result', 'rejected',
           'another home''s lead cannot change it');
@@ -148,7 +149,7 @@ select is(pg_temp.limits(pg_temp.u('05')::text, pg_temp.u('11'), 11, 6) ->> 'sql
 select is(pg_temp.planning(pg_temp.u('05')::text, pg_temp.u('21'), 50, 'any') ->> 'sqlstate', '42501',
           'after the access end set_staff_planning raises access_ended');
 select ok(not has_function_privilege('anon', 'public.institution_set_staff_planning(uuid, integer, text)', 'execute')
-          and not has_function_privilege('anon', 'public.institution_set_planning_limits(uuid, integer, integer)', 'execute')
+          and not has_function_privilege('anon', 'public.institution_set_planning_limits(uuid, integer, integer, numeric)', 'execute')
           and not has_function_privilege('anon', 'public.institution_record_absence(uuid, uuid, date, date, text)', 'execute'),
           'anon executes none of the three commands');
 
