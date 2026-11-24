@@ -18,7 +18,7 @@ describe("ledgerGate (AUT-138: MODEL_LEDGER_READY comes only from the database g
     expect(ledgerGate({ data: { result: "ok", open: true, reason: null }, error: null })).toEqual({ ready: true });
   });
   it("keeps the database reason when closed (no threshold row, stop rule, not a simulation)", () => {
-    for (const reason of ["no_threshold", "stop_rule", "not_simulation_org", "not_performer", "not_draft", "not_team_member"]) {
+    for (const reason of ["no_threshold", "stop_rule", "not_simulation_org", "not_performer", "not_draft", "not_team_member", "prompt_unregistered"]) {
       expect(ledgerGate({ data: { result: "ok", open: false, reason }, error: null })).toEqual({ ready: false, reason });
     }
   });
