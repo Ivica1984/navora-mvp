@@ -16,6 +16,57 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-24 15:02 CET: scheduled review after the PERF1 merge; **AI1 evaluation reference delivered** (contract item 4, AUT-190: `docs/agents/clinical/AI1_EVAL_REFERENCE.md`, 60 synthetic notes, PROPOSED, not frozen); pre-gate reading of **#1697** AI1 (draft, head `2e4d5d8`). **No gate line** (#1697 is a draft without `Paket prüfbereit:`). PERF1 findings closed with evidence. One new advisory finding (CGR-281). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `2612380`. Since my 07:41 section (`548782a`): #1671 PERF1 merged (`448e9c4`) and accepted for the simulation on `4310526` (`ABNAHMEAKTE.md` §PERF1: `ci` 44995151978, `staging-smoke` 44997017084 7 passed, `ci-repeat` 44999346857 20/20, as recorded by the PO; I did not re-read those job logs); #1694 STG-SMOKE-1 (scripts only); #1701 AN2-F1 (test assertion only); #1713 SEC-DEP1 (`package-lock.json` only, FE-116); role docs and PO cycles. `FOUNDER_DECISIONS.md` v71: FE-113, FE-114, FE-115, FE-116. Blueprint 3.2.86: §1.6 (FE-114) and Kap. 12 row D-14 (FE-115) changed; **Annex B §1 (20 guarantees) and the qualification matrix unchanged**, so no FE-079 renewal is due in my field. Handbook V2.2 unchanged.
+- #1697 `feature/ai1` against `recovery/main`: `config.ts`, `ci-fake-provider.ts`, `draft.ts`, `contract.ts`, `segment.ts` in full; migrations 0166 (limits, budget, reservations, switch events) and 0168 (stop carry-over) and the canonical `private.report_draft_model_closed.sql`, `private.ai_function_off.sql`; pgTAP 167 (`cleared` cases) read in part. Check runs on `2e4d5d8` (API): `app`, `db`, `e2e`, `ui-screenshots`, `staging`, CodeQL `success`; job logs not read (no gate is asked).
+- `briefs/AI1.md` §PO package contract (item 4) and `aia` AUT-190 (review 84).
+
+### AI1 evaluation reference (contract item 4): delivered, PROPOSED
+
+`docs/agents/clinical/AI1_EVAL_REFERENCE.md` (new): 60 synthetic multi-sentence notes (34 home care, 26 simulated ward) in six kinds (values 10, negations 10, side and place 10, not done or refused 8, safety observation among filler 8, mixed shift end 14), each with a reference quoted word for word from the note («Muss bleiben»), plus the reading rules I propose for the run: invented fact (target 0 over 180 runs), dropped silently (target 0), missed but shown (counted; target OPEN for `po`), verbatim matching with a `cra` reading for reworded elements, a case fails on any run, freeze by digest in the AI1 gate. It contains no clinical rule, no threshold and no runtime word list (`cra` 2026-11-19 03:50 stands); every value in a note is case data. The S2-15 to S2-17 kinds are inside it. It is not frozen: `eng` transcribes it into the fixture, and I check the transcription in the AI1 gate.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-281** | #1697 AI1 kill switch: «cleared» and «evaluation_failed» events | **advisory**; S2; not a new merge condition from me (FE-089 (3)), placement `po` | The brief says an evaluation run with any invented fact stops the model «until `eng` and `cra` clear it» (§4), and 0168 lifts a carried-over stop only by a `cleared` switch event. But a `cleared` or `evaluation_failed` row needs no record of who cleared, on which run, or on which gate line: `note` is optional. A clearance after an invented fact could therefore leave no trace of the evidence it rests on. Also, the «automatic stop» after an evaluation run is not automatic in code: the `evaluation_failed` row is written by a reviewed SQL statement (PLANNED as a step (b) act, UNKNOWN who writes it). | #1697 `2e4d5d8` migration 0166 lines 99-108 (`note text check (…)` nullable; `check (off or reason = 'cleared')`); `private.report_draft_model_closed.sql` carry-over loop (any `not e.off` event at or after the window end); brief AI1 §4 | (a) A check: `reason in ('cleared', 'evaluation_failed', 'stop_rule')` ⇒ `note is not null`, and the note names the evaluation run ID or the gate line it rests on; pgTAP: a `cleared` row without a note is refused (23514). (b) Step (b) evidence (acceptance, not merge): if an evaluation run reports ≥ 1 invented fact, the acceptance record shows the `evaluation_failed` row for that organisation before any `staging-smoke` with the model on, and the later `cleared` row names the `eng` and `cra` lines. |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1697 AI1 | `2e4d5d8` (draft) | **No gate line** (no `Paket prüfbereit:`). My gate on the ready head will check: (1) no invented or dropped clinical fact in the design: the validator `control.ts` is unchanged by the branch, the CI fake only quotes, a note over 4,000 characters is refused before any reservation, never cut (`segment.ts` `MAX_MODEL_INPUT_CHARS`), the draft stays unsigned until the carer signs; (2) the fixture matches `AI1_EVAL_REFERENCE.md` by digest; (3) CGR-281 placed. |
+| #1671 PERF1 | merged `448e9c4` | accepted for the simulation (`4310526`); my findings closed below. |
+| #1713 SEC-DEP1, #1694, #1701 | merged | not in my field (lock file, smoke scripts, a test assertion); not reviewed as gates. |
+
+Not reviewed as gates: #1716 (Dependabot), #1612, #1611, #1541, #1540 (docs or not the active package).
+
+### Founder decisions read (README rule 10; no contradiction found)
+
+- **FE-114** (FE-039 scope; in `/heim` the home or ward lead confirms): changes **who confirms** a plan, not the qualification check. CR-212, CR-220 to CR-223 (QAM read in the database) and Annex B §1 apply in `/heim` as in `/team`; any `/heim` confirmation that bypassed them would be a new finding. No finding now.
+- **FE-115** (D-14: F3 per FTE, F1/F2 prohibited): supports billing integrity: NAVORA's income does not rise with billed hours or higher care levels, so the platform has no incentive towards upcoding. Note only; fee level OPEN (owner).
+- **FE-116** (SEC-DEP1): runtime dependencies untouched per the PO reading (`npm audit --omit=dev` 0); not in my field.
+
+### Findings closed with evidence
+
+- **CGR-272** (PERF1 degrade visible, never an empty list): closed. #1671 merged `448e9c4` on the head I cleared (`2f067ad`); `src/features/team/queries.ts` `getTeamVisitAlerts` returns `unavailable` per request; `src/components/visits/HintsUnavailableNotice.tsx`; e2e `tests/e2e/perf1-field-degrade.spec.ts` (390 and 1440 px, `/team`); pgTAP 165 (`aux_list_unknown`). Acceptance on `4310526` per `ABNAHMEAKTE.md`.
+- **CGR-277 / PS-234** (notice names missing open points and safety signals; follow-up line back after recovery): closed with the same merge; e2e CGR-277 case in `perf1-field-degrade.spec.ts`.
+- **CGR-275** (evaluator durations stated): closed; stated in the ready report 7074967663, merged with #1671.
+- Still open from PERF1: CGR-273, CGR-276, CGR-278, CGR-280 (PS-236), as before.
+
+### Decisions requested
+
+- **`eng`:** transcribe `AI1_EVAL_REFERENCE.md` into the AI1 evaluation fixture verbatim (digest in the run report); say if a row cannot be sent as written. Place the CGR-281 (a) check in AI1 or name it a follow-up with `po`.
+- **`aia`:** read the reading rules (§«How a run is read») against AUT-190 (c) to (e) and AUT-169.
+- **`po`:** place CGR-281; set a target (or none, with the reason) for «missed, shown» in the run report.
+- **Clinical Owner (UNKNOWN):** unchanged: CGR-273, CGR-276, CGR-278, PERF1-F1, CGR-267 (D-29); whether any synthetic set is enough before real persons (not offered for that).
+- **`lca`:** unchanged: CGR-271.
+
+---
+
 ## 2026-11-22 07:41 CET: package gate review of **#1671** (PERF1, brief `briefs/PERF1.md` incl. PO amendments 2026-11-21 20:39 and 2026-11-22 02:39; head `2f067ad33ec457b4d3b305e49d65b6ec3806260e`; `eng` ready report 7074967663) with the three questions `eng` named for `cra` (PO gate start FE-089 (2), FE-097). **`cra-gate: #1671 2f067ad clear`** (gate «Simulation, synthetic data» only; not a clinical release, D-27). Fixed residual list (FE-089 (3)): brief PERF1; no new merge condition from me. One new advisory finding as a named follow-up (CGR-280).
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
