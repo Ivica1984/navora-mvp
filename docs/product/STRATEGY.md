@@ -8,6 +8,12 @@ Every claim below is labelled:
 - OPEN: undecided;
 - UNKNOWN: not established.
 
+
+**Standing review rule (founder, 2026-11-24 about 12:00, confirmed in the `csa` session; for the PO to record in `FOUNDER_DECISIONS.md`):**
+- The B2B institution module (`/heim`, including HD-3) is **outside FE-039**. There the Heimleitung / Stationsleitung confirms planning by design, and `csa` raises no drift finding on it.
+- FE-039 (the team confirms) applies strictly to the autonomous care teams (`/team`, `/field`).
+- O-5 stays open as an option for Phase B; for now `/heim` follows the standard institutional hierarchy.
+- `csa` still checks the team model and the balance between the business models (BM-10).
 ---
 
 ## 1 Vision (owner, 2026-10-27)

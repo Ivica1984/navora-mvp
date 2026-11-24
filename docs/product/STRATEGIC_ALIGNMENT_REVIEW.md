@@ -8,6 +8,22 @@
 
 ---
 
+## 2026-11-24 12:01 CET · csa · Founder confirmation: scope rule for `/heim`; STR-53 approved
+
+**Founder confirmation in the `csa` session (about 12:00 CET; the PO did not hear it):**
+1. Future weekly runs treat the B2B module (`/heim`) as outside FE-039 from the start. Confirmation there by the Heimleitung / Stationsleitung is by design and triggers no drift finding.
+2. FE-039 applies strictly to the autonomous care teams (`/team`, `/field`).
+3. Approved: Blueprint §1 and `PRODUCT_BLOCKS.md` are updated with the STR-53 wording, through the PO.
+4. O-5 stays open as an option for Phase B; for now `/heim` follows the standard institutional hierarchy.
+
+**`csa` consequence:**
+- The rule is recorded as a standing review rule at the top of `STRATEGY.md`.
+- STR-53 changes from «proposal» to «founder-approved, for the PO to carry out». The PO writes the FE row and the two text changes; `csa` does not edit those files.
+- I renew my FE-079 sign-off once Blueprint §1 carries the wording.
+- My 11:56 reading of O-5 is confirmed as written.
+
+---
+
 ## 2026-11-24 11:56 CET · csa · Correction: STR-47 closed «by design» (founder clarification)
 
 **Founder statement in the `csa` session, 2026-11-24 about 11:55 CET (not heard by the PO; for the PO to record).** Summary in my words: NAVORA has two models. (1) The B2B institution module (`/heim`, HD-3) is a standalone product sold to nursing homes and hospitals for their internal shift operations; there, operational and legal authority lies with the Heimleitung / Stationsleitung, so confirmation by the Heimleitung is correct and intentional. (2) The self-organised team model (FE-039) applies to autonomous caregiver teams (`/team`, `/field`) that replace the traditional Spitex model; there the team confirms. **Decision (founder):** HD-3 proceeds as planned with Heimleitung confirmation; STR-47 is closed as «by design».
