@@ -8,7 +8,8 @@ import {
 import {
   ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  monthCode, monthLabel, monthPeople, personPlan, plannedHours, rangeFor, requirementText, weekdayShort, type Plan, type PlanCell,
+  monthCode, monthLabel, monthPeople, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
+  type PendingWarning,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
@@ -24,6 +25,7 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
   const date = isIsoDate(one(sp.datum)) ? (one(sp.datum) as string) : today;
   const person = one(sp.person);
   const message = messageText(one(sp.meldung));
+  const pending = parseWarning(one(sp.warnung));
 
   const institutions = await getMyInstitutions();
   if (institutions.length === 0) {
@@ -84,6 +86,8 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
         </p>
       )}
 
+      {plan && pending && canPlan(plan.institution.role) && <RuleWarning plan={plan} pending={pending} back={back} />}
+
       {!plan ? (
         <p role="alert">Der Plan konnte nicht geladen werden.</p>
       ) : view !== "einstellungen" && (plan.stations.length === 0 || plan.shift_types.length === 0) ? (
@@ -113,6 +117,33 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
 }
 
 const btn = "min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-sm font-semibold";
+
+// HD-3a Q3 (FE-123): the hand assignment broke a planning rule. Nothing is saved yet; the person confirms or cancels.
+function RuleWarning({ plan, pending, back }: { plan: Plan; pending: PendingWarning; back: string }) {
+  const person = plan.staff.find((p) => p.id === pending.staff)?.display_name ?? "Diese Person";
+  const t = plan.shift_types.find((x) => x.id === pending.shift);
+  const station = plan.stations.find((x) => x.id === pending.station)?.name ?? "";
+  return (
+    <section role="alert" aria-label="Regelwarnung" data-testid="heim-rule-warning"
+      className="grid gap-2 rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950">
+      <p className="font-semibold">
+        {person} · {t ? `${t.label} ${t.starts_at}–${t.ends_at}` : "Dienst"}{station ? ` · ${station}` : ""} · {dayLabel(pending.date)}
+      </p>
+      <ul className="list-disc pl-5" data-testid="heim-rule-warning-rules">
+        {pending.rules.map((r) => <li key={r}>{ruleText(r)}</li>)}
+      </ul>
+      <p>Werte des Heims; Ruhezeit und Arbeitstage in Folge: Arbeitszeitgesetz nicht abschliessend geprüft. Die Warnung bleibt auf dem Dienst sichtbar.</p>
+      <div className="flex flex-wrap gap-2">
+        <form action={assignStaff}>
+          <Hidden values={{ institution: plan.institution.id, station: pending.station, shift: pending.shift, date: pending.date,
+            staff: pending.staff, confirm: pending.rules.join(","), back }} />
+          <button type="submit" className={btnPrimary} data-testid="heim-rule-confirm">Trotzdem einteilen</button>
+        </form>
+        <Link href={back} className={`${btn} grid place-items-center`} data-testid="heim-rule-cancel">Abbrechen</Link>
+      </div>
+    </section>
+  );
+}
 const btnPrimary = "min-h-11 rounded-lg bg-emerald-800 px-3 text-sm font-semibold text-white";
 const input = "min-h-11 rounded-lg border border-stone-300 bg-white px-2 text-sm";
 
@@ -217,6 +248,11 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
                               {a.inactive && (
                                 <span className="ml-1 text-xs font-semibold text-rose-800 no-underline" data-testid="heim-assigned-inactive">
                                   nicht mehr aktiv
+                                </span>
+                              )}
+                              {ruleWarning(a) && (
+                                <span className="block text-xs font-semibold text-amber-900 no-underline" data-testid="heim-assigned-warning">
+                                  {ruleWarning(a)}
                                 </span>
                               )}
                             </span>
@@ -454,6 +490,7 @@ function PersonPanel({ plan, staff, back, planner, prev, next }: {
               <span key={s.assignment_id} className={s.counts ? "" : "line-through"}>
                 {s.label} {s.time} · {s.station}
                 {!s.counts && !d.absent && <span className="ml-1 font-semibold text-rose-800 no-underline">zählt nicht</span>}
+                {s.warning && <span className="ml-1 font-semibold text-amber-900 no-underline" data-testid="heim-person-warning">{s.warning}</span>}
               </span>
             ))}
             {!d.absent && d.shifts.length === 0 && <span>frei</span>}

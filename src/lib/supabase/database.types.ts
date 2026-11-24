@@ -1123,14 +1123,14 @@ isOneToOne: false
                   ]
                 },"institution_assignments": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
+                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"override_at": string | null,"override_by": string | null,"override_rules": string[] | null,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"override_at"?: string | null,"override_by"?: string | null,"override_rules"?: string[] | null,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"shift_type_id"?: string,"staff_id"?: string,"station_id"?: string,"work_date"?: string
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"override_at"?: string | null,"override_by"?: string | null,"override_rules"?: string[] | null,"shift_type_id"?: string,"staff_id"?: string,"station_id"?: string,"work_date"?: string
                   }
                   Relationships: [
                     {
@@ -3505,7 +3505,7 @@ isOneToOne: false
 { Args: { "p_institution_id": string,"p_name": string }; Returns: Json
                            },
 "institution_assign_staff":
-{ Args: { "p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
+{ Args: { "p_confirm_rules"?: string[],"p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
                            },
 "institution_discard_gap_order":
 { Args: { "p_gap_order_id": string }; Returns: Json

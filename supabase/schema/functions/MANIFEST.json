@@ -269,6 +269,13 @@
       ]
     },
     {
+      "name": "private.institution_rule_breaches",
+      "required": [
+        "SET search_path TO ''",
+        "STABLE"
+      ]
+    },
+    {
       "name": "private.institution_shift_days",
       "required": [
         "SET search_path TO ''"
@@ -288,7 +295,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_shift_days"
+        "institution_shift_days",
+        "institution_rule_breaches"
       ]
     },
     {
@@ -300,7 +308,9 @@
         "institution_audit",
         "assert_access_open",
         "institution_shift_days",
-        "for share"
+        "for share",
+        "institution_rule_breaches",
+        "p_confirm_rules"
       ]
     },
     {

@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { ABSENCE_KINDS, HOME_PLAN_PATH, safeReturnPath, sameOrderChoice, withMessage } from "./rules";
+import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withMessage, withWarning } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -50,9 +50,30 @@ export async function assignStaff(form: FormData) {
     institution: str(form, "institution"), station: str(form, "station"), shift: str(form, "shift"),
     date: str(form, "date"), staff: str(form, "staff"),
   }, back);
-  await run("institution_assign_staff", {
+  // HD-3a Q3 (FE-123): the confirmed planning rules, only from the confirmation form (known words only). The database
+  // reads the rules again under its locks and saves only when every current rule is confirmed.
+  const confirm = parseRules(str(form, "confirm"));
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_assign_staff", {
     p_institution_id: v.institution, p_station_id: v.station, p_shift_type_id: v.shift, p_work_date: v.date, p_staff_id: v.staff,
-  }, "assigned", back);
+    ...(confirm.length > 0 ? { p_confirm_rules: confirm } : {}),
+  });
+  let code = confirm.length > 0 ? "assigned_with_warning" : "assigned";
+  let target = back;
+  if (error) {
+    logEvent("warn", "command.failed", { op: "institution_assign_staff", ...errorFields(error) });
+    code = "failed";
+  } else {
+    const r = (data ?? {}) as Result & { rules?: unknown };
+    if (r.result === "warning") {
+      const rules = Array.isArray(r.rules) ? r.rules.filter(isPlanningRule) : [];
+      code = "rule_warning";
+      target = withWarning(back, { staff: v.staff, station: v.station, shift: v.shift, date: v.date, rules });
+    } else if (r.result === "rejected") code = "rejected";
+    else if (r.result !== "ok") code = r.problems?.[0] ?? "failed";
+  }
+  revalidatePath(HOME_PLAN_PATH);
+  redirect(withMessage(target, code));
 }
 
 export async function unassignStaff(form: FormData) {

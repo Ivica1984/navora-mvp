@@ -29,6 +29,10 @@ export type AssignedPerson = {
   grade: string;
   absent: boolean;
   inactive: boolean;
+  /** HD-3a Q3 (migration 0173): the planning rules this shift breaks now (`private.institution_rule_breaches`). */
+  rules?: PlanningRule[];
+  /** HD-3a Q3: the rules a person confirmed by hand when the shift was saved (warning, not a block), or null. */
+  override_rules?: PlanningRule[] | null;
 };
 export type CellStatus = "ok" | "gap" | "no_rule";
 /**
@@ -111,7 +115,39 @@ export const canPlan = (role: InstitutionRole): boolean => role === "lead" || ro
 export const canSettle = (role: InstitutionRole): boolean => role === "lead";
 
 /** Shown wherever the plan is edited: the database checks no working-time law (ArG), only absence and overlap. */
-export const WORKING_TIME_NOTE = "Arbeitszeitregeln (Ruhezeit, Höchstarbeitszeit) prüft NAVORA hier nicht.";
+// HD-3a Q3: rest time, days in a row, Pensum and shift model are checked on every hand assignment (warning, not a
+// block); the values are the home's, rest and days in a row are founder parameters not checked against the law.
+export const WORKING_TIME_NOTE =
+  "Beim Einteilen prüft NAVORA Schichtmodell, Ruhezeit, Arbeitstage in Folge und Pensum nach den Werten des Heims " +
+  "(Arbeitszeitgesetz nicht abschliessend geprüft). Ein Verstoss ist eine Warnung; Abwesenheit und Doppelbelegung sind gesperrt.";
+
+/** HD-3a Q3: the planning rules a shift can break, in the database's fixed order. */
+export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full"] as const;
+export type PlanningRule = (typeof PLANNING_RULES)[number];
+const RULE_TEXT: Record<PlanningRule, string> = {
+  shift_model: "Schichtmodell der Person passt nicht zu dieser Dienstart",
+  rest: "Ruhezeit zu kurz",
+  consecutive: "zu viele Arbeitstage in Folge",
+  pensum_full: "über dem Pensum dieser Woche",
+};
+export const ruleText = (r: PlanningRule): string => RULE_TEXT[r];
+export function isPlanningRule(v: unknown): v is PlanningRule {
+  return typeof v === "string" && (PLANNING_RULES as ReadonlyArray<string>).includes(v);
+}
+/** A comma list from a form or URL to known rules only (unknown words are dropped, order as in the database). */
+export function parseRules(v: unknown): PlanningRule[] {
+  if (typeof v !== "string") return [];
+  const words = new Set(v.split(","));
+  return PLANNING_RULES.filter((r) => words.has(r));
+}
+/** The warning line of a stored shift: the rules it breaks now; «bestätigt» when every one was confirmed by hand. */
+export function ruleWarning(a: Pick<AssignedPerson, "rules" | "override_rules">): string | null {
+  const now = a.rules ?? [];
+  if (now.length === 0) return null;
+  const confirmed = new Set(a.override_rules ?? []);
+  const all = now.every((r) => confirmed.has(r));
+  return `Regel: ${now.map(ruleText).join(", ")}${all ? " (von Hand bestätigt)" : ""}`;
+}
 export const EXAMPLE_NOTE = "Beispielwert des Heims (synthetisch), keine Vorgabe von NAVORA.";
 
 // --- Dates (calendar dates as YYYY-MM-DD; no time zone involved) ------------------------------------------------------
@@ -307,6 +343,8 @@ export type PersonDay = {
     station: string;
     /** From the cell: the shift touches an absence day (also the night into one) or the person is inactive. */
     counts: boolean;
+    /** HD-3a Q3: the rule warning of this shift (same text as the week), or null. */
+    warning: string | null;
   }[];
 };
 
@@ -329,6 +367,7 @@ export function personPlan(plan: Plan, staffId: string): PersonDay[] {
           time: t ? `${t.starts_at}–${t.ends_at}` : "",
           station: station.get(c.station_id) ?? "",
           counts: !a.absent && !a.inactive,
+          warning: ruleWarning(a),
         };
       }),
   }));
@@ -339,7 +378,10 @@ export function personPlan(plan: Plan, staffId: string): PersonDay[] {
  * count (the night into an absence day, or a person no longer active) is shown in brackets: it is planned, not staffed.
  */
 export function monthCode(day: PersonDay): string {
-  const codes = day.shifts.map((s) => (s.counts || day.absent ? s.code : `(${s.code})`)).join("/");
+  // HD-3a Q3: «!» marks a shift with a rule warning (the week and the personal plan name the rule).
+  const codes = day.shifts
+    .map((s) => `${s.counts || day.absent ? s.code : `(${s.code})`}${s.warning ? "!" : ""}`)
+    .join("/");
   if (day.absent) return codes ? `A (${codes})` : "A";
   return codes;
 }
@@ -439,6 +481,7 @@ const PROBLEM_TEXT: Record<string, string> = {
   absence_overlaps: "Für diese Tage ist schon eine Abwesenheit erfasst.",
   kind_not_valid: "Bitte eine Art der Abwesenheit wählen: Ferien, Weiterbildung, Kompensation oder Abwesend.",
   input_not_valid: "Bitte die Angaben prüfen.",
+  rule_warning: "Nicht eingeteilt: Diese Einteilung verletzt eine Planungsregel. Bitte unten prüfen und bestätigen oder abbrechen.",
   name_exists: "Diesen Namen gibt es schon.",
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",
   not_empty: "Beispieldaten lassen sich nur in ein leeres Heim laden.",
@@ -473,6 +516,7 @@ const PROBLEM_TEXT: Record<string, string> = {
 };
 
 const DONE_TEXT: Record<string, string> = {
+  assigned_with_warning: "Eingeteilt, mit bestätigter Regelwarnung. Die Warnung bleibt auf dem Dienst sichtbar.",
   assigned: "Eingeteilt.",
   unassigned: "Aus dem Dienst entfernt.",
   absence: "Abwesenheit erfasst. Betroffene Dienste zeigen jetzt die Lücke.",
@@ -507,5 +551,23 @@ export function safeReturnPath(input: unknown): string {
 export function withMessage(path: string, code: string): string {
   const url = new URL(path, "http://x");
   url.searchParams.set("meldung", code);
+  if (code !== "rule_warning") url.searchParams.delete("warnung");
   return `${url.pathname}${url.search}`;
+}
+
+/** HD-3a Q3: the pending hand assignment that broke a rule, carried in the URL to the confirmation form (no state). */
+export type PendingWarning = { staff: string; station: string; shift: string; date: string; rules: PlanningRule[] };
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export function withWarning(path: string, w: PendingWarning): string {
+  const url = new URL(path, "http://x");
+  url.searchParams.set("warnung", [w.staff, w.station, w.shift, w.date, w.rules.join(",")].join("~"));
+  return `${url.pathname}${url.search}`;
+}
+/** Reads `warnung` back; anything malformed is ignored (the database checks everything again on confirmation). */
+export function parseWarning(v: unknown): PendingWarning | null {
+  if (typeof v !== "string") return null;
+  const [staff, station, shift, date, rules, ...rest] = v.split("~");
+  if (rest.length > 0 || ![staff, station, shift].every((x) => UUID_RE.test(x ?? "")) || !isIsoDate(date)) return null;
+  const r = parseRules(rules);
+  return r.length > 0 ? { staff, station, shift, date, rules: r } : null;
 }

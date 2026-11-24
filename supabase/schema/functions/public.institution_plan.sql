@@ -25,17 +25,22 @@ begin
       'role', (select m.role from public.institution_members m
                where m.institution_id = inst.id and m.user_id = (select auth.uid())),
       'order_postcode', inst.order_postcode,
+      -- HD-3a: the home's planning inputs (FE-119, FE-123), read by the draft and the screen.
+      'min_rest_hours', inst.min_rest_hours, 'max_consecutive_days', inst.max_consecutive_days,
+      'weekly_target_hours', inst.weekly_target_hours,
       'can_order', exists (select 1 from public.client_accounts ca
                            where ca.institution_id = inst.id and private.is_client_member(ca.id))),
     'from', p_from, 'to', p_to,
     'stations', coalesce((select jsonb_agg(jsonb_build_object('id', s.id, 'name', s.name) order by s.sort, s.name)
                           from public.institution_stations s where s.institution_id = inst.id), '[]'::jsonb),
     'shift_types', coalesce((select jsonb_agg(jsonb_build_object('id', t.id, 'code', t.code, 'label', t.label,
-                                     'starts_at', to_char(t.starts_at, 'HH24:MI'), 'ends_at', to_char(t.ends_at, 'HH24:MI'))
+                                     'starts_at', to_char(t.starts_at, 'HH24:MI'), 'ends_at', to_char(t.ends_at, 'HH24:MI'),
+                                     'shift_class', t.shift_class)
                                    order by t.sort, t.starts_at)
                              from public.institution_shift_types t where t.institution_id = inst.id), '[]'::jsonb),
     'staff', coalesce((select jsonb_agg(jsonb_build_object('id', p.id, 'display_name', p.display_name, 'grade', p.grade,
-                               'home_station_id', p.home_station_id, 'active', p.active) order by p.display_name, p.id)
+                               'home_station_id', p.home_station_id, 'active', p.active,
+                               'pensum_pct', p.pensum_pct, 'shift_model', p.shift_model) order by p.display_name, p.id)
                        from public.institution_staff p where p.institution_id = inst.id), '[]'::jsonb),
     'absences', coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'staff_id', a.staff_id,
                                   'starts_on', a.starts_on, 'ends_on', a.ends_on) order by a.starts_on, a.id)
@@ -76,7 +81,11 @@ begin
         left join public.institution_staffing_rules r on r.station_id = s.id and r.shift_type_id = t.id
         left join lateral (
           select jsonb_agg(jsonb_build_object('assignment_id', ia.id, 'staff_id', p.id, 'display_name', p.display_name,
-                                              'grade', p.grade, 'absent', ab.absent, 'inactive', not p.active)
+                                              'grade', p.grade, 'absent', ab.absent, 'inactive', not p.active,
+                                              -- HD-3a Q3: the rules this shift breaks now (one reading with the
+                                              -- command) and those confirmed by hand when it was saved.
+                                              'rules', to_jsonb(private.institution_rule_breaches(p.id, t.id, d.d::date, ia.id)),
+                                              'override_rules', to_jsonb(ia.override_rules))
                            order by p.display_name, p.id) as assigned,
                  -- HD-1 R1: an inactive person never counts as present (she stays listed, marked inactive).
                  count(*) filter (where p.active and not ab.absent)::int as present,
