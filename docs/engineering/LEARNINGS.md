@@ -27,6 +27,24 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-25 / ORDER-F1 #1760, db-Jobs 139523396009, 139529118450, 139534040917] Gelernte Lektion: Eine Ursache erst nennen, wenn ein Budget-Test den ganzen Pfad in der Zielgrösse misst
+- **Was war das Fehlerbild?** pgTAP 178 Test 16/19 («1 000 Aufträge unter 4 s») war dreimal rot: 5 379 ms (`c29508b`), 4 808 ms (`cbd035c`), 4 125 ms (`3a2a382`). Grün erst mit 1 770 ms auf `3753ba9` (Job 139539310937) und 2 120 ms auf `d634d9a` (Job 139544530770). Die Äquivalenz- und die deterministischen Zähl-Assertions waren jedes Mal grün.
+- **Was war die technische Ursache?** Ich hatte auf Staging mit 226 Aufträgen gemessen und die grösste Kostenstelle behoben: den Besuchs-Check in `private.order_member_step`. Mit 1 000 Aufträgen traten zwei weitere Kosten hervor, die bei 226 klein waren: die Prüfung «andere Übernahme derselben Person überlappt» (quadratisch in ihren Übernahmen) und `visit_interval`, das immer noch 18 Mal pro Auftrag lief. Erst die Diagnose pro Funktion (`pg_stat_xact_user_functions`, `self_time`) zeigte sie. Zwei Fehler meiner Arbeitsweise kamen dazu:
+  - Die erste Diagnose verband die Zählerstände über den Funktionsnamen, so dass sich die zwei Überladungen von `at_zurich` vermischten. Korrigiert: Verbindung über `funcid`.
+  - Ein GiST-Index war zuerst partiell (`where order_kind is not null`), die Abfrage hat diese Bedingung aber nicht. Der Planer hätte ihn nie benutzt. Gefunden vor dem Push.
+- **Die verbindliche Lösungsregel ab jetzt:**
+  - Bei einem Leistungsfehler zuerst den Budget-Test in der Zielgrösse schreiben, mit Diagnose pro Funktion über `funcid`, und erst dann eine Ursache nennen.
+  - Eine Messung bei der heutigen Datenmenge zeigt nur die heute grösste Kostenstelle, nicht die, die mit der Datenmenge wächst.
+  - Ein partieller Index wird nur angelegt, wenn die Abfrage seine Bedingung wörtlich enthält.
+  - Eine Grenze im Budget-Test wird nie gelockert, um grün zu werden. Jede rote Runde fand hier eine echte Kostenstelle.
+- **Abgesichert durch:** pgTAP 178 (Budget mit 1 000 Aufträgen: deterministisch höchstens 20 `visit_interval` pro Auftrag, lose 4 s; Diagnose pro Funktion über `funcid`). Ein Check «partieller Index ohne passende Abfrage»: OPEN.
+
+### [2026-11-25 / ORDER-F1 #1760, eigene Arbeitsweise] Gelernte Lektion: Dieselbe Lektion am selben Tag wiederholt; die Regel allein wirkt nicht
+- **Was war das Fehlerbild?** Im Lauf von 22:10 habe ich ORDER-F1 gebaut und `Paket prüfbereit:` 7176298540 gepostet, ohne diese Datei vorher zu lesen. Die Meldung hatte keine Zeile zu einschlägigen Lektionen. Die Lektion «LEARNINGS vor dem Fix lesen» (eigene Arbeitsweise, #1752) stand schon seit dem Nachmittag hier.
+- **Was war die technische Ursache?** Wie um 18:10: Meine Leseliste kam aus dem Laufauftrag, und dort fehlt `LEARNINGS.md`. Die Pflicht steht nur in `CLAUDE.md`. Den Hinweis in `CLAUDE.md` habe ich erst nach dem Merge gelesen, als die Datei neu geladen wurde. Eine Regel in einer Datei, die ich erst lese, wenn ich die Regel schon kenne, hält mich nicht auf.
+- **Die verbindliche Lösungsregel ab jetzt:** Der erste Lesebefehl jedes Laufs ist `CLAUDE.md` und danach `docs/engineering/LEARNINGS.md`, vor *Active now*. Die Meldung `Paket prüfbereit:` nennt immer eine Zeile «Lektionen gelesen: …», oder «keine einschlägig».
+- **Abgesichert durch:** OPEN. Weil die Regel zweimal am selben Tag nicht gewirkt hat, braucht es eine Maschinenprüfung: Vorschlag LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`), dringend an `po`. Eine Prüfung im `agents-check`, die einen `Paket prüfbereit:`-Kommentar ohne Zeile «Lektionen gelesen» als Hinweis meldet, wäre der kleinste Schritt.
+
 ### [2026-11-25 / HD-3a Nach-Merge #1752, eigene Arbeitsweise] Gelernte Lektion: LEARNINGS vor dem Fix lesen, die Lektion gehört in den Fix-Branch
 - **Was war das Fehlerbild?** Im Lauf von 18:10 habe ich den Fix #1752 gebaut, CI grün abgewartet und `Paket prüfbereit:` 7169891994 gepostet, ohne diese Datei gelesen zu haben. Die Meldung hatte keine Zeile «Lektionen:», und auf dem Fix-Branch stand keine Lektion (Regel 2: «Ein Fix-Commit ohne Lektion ist nicht fertig»).
 - **Was war die technische Ursache?** Meine Leseliste stammte aus dem Laufauftrag, und dort fehlt `LEARNINGS.md`. Die Pflichtlektüre steht in `CLAUDE.md`, und die habe ich nicht gegen den Laufauftrag abgeglichen.
