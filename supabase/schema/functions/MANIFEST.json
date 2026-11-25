@@ -423,7 +423,8 @@
         "public.institution_assign_staff(",
         "on conflict (id) do nothing",
         "cell_has_order",
-        "cell_full"
+        "cell_full",
+        "private.institution_cell_lock("
       ]
     },
     {
@@ -503,13 +504,22 @@
       ]
     },
     {
+      "name": "private.institution_cell_lock",
+      "required": [
+        "SET search_path TO ''",
+        "pg_advisory_xact_lock",
+        "hashtextextended",
+        "to_char(p_work_date, 'YYYY-MM-DD')"
+      ]
+    },
+    {
       "name": "public.institution_prepare_gap_order",
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "assert_access_open",
         "is_institution_member",
-        "pg_advisory_xact_lock",
+        "private.institution_cell_lock(",
         "institution_plan_cell",
         "institution_audit"
       ]

@@ -24,6 +24,7 @@ declare
   v_applied uuid[] := '{}';
   v_refused jsonb := '[]'::jsonb;
   uuid_re constant text := '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+  c record;
 begin
   perform private.assert_access_open();  -- LEAVE1-3
   if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
@@ -66,9 +67,23 @@ begin
       from jsonb_array_elements(p_rows) e) <> n then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('duplicate_row'));
   end if;
+  -- Lock every person of the draft of this home, in id order, before the first check: the same first lock as
+  -- institution_assign_staff (person -> type share -> home share), so two applies or an apply and a hand assignment,
+  -- an absence or a planning change of the same person are serialised and cannot deadlock. A person of another home is
+  -- not locked here and is refused below as not_found.
+  perform 1 from public.institution_staff s
+    where s.institution_id = p_institution_id
+      and s.id in (select (e ->> 'staff_id')::uuid from jsonb_array_elements(p_rows) e)
+    order by s.id
+    for update;
+  -- The role may have been removed while this call waited for a person lock (review finding 4): checked again with a
+  -- fresh snapshot, before anything is recorded, so a refused call leaves no run record and no audit event.
+  if not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
   -- Safe repeat (double click, network retry): the client sends one apply id per shown draft. A second call with the
-  -- same id waits for the first on the primary key and then answers from its record; nothing is written twice and
-  -- there is no second audit event.
+  -- same id waits for the first (on the person locks, else on the primary key) and then answers from its record;
+  -- nothing is written twice and there is no second audit event.
   insert into public.institution_draft_runs (id, institution_id, applied_by, rows_offered)
     values (p_apply_id, p_institution_id, (select auth.uid()), n)
     on conflict (id) do nothing;
@@ -81,15 +96,19 @@ begin
     return jsonb_build_object('result', 'already_applied', 'apply_id', v_run.id, 'applied', v_run.rows_applied,
                               'refused', v_run.refused);
   end if;
-  -- Lock every person of the draft of this home, in id order, before the first check: the same first lock as
-  -- institution_assign_staff (person -> type share -> home share), so two applies or an apply and a hand assignment,
-  -- an absence or a planning change of the same person are serialised and cannot deadlock. A person of another home is
-  -- not locked here and is refused below as not_found.
-  perform 1 from public.institution_staff s
-    where s.institution_id = p_institution_id
-      and s.id in (select (e ->> 'staff_id')::uuid from jsonb_array_elements(p_rows) e)
-    order by s.id
-    for update;
+  -- Lock every plan cell of the draft that belongs to this home (review finding 1), all before the first row and in
+  -- one fixed order (station, shift type, day): institution_prepare_gap_order takes the same cell lock, so an order and
+  -- a draft row for the same cell are serialised and each sees the other's committed result (READ COMMITTED: every
+  -- statement below reads a fresh snapshot). Persons first, then cells, both sorted: two applies cannot deadlock, and
+  -- prepare holds only its one cell lock and never waits for a person.
+  for c in select distinct (e ->> 'station_id')::uuid as station_id, (e ->> 'shift_type_id')::uuid as shift_type_id,
+                           (e ->> 'date')::date as work_date
+             from jsonb_array_elements(p_rows) e
+             join public.institution_stations st
+               on st.id = (e ->> 'station_id')::uuid and st.institution_id = p_institution_id
+            order by 1, 2, 3 loop
+    perform private.institution_cell_lock(c.station_id, c.shift_type_id, c.work_date);
+  end loop;
   -- Rows in a fixed order. Every rule is monotone (another shift only adds breaches), so a draft that is valid as a
   -- whole passes row by row; a row refused here was made invalid by a change since the draft.
   for r in select e from jsonb_array_elements(p_rows) e

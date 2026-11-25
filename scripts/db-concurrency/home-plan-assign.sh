@@ -13,6 +13,11 @@
 #   E: two drafts with overlapping shifts of the same person are taken over at once: one saves, the other refuses
 #      «staff_overlap»; never both, never a unique violation, no deadlock (both lock persons in id order).
 #   F: the same draft (same apply id) is sent twice at once (double click): one «ok», one «already_applied», one row.
+#   G (0176, review finding 1): a draft row and an external gap order for the same empty cell, in both orders: exactly
+#      one of «row saved» / «order prepared», never both (both take private.institution_cell_lock). G1 apply first ->
+#      prepare «not_a_gap»; G2 prepare first -> apply «cell_has_order».
+#   H (0176, review finding 4): the planner's role is removed while her apply waits for a person lock: «rejected», no
+#      run record, no assignment.
 # Commits its own synthetic fixture rows (fixed ids, home «Testheim Rhein» of the seed) and removes them again.
 # Usage: DB_URL=... home-plan-assign.sh
 set -euo pipefail
@@ -32,6 +37,10 @@ A2=a1600000-0000-4000-8000-0000000000d2
 A3=a1600000-0000-4000-8000-0000000000d3
 A4=a1600000-0000-4000-8000-0000000000d4
 A5=a1600000-0000-4000-8000-0000000000d5
+A6=a1600000-0000-4000-8000-0000000000d6
+A7=a1600000-0000-4000-8000-0000000000d7
+A8=a1600000-0000-4000-8000-0000000000d8
+DAY3=2030-04-15
 psql_q() { psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 "$@"; }
 
 cleanup() {
@@ -39,8 +48,11 @@ cleanup() {
 set session_replication_role = replica;
 delete from public.institution_audit_events where institution_id = '$INST' and (entity_id in ('$ST', '$TF', '$TS', '$TU', '$PX')
   or changed ->> 'staff_id' = '$PX' or entity_id in (select id from public.institution_assignments where staff_id = '$PX'));
-delete from public.institution_audit_events where institution_id = '$INST' and entity_id in ('$A1', '$A2', '$A3', '$A4', '$A5');
-delete from public.institution_draft_runs where id in ('$A1', '$A2', '$A3', '$A4', '$A5');
+delete from public.institution_audit_events where institution_id = '$INST' and entity_id in ('$A1', '$A2', '$A3', '$A4', '$A5', '$A6', '$A7', '$A8');
+delete from public.institution_audit_events where institution_id = '$INST'
+  and entity_id in (select id from public.institution_gap_orders where station_id = '$ST');
+delete from public.institution_draft_runs where id in ('$A1', '$A2', '$A3', '$A4', '$A5', '$A6', '$A7', '$A8');
+delete from public.institution_gap_orders where station_id = '$ST';
 delete from public.institution_assignments where staff_id = '$PX';
 delete from public.institution_staffing_rules where station_id = '$ST';
 delete from public.institution_staff where id = '$PX';
@@ -158,4 +170,51 @@ nf=$(count_px)
 echo "F results: $rf; assignments: $nf"
 if [ "$rf" = "already_applied ok " ] && [ "$nf" = "1" ]; then echo "ok - F: the same apply id twice: one «ok», one «already_applied», one row";
 else echo "not ok - F: expected ok and already_applied with one assignment"; fail=1; fi
+psql_q -c "set session_replication_role = replica; delete from public.institution_assignments where staff_id = '$PX'"
+
+# G: draft row vs. external order for the same empty cell (XF on DAY3, staffing rule 1). The second command starts
+# 0.15 s after the first, while the first still holds its locks (run_as keeps the transaction open 0.3 s), so each order
+# of the two is forced once. Before 0176 the apply did not take the cell lock and both committed.
+prepare() {  # $1 user
+  run_as "$1" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_prepare_gap_order('$INST', '$ST', '$TF', '$DAY3') r;"
+}
+count_orders() { psql "$DB_URL" -X -At -c "select count(*) from public.institution_gap_orders where station_id = '$ST' and state in ('prepared', 'sent')"; }
+clear_g() {
+  psql_q <<SQL
+set session_replication_role = replica;
+delete from public.institution_audit_events where institution_id = '$INST'
+  and entity_id in (select id from public.institution_gap_orders where station_id = '$ST');
+delete from public.institution_gap_orders where station_id = '$ST';
+delete from public.institution_assignments where staff_id = '$PX';
+SQL
+}
+apply "$LEAD" "$A5" "$TF" "$DAY3" > "$tmp/g1a" & (sleep 0.15; prepare "$PLANNER" > "$tmp/g1b") & wait
+g1="$(norm "$tmp/g1a")|$(norm "$tmp/g1b")|$(count_px)/$(count_orders)"
+echo "G1 (apply first) apply|prepare|assignments/orders: $g1"
+if [ "$g1" = "ok |not_a_gap |1/0" ]; then echo "ok - G1: apply first: the row is saved, prepare finds no gap";
+else echo "not ok - G1: expected the row saved and no order (both would mean an external team for a filled cell)"; fail=1; fi
+clear_g
+prepare "$PLANNER" > "$tmp/g2b" & (sleep 0.15; apply "$LEAD" "$A6" "$TF" "$DAY3" > "$tmp/g2a") & wait
+g2="$(norm "$tmp/g2a")|$(norm "$tmp/g2b")|$(count_px)/$(count_orders)"
+echo "G2 (prepare first) apply|prepare|assignments/orders: $g2"
+if [ "$g2" = "cell_has_order |ok |0/1" ]; then echo "ok - G2: prepare first: the order stands, the draft row is refused «cell_has_order»";
+else echo "not ok - G2: expected the order and the row refused"; fail=1; fi
+clear_g
+
+# H: the lead's session holds the person row and removes the planner's role; the planner's apply waits for the person
+# lock and must then be refused before anything is recorded.
+psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 > /dev/null <<SQL &
+begin;
+set local session_replication_role = replica;
+select 1 from public.institution_staff where id = '$PX' for update;
+delete from public.institution_members where institution_id = '$INST' and user_id = '$PLANNER';
+select pg_sleep(1.0);
+commit;
+SQL
+(sleep 0.4; apply "$PLANNER" "$A7" "$TF" "$DAY3" > "$tmp/h1") & wait
+h="$(norm "$tmp/h1")|$(count_px)|$(psql "$DB_URL" -X -At -c "select count(*) from public.institution_draft_runs where id = '$A7'")"
+echo "H apply|assignments|run records: $h"
+if [ "$h" = "rejected |0|0" ]; then echo "ok - H: role removed while waiting: «rejected», no run record, no assignment";
+else echo "not ok - H: expected rejected with no run record"; fail=1; fi
+psql_q -c "insert into public.institution_members (institution_id, user_id, role) values ('$INST', '$PLANNER', 'planner') on conflict do nothing"
 exit $fail
