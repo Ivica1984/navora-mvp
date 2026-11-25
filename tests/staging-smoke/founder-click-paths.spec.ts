@@ -3,7 +3,7 @@ import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
 import { addDays, dayLabel, weekStart } from "@/features/home-plan/rules";
-import { assertBelowRowCap, busyFromOrderLines, freeDayOffset, orderDaysFromLines, path5GapDay, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
+import { assertBelowRowCap, busyFromOrderLines, freeDayOffset, orderDaysFromLines, PATH5_MAX_WEEKS, path5GapDay, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
 // `docs/product/FOUNDER_STAGING_UEBERSICHT.md`, in the real staging app, with the three demo accounts (FE-086b):
@@ -257,10 +257,12 @@ test("path 4: the home assigns a person, records an absence, sees the gap in wee
 // HD-2 (brief HD.md §6 (2); founder FE-109 (C)): the home turns a gap into an external order with one tap, checks and
 // sends it; the Basel nurse takes it in /team; the home's week and /order read «Gedeckt» for that cell (one source).
 // A sent order stays on staging (no withdraw command yet, PR #1641), so the path picks the first Rhein 2 Früh gap of its
-// week that has no order yet (weeks shared with path 4; path 4 uses Spät, never Früh).
+// week that has no order yet (weeks shared with path 4; path 4 uses Spät, never Früh) and on whose day the client has no
+// order at all: path 1's /order orders 07:00–15:30 move forward into these weeks and the Basel nurse holds their takes
+// (staging-smoke 45656894809, 45669102936: cell «K», no team eligible). No such day in the week → the next week.
 test("path 5: the home orders a gap externally, the Basel nurse takes it, the home's week reads «Gedeckt» (390 px)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  const week = weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40)));
+  let week = weekStart(zurichDay(Date.now(), 120 + 7 * (offsets.day - 40)));
 
   await signIn(page, "kunde");
   await page.goto("/heim");
@@ -269,11 +271,21 @@ test("path 5: the home orders a gap externally, the Basel nurse takes it, the ho
     await page.getByTestId("heim-load-example").click();
     await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
   }
-  await page.goto(`/heim?ansicht=woche&datum=${week}`);
-  const candidates = await page.locator('[data-testid="heim-day"]').filter({
-    has: page.locator('[data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"] [data-testid="heim-prepare-order"]'),
-  }).evaluateAll((els) => els.map((e) => e.getAttribute("data-date") ?? ""));
-  const day = path5GapDay(candidates, new Set())!;
+  // The nurse must be free that day: any client order (a path-1 /order order is no gap order) excludes the day.
+  const used = await clientOrderDays(page);
+  let pick: string | null = null;
+  for (let tries = 0; ; tries++) {
+    await page.goto(`/heim?ansicht=woche&datum=${week}`);
+    await expect(page.getByTestId("heim-day").first()).toBeVisible();
+    const candidates = await page.locator('[data-testid="heim-day"]').filter({
+      has: page.locator('[data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"] [data-testid="heim-prepare-order"]'),
+    }).evaluateAll((els) => els.map((e) => e.getAttribute("data-date") ?? ""));
+    pick = path5GapDay(candidates, used);
+    if (pick) break;
+    expect(tries, `staging-smoke path 5: no Rhein 2 Früh gap free of client orders in ${PATH5_MAX_WEEKS} weeks`).toBeLessThan(PATH5_MAX_WEEKS - 1);
+    week = addDays(week, 7);
+  }
+  const day = pick;
   const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"]`);
   await cellOf().getByTestId("heim-prepare-order").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.");
