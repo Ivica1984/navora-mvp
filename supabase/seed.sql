@@ -964,3 +964,25 @@ insert into public.member_qualification_evidence (organization_id, user_id, requ
 insert into public.team_prices (organization_id, team_id, price_per_hour, set_by, note) values
   ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-a000-0000000001b9', 68.00,
    '00000000-0000-4000-a000-0000000009e6', 'Beispielwert, kein Tarif');
+
+-- HD-3a CGR-284 (b) seed addition (brief HD.md §5b, PO choice (A) 2026-11-25 14:39; e2e
+-- tests/e2e/hd3a-cgr284-equivalence.spec.ts). Synthetic only: an empty second home and its lead, so the 60-person
+-- equivalence test builds its home through the home's own commands without touching «Testheim Rhein», which the other
+-- HD specs use. No stations, staff or planning values here: the spec enters every value itself. Local and CI only; the
+-- seed never reaches staging (ADR-190).
+--   heim60.test (…9ed): lead of «Testheim Sechzig (synthetisch)»; signs in through the API only.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009ed', 'authenticated', 'authenticated',
+   'heim60.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009fd', '00000000-0000-4000-a000-0000000009ed', '00000000-0000-4000-a000-0000000009ed',
+   '{"sub":"00000000-0000-4000-a000-0000000009ed","email":"heim60.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.institutions (id, display_name, kind, simulation) values
+  ('00000000-0000-4000-a000-0000000004c2', 'Testheim Sechzig (synthetisch)', 'home', true);
+insert into public.institution_members (institution_id, user_id, role) values
+  ('00000000-0000-4000-a000-0000000004c2', '00000000-0000-4000-a000-0000000009ed', 'lead');

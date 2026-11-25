@@ -269,6 +269,13 @@
       ]
     },
     {
+      "name": "private.institution_rule_breaches",
+      "required": [
+        "SET search_path TO ''",
+        "STABLE"
+      ]
+    },
+    {
       "name": "private.institution_shift_days",
       "required": [
         "SET search_path TO ''"
@@ -288,7 +295,9 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "is_institution_member",
-        "institution_shift_days"
+        "institution_shift_days",
+        "institution_rule_breaches",
+        "institution_staff_wishes"
       ]
     },
     {
@@ -300,7 +309,9 @@
         "institution_audit",
         "assert_access_open",
         "institution_shift_days",
-        "for share"
+        "for share",
+        "institution_rule_breaches",
+        "p_confirm_rules"
       ]
     },
     {
@@ -320,7 +331,8 @@
         "SET search_path TO ''",
         "is_institution_member",
         "institution_audit",
-        "assert_access_open"
+        "assert_access_open",
+        "kind_not_valid"
       ]
     },
     {
@@ -351,6 +363,70 @@
         "is_institution_member",
         "institution_audit",
         "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_planning",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_planning_limits",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "weekly_target_hours_not_valid"
+      ]
+    },
+    {
+      "name": "public.institution_set_shift_class",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_class_not_valid"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_wishes",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "for update",
+        "wishes_not_valid",
+        "wish_conflict"
+      ]
+    },
+    {
+      "name": "public.institution_apply_draft",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "for update",
+        "order by s.id",
+        "public.institution_assign_staff(",
+        "on conflict (id) do nothing",
+        "cell_has_order",
+        "cell_full",
+        "private.institution_cell_lock(",
+        "period_too_long",
+        "join public.institution_shift_types t"
       ]
     },
     {
@@ -430,13 +506,22 @@
       ]
     },
     {
+      "name": "private.institution_cell_lock",
+      "required": [
+        "SET search_path TO ''",
+        "pg_advisory_xact_lock",
+        "hashtextextended",
+        "to_char(p_work_date, 'YYYY-MM-DD')"
+      ]
+    },
+    {
       "name": "public.institution_prepare_gap_order",
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "assert_access_open",
         "is_institution_member",
-        "pg_advisory_xact_lock",
+        "private.institution_cell_lock(",
         "institution_plan_cell",
         "institution_audit"
       ]

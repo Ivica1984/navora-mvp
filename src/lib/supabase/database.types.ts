@@ -1097,14 +1097,14 @@ isOneToOne: false
                   ]
                 },"institution_absences": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"ends_on": string,"id": string,"institution_id": string,"staff_id": string,"starts_on": string
+                    "created_at": string,"created_by": string | null,"ends_on": string,"id": string,"institution_id": string,"kind": string,"staff_id": string,"starts_on": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"ends_on": string,"id"?: string,"institution_id": string,"staff_id": string,"starts_on": string
+                    "created_at"?: string,"created_by"?: string | null,"ends_on": string,"id"?: string,"institution_id": string,"kind"?: string,"staff_id": string,"starts_on": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"ends_on"?: string,"id"?: string,"institution_id"?: string,"staff_id"?: string,"starts_on"?: string
+                    "created_at"?: string,"created_by"?: string | null,"ends_on"?: string,"id"?: string,"institution_id"?: string,"kind"?: string,"staff_id"?: string,"starts_on"?: string
                   }
                   Relationships: [
                     {
@@ -1123,14 +1123,14 @@ isOneToOne: false
                   ]
                 },"institution_assignments": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
+                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"override_at": string | null,"override_by": string | null,"override_rules": (string)[] | null,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"override_at"?: string | null,"override_by"?: string | null,"override_rules"?: (string)[] | null,"shift_type_id": string,"staff_id": string,"station_id": string,"work_date": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"shift_type_id"?: string,"staff_id"?: string,"station_id"?: string,"work_date"?: string
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"override_at"?: string | null,"override_by"?: string | null,"override_rules"?: (string)[] | null,"shift_type_id"?: string,"staff_id"?: string,"station_id"?: string,"work_date"?: string
                   }
                   Relationships: [
                     {
@@ -1173,6 +1173,26 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "institution_audit_events_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"institution_draft_runs": {
+                  Row: {
+                    "applied_at": string,"applied_by": string | null,"assignment_ids": (string)[],"id": string,"institution_id": string,"provenance": string,"refused": NonNullable<Json>,"rows_applied": number,"rows_offered": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "applied_at"?: string,"applied_by"?: string | null,"assignment_ids"?: (string)[],"id": string,"institution_id": string,"provenance"?: string,"refused"?: NonNullable<Json>,"rows_applied"?: number,"rows_offered": number
+                  }
+                  Update: {
+                    "applied_at"?: string,"applied_by"?: string | null,"assignment_ids"?: (string)[],"id"?: string,"institution_id"?: string,"provenance"?: string,"refused"?: NonNullable<Json>,"rows_applied"?: number,"rows_offered"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_draft_runs_institution_id_fkey"
       columns: ["institution_id"]
 isOneToOne: false
       referencedRelation: "institutions"
@@ -1245,14 +1265,14 @@ isOneToOne: false
                   ]
                 },"institution_shift_types": {
                   Row: {
-                    "code": string,"ends_at": string,"id": string,"institution_id": string,"label": string,"sort": number,"starts_at": string
+                    "code": string,"ends_at": string,"id": string,"institution_id": string,"label": string,"shift_class": string | null,"sort": number,"starts_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "code": string,"ends_at": string,"id"?: string,"institution_id": string,"label": string,"sort"?: number,"starts_at": string
+                    "code": string,"ends_at": string,"id"?: string,"institution_id": string,"label": string,"shift_class"?: string | null,"sort"?: number,"starts_at": string
                   }
                   Update: {
-                    "code"?: string,"ends_at"?: string,"id"?: string,"institution_id"?: string,"label"?: string,"sort"?: number,"starts_at"?: string
+                    "code"?: string,"ends_at"?: string,"id"?: string,"institution_id"?: string,"label"?: string,"shift_class"?: string | null,"sort"?: number,"starts_at"?: string
                   }
                   Relationships: [
                     {
@@ -1265,14 +1285,14 @@ isOneToOne: false
                   ]
                 },"institution_staff": {
                   Row: {
-                    "active": boolean,"created_at": string,"display_name": string,"grade": string,"home_station_id": string | null,"id": string,"institution_id": string
+                    "active": boolean,"created_at": string,"display_name": string,"grade": string,"home_station_id": string | null,"id": string,"institution_id": string,"pensum_pct": number | null,"shift_model": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "active"?: boolean,"created_at"?: string,"display_name": string,"grade": string,"home_station_id"?: string | null,"id"?: string,"institution_id": string
+                    "active"?: boolean,"created_at"?: string,"display_name": string,"grade": string,"home_station_id"?: string | null,"id"?: string,"institution_id": string,"pensum_pct"?: number | null,"shift_model"?: string
                   }
                   Update: {
-                    "active"?: boolean,"created_at"?: string,"display_name"?: string,"grade"?: string,"home_station_id"?: string | null,"id"?: string,"institution_id"?: string
+                    "active"?: boolean,"created_at"?: string,"display_name"?: string,"grade"?: string,"home_station_id"?: string | null,"id"?: string,"institution_id"?: string,"pensum_pct"?: number | null,"shift_model"?: string
                   }
                   Relationships: [
                     {
@@ -1287,6 +1307,38 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "institutions"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"institution_staff_wishes": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"kind": string,"shift_type_id": string | null,"staff_id": string,"weekday": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"kind": string,"shift_type_id"?: string | null,"staff_id": string,"weekday": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"kind"?: string,"shift_type_id"?: string | null,"staff_id"?: string,"weekday"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_staff_wishes_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "institution_staff_wishes_shift_type_id_institution_id_fkey"
+      columns: ["shift_type_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_shift_types"
+      referencedColumns: ["id","institution_id"]
+    },{
+      foreignKeyName: "institution_staff_wishes_staff_id_institution_id_fkey"
+      columns: ["staff_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_staff"
+      referencedColumns: ["id","institution_id"]
     }
                   ]
                 },"institution_staffing_rules": {
@@ -1343,14 +1395,14 @@ isOneToOne: false
                   ]
                 },"institutions": {
                   Row: {
-                    "created_at": string,"display_name": string,"id": string,"kind": string,"order_postcode": string | null,"simulation": boolean
+                    "created_at": string,"display_name": string,"id": string,"kind": string,"max_consecutive_days": number,"min_rest_hours": number,"order_postcode": string | null,"simulation": boolean,"weekly_target_hours": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"order_postcode"?: string | null,"simulation"?: boolean
+                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"order_postcode"?: string | null,"simulation"?: boolean
+                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null
                   }
                   Relationships: [
                     {
@@ -3504,8 +3556,11 @@ isOneToOne: false
 "institution_add_station":
 { Args: { "p_institution_id": string,"p_name": string }; Returns: Json
                            },
+"institution_apply_draft":
+{ Args: { "p_apply_id": string,"p_institution_id": string,"p_rows": Json }; Returns: Json
+                           },
 "institution_assign_staff":
-{ Args: { "p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
+{ Args: { "p_confirm_rules"?: (string)[],"p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json
                            },
 "institution_discard_gap_order":
 { Args: { "p_gap_order_id": string }; Returns: Json
@@ -3523,7 +3578,7 @@ isOneToOne: false
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
 "institution_record_absence":
-{ Args: { "p_ends_on": string,"p_institution_id": string,"p_staff_id": string,"p_starts_on": string }; Returns: Json
+{ Args: { "p_ends_on": string,"p_institution_id": string,"p_kind"?: string,"p_staff_id": string,"p_starts_on": string }; Returns: Json
                            },
 "institution_remove_absence":
 { Args: { "p_absence_id": string }; Returns: Json
@@ -3531,11 +3586,23 @@ isOneToOne: false
 "institution_send_gap_order":
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
+"institution_set_planning_limits":
+{ Args: { "p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number,"p_weekly_target_hours": number }; Returns: Json
+                           },
+"institution_set_shift_class":
+{ Args: { "p_shift_class": string,"p_shift_type_id": string }; Returns: Json
+                           },
 "institution_set_shift_type":
 { Args: { "p_code": string,"p_ends_at": string,"p_institution_id": string,"p_label": string,"p_starts_at": string }; Returns: Json
                            },
 "institution_set_staff_active":
 { Args: { "p_active": boolean,"p_staff_id": string }; Returns: Json
+                           },
+"institution_set_staff_planning":
+{ Args: { "p_pensum_pct": number,"p_shift_model": string,"p_staff_id": string }; Returns: Json
+                           },
+"institution_set_staff_wishes":
+{ Args: { "p_staff_id": string,"p_wishes": Json }; Returns: Json
                            },
 "institution_set_staffing_rule":
 { Args: { "p_institution_id": string,"p_required_grade": string,"p_required_grade_count": number,"p_required_total": number,"p_shift_type_id": string,"p_station_id": string }; Returns: Json

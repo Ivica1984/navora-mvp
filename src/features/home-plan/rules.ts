@@ -4,7 +4,7 @@
 
 export const HOME_PLAN_PATH = "/heim";
 
-export type PlanView = "woche" | "monat" | "personal" | "einstellungen" | "auftrag";
+export type PlanView = "woche" | "monat" | "personal" | "einstellungen" | "auftrag" | "vorschlag";
 export const PLAN_VIEWS: ReadonlyArray<{ key: PlanView; label: string }> = [
   { key: "woche", label: "Woche" },
   { key: "monat", label: "Monat" },
@@ -14,8 +14,13 @@ export const PLAN_VIEWS: ReadonlyArray<{ key: PlanView; label: string }> = [
 
 export type InstitutionRole = "lead" | "planner" | "viewer";
 export type Station = { id: string; name: string };
-export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string };
-export type Staff = { id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean };
+// HD-3a: `shift_class` (0172), `pensum_pct` and `shift_model` (0171) as `institution_plan` returns them; optional so an
+// older plan answer still reads.
+export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string; shift_class?: string | null };
+export type Staff = {
+  id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean;
+  pensum_pct?: number | null; shift_model?: string | null;
+};
 export type Absence = { id: string; staff_id: string; starts_on: string; ends_on: string };
 /**
  * One assigned person in a cell, as `institution_plan` returns it. `absent`: an absence day touches the shift (also the
@@ -29,6 +34,10 @@ export type AssignedPerson = {
   grade: string;
   absent: boolean;
   inactive: boolean;
+  /** HD-3a Q3 (migration 0173): the planning rules this shift breaks now (`private.institution_rule_breaches`). */
+  rules?: PlanningRule[];
+  /** HD-3a Q3: the rules a person confirmed by hand when the shift was saved (warning, not a block), or null. */
+  override_rules?: PlanningRule[] | null;
 };
 export type CellStatus = "ok" | "gap" | "no_rule";
 /**
@@ -74,6 +83,10 @@ export type Plan = {
     /** HD-2: the home's postcode for its orders (set by the home), and whether this person may send orders. */
     order_postcode?: string | null;
     can_order?: boolean;
+    /** HD-3a (0171, 0172): the home's planning limits; NULL = not entered. */
+    min_rest_hours?: number | null;
+    max_consecutive_days?: number | null;
+    weekly_target_hours?: number | null;
   };
   from: string;
   to: string;
@@ -93,11 +106,57 @@ export const GRADE_CHOICES = [
 
 export const gradeLabel = (code: string | null): string => (code ? (GRADE_LABEL[code] ?? code) : "");
 
+/**
+ * HD-3a (FE-119, FE-120; migration 0171): the four neutral absence kinds. The database refuses every other value; there
+ * is no sickness kind and no reason field (no health data). Fixed list, no AI.
+ */
+export const ABSENCE_KINDS = ["vacation", "training", "compensation", "absent"] as const;
+export type AbsenceKind = (typeof ABSENCE_KINDS)[number];
+const ABSENCE_KIND_LABEL: Record<AbsenceKind, string> = {
+  vacation: "Ferien",
+  training: "Weiterbildung",
+  compensation: "Kompensation",
+  absent: "Abwesend",
+};
+export const absenceKindLabel = (kind: AbsenceKind): string => ABSENCE_KIND_LABEL[kind];
+
 export const canPlan = (role: InstitutionRole): boolean => role === "lead" || role === "planner";
 export const canSettle = (role: InstitutionRole): boolean => role === "lead";
 
 /** Shown wherever the plan is edited: the database checks no working-time law (ArG), only absence and overlap. */
-export const WORKING_TIME_NOTE = "Arbeitszeitregeln (Ruhezeit, Höchstarbeitszeit) prüft NAVORA hier nicht.";
+// HD-3a Q3: rest time, days in a row, Pensum and shift model are checked on every hand assignment (warning, not a
+// block); the values are the home's, rest and days in a row are founder parameters not checked against the law.
+export const WORKING_TIME_NOTE =
+  "Beim Einteilen prüft NAVORA Schichtmodell, Ruhezeit, Arbeitstage in Folge und Pensum nach den Werten des Heims " +
+  "(Arbeitszeitgesetz nicht abschliessend geprüft). Ein Verstoss ist eine Warnung; Abwesenheit und Doppelbelegung sind gesperrt.";
+
+/** HD-3a Q3: the planning rules a shift can break, in the database's fixed order. */
+export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full"] as const;
+export type PlanningRule = (typeof PLANNING_RULES)[number];
+const RULE_TEXT: Record<PlanningRule, string> = {
+  shift_model: "Schichtmodell der Person passt nicht zu dieser Dienstart",
+  rest: "Ruhezeit zu kurz",
+  consecutive: "zu viele Arbeitstage in Folge",
+  pensum_full: "über dem Pensum dieser Woche",
+};
+export const ruleText = (r: PlanningRule): string => RULE_TEXT[r];
+export function isPlanningRule(v: unknown): v is PlanningRule {
+  return typeof v === "string" && (PLANNING_RULES as ReadonlyArray<string>).includes(v);
+}
+/** A comma list from a form or URL to known rules only (unknown words are dropped, order as in the database). */
+export function parseRules(v: unknown): PlanningRule[] {
+  if (typeof v !== "string") return [];
+  const words = new Set(v.split(","));
+  return PLANNING_RULES.filter((r) => words.has(r));
+}
+/** The warning line of a stored shift: the rules it breaks now; «bestätigt» when every one was confirmed by hand. */
+export function ruleWarning(a: Pick<AssignedPerson, "rules" | "override_rules">): string | null {
+  const now = a.rules ?? [];
+  if (now.length === 0) return null;
+  const confirmed = new Set(a.override_rules ?? []);
+  const all = now.every((r) => confirmed.has(r));
+  return `Regel: ${now.map(ruleText).join(", ")}${all ? " (von Hand bestätigt)" : ""}`;
+}
 export const EXAMPLE_NOTE = "Beispielwert des Heims (synthetisch), keine Vorgabe von NAVORA.";
 
 // --- Dates (calendar dates as YYYY-MM-DD; no time zone involved) ------------------------------------------------------
@@ -138,7 +197,7 @@ export function daysBetween(from: string, to: string): string[] {
 
 /** The date range a view reads (the month is at most 31 days; the database refuses more than 42). */
 export function rangeFor(view: PlanView, date: string): { from: string; to: string } {
-  if (view === "woche" || view === "einstellungen" || view === "auftrag") {
+  if (view === "woche" || view === "einstellungen" || view === "auftrag" || view === "vorschlag") {
     const from = weekStart(date);
     return { from, to: addDays(from, 6) };
   }
@@ -293,6 +352,8 @@ export type PersonDay = {
     station: string;
     /** From the cell: the shift touches an absence day (also the night into one) or the person is inactive. */
     counts: boolean;
+    /** HD-3a Q3: the rule warning of this shift (same text as the week), or null. */
+    warning: string | null;
   }[];
 };
 
@@ -315,6 +376,7 @@ export function personPlan(plan: Plan, staffId: string): PersonDay[] {
           time: t ? `${t.starts_at}–${t.ends_at}` : "",
           station: station.get(c.station_id) ?? "",
           counts: !a.absent && !a.inactive,
+          warning: ruleWarning(a),
         };
       }),
   }));
@@ -325,7 +387,10 @@ export function personPlan(plan: Plan, staffId: string): PersonDay[] {
  * count (the night into an absence day, or a person no longer active) is shown in brackets: it is planned, not staffed.
  */
 export function monthCode(day: PersonDay): string {
-  const codes = day.shifts.map((s) => (s.counts || day.absent ? s.code : `(${s.code})`)).join("/");
+  // HD-3a Q3: «!» marks a shift with a rule warning (the week and the personal plan name the rule).
+  const codes = day.shifts
+    .map((s) => `${s.counts || day.absent ? s.code : `(${s.code})`}${s.warning ? "!" : ""}`)
+    .join("/");
   if (day.absent) return codes ? `A (${codes})` : "A";
   return codes;
 }
@@ -423,7 +488,14 @@ const PROBLEM_TEXT: Record<string, string> = {
     "Diese Dienstart ist im Plan eingeteilt; ihre Zeiten bleiben unverändert. Für andere Zeiten bitte eine neue Dienstart anlegen.",
   dates_not_valid: "Bitte gültige Daten angeben (bis höchstens ein Jahr).",
   absence_overlaps: "Für diese Tage ist schon eine Abwesenheit erfasst.",
+  kind_not_valid: "Bitte eine Art der Abwesenheit wählen: Ferien, Weiterbildung, Kompensation oder Abwesend.",
   input_not_valid: "Bitte die Angaben prüfen.",
+  // HD-3a slice 4: «Entwurf übernehmen» refused as a whole (migrations 0175, 0177); nothing was saved.
+  rows_not_valid: "Der Vorschlag war nicht lesbar. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  duplicate_row: "Der Vorschlag enthielt einen Dienst doppelt. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  period_too_long: "Ein Vorschlag umfasst höchstens einen Monat. Es wurde nichts übernommen.",
+  apply_id_used: "Dieser Vorschlag gehört zu einem anderen Heim. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  rule_warning: "Nicht eingeteilt: Diese Einteilung verletzt eine Planungsregel. Bitte unten prüfen und bestätigen oder abbrechen.",
   name_exists: "Diesen Namen gibt es schon.",
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",
   not_empty: "Beispieldaten lassen sich nur in ein leeres Heim laden.",
@@ -454,10 +526,28 @@ const PROBLEM_TEXT: Record<string, string> = {
   covered: "Eine Person ist bestätigt; der Auftrag wird hier nicht zurückgezogen.",
   awaiting_acknowledgement: "Ein Team hat übernommen und die Person bestätigt noch; der Auftrag wird jetzt nicht zurückgezogen.",
   visit_under_way: "Der Einsatz läuft schon; der Auftrag lässt sich nicht mehr zurückziehen.",
+  // HD-3a FE-128: planning inputs. The app refuses what is not a number; the database refuses what is out of range.
+  rest_not_whole: "Ruhezeit: bitte ganze Stunden eingeben (zum Beispiel 11). Nichts wurde gespeichert.",
+  days_not_whole: "Arbeitstage in Folge: bitte eine ganze Zahl eingeben (zum Beispiel 6). Nichts wurde gespeichert.",
+  weekly_not_number: "Wochensoll: bitte Stunden eingeben (zum Beispiel 42 oder 42,5) oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  weekly_choice_missing: "Wochensoll: bitte «Wert» oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  limits_not_valid: "Ruhezeit 1 bis 24 Stunden, Arbeitstage in Folge 1 bis 14. Nichts wurde gespeichert.",
+  weekly_target_hours_not_valid: "Wochensoll 1 bis 80 Stunden. Nichts wurde gespeichert.",
+  pensum_not_whole: "Pensum: bitte ganze Prozent eingeben (zum Beispiel 80) oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  pensum_choice_missing: "Pensum: bitte «Wert» oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  pensum_not_valid: "Pensum 10 bis 100 %. Nichts wurde gespeichert.",
+  pensum_conflict: "Pensum: «nicht eingetragen» gewählt und eine Zahl eingegeben. Bitte eines davon. Nichts wurde gespeichert.",
+  weekly_conflict: "Wochensoll: «nicht eingetragen» gewählt und eine Zahl eingegeben. Bitte eines davon. Nichts wurde gespeichert.",
+  shift_model_unknown: "Bitte ein Schichtmodell wählen. Nichts wurde gespeichert.",
+  shift_model_not_valid: "Bitte ein Schichtmodell wählen. Nichts wurde gespeichert.",
+  shift_class_unknown: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
+  shift_class_not_valid: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
+  changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
 const DONE_TEXT: Record<string, string> = {
+  assigned_with_warning: "Eingeteilt, mit bestätigter Regelwarnung. Die Warnung bleibt auf dem Dienst sichtbar.",
   assigned: "Eingeteilt.",
   unassigned: "Aus dem Dienst entfernt.",
   absence: "Abwesenheit erfasst. Betroffene Dienste zeigen jetzt die Lücke.",
@@ -472,10 +562,39 @@ const DONE_TEXT: Record<string, string> = {
   order_sent: "Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.",
   order_discarded: "Entwurf verworfen. Die Lücke bleibt.",
   order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
+  limits_saved: "Planungsgrenzen des Heims gespeichert.",
+  staff_planning_saved: "Pensum und Schichtmodell gespeichert.",
 };
 
-export function messageText(code: string | undefined): { kind: "ok" | "error"; text: string } | null {
+/** HD-3a slice 4: the answer of «Entwurf übernehmen», with the counts the database returned (no state). */
+function draftText(code: string, applied: number, refused: number): string | null {
+  const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
+  if (code === "draft_applied") return `Vorschlag übernommen: ${n(applied, "Dienst", "Dienste")} eingeteilt.`;
+  if (code === "draft_applied_partly") {
+    return `Vorschlag teilweise übernommen: ${n(applied, "Dienst", "Dienste")} eingeteilt, ${n(refused, "Vorschlag", "Vorschläge")} `
+      + `abgelehnt, weil sich der Plan seither geändert hat. Diese Dienste bleiben offen.`;
+  }
+  if (code === "draft_already_applied") return `Dieser Vorschlag wurde schon übernommen (${n(applied, "Dienst", "Dienste")}). Nichts wurde doppelt eingeteilt.`;
+  return null;
+}
+
+/**
+ * HD-3a FE-128: the answer of «Klasse speichern» with the count the database returned (`affected_assignments`: saved
+ * shifts from today on whose person's shift model no longer fits; nothing was removed). Read back, not computed (T-1).
+ */
+function shiftClassText(affected: number): string {
+  if (affected === 0) return "Schichtklasse gespeichert. Keine eingeteilte Person ist betroffen.";
+  return `Schichtklasse gespeichert. ${affected} ${affected === 1 ? "Einteilung passt" : "Einteilungen passen"} ab heute nicht mehr `
+    + "zum Schichtmodell der Person. Nichts wurde entfernt; die Warnung steht im Plan.";
+}
+
+export function messageText(
+  code: string | undefined, counts?: { applied: number; refused: number; affected?: number },
+): { kind: "ok" | "error"; text: string } | null {
   if (!code) return null;
+  if (code === "shift_class_saved") return { kind: "ok", text: shiftClassText(counts?.affected ?? 0) };
+  const draft = draftText(code, counts?.applied ?? 0, counts?.refused ?? 0);
+  if (draft) return { kind: "ok", text: draft };
   if (code in DONE_TEXT) return { kind: "ok", text: DONE_TEXT[code] };
   if (code in PROBLEM_TEXT) return { kind: "error", text: PROBLEM_TEXT[code] };
   return null;
@@ -492,5 +611,40 @@ export function safeReturnPath(input: unknown): string {
 export function withMessage(path: string, code: string): string {
   const url = new URL(path, "http://x");
   url.searchParams.set("meldung", code);
+  if (code !== "rule_warning") url.searchParams.delete("warnung");
   return `${url.pathname}${url.search}`;
+}
+
+/** HD-3a slice 4: the counts of «Entwurf übernehmen» next to the message code (whole numbers only). */
+export function withDraftCounts(path: string, applied: number, refused: number): string {
+  const url = new URL(path, "http://x");
+  url.searchParams.set("uebernommen", String(Math.max(0, Math.trunc(applied))));
+  url.searchParams.set("abgelehnt", String(Math.max(0, Math.trunc(refused))));
+  return `${url.pathname}${url.search}`;
+}
+/** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */
+export function withAffected(path: string, affected: number): string {
+  const url = new URL(path, "http://x");
+  url.searchParams.set("betroffen", String(Math.max(0, Math.trunc(affected))));
+  return `${url.pathname}${url.search}`;
+}
+export function parseCount(v: unknown): number {
+  return typeof v === "string" && /^\d{1,4}$/.test(v) ? Number(v) : 0;
+}
+
+/** HD-3a Q3: the pending hand assignment that broke a rule, carried in the URL to the confirmation form (no state). */
+export type PendingWarning = { staff: string; station: string; shift: string; date: string; rules: PlanningRule[] };
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export function withWarning(path: string, w: PendingWarning): string {
+  const url = new URL(path, "http://x");
+  url.searchParams.set("warnung", [w.staff, w.station, w.shift, w.date, w.rules.join(",")].join("~"));
+  return `${url.pathname}${url.search}`;
+}
+/** Reads `warnung` back; anything malformed is ignored (the database checks everything again on confirmation). */
+export function parseWarning(v: unknown): PendingWarning | null {
+  if (typeof v !== "string") return null;
+  const [staff, station, shift, date, rules, ...rest] = v.split("~");
+  if (rest.length > 0 || ![staff, station, shift].every((x) => UUID_RE.test(x ?? "")) || !isIsoDate(date)) return null;
+  const r = parseRules(rules);
+  return r.length > 0 ? { staff, station, shift, date, rules: r } : null;
 }

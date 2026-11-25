@@ -8,7 +8,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { HOME_PLAN_PATH, safeReturnPath, sameOrderChoice, withMessage } from "./rules";
+import { zurichToday } from "@/features/orders/queries";
+import { applyOutcome } from "./draft-screen";
+import { readLimitsForm, readShiftClassForm, readStaffPlanningForm, sameAsShown } from "./planning-inputs";
+import { getPlan } from "./queries";
+import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withAffected, withDraftCounts, withMessage, withWarning } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -38,6 +42,11 @@ const str = (f: FormData, k: string) => {
   return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
 };
 
+const raw = (f: FormData, k: string) => {
+  const v = f.get(k);
+  return typeof v === "string" ? v : null;
+};
+
 function parse<T>(schema: z.ZodType<T>, value: unknown, back: string): T {
   const p = schema.safeParse(value);
   if (!p.success) redirect(withMessage(back, "input_not_valid"));
@@ -50,9 +59,30 @@ export async function assignStaff(form: FormData) {
     institution: str(form, "institution"), station: str(form, "station"), shift: str(form, "shift"),
     date: str(form, "date"), staff: str(form, "staff"),
   }, back);
-  await run("institution_assign_staff", {
+  // HD-3a Q3 (FE-123): the confirmed planning rules, only from the confirmation form (known words only). The database
+  // reads the rules again under its locks and saves only when every current rule is confirmed.
+  const confirm = parseRules(str(form, "confirm"));
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_assign_staff", {
     p_institution_id: v.institution, p_station_id: v.station, p_shift_type_id: v.shift, p_work_date: v.date, p_staff_id: v.staff,
-  }, "assigned", back);
+    ...(confirm.length > 0 ? { p_confirm_rules: confirm } : {}),
+  });
+  let code = confirm.length > 0 ? "assigned_with_warning" : "assigned";
+  let target = back;
+  if (error) {
+    logEvent("warn", "command.failed", { op: "institution_assign_staff", ...errorFields(error) });
+    code = "failed";
+  } else {
+    const r = (data ?? {}) as Result & { rules?: unknown };
+    if (r.result === "warning") {
+      const rules = Array.isArray(r.rules) ? r.rules.filter(isPlanningRule) : [];
+      code = "rule_warning";
+      target = withWarning(back, { staff: v.staff, station: v.station, shift: v.shift, date: v.date, rules });
+    } else if (r.result === "rejected") code = "rejected";
+    else if (r.result !== "ok") code = r.problems?.[0] ?? "failed";
+  }
+  revalidatePath(HOME_PLAN_PATH);
+  redirect(withMessage(target, code));
 }
 
 export async function unassignStaff(form: FormData) {
@@ -63,11 +93,12 @@ export async function unassignStaff(form: FormData) {
 
 export async function recordAbsence(form: FormData) {
   const back = safeReturnPath(form.get("back"));
-  const v = parse(z.object({ institution: uuid, staff: uuid, from: date, to: date }), {
+  const v = parse(z.object({ institution: uuid, staff: uuid, from: date, to: date, kind: z.enum(ABSENCE_KINDS) }), {
     institution: str(form, "institution"), staff: str(form, "staff"), from: str(form, "from"), to: str(form, "to") ?? str(form, "from"),
+    kind: str(form, "kind") ?? "absent",
   }, back);
   await run("institution_record_absence", {
-    p_institution_id: v.institution, p_staff_id: v.staff, p_starts_on: v.from, p_ends_on: v.to,
+    p_institution_id: v.institution, p_staff_id: v.staff, p_starts_on: v.from, p_ends_on: v.to, p_kind: v.kind,
   }, "absence", back);
 }
 
@@ -261,4 +292,108 @@ export async function withdrawGapOrder(form: FormData) {
   revalidatePath("/order");
   const code = r?.result === "already_withdrawn" ? "already_withdrawn" : codeOf(r, "order_withdrawn");
   redirect(withMessage(back, code));
+}
+
+// HD-3a slice 4: «Entwurf übernehmen». The form carries exactly the rows the screen showed (T-1) and one apply id per
+// shown draft (a double click or a retry is answered «already_applied», nothing is written twice). The database checks
+// every row again under its locks and refuses what no longer fits (partial take-over); refused rows stay gaps.
+const draftRow = z.strictObject({ date, station_id: uuid, shift_type_id: uuid, staff_id: uuid });
+
+export async function applyDraft(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  let rows: unknown = null;
+  try {
+    rows = JSON.parse(str(form, "rows") ?? "null");
+  } catch {
+    rows = null;
+  }
+  const v = parse(z.object({ institution: uuid, apply: uuid, rows: z.array(draftRow).min(1).max(2000) }), {
+    institution: str(form, "institution"), apply: str(form, "apply"), rows,
+  }, back);
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_apply_draft", {
+    p_institution_id: v.institution, p_apply_id: v.apply, p_rows: v.rows,
+  });
+  let target: string;
+  if (error) {
+    logEvent("warn", "command.failed", { op: "institution_apply_draft", ...errorFields(error) });
+    target = withMessage(back, "failed");
+  } else {
+    const o = applyOutcome(data);
+    logEvent("info", "draft.applied", { op: "institution_apply_draft", code: o.code, count: o.applied });
+    target = withDraftCounts(withMessage(back, o.code), o.applied, o.refused);
+  }
+  revalidatePath(HOME_PLAN_PATH);
+  redirect(target);
+}
+
+// HD-3a FE-128 (brief HD.md §5b, PO amendment 2026-11-25 10:39): the planning inputs of the home, through the existing
+// commands. Each form carries the values it showed (`was_*`, R-6-2 option (a)); a fresh `institution_plan` read must
+// still hold them, else nothing is written and the page shows the current values. The commands check the role
+// (limits and class: lead only; Pensum and model: lead and planner), LEAVE1-3 and the ranges, and audit old and new.
+async function currentPlan(institution: string) {
+  const today = zurichToday();
+  return getPlan(institution, today, today);
+}
+
+export async function setPlanningLimits(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const institution = parse(uuid, str(form, "institution"), back);
+  const read = readLimitsForm(form);
+  if (!read.ok) redirect(withMessage(back, read.error));
+  const now = await currentPlan(institution);
+  if (!now) redirect(withMessage(back, "failed"));
+  const i = now.institution;
+  if (!sameAsShown(raw(form, "was_rest"), i.min_rest_hours) || !sameAsShown(raw(form, "was_days"), i.max_consecutive_days)
+      || !sameAsShown(raw(form, "was_weekly"), i.weekly_target_hours)) {
+    redirect(withMessage(back, "changed_meanwhile"));
+  }
+  await run("institution_set_planning_limits", {
+    p_institution_id: institution, p_min_rest_hours: read.value.minRestHours, p_max_consecutive_days: read.value.maxConsecutiveDays,
+    p_weekly_target_hours: read.value.weeklyTargetHours,
+  }, "limits_saved", back);
+}
+
+export async function setStaffPlanning(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({ institution: uuid, staff: uuid }), { institution: str(form, "institution"), staff: str(form, "staff") }, back);
+  const read = readStaffPlanningForm(form);
+  if (!read.ok) redirect(withMessage(back, read.error));
+  const now = await currentPlan(v.institution);
+  const p = now?.staff.find((s) => s.id === v.staff);
+  if (!now) redirect(withMessage(back, "failed"));
+  if (!p) redirect(withMessage(back, "not_found"));
+  if (!sameAsShown(raw(form, "was_pensum"), p.pensum_pct) || !sameAsShown(raw(form, "was_model"), p.shift_model)) {
+    redirect(withMessage(back, "changed_meanwhile"));
+  }
+  await run("institution_set_staff_planning", {
+    p_staff_id: v.staff, p_pensum_pct: read.value.pensumPct, p_shift_model: read.value.shiftModel,
+  }, "staff_planning_saved", back);
+}
+
+export async function setShiftClass(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({ institution: uuid, shift: uuid }), { institution: str(form, "institution"), shift: str(form, "shift") }, back);
+  const read = readShiftClassForm(form);
+  if (!read.ok) redirect(withMessage(back, read.error));
+  const now = await currentPlan(v.institution);
+  const t = now?.shift_types.find((x) => x.id === v.shift);
+  if (!now) redirect(withMessage(back, "failed"));
+  if (!t) redirect(withMessage(back, "not_found"));
+  if (!sameAsShown(raw(form, "was_class"), t.shift_class)) redirect(withMessage(back, "changed_meanwhile"));
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_set_shift_class", { p_shift_type_id: v.shift, p_shift_class: read.value as string });
+  let code = "shift_class_saved";
+  let target = back;
+  if (error) {
+    logEvent("warn", "command.failed", { op: "institution_set_shift_class", ...errorFields(error) });
+    code = "failed";
+  } else {
+    const r = (data ?? {}) as Result & { affected_assignments?: unknown };
+    if (r.result === "rejected") code = "rejected";
+    else if (r.result !== "ok") code = r.problems?.[0] ?? "failed";
+    else target = withAffected(back, typeof r.affected_assignments === "number" ? r.affected_assignments : 0);
+  }
+  revalidatePath(HOME_PLAN_PATH);
+  redirect(withMessage(target, code));
 }

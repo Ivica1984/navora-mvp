@@ -354,3 +354,119 @@ test("path 6: the home orders a gap externally and withdraws it; the gap stays a
   const withdrawn = page.getByTestId("client-orders").locator(`li[data-order-id="${orderId}"]`);
   await expect(withdrawn.getByTestId("order-cover-state")).toHaveText(/^Zurückgezogen · Beginn /);
 });
+
+// FE-128 (brief HD.md §5b, PO amendment 2026-11-25 10:39): staging holds the home's planning inputs empty (0171/0172
+// have no backfill). Path 7 fills only what is «nicht eingetragen», through the forms on /heim, with the example values
+// of the synthetic test home (`institution_load_example`, «Beispielwert des Heims»: rest 11 h, 6 days in a row, 42 h,
+// classes F/S/N, Pensum of the eight example persons). A value the home has entered is never changed; a person who is
+// not one of the eight example persons keeps «nicht eingetragen» (the draft then names her). Synthetic data only.
+const EXAMPLE_CLASS: Record<string, string> = { F: "early", S: "late", N: "night" };
+const EXAMPLE_PENSUM: Record<string, string> = {
+  "Anna Muster": "100", "Ben Beispiel": "80", "Carla Test": "100", "David Probe": "60",
+  "Eva Fiktiv": "100", "Felix Demo": "80", "Gina Simul": "90", "Hugo Platz": "100",
+};
+async function fillMissingPlanningInputs(page: Page) {
+  await page.goto("/heim?ansicht=einstellungen");
+  const limits = page.getByTestId("heim-limits-form");
+  if (((await limits.getByTestId("heim-limits-now").textContent()) ?? "").includes("nicht eingetragen")) {
+    if ((await limits.getByTestId("heim-limits-rest").inputValue()) === "") await limits.getByTestId("heim-limits-rest").fill("11");
+    if ((await limits.getByTestId("heim-limits-days").inputValue()) === "") await limits.getByTestId("heim-limits-days").fill("6");
+    if ((await limits.getByTestId("heim-limits-weekly").inputValue()) === "") {
+      await limits.getByTestId("heim-limits-weekly-value").check();
+      await limits.getByTestId("heim-limits-weekly").fill("42");
+    }
+    await limits.getByTestId("heim-limits-save").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Planungsgrenzen des Heims gespeichert.");
+    await expect(page.getByTestId("heim-limits-now")).not.toContainText("nicht eingetragen");
+  }
+  for (const [code, cls] of Object.entries(EXAMPLE_CLASS)) {
+    const type = page.locator(`[data-testid="heim-shift-type"][data-code="${code}"]`);
+    if ((await type.count()) !== 1 || (await type.getByTestId("heim-shift-class-now").textContent()) !== "Klasse: keine Klasse") continue;
+    await type.getByTestId("heim-shift-class").selectOption(cls);
+    await type.getByTestId("heim-shift-class-save").click();
+    await expect(page.getByTestId("heim-message")).toHaveText(/^Schichtklasse gespeichert\./);
+  }
+  await page.goto("/heim?ansicht=personal");
+  const missing: string[] = [];
+  for (const li of await page.getByTestId("heim-staff-list").locator("li").all()) {
+    const name = ((await li.getByTestId("heim-staff-link").textContent()) ?? "").trim();
+    if (name in EXAMPLE_PENSUM && (await li.getByTestId("heim-staff-no-pensum").count()) === 1) missing.push(name);
+  }
+  for (const name of missing) {
+    const pensum = EXAMPLE_PENSUM[name];
+    await page.goto("/heim?ansicht=personal");
+    await page.getByTestId("heim-staff-link").filter({ hasText: name }).first().click();
+    const form = page.getByTestId("heim-staff-planning-form");
+    await form.getByTestId("heim-staff-pensum-value").check();
+    await form.getByTestId("heim-staff-pensum").fill(pensum);
+    await form.getByTestId("heim-staff-planning-save").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Pensum und Schichtmodell gespeichert.");
+    await expect(page.getByTestId("heim-staff-planning-now")).toHaveText(new RegExp(`^Pensum ${pensum} % · `));
+  }
+}
+
+// Path 7 (HD-3a, brief HD.md §5b «staging-smoke Pfad automatisch generieren → übernehmen → Lücke als Auftrag»): the
+// home asks for a plan of a week, takes it over, sees each shown person in her shown shift, prepares an external
+// order for a remaining gap and discards it (path 5 already sends one), then removes every row the take-over saved, so
+// staging keeps no row of the run. Weeks of its own, 400 days and more ahead (paths 4 to 6 use 120 to 330 days), offset
+// by the run number; a week a failed earlier run left planned (nothing new to propose) is skipped, at most 8 times.
+// Fixed, checkable rules, no AI.
+test("path 7: the home asks for a plan, takes it over, prepares an order for a remaining gap, then removes the plan (390 px)", async ({ page }) => {
+  test.setTimeout(300_000);
+  await page.setViewportSize({ width: 390, height: 900 });
+  let week = weekStart(zurichDay(Date.now(), 400 + 7 * (offsets.day - 40)));
+
+  await signIn(page, "kunde");
+  await page.goto("/heim");
+  await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
+  if (await page.getByTestId("heim-empty").isVisible()) {
+    await page.getByTestId("heim-load-example").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
+  }
+  await fillMissingPlanningInputs(page);
+
+  const draft = page.getByTestId("heim-draft");
+  for (let tries = 0; ; tries++) {
+    await page.goto(`/heim?ansicht=woche&datum=${week}`);
+    await page.getByTestId("heim-draft-start").click();
+    await expect(draft.getByTestId("heim-draft-summary")).toHaveText(/^\d+ Dienste? vorgeschlagen · /);
+    if ((await draft.getByTestId("heim-draft-row").count()) > 0) break;
+    expect(tries, "staging-smoke path 7: nothing to propose in 8 weeks in a row").toBeLessThan(8);
+    week = addDays(week, 7);
+  }
+  await expect(draft.getByTestId("heim-draft-mark")).toContainText("Optimierung (feste Regeln)");
+  await expect(draft.getByTestId("heim-draft-mark")).toContainText("Arbeitszeitgesetz nicht abschliessend geprüft");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+  const shown: Array<{ date: string; station: string; shift: string; person: string }> = [];
+  for (const day of await draft.getByTestId("heim-draft-day").all()) {
+    const date = (await day.getAttribute("data-date")) as string;
+    for (const r of await day.getByTestId("heim-draft-row").all()) {
+      const person = ((await r.textContent()) ?? "").split(" · ").at(-1)!.replace(/\s*\([^)]*\)\s*$/, "").trim();
+      shown.push({ date, station: (await r.getAttribute("data-station")) as string, shift: (await r.getAttribute("data-shift")) as string, person });
+    }
+  }
+  const n = shown.length;
+  await draft.getByTestId("heim-draft-apply").click();
+  await expect(page.getByTestId("heim-message")).toHaveText(`Vorschlag übernommen: ${n} ${n === 1 ? "Dienst" : "Dienste"} eingeteilt.`);
+  const cellOf = (s: { date: string; station: string; shift: string }) =>
+    page.locator(`[data-testid="heim-day"][data-date="${s.date}"] [data-testid="heim-cell"][data-station="${s.station}"][data-shift="${s.shift}"]`);
+  for (const s of shown) await expect(cellOf(s).getByTestId("heim-assigned").filter({ hasText: s.person })).toHaveCount(1);
+
+  // A remaining gap as an external order: prepared, checked on its review screen, discarded (nothing is sent).
+  const gapDay = page.locator('[data-testid="heim-day"]').filter({ has: page.getByTestId("heim-prepare-order") }).first();
+  await expect(gapDay).toBeVisible();
+  await gapDay.getByTestId("heim-prepare-order").first().click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.");
+  await page.getByTestId("heim-order-discard").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Entwurf verworfen. Die Lücke bleibt.");
+
+  // Clean up: every row the take-over saved, removed in the week; then the same week proposes the same count again.
+  await page.goto(`/heim?ansicht=woche&datum=${week}`);
+  for (const s of shown) {
+    await cellOf(s).getByTestId("heim-assigned").filter({ hasText: s.person }).getByRole("button", { name: `${s.person} entfernen` }).click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Aus dem Dienst entfernt.");
+  }
+  await page.getByTestId("heim-draft-start").click();
+  await expect(draft.getByTestId("heim-draft-summary")).toHaveText(new RegExp(`^${n} Dienste? vorgeschlagen · `));
+});

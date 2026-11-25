@@ -1,9 +1,11 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 
 // HD-1 / HD-2: data for /heim. The home reads only through its own functions (`my_institutions`, `institution_plan`);
 // both check the membership in the database. No NAVORA team, case or member data.
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import { readDraftPlan, type DraftPlan } from "./draft-screen";
 import type { InstitutionRole, Plan } from "./rules";
 
 export type MyInstitution = { id: string; display_name: string; kind: string; role: InstitutionRole; simulation: boolean };
@@ -64,4 +66,17 @@ export async function previewGapOrder(args: {
     return null;
   }
   return (data ?? null) as GapPreview | null;
+}
+
+// HD-3a slice 4: the plan the solver needs for one period. The draft must see whole ISO weeks (Pensum) and the runs
+// before and after (days in a row), so it reads more than the period; `institution_plan` reads at most 42 days per call,
+// so a month is read in two calls. Every read checks the membership in the database; null when any read fails (the
+// screen then shows no draft rather than a draft from part of the plan).
+export async function getDraftPlan(institutionId: string, from: string, to: string): Promise<DraftPlan | null> {
+  return readDraftPlan((a, b) => getPlan(institutionId, a, b) as Promise<DraftPlan | null>, from, to);
+}
+
+/** One apply id per shown draft (`institution_apply_draft`: the same id again is answered «already_applied»). */
+export function newApplyId(): string {
+  return randomUUID();
 }

@@ -26,9 +26,9 @@ begin
   if acct is null then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('no_client_account'));
   end if;
-  -- Double-order lock: one transaction per cell at a time (the partial unique index is the backstop).
-  perform pg_advisory_xact_lock(hashtextextended('institution_gap:' || p_station_id || ':' || p_shift_type_id || ':'
-                                                 || p_work_date, 0));
+  -- Double-order lock: one transaction per cell at a time (the partial unique index is the backstop). The same cell lock
+  -- as institution_apply_draft, so a draft row and an order for the same cell are serialised (HD-3a review finding 1).
+  perform private.institution_cell_lock(p_station_id, p_shift_type_id, p_work_date);
   select g.id into other from public.institution_gap_orders g
     where g.station_id = p_station_id and g.shift_type_id = p_shift_type_id and g.work_date = p_work_date
       and g.state in ('prepared', 'sent');
