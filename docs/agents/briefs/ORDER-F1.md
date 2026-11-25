@@ -72,3 +72,19 @@ FE-089 (3), FE-105, FE-070/FE-071; PERF1 (`briefs/PERF1.md`, same pattern for `/
 1. Which inputs of `order_client_state` can change after an order's end (takes withdrawn later, absences, `access_ended`)?
 2. Is the cover cost also hit by `derived_exceptions` or other lists for the same client (one root, or several)?
 3. After the merge: does path 7 still go red at line 483? Name the cause from the uploaded `test-results`.
+
+## PO merge note (2026-11-25 23:39 CET, scheduled run)
+
+Merged #1760 at head `d634d9a` → `992a7e3c`. Not yet accepted. The PO ran no tests locally; evidence is from CI raw logs and the ready report 7176298540.
+
+| criterion | result | evidence |
+|---|---|---|
+| Equivalence (safety) | met on head | pgTAP 178 (21 assertions, lemmas, function equivalence frozen vs new); `db` 139544530770 «Result: PASS» |
+| Budget ≥ 1 000 orders | met on head | 2 120 ms for 1 000 orders (ready report; target set by `eng` < 4 s) |
+| Isolation | met on head | pgTAP 135/147 unchanged green; 178 one assertion |
+| T-1 «sent = shown» | met on head | `bk-a-order.spec.ts` green in `e2e` 139544531663 |
+| T-2 list-only error | met on head | `order-f1-list-degrade.spec.ts` 390/1440 px green |
+| `staging-smoke` paths 1–7 on merge commit, no `57014` | OPEN | after the `staging` job; `eng` reads Render log |
+| No test skipped or weakened; CI green on head | met | diff read by the PO; all check runs `success` |
+
+Freeze of past orders: not done (inputs can change after end, ready report); brief rule held. Follow-ups: STG-SMOKE-1-F2, ORDER-F1-F1.
