@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
@@ -27,6 +27,19 @@ async function signIn(page: Page, role: Role) {
   await page.getByLabel("Passwort").fill(accounts[role].password);
   await page.getByRole("button", { name: "Anmelden" }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
+}
+
+/**
+ * Clicks a button that submits a server action and waits for that action's own response (LEARNINGS 2026-11-25, #1729:
+ * never wait only for the same message text the previous step already showed). Needed where one page submits the same
+ * kind of action several times in a row: on `/heim` the message sits in the URL, so «Aus dem Dienst entfernt.» of the
+ * previous removal satisfies the next wait at once, the next click lands on a page the previous redirect is replacing,
+ * and the click is lost (path 7 on 89fe091e, job 139582842069: 20 of 28 removals reached `navora-staging`).
+ */
+async function submitAndWait(page: Page, button: Locator) {
+  const answered = page.waitForResponse((r) => r.request().method() === "POST" && !!r.request().headers()["next-action"]);
+  await button.click();
+  await answered;
 }
 
 /** #1642: the days the client already has an order on, read in the real app (/order) before choosing a day. */
@@ -395,8 +408,10 @@ async function fillMissingPlanningInputs(page: Page) {
     const type = page.locator(`[data-testid="heim-shift-type"][data-code="${code}"]`);
     if ((await type.count()) !== 1 || (await type.getByTestId("heim-shift-class-now").textContent()) !== "Klasse: keine Klasse") continue;
     await type.getByTestId("heim-shift-class").selectOption(cls);
-    await type.getByTestId("heim-shift-class-save").click();
+    // Several types in a row on one page with the same message: wait for this save itself, then for its new state.
+    await submitAndWait(page, type.getByTestId("heim-shift-class-save"));
     await expect(page.getByTestId("heim-message")).toHaveText(/^Schichtklasse gespeichert\./);
+    await expect(type.getByTestId("heim-shift-class-now")).not.toHaveText("Klasse: keine Klasse");
   }
   await page.goto("/heim?ansicht=personal");
   const missing: string[] = [];
@@ -475,9 +490,13 @@ test("path 7: the home asks for a plan, takes it over, prepares an order for a r
 
   // Clean up: every row the take-over saved, removed in the week; then the same week proposes the same count again.
   await page.goto(`/heim?ansicht=woche&datum=${week}`);
+  // Each removal: its own server-action response, the message, and the person gone from exactly that cell, before the
+  // next click (from the second removal on, the message alone is already on screen from the previous one).
   for (const s of shown) {
-    await cellOf(s).getByTestId("heim-assigned").filter({ hasText: s.person }).getByRole("button", { name: `${s.person} entfernen` }).click();
+    const chip = cellOf(s).getByTestId("heim-assigned").filter({ hasText: s.person });
+    await submitAndWait(page, chip.getByRole("button", { name: `${s.person} entfernen` }));
     await expect(page.getByTestId("heim-message")).toHaveText("Aus dem Dienst entfernt.");
+    await expect(chip).toHaveCount(0);
   }
   await page.getByTestId("heim-draft-start").click();
   await expect(draft.getByTestId("heim-draft-summary")).toHaveText(new RegExp(`^${n} Dienste? vorgeschlagen · `));
