@@ -54,7 +54,8 @@
         "ORDER-F1",
         "v.visit_date is null",
         "private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')",
-        "and q.starts_at < o.ends_at and q.ends_at > o.starts_at"
+        "and q.starts_at < o.ends_at and q.ends_at > o.starts_at",
+        "between o.starts_at - interval '32 hours' and o.ends_at + interval '6 hours'"
       ]
     },
     {

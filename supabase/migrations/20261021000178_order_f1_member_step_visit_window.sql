@@ -16,7 +16,10 @@
 --     overlapping order», which walked every live take of the member (quadratic), and access_ended in client_orders,
 --     evaluated per row with a constant argument. Now: the same overlap also as a range (GiST index partner_requests_slot;
 --     implied by the scalar overlap for every row partner_requests_order_shape allows, so the result is the same), and
---     access_ended read once per call.
+--     access_ended read once per call. A second, tighter superset before visit_interval, from the visit's start
+--     t0 = visit_date + time_start read as UTC: visit_interval(v) lies within [t0 - 3 h, t0 + 29 h] (per branch: the
+--     Zurich offset is 1-2 h; the clock-change branch reaches at most 1 h lower; at most 1 800 planned minutes); kept
+--     with 3 h more each side, as plain column arithmetic (pgTAP 178 (1) asserts the bound over every shape).
 -- Both functions are created whole from their canonical files (STAB-1, TESTS 6); no text patch. Diff against the
 -- previous definitions: order_member_step only the visit window, the range overlap and comments; client_orders only the
 -- access_ended sub-select. security definer, search_path, LEAVE1-3 access_ended,
@@ -77,6 +80,13 @@ begin
                   and (v.visit_date is null
                        or v.visit_date between (o.starts_at at time zone 'UTC')::date - 4
                                            and (o.ends_at at time zone 'UTC')::date + 4)
+                  -- Tighter, still a superset, from the visit's start t0 = visit_date + time_start (00:00 without a
+                  -- time), read as UTC: visit_interval(v) lies within [t0 - 3 h, t0 + 29 h] (Zurich is 1-2 h ahead;
+                  -- the clock-change branch reaches at most 1 h lower; at most 1 800 planned minutes after the start).
+                  -- Kept with 3 h more each side. Plain column arithmetic, so visit_interval runs for few visits.
+                  and (v.visit_date is null
+                       or ((v.visit_date + coalesce(v.time_start, time '00:00')) at time zone 'UTC')
+                          between o.starts_at - interval '32 hours' and o.ends_at + interval '6 hours')
                   and private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')
                   -- BK-E1B (CGR-232): the visit written from a take of THIS order never counts.
                   and not exists (select 1 from public.order_takes vt

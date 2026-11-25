@@ -3,9 +3,10 @@
 -- evaluated private.visit_interval for every active visit of the member (sequential scan, no index on the person);
 -- public.client_orders() calls it once per order with a live take, so the list cost grew with orders x visits.
 -- 0178 adds a cheap visit_date window before the exact interval test, plus two indexes. This file proves:
--- (1) Bound (the lemma the window rests on): for 5 200 synthetic visit shapes (both DST weeks of 2026, every branch of
+-- (1) Bounds (the lemmas the two windows rest on): for 5 200 synthetic visit shapes (both DST weeks of 2026, every branch of
 --     visit_interval: no time, no end, end = start, overnight, planned minutes 0 / 1 / 3 x 600), visit_interval lies
---     within [visit_date - 2 days, visit_date + 3 days) UTC; a visit without a date reads unbounded (and is kept).
+--     within [visit_date - 2 days, visit_date + 3 days) UTC and within [t0 - 3 h, t0 + 29 h], t0 = visit_date + start
+--     read as UTC; a visit without a date reads unbounded (and is kept).
 -- (2) Predicate equivalence: over those shapes x 4-hour and 9-hour slots across both weeks, «window and overlap» is
 --     exactly «overlap».
 -- (3) Function equivalence: the previous definition (frozen copy of supabase/schema/functions/private.order_member_step.sql
@@ -17,7 +18,8 @@
 -- (4) Budget, deterministic first (AUT-186): 1 000 orders of one client, each with a live acknowledged take by the
 --     same member, who has 2 000 planned visits (two on each order day, none overlapping): client_orders() lists all
 --     1 000, calls order_member_step once per order (positive control: the counter counts) and visit_interval at most
---     20 times per order (the window holds at most 9 days x 2 visits; the previous definition: 2 000 per order); a loose
+--     20 times per order (the date window alone holds at most 9 days x 2 visits; the previous definition: 2 000 per
+--     order); a loose
 --     wall-clock limit of 4 s (half the 8 s authenticated statement timeout; target set by eng, estimate of CI speed)
 --     only catches order-of-magnitude regressions; the measured value is printed as a diagnostic.
 -- (5) Isolation: a member who is not in the client account reads none of the orders (existing pgTAP 135/147 unchanged).
@@ -27,7 +29,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(21);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -77,6 +79,10 @@ select is((select count(*)::int from shapes
            where not isempty(r) and (lower_inf(r) or upper_inf(r)
                  or lower(r) < (vd - 2)::timestamp at time zone 'UTC' or upper(r) > (vd + 3)::timestamp at time zone 'UTC')),
           0, 'ORDER-F1 lemma: every dated visit interval lies within [visit_date - 2 days, visit_date + 3 days) UTC');
+select is((select count(*)::int from shapes
+           where not isempty(r) and (lower(r) < ((vd + coalesce(ts, time '00:00')) at time zone 'UTC') - interval '3 hours'
+                 or upper(r) > ((vd + coalesce(ts, time '00:00')) at time zone 'UTC') + interval '29 hours')),
+          0, 'ORDER-F1 lemma: every dated visit interval lies within [t0 - 3 h, t0 + 29 h], t0 = date + start (UTC)');
 select ok((select lower_inf(r) and upper_inf(r) from (select private.visit_interval(
              jsonb_populate_record(null::public.care_visits, '{}'::jsonb)) as r) x),
           'a visit without a date reads unbounded, so the window keeps it (visit_date is null)');
@@ -88,10 +94,12 @@ create temp table slots as
 create temp table pred as
   select (x.r && tstzrange(y.starts_at, y.ends_at, '[)')) as old_p,
          ((x.vd is null or x.vd between (y.starts_at at time zone 'UTC')::date - 4 and (y.ends_at at time zone 'UTC')::date + 4)
+          and (x.vd is null or ((x.vd + coalesce(x.ts, time '00:00')) at time zone 'UTC')
+                                between y.starts_at - interval '32 hours' and y.ends_at + interval '6 hours')
           and x.r && tstzrange(y.starts_at, y.ends_at, '[)')) as new_p
   from shapes x, slots y;
 select is((select count(*)::int from pred where old_p is distinct from new_p), 0,
-          'ORDER-F1: over every shape x slot, «window and overlap» equals «overlap»');
+          'ORDER-F1: over every shape x slot, «both windows and overlap» equals «overlap»');
 select ok((select count(*) filter (where old_p) > 0 and count(*) filter (where not old_p) > 0 from pred),
           'the predicate grid holds overlapping and non-overlapping pairs (both outcomes tested)');
 
@@ -281,7 +289,7 @@ select is((select count(*)::int from tk where old_c is distinct from new_c), 0,
 select ok((select count(*) filter (where old_c) > 0 and count(*) filter (where not old_c) > 0 from tk),
           'both outcomes occur in the take comparison (an overlapping take of hers, and none)');
 
-create temp table fstat0 as select funcname, calls, total_time, self_time from pg_stat_xact_user_functions where schemaname = 'private';
+create temp table fstat0 as select funcid, calls, total_time, self_time from pg_stat_xact_user_functions where schemaname = 'private';
 create temp table meas (ms numeric, n int, member_step bigint, visit_interval bigint);
 grant all on meas to authenticated;
 create function pg_temp.measure() returns void language plpgsql as $$
@@ -300,11 +308,11 @@ select pg_temp.measure();
 select diag('ORDER-F1 budget: client_orders() for 1 000 orders and 2 000 visits took ' || round(ms) || ' ms; order_member_step '
             || member_step || ' calls, visit_interval ' || visit_interval || ' calls') from meas;
 -- Diagnostic only (no assertion): where the time goes, per private function, during the one measured call.
-select diag('ORDER-F1 budget, per function: ' || string_agg(f.funcname || ' calls ' || (f.calls - coalesce(z.calls, 0))
+select diag('ORDER-F1 budget, per function: ' || string_agg(f.funcid::regprocedure::text || ' calls ' || (f.calls - coalesce(z.calls, 0))
             || ' total ' || round((f.total_time - coalesce(z.total_time, 0))::numeric) || ' ms self '
             || round((f.self_time - coalesce(z.self_time, 0))::numeric) || ' ms', '; '
             order by f.self_time - coalesce(z.self_time, 0) desc))
-from pg_stat_xact_user_functions f left join fstat0 z using (funcname)
+from pg_stat_xact_user_functions f left join fstat0 z using (funcid)
 where f.schemaname = 'private' and f.calls > coalesce(z.calls, 0);
 select is((select n from meas), 1000, 'the client lists all 1 000 budget orders');
 select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas),
