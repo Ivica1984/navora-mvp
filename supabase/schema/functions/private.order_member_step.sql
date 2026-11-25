@@ -50,7 +50,11 @@ begin
      or exists (select 1 from public.order_takes k
                 join public.partner_requests q on q.id = k.order_id
                 where k.member_id = p_user_id and k.released_at is null and k.order_id <> o.id
-                  and q.starts_at < o.ends_at and q.ends_at > o.starts_at)
+                  and q.starts_at < o.ends_at and q.ends_at > o.starts_at
+                  -- ORDER-F1: the same overlap as a range, so the GiST index partner_requests_slot finds the few
+                  -- overlapping orders instead of walking every live take of hers. Implied by the two lines above for
+                  -- every row partner_requests_order_shape allows (ends_at > starts_at, or both null; null stays false).
+                  and tstzrange(q.starts_at, q.ends_at, '[)') && tstzrange(o.starts_at, o.ends_at, '[)'))
      -- BK-C2 (ADR-200 (4)): she said «Ich kann nicht» for THIS order; never re-offered as the going person.
      or exists (select 1 from public.order_takes c
                 where c.order_id = o.id and c.member_id = p_user_id and c.release_reason = 'member_cannot') then

@@ -18,7 +18,7 @@ AS $function$
   -- HD-2: one reading of the cover for /order and the home plan (private.order_client_state).
   cross join lateral private.order_client_state(p.id, private.now()) c
   where p.order_kind is not null and private.is_client_member(p.client_account_id)
-    and not private.access_ended((select auth.uid()))  -- LEAVE1-3
+    and not (select private.access_ended((select auth.uid())))  -- LEAVE1-3; ORDER-F1: read once per call, not per row
   order by p.starts_at
 $function$;
 

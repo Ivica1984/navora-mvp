@@ -53,7 +53,8 @@
         "order_member_step",
         "ORDER-F1",
         "v.visit_date is null",
-        "private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')"
+        "private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')",
+        "and q.starts_at < o.ends_at and q.ends_at > o.starts_at"
       ]
     },
     {
@@ -488,7 +489,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "access_ended",
-        "is_client_member"
+        "is_client_member",
+        "not (select private.access_ended((select auth.uid())))"
       ]
     },
     {

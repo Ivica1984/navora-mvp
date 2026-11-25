@@ -12,6 +12,8 @@
 --     at recovery/main b9f7dcf5, as pg_temp, security definer dropped) and the new one return the same step for a real
 --     member and three real orders (normal day, both DST nights) while one real visit of hers takes 2 376 shapes around
 --     each order; both outcomes (3 busy, 4 eligible) occur.
+-- (3b) The take clause of step 3 in its range form returns the previous result over 1 000 shifted slots against 1 000
+--     real takes of one member (the overlap is implied for every row partner_requests_order_shape allows).
 -- (4) Budget, deterministic first (AUT-186): 1 000 orders of one client, each with a live acknowledged take by the
 --     same member, who has 2 000 planned visits (two on each order day, none overlapping): client_orders() lists all
 --     1 000, calls order_member_step once per order (positive control: the counter counts) and visit_interval at most
@@ -25,7 +27,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(17);
+select plan(20);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -55,6 +57,9 @@ select ok(exists (select 1 from pg_indexes where schemaname = 'public' and table
 select ok(exists (select 1 from pg_indexes where schemaname = 'public' and tablename = 'care_visits'
                   and indexname = 'care_visits_covered_by_date' and indexdef ilike '%(covered_by, visit_date)%'),
           'ORDER-F1: care_visits is indexed by covering person and date');
+select ok(exists (select 1 from pg_indexes where schemaname = 'public' and tablename = 'partner_requests'
+                  and indexname = 'partner_requests_slot' and indexdef ilike '%gist%tstzrange(starts_at, ends_at%'),
+          'ORDER-F1: an order''s slot is indexed as a range (overlap with her other live takes)');
 
 -- 1. and 2. The bound and the predicate (pure, no rows written) -----------------------------------------------------------
 create temp table shapes as
@@ -251,6 +256,30 @@ insert into public.care_visits (organization_id, case_id, team_id, visit_date, t
 select '00000000-0000-4000-b000-000000000011', pg_temp.cv(), pg_temp.tv(), date '2026-10-29' - i, t.s, t.e,
        array['Grundpflege'], false, 'planned', 30, 0, pg_temp.m1()
 from generate_series(0, 999) i, (values (time '06:00', time '07:00'), (time '14:00', time '15:00')) t(s, e);
+
+-- As autovacuum would after such a load in operation: fresh statistics, so the planner sees 1 000 takes of one member.
+analyze public.partner_requests;
+analyze public.order_takes;
+analyze public.care_visits;
+
+-- The take clause of step 3 (another live take of hers whose slot overlaps), previous form against the new form, with
+-- the 1 000 real takes: 200 orders x slots shifted by 0, 12, 21, 24 and 27 hours (24 h meets the next day's order).
+create temp table tk as
+  select o.id, h,
+         exists (select 1 from public.order_takes k join public.partner_requests q on q.id = k.order_id
+                 where k.member_id = pg_temp.m1() and k.released_at is null and k.order_id <> o.id
+                   and q.starts_at < o.ends_at + make_interval(hours => h) and q.ends_at > o.starts_at + make_interval(hours => h)) as old_c,
+         exists (select 1 from public.order_takes k join public.partner_requests q on q.id = k.order_id
+                 where k.member_id = pg_temp.m1() and k.released_at is null and k.order_id <> o.id
+                   and q.starts_at < o.ends_at + make_interval(hours => h) and q.ends_at > o.starts_at + make_interval(hours => h)
+                   and tstzrange(q.starts_at, q.ends_at, '[)')
+                       && tstzrange(o.starts_at + make_interval(hours => h), o.ends_at + make_interval(hours => h), '[)')) as new_c
+  from public.partner_requests o, unnest(array[0, 12, 21, 24, 27]) h
+  where o.id in (select pg_temp.bo(i) from generate_series(1, 200) i);
+select is((select count(*)::int from tk where old_c is distinct from new_c), 0,
+          'ORDER-F1: the range form of the take overlap returns the previous result for 1 000 slots');
+select ok((select count(*) filter (where old_c) > 0 and count(*) filter (where not old_c) > 0 from tk),
+          'both outcomes occur in the take comparison (an overlapping take of hers, and none)');
 
 create temp table fstat0 as select funcname, calls, total_time, self_time from pg_stat_xact_user_functions where schemaname = 'private';
 create temp table meas (ms numeric, n int, member_step bigint, visit_interval bigint);
