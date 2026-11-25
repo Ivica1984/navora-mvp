@@ -84,7 +84,7 @@ Merged #1760 at head `d634d9a` → `992a7e3c`. Not yet accepted. The PO ran no t
 | Isolation | met on head | pgTAP 135/147 unchanged green; 178 one assertion |
 | T-1 «sent = shown» | met on head | `bk-a-order.spec.ts` green in `e2e` 139544531663 |
 | T-2 list-only error | met on head | `order-f1-list-degrade.spec.ts` 390/1440 px green |
-| `staging-smoke` paths 1–7 on merge commit, no `57014` | OPEN | after the `staging` job; `eng` reads Render log |
+| `staging-smoke` paths 1–7 on merge commit, no `57014` | partly met (2026-11-26 00:39) | 0178 applied to `navora-staging` by `staging` job 139573817375 (run on `0accd105`, contains `992a7e3c`: «Applying migration 20261021000178…», «Finished supabase db push»); `staging` job on `992a7e3c` then «Remote database is up to date». Smoke 45715319587 on `992a7e3c`: red at sign-in, Render switched `0accd105`→`89fe091e` during the run (deploy swap, warning in log), no app finding. Smoke 45719590699 attempt 2 on `89fe091e` (contains ORDER-F1, later commits docs only): Render served `89fe091e` before and after; **paths 1–6 green** (incl. path 1 `/order` order listed, path 6 `/order` «Zurückgezogen»); **path 7 red** at line 483 as before (`heim-draft-summary` not found), screenshot artifact 15072658034. `57014` check in the Render log: OPEN (`eng`). |
 | No test skipped or weakened; CI green on head | met | diff read by the PO; all check runs `success` |
 
 Freeze of past orders: not done (inputs can change after end, ready report); brief rule held. Follow-ups: STG-SMOKE-1-F2, ORDER-F1-F1.
