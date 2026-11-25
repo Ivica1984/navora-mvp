@@ -252,6 +252,7 @@ select '00000000-0000-4000-b000-000000000011', pg_temp.cv(), pg_temp.tv(), date 
        array['Grundpflege'], false, 'planned', 30, 0, pg_temp.m1()
 from generate_series(0, 999) i, (values (time '06:00', time '07:00'), (time '14:00', time '15:00')) t(s, e);
 
+create temp table fstat0 as select funcname, calls, total_time, self_time from pg_stat_xact_user_functions where schemaname = 'private';
 create temp table meas (ms numeric, n int, member_step bigint, visit_interval bigint);
 grant all on meas to authenticated;
 create function pg_temp.measure() returns void language plpgsql as $$
@@ -269,6 +270,13 @@ end $$;
 select pg_temp.measure();
 select diag('ORDER-F1 budget: client_orders() for 1 000 orders and 2 000 visits took ' || round(ms) || ' ms; order_member_step '
             || member_step || ' calls, visit_interval ' || visit_interval || ' calls') from meas;
+-- Diagnostic only (no assertion): where the time goes, per private function, during the one measured call.
+select diag('ORDER-F1 budget, per function: ' || string_agg(f.funcname || ' calls ' || (f.calls - coalesce(z.calls, 0))
+            || ' total ' || round((f.total_time - coalesce(z.total_time, 0))::numeric) || ' ms self '
+            || round((f.self_time - coalesce(z.self_time, 0))::numeric) || ' ms', '; '
+            order by f.self_time - coalesce(z.self_time, 0) desc))
+from pg_stat_xact_user_functions f left join fstat0 z using (funcname)
+where f.schemaname = 'private' and f.calls > coalesce(z.calls, 0);
 select is((select n from meas), 1000, 'the client lists all 1 000 budget orders');
 select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas),
           'ORDER-F1: one eligibility check per order and at most 20 interval tests per order (previous: 2 000 per order)');
