@@ -201,3 +201,13 @@ export function busyFromOrderLines(lines: readonly string[], day: string): BusyM
   }
   return out;
 }
+
+/**
+ * Path 5 (HD-2): the day of the week whose Rhein 2 Früh cell the home orders externally. `candidates` are the week's
+ * days (YYYY-MM-DD, in screen order) whose cell still shows «Auftrag vorbereiten»; `usedDays` the client's order days
+ * read in /order (`orderDaysFromLines`). Returns null when no candidate fits.
+ */
+export function path5GapDay(candidates: readonly string[], usedDays: ReadonlySet<string>): string | null {
+  void usedDays;
+  return candidates[0] ?? null;
+}

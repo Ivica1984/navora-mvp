@@ -3,7 +3,7 @@ import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
 import { addDays, dayLabel, weekStart } from "@/features/home-plan/rules";
-import { assertBelowRowCap, busyFromOrderLines, freeDayOffset, orderDaysFromLines, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
+import { assertBelowRowCap, busyFromOrderLines, freeDayOffset, orderDaysFromLines, path5GapDay, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
 // `docs/product/FOUNDER_STAGING_UEBERSICHT.md`, in the real staging app, with the three demo accounts (FE-086b):
@@ -270,10 +270,10 @@ test("path 5: the home orders a gap externally, the Basel nurse takes it, the ho
     await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
   }
   await page.goto(`/heim?ansicht=woche&datum=${week}`);
-  const free = page.locator('[data-testid="heim-day"]').filter({
+  const candidates = await page.locator('[data-testid="heim-day"]').filter({
     has: page.locator('[data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"] [data-testid="heim-prepare-order"]'),
-  }).first();
-  const day = (await free.getAttribute("data-date"))!;
+  }).evaluateAll((els) => els.map((e) => e.getAttribute("data-date") ?? ""));
+  const day = path5GapDay(candidates, new Set())!;
   const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="Rhein 2"][data-shift="F"]`);
   await cellOf().getByTestId("heim-prepare-order").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.");

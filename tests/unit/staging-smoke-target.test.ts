@@ -5,6 +5,7 @@ import {
   busyFromOrderLines,
   freeDayOffset,
   orderDaysFromLines,
+  path5GapDay,
   SMOKE_EMAILS,
   smokeAccounts,
   smokeDayOffsets,
@@ -191,6 +192,24 @@ describe("assertBelowRowCap (STAB1-F4)", () => {
     expect(() => assertBelowRowCap(1000)).toThrow(/API row cap \(1000\)/);
     expect(() => assertBelowRowCap(5, 5)).toThrow(/later orders may be hidden/);
     expect(() => assertBelowRowCap(-1)).toThrow(RangeError);
+  });
+});
+
+describe("path5GapDay (staging-smoke path 5, runs 45656894809 and 45669102936)", () => {
+  // Staging fact (read-only, 2026-11-25): the path-5 orders a5344a49 (04.05.2027) and 4da19e96 (18.05.2027) reached no
+  // team (order_exclusions: Testteam Basel `no_member_available`), because the demo nurse already held a live take of a
+  // path-1 order 07:00–15:30 on the same day (eb0bf3f6, 4da19e96's blocker e52d7222). Path 1 walks forward from day 40
+  // and has reached the weeks of path 5; a /order order is no gap order, so the Früh cell still offered «vorbereiten».
+  it("skips a gap day on which the client already has an order (the Basel nurse may hold its take)", () => {
+    const used = orderDaysFromLines(["Schichtauftrag · HF · Di 18.05.2027 07:00 – Di 18.05.2027 15:30 (8 Std. 30 Min.) · 4051 Basel"]);
+    expect(path5GapDay(["2027-05-18", "2027-05-19", "2027-05-20"], used)).toBe("2027-05-19");
+  });
+  it("takes the first candidate when the client has no order in the week", () => {
+    expect(path5GapDay(["2027-05-18", "2027-05-19"], new Set())).toBe("2027-05-18");
+  });
+  it("returns null when every candidate is used or there is none (the caller moves on a week, never skips)", () => {
+    expect(path5GapDay(["2027-05-18"], new Set(["2027-05-18"]))).toBeNull();
+    expect(path5GapDay([], new Set())).toBeNull();
   });
 });
 
