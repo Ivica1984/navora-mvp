@@ -1179,6 +1179,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"institution_draft_runs": {
+                  Row: {
+                    "applied_at": string,"applied_by": string | null,"assignment_ids": (string)[],"id": string,"institution_id": string,"provenance": string,"refused": NonNullable<Json>,"rows_applied": number,"rows_offered": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "applied_at"?: string,"applied_by"?: string | null,"assignment_ids"?: (string)[],"id": string,"institution_id": string,"provenance"?: string,"refused"?: NonNullable<Json>,"rows_applied"?: number,"rows_offered": number
+                  }
+                  Update: {
+                    "applied_at"?: string,"applied_by"?: string | null,"assignment_ids"?: (string)[],"id"?: string,"institution_id"?: string,"provenance"?: string,"refused"?: NonNullable<Json>,"rows_applied"?: number,"rows_offered"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_draft_runs_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"institution_gap_orders": {
                   Row: {
                     "client_account_id": string,"discarded_at": string | null,"discarded_by": string | null,"grade_fixed": string | null,"id": string,"institution_id": string,"order_id": string | null,"prepared_at": string,"prepared_by": string,"sent_at": string | null,"sent_by": string | null,"shift_type_id": string,"state": string,"station_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null,"work_date": string
@@ -3535,6 +3555,9 @@ isOneToOne: false
                            },
 "institution_add_station":
 { Args: { "p_institution_id": string,"p_name": string }; Returns: Json
+                           },
+"institution_apply_draft":
+{ Args: { "p_apply_id": string,"p_institution_id": string,"p_rows": Json }; Returns: Json
                            },
 "institution_assign_staff":
 { Args: { "p_confirm_rules"?: (string)[],"p_institution_id": string,"p_shift_type_id": string,"p_staff_id": string,"p_station_id": string,"p_work_date": string }; Returns: Json

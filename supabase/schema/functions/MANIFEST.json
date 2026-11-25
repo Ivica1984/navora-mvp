@@ -411,6 +411,22 @@
       ]
     },
     {
+      "name": "public.institution_apply_draft",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "for update",
+        "order by s.id",
+        "public.institution_assign_staff(",
+        "on conflict (id) do nothing",
+        "cell_has_order",
+        "cell_full"
+      ]
+    },
+    {
       "name": "public.institution_add_station",
       "required": [
         "SECURITY DEFINER",

@@ -7,6 +7,12 @@
 #   B: both assign the same person to the same shift: exactly one wins, the other gets «already_assigned».
 #   C: the lead moves the times of an unused shift type onto an overlap while a planner assigns it: never both (a silent
 #      overlap); the shift type row lock (R2) serialises them.
+#   D (HD-3a, ADR-224 rev. 2): the lead takes over a draft with the late shift of the person while a planner assigns her
+#      by hand to the early shift the next morning (8 h rest < 11 h): exactly one survives, the other gets the rest rule
+#      (the apply refuses its row as «planning_rule», the hand assignment answers «warning»); never both.
+#   E: two drafts with overlapping shifts of the same person are taken over at once: one saves, the other refuses
+#      «staff_overlap»; never both, never a unique violation, no deadlock (both lock persons in id order).
+#   F: the same draft (same apply id) is sent twice at once (double click): one «ok», one «already_applied», one row.
 # Commits its own synthetic fixture rows (fixed ids, home «Testheim Rhein» of the seed) and removes them again.
 # Usage: DB_URL=... home-plan-assign.sh
 set -euo pipefail
@@ -20,6 +26,12 @@ TS=a1600000-0000-4000-8000-0000000000b2
 TU=a1600000-0000-4000-8000-0000000000b3
 PX=a1600000-0000-4000-8000-0000000000c1
 DAY=2030-04-08
+DAY2=2030-04-09
+A1=a1600000-0000-4000-8000-0000000000d1
+A2=a1600000-0000-4000-8000-0000000000d2
+A3=a1600000-0000-4000-8000-0000000000d3
+A4=a1600000-0000-4000-8000-0000000000d4
+A5=a1600000-0000-4000-8000-0000000000d5
 psql_q() { psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 "$@"; }
 
 cleanup() {
@@ -27,7 +39,10 @@ cleanup() {
 set session_replication_role = replica;
 delete from public.institution_audit_events where institution_id = '$INST' and (entity_id in ('$ST', '$TF', '$TS', '$TU', '$PX')
   or changed ->> 'staff_id' = '$PX' or entity_id in (select id from public.institution_assignments where staff_id = '$PX'));
+delete from public.institution_audit_events where institution_id = '$INST' and entity_id in ('$A1', '$A2', '$A3', '$A4', '$A5');
+delete from public.institution_draft_runs where id in ('$A1', '$A2', '$A3', '$A4', '$A5');
 delete from public.institution_assignments where staff_id = '$PX';
+delete from public.institution_staffing_rules where station_id = '$ST';
 delete from public.institution_staff where id = '$PX';
 delete from public.institution_shift_types where id in ('$TF', '$TS', '$TU');
 delete from public.institution_stations where id = '$ST';
@@ -45,7 +60,7 @@ insert into public.institution_stations (id, institution_id, name, sort) values 
 insert into public.institution_shift_types (id, institution_id, code, label, starts_at, ends_at, sort) values
   ('$TF', '$INST', 'XF', 'Race Früh', '07:00', '15:30', 97),
   ('$TS', '$INST', 'XS', 'Race Spät', '14:30', '23:00', 98),
-  ('$TU', '$INST', 'XU', 'Race Ungenutzt', '08:00', '12:00', 99);
+  ('$TU', '$INST', 'XU', 'Race Ungenutzt', '00:00', '03:00', 99);
 insert into public.institution_staff (id, institution_id, display_name, grade) values ('$PX', '$INST', 'Race Person (synthetisch)', 'nurse_hf_fh');
 SQL
 
@@ -85,7 +100,7 @@ if [ "$rb" = "already_assigned ok " ] && [ "$nb" = "1" ]; then echo "ok - B: the
 else echo "not ok - B: expected one ok and one already_assigned with one assignment"; fail=1; fi
 psql_q -c "set session_replication_role = replica; delete from public.institution_assignments where staff_id = '$PX'"
 
-# C: the person already works XS 14:30–23:00. The lead moves the unused type XU (08:00–12:00) to 13:00–17:00, which
+# C: the person already works XS 14:30–23:00. The lead moves the unused type XU (00:00–03:00, 11.5 h before XS, so no rest warning since HD-3a 0173) to 13:00–17:00, which
 # would overlap XS, while a planner assigns XU. Valid: change first -> the assignment sees the new times and gets
 # «staff_overlap»; or assignment first -> the change gets «shift_type_in_use». Without the shift type row lock both would
 # succeed and leave a silent overlap.
@@ -97,7 +112,50 @@ state=$(psql "$DB_URL" -X -At -c "select (select count(*) from public.institutio
   || '/' || (select to_char(starts_at, 'HH24:MI') from public.institution_shift_types where id = '$TU')")
 echo "C results: $rc; XU assignments/start: $state"
 case "$rc|$state" in
-  "ok staff_overlap |0/13:00"|"ok shift_type_in_use |1/08:00") echo "ok - C: time change and assignment serialise (no silent overlap)";;
+  "ok staff_overlap |0/13:00"|"ok shift_type_in_use |1/00:00") echo "ok - C: time change and assignment serialise (no silent overlap)";;
   *) echo "not ok - C: unexpected interleaving (silent overlap?)"; fail=1;;
 esac
+psql_q -c "set session_replication_role = replica; delete from public.institution_assignments where staff_id = '$PX'"
+
+# D-F (HD-3a «Entwurf übernehmen»): each cell has a staffing rule, so the apply reaches institution_assign_staff.
+psql_q <<SQL
+insert into public.institution_staffing_rules (institution_id, station_id, shift_type_id, required_total) values
+  ('$INST', '$ST', '$TF', 1), ('$INST', '$ST', '$TS', 1);
+SQL
+apply() {  # $1 user, $2 apply id, $3 shift type, $4 day
+  run_as "$1" "select case when r ->> 'result' = 'already_applied' then 'already_applied' when (r ->> 'applied')::int = 1 then 'ok'
+    else coalesce(r -> 'refused' -> 0 ->> 'reason', r -> 'problems' ->> 0, r ->> 'result') end
+    from public.institution_apply_draft('$INST', '$2', jsonb_build_array(jsonb_build_object('date', '$4', 'station_id', '$ST',
+      'shift_type_id', '$3', 'staff_id', '$PX'))) r;"
+}
+count_px() { psql "$DB_URL" -X -At -c "select count(*) from public.institution_assignments where staff_id = '$PX'"; }
+
+# D: draft late shift on DAY vs. hand early shift on DAY2 (14:30-23:00 then 07:00: 8 h rest)
+apply "$LEAD" "$A1" "$TS" "$DAY" > "$tmp/d1" &
+run_as "$PLANNER" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_assign_staff('$INST', '$ST', '$TF', '$DAY2', '$PX') r;" > "$tmp/d2" & wait
+rd=$(norm "$tmp/d1" "$tmp/d2")
+nd=$(count_px)
+echo "D results: $rd; assignments: $nd"
+case "$rd|$nd" in
+  "ok warning |1"|"ok planning_rule |1") echo "ok - D: draft and hand assignment against the rest rule: exactly one survives";;
+  *) echo "not ok - D: expected exactly one of draft and hand assignment (rest rule)"; fail=1;;
+esac
+psql_q -c "set session_replication_role = replica; delete from public.institution_assignments where staff_id = '$PX'"
+
+# E: two drafts with overlapping shifts of the same day
+apply "$LEAD" "$A2" "$TF" "$DAY" > "$tmp/e1" & apply "$PLANNER" "$A3" "$TS" "$DAY" > "$tmp/e2" & wait
+re=$(norm "$tmp/e1" "$tmp/e2")
+ne=$(count_px)
+echo "E results: $re; assignments: $ne"
+if [ "$re" = "ok staff_overlap " ] && [ "$ne" = "1" ]; then echo "ok - E: two overlapping drafts at once: one saves, the other «staff_overlap»";
+else echo "not ok - E: expected one ok and one staff_overlap with one assignment"; fail=1; fi
+psql_q -c "set session_replication_role = replica; delete from public.institution_assignments where staff_id = '$PX'"
+
+# F: the same draft twice at once
+apply "$LEAD" "$A4" "$TF" "$DAY" > "$tmp/f1" & apply "$LEAD" "$A4" "$TF" "$DAY" > "$tmp/f2" & wait
+rf=$(norm "$tmp/f1" "$tmp/f2")
+nf=$(count_px)
+echo "F results: $rf; assignments: $nf"
+if [ "$rf" = "already_applied ok " ] && [ "$nf" = "1" ]; then echo "ok - F: the same apply id twice: one «ok», one «already_applied», one row";
+else echo "not ok - F: expected ok and already_applied with one assignment"; fail=1; fi
 exit $fail
