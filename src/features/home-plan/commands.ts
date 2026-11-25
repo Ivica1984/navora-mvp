@@ -8,7 +8,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withMessage, withWarning } from "./rules";
+import { applyOutcome } from "./draft-screen";
+import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withDraftCounts, withMessage, withWarning } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -283,4 +284,37 @@ export async function withdrawGapOrder(form: FormData) {
   revalidatePath("/order");
   const code = r?.result === "already_withdrawn" ? "already_withdrawn" : codeOf(r, "order_withdrawn");
   redirect(withMessage(back, code));
+}
+
+// HD-3a slice 4: «Entwurf übernehmen». The form carries exactly the rows the screen showed (T-1) and one apply id per
+// shown draft (a double click or a retry is answered «already_applied», nothing is written twice). The database checks
+// every row again under its locks and refuses what no longer fits (partial take-over); refused rows stay gaps.
+const draftRow = z.strictObject({ date, station_id: uuid, shift_type_id: uuid, staff_id: uuid });
+
+export async function applyDraft(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  let rows: unknown = null;
+  try {
+    rows = JSON.parse(str(form, "rows") ?? "null");
+  } catch {
+    rows = null;
+  }
+  const v = parse(z.object({ institution: uuid, apply: uuid, rows: z.array(draftRow).min(1).max(2000) }), {
+    institution: str(form, "institution"), apply: str(form, "apply"), rows,
+  }, back);
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_apply_draft", {
+    p_institution_id: v.institution, p_apply_id: v.apply, p_rows: v.rows,
+  });
+  let target: string;
+  if (error) {
+    logEvent("warn", "command.failed", { op: "institution_apply_draft", ...errorFields(error) });
+    target = withMessage(back, "failed");
+  } else {
+    const o = applyOutcome(data);
+    logEvent("info", "draft.applied", { op: "institution_apply_draft", code: o.code, count: o.applied });
+    target = withDraftCounts(withMessage(back, o.code), o.applied, o.refused);
+  }
+  revalidatePath(HOME_PLAN_PATH);
+  redirect(target);
 }

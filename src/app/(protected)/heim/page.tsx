@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { zurichToday } from "@/features/orders/queries";
-import { getMyInstitutions, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
+import { getDraftPlan, getMyInstitutions, newApplyId, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
+import { DRAFT_MARK, WORKING_TIME_LAW_MARK, gapReasonText, unmetWishReasonText } from "@/features/home-plan/draft";
+import { draftInputFromPlan, draftPeriodRange, rowsFormValue, sortGaps, sortRows, timedDraft, type DraftPeriod } from "@/features/home-plan/draft-screen";
 import {
-  addStaff, addStation, assignStaff, checkGapOrder, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
+  addStaff, addStation, applyDraft, assignStaff, checkGapOrder, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
   setShiftType, setStaffActive, setStaffingRule, unassignStaff,
 } from "@/features/home-plan/commands";
 import {
   ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  monthCode, monthLabel, monthPeople, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
+  monthCode, monthLabel, monthPeople, parseCount, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
   type PendingWarning,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
@@ -20,11 +22,13 @@ import { PAGE_LABEL } from "@/lib/auth/nav";
 export default async function HomePlanPage({ searchParams }: PageProps<"/heim">) {
   const sp = await searchParams;
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-  const asked: PlanView = one(sp.ansicht) === "auftrag" ? "auftrag" : (PLAN_VIEWS.find((v) => v.key === one(sp.ansicht))?.key ?? "woche");
+  const asked: PlanView = one(sp.ansicht) === "auftrag" ? "auftrag" : one(sp.ansicht) === "vorschlag" ? "vorschlag"
+    : (PLAN_VIEWS.find((v) => v.key === one(sp.ansicht))?.key ?? "woche");
+  const period: DraftPeriod = one(sp.bereich) === "monat" ? "monat" : "woche";
   const today = zurichToday();
   const date = isIsoDate(one(sp.datum)) ? (one(sp.datum) as string) : today;
   const person = one(sp.person);
-  const message = messageText(one(sp.meldung));
+  const message = messageText(one(sp.meldung), { applied: parseCount(one(sp.uebernommen)), refused: parseCount(one(sp.abgelehnt)) });
   const pending = parseWarning(one(sp.warnung));
 
   const institutions = await getMyInstitutions();
@@ -37,13 +41,14 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
     );
   }
   const inst = institutions[0];
-  // Settings are the lead's (the database refuses the others anyway); nobody else is shown the forms.
-  const view: PlanView = asked === "einstellungen" && !canSettle(inst.role) ? "woche" : asked;
+  // Settings are the lead's, a draft is the lead's and the planner's (the database refuses the others anyway); nobody
+  // else is shown the forms.
+  const view: PlanView = (asked === "einstellungen" && !canSettle(inst.role)) || (asked === "vorschlag" && !canPlan(inst.role)) ? "woche" : asked;
   const { from, to } = rangeFor(view, date);
   const plan = await getPlan(inst.id, from, to);
   const href = (q: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
-    const merged = { ansicht: view, datum: date, person, ...q };
+    const merged = { ansicht: view, datum: date, person, ...(view === "vorschlag" ? { bereich: period } : {}), ...q };
     for (const [k, v] of Object.entries(merged)) if (v) params.set(k, v);
     return `${HOME_PLAN_PATH}?${params.toString()}`;
   };
@@ -63,7 +68,7 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
         {PLAN_VIEWS.filter((v) => v.key !== "einstellungen" || canSettle(inst.role)).map((v) => (
           <Link
             key={v.key}
-            href={href({ ansicht: v.key })}
+            href={href({ ansicht: v.key, bereich: undefined })}
             aria-current={v.key === view ? "page" : undefined}
             className={`min-h-11 rounded-lg border px-3 py-2 text-sm font-semibold ${
               v.key === view ? "border-emerald-800 bg-emerald-800 text-white" : "border-stone-300 bg-white"
@@ -94,10 +99,13 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
         <EmptyHome plan={plan} back={back} weekStartDate={rangeFor("woche", today).from} settingsHref={href({ ansicht: "einstellungen" })} />
       ) : view === "woche" ? (
         <WeekView plan={plan} back={back} prev={href({ datum: addDays(from, -7) })} next={href({ datum: addDays(from, 7) })}
-          todayHref={href({ datum: today })} />
+          todayHref={href({ datum: today })} draftHref={href({ ansicht: "vorschlag", bereich: "woche" })} />
       ) : view === "monat" ? (
         <MonthView plan={plan} prev={href({ datum: addDays(from, -1) })} next={href({ datum: addDays(to, 1) })}
-          personHref={(id) => href({ ansicht: "personal", person: id })} />
+          personHref={(id) => href({ ansicht: "personal", person: id })} draftHref={href({ ansicht: "vorschlag", bereich: "monat" })} />
+      ) : view === "vorschlag" ? (
+        <DraftProposal institutionId={inst.id} period={period} date={date}
+          back={href({ ansicht: period, bereich: undefined })} />
       ) : view === "auftrag" ? (
         <OrderReview plan={plan} back={back} draft={one(sp.entwurf)} weekHref={href({ ansicht: "woche", entwurf: undefined })}
           values={{
@@ -200,7 +208,9 @@ function statusClass(c: PlanCell): string {
   return "border-stone-200 bg-stone-50";
 }
 
-function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: string; prev: string; next: string; todayHref: string }) {
+function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
+  plan: Plan; back: string; prev: string; next: string; todayHref: string; draftHref: string;
+}) {
   const cells = indexCells(plan.cells);
   const days = daysBetween(plan.from, plan.to);
   const planner = canPlan(plan.institution.role);
@@ -211,7 +221,10 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
         title={`KW ${isoWeek(plan.from)} · ${dayLabel(plan.from)} bis ${dayLabel(plan.to)}`}
         prev={prev}
         next={next}
-        extra={<Link href={todayHref} className={`${btn} grid place-items-center`}>Heute</Link>}
+        extra={<>
+          <Link href={todayHref} className={`${btn} grid place-items-center`}>Heute</Link>
+          {planner && <DraftButton href={draftHref} />}
+        </>}
       />
       <p className="text-sm" data-testid="heim-week-gaps">
         {gaps === 0 ? "Keine Lücke in dieser Woche." : `${gaps} ${gaps === 1 ? "Dienst mit Lücke" : "Dienste mit Lücke"} in dieser Woche.`}
@@ -301,14 +314,17 @@ function WeekView({ plan, back, prev, next, todayHref }: { plan: Plan; back: str
   );
 }
 
-function MonthView({ plan, prev, next, personHref }: { plan: Plan; prev: string; next: string; personHref: (id: string) => string }) {
+function MonthView({ plan, prev, next, personHref, draftHref }: {
+  plan: Plan; prev: string; next: string; personHref: (id: string) => string; draftHref: string;
+}) {
   const days = daysBetween(plan.from, plan.to);
   const gaps = gapsPerDay(plan);
   const orders = ordersPerDay(plan);
   const people = monthPeople(plan);
   return (
     <section aria-label="Monatsplan" className="grid gap-3">
-      <PeriodNav title={monthLabel(plan.from)} prev={prev} next={next} />
+      <PeriodNav title={monthLabel(plan.from)} prev={prev} next={next}
+        extra={canPlan(plan.institution.role) ? <DraftButton href={draftHref} /> : undefined} />
       <p className="text-xs text-secondary">
         Kürzel je Tag: {plan.shift_types.map((t) => `${t.code} = ${t.label} ${t.starts_at}–${t.ends_at}`).join(" · ")} · A = abwesend
         {" "}· (N) = eingeteilt, zählt aber nicht (abwesend oder nicht mehr aktiv) · eine Nacht steht am Tag ihres Beginns
@@ -714,6 +730,127 @@ async function OrderReview({ plan, back, draft, weekHref, values }: {
         </form>
         <Link href={weekHref} className={`${btn} grid place-items-center`}>Zur Woche</Link>
       </div>
+    </section>
+  );
+}
+
+function DraftButton({ href }: { href: string }) {
+  return (
+    <Link href={href} data-testid="heim-draft-start"
+      className="grid min-h-11 place-items-center rounded-lg border border-emerald-800 bg-emerald-800 px-3 text-sm font-semibold text-white">
+      Plan vorschlagen
+    </Link>
+  );
+}
+
+// HD-3a slice 4 (brief HD.md §5b; ADR-224 rev. 2): «Plan vorschlagen» for the shown week or month. The solver runs here
+// on the server on this home's plan (`institution_plan`, also the weeks around the period it needs for the rules) and
+// saves nothing. «Übernehmen» sends exactly the rows shown here (T-1) with one apply id; the database checks each row
+// again and refuses what no longer fits. Fixed, checkable rules, no AI.
+async function DraftProposal({ institutionId, period, date, back }: {
+  institutionId: string; period: DraftPeriod; date: string; back: string;
+}) {
+  const { from, to } = draftPeriodRange(period, date);
+  const title = period === "woche" ? `KW ${isoWeek(from)} · ${dayLabel(from)} bis ${dayLabel(to)}` : monthLabel(from);
+  const plan = await getDraftPlan(institutionId, from, to);
+  const head = (
+    <>
+      <h2 className="text-lg font-bold">Planvorschlag · {title}</h2>
+      <p className="text-xs text-secondary" data-testid="heim-draft-mark">
+        {DRAFT_MARK} · {WORKING_TIME_LAW_MARK} · Noch nicht gespeichert: erst «Übernehmen» teilt ein.
+      </p>
+    </>
+  );
+  const cancel = <Link href={back} className={`${btn} grid place-items-center`} data-testid="heim-draft-cancel">Zurück zum Plan</Link>;
+  if (!plan) {
+    return <section aria-label="Planvorschlag" className="grid gap-3" data-testid="heim-draft">{head}<p role="alert">Der Plan konnte nicht geladen werden.</p>{cancel}</section>;
+  }
+  const input = draftInputFromPlan(plan, from, to);
+  const timed = input ? timedDraft(input) : null;
+  const result = timed?.result ?? null;
+  const ms = timed?.ms ?? 0;
+  if (!result || result.result !== "ok") {
+    const why = !result
+      ? "Ruhezeit oder Arbeitstage in Folge des Heims fehlen, oder eine Angabe passt nicht zu dieser App-Version."
+      : "Das Wochensoll des Heims (Stunden pro Woche bei 100 %) ist nicht eingetragen.";
+    return (
+      <section aria-label="Planvorschlag" className="grid gap-3" data-testid="heim-draft">
+        {head}
+        <p role="alert" data-testid="heim-draft-none">Kein Vorschlag: {why} Bitte in den Einstellungen eintragen.</p>
+        {cancel}
+      </section>
+    );
+  }
+  const rows = sortRows(result.rows, plan);
+  const gaps = sortGaps(result.gaps, plan);
+  const station = new Map(plan.stations.map((s) => [s.id, s]));
+  const shift = new Map(plan.shift_types.map((t) => [t.id, t]));
+  const person = new Map(plan.staff.map((s) => [s.id, s]));
+  const shiftText = (id: string) => {
+    const t = shift.get(id);
+    return t ? `${t.label} ${t.starts_at}–${t.ends_at}` : "";
+  };
+  const days = daysBetween(from, to).filter((d) => rows.some((r) => r.date === d) || gaps.some((g) => g.date === d));
+  const unmet = result.wishes.unmet;
+  return (
+    <section aria-label="Planvorschlag" className="grid gap-3" data-testid="heim-draft">
+      {head}
+      <p className="font-semibold" data-testid="heim-draft-summary">
+        {rows.length} {rows.length === 1 ? "Dienst" : "Dienste"} vorgeschlagen · {gaps.length} {gaps.length === 1 ? "Lücke bleibt" : "Lücken bleiben"}
+        {" "}· berechnet in {ms} ms
+      </p>
+      {result.wishes.total > 0 && (
+        <p className="text-sm" data-testid="heim-draft-wishes">
+          Wünsche: {result.wishes.met} von {result.wishes.total} erfüllt.
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        {rows.length > 0 && (
+          <form action={applyDraft}>
+            <Hidden values={{ institution: plan.institution.id, apply: newApplyId(), rows: rowsFormValue(rows), back }} />
+            <button type="submit" data-testid="heim-draft-apply"
+              className="min-h-11 rounded-lg border border-emerald-800 bg-emerald-800 px-3 text-sm font-semibold text-white">
+              Vorschlag übernehmen ({rows.length} {rows.length === 1 ? "Dienst" : "Dienste"})
+            </button>
+          </form>
+        )}
+        {cancel}
+      </div>
+      {rows.length === 0 && gaps.length === 0 && <p data-testid="heim-draft-empty">Nichts vorzuschlagen: Jeder Dienst mit Vorgabe ist besetzt.</p>}
+      {days.map((d) => (
+        <details key={d} open={period === "woche"} className="rounded-lg border border-stone-200 bg-white p-2" data-testid="heim-draft-day" data-date={d}>
+          <summary className="min-h-11 cursor-pointer py-2 font-semibold">{dayLabel(d)}</summary>
+          <ul className="grid gap-1 text-sm">
+            {rows.filter((r) => r.date === d).map((r) => {
+              const p = person.get(r.staff_id);
+              return (
+                <li key={`${r.staff_id}-${r.station_id}-${r.shift_type_id}`} data-testid="heim-draft-row"
+                  data-station={station.get(r.station_id)?.name} data-shift={shift.get(r.shift_type_id)?.code}>
+                  <span className="font-semibold">Neu:</span> {station.get(r.station_id)?.name} · {shiftText(r.shift_type_id)} · {p?.display_name} ({gradeLabel(p?.grade ?? null)})
+                </li>
+              );
+            })}
+            {gaps.filter((g) => g.date === d).map((g) => (
+              <li key={`gap-${g.station_id}-${g.shift_type_id}`} className="text-rose-800" data-testid="heim-draft-gap"
+                data-station={station.get(g.station_id)?.name} data-shift={shift.get(g.shift_type_id)?.code}>
+                <span className="font-semibold">Lücke:</span> {station.get(g.station_id)?.name} · {shiftText(g.shift_type_id)} · {gapReasonText(g, gradeLabel)}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+      {unmet.length > 0 && (
+        <details className="rounded-lg border border-stone-200 bg-white p-2" data-testid="heim-draft-unmet">
+          <summary className="min-h-11 cursor-pointer py-2 font-semibold">{unmet.length} {unmet.length === 1 ? "Wunsch" : "Wünsche"} nicht erfüllt</summary>
+          <ul className="grid gap-1 text-sm">
+            {unmet.map((w) => (
+              <li key={`${w.staff_id}-${w.date}-${w.kind}-${w.shift_type_id ?? ""}`}>
+                {dayLabel(w.date)} · {person.get(w.staff_id)?.display_name} · {w.kind === "off" ? "frei" : shiftText(w.shift_type_id ?? "")}: {unmetWishReasonText(w)}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </section>
   );
 }

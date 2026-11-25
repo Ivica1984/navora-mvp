@@ -4,7 +4,7 @@
 
 export const HOME_PLAN_PATH = "/heim";
 
-export type PlanView = "woche" | "monat" | "personal" | "einstellungen" | "auftrag";
+export type PlanView = "woche" | "monat" | "personal" | "einstellungen" | "auftrag" | "vorschlag";
 export const PLAN_VIEWS: ReadonlyArray<{ key: PlanView; label: string }> = [
   { key: "woche", label: "Woche" },
   { key: "monat", label: "Monat" },
@@ -188,7 +188,7 @@ export function daysBetween(from: string, to: string): string[] {
 
 /** The date range a view reads (the month is at most 31 days; the database refuses more than 42). */
 export function rangeFor(view: PlanView, date: string): { from: string; to: string } {
-  if (view === "woche" || view === "einstellungen" || view === "auftrag") {
+  if (view === "woche" || view === "einstellungen" || view === "auftrag" || view === "vorschlag") {
     const from = weekStart(date);
     return { from, to: addDays(from, 6) };
   }
@@ -481,6 +481,11 @@ const PROBLEM_TEXT: Record<string, string> = {
   absence_overlaps: "Für diese Tage ist schon eine Abwesenheit erfasst.",
   kind_not_valid: "Bitte eine Art der Abwesenheit wählen: Ferien, Weiterbildung, Kompensation oder Abwesend.",
   input_not_valid: "Bitte die Angaben prüfen.",
+  // HD-3a slice 4: «Entwurf übernehmen» refused as a whole (migrations 0175, 0177); nothing was saved.
+  rows_not_valid: "Der Vorschlag war nicht lesbar. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  duplicate_row: "Der Vorschlag enthielt einen Dienst doppelt. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  period_too_long: "Ein Vorschlag umfasst höchstens einen Monat. Es wurde nichts übernommen.",
+  apply_id_used: "Dieser Vorschlag gehört zu einem anderen Heim. Es wurde nichts übernommen. Bitte neu vorschlagen.",
   rule_warning: "Nicht eingeteilt: Diese Einteilung verletzt eine Planungsregel. Bitte unten prüfen und bestätigen oder abbrechen.",
   name_exists: "Diesen Namen gibt es schon.",
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",
@@ -533,8 +538,22 @@ const DONE_TEXT: Record<string, string> = {
   order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
 };
 
-export function messageText(code: string | undefined): { kind: "ok" | "error"; text: string } | null {
+/** HD-3a slice 4: the answer of «Entwurf übernehmen», with the counts the database returned (no state). */
+function draftText(code: string, applied: number, refused: number): string | null {
+  const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
+  if (code === "draft_applied") return `Vorschlag übernommen: ${n(applied, "Dienst", "Dienste")} eingeteilt.`;
+  if (code === "draft_applied_partly") {
+    return `Vorschlag teilweise übernommen: ${n(applied, "Dienst", "Dienste")} eingeteilt, ${n(refused, "Vorschlag", "Vorschläge")} `
+      + `abgelehnt, weil sich der Plan seither geändert hat. Diese Dienste bleiben offen.`;
+  }
+  if (code === "draft_already_applied") return `Dieser Vorschlag wurde schon übernommen (${n(applied, "Dienst", "Dienste")}). Nichts wurde doppelt eingeteilt.`;
+  return null;
+}
+
+export function messageText(code: string | undefined, counts?: { applied: number; refused: number }): { kind: "ok" | "error"; text: string } | null {
   if (!code) return null;
+  const draft = draftText(code, counts?.applied ?? 0, counts?.refused ?? 0);
+  if (draft) return { kind: "ok", text: draft };
   if (code in DONE_TEXT) return { kind: "ok", text: DONE_TEXT[code] };
   if (code in PROBLEM_TEXT) return { kind: "error", text: PROBLEM_TEXT[code] };
   return null;
@@ -553,6 +572,17 @@ export function withMessage(path: string, code: string): string {
   url.searchParams.set("meldung", code);
   if (code !== "rule_warning") url.searchParams.delete("warnung");
   return `${url.pathname}${url.search}`;
+}
+
+/** HD-3a slice 4: the counts of «Entwurf übernehmen» next to the message code (whole numbers only). */
+export function withDraftCounts(path: string, applied: number, refused: number): string {
+  const url = new URL(path, "http://x");
+  url.searchParams.set("uebernommen", String(Math.max(0, Math.trunc(applied))));
+  url.searchParams.set("abgelehnt", String(Math.max(0, Math.trunc(refused))));
+  return `${url.pathname}${url.search}`;
+}
+export function parseCount(v: unknown): number {
+  return typeof v === "string" && /^\d{1,4}$/.test(v) ? Number(v) : 0;
 }
 
 /** HD-3a Q3: the pending hand assignment that broke a rule, carried in the URL to the confirmation form (no state). */
