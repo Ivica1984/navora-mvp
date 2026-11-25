@@ -166,6 +166,21 @@ Der Founder hat HD-3a in Issue #1712 beschrieben. Das ist der Inhalt von **HD-3a
 
 **Nicht in HD-3a (Folgepakete, Reihenfolge nach FE-125 (3)):** **HD-3s** geteilter Dienst; **HD-3c** Wochenenden pro Monat, Ausgleichstage, Fairness, HiGHS (ADR-224 Punkt 3b); **HD-AI** Regeleingabe in eigenen Worten durch ein Sprachmodell (nach AI1 Schritt (b), nur synthetische Daten, D-35 A, Heimleitung bestätigt). **Widerspruch Reihenfolge (gemeldet):** FE-122 (16:46) nennt INTAKE-E2E als nächstes Paket nach HD-3a; FE-125 (ca. 19:20, neuer) nennt HD-3c «direkt nach HD-3a». Nach README-Regel 10 gilt bis zur Founder-Antwort der neuere Entscheid: **HD-3c direkt nach HD-3a**. Die Reihenfolge danach (INTAKE-E2E, HD-3s) ist OPEN und geht als Auswahlfrage (FE-124) an den Founder: (A) HD-3c → HD-3s → INTAKE-E2E (Dienstplanung zuerst ganz fertig; Zuweiser-Flow später); (B) INTAKE-E2E → HD-3c → HD-3s (FE-122 wörtlich; 80-%-Ziel später messbar); (C, **Empfehlung PO**) HD-3c → INTAKE-E2E → HD-3s (80-%-Ziel zuerst messbar, dann der Kernweg Zuweisung → Team; der geteilte Dienst ist klein und betrifft nur Heime, die ihn nutzen). Beide Folgepakete erhalten vor Start einen Brief nach `_TEMPLATE.md`; kein Paket startet vor der HD-3a-Abnahme (README-Regel 12).
 
+**PO-Ergänzung 2026-11-25 14:39 (FE-129, Founder-Kommentare [#1712 7163623239](https://github.com/Ivica1984/navora-mvp/issues/1712#issuecomment-7163623239) und [#1729 7163865258](https://github.com/Ivica1984/navora-mvp/pull/1729#issuecomment-7163865258); vom PO selbst gelesen).** Founder-Scope: Lieferung des bedienbaren Ablaufs auf Staging zuerst.
+
+| Punkt | Vertrag HD-3a ab 14:39 | Status |
+|---|---|---|
+| Kernablauf | Monatsvorschlag aus eingetragenem Pensum, Abwesenheiten, Ruhezeit 11 h (dazu die bisherigen Regeln), Übernahme, Anzeige aus `institution_plan` | PLANNED (Bereitbericht) |
+| R-6-3 Komma-Eingabe, R-6-2 (a) | im Vertrag; laut `eng` in `a2df8ee` gebaut | IMPLEMENTED (laut `eng`, vom PO nicht geprüft) |
+| R-6-1 / R-7-1 (Migration 0178), R-7-2 | **nicht in HD-3a**, keine neue Migration; Folgepunkt **HD-3a-F1** | PLANNED (Folge) |
+| R-6-2 (b) Prüfung unter Zeilensperre | **nicht in HD-3a**; Folgepunkt HD-3a-F1 | PLANNED (Folge) |
+| CGR-284 (a)–(c) | bleibt (keine Founder-Verschiebung); zu (b) Auswahlfrage an den Founder | PLANNED |
+| §5a | ohne Schemaänderung: M2 aus Server- oder CI-Messung, als solche benannt (R-9-2 Alternative); M1 «Messweg IMPLEMENTED, Wert UNKNOWN bis Founder-Durchgang» (R-9-3); keine erfundenen Werte | PLANNED |
+
+**Bekannte Grenze im Bereitbericht (Pflicht, Wortlaut nach `eng` 7163937907):** «Pensum oder Wochensoll wird zwischen ‹Plan vorschlagen› und ‹übernehmen› auf ‹nicht eingetragen› gesetzt → die Zeilen werden ohne die Wochenstunden-Prüfung gespeichert.» Ruhezeit, Tage in Folge, Schichtmodell, Abwesenheit und Doppelbuchung prüft die Datenbank weiter je Zeile. **HD-3a-F1** (R-6-1, R-7-1, R-7-2, R-6-2 (b)) ist vor der HD-3b-Abnahme und zwingend vor realen Daten fertig.
+
+**Auswahlfrage an den Founder (FE-124), CGR-284 (b) Gleichheitstest auf dem 60-Personen-Monat (R-9-1):** (A, **Empfehlung PO**) in HD-3a behalten: ein Testlauf in bestehenden `app`/`db`-Jobs, keine Migration; beweist, dass der Bildschirm nach der Übernahme genau den Zustand der Datenbank zeigt (Lücken sichtbar); kostet vermutlich ein Teilstück. (B) nach HD-3a-F1 verschieben: schneller prüfbereit; bis dahin ist die Gleichheit nur am 9-Personen-Beispielheim und in Unit-Tests gezeigt, als bekannte Grenze im Bereitbericht. Ohne Antwort gilt (A).
+
 ### 5c. Zielarchitektur der automatisierten Dienstplanung (FE-126; PO-Einordnung 2026-11-24 20:39)
 
 Quelle: Founder-Freigabe in der `eng`-Live-Sitzung ca. 19:40, Wiedergabe durch `eng` auf [#1712 7141895771](https://github.com/Ivica1984/navora-mvp/issues/1712#issuecomment-7141895771) (vom PO nicht selbst gehört). Leitsatz: **Das Rechenwerk plant, die Heimleitung entscheidet, die KI hilft.** Diese Einordnung ändert den HD-3a-Vertrag (§5b) **nicht** und fügt ihm keine Merge-Bedingung hinzu (FE-089 (3)).
