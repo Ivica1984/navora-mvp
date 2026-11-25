@@ -796,6 +796,17 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** `report_draft_model` unchanged. Candidate (PLANNED, not registered): `intake_extraction_model` (IE-2, level G, stage 1 synthetic only). The HD-3a optimiser is a rule, not an agent. No agent added.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**FE-126 target architecture, HEIM-DP controls (`aia` 2026-11-25 02:20, review 89, AUT-207 to AUT-211):**
+- **Label check:** HD-3a on `d2696ac` is fixed rules (slice 2d wishes, no model); HD-3b HiGHS is a fixed rule; HD-3c (text → rules) and HD-3d (explanations of re-planning options) are a connected model only after AI1 step (b), test substitute before. The model never plans (FE-126 (3)).
+- **Controls proposed:**
+  - AUT-209 (HD-3c): proposals only for existing typed parameters, shown as a change with the source sentence, one confirmation per rule, no silent out-of-range value, same command and audit as a typed setting, correction rate and stop rule, synthetic evaluation set before any model call.
+  - AUT-210 (HD-3d): the solver orders the options by its objective; the model explains from solver data only and never adds, drops or reorders an option; every shown option passes `verifyDraft`.
+  - AUT-211: weight-profile and fairness reports at home level only, no person identifier.
+  - AUT-207, AUT-208: rule proposals (pause per shift type; dated wishes as wishes, never as absences).
+  - All PROPOSED (PO, founder via PO; `eng`, `cra`, `lca`, `uxa` as named).
+- **Catalogue:** `report_draft_model` unchanged. Candidates (PLANNED, not registered): `plan_rule_parser_model` (HD-3c, level L, G where R-q), `replan_explainer_model` (HD-3d, level L, text only). The HD-3a and HD-3b optimisers are rules, not agents. No agent added.
+- Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -886,3 +897,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-24 08:21 | `aia` | §12: block «AI1 #1697 re-read: stop carry-over met; the stop rule must count only lines a reserved call produced»: label check on `20e81b3`; controls AUT-197 to AUT-199 (PROPOSED). No agent added or removed |
 | 2026-11-24 14:24 | `aia` | §12: block «AI1 #1697 re-read: proposals bound to a reserved call; the CI fake must never feed a measure»: label check on `2e4d5d8`; control AUT-200 and AUT-196 extension (PROPOSED). No agent added or removed |
 | 2026-11-24 20:20 | `aia` | §12: block «HD-3a pre-read and INTAKE-E2E controls»: label check (AI1 step (a), HD-3a fixed rules); controls AUT-201 to AUT-206 (PROPOSED); `intake_extraction_model` named as a PLANNED candidate, not registered. No agent added or removed |
+| 2026-11-25 02:20 | `aia` | §12: block «FE-126 target architecture, HEIM-DP controls»: label check (HD-3a slice 2d fixed rules; HD-3c/HD-3d model only after AI1 (b)); controls AUT-207 to AUT-211 (PROPOSED); `plan_rule_parser_model` and `replan_explainer_model` named as PLANNED candidates, not registered. No agent added or removed |
