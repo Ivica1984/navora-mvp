@@ -36,6 +36,20 @@ begin
      or exists (select 1 from public.care_visits v
                 where (v.responsible_user_id = p_user_id or v.covered_by = p_user_id)
                   and v.status in ('planned', 'on_the_way', 'started', 'paused')
+                  -- ORDER-F1: a cheap, index-backed superset before the exact test, so visit_interval runs only for
+                  -- visits near the slot. visit_interval(v) lies within [visit_date - 2 days, visit_date + 3 days) UTC
+                  -- (time < 24:00, overnight +1 day, planned minutes <= 3 x 600, Zurich offset <= 2 h); the window
+                  -- keeps a further day each side. A visit without a date has an unbounded interval and always counts.
+                  and (v.visit_date is null
+                       or v.visit_date between (o.starts_at at time zone 'UTC')::date - 4
+                                           and (o.ends_at at time zone 'UTC')::date + 4)
+                  -- Tighter, still a superset, from the visit's start t0 = visit_date + time_start (00:00 without a
+                  -- time), read as UTC: visit_interval(v) lies within [t0 - 3 h, t0 + 29 h] (Zurich is 1-2 h ahead;
+                  -- the clock-change branch reaches at most 1 h lower; at most 1 800 planned minutes after the start).
+                  -- Kept with 3 h more each side. Plain column arithmetic, so visit_interval runs for few visits.
+                  and (v.visit_date is null
+                       or ((v.visit_date + coalesce(v.time_start, time '00:00')) at time zone 'UTC')
+                          between o.starts_at - interval '32 hours' and o.ends_at + interval '6 hours')
                   and private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')
                   -- BK-E1B (CGR-232): the visit written from a take of THIS order never counts.
                   and not exists (select 1 from public.order_takes vt
@@ -43,7 +57,11 @@ begin
      or exists (select 1 from public.order_takes k
                 join public.partner_requests q on q.id = k.order_id
                 where k.member_id = p_user_id and k.released_at is null and k.order_id <> o.id
-                  and q.starts_at < o.ends_at and q.ends_at > o.starts_at)
+                  and q.starts_at < o.ends_at and q.ends_at > o.starts_at
+                  -- ORDER-F1: the same overlap as a range, so the GiST index partner_requests_slot finds the few
+                  -- overlapping orders instead of walking every live take of hers. Implied by the two lines above for
+                  -- every row partner_requests_order_shape allows (ends_at > starts_at, or both null; null stays false).
+                  and tstzrange(q.starts_at, q.ends_at, '[)') && tstzrange(o.starts_at, o.ends_at, '[)'))
      -- BK-C2 (ADR-200 (4)): she said «Ich kann nicht» for THIS order; never re-offered as the going person.
      or exists (select 1 from public.order_takes c
                 where c.order_id = o.id and c.member_id = p_user_id and c.release_reason = 'member_cannot') then

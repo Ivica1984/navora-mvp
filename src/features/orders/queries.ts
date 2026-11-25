@@ -29,7 +29,9 @@ export type ClientOrderPage = {
   accounts: ClientAccount[];
   postcodes: PostcodeOption[];
   activities: ActivityOption[];
-  orders: ClientOrder[];
+  /** ORDER-F1: `null` when the list read failed (e.g. the statement timeout, 57014). Never `[]` for a failure, so a
+   * failed read can never read as «no orders»; the page shows the failure in the list only, the form stays usable. */
+  orders: ClientOrder[] | null;
   /** The Zurich calendar date, for the date words (AUT-120). */
   today: string;
 };
@@ -51,18 +53,32 @@ export async function getClientOrderPage(): Promise<ClientOrderPage> {
   const [postcodes, activities, orders] = await Promise.all([
     supabase.from("postcodes").select("postcode, place_name, region_name").order("postcode"),
     supabase.from("qual_activities").select("code, label_de").order("sort"),
-    supabase.rpc("client_orders"),
+    loadClientOrders(supabase),
   ]);
-  const failed = postcodes.error ?? activities.error ?? orders.error;
+  // The form needs both reference lists; without them it cannot be filled in, so the page fails as before.
+  const failed = postcodes.error ?? activities.error;
   if (failed) {
-    logEvent("error", "orders.load_failed", errorFields(failed));
-    throw new Error("Aufträge konnten nicht geladen werden.");
+    logEvent("error", "orders.reference_load_failed", errorFields(failed));
+    throw new Error("Auftragsformular konnte nicht geladen werden.");
   }
   return {
     accounts: list,
     postcodes: (postcodes.data ?? []) as PostcodeOption[],
     activities: (activities.data ?? []) as ActivityOption[],
-    orders: (orders.data ?? []) as unknown as ClientOrder[],
+    orders,
     today: zurichToday(),
   };
+}
+
+/** ORDER-F1 (b): the order list fails alone. A database error or a transport failure is logged with its code
+ * (`orders.load_failed`, as before, so the Render log still names 57014) and returns `null`, never a thrown page. */
+async function loadClientOrders(supabase: Awaited<ReturnType<typeof requireUser>>["supabase"]): Promise<ClientOrder[] | null> {
+  try {
+    const { data, error } = await supabase.rpc("client_orders");
+    if (!error) return (data ?? []) as unknown as ClientOrder[];
+    logEvent("error", "orders.load_failed", errorFields(error));
+  } catch (e) {
+    logEvent("error", "orders.load_failed", errorFields(e));
+  }
+  return null;
 }
