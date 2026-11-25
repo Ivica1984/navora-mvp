@@ -14,8 +14,13 @@ export const PLAN_VIEWS: ReadonlyArray<{ key: PlanView; label: string }> = [
 
 export type InstitutionRole = "lead" | "planner" | "viewer";
 export type Station = { id: string; name: string };
-export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string };
-export type Staff = { id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean };
+// HD-3a: `shift_class` (0172), `pensum_pct` and `shift_model` (0171) as `institution_plan` returns them; optional so an
+// older plan answer still reads.
+export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string; shift_class?: string | null };
+export type Staff = {
+  id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean;
+  pensum_pct?: number | null; shift_model?: string | null;
+};
 export type Absence = { id: string; staff_id: string; starts_on: string; ends_on: string };
 /**
  * One assigned person in a cell, as `institution_plan` returns it. `absent`: an absence day touches the shift (also the
@@ -78,6 +83,10 @@ export type Plan = {
     /** HD-2: the home's postcode for its orders (set by the home), and whether this person may send orders. */
     order_postcode?: string | null;
     can_order?: boolean;
+    /** HD-3a (0171, 0172): the home's planning limits; NULL = not entered. */
+    min_rest_hours?: number | null;
+    max_consecutive_days?: number | null;
+    weekly_target_hours?: number | null;
   };
   from: string;
   to: string;
@@ -517,6 +526,23 @@ const PROBLEM_TEXT: Record<string, string> = {
   covered: "Eine Person ist bestätigt; der Auftrag wird hier nicht zurückgezogen.",
   awaiting_acknowledgement: "Ein Team hat übernommen und die Person bestätigt noch; der Auftrag wird jetzt nicht zurückgezogen.",
   visit_under_way: "Der Einsatz läuft schon; der Auftrag lässt sich nicht mehr zurückziehen.",
+  // HD-3a FE-128: planning inputs. The app refuses what is not a number; the database refuses what is out of range.
+  rest_not_whole: "Ruhezeit: bitte ganze Stunden eingeben (zum Beispiel 11). Nichts wurde gespeichert.",
+  days_not_whole: "Arbeitstage in Folge: bitte eine ganze Zahl eingeben (zum Beispiel 6). Nichts wurde gespeichert.",
+  weekly_not_number: "Wochensoll: bitte Stunden eingeben (zum Beispiel 42 oder 42,5) oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  weekly_choice_missing: "Wochensoll: bitte «Wert» oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  limits_not_valid: "Ruhezeit 1 bis 24 Stunden, Arbeitstage in Folge 1 bis 14. Nichts wurde gespeichert.",
+  weekly_target_hours_not_valid: "Wochensoll 1 bis 80 Stunden. Nichts wurde gespeichert.",
+  pensum_not_whole: "Pensum: bitte ganze Prozent eingeben (zum Beispiel 80) oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  pensum_choice_missing: "Pensum: bitte «Wert» oder «nicht eingetragen» wählen. Nichts wurde gespeichert.",
+  pensum_not_valid: "Pensum 10 bis 100 %. Nichts wurde gespeichert.",
+  pensum_conflict: "Pensum: «nicht eingetragen» gewählt und eine Zahl eingegeben. Bitte eines davon. Nichts wurde gespeichert.",
+  weekly_conflict: "Wochensoll: «nicht eingetragen» gewählt und eine Zahl eingegeben. Bitte eines davon. Nichts wurde gespeichert.",
+  shift_model_unknown: "Bitte ein Schichtmodell wählen. Nichts wurde gespeichert.",
+  shift_model_not_valid: "Bitte ein Schichtmodell wählen. Nichts wurde gespeichert.",
+  shift_class_unknown: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
+  shift_class_not_valid: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
+  changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
@@ -536,6 +562,8 @@ const DONE_TEXT: Record<string, string> = {
   order_sent: "Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.",
   order_discarded: "Entwurf verworfen. Die Lücke bleibt.",
   order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
+  limits_saved: "Planungsgrenzen des Heims gespeichert.",
+  staff_planning_saved: "Pensum und Schichtmodell gespeichert.",
 };
 
 /** HD-3a slice 4: the answer of «Entwurf übernehmen», with the counts the database returned (no state). */
@@ -550,8 +578,21 @@ function draftText(code: string, applied: number, refused: number): string | nul
   return null;
 }
 
-export function messageText(code: string | undefined, counts?: { applied: number; refused: number }): { kind: "ok" | "error"; text: string } | null {
+/**
+ * HD-3a FE-128: the answer of «Klasse speichern» with the count the database returned (`affected_assignments`: saved
+ * shifts from today on whose person's shift model no longer fits; nothing was removed). Read back, not computed (T-1).
+ */
+function shiftClassText(affected: number): string {
+  if (affected === 0) return "Schichtklasse gespeichert. Keine eingeteilte Person ist betroffen.";
+  return `Schichtklasse gespeichert. ${affected} ${affected === 1 ? "Einteilung passt" : "Einteilungen passen"} ab heute nicht mehr `
+    + "zum Schichtmodell der Person. Nichts wurde entfernt; die Warnung steht im Plan.";
+}
+
+export function messageText(
+  code: string | undefined, counts?: { applied: number; refused: number; affected?: number },
+): { kind: "ok" | "error"; text: string } | null {
   if (!code) return null;
+  if (code === "shift_class_saved") return { kind: "ok", text: shiftClassText(counts?.affected ?? 0) };
   const draft = draftText(code, counts?.applied ?? 0, counts?.refused ?? 0);
   if (draft) return { kind: "ok", text: draft };
   if (code in DONE_TEXT) return { kind: "ok", text: DONE_TEXT[code] };
@@ -579,6 +620,12 @@ export function withDraftCounts(path: string, applied: number, refused: number):
   const url = new URL(path, "http://x");
   url.searchParams.set("uebernommen", String(Math.max(0, Math.trunc(applied))));
   url.searchParams.set("abgelehnt", String(Math.max(0, Math.trunc(refused))));
+  return `${url.pathname}${url.search}`;
+}
+/** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */
+export function withAffected(path: string, affected: number): string {
+  const url = new URL(path, "http://x");
+  url.searchParams.set("betroffen", String(Math.max(0, Math.trunc(affected))));
   return `${url.pathname}${url.search}`;
 }
 export function parseCount(v: unknown): number {

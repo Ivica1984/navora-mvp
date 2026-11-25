@@ -5,8 +5,12 @@ import { DRAFT_MARK, WORKING_TIME_LAW_MARK, gapReasonText, unmetWishReasonText }
 import { draftInputFromPlan, draftPeriodRange, rowsFormValue, sortGaps, sortRows, timedDraft, type DraftPeriod } from "@/features/home-plan/draft-screen";
 import {
   addStaff, addStation, applyDraft, assignStaff, checkGapOrder, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
-  setShiftType, setStaffActive, setStaffingRule, unassignStaff,
+  setPlanningLimits, setShiftClass, setShiftType, setStaffActive, setStaffPlanning, setStaffingRule, unassignStaff,
 } from "@/features/home-plan/commands";
+import {
+  LIMIT_MARK, NOT_ENTERED, NO_CLASS, SHIFT_CLASS_LABEL, SHIFT_MODEL_LABEL, shiftClassLabel, shiftModelLabel, shownValue,
+} from "@/features/home-plan/planning-inputs";
+import { SHIFT_CLASSES, SHIFT_MODELS } from "@/features/home-plan/draft";
 import {
   ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
@@ -28,7 +32,9 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
   const today = zurichToday();
   const date = isIsoDate(one(sp.datum)) ? (one(sp.datum) as string) : today;
   const person = one(sp.person);
-  const message = messageText(one(sp.meldung), { applied: parseCount(one(sp.uebernommen)), refused: parseCount(one(sp.abgelehnt)) });
+  const message = messageText(one(sp.meldung), {
+    applied: parseCount(one(sp.uebernommen)), refused: parseCount(one(sp.abgelehnt)), affected: parseCount(one(sp.betroffen)),
+  });
   const pending = parseWarning(one(sp.warnung));
 
   const institutions = await getMyInstitutions();
@@ -105,7 +111,9 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
           personHref={(id) => href({ ansicht: "personal", person: id })} draftHref={href({ ansicht: "vorschlag", bereich: "monat" })} />
       ) : view === "vorschlag" ? (
         <DraftProposal institutionId={inst.id} period={period} date={date}
-          back={href({ ansicht: period, bereich: undefined })} />
+          back={href({ ansicht: period, bereich: undefined })}
+          limitsHref={canSettle(inst.role) ? `${href({ ansicht: "einstellungen", bereich: undefined })}#heim-limits` : null}
+          personHref={(id) => `${href({ ansicht: "personal", bereich: undefined, person: id })}#heim-staff-planning`} />
       ) : view === "auftrag" ? (
         <OrderReview plan={plan} back={back} draft={one(sp.entwurf)} weekHref={href({ ansicht: "woche", entwurf: undefined })}
           values={{
@@ -406,6 +414,7 @@ function StaffView({ plan, back, person, personHref, prev, next }: {
               </Link>
               <span className="text-xs text-secondary">
                 {gradeLabel(s.grade)}{s.home_station_id ? ` · ${station.get(s.home_station_id) ?? ""}` : ""}{s.active ? "" : " · nicht aktiv"}
+                {s.active && s.pensum_pct == null ? <span className="font-semibold text-amber-900" data-testid="heim-staff-no-pensum"> · ohne Pensum</span> : ""}
               </span>
             </li>
           ))}
@@ -481,6 +490,7 @@ function PersonPanel({ plan, staff, back, planner, prev, next }: {
           </form>
         </div>
       )}
+      <StaffPlanning plan={plan} staff={staff} back={back} planner={planner} />
       {absences.length > 0 && (
         <ul className="grid gap-1 text-sm" data-testid="heim-absences">
           {absences.map((a) => (
@@ -521,6 +531,7 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
   const cells = indexCells(plan.cells);
   return (
     <section aria-label="Einstellungen" className="grid gap-4 lg:grid-cols-2">
+      <PlanningLimits plan={plan} back={back} />
       <div className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3">
         <h2 className="text-lg font-bold">Stationen</h2>
         <ul className="grid gap-1 text-sm">{plan.stations.map((s) => <li key={s.id}>{s.name}</li>)}</ul>
@@ -533,9 +544,27 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
       </div>
       <div className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3">
         <h2 className="text-lg font-bold">Dienstarten</h2>
-        <ul className="grid gap-1 text-sm">
-          {plan.shift_types.map((t) => <li key={t.id}>{t.code} · {t.label} {t.starts_at}–{t.ends_at}</li>)}
+        <ul className="grid gap-2 text-sm" data-testid="heim-shift-types">
+          {plan.shift_types.map((t) => (
+            <li key={t.id} className="grid gap-1" data-testid="heim-shift-type" data-code={t.code}>
+              <span>{t.code} · {t.label} {t.starts_at}–{t.ends_at} · <span data-testid="heim-shift-class-now">Klasse: {shiftClassLabel(t.shift_class)}</span></span>
+              <form action={setShiftClass} className="flex flex-wrap items-end gap-2" data-testid="heim-shift-class-form">
+                <Hidden values={{ institution: plan.institution.id, shift: t.id, was_class: shownValue(t.shift_class), back }} />
+                <label className="grid gap-1 text-sm">Schichtklasse {t.code}
+                  <select name="class" defaultValue={t.shift_class ?? NO_CLASS} className={input} data-testid="heim-shift-class">
+                    {SHIFT_CLASSES.map((c) => <option key={c} value={c}>{SHIFT_CLASS_LABEL[c]}</option>)}
+                    <option value={NO_CLASS}>keine Klasse</option>
+                  </select>
+                </label>
+                <button type="submit" className={btn} data-testid="heim-shift-class-save">Klasse speichern</button>
+              </form>
+            </li>
+          ))}
         </ul>
+        <p className="text-xs text-secondary">
+          Die Klasse sagt, welche Personen eine Dienstart übernehmen dürfen (Schichtmodell). Ohne Klasse nur Personen mit
+          «alle Dienste». Eine Änderung entfernt keine Einteilung; NAVORA zeigt, wie viele nicht mehr passen.
+        </p>
         <form action={setShiftType} className="flex flex-wrap items-end gap-2">
           <Hidden values={{ institution: plan.institution.id, back }} />
           <label className="grid gap-1 text-sm">Kürzel<input name="code" required maxLength={12} className={`${input} w-16`} /></label>
@@ -747,8 +776,10 @@ function DraftButton({ href }: { href: string }) {
 // on the server on this home's plan (`institution_plan`, also the weeks around the period it needs for the rules) and
 // saves nothing. «Übernehmen» sends exactly the rows shown here (T-1) with one apply id; the database checks each row
 // again and refuses what no longer fits. Fixed, checkable rules, no AI.
-async function DraftProposal({ institutionId, period, date, back }: {
+async function DraftProposal({ institutionId, period, date, back, limitsHref, personHref }: {
   institutionId: string; period: DraftPeriod; date: string; back: string;
+  /** FE-128: «Kein Vorschlag» points at the limit fields; null for a planner (only the lead sets them). */
+  limitsHref: string | null; personHref: (id: string) => string;
 }) {
   const { from, to } = draftPeriodRange(period, date);
   const title = period === "woche" ? `KW ${isoWeek(from)} · ${dayLabel(from)} bis ${dayLabel(to)}` : monthLabel(from);
@@ -776,7 +807,14 @@ async function DraftProposal({ institutionId, period, date, back }: {
     return (
       <section aria-label="Planvorschlag" className="grid gap-3" data-testid="heim-draft">
         {head}
-        <p role="alert" data-testid="heim-draft-none">Kein Vorschlag: {why} Bitte in den Einstellungen eintragen.</p>
+        <p role="alert" data-testid="heim-draft-none">Kein Vorschlag: {why}</p>
+        {limitsHref ? (
+          <Link href={limitsHref} className={`${btnPrimary} grid w-fit place-items-center`} data-testid="heim-draft-limits-link">
+            Planungsgrenzen eintragen
+          </Link>
+        ) : (
+          <p className="text-sm" data-testid="heim-draft-limits-lead">Diese Werte trägt die Heimleitung ein (Einstellungen · Planungsgrenzen).</p>
+        )}
         {cancel}
       </section>
     );
@@ -792,6 +830,9 @@ async function DraftProposal({ institutionId, period, date, back }: {
   };
   const days = daysBetween(from, to).filter((d) => rows.some((r) => r.date === d) || gaps.some((g) => g.date === d));
   const unmet = result.wishes.unmet;
+  // FE-128: persons without Pensum are never planned automatically (R-b); the lead and the planner see who and go to
+  // exactly that field.
+  const noPensum = plan.staff.filter((s) => s.active && s.pensum_pct == null);
   return (
     <section aria-label="Planvorschlag" className="grid gap-3" data-testid="heim-draft">
       {head}
@@ -799,6 +840,23 @@ async function DraftProposal({ institutionId, period, date, back }: {
         {rows.length} {rows.length === 1 ? "Dienst" : "Dienste"} vorgeschlagen · {gaps.length} {gaps.length === 1 ? "Lücke bleibt" : "Lücken bleiben"}
         {" "}· berechnet in {ms} ms
       </p>
+      {noPensum.length > 0 && (
+        <div className="grid gap-1 rounded-lg border border-amber-400 bg-amber-50 p-2 text-sm text-amber-950" data-testid="heim-draft-no-pensum">
+          <p>
+            {noPensum.length} {noPensum.length === 1 ? "Person wird" : "Personen werden"} nicht automatisch eingeteilt, weil kein
+            Pensum eingetragen ist:
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {noPensum.map((s) => (
+              <li key={s.id}>
+                <Link href={personHref(s.id)} className="inline-grid min-h-11 place-items-center underline" data-testid="heim-draft-no-pensum-link">
+                  {s.display_name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {result.wishes.total > 0 && (
         <p className="text-sm" data-testid="heim-draft-wishes">
           Wünsche: {result.wishes.met} von {result.wishes.total} erfüllt.
@@ -852,5 +910,91 @@ async function DraftProposal({ institutionId, period, date, back }: {
         </details>
       )}
     </section>
+  );
+}
+
+// HD-3a FE-128 (brief HD.md §5b, PO amendment 2026-11-25 10:39): the home's planning limits, lead only (this view is
+// the lead's). Every field carries the mark that the value is the home's and not checked against the law. NAVORA fills
+// in no value; the weekly target «nicht eingetragen» is an explicit choice (the draft then fails closed).
+function PlanningLimits({ plan, back }: { plan: Plan; back: string }) {
+  const i = plan.institution;
+  const weekly = i.weekly_target_hours ?? null;
+  return (
+    <form action={setPlanningLimits} id="heim-limits" className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3 lg:col-span-2"
+      data-testid="heim-limits-form">
+      <h2 className="text-lg font-bold">Planungsgrenzen</h2>
+      <p className="text-xs text-secondary" data-testid="heim-limits-mark">{LIMIT_MARK}. Der Planvorschlag braucht alle drei Werte.</p>
+      <Hidden values={{
+        institution: i.id, back,
+        was_rest: shownValue(i.min_rest_hours), was_days: shownValue(i.max_consecutive_days), was_weekly: shownValue(weekly),
+      }} />
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="grid gap-1 text-sm">Ruhezeit (Stunden)
+          <input name="rest" inputMode="numeric" defaultValue={i.min_rest_hours ?? ""} required className={`${input} w-24`} data-testid="heim-limits-rest" />
+        </label>
+        <label className="grid gap-1 text-sm">Arbeitstage in Folge (höchstens)
+          <input name="days" inputMode="numeric" defaultValue={i.max_consecutive_days ?? ""} required className={`${input} w-24`} data-testid="heim-limits-days" />
+        </label>
+        <fieldset className="grid gap-1 text-sm">
+          <legend>Wochensoll bei 100 % (Stunden)</legend>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex min-h-11 items-center gap-1">
+              <input type="radio" name="weekly_choice" value="wert" defaultChecked={weekly !== null} data-testid="heim-limits-weekly-value" /> Wert
+            </label>
+            <input name="weekly" inputMode="decimal" aria-label="Wochensoll in Stunden" defaultValue={weekly === null ? "" : String(weekly).replace(".", ",")}
+              className={`${input} w-24`} data-testid="heim-limits-weekly" />
+            <label className="flex min-h-11 items-center gap-1">
+              <input type="radio" name="weekly_choice" value={NOT_ENTERED} data-testid="heim-limits-weekly-none" /> nicht eingetragen
+            </label>
+          </div>
+        </fieldset>
+        <button type="submit" className={btnPrimary} data-testid="heim-limits-save">Grenzen speichern</button>
+      </div>
+      <p className="text-sm" data-testid="heim-limits-now">
+        Jetzt: Ruhezeit {i.min_rest_hours ?? "nicht eingetragen"}{i.min_rest_hours != null ? " h" : ""} · Arbeitstage in Folge {i.max_consecutive_days ?? "nicht eingetragen"} ·
+        Wochensoll {weekly === null ? "nicht eingetragen" : `${String(weekly).replace(".", ",")} h`}
+      </p>
+    </form>
+  );
+}
+
+// HD-3a FE-128: Pensum and shift model of one person; the lead and the planner change them, everyone with access reads
+// them. «Pensum nicht eingetragen» is an explicit choice: the person is then not planned automatically (R-b).
+function StaffPlanning({ plan, staff, back, planner }: { plan: Plan; staff: Plan["staff"][number]; back: string; planner: boolean }) {
+  const pensum = staff.pensum_pct ?? null;
+  const model = staff.shift_model ?? "any";
+  const now = (
+    <p className="text-sm" data-testid="heim-staff-planning-now">
+      Pensum {pensum === null ? "nicht eingetragen" : `${pensum} %`} · Schichtmodell {shiftModelLabel(model)}
+    </p>
+  );
+  if (!planner) return <div id="heim-staff-planning">{now}</div>;
+  return (
+    <form action={setStaffPlanning} id="heim-staff-planning" className="grid gap-2 rounded-lg border border-stone-300 bg-white p-2" data-testid="heim-staff-planning-form">
+      <h3 className="font-semibold">Planung dieser Person</h3>
+      {now}
+      <Hidden values={{ institution: plan.institution.id, staff: staff.id, was_pensum: shownValue(pensum), was_model: shownValue(staff.shift_model), back }} />
+      <div className="flex flex-wrap items-end gap-3">
+        <fieldset className="grid gap-1 text-sm">
+          <legend>Pensum (%)</legend>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex min-h-11 items-center gap-1">
+              <input type="radio" name="pensum_choice" value="wert" defaultChecked={pensum !== null} data-testid="heim-staff-pensum-value" /> Wert
+            </label>
+            <input name="pensum" inputMode="numeric" aria-label="Pensum in Prozent" defaultValue={pensum ?? ""} className={`${input} w-20`} data-testid="heim-staff-pensum" />
+            <label className="flex min-h-11 items-center gap-1">
+              <input type="radio" name="pensum_choice" value={NOT_ENTERED} data-testid="heim-staff-pensum-none" /> nicht eingetragen
+            </label>
+          </div>
+        </fieldset>
+        <label className="grid gap-1 text-sm">Schichtmodell
+          <select name="model" defaultValue={model} className={input} data-testid="heim-staff-model">
+            {SHIFT_MODELS.map((m) => <option key={m} value={m}>{SHIFT_MODEL_LABEL[m]}</option>)}
+          </select>
+        </label>
+        <button type="submit" className={btn} data-testid="heim-staff-planning-save">Planung speichern</button>
+      </div>
+      <p className="text-xs text-secondary">Ohne Pensum teilt der Planvorschlag diese Person nicht ein. Von Hand einteilen bleibt möglich.</p>
+    </form>
   );
 }
