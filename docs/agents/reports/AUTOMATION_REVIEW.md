@@ -31,6 +31,40 @@
 
 ---
 
+## 2026-11-25 14:21 CET · aia review 92: HD-3a slice 6 (FE-128 planning inputs, `a2df8eec`, merged into the branch as `69806cc`) pre-read, not a gate (draft): the inputs are needed, fail closed and propose no value (supported); Pensum is entered on one person page at a time, which makes the first plan of a new home a setup task of one form per person (AUT-213, medium, a table form or a later import); no `high` finding
+
+**Read:** `recovery/main` at `9ac7af42` (PO run 10:39: FE-128 recorded, `HD.md` §5b amendment, CGR-284 in the contract, my reviews 89 to 91 merged as #1740). Code read on `origin/feature/hd3a` `bab94900` (#1729, draft): commit `a2df8eec` (`src/features/home-plan/planning-inputs.ts`, `rules.ts`, `commands.ts`, `src/app/(protected)/heim/page.tsx`), `eng` journal 2026-11-25 12:25. CI on `69806cc` as `eng` reports it (`ci` 45605147752 `success`, e2e log «222 passed»); I read no job log myself, so for me this is a reported status, not an acceptance fact.
+
+**What slice 6 does (IMPLEMENTED on the branch, not merged):**
+- Planning limits of the home (rest time, days in a row, weekly target) and the shift class per shift type: one form each, `lead` only, through the existing commands, every field marked «Wert des Heims · Arbeitszeitgesetz nicht abschliessend geprüft».
+- Pensum and shift model per person: one form on the person's page, `lead` and `planner`.
+- «nicht eingetragen» is an explicit choice next to the field; an empty field never writes NULL silently; a value changed by somebody else in between is not overwritten (stale-value check).
+- The draft names every active person without Pensum with a link to her field; «Kein Vorschlag» links to the limit fields. NAVORA proposes no value.
+- Label: fixed rules; no model.
+
+**Automation and challenge review (challenge duty):**
+- **Do the inputs add administration?** No in substance: without weekly target, rest time and Pensum the rule engine cannot plan, so these are the minimum facts for the automation that removes the monthly hand planning (HD-3a goal ≥ 80 % of shifts taken over unchanged). One-time facts per home and per person, not a recurring step. Supported.
+- **Fail closed instead of guessing:** a person without Pensum is not planned automatically and is named on the draft. This is monitoring at the edge (the gap is visible with the next action), not a silent default. Supported; it is the same principle as «no backfill with invented values».
+- **No extra approval or role:** limits and class with `lead`, Pensum with `lead` and `planner`; no second sign-off, no new role. Supported.
+- **Stale-value check instead of a lock or a change request:** leaner than a lock workflow at equal safety. Supported.
+- **Shift class per shift type:** 3 shift types on the synthetic home, so 3 choices once. A derivation from start and end time would need thresholds (for «Nacht» the reading of the Arbeitsgesetz by `lca`), which I may not invent; the gain is a few seconds once. No finding.
+- **Pensum one person at a time:** see AUT-213.
+- **Two inputs per value («Wert» radio plus number):** one extra tap per field, which buys that a cleared field never deletes a value silently. Form question for `uxa`; no finding.
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-213 | Team self-organisation, onboarding of a home into automated planning; `lead` or `planner` | Pensum and shift model are entered on each person's page, one form and one save per person (`heim/page.tsx`, form `heim-staff-planning-form` with hidden `staff` id). A home of 60 persons (the CI quality home of FE-126) needs about 60 page visits before the first full draft. **Estimate, not a measurement:** 30 to 60 s per person including navigation, so 30 to 60 min once per home, repeated for each new person (onboarding). Recurring effort after setup: one form per new person or contract change, which is fine | **Simplify:** one table «Planung aller Personen» on `/heim` with one row per active person (Pensum, «nicht eingetragen», shift model) and one save; each row keeps its own range check and stale-value check, and a refused row names the person with a visible text (T-2), the others are saved. **Later, eliminate (Phase B only, gate `lca`):** take Pensum from the home's contract or payroll source by import instead of typing it twice; no import of real data before the owner decides it. Not an HD-3a condition; a follow-up for HD-3b or the onboarding path, decided by `po`, form by `uxa` | L | Stage 0 (fixed rules, no model); gate `po` (scope), `uxa` (form) | Setup time «empty home to first full draft» in minutes on the synthetic 60-person home (simulation, team level, never per person); count of saves needed for the setup | medium | none (not `high`) |
+
+**Closed or changed findings:** none closed. AUT-212 (gaps and solver ms into the run record) unchanged: slice 6 does not touch `institution_draft_runs`. `eng` R-6-1 (`institution_apply_draft` refuses a row whose person has no Pensum, or a call while the weekly target is NULL; migration 0178 PLANNED): supported, because it makes the database the third check for the same fail-closed rule the screen already shows, without an extra step for the lead.
+
+**AI readiness (§8):** no item in slice 6 proposes, drafts or ranks with a model. The planning inputs are the facts the rule engine reads; their provenance is the person who saved them (audit in the existing commands, as `eng` states; not checked by me). Correction rate and stop rule do not apply (no model).
+
+**Stage tracking:** unchanged. Stage 1 for synthetic data only, stage 0 for real data. No model has run anywhere. Entry conditions for HD-3c (model reads rules in own words): AI1 step (b) and `lca` before real data, both OPEN.
+
+**Bottleneck map:** not due (v5; next refresh 2026-12-01). No ranking change: planning in the nursing home stays the top-ranked bottleneck; slice 6 removes the last blocker to measuring M1 on staging, which is still UNKNOWN until the §5a measurement.
+
+---
+
 ## 2026-11-25 09:45 CET · aia review 91: HD-3a slices 3c and 4 (`e83fbc8`) pre-read, not a gate (draft): «Plan vorschlagen» → «Vorschlag übernehmen» is one decision per shown plan, no per-shift approval (supported); the screen sends every shown row, so deselection is 0 by construction today, but gaps and solver time are still only on the screen, not in the run record (AUT-212 narrowed, still medium); no new finding
 
 **Read:** `recovery/main` at `5df5b2d` (unchanged since review 90; my PR #1740 is still open, so this section continues it). Code read on `origin/feature/hd3a` `e83fbc8` (#1729, draft), diff against `409356f`: migration `20261021000177_hd3a_apply_lock_bound.sql` (insert into `institution_draft_runs`, result object), `public.institution_apply_draft.sql`, `src/features/home-plan/commands.ts` (`applyDraft`), `src/features/home-plan/draft-screen.ts` (header and period helpers), `src/app/(protected)/heim/page.tsx` (draft view, lines around the take-over form), `eng` journal 2026-11-25 09:25 on the branch. CI on `e83fbc8`: pending as `eng` reports; I read no job log. I ran no NAVORA test and did not touch the live project. No provider chosen, no data moved. Blueprint V3.2 and Handbook V2.2: nothing new in my field.
