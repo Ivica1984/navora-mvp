@@ -38,6 +38,25 @@ async function signIn(page: Page, email: string) {
 async function noSideScroll(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 }
+/**
+ * Holds every server-action POST (`Next-Action` header) on /heim for `ms` before it reaches the server; returns the undo.
+ * #1729 post-merge (ci 45656780068, e2e job 139355475736): the banner of the previous save is still on screen while the
+ * next save is in flight, so a wait for the same banner text passed before the write. The hold makes that window
+ * deterministic instead of depending on runner speed.
+ */
+async function holdServerActions(page: Page, ms: number): Promise<() => Promise<void>> {
+  const pattern = "**/heim**";
+  await page.route(pattern, async (route) => {
+    const req = route.request();
+    if (req.method() === "POST" && req.headers()["next-action"]) await new Promise((r) => setTimeout(r, ms));
+    try {
+      await route.continue();
+    } catch {
+      // The page went away while the request was held: nothing reaches the server.
+    }
+  });
+  return () => page.unroute(pattern);
+}
 async function ensureExample(page: Page) {
   await page.goto("/heim");
   await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
@@ -194,11 +213,14 @@ test("HD-3a FE-128: Pensum «nicht eingetragen» takes a person out of the draft
   await expect(page.getByTestId("heim-staff-planning-now")).toHaveText("Pensum 60 % · Schichtmodell kein Nachtdienst");
 
   // «nicht eingetragen»: the person is listed «ohne Pensum» and the draft names her with a link to her field.
+  // The previous save left the same banner on screen; the held POST keeps this save in flight for 1.5 s.
   await form.getByTestId("heim-staff-pensum").fill("");
   await form.getByTestId("heim-staff-pensum-none").check();
+  const release = await holdServerActions(page, 1500);
   await form.getByTestId("heim-staff-planning-save").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Pensum und Schichtmodell gespeichert.");
   expect(psql(`select coalesce(pensum_pct::text, 'NULL') from public.institution_staff where id = '${staffId}'`)).toBe("NULL");
+  await release();
   await expect(page.getByTestId("heim-staff-list").locator("li", { hasText: name }).getByTestId("heim-staff-no-pensum")).toBeVisible();
 
   await page.goto("/heim?ansicht=vorschlag&bereich=woche");
