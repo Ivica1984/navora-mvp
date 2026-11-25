@@ -201,3 +201,20 @@ export function busyFromOrderLines(lines: readonly string[], day: string): BusyM
   }
   return out;
 }
+
+/**
+ * Path 5 (HD-2): the day of the week whose Rhein 2 Früh cell the home orders externally. `candidates` are the week's
+ * days (YYYY-MM-DD, in screen order) whose cell still shows «Auftrag vorbereiten»; `usedDays` the client's order days
+ * read in /order (`orderDaysFromLines`). Returns null when no candidate fits; the caller then tries the next week.
+ *
+ * staging-smoke 45656894809 and 45669102936 (raw staging rows read 2026-11-25): a /order order of path 1 (07:00–15:30)
+ * is not a gap order, so the home's Früh cell of that day still offers «vorbereiten»; but the Basel nurse holds its take,
+ * so the database correctly offers the path-5 order to no team (CGR-224, `no_member_available`) and the cell reads «K».
+ * Any order of the client on the day excludes it (superset-safe, as `freeDayOffset`).
+ */
+export function path5GapDay(candidates: readonly string[], usedDays: ReadonlySet<string>): string | null {
+  return candidates.find((d) => !usedDays.has(d)) ?? null;
+}
+
+/** Path 5 tries at most this many weeks in a row before it fails (never skips): a sanity stop, not a window. */
+export const PATH5_MAX_WEEKS = 26;
