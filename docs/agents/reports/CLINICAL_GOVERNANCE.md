@@ -16,6 +16,56 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-24 16:26 CET: scheduled review of **FE-118** (AI1 scope freeze), **FE-119** (HD-3a start), the **#1697** ready head `2e4d5d8` and the **HD-3a contract** (ADR-224 rev. 2, `eng` on #1712 and #1724). **`cra-gate: #1697 2e4d5d8 clear`** for step (a) only (merge; gate «Simulation, synthetic data»; model path closed; not step (b), not a clinical release, D-27). Three new advisory findings (CGR-282 to CGR-284). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `4c56b0e`. Since my 15:02 section (`2612380`): role docs only (#1717 PO cycle 14:39, #1718 `lca`, #1719 `uxa`, #1720 mine, #1721 `eng`); no code merge. `FOUNDER_DECISIONS.md` v72 (FE-117) on `recovery/main`; v73 (FE-118, FE-119) in open PO PR #1722 `e62a339`. Blueprint 3.2.87: version table only; **Annex B §1 (20 guarantees) and the qualification matrix unchanged**; Handbook V2.2 unchanged. No FE-079 renewal due.
+- #1697 `2e4d5d8` (unchanged since my 15:02 reading; now not draft, `clean`): `eng` ready report 7135797060; check runs on the head (API): `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run), CodeQL all `success`; `db` job log 138413177502 read in part (0166, 0167, 0170 applied; pgTAP 166 `ok`). `draft.ts` (imports the unchanged `control.ts` `checkDraft`; draft unsigned, F6 alone makes a report final); `private.report_draft_model_closed.sql` (`not_simulation_org`, `switched_off`, `prompt_unregistered`, `stop_rule`); 0166 (all four AI1 tables `revoke all` from every API role; price NULL ⇒ reservation refused, lines as in the diff).
+- #1722 (PO): `briefs/AI1.md` §PO amendment 15:39, `HD.md` §5b addition. #1724 (`eng`): ADR-224 rev. 2, `IMPLEMENTATION_STATUS.md` rows AI1, HD. `eng` contract confirmation #1712 7135821089.
+
+### Founder decisions read (README rule 10)
+
+- **FE-118** (AI1 scope freeze on `2e4d5d8`; four-gate window waived for the merge; my n = 60 set, CGR-281 and the other review points to AI1-F1). I follow it. It does **not** relax a clinical release rule, because FE-118 (c) keeps the label «regelbasiert, keine KI» and the 0-invented-facts evaluation with my gate before any model draft (step (b)), and the code keeps the model closed (price NULL, simulation organisations only, kill switch). Any model draft on staging before that gate would be a blocking finding. Authorship: `eng` noted that every role posts as `Ivica1984`; the PO recorded the comment as the founder's (no agent footer, no journal claims it). Not mine to decide; no contradiction with `FOUNDER_DECISIONS.md` once #1722 merges.
+- **FE-119** (HD-3a now; absence types `Ferien`, `Weiterbildung`, `Abwesend`, no reason; rest ≥ 11 h and ≤ 6 days with the mark «Arbeitszeitgesetz nicht abschliessend geprüft»). Supports privacy of health data: no sickness type, no reason field (ADR-224 rev. 2: check constraint on three values, negative test). Rest and consecutive days are founder parameters for the simulation, not clinical rules (CR-256, PLANNED).
+- **FE-115** (noted 15:02): a second reading for **LT-2**. NAVORA's own income no longer tracks classification, but S4 (surplus to carers) would tie carer income to care revenue, including higher care levels. The CGR-142 (3) guardrail (level entered by a person, versioned, second review of an upward change) is therefore a precondition for S4, not only for PAG billing. Register note only; S4 is OPEN anyway (FE-115 (b)).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-282** | #1697 AI1 after the merge: the step-(b) boundary is procedural | **advisory**; S2; placement `po` (AI1-F1); not a merge condition (FE-118) | After the merge the only thing that keeps the model closed on staging is a NULL price row (plus the founder's Render values). 0166 says the row is «written only by a reviewed migration **or SQL statement on staging**». A direct SQL statement is not a PR, so nothing in CI or in the repository ties setting the price to the AI1-F1 evaluation run (0 invented facts) and the gate lines that FE-118 (c) requires first. | #1697 `2e4d5d8` 0166 line 20 and `private.ai_function_limits` (price columns nullable; `reserve_report_draft_call` refuses on NULL); FE-118 (c), (d) | (a) The price row for `report_draft_model` is set only by a migration in a PR whose body names the AI1-F1 evaluation run ID and the `cra`, `aia`, `lca`, `uxa` step-(b) lines (PO merge record checks it). (b) Until step (b) is recorded in `ABNAHMEAKTE.md`, `staging-smoke` asserts `/api/version` `report_draft` ∈ {`rules`, `off`}; a red result is a revert signal. |
+| **CGR-283** | #1697 AI1 merge with a red `staging-smoke` (FE-118 (f)) | **advisory**; S2; placement `po`/`eng` (STAB1-F6) | The smoke stops at the first failing path. On `323e6df` it stopped at path 2, so **path 3** (`/field` report, rule draft: the regression guard `eng` names for AI1) did not run there. If path 2 is still red after the merge, the integrated commit may carry no evidence at all that the carer's report path still works. | PO 14:39 (`staging-smoke` 45405736913: «paths 3-6 not run»); ready report 7135797060 known limit (1), (4) | On the AI1 merge commit, path 3 runs and its result is recorded even if path 2 fails (separate project, `--grep`, or no stop on first failure); the post-merge record names the path 3 result. Red on path 3 ⇒ revert or fix PR (amendment §5). |
+| **CGR-284** | HD-3a solver (ADR-224 rev. 2, PLANNED) and the cell rule | **advisory**; S2; contract point for `eng` before `Paket prüfbereit:` | The TypeScript solver decides which cells it fills and which gaps it reports. The plan view decides «ok» or «Lücke» in the database (CR-244: exact grade match; CR-247: external person only when `covered`). Two evaluators of the same cell can drift: the solver may report a cell as filled that the plan still shows as a gap, or give a gap reason that does not match the plan (H-54). | ADR-224 rev. 2 (#1724, PLANNED), points «Solver», «Apply»; `private.institution_plan_cell.sql`; CR-244, CR-247 | (a) The screen's state after «Übernehmen» is read only from `institution_plan`, never from the solver output. (b) A test on the 60-person month fixture: after apply, for every cell the solver's predicted state (filled or gap) equals the `institution_plan` state; a mismatch fails. (c) A gap reason counts persons by the same exact grade code as CR-244 (an HF person never counted as filling an FaGe line, or the reverse, unless the Clinical Owner later sets a substitution rule; none exists today). |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1697 AI1 | `2e4d5d8` | **`cra-gate: #1697 2e4d5d8 clear`**: step (a) merge only, gate «Simulation, synthetic data». Checked: validator `control.ts` unchanged by the branch; CI fake only quotes; a note over 4,000 characters is refused before any reservation, never cut; the draft stays unsigned until the carer signs (F6); model path closed by price NULL, simulation organisations only, database kill switch; no API role holds a grant on the four AI1 tables. **Step (b) still needs my gate** on the AI1-F1 head: (1) the fixture equals `AI1_EVAL_REFERENCE.md` by digest, (2) evaluation run 0 invented and 0 silently dropped facts, (3) CGR-281 and CGR-282 placed or met. |
+| HD-3a | no PR yet | No gate. Contract read; CGR-284 named before the build. My gate on the ready head checks: stages and exact grade match (CR-244), a gap never shown as «besetzt» (H-54), refused apply rows stay gaps, no sickness type and no reason field (FE-119). |
+| #1722, #1724 | docs | Not gates. |
+
+Not reviewed as gates: #1612, #1611, #1541, #1540 (not the active package).
+
+### Recommendation on `eng` Q3 (manual single assignment; asked of `po` and `cra`; `po` decides)
+
+Clinical Architect 2026-11-24: a warning without a block is acceptable **for the simulation** if (1) the warning names the rule (rest < 11 h, > 6 days in a row, over Pensum) and stays visible on the cell in week and month, not only at save time; (2) the audit event records the rule overridden and who confirmed; (3) the qualification and staffing checks that exist today (CR-244 to CR-246, overlap) stay blocking as they are; (4) the override is counted. Before real staff: whether a rest-time override may be saved at all is for `lca` (ArG) and the Clinical Owner (fatigue on a morning shift after a night is H-50). This recommends; it decides nothing.
+
+### Decisions requested
+
+- **`po`:** place CGR-282 and CGR-283 (AI1-F1 or STAB1-F6); decide Q3 (my recommendation above).
+- **`eng`:** take CGR-284 into the HD-3a contract (test (b)); transcribe `AI1_EVAL_REFERENCE.md` in AI1-F1 (unchanged).
+- **Founder:** FE-099 (7) (3) against FE-118 (PO point (d)), unchanged; «Kompensation» (FE-119 (b)).
+- **Clinical Owner (UNKNOWN):** unchanged: CGR-273, CGR-276, CGR-278, PERF1-F1, CGR-267 (D-29); rest-time override before real staff (Q3 (4)).
+- **`lca`:** ArG reading before real data (FE-119); CGR-271 unchanged.
+
+### Findings closed with evidence
+
+None this run. CGR-281 is placed (AI1-F1, FE-118 (a), `briefs/AI1.md` §PO amendment 15:39 in #1722), not closed.
+
+---
+
 ## 2026-11-24 15:02 CET: scheduled review after the PERF1 merge; **AI1 evaluation reference delivered** (contract item 4, AUT-190: `docs/agents/clinical/AI1_EVAL_REFERENCE.md`, 60 synthetic notes, PROPOSED, not frozen); pre-gate reading of **#1697** AI1 (draft, head `2e4d5d8`). **No gate line** (#1697 is a draft without `Paket prüfbereit:`). PERF1 findings closed with evidence. One new advisory finding (CGR-281). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)

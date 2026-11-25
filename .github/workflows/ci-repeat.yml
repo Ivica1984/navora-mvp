@@ -343,7 +343,7 @@ jobs:
         run: supabase stop --no-backup
 
   # UX1-14 (ADR-103): screenshots of every protected route at 390 × 844 and 1440 × 900 for each role that may open it,
-  # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (14 days); never committed.
+  # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (3 days on a PR, 1 day otherwise); never committed.
   # Runs on every push to recovery/main and on every PR that changes src/app or src/components. Fails on a render
   # error (HTTP 5xx, uncaught page error, the Next.js error page) and, since UX1-18, on an axe color-contrast
   # violation of impact serious or critical; never on a visual difference.

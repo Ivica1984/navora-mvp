@@ -3,6 +3,7 @@ name: codeql
 # Q6 (a), ADR-218 (founder order 2026-11-19, #1557): static security analysis of the app code on every pull request
 # and on the integration branch, plus once a week for newly published queries. Findings appear under
 # Security → Code scanning; a new high or critical finding on a pull request is shown as a failed check.
+# Interim since 2026-11-24 (#1723): no upload; SARIF artifact plus a job failure on any high or critical result.
 on:
   pull_request:
   push:
@@ -22,7 +23,10 @@ jobs:
     name: codeql (javascript-typescript)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # #1723, FE-120 (3): since the repository became private (2026-11-24 14:40 UTC) the CodeQL action reads the
+    # workflow run (get-a-workflow-run) and needs `actions: read`; without it the analysis ends as «configuration error».
     permissions:
+      actions: read
       contents: read
       security-events: write
     steps:
@@ -37,6 +41,59 @@ jobs:
               - scripts
             paths-ignore:
               - src/lib/supabase/database.types.ts
+      # #1723 layer 2, PO decision 2026-11-24 17:39 (interim, reversible; deviation from ADR-218): the private
+      # repository has no GitHub Code Security, so the upload to Security → Code scanning is refused. The scan still
+      # runs in full; results go to a SARIF file that is kept as a workflow artifact, and the next step fails the
+      # job on any result whose rule has security-severity >= 7.0 (high or critical). Way back: delete `upload` and
+      # `output`, the two steps after this one, once the founder enables Code Security or the repository is public.
       - uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript-typescript"
+          upload: never
+          output: codeql-sarif
+      - name: keep SARIF as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif
+          path: codeql-sarif
+          if-no-files-found: error
+          # FIX-ART1 (2026-11-24): 3 days; the verdict is the next step's log, the SARIF is only for reading it.
+          retention-days: 3
+      - name: fail on high or critical findings (security-severity >= 7.0)
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(codeql-sarif/*.sarif)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::no SARIF file written; the scan did not produce results, so the gate cannot pass"
+            exit 1
+          fi
+          total=0
+          high=0
+          for f in "${files[@]}"; do
+            # Fail closed: a SARIF file without any rule means the query suite did not run.
+            rules=$(jq '[.runs[] | ((.tool.driver.rules // []) + ([.tool.extensions[]?.rules[]?]))[]] | length' "$f")
+            echo "$f: ${rules} rules"
+            if [ "$rules" -eq 0 ]; then
+              echo "::error::$f lists no rules; the scan did not run its queries, so the gate cannot pass"
+              exit 1
+            fi
+            # Severity is a property of the rule; a result points to its rule by ruleId (driver or extension rules).
+            report=$(jq -r '
+              .runs[] as $run
+              | ([$run.tool.driver.rules[]?, ($run.tool.extensions[]?.rules[]?)]
+                 | map({key: .id, value: ((.properties["security-severity"] // "0") | tonumber)})
+                 | from_entries) as $sev
+              | $run.results[]?
+              | ($sev[.ruleId // .rule.id] // 0) as $s
+              | "\($s)\t\(.ruleId // .rule.id)\t\(.locations[0].physicalLocation.artifactLocation.uri // "?")\t\(.locations[0].physicalLocation.region.startLine // 1)"
+            ' "$f")
+            n=$(printf '%s' "$report" | grep -c . || true)
+            h=$(printf '%s\n' "$report" | awk -F'\t' '$1 != "" && $1+0 >= 7.0' | grep -c . || true)
+            total=$((total + n))
+            high=$((high + h))
+            printf '%s\n' "$report" | awk -F'\t' '$1 != "" && $1+0 >= 7.0 {print "::error file=" $3 ",line=" $4 "::" $2 " (security-severity " $1 ")"}'
+          done
+          echo "CodeQL results: ${total} in total, ${high} with security-severity >= 7.0"
+          if [ "$high" -gt 0 ]; then exit 1; fi
