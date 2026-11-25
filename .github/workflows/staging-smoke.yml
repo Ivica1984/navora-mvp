@@ -102,6 +102,17 @@ jobs:
           STAGING_SMOKE_PW_PFLEGEBS: ${{ secrets.STAGING_SMOKE_PW_PFLEGEBS }}
           STAGING_SMOKE_PW_PFLEGE: ${{ secrets.STAGING_SMOKE_PW_PFLEGE }}
         run: npx playwright test --config playwright.staging-smoke.config.ts
+      # ORDER-F1 (c) (STG-SMOKE-1-F1): on red, the screenshot of each failed test, so the cause of a red last step can be
+      # read. PNG files only (a browser masks a password field); never a trace, a video or error-context.md, which may
+      # hold typed field values (playwright.staging-smoke.config.ts).
+      - name: Screenshots of failed click paths
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-smoke-failure-screenshots
+          path: test-results/staging-smoke/**/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: App commit Render serves after the click paths
         if: always()
         run: |

@@ -1,4 +1,5 @@
 import { getClientOrderPage } from "@/features/orders/queries";
+import { ORDERS_UNAVAILABLE } from "@/features/orders/rules";
 import { radiusLine, shiftLabelLine } from "@/features/orders/rules";
 import { clientCoverLines } from "@/features/orders/offer-rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
@@ -34,9 +35,15 @@ export default async function OrderPage() {
         activities={data.activities}
       />
       <section aria-label="Ihre Aufträge" className="grid gap-2">
-        <h2 className="text-lg font-bold">Ihre Aufträge ({data.orders.length})</h2>
-        {data.orders.length === 0 && <p className="text-sm text-secondary">Noch kein Auftrag bestätigt.</p>}
-        <ul className="grid gap-2" data-testid="client-orders">
+        {/* ORDER-F1 (b): a failed list read shows here only, never as «Noch kein Auftrag» or a count of 0. */}
+        <h2 className="text-lg font-bold">Ihre Aufträge{data.orders === null ? "" : ` (${data.orders.length})`}</h2>
+        {data.orders === null && (
+          <p role="alert" data-testid="client-orders-failed" className="rounded-lg border border-rose-300 bg-rose-50 p-2 text-sm font-semibold text-rose-800">
+            {ORDERS_UNAVAILABLE}
+          </p>
+        )}
+        {data.orders !== null && data.orders.length === 0 && <p className="text-sm text-secondary">Noch kein Auftrag bestätigt.</p>}
+        {data.orders !== null && <ul className="grid gap-2" data-testid="client-orders">
           {data.orders.map((o) => {
             // BK-c2 (F-1, UXR-223, CGR-226 (a); template §4): the status first, then the order facts. The database
             // decides the state (`client_orders()`); no team count, no other team, no decline or exclusion reason.
@@ -53,7 +60,7 @@ export default async function OrderPage() {
               </li>
             );
           })}
-        </ul>
+        </ul>}
       </section>
       <section aria-labelledby="client-invoices-heading" className="grid gap-2" data-testid="client-invoices">
         {/* BK-f (contract 2026-11-20 06:39 point 2 (g)): read-only; team name, never a member name or a tag. */}

@@ -36,6 +36,13 @@ begin
      or exists (select 1 from public.care_visits v
                 where (v.responsible_user_id = p_user_id or v.covered_by = p_user_id)
                   and v.status in ('planned', 'on_the_way', 'started', 'paused')
+                  -- ORDER-F1: a cheap, index-backed superset before the exact test, so visit_interval runs only for
+                  -- visits near the slot. visit_interval(v) lies within [visit_date - 2 days, visit_date + 3 days) UTC
+                  -- (time < 24:00, overnight +1 day, planned minutes <= 3 x 600, Zurich offset <= 2 h); the window
+                  -- keeps a further day each side. A visit without a date has an unbounded interval and always counts.
+                  and (v.visit_date is null
+                       or v.visit_date between (o.starts_at at time zone 'UTC')::date - 4
+                                           and (o.ends_at at time zone 'UTC')::date + 4)
                   and private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')
                   -- BK-E1B (CGR-232): the visit written from a take of THIS order never counts.
                   and not exists (select 1 from public.order_takes vt

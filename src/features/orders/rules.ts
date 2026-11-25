@@ -7,6 +7,9 @@ import { FIELD_PATH, HOME_PATH, homePathForRoles } from "@/lib/auth/paths";
 /** ADR-192 (6): the client's only page. */
 export const CLIENT_ORDER_PATH = "/order";
 
+/** ORDER-F1 (b), brief wording: shown in the order list only when the list read failed; the form stays usable. */
+export const ORDERS_UNAVAILABLE = "Aufträge konnten nicht geladen werden, bitte neu laden.";
+
 /** A client (member of a client account) with no organisation role lands on /order; everyone else as before. */
 export function homePathFor(roles: ReadonlyArray<string>, isClient: boolean): string {
   if (isClient && roles.length === 0) return CLIENT_ORDER_PATH;

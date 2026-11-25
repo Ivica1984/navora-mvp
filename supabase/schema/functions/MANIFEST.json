@@ -50,7 +50,10 @@
         "SET search_path TO ''",
         "access_ended",
         "LEAVE1-3",
-        "order_member_step"
+        "order_member_step",
+        "ORDER-F1",
+        "v.visit_date is null",
+        "private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')"
       ]
     },
     {
