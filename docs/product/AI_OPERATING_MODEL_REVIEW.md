@@ -807,6 +807,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Catalogue:** `report_draft_model` unchanged. Candidates (PLANNED, not registered): `plan_rule_parser_model` (HD-3c, level L, G where R-q), `replan_explainer_model` (HD-3d, level L, text only). The HD-3a and HD-3b optimisers are rules, not agents. No agent added.
 - Stage 1 applies to synthetic data only; stage 0 to real data. No provider chosen by `aia`, no data moved.
 
+**HD-3a slice 3 take-over record (`aia` 2026-11-25 08:19, review 90, AUT-201, AUT-212):**
+- **Label check:** `institution_apply_draft` and `institution_draft_runs` on `409356f` are fixed rules; provenance is `optimizer_rules` only, checked by the database. No model.
+- **Control status:** AUT-201 (provenance per take-over) met in substance; open until the M1 query matches the e2e figure. AUT-212 (PROPOSED): store proposed rows and gaps per draft; M1 reports at home level, never by actor.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -898,3 +903,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-24 14:24 | `aia` | §12: block «AI1 #1697 re-read: proposals bound to a reserved call; the CI fake must never feed a measure»: label check on `2e4d5d8`; control AUT-200 and AUT-196 extension (PROPOSED). No agent added or removed |
 | 2026-11-24 20:20 | `aia` | §12: block «HD-3a pre-read and INTAKE-E2E controls»: label check (AI1 step (a), HD-3a fixed rules); controls AUT-201 to AUT-206 (PROPOSED); `intake_extraction_model` named as a PLANNED candidate, not registered. No agent added or removed |
 | 2026-11-25 02:20 | `aia` | §12: block «FE-126 target architecture, HEIM-DP controls»: label check (HD-3a slice 2d fixed rules; HD-3c/HD-3d model only after AI1 (b)); controls AUT-207 to AUT-211 (PROPOSED); `plan_rule_parser_model` and `replan_explainer_model` named as PLANNED candidates, not registered. No agent added or removed |
+| 2026-11-25 08:19 | `aia` | §12: block «HD-3a slice 3 take-over record»: label check (`409356f`, fixed rules); AUT-201 met in substance (open until the M1 query matches); control AUT-212 (PROPOSED). No agent added or removed |
