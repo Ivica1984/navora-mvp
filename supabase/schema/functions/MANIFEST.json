@@ -424,7 +424,9 @@
         "on conflict (id) do nothing",
         "cell_has_order",
         "cell_full",
-        "private.institution_cell_lock("
+        "private.institution_cell_lock(",
+        "period_too_long",
+        "join public.institution_shift_types t"
       ]
     },
     {

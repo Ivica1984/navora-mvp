@@ -27,6 +27,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-25 / HD-3a #1729, review R-3b-1, migration 0177] Gelernte Lektion: Sperren aus Eingabedaten nur für geprüfte, eigene Objekte nehmen
+- **Was war das Fehlerbild?** pgTAP 177 Test 3 lokal rot auf dem Stand von 0176: 30 Zeilen mit einem Dienst eines fremden Heims nahmen 30 Advisory-Locks («have: 30, want: 0»), obwohl jede Zeile danach als `not_found` abgelehnt wurde. Ebenso nahm ein Aufruf über 32 Tage 32 Locks.
+- **Was war die technische Ursache?** Die Sperrschleife in `institution_apply_draft` (0176) prüfte vor dem Sperren nur die Station gegen das Heim, nicht den Dienst und nicht das Datum. Die Schlüssel kamen damit ungeprüft aus der Eingabe. Advisory-Locks teilen sich die Lock-Tabelle der ganzen Datenbank; bis zu 2000 pro Aufruf können sie für alle Transaktionen füllen.
+- **Die verbindliche Lösungsregel ab jetzt:** Bevor eine Funktion Sperren aus Eingabedaten nimmt, filtert sie jeden Teil des Schlüssels auf Objekte des eigenen Mandanten (Join auf jede Tabelle des Schlüssels) und begrenzt die Anzahl über eine fachlich begründete Eingabegrenze. Jeder neue Lock-Pfad bekommt einen pgTAP-Test, der `pg_locks` für fremde oder erfundene Eingaben zählt (Erwartung 0).
+- **Abgesichert durch:** pgTAP 177 (Tests 1-10), MANIFEST-Pflichttexte `period_too_long` und `join public.institution_shift_types t` (pgTAP 157).
+
 ### [2026-11-24 / HD-3a #1729, ci 45486454697, Job 138773037222] Gelernte Lektion: Hand-Nachtrag in `database.types.ts` folgt dem Generator-Format
 - **Was war das Fehlerbild?** `db` rot auf `a0103c8` nur im Schritt «db-types drift» («src/lib/supabase/database.types.ts is out of date»), pgTAP «Files=170, Tests=6796, Result: PASS»; der Types-Bot schob sofort `83a79dc`.
 - **Was war die technische Ursache?** Ich hatte die neuen Array-Spalten von Hand als `string[]` eingetragen; der Generator schreibt `(string)[]`. Ein Zeichenunterschied genügt für den Drift-Check.

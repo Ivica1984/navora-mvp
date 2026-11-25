@@ -67,6 +67,12 @@ begin
       from jsonb_array_elements(p_rows) e) <> n then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('duplicate_row'));
   end if;
+  -- One draft covers one week or one calendar month (the periods the screen offers), so its rows span at most 31 days
+  -- (review R-3b-1). An input check like the 2000 rows above: it bounds the cell locks taken below to stations x shift
+  -- types x 31 of this home. A technical bound, no planning rule.
+  if (select max((e ->> 'date')::date) - min((e ->> 'date')::date) from jsonb_array_elements(p_rows) e) > 30 then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('period_too_long'));
+  end if;
   -- Lock every person of the draft of this home, in id order, before the first check: the same first lock as
   -- institution_assign_staff (person -> type share -> home share), so two applies or an apply and a hand assignment,
   -- an absence or a planning change of the same person are serialised and cannot deadlock. A person of another home is
@@ -96,16 +102,19 @@ begin
     return jsonb_build_object('result', 'already_applied', 'apply_id', v_run.id, 'applied', v_run.rows_applied,
                               'refused', v_run.refused);
   end if;
-  -- Lock every plan cell of the draft that belongs to this home (review finding 1), all before the first row and in
-  -- one fixed order (station, shift type, day): institution_prepare_gap_order takes the same cell lock, so an order and
-  -- a draft row for the same cell are serialised and each sees the other's committed result (READ COMMITTED: every
-  -- statement below reads a fresh snapshot). Persons first, then cells, both sorted: two applies cannot deadlock, and
-  -- prepare holds only its one cell lock and never waits for a person.
+  -- Lock every plan cell of the draft whose station and shift type belong to this home (review finding 1; R-3b-1: a
+  -- row with a foreign station or shift type takes no lock and is refused below as not_found), all before the first
+  -- row and in one fixed order (station, shift type, day): institution_prepare_gap_order takes the same cell lock, so
+  -- an order and a draft row for the same cell are serialised and each sees the other's committed result (READ
+  -- COMMITTED: every statement below reads a fresh snapshot). Persons first, then cells, both sorted: two applies
+  -- cannot deadlock, and prepare holds only its one cell lock and never waits for a person.
   for c in select distinct (e ->> 'station_id')::uuid as station_id, (e ->> 'shift_type_id')::uuid as shift_type_id,
                            (e ->> 'date')::date as work_date
              from jsonb_array_elements(p_rows) e
              join public.institution_stations st
                on st.id = (e ->> 'station_id')::uuid and st.institution_id = p_institution_id
+             join public.institution_shift_types t
+               on t.id = (e ->> 'shift_type_id')::uuid and t.institution_id = p_institution_id
             order by 1, 2, 3 loop
     perform private.institution_cell_lock(c.station_id, c.shift_type_id, c.work_date);
   end loop;
