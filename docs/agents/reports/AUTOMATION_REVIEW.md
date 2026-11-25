@@ -31,6 +31,35 @@
 
 ---
 
+## 2026-11-25 16:53 CET · aia review 93: HD-3a gate on `203507b` (`aia-gate: #1729 203507b clear`, «Simulation, synthetic data», fixed rules); FE-130 (D-16) read for automation: Option B moves the hold lift from coach/admin into the team (supported); a care-plan review signal on every quality event risks one task per event (AUT-216, medium, for the QG2 brief); no `high` finding
+
+**Read:** `recovery/main` at `1c902fdd` (FE-129, FE-130 recorded; D-16 row in *Decided*; my review 92 merged as #1743). PR #1729 head `203507be` (ready report 7165910009, PO gate opening 7167253359, `cra-gate` clear 7167315918). Code read on the head: `src/app/(protected)/heim/page.tsx` (draft section), `src/features/home-plan/draft.ts`, `planning-inputs.ts`, `rules.ts`, migration `20261021000175_hd3a_apply_draft.sql` (`institution_draft_runs`), `supabase/schema/functions/public.institution_unassign_staff.sql`. Job log read myself: `e2e` 139283481272 «223 passed (6.7m)» and «CGR-284 (b): 682 rows applied, 279 cells compared, 80 gaps, solver 100 ms (CI runner)». The six check runs on `203507be` are `success` (check-runs API; other job logs not read). I ran no NAVORA test.
+
+**Gate answers (posted as 7167436021):**
+1. **Marks (IMPLEMENTED on the branch):** `heim-draft-mark` in the head of the draft section on every branch, «Kein Vorschlag» included; `LIMIT_MARK` on the limit forms; the working-time mark in the hand-rule warning text. Strings pinned by unit test `hd3a-draft`.
+2. **Measurement labels:** M2 named as CI-runner time, not a gate; M1 «Messweg IMPLEMENTED, Wert UNKNOWN». Honest.
+3. **Run record for M1:** enough for the retention form. Assignments are only inserted or deleted (no `update` path found in `supabase/schema/functions`), and an unassign writes a timed audit row, so retention at any cut-off date is derivable.
+
+**FE-130 (D-16) for automation (decision in force provisionally, synthetic data; QG2 PLANNED, not built):**
+- **Option B (second HF/RN of the same team, not the author, lifts the hold with a reason):** supported. It replaces a coach/admin step with a peer check inside the team: same safety (four eyes, audit), less hierarchy. The form question for QG2 is only that the lift is one action with one reason field on the hold itself, not a separate request and approval round.
+- **«Meldepflicht geprüft» for serious events:** a legal duty; not administration to remove. Only its form is open (one confirmation on the review entry, `lca`/`cra`).
+- **Care-plan review signal on every quality event:** see AUT-216.
+- **Hard rule:** no AI triage or AI severity proposal for quality events in QG2 or later without a separate decision; severity definitions stay OPEN (`cra`, founder), no agent writes them.
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-214 | Planning, measurement of HD-3a/HD-3b; `eng`, `po` | `HD.md` names two M1 forms: retention «unchanged taken over» (§5b, `eng`: rows still existing ÷ rows applied) and automation degree «÷ all filled shifts of the month», target ≥ 80 % (HD-3b part, line 188). Both are computable from `institution_draft_runs.assignment_ids`, `institution_assignments` and the unassign audit (code on `203507be`) | **Rule:** the acceptance record and every M1 report name which form is reported; report both once the founder run gives a value. No new field | L | Stage 0; gate `po` | M1 value per home, form named (simulation, synthetic data) | low | none |
+| AUT-215 | Planning, measurement; `eng` | `institution_draft_runs.applied_by` holds the person who took the draft over; table revoked from `public`, `anon`, `authenticated` (migration 0175) | **Rule:** M1 is read and reported per home only, never grouped by `applied_by` (no per-person view). Keep the revoke; any later read function returns home-level counts only | L | Stage 0; gate `po`, `lca` before real data | Query review: no M1 query groups by person | low | none |
+| AUT-216 | Quality → Planning of care; nurse of the team (QG2, PLANNED) | FE-130 point 2: «Quality events trigger a mandatory care-plan review signal», read by the PO as every event (all severities). Not built; QG1 type list empty today. **Estimate, not a measurement:** if each event creates its own review task, a client with several low events in a week gets several tasks for one care plan; the review itself is the care benefit, the duplicates are not | **Rule (form only, the signal stays):** one open review signal per client; a new event while it is open is added to it (event list), it does not create a second one; it closes with the care-plan review entry, not by hand. Severity changes nothing in the signal's existence, only in its order (`high`/`critical` first). **Monitor:** open signals per team and age. No AI | G | Stage 0; gate `cra` (reading of point 2, severities), `uxa` (form), `po` (QG2 brief) | Review signals per team per week and share closed by a care-plan review within the team's own period (simulation, team level, never per person) | medium | none (not `high`) |
+
+**Closed or changed findings:** AUT-212 unchanged (gaps and solver ms not in the run record; HD-3b). AUT-213 unchanged. None closed.
+
+**Stage tracking:** stage 1 for synthetic data only, stage 0 for real data; no model has run anywhere (AI1 test substitute «regelbasiert, keine KI»). HD-3a, QG1, QG2 are fixed rules.
+
+**Bottleneck map:** not due (v5; next refresh 2026-12-01).
+
+---
+
 ## 2026-11-25 14:21 CET · aia review 92: HD-3a slice 6 (FE-128 planning inputs, `a2df8eec`, merged into the branch as `69806cc`) pre-read, not a gate (draft): the inputs are needed, fail closed and propose no value (supported); Pensum is entered on one person page at a time, which makes the first plan of a new home a setup task of one form per person (AUT-213, medium, a table form or a later import); no `high` finding
 
 **Read:** `recovery/main` at `9ac7af42` (PO run 10:39: FE-128 recorded, `HD.md` §5b amendment, CGR-284 in the contract, my reviews 89 to 91 merged as #1740). Code read on `origin/feature/hd3a` `bab94900` (#1729, draft): commit `a2df8eec` (`src/features/home-plan/planning-inputs.ts`, `rules.ts`, `commands.ts`, `src/app/(protected)/heim/page.tsx`), `eng` journal 2026-11-25 12:25. CI on `69806cc` as `eng` reports it (`ci` 45605147752 `success`, e2e log «222 passed»); I read no job log myself, so for me this is a reported status, not an acceptance fact.

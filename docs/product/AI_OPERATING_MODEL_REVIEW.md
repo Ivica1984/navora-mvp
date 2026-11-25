@@ -822,6 +822,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control status:** no model value, so no accept-all question arises. AUT-212 unchanged (PROPOSED). AUT-213 (PROPOSED, medium): one table form for Pensum of all persons; import only in Phase B with `lca`.
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**HD-3a gate and FE-130 (`aia` 2026-11-25 16:53, review 93, AUT-214 to AUT-216):**
+- **Label check (gate):** HD-3a on `203507b` is fixed rules; marks «Optimierung (feste Regeln)» and «Arbeitszeitgesetz nicht abschliessend geprüft» in the draft head on every branch; provenance `optimizer_rules` only. No model. `aia-gate: #1729 203507b clear` (7167436021), «Simulation, synthetic data».
+- **Control status:** M1 retention is computable from `institution_draft_runs` plus the unassign audit (insert/delete only). AUT-214 (PROPOSED, low): name the M1 form in the acceptance record. AUT-215 (PROPOSED, low): M1 per home only, `applied_by` never read per person. AUT-212 unchanged.
+- **FE-130 (D-16, QG2 PLANNED):** all fixed rules; no AI triage of quality events or severities (hard rule). AUT-216 (PROPOSED, medium): one open care-plan review signal per client, not one per event.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -916,3 +922,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-25 08:19 | `aia` | §12: block «HD-3a slice 3 take-over record»: label check (`409356f`, fixed rules); AUT-201 met in substance (open until the M1 query matches); control AUT-212 (PROPOSED). No agent added or removed |
 | 2026-11-25 09:45 | `aia` | §12: block «HD-3a slice 4 draft screen»: label check (`e83fbc8`, fixed rules); AUT-212 narrowed (deselection 0 by construction; gaps and solver ms still open). No agent added or removed |
 | 2026-11-25 14:21 | `aia` | §12: block «HD-3a slice 6 planning inputs»: label check (`a2df8eec`, fixed rules, no proposed value); AUT-213 (PROPOSED). No agent added or removed |
+| 2026-11-25 16:53 | `aia` | §12: block «HD-3a gate and FE-130»: gate clear on `203507b` (fixed rules); AUT-214, AUT-215 (PROPOSED, low), AUT-216 (PROPOSED, medium, QG2). No agent added or removed |
