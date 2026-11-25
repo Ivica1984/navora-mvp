@@ -99,6 +99,29 @@ export function mergePlans(parts: ReadonlyArray<DraftPlan>): DraftPlan | null {
 }
 
 /**
+ * The plan the solver needs for [from, to], through `read` (one `institution_plan` call per range). The screen passes
+ * its server read (`getDraftPlan`); the CGR-284 (b) equivalence test passes a signed-in client of the local stack, so
+ * both go through this one path. Null when any read fails: no draft from part of the plan.
+ */
+export async function readDraftPlan(
+  read: (from: string, to: string) => Promise<DraftPlan | null>,
+  from: string,
+  to: string,
+): Promise<DraftPlan | null> {
+  const period = await read(from, to);
+  if (!period) return null;
+  const range = contextRangeFor(period, from, to);
+  if (!range) return period;
+  const parts: DraftPlan[] = [];
+  for (const c of planReadChunks(range.from, range.to)) {
+    const p = await read(c.from, c.to);
+    if (!p) return null;
+    parts.push(p);
+  }
+  return mergePlans(parts);
+}
+
+/**
  * The solver input for [from, to] from a plan that covers at least `contextRangeFor(plan, from, to)`. `null` (no draft)
  * when the home's limits are missing or a value is outside what the database allows (an app older or newer than the
  * schema): the draft fails closed and never guesses a shift class or model.

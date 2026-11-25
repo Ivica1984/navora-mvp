@@ -10,6 +10,7 @@ import {
   draftPeriodRange,
   mergePlans,
   planReadChunks,
+  readDraftPlan,
   readLimits,
   rowsFormValue,
   sortRows,
@@ -91,6 +92,31 @@ describe("HD-3a slice 4: periods and plan reads", () => {
     expect(m.cells.length).toBe(40);
     expect(m.absences.length).toBe(1);
     expect(mergePlans([])).toBeNull();
+  });
+});
+
+describe("HD-3a CGR-284 (b): one read path for the screen and the equivalence test", () => {
+  it("reads the period, then the context in pieces of at most 42 days, and merges them", async () => {
+    const calls: Array<[string, string]> = [];
+    const read = async (a: string, b: string) => {
+      calls.push([a, b]);
+      return plan(a, b, { cells: [cell(a, F)] });
+    };
+    const merged = await readDraftPlan(read, "2027-03-01", "2027-03-31");
+    expect(calls[0]).toEqual(["2027-03-01", "2027-03-31"]);
+    expect(calls.length).toBeGreaterThanOrEqual(3);
+    for (const [a, b] of calls.slice(1)) expect(daysBetween(a, b).length).toBeLessThanOrEqual(PLAN_READ_MAX_DAYS);
+    expect(merged?.from).toBe(calls[1][0]);
+    expect(merged?.to).toBe(calls.at(-1)![1]);
+  });
+  it("any failed read gives no plan (no draft from part of the plan); missing limits give the period only", async () => {
+    let n = 0;
+    expect(await readDraftPlan(async (a, b) => (++n === 2 ? null : plan(a, b)), "2027-03-01", "2027-03-31")).toBeNull();
+    expect(await readDraftPlan(async () => null, "2027-03-01", "2027-03-31")).toBeNull();
+    const calls: string[] = [];
+    const noLimits = await readDraftPlan(async (a, b) => (calls.push(a), plan(a, b, {}, { min_rest_hours: null })), "2027-03-01", "2027-03-07");
+    expect(calls).toEqual(["2027-03-01"]);
+    expect(noLimits?.from).toBe("2027-03-01");
   });
 });
 

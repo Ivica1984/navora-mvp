@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 // both check the membership in the database. No NAVORA team, case or member data.
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { contextRangeFor, mergePlans, planReadChunks, type DraftPlan } from "./draft-screen";
+import { readDraftPlan, type DraftPlan } from "./draft-screen";
 import type { InstitutionRole, Plan } from "./rules";
 
 export type MyInstitution = { id: string; display_name: string; kind: string; role: InstitutionRole; simulation: boolean };
@@ -73,17 +73,7 @@ export async function previewGapOrder(args: {
 // so a month is read in two calls. Every read checks the membership in the database; null when any read fails (the
 // screen then shows no draft rather than a draft from part of the plan).
 export async function getDraftPlan(institutionId: string, from: string, to: string): Promise<DraftPlan | null> {
-  const period = (await getPlan(institutionId, from, to)) as DraftPlan | null;
-  if (!period) return null;
-  const range = contextRangeFor(period, from, to);
-  if (!range) return period;
-  const parts: DraftPlan[] = [];
-  for (const c of planReadChunks(range.from, range.to)) {
-    const p = (await getPlan(institutionId, c.from, c.to)) as DraftPlan | null;
-    if (!p) return null;
-    parts.push(p);
-  }
-  return mergePlans(parts);
+  return readDraftPlan((a, b) => getPlan(institutionId, a, b) as Promise<DraftPlan | null>, from, to);
 }
 
 /** One apply id per shown draft (`institution_apply_draft`: the same id again is answered «already_applied»). */
