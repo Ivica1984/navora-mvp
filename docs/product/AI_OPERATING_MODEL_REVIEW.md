@@ -812,6 +812,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control status:** AUT-201 (provenance per take-over) met in substance; open until the M1 query matches the e2e figure. AUT-212 (PROPOSED): store proposed rows and gaps per draft; M1 reports at home level, never by actor.
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**HD-3a slice 4 draft screen (`aia` 2026-11-25 09:45, review 91, AUT-212):**
+- **Label check:** «Plan vorschlagen» and «Vorschlag übernehmen» on `e83fbc8` are fixed rules; the draft view saves nothing; provenance `optimizer_rules`. No model.
+- **Control status:** one decision per shown plan, no accept-all question arises (no model values). AUT-212 narrowed: deselection is 0 by construction (all shown rows are sent); gaps left and solver ms are still not in the run record (PROPOSED).
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -904,3 +909,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-24 20:20 | `aia` | §12: block «HD-3a pre-read and INTAKE-E2E controls»: label check (AI1 step (a), HD-3a fixed rules); controls AUT-201 to AUT-206 (PROPOSED); `intake_extraction_model` named as a PLANNED candidate, not registered. No agent added or removed |
 | 2026-11-25 02:20 | `aia` | §12: block «FE-126 target architecture, HEIM-DP controls»: label check (HD-3a slice 2d fixed rules; HD-3c/HD-3d model only after AI1 (b)); controls AUT-207 to AUT-211 (PROPOSED); `plan_rule_parser_model` and `replan_explainer_model` named as PLANNED candidates, not registered. No agent added or removed |
 | 2026-11-25 08:19 | `aia` | §12: block «HD-3a slice 3 take-over record»: label check (`409356f`, fixed rules); AUT-201 met in substance (open until the M1 query matches); control AUT-212 (PROPOSED). No agent added or removed |
+| 2026-11-25 09:45 | `aia` | §12: block «HD-3a slice 4 draft screen»: label check (`e83fbc8`, fixed rules); AUT-212 narrowed (deselection 0 by construction; gaps and solver ms still open). No agent added or removed |

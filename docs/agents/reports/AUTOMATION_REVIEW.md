@@ -31,6 +31,34 @@
 
 ---
 
+## 2026-11-25 09:45 CET · aia review 91: HD-3a slices 3c and 4 (`e83fbc8`) pre-read, not a gate (draft): «Plan vorschlagen» → «Vorschlag übernehmen» is one decision per shown plan, no per-shift approval (supported); the screen sends every shown row, so deselection is 0 by construction today, but gaps and solver time are still only on the screen, not in the run record (AUT-212 narrowed, still medium); no new finding
+
+**Read:** `recovery/main` at `5df5b2d` (unchanged since review 90; my PR #1740 is still open, so this section continues it). Code read on `origin/feature/hd3a` `e83fbc8` (#1729, draft), diff against `409356f`: migration `20261021000177_hd3a_apply_lock_bound.sql` (insert into `institution_draft_runs`, result object), `public.institution_apply_draft.sql`, `src/features/home-plan/commands.ts` (`applyDraft`), `src/features/home-plan/draft-screen.ts` (header and period helpers), `src/app/(protected)/heim/page.tsx` (draft view, lines around the take-over form), `eng` journal 2026-11-25 09:25 on the branch. CI on `e83fbc8`: pending as `eng` reports; I read no job log. I ran no NAVORA test and did not touch the live project. No provider chosen, no data moved. Blueprint V3.2 and Handbook V2.2: nothing new in my field.
+
+**Slice 4, the screen (IMPLEMENTED on the branch, not merged):**
+- **Form of the lead's decision:** one button «Plan vorschlagen» per week or month, the server runs the solver, the screen shows new shifts, gaps with reason, marks, wish count and solver time, and one button «Vorschlag übernehmen (n Dienste)» takes the whole shown draft with one apply id. There is no per-shift tick box and no second approval. This is the form I asked for (FE-114 form duty, review 87): the lead decides once per plan; a single shift she disagrees with is changed afterwards by hand (delete plus new assignment), which M1 counts as changed. Supported, leaner than a per-row selection at equal safety (the database re-checks every row under lock; refused rows stay gaps).
+- **Label:** fixed rules; the draft view saves nothing; provenance `optimizer_rules`. No model. Matches FE-126 (3).
+- **Fail closed:** missing rest or days-in-a-row limit, missing weekly target, unknown model or class → no draft (`readLimits`, `eng` journal). No NAVORA default replaces a home value. Supported.
+
+**AUT-212 status (narrowed, not closed):**
+- **Deselection:** the form carries `rowsFormValue(rows)` of all shown rows, so on today's screen `rows_offered` equals the rows the solver proposed for the shown period. The deselection part of AUT-212 is met by construction, as long as the screen offers no row selection. If a later package adds «teilweise annehmen» by tick box (FE-126 (2)), it comes back.
+- **Still open:** the run record (insert at line 111 of migration 0177, result at line 204) stores `rows_offered`, `rows_applied`, refusals and ids, but not the **gaps the solver left** and not the **solver duration**. Both are shown on the screen only; `logEvent("draft.applied")` carries code and count only. M1b, «gaps left» (AUT-202) and the M2 solver time therefore still need a second source (e2e timestamp or a recomputation). The smallest fix stays the one named in review 90: the screen sends the gap count and solver ms with the apply call and the run record stores them (two integers, no person data). HOW is `eng`'s; it fits the still-open «M1/M2 report» step in HD-3a.
+- **Home level only:** no change; the actor column stays for audit, no report groups by it.
+
+**Slice 3c (migration 0177):** the 31-day bound and the home-only cell locks are technical guards, no planning rule and no extra step for the lead. Nothing to challenge.
+
+**Staging-smoke path 7 (`e83fbc8`):** propose → take over → gap as order → plan removed again. It exercises the whole lead path on staging with synthetic data. Supported; whether the clean-up is safe on the shared staging home is `eng`'s open design point.
+
+**Findings:** none new. AUT-212 stays medium with the narrowed scope above.
+
+**Closed with evidence:** none. AUT-201 met in substance (review 90); stays open until the M1 query matches the e2e figure in the HD-3a ready report.
+
+**Stage tracking:** unchanged. Stage 1 for synthetic data only (AI1 step (a) merged, model path not accepted); stage 0 for real data. HD-3a slices 3c and 4 are fixed rules. No model has run anywhere.
+
+**Bottleneck map:** not due (v5; next refresh 2026-12-01). Rank unchanged.
+
+**Comments:** #1729 (AUT-212 narrowed: gaps and solver ms into the run record). No `high` finding, so no new issue.
+
 ## 2026-11-25 08:19 CET · aia review 90: HD-3a slice 3 and 3b (`409356f`) pre-read, not a gate (draft): the run record `institution_draft_runs` meets AUT-201 in substance (run → saved assignment ids; assignments are only inserted or deleted, so a hand change is countable); M1 still needs the solver's proposed rows and gaps in the run record, or deselected rows vanish from the measure (AUT-212, medium); partial take-over supported
 
 **Read:** `recovery/main` at `5df5b2d` (unchanged since review 89; my PR #1740 is still open, so this section continues it). Code read on `origin/feature/hd3a` `409356f` (#1729, draft): migration `20261021000175_hd3a_apply_draft.sql`, `supabase/schema/functions/public.institution_apply_draft.sql`, `public.institution_unassign_staff.sql`; `eng` reports on #1729 (slice 3 ca. 03:40, slice 3b ca. 06:40, reviews 04:25, 05:15, 07:15, 08:15). CI on `409356f` (`ci` 45553259757, `codeql` 45553259660) is `success` as `eng` reports; I did not read the job logs. I ran no NAVORA test and did not touch the live project. No provider chosen, no data moved. Blueprint V3.2 and Handbook V2.2: nothing new in my field.
