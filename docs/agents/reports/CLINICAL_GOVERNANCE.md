@@ -16,6 +16,62 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-25 16:44 CET: gate on **#1729** HD-3a «Optimierung (feste Regeln)» (Block HEIM-DP), ready head `203507b`; FE-130 reading asked of `cra`. **`cra-gate: #1729 203507b clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). CGR-284 closed with evidence. Two new advisory findings (CGR-285, CGR-286), both to named follow-up items (FE-089 (3)). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `ee1c2f0`. Since my 2026-11-24 16:26 section: role docs and PO cycles only (#1731 to #1746); no code merge. `FOUNDER_DECISIONS.md` up to v81 (FE-120 to FE-130). Blueprint 3.2.88: version table only; **Annex B §1 (20 guarantees) and the qualification matrix unchanged**; Handbook V2.2 unchanged. No FE-079 renewal due; my sign-off on #1279 stands (reservation CGR-221).
+- #1729 head `203507be` (61 files): `src/features/home-plan/draft.ts` (whole file: `blockFor`, `buildDraft`, `predicted`, `verifyDraft`, `gapReasonText`), `public.institution_apply_draft.sql`, `private.institution_rule_breaches.sql`, the diff of `public.institution_assign_staff.sql`, the cell status in `public.institution_plan.sql` (lines 61-64, 96), 0171 absence kinds, `institution_set_planning_limits` bounds, `tests/e2e/hd3a-cgr284-equivalence.spec.ts` (lines 100-203), `tests/e2e/hd3a-draft-screen.spec.ts` (assertions), `page.tsx` gap line (line 894).
+- CI on the head, read by me through the API: check runs `app`, `db`, `e2e`, `ui-screenshots`, `staging`, `codeql` all `success`. Job logs read in part: `db` 139283482243 «Files=174, Tests=6955 … Result: PASS»; `e2e` 139283481272 «CGR-284 (b): 682 rows applied, 279 cells compared, 80 gaps, solver 100 ms (CI runner)» and the spec line `✓ … hd3a-cgr284-equivalence.spec.ts:136:5`. `ci-repeat` 10/10 not run (belongs to acceptance on the integrated commit).
+
+### Answers to `eng`'s gate questions (ready report 7165910009)
+
+1. **Can a gap read «besetzt» while a grade is missing? No, on this head.** The solver's `predicted` is `ok` only when `present + added + ext ≥ required_total` **and** `grade_present + addedGrade + extGrade ≥ required_grade_count` (`draft.ts`, the CGR-284 (b) block); the database status uses the same two conditions with the exact grade code (`institution_plan.sql` 61-64, `grade_present` line 96: `p.active and not ab.absent and p.grade = r.required_grade`). The e2e test compares every ruled cell of the 60-person month (279) with the database state after apply and fails on any difference; the log shows it green. HD-1 R1 holds: inactive and absent persons are not counted present. After «übernehmen» the screen redirects to the week, which renders `institution_plan` (draft-screen e2e lines 62-71). The open H-54 limits (three grade codes, one grade line per rule; CGR-267, CGR-269) are unchanged and are not part of this package.
+2. **Is minimum staffing always preferred over a wish (W-2)? Yes.** `pick` applies every hard rule first, then the wish tier: an `off` wish is tier 2, so such a person is chosen only when no other permitted person (of the missing grade in the grade loop) exists; a wish never makes a person permitted. An unmet `off` wish is listed as «für die Mindestbesetzung gebraucht». (A hand assignment by the home is the home's choice, listed as «bereits von Hand eingeteilt».)
+3. **Is a gap's reason only plan data? Yes**: the exact missing grade code and, per blocking rule, a count of persons (`absent` is a count, no type and no reason; no health data). **But the text can understate the size of a gap: CGR-285.**
+4. **Is the person without Pensum never planned? In the draft, never** (`blockFor` returns `pensum_missing` first; e2e line «a person without Pensum is never planned»; `verifyDraft` 0). **In the database, not checked**: `private.institution_rule_breaches` has no Pensum-missing rule and skips R-h when Pensum is NULL, so a hand assignment of such a person carries no warning, and the FE-129 known limit (apply after Pensum set to «nicht eingetragen») saves rows without the weekly hours check: CGR-286.
+
+### Other checks (IMPLEMENTED on the head)
+
+- `institution_apply_draft` re-checks every row through `institution_assign_staff` with no confirmation, so a row that breaks a planning rule is **refused**, never saved as an override; `cell_has_order`, `cell_full`, `not_found` refused; refused rows reported and left as gaps; one audit event per batch plus one per saved row; persons and cells locked in fixed order.
+- Hand assignment (Q3): a planning rule (shift model, rest, days in a row, Pensum) is a warning; the second call must confirm exactly those rules, which are read again under the locks; `override_rules`, `override_by`, `override_at` stored and audited. Absence and double booking stay blocks. This meets points (1) to (3) of my 2026-11-24 recommendation on Q3; point (4) (a count of overrides) I did not find as a figure on the screen: not a condition (FE-089 (3)); rest-time override before real staff stays with `lca` and the Clinical Owner (UNKNOWN).
+- Absence kinds only `vacation`, `training`, `compensation`, `absent` (check constraint and command, 0171; FE-119, FE-120); no sickness type, no reason column. Supports privacy of health data.
+- Rest 1-24 h, days in a row 1-14, Wochensoll 1-80 h are input bounds, not values; the values are founder parameters with the mark «Arbeitszeitgesetz nicht abschliessend geprüft» (draft e2e lines 40-41). No clinical, tariff, LTCF, PAG or MQI rule in the package.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-285** | #1729 draft gap text when both a grade and further persons are missing | **advisory**; S2; placement `po` (HD-3a-F1 #1745 or HD-3b); not a merge condition (FE-089 (3)) | When `missing_grade > 0`, `gapReasonText` shows only «n × HF fehlt» and counts only persons of that grade. If the cell also lacks further persons (`missing_total > missing_grade`), the draft list understates the shortfall: a shift short of 2 persons, one of them HF, reads «1 × HF fehlt». The plan view after apply is correct (`cellStatusText` from `institution_plan`), so this affects the decision before «übernehmen» only. | `draft.ts` `gapReasonText` (head clause); `page.tsx` line 894; unit tests assert only the grade form (`hd3a-draft.test.ts` lines 344-361) | When `missing_total > missing_grade > 0`, the text names both («2 Personen fehlen, davon 1 × HF – …»); unit test for that case; e2e: for every unfilled gap the shown total equals `institution_plan` `missing` (the equivalence test already checks the number, not the text). |
+| **CGR-286** | Person without Pensum in the database rules | **advisory**; S2; placement `po` (HD-3a-F1 #1745, with R-6-1 / R-7-1); before real staff data | The draft never plans a person without Pensum, but the database does not know that rule: `private.institution_rule_breaches` has no «ohne Pensum» reading and skips R-h when Pensum or Wochensoll is NULL. A hand assignment of such a person is saved with no warning and no override mark, so the weekly hours limit is silently not watched for that person (fatigue, H-50 family); the FE-129 known limit is the same gap on the apply path. | `private.institution_rule_breaches.sql` (R-h block: `if p.pensum_pct is not null and h.weekly_target_hours is not null`); ready report known limit (1) | (a) `institution_rule_breaches` returns a rule (for example `pensum_missing`) when Pensum or Wochensoll is NULL, so a hand assignment warns and stores the override, and `institution_apply_draft` refuses the row; (b) pgTAP: assign without Pensum → `warning`; apply after Pensum set to NULL → refused with that rule. This also closes the FE-129 known limit. |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1729 HD-3a | `203507b` | **`cra-gate: #1729 203507b clear`**, gate «Simulation, synthetic data». Checked: a gap never `ok` while total or exact grade is missing (solver and database, e2e on 279 cells, 0 differences); screen after apply from `institution_plan` only; refused apply rows stay gaps, nothing overridden; W-2 below minimum staffing; gap reason plan data only; no sickness type, no reason field; marks shown. Not checked by me: 390/1440 px readability (`uxa`), M1/M2 labels (`aia`), ArG reading (`lca`, before real data). Acceptance still needs the integrated commit, `ci-repeat` 10/10 and the `ABNAHMEAKTE.md` record (README rule 12). |
+
+Not reviewed as gates: #1716, #1612, #1611, #1541, #1540 (not the active package).
+
+### FE-130 (D-16), reading asked of `cra` (Clinical Architect 2026-11-25; recommends, decides nothing)
+
+- **Point 2 («Quality events trigger a mandatory care-plan review signal»):** the PO's literal reading (a signal on every quality event, not only serious ones) is the safer reading for the simulation: it never stops care and only adds a review. Risk: many low events create many signals that are then ignored (alert fatigue). Suggestion for the QG2 brief: one signal per event, its severity shown, `high`/`critical` first; whether `low` events may be grouped or skipped is for the Clinical Owner, not an agent.
+- **Severity definitions per event type (when is a fall `high`):** **UNKNOWN.** I do not invent them. Owner: the Clinical Owner (D-43; OPEN), else the founder. Until they are named, QG2 should let the reporting nurse choose the level with no proposed default, and «schwer» stays `high`/`critical` as the code has it today (IMPLEMENTED).
+- The gaps I named for the taxonomy (near miss, suspected neglect, infection, aggression against staff) stay OPEN, as the PO notes. Statutory reporting (Swissmedic, CIRS) and the legal reading of Option B stay with `lca` before Phase B.
+
+### Decisions requested
+
+- **`po`:** merge this PR; place CGR-285 and CGR-286 (HD-3a-F1 #1745 suggested); CGR-282, CGR-283 unchanged.
+- **`eng`:** none for HD-3a; the two remedies when the follow-up is briefed.
+- **Clinical Owner (UNKNOWN):** severity definitions per event type (FE-130); rest-time override before real staff; unchanged: CGR-273, CGR-276, CGR-278, PERF1-F1, CGR-267 (D-29).
+- **`lca`:** ArG reading of rest, days in a row and the night shift before real data; Option B (FE-130) before Phase B; CGR-271 unchanged.
+
+### Findings closed with evidence
+
+- **CGR-284** (HD-3a solver vs database cell rule): (a) after «übernehmen» the screen redirects to the week, rendered from `institution_plan` (`hd3a-draft-screen.spec.ts` lines 62-71); (b) `hd3a-cgr284-equivalence.spec.ts:136` compares every ruled cell of the 60-person month with the database after apply, plus 0 refused rows and `missing` per gap; green in `e2e` job 139283481272 (279 cells, 0 differences); (c) the solver and the apply function count a grade only on an exact code (`draft.ts` `p.grade !== grade`; `institution_apply_draft` `p.grade = v_rule.required_grade`). PS-240 closed with it. The text clause is CGR-285.
+
+---
+
 ## 2026-11-24 16:26 CET: scheduled review of **FE-118** (AI1 scope freeze), **FE-119** (HD-3a start), the **#1697** ready head `2e4d5d8` and the **HD-3a contract** (ADR-224 rev. 2, `eng` on #1712 and #1724). **`cra-gate: #1697 2e4d5d8 clear`** for step (a) only (merge; gate «Simulation, synthetic data»; model path closed; not step (b), not a clinical release, D-27). Three new advisory findings (CGR-282 to CGR-284). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
