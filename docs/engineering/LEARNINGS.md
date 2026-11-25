@@ -27,6 +27,18 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-25 / HD-3a Nach-Merge #1752, eigene Arbeitsweise] Gelernte Lektion: LEARNINGS vor dem Fix lesen, die Lektion gehört in den Fix-Branch
+- **Was war das Fehlerbild?** Im Lauf von 18:10 habe ich den Fix #1752 gebaut, CI grün abgewartet und `Paket prüfbereit:` 7169891994 gepostet, ohne diese Datei gelesen zu haben. Die Meldung hatte keine Zeile «Lektionen:», und auf dem Fix-Branch stand keine Lektion (Regel 2: «Ein Fix-Commit ohne Lektion ist nicht fertig»).
+- **Was war die technische Ursache?** Meine Leseliste stammte aus dem Laufauftrag, und dort fehlt `LEARNINGS.md`. Die Pflichtlektüre steht in `CLAUDE.md`, und die habe ich nicht gegen den Laufauftrag abgeglichen.
+- **Die verbindliche Lösungsregel ab jetzt:** Zu Beginn jedes Laufs zuerst die Leseliste aus `CLAUDE.md` lesen, `docs/engineering/LEARNINGS.md` eingeschlossen. Vor `Paket prüfbereit:` prüfen: Steht die Lektion auf dem Branch, und hat die Meldung eine Zeile «Lektionen:»?
+- **Abgesichert durch:** OPEN. Die automatische Prüfung ist Vorschlag LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`).
+
+### [2026-11-25 / HD-3a #1729, ci 45656780068, Job 139355475736; Repro Job 139376383101] Gelernte Lektion: Nach einem Speichern nie auf denselben Meldungstext warten wie beim vorigen Speichern
+- **Was war das Fehlerbild?** Auf dem Merge-Commit `4823eee` war `e2e` rot, nur selten: `hd3a-planning-inputs.spec.ts:201` erwartete für `pensum_pct` NULL und las 60. Der Bildschirm zeigte da schon «Pensum und Schichtmodell gespeichert.». Derselbe Code war vier Mal grün.
+- **Was war die technische Ursache?** Auf `/heim` steht die Meldung in der URL (`?meldung=…`, `withMessage`). Das Speichern mit 60 % davor hatte genau diesen Text schon angezeigt. Die Warte-Assertion des zweiten Speicherns war deshalb sofort erfüllt, während dessen POST noch lief, und `psql` las den alten Wert. Das Produkt war nicht schuld: «gespeichert» kommt erst nach `{"result":"ok"}` von `institution_set_staff_planning`, und die Funktion hat vorher geschrieben.
+- **Die verbindliche Lösungsregel ab jetzt:** Prüft ein e2e-Test nach einem Speichern die Datenbank, wartet er zuerst auf die Antwort genau dieses Server-Action-POSTs (`page.waitForResponse` mit Header `next-action`). Eine sichtbare Meldung allein genügt nicht, wenn derselbe Text schon vom vorigen Schritt stehen kann. Ein Zeitrennen wird erst rot gezeigt (POST festhalten, `page.route`) und dann behoben; das Festhalten bleibt im Test.
+- **Abgesichert durch:** `tests/e2e/hd3a-planning-inputs.spec.ts` (`holdServerActions` mit 1.5 s, `saveAndWait`), rot gezeigt in Job 139376383101 (`252e4d0`), grün in Job 139386554657 (`2a9a63c`). Eine Prüfung für andere Specs mit demselben Muster ist OPEN.
+
 ### [2026-11-25 / HD-3a #1729, review R-3b-1, migration 0177] Gelernte Lektion: Sperren aus Eingabedaten nur für geprüfte, eigene Objekte nehmen
 - **Was war das Fehlerbild?** pgTAP 177 Test 3 lokal rot auf dem Stand von 0176: 30 Zeilen mit einem Dienst eines fremden Heims nahmen 30 Advisory-Locks («have: 30, want: 0»), obwohl jede Zeile danach als `not_found` abgelehnt wurde. Ebenso nahm ein Aufruf über 32 Tage 32 Locks.
 - **Was war die technische Ursache?** Die Sperrschleife in `institution_apply_draft` (0176) prüfte vor dem Sperren nur die Station gegen das Heim, nicht den Dienst und nicht das Datum. Die Schlüssel kamen damit ungeprüft aus der Eingabe. Advisory-Locks teilen sich die Lock-Tabelle der ganzen Datenbank; bis zu 2000 pro Aufruf können sie für alle Transaktionen füllen.
