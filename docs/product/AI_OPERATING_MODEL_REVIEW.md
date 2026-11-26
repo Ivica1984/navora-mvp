@@ -828,6 +828,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **FE-130 (D-16, QG2 PLANNED):** all fixed rules; no AI triage of quality events or severities (hard rule). AUT-216 (PROPOSED, medium): one open care-plan review signal per client, not one per event.
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**ORDER-F1 stabilisation (`aia` 2026-11-26 02:20, review 94, AUT-217 to AUT-219):**
+- **Label check:** ORDER-F1 on `992a7e3c` is a performance and availability fix of a deterministic reading (fixed rules, no model). A failed list read is shown as a failure, never as an empty list.
+- **Control status:** no model value, so no suggestion-ledger or accept-all question arises. AUT-217 (PROPOSED, medium): a parallel-render smoke check so the `57014` criterion does not rest on a manual Render-log read alone. AUT-218, AUT-219 (PROPOSED, low): smoke path 3 picks the next valid day; a reporter that cannot read results says so.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -923,3 +928,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-25 09:45 | `aia` | §12: block «HD-3a slice 4 draft screen»: label check (`e83fbc8`, fixed rules); AUT-212 narrowed (deselection 0 by construction; gaps and solver ms still open). No agent added or removed |
 | 2026-11-25 14:21 | `aia` | §12: block «HD-3a slice 6 planning inputs»: label check (`a2df8eec`, fixed rules, no proposed value); AUT-213 (PROPOSED). No agent added or removed |
 | 2026-11-25 16:53 | `aia` | §12: block «HD-3a gate and FE-130»: gate clear on `203507b` (fixed rules); AUT-214, AUT-215 (PROPOSED, low), AUT-216 (PROPOSED, medium, QG2). No agent added or removed |
+| 2026-11-26 02:20 | `aia` | §12: block «ORDER-F1 stabilisation»: label check (`992a7e3c`, fixed rules); AUT-217 (PROPOSED, medium), AUT-218, AUT-219 (PROPOSED, low). No agent added or removed |
