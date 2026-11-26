@@ -1,5 +1,5 @@
 -- ORDER-F1-F3 «the team offer list stays fast as orders grow» (PO Active now 2026-11-26 02:39 point 2, scope (a)).
--- Budget at target size BEFORE the fix: red first on recovery/main 5808e9bd (canonical source
+-- Budget at target size, written BEFORE the fix (migration 0180): red first on recovery/main 5808e9bd (canonical source
 -- supabase/schema/functions/public.team_order_offers.sql, unchanged since BK-c3 / HD-2 slice 5).
 -- Cause on staging (eng 7179833552): /team re-render waited on team_order_offers() for 6 934 ms (normally 1.2-1.5 s,
 -- statement timeout 8 s); per-function root cause UNKNOWN until this file measures it.
@@ -12,18 +12,22 @@
 -- (2) Cost follows the caller, not the platform: adding, for ANOTHER team T2, 1 001 current-round offers on the same
 --     orders, 1 000 ended orders offered to T1 and T2, and 1 000 released takes of T2, changes neither M1's rows nor
 --     the number of calls of any helper function one team_order_offers() call makes for her (one test per helper).
---     Hypotheses from the source (UNKNOWN until this runs): `is_team_member` and `order_round` run per order_offers
---     row of every team before the membership filter removes it; `private.now()` runs per row; `last_release` reads
---     every released take of the platform.
+--     Red first on the tests-only head e31e428 (ci 45747653514, db job 139667520686): tests 6-9 failed, A -> B
+--     is_team_member 1 002 -> 5 003, access_ended 3 005 -> 4 005, order_round 1 002 -> 2 002, now 6 014 -> 11 014;
+--     wall 1 834 -> 2 503 ms (diagnostic only). The other three helpers did not grow.
 -- (3) Guards kept (must stay green through the fix): M2 (T2) reads T2 rows only; after M1's access ended (LEAVE1-3)
 --     she reads no row.
--- Not here: equivalence old/new and the deployed-text check (added with the fix, same PR).
+-- (4) Same rows, same order (fix, migration 0180): the previous definition (frozen copy of recovery/main 5808e9bd)
+--     and the deployed one return the same rows in the same order for M1, M2 and every seed member of a team with an
+--     offer, including three release cases: her team's release hidden by a later release of another team, her
+--     team's release after another team's, and her team's release on an order whose new round offers her team
+--     nothing (CGR-234 (d)). is_team_member runs once per own team; the deployed text holds the new CTEs.
 -- Users: kundebs …9e8 (client). Synthetic: M1 (nurse, T1, org 019, verified FaGe), M2 (nurse, T2, org 019).
 -- Pinned clock, moved forward only. Synthetic data only; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(20);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -195,6 +199,107 @@ select is(pg_temp.used('b', 'order_offer_reasons'), pg_temp.used('a', 'order_off
           'ORDER-F1-F3: order_offer_reasons calls do not grow with the platform');
 select cmp_ok(pg_temp.used('a', 'order_member_step'), '>', 0::bigint,
               'positive control: the call counts measure (order_member_step ran for M1''s rows)');
+
+select is(pg_temp.used('a', 'is_team_member'), 1::bigint,
+          'ORDER-F1-F3: one call checks is_team_member (LEAVE1-3) once per own team (M1 has one), not once per row');
+
+-- (4) Same rows, same order: previous definition (frozen copy, recovery/main 5808e9bd) against the deployed one -----------
+create function pg_temp.tof_old() returns table(order_id uuid, team_id uuid, sentence text, starts_at timestamp with time zone, ends_at timestamp with time zone, duration_minutes integer, postcode text, place_name text, grade text, activity_tags text[], required_tags text[], distance_km numeric, limit_km numeric, offer_state text, taken_member_id uuid, taken_by uuid, taken_at timestamp with time zone, acknowledged_at timestamp with time zone, latest_cover_at timestamp with time zone, caller_free boolean, release_kind text, released_member_id uuid, reasons text[])
+ language sql stable security definer set search_path = ''
+as $old$
+  with last_release as (
+    select distinct on (x.order_id) x.order_id, x.team_id, x.member_id, x.taken_by, x.taken_at, x.acknowledged_at,
+           case x.release_reason when 'member_cannot' then 'member_cannot' when 'not_acknowledged' then 'not_acknowledged'
+                when 'withdrawn' then 'order_withdrawn'  -- HD-2 slice 5: the client took the order back
+                else 'no_longer_eligible' end as kind
+    from public.order_takes x
+    where x.released_at is not null
+    order by x.order_id, x.released_at desc, x.id desc
+  )
+  select f.order_id, f.team_id, p.request_title, p.starts_at, p.ends_at,
+         (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
+         p.required_tags, f.distance_km, f.limit_km,
+         case when k.id is null then 'open' else 'taken_by_us' end, k.member_id,
+         k.taken_by, k.taken_at, k.acknowledged_at, private.order_latest_cover_at(p.id),
+         private.order_member_step(p.id, f.team_id, (select auth.uid())) = 4,
+         case when k.id is null and r.team_id = f.team_id then r.kind end,
+         case when k.id is null and r.team_id = f.team_id then r.member_id end,
+         -- BK-c3: reasons explain an open offer only; a taken row carries none.
+         case when k.id is null then private.order_offer_reasons(p.id, f.team_id) else '{}'::text[] end
+  from public.order_offers f
+  join public.partner_requests p on p.id = f.order_id
+  left join public.order_takes k on k.order_id = f.order_id and k.released_at is null
+  left join last_release r on r.order_id = f.order_id
+  where private.is_team_member(f.team_id)   -- LEAVE1-3 inside
+    and f.round = private.order_round(f.order_id)
+    and p.ends_at > private.now()
+    and p.withdrawn_at is null   -- HD-2 slice 5: a withdrawn order is offered to no team any more
+    and not exists (select 1 from public.order_declines d
+                    where d.order_id = f.order_id and d.round = f.round and d.team_id = f.team_id)
+    and (k.id is null or k.team_id = f.team_id)
+  union all
+  -- CGR-234 (d): the own team's take was released and the new round offers it nothing: it still sees the release.
+  -- HD-2 slice 5: a take released because the client withdrew the order is shown to its team as well (no new round).
+  select r.order_id, r.team_id, p.request_title, p.starts_at, p.ends_at,
+         (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
+         p.required_tags, null::numeric, null::numeric, 'released', null::uuid,
+         r.taken_by, r.taken_at, r.acknowledged_at, private.order_latest_cover_at(p.id), false, r.kind, r.member_id,
+         '{}'::text[]
+  from last_release r
+  join public.partner_requests p on p.id = r.order_id
+  where private.is_team_member(r.team_id)
+    and p.ends_at > private.now()
+    and not exists (select 1 from public.order_takes t where t.order_id = r.order_id and t.released_at is null)
+    and ((p.withdrawn_at is not null and r.kind = 'order_withdrawn')
+         or not exists (select 1 from public.order_offers f
+                        where f.order_id = r.order_id and f.team_id = r.team_id and f.round = private.order_round(r.order_id)))
+  order by 4, 1, 2
+$old$;
+create function pg_temp.rows_of(uid uuid, old boolean) returns text[] language plpgsql as $$
+declare res text[];
+begin
+  perform pg_temp.act_as(uid::text);
+  if old then
+    select coalesce(array_agg(o::text order by o.ordinality), '{}') into res from pg_temp.tof_old() with ordinality o;
+  else
+    select coalesce(array_agg(o::text order by o.ordinality), '{}') into res from public.team_order_offers() with ordinality o;
+  end if;
+  perform pg_temp.as_owner();
+  return res;
+end $$;
+-- Release cases on three of T1's future orders (copies of H's take, as the table owner).
+insert into public.order_takes
+select (jsonb_populate_record(k, jsonb_build_object('id', gen_random_uuid(), 'order_id', c.o, 'team_id', c.t,
+          'member_id', c.m, 'taken_by', c.m, 'released_at', c.at, 'release_reason', c.why))).*
+from kt k, (values
+  (pg_temp.fo(1), pg_temp.t1(), pg_temp.m1(), '2026-11-26 10:00:00+01'::timestamptz, 'member_cannot'),
+  (pg_temp.fo(1), pg_temp.t2(), pg_temp.m2(), '2026-11-27 10:00:00+01'::timestamptz, 'not_acknowledged'),
+  (pg_temp.fo(2), pg_temp.t2(), pg_temp.m2(), '2026-11-26 10:00:00+01'::timestamptz, 'step_1'),
+  (pg_temp.fo(2), pg_temp.t1(), pg_temp.m1(), '2026-11-27 10:00:00+01'::timestamptz, 'member_cannot'),
+  (pg_temp.fo(3), pg_temp.t1(), pg_temp.m1(), '2026-11-27 10:00:00+01'::timestamptz, 'step_2')) c(o, t, m, at, why);
+-- fo(3): a new round 2 offers it to T2 only, so T1 still sees its release (second branch).
+insert into public.order_offers
+select (jsonb_populate_record(o, jsonb_build_object('id', gen_random_uuid(), 'order_id', pg_temp.fo(3), 'team_id', pg_temp.t2(),
+          'round', o.round + 1))).*
+from ot o;
+select is((select array_agg(x order by x) from unnest(pg_temp.rows_of(pg_temp.m1(), false)) x
+           where x like '%' || pg_temp.fo(3)::text || '%released%'), (select array_agg(x order by x)
+           from unnest(pg_temp.rows_of(pg_temp.m1(), true)) x where x like '%' || pg_temp.fo(3)::text || '%released%'),
+          'the second branch (CGR-234 (d)) shows T1''s release on fo(3) in both definitions');
+select ok((select count(*) from unnest(pg_temp.rows_of(pg_temp.m1(), false)) x
+           where x like '%' || pg_temp.fo(3)::text || '%released%') = 1,
+          'positive control: the release case on fo(3) is present (one released row)');
+select is((select count(*)::int from (
+             select distinct tm.user_id from public.team_memberships tm
+             where tm.team_id in (select o.team_id from public.order_offers o)
+             union select pg_temp.m1() union select pg_temp.m2()) u
+           where pg_temp.rows_of(u.user_id, true) is distinct from pg_temp.rows_of(u.user_id, false)), 0,
+          'ORDER-F1-F3: for M1, M2 and every member of a team with an offer, the new definition returns the previous rows in the same order');
+select ok(strpos(pg_get_functiondef('public.team_order_offers()'::regprocedure), 'with me as materialized (') > 0
+          and strpos(pg_get_functiondef('public.team_order_offers()'::regprocedure), 'clock as materialized (select private.now() as now_)') > 0
+          and strpos(pg_get_functiondef('public.team_order_offers()'::regprocedure), 'mine as materialized (') > 0
+          and strpos(pg_get_functiondef('public.team_order_offers()'::regprocedure), 'where private.is_team_member(') = 0,
+          'the deployed function holds the new CTEs and no per-row is_team_member filter');
 
 -- (3) Guards kept --------------------------------------------------------------------------------------------------------------
 select pg_temp.offers('m2', pg_temp.m2());

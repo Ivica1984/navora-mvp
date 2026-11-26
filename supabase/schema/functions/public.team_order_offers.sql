@@ -8,14 +8,35 @@ CREATE OR REPLACE FUNCTION public.team_order_offers()
  STABLE SECURITY DEFINER
  SET search_path TO ''
 AS $function$
-  with last_release as (
+  -- ORDER-F1-F3: the cost of one call follows the caller's own teams, not the platform. `me` is the caller's teams,
+  -- each checked once by private.is_team_member (LEAVE1-3 inside), so f.team_id in `me` is exactly
+  -- is_team_member(f.team_id); the clock is read once; ended or withdrawn orders and other teams' rows are removed
+  -- before any per-row helper runs; last_release looks only at orders where one of her teams has a release, but still
+  -- takes the latest release of ALL teams for such an order (a later release by another team hides hers, as before).
+  with me as materialized (
+    select distinct tm.team_id from public.team_memberships tm
+    where tm.user_id = (select auth.uid()) and private.is_team_member(tm.team_id)   -- LEAVE1-3 inside
+  ),
+  clock as materialized (select private.now() as now_),
+  last_release as materialized (
     select distinct on (x.order_id) x.order_id, x.team_id, x.member_id, x.taken_by, x.taken_at, x.acknowledged_at,
            case x.release_reason when 'member_cannot' then 'member_cannot' when 'not_acknowledged' then 'not_acknowledged'
                 when 'withdrawn' then 'order_withdrawn'  -- HD-2 slice 5: the client took the order back
                 else 'no_longer_eligible' end as kind
     from public.order_takes x
     where x.released_at is not null
+      and x.order_id in (select y.order_id from public.order_takes y join me on me.team_id = y.team_id
+                         join public.partner_requests q on q.id = y.order_id
+                         where y.released_at is not null and q.ends_at > (select c.now_ from clock c))
     order by x.order_id, x.released_at desc, x.id desc
+  ),
+  mine as materialized (
+    select f.order_id, f.team_id, f.round, f.distance_km, f.limit_km
+    from public.order_offers f
+    join me on me.team_id = f.team_id
+    join public.partner_requests p on p.id = f.order_id
+    where p.ends_at > (select c.now_ from clock c)
+      and p.withdrawn_at is null   -- HD-2 slice 5: a withdrawn order is offered to no team any more
   )
   select f.order_id, f.team_id, p.request_title, p.starts_at, p.ends_at,
          (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
@@ -27,14 +48,11 @@ AS $function$
          case when k.id is null and r.team_id = f.team_id then r.member_id end,
          -- BK-c3: reasons explain an open offer only; a taken row carries none.
          case when k.id is null then private.order_offer_reasons(p.id, f.team_id) else '{}'::text[] end
-  from public.order_offers f
+  from mine f
   join public.partner_requests p on p.id = f.order_id
   left join public.order_takes k on k.order_id = f.order_id and k.released_at is null
   left join last_release r on r.order_id = f.order_id
-  where private.is_team_member(f.team_id)   -- LEAVE1-3 inside
-    and f.round = private.order_round(f.order_id)
-    and p.ends_at > private.now()
-    and p.withdrawn_at is null   -- HD-2 slice 5: a withdrawn order is offered to no team any more
+  where f.round = private.order_round(f.order_id)
     and not exists (select 1 from public.order_declines d
                     where d.order_id = f.order_id and d.round = f.round and d.team_id = f.team_id)
     and (k.id is null or k.team_id = f.team_id)
@@ -47,9 +65,9 @@ AS $function$
          r.taken_by, r.taken_at, r.acknowledged_at, private.order_latest_cover_at(p.id), false, r.kind, r.member_id,
          '{}'::text[]
   from last_release r
+  join me on me.team_id = r.team_id
   join public.partner_requests p on p.id = r.order_id
-  where private.is_team_member(r.team_id)
-    and p.ends_at > private.now()
+  where p.ends_at > (select c.now_ from clock c)
     and not exists (select 1 from public.order_takes t where t.order_id = r.order_id and t.released_at is null)
     and ((p.withdrawn_at is not null and r.kind = 'order_withdrawn')
          or not exists (select 1 from public.order_offers f

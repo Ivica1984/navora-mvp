@@ -581,7 +581,10 @@
         "SET search_path TO ''",
         "is_team_member",
         "LEAVE1-3",
-        "withdrawn_at"
+        "withdrawn_at",
+        "with me as materialized (",
+        "clock as materialized (select private.now() as now_)",
+        "mine as materialized ("
       ]
     },
     {
