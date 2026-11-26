@@ -33,6 +33,30 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- PROBE AUT-220 (do not merge): the frozen pre-F5 body of private.order_offer_reasons (BK-c3, migration 0137; the copy
+-- pg_temp.reasons_old of pgTAP 181), put back inside this rolled-back transaction. The guard must go red under at least
+-- one forced plan.
+create or replace function private.order_offer_reasons(p_order_id uuid, p_team_id uuid)
+returns text[] language sql stable security definer set search_path = ''
+as $old$
+  select array_remove(array[
+    case when exists (select 1 from public.team_memberships m
+                      where m.team_id = p_team_id
+                        and private.order_member_step(p_order_id, p_team_id, m.user_id) = 4)
+         then 'member_free' end,
+    case when exists (select 1 from public.order_takes t
+                      join public.partner_requests q on q.id = t.order_id
+                      join public.partner_requests o on o.id = p_order_id
+                      where t.team_id = p_team_id
+                        and q.id <> o.id
+                        and q.client_account_id = o.client_account_id
+                        and q.ends_at <= private.now()
+                        and t.acknowledged_at is not null
+                        and t.released_at is null)
+         then 'knows_client' end
+  ], null)
+$old$;
+
 select plan(26);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
