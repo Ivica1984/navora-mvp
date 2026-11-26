@@ -23,12 +23,22 @@ function psql(sql: string): string {
 const typeRow = (code: string) =>
   psql(`select concat_ws('|', to_char(starts_at, 'HH24:MI'), to_char(block1_ends_at, 'HH24:MI'), to_char(block2_starts_at, 'HH24:MI'),
           to_char(ends_at, 'HH24:MI'), shift_class) from public.institution_shift_types where institution_id = '${INST}' and code = '${code}'`);
+let savedRules: string | null = null;
 function cleanup() {
+  if (savedRules !== null) {
+    psql(`update public.institution_staffing_rules r set required_total = s.required_total, required_grade = s.required_grade,
+            required_grade_count = s.required_grade_count
+          from json_populate_recordset(null::public.institution_staffing_rules, ${sqlText(savedRules)}::json) s
+          where r.station_id = s.station_id and r.shift_type_id = s.shift_type_id`);
+    savedRules = null;
+  }
   psql(`delete from public.institution_assignments where shift_type_id in
           (select id from public.institution_shift_types where institution_id = '${INST}' and code in ('${CODE}', 'GBAD'));
         delete from public.institution_shift_types where institution_id = '${INST}' and code in ('${CODE}', 'GBAD');
         update public.institutions set work_days_per_week = 5 where id = '${INST}';`);
 }
+
+const sqlText = (v: string) => `'${v.replaceAll("'", "''")}'`;
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -120,6 +130,18 @@ test("HD-3s T-1: «Plan vorschlagen» plans the split shift, «übernehmen» sav
   psql(`insert into public.institution_staffing_rules (institution_id, station_id, shift_type_id, required_total, example)
         select '${INST}', (select id from public.institution_stations where institution_id = '${INST}' order by sort, name limit 1),
                id, 1, true from public.institution_shift_types where institution_id = '${INST}' and code = '${CODE}'`);
+
+  // Capacity for the split shift (ci 45823498269, e2e 139921546832, reproduced locally with the solver): the example's
+  // early, late and night rules (11 persons a day, grade needs first by scarcity) use all eight example persons, and a
+  // split shift 07:00–20:00 overlaps early and late, so every split cell stayed a gap («bereits im Dienst», «Pensum
+  // ausgeschöpft»): correct, fail closed. For this test the home's other minimum staffing is 0 (its own values are
+  // saved and restored in cleanup()), so the draft proposes exactly the split rows.
+  savedRules = psql(`select coalesce(json_agg(r), '[]') from public.institution_staffing_rules r
+                     where r.institution_id = '${INST}' and r.shift_type_id not in
+                       (select id from public.institution_shift_types where institution_id = '${INST}' and code = '${CODE}')`);
+  psql(`update public.institution_staffing_rules set required_total = 0, required_grade = null, required_grade_count = 0
+        where institution_id = '${INST}' and shift_type_id not in
+          (select id from public.institution_shift_types where institution_id = '${INST}' and code = '${CODE}')`);
 
   await page.goto(`/heim?ansicht=woche&datum=${monday}`);
   await page.getByTestId("heim-draft-start").click();
