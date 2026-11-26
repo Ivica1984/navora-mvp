@@ -31,14 +31,17 @@ begin
     return breaches;
   end if;
   select * into h from public.institutions where id = p.institution_id;
-  -- R-c: a restricted model fits only its classes, never an unclassified type.
+  -- R-c: a restricted model fits only its classes, never an unclassified type. HD-3s (founder FE-127 (3)): a split
+  -- shift fits `any` and `no_night` only, never «nur Früh», «nur Spät» or «nur Nacht».
   if p.shift_model <> 'any' and not coalesce(
        (p.shift_model = 'early_only' and t.shift_class = 'early')
     or (p.shift_model = 'late_only' and t.shift_class = 'late')
     or (p.shift_model = 'night_only' and t.shift_class = 'night')
-    or (p.shift_model = 'no_night' and t.shift_class in ('early', 'late')), false) then
+    or (p.shift_model = 'no_night' and t.shift_class in ('early', 'late', 'split')), false) then
     breaches := breaches || 'shift_model'::text;
   end if;
+  -- HD-3s: starts_at..ends_at is the whole working day of a split shift (start of block 1 to end of block 2), so rest
+  -- is counted from the end of block 2 and to the start of block 1, never between the blocks (founder FE-127 (3)).
   span := private.institution_shift_span(p_work_date, t.starts_at, t.ends_at);
   -- R-f: less than min_rest_hours between this shift and another one (an overlap is blocked by the commands).
   if exists (select 1 from public.institution_assignments a
@@ -67,16 +70,17 @@ begin
     breaches := breaches || 'consecutive'::text;
   end if;
   -- R-h: shift minutes per ISO week (Monday, by work date) over Pensum x weekly target hours. Not checked when the
-  -- Pensum or the target hours are not entered (the draft does not plan such a person at all).
+  -- Pensum or the target hours are not entered (the draft does not plan such a person at all). HD-3s: working minutes
+  -- only (private.institution_shift_minutes), the pause of a split shift is not working time (founder FE-127 (3)).
   if p.pensum_pct is not null and h.weekly_target_hours is not null then
     week_start := p_work_date - (extract(isodow from p_work_date)::int - 1);
-    select coalesce(sum(extract(epoch from upper(x.s) - lower(x.s))), 0) / 60 into used
+    select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at, o.block1_ends_at,
+                                                          o.block2_starts_at)), 0) into used
       from public.institution_assignments a
       join public.institution_shift_types o on o.id = a.shift_type_id
-      cross join lateral (select private.institution_shift_span(a.work_date, o.starts_at, o.ends_at) as s) x
       where a.staff_id = p.id and a.id is distinct from p_self
         and a.work_date >= week_start and a.work_date < week_start + 7;
-    if used + extract(epoch from upper(span) - lower(span)) / 60
+    if used + private.institution_shift_minutes(p_work_date, t.starts_at, t.ends_at, t.block1_ends_at, t.block2_starts_at)
        > floor(p.pensum_pct * round(h.weekly_target_hours * 60) / 100) then
       breaches := breaches || 'pensum_full'::text;
     end if;

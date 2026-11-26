@@ -13,6 +13,10 @@ declare
   cell jsonb;
 begin
   select * into t from public.institution_shift_types where id = g.shift_type_id;
+  -- HD-3s (fail closed, as institution_prepare_gap_order): no order for a split shift (two blocks, one order time).
+  if t.shift_class = 'split' then
+    return jsonb_build_object('problems', jsonb_build_array('split_shift_not_orderable'));
+  end if;
   if g.grade_fixed is not null and p_grade is distinct from g.grade_fixed then
     return jsonb_build_object('problems', jsonb_build_array('grade_not_missing'));
   end if;

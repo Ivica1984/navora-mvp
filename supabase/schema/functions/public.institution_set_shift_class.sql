@@ -28,6 +28,10 @@ begin
   if t.id is null then
     return jsonb_build_object('result', 'rejected');
   end if;
+  -- HD-3s: the class `split` belongs to the two blocks; it is set and kept by institution_set_split_shift_type only.
+  if t.shift_class = 'split' then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('shift_type_is_split'));
+  end if;
   update public.institution_shift_types set shift_class = p_shift_class where id = t.id;
   perform private.institution_audit(t.institution_id, 'institution_set_shift_class', 'institution_shift_types', t.id,
     jsonb_build_object('shift_class', jsonb_build_object('old', t.shift_class, 'new', p_shift_class)));

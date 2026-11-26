@@ -281,7 +281,8 @@
       "name": "private.institution_rule_breaches",
       "required": [
         "SET search_path TO ''",
-        "STABLE"
+        "STABLE",
+        "institution_shift_minutes"
       ]
     },
     {
@@ -403,7 +404,8 @@
         "is_institution_member",
         "institution_audit",
         "assert_access_open",
-        "shift_class_not_valid"
+        "shift_class_not_valid",
+        "shift_type_is_split"
       ]
     },
     {
@@ -456,7 +458,8 @@
         "is_institution_member",
         "institution_audit",
         "assert_access_open",
-        "shift_type_in_use"
+        "shift_type_in_use",
+        "shift_type_is_split"
       ]
     },
     {
@@ -533,7 +536,8 @@
         "is_institution_member",
         "private.institution_cell_lock(",
         "institution_plan_cell",
-        "institution_audit"
+        "institution_audit",
+        "split_shift_not_orderable"
       ]
     },
     {
@@ -542,7 +546,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "grade_not_missing",
-        "not_a_gap"
+        "not_a_gap",
+        "split_shift_not_orderable"
       ]
     },
     {
@@ -724,6 +729,45 @@
         "assert_access_open",
         "performer_id is distinct from uid",
         "pg_advisory_xact_lock"
+      ]
+    },
+    {
+      "name": "private.institution_split_problem",
+      "required": [
+        "SET search_path TO ''",
+        "IMMUTABLE",
+        "no_pause"
+      ]
+    },
+    {
+      "name": "private.institution_shift_minutes",
+      "required": [
+        "SET search_path TO ''",
+        "IMMUTABLE",
+        "institution_shift_span"
+      ]
+    },
+    {
+      "name": "public.institution_set_split_shift_type",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_type_in_use",
+        "institution_split_problem"
+      ]
+    },
+    {
+      "name": "public.institution_set_work_days_per_week",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "work_days_per_week_not_valid"
       ]
     }
   ]
