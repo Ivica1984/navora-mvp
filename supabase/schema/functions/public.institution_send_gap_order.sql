@@ -38,6 +38,12 @@ begin
   if r ->> 'result' <> 'ok' then
     return r;  -- invalid (with the problems of client_order_check) or duplicate: nothing changed here
   end if;
+  -- HD-3s-F2 (ADR-229 (2)): a split shift is one order with both blocks; its pause is set in this transaction, before any
+  -- other session can see the order. A shape problem undoes the whole send (raise), never an order without its pause.
+  if a ->> 'block1_end_time' is not null then
+    perform private.order_set_pause((r ->> 'order_id')::uuid, (a ->> 'start_date')::date,
+                                    (a ->> 'block1_end_time')::time, (a ->> 'block2_start_time')::time);
+  end if;
   update public.institution_gap_orders
     set state = 'sent', order_id = (r ->> 'order_id')::uuid, sent_by = (select auth.uid()), sent_at = private.now()
     where id = g.id;

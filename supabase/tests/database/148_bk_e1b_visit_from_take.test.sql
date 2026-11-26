@@ -72,8 +72,9 @@ create function pg_temp.m(n text) returns uuid language sql as $$ select ('00000
 -- 0. The new surface (non-aborting checks first) --------------------------------------------------------------------
 select has_column('public', 'care_visits', 'order_take_id', 'ADR-202 (2): a visit can name the take it was written from');
 select ok(exists (select 1 from pg_indexes i where i.schemaname = 'public' and i.tablename = 'care_visits'
-                  and i.indexdef ilike '%unique%' and i.indexdef ilike '%(order_take_id)%'),
-          'ADR-202 (2): at most one visit per take (unique index)');
+                  and i.indexdef ilike '%unique%'
+                  and i.indexdef ilike '%(order_take_id, COALESCE((take_block)::integer, 1))%'),
+          'ADR-202 (2), HD-3s-F2 (ADR-229 (3)): at most one visit per take and block; one block = one visit (unique index)');
 select has_column('public', 'care_visits', 'system_end_reason', 'CGR-242 (a): a visit can carry a stored system end reason');
 select has_function('private', 'order_take_visit', 'ADR-203: the one visit writer from a take exists');
 select ok(coalesce(position('order_take_member:' in

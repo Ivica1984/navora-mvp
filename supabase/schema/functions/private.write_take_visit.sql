@@ -12,6 +12,8 @@ declare
   k   public.order_takes;
   o   public.partner_requests;
   vid uuid;
+  first_vid uuid;
+  b   record;
 begin
   select * into k from public.order_takes where id = p_take_id;
   if k.id is null or k.released_at is not null or k.acknowledged_at is null then return null; end if;
@@ -19,23 +21,38 @@ begin
   if o.id is null or o.starts_at is null or o.ends_at is null or o.starts_at <= private.now() then return null; end if;
   -- CGR-233: the same person key as take_order, before any write that names her (re-entrant in the take's session).
   perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || k.member_id::text, 0));
-  select v.id into vid from public.care_visits v where v.order_take_id = k.id;
-  if vid is not null then return vid; end if;
-  insert into public.care_visits (organization_id, team_id, case_id, visit_date, time_start, time_end, status,
-                                  responsible_user_id, order_take_id, services_provided)
-    values (k.organization_id, k.team_id, null,
-            private.at_zurich(o.starts_at)::date,
-            private.at_zurich(o.starts_at)::time,
-            private.at_zurich(o.ends_at)::time,
-            'planned', k.member_id, k.id, o.activity_tags)   -- BK-7: the order's tags, no retyping
-    returning id into vid;
-  -- The order's activities, in the matrix catalogue only (QUAL1-6); the QUAL1 recheck on insert stays in force.
-  insert into public.visit_activities (organization_id, visit_id, activity_code)
-    select k.organization_id, vid, a.code
-    from public.qual_activities a
-    where a.code = any (coalesce(o.activity_tags, '{}'))
-  on conflict do nothing;
-  return vid;
+  -- HD-3s-F2 (ADR-229 (3), PO decision (b)): one visit per block. One block (no pause): one visit, take_block NULL, as
+  -- before. Two blocks: block 1 = starts_at .. pause_starts_at, block 2 = pause_ends_at .. ends_at, the same member,
+  -- team and activities; the pause is in no visit (planned minutes never cover it). Idempotent per block.
+  for b in
+    select 1 as no, o.starts_at as s, coalesce(o.pause_starts_at, o.ends_at) as e,
+           case when o.pause_starts_at is null then null::smallint else 1::smallint end as blk
+    union all
+    select 2, o.pause_ends_at, o.ends_at, 2::smallint where o.pause_starts_at is not null
+    order by 1
+  loop
+    vid := null;
+    select v.id into vid from public.care_visits v
+      where v.order_take_id = k.id and coalesce(v.take_block, 1) = b.no;
+    if vid is null then
+      insert into public.care_visits (organization_id, team_id, case_id, visit_date, time_start, time_end, status,
+                                      responsible_user_id, order_take_id, take_block, services_provided)
+        values (k.organization_id, k.team_id, null,
+                private.at_zurich(b.s)::date,
+                private.at_zurich(b.s)::time,
+                private.at_zurich(b.e)::time,
+                'planned', k.member_id, k.id, b.blk, o.activity_tags)   -- BK-7: the order's tags, no retyping
+        returning id into vid;
+      -- The order's activities, in the matrix catalogue only (QUAL1-6); the QUAL1 recheck on insert stays in force.
+      insert into public.visit_activities (organization_id, visit_id, activity_code)
+        select k.organization_id, vid, a.code
+        from public.qual_activities a
+        where a.code = any (coalesce(o.activity_tags, '{}'))
+      on conflict do nothing;
+    end if;
+    if b.no = 1 then first_vid := vid; end if;
+  end loop;
+  return first_vid;  -- block 1 (or the one visit)
 end;
 $function$;
 

@@ -43,11 +43,9 @@ begin
   if cell ->> 'status' <> 'gap' then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('not_a_gap'));
   end if;
-  -- HD-3s (fail closed): an order has one start and one end time; a split shift has two blocks, so the order would ask
-  -- for the whole day including the pause. Not orderable until a package builds orders with two blocks (HD-3s-F2).
-  if t.shift_class = 'split' then
-    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('split_shift_not_orderable'));
-  end if;
+  -- HD-3s-F2 (FE-133 (1), ADR-229): a split shift is orderable as ONE order with both blocks; the order window is block-1
+  -- start .. block-2 end (the pause is busy for the person, PO decision (a)), the pause is carried by the order
+  -- (private.order_set_pause in institution_send_gap_order). The prefill names both blocks; never only one.
   if private.at_zurich(p_work_date + t.starts_at) <= private.now() then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('starts_in_past'));
   end if;
@@ -69,6 +67,9 @@ begin
                        'grade_fixed', fixed));
   return jsonb_build_object('result', 'ok', 'gap_order_id', new_id, 'prefill', jsonb_build_object(
     'start_date', p_work_date, 'start_time', to_char(t.starts_at, 'HH24:MI'), 'end_time', to_char(t.ends_at, 'HH24:MI'),
+    'block1_end_time', to_char(t.block1_ends_at, 'HH24:MI'), 'block2_start_time', to_char(t.block2_starts_at, 'HH24:MI'),
+    'work_minutes', private.institution_shift_minutes(p_work_date, t.starts_at, t.ends_at, t.block1_ends_at,
+                                                      t.block2_starts_at),
     'grade', fixed, 'grade_fixed', fixed is not null,
     'postcode', (select i.order_postcode from public.institutions i where i.id = p_institution_id),
     'activity_tags', coalesce(to_jsonb(prev.activity_tags), '[]'::jsonb),
