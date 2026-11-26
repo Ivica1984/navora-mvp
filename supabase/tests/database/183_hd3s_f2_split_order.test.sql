@@ -12,13 +12,16 @@
 --      ending after 19:00 is (no rest-time rule exists in the order path today; this proves the reference point).
 --   §6 qualification unchanged: a FaGe member is refused at step 1 for the HF split order.
 --   §7 release before the start ends both visits (CGR-242), never only one.
+--   §8 invoice draft per visit: one live draft per block, ordered minutes per block (270 and 240, never 780), no refusal.
+--   §9 take_member_dropped per visit: block 2 is flagged only after its own start, under its own key.
+--   §10 the order lists of the home and the team read the minutes without the pause.
 -- Users: lead kundebs …9e8 (lead of «Testheim Rhein» …4c1, member of its client account …3c1); …a183-…02 viewer,
 -- …03 stranger, …04 planner, the seed lead …9ed of another home (…4c2); nurses …11, …12 (HF), …13 (FaGe) in team …b183-…01 of
 -- Testorganisation S (…b000-…019); …09 admin.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(44);
+select plan(57);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -215,6 +218,99 @@ select ok((select released_at is not null from public.order_takes k where k.orde
 select is((select string_agg(status, ',' order by take_block) from public.care_visits where id in (select id from tv)),
           'cancelled,cancelled', '§7 both visits end, never only one');
 select is((select count(*)::int from public.care_visits where id in (select id from tv)), 2, '§7 ended, never deleted');
+
+-- §8 Invoice draft and time check per visit (brief scope 6; ADR-229 (4)) ---------------------------------------------
+-- A second split order (Fri 20.11., 07:00–11:30 und 16:00–20:00), its pause set by the private writer as in the send
+-- path; M12 takes it, works both blocks exactly and signs both reports.
+create function pg_temp.split_order(p_day text, p_key text) returns uuid language plpgsql as $$
+declare oid uuid;
+begin
+  oid := (pg_temp.cmd(pg_temp.lead(), format($q$select public.confirm_client_order('00000000-0000-4000-a000-0000000003c1',
+            %L, '07:00', '20:00', '4102', 'nurse_hf_fh', '{A1}', '{}', null, %L)$q$, p_day, p_key)) ->> 'order_id')::uuid;
+  perform private.order_set_pause(oid, p_day::date, '11:30', '16:00');
+  return oid;
+end $$;
+insert into ids values ('o2', pg_temp.split_order('2026-11-20', 'eeee0000-0000-4000-8183-000000000020'));
+select is(pg_temp.cmd(pg_temp.u('12')::text, format('select public.set_team_price(%L, 72.00, %L)', pg_temp.team(),
+            'eeee0000-0000-4000-8183-000000000021')) ->> 'result', 'ok', '§8 the team sets its own price (Beispielwert, kein Tarif)');
+select pg_temp.act_as(pg_temp.u('12')::text);
+set local role authenticated;
+select is(public.take_order(pg_temp.id('o2'), pg_temp.team(), pg_temp.u('12'), 'ffff0000-0000-4000-8183-000000000020')
+            ->> 'result', 'ok', '§8 M12 takes the second split order');
+reset role;
+select pg_temp.as_owner();
+create function pg_temp.bv(p_order uuid, p_block int) returns uuid language sql as $$
+  select v.id from public.care_visits v join public.order_takes k on k.id = v.order_take_id
+  where k.order_id = p_order and k.released_at is null and coalesce(v.take_block, 1) = p_block $$;
+create function pg_temp.worked(p_visit uuid, p_from timestamptz, p_to timestamptz, p_n int) returns uuid language plpgsql as $$
+declare rid uuid := ('a1830000-0000-4000-8000-' || lpad(p_n::text, 12, '0'))::uuid;
+begin
+  insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
+  select cv.organization_id, cv.id, cv.team_id, x.kind, x.f, x.t, pg_temp.u('12'), x.at
+  from public.care_visits cv,
+       (values ('departed', 'planned', 'on_the_way', p_from - interval '20 minutes', 0),
+               ('started', 'on_the_way', 'started', p_from, 1),
+               ('completed', 'started', 'completed', p_to, 2)) as x(kind, f, t, at, o)
+  where cv.id = p_visit order by x.o;
+  insert into public.visit_reports (organization_id, id, visit_id, case_id, team_id, version, status, snapshot,
+                                    performer_id, countersign_required, created_by)
+  select cv.organization_id, rid, cv.id, null, cv.team_id, 1, 'draft', private.visit_report_snapshot(cv.id),
+         pg_temp.u('12'), false, pg_temp.u('12')
+  from public.care_visits cv where cv.id = p_visit;
+  return rid;
+end $$;
+create function pg_temp.sign(rid uuid, p_key text) returns text language sql as $$
+  select pg_temp.cmd(pg_temp.u('12')::text, format('select public.sign_report(%L, %L, %L)', rid,
+    (select private.report_snapshot_hash(private.visit_report_snapshot(r.visit_id)) from public.visit_reports r where r.id = rid),
+    p_key)) ->> 'result' $$;
+insert into ids values
+  ('r1', pg_temp.worked(pg_temp.bv(pg_temp.id('o2'), 1), '2026-11-20 07:00+01', '2026-11-20 11:30+01', 1)),
+  ('r2', pg_temp.worked(pg_temp.bv(pg_temp.id('o2'), 2), '2026-11-20 16:00+01', '2026-11-20 20:00+01', 2));
+select set_config('navora.test_now', '2026-11-20 20:30:00+01', true);
+select is(pg_temp.sign(pg_temp.id('r1'), 'eeee0000-0000-4000-8183-000000000022') || '/'
+          || pg_temp.sign(pg_temp.id('r2'), 'eeee0000-0000-4000-8183-000000000023'), 'ok/ok', '§8 she signs both block reports');
+create temp table drafts as
+  select v.take_block, d.* from public.team_invoice_drafts d join public.care_visits v on v.id = d.visit_id
+  where d.order_id = pg_temp.id('o2') and d.state in ('draft', 'sent');
+select is((select count(*)::int from drafts), 2, '§8 one live draft per block (two for the one take), never already_drafted');
+select is((select string_agg(take_block || ':' || ordered_minutes || '/' || recorded_minutes || '/' || amount_chf, ','
+                             order by take_block) from drafts), '1:270.00/270.00/324.00,2:240.00/240.00/288.00',
+          '§8 ordered minutes per block (never 780 with the pause), recorded from each signed report, amount per block');
+select is((select count(distinct take_id)::int from drafts), 1, '§8 both drafts belong to the one take (one price snapshot)');
+select is((select count(*)::int from public.team_invoice_drafts where order_id = pg_temp.id('o2') and state = 'refused'), 0,
+          '§8 no refusal (no times_disagree against the whole window)');
+select set_config('navora.test_now', '2026-11-16 12:00:00+01', true);
+
+-- §9 take_member_dropped per visit (ADR-229 (5)) ------------------------------------------------------------------------
+insert into ids values ('o3', pg_temp.split_order('2026-11-21', 'eeee0000-0000-4000-8183-000000000030'));
+select pg_temp.act_as(pg_temp.u('11')::text);
+set local role authenticated;
+select is(public.take_order(pg_temp.id('o3'), pg_temp.team(), pg_temp.u('11'), 'ffff0000-0000-4000-8183-000000000030')
+            ->> 'result', 'ok', '§9 M11 takes the third split order');
+reset role;
+select pg_temp.as_owner();
+select set_config('navora.test_now', '2026-11-21 09:00:00+01', true);
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  (pg_temp.org(), pg_temp.team(), pg_temp.u('11'), '2026-11-21 08:30:00+01', '2026-11-21 21:00:00+01', pg_temp.u('09'));
+create function pg_temp.dropped() returns text language sql as $$
+  select coalesce(string_agg(replace(exception_key, (select id::text from public.order_takes k
+                                                      where k.order_id = pg_temp.id('o3')), 'T'), ',' order by exception_key), '')
+  from private.derived_exceptions_of(pg_temp.org(), array['take_member_dropped'])
+  where entity_id in (pg_temp.bv(pg_temp.id('o3'), 1), pg_temp.bv(pg_temp.id('o3'), 2)) $$;
+select is(pg_temp.dropped(), 'take_member_dropped:T',
+          '§9 at 09:00 only block 1 is flagged (planned after its start); block 2 has not started, the key is unchanged');
+select set_config('navora.test_now', '2026-11-21 16:30:00+01', true);
+select is(pg_temp.dropped(), 'take_member_dropped:T,take_member_dropped:T:2',
+          '§9 at 16:30 block 2 is flagged too, under its own key (never two rows with one key)');
+select ok((select released_at is null from public.order_takes where order_id = pg_temp.id('o3')),
+          '§9 after the start the take stays (CGR-242, CGR-250); the signal is the path');
+select set_config('navora.test_now', '2026-11-16 12:00:00+01', true);
+
+-- §10 Display minutes without the pause (team offers and the client list) ----------------------------------------------
+select is(pg_temp.cmd(pg_temp.lead(), format('select x.duration_minutes from public.client_orders() x where x.id = %L',
+            pg_temp.id('o2'))) #>> '{}', '510', '§10 the home''s order list reads 510 minutes, not 780');
+select is(pg_temp.cmd(pg_temp.u('12')::text, format('select x.duration_minutes from public.team_order_offers() x where x.order_id = %L',
+            pg_temp.id('o2'))) #>> '{}', '510', '§10 the team''s offer list reads 510 minutes, not 780');
 
 -- One-block regression (pgTAP 148, 156, 161 stay unchanged): a one-block order writes one visit, take_block NULL.
 insert into ids values ('one', pg_temp.order_at('07:00', '11:00', 'eeee0000-0000-4000-8183-000000000013'));

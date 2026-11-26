@@ -20,9 +20,10 @@ AS $function$
     and (d.state in ('draft', 'sent')
          or (d.state = 'void' and d.sent_at is not null)
          or (d.state = 'refused'
+             -- HD-3s-F2: the newest refusal per visit (a one-block take has one visit, so per take as before)
              and not exists (select 1 from public.team_invoice_drafts l
-                             where l.take_id = d.take_id and l.state in ('draft', 'sent'))
-             and d.seq = (select max(n.seq) from public.team_invoice_drafts n where n.take_id = d.take_id)))
+                             where l.visit_id = d.visit_id and l.state in ('draft', 'sent'))
+             and d.seq = (select max(n.seq) from public.team_invoice_drafts n where n.visit_id = d.visit_id)))
   order by v.visit_date desc, d.seq desc
 $function$;
 

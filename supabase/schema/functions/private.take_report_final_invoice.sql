@@ -15,12 +15,13 @@ begin
   if new.status <> 'final' or (tg_op = 'UPDATE' and old.status = 'final') then return null; end if;
   select v.order_take_id into take from public.care_visits v where v.id = new.visit_id;
   if take is null then return null; end if;
-  -- CGR-210 (b): a correction voids the take's live draft or sent invoice, in this transaction.
+  -- CGR-210 (b): a correction voids the live draft or sent invoice of this visit (HD-3s-F2: per visit; a one-block take
+  -- has one visit), in this transaction.
   if new.supersedes_id is not null then
     begin
       update public.team_invoice_drafts
         set state = 'void', void_reason = 'report_corrected', voided_at = private.now()
-        where take_id = take and state in ('draft', 'sent') and report_id <> new.id;
+        where visit_id = new.visit_id and state in ('draft', 'sent') and report_id <> new.id;
     exception when others then
       null;  -- the next build then shows already_drafted; the signature stays
     end;

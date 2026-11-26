@@ -31,7 +31,11 @@ begin
   -- one build per take at a time (trigger and command)
   perform pg_advisory_xact_lock(hashtextextended('take_invoice:' || k.id::text, 0));
 
-  ordered := round((extract(epoch from (o.ends_at - o.starts_at)) / 60)::numeric, 2);
+  -- HD-3s-F2 (ADR-229 (4), brief scope 6): the ordered minutes of THIS visit: its block of a two-block order (block 1
+  -- starts_at .. pause_starts_at, block 2 pause_ends_at .. ends_at), else the whole window as before. Never the pause.
+  ordered := round((extract(epoch from (
+               case when v.take_block = 2 then o.ends_at else coalesce(o.pause_starts_at, o.ends_at) end
+             - case when v.take_block = 2 then o.pause_ends_at else o.starts_at end)) / 60)::numeric, 2);
   if r.status = 'final' then
     select * into t from private.snapshot_times(r.snapshot);
     recorded := t.care_minutes_exact;
@@ -44,7 +48,8 @@ begin
   elsif exists (select 1 from public.visit_reports s
                 where s.supersedes_id = r.id and s.status = 'final') then
     reason := 'superseded';
-  elsif exists (select 1 from public.team_invoice_drafts d where d.take_id = k.id and d.state in ('draft', 'sent')) then
+  -- HD-3s-F2: one live draft per visit (a one-block take has one visit, so per take as before).
+  elsif exists (select 1 from public.team_invoice_drafts d where d.visit_id = v.id and d.state in ('draft', 'sent')) then
     reason := 'already_drafted';
   elsif exists (select 1 from public.quality_holds h where h.visit_id = v.id and h.lifted_at is null) then
     reason := 'on_hold';

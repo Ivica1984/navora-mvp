@@ -39,7 +39,8 @@ AS $function$
       and p.withdrawn_at is null   -- HD-2 slice 5: a withdrawn order is offered to no team any more
   )
   select f.order_id, f.team_id, p.request_title, p.starts_at, p.ends_at,
-         (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
+         private.order_work_minutes(p.starts_at, p.pause_starts_at, p.pause_ends_at, p.ends_at),  -- HD-3s-F2: no pause
+         p.postcode, p.city, p.grade, p.activity_tags,
          p.required_tags, f.distance_km, f.limit_km,
          case when k.id is null then 'open' else 'taken_by_us' end, k.member_id,
          k.taken_by, k.taken_at, k.acknowledged_at, private.order_latest_cover_at(p.id),
@@ -60,7 +61,8 @@ AS $function$
   -- CGR-234 (d): the own team's take was released and the new round offers it nothing: it still sees the release.
   -- HD-2 slice 5: a take released because the client withdrew the order is shown to its team as well (no new round).
   select r.order_id, r.team_id, p.request_title, p.starts_at, p.ends_at,
-         (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
+         private.order_work_minutes(p.starts_at, p.pause_starts_at, p.pause_ends_at, p.ends_at),  -- HD-3s-F2: no pause
+         p.postcode, p.city, p.grade, p.activity_tags,
          p.required_tags, null::numeric, null::numeric, 'released', null::uuid,
          r.taken_by, r.taken_at, r.acknowledged_at, private.order_latest_cover_at(p.id), false, r.kind, r.member_id,
          '{}'::text[]
