@@ -74,7 +74,7 @@ jobs:
   db:
     name: db (migrations · seed · pgTAP)
     runs-on: ubuntu-latest
-    # ORDER-F1-178 probe branch only: room for the bounded probe runs below (12 x at most 5 min); 30 min otherwise.
+    # ORDER-F1-178 probe branch only: room for the bounded probe runs below (3 x at most 4 min); 30 min otherwise.
     timeout-minutes: ${{ startsWith(github.head_ref, 'fix/order-f1-178') && 75 || 30 }}
     steps:
       - uses: actions/checkout@v5
@@ -172,12 +172,22 @@ jobs:
         if: steps.detect.outputs.present == 'true' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'fix/order-f1-178')
         env:
           DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-          REPEATS: "12"
+          REPEATS: "3"
           RUN_SECONDS: "240"
         run: scripts/ci-step.sh order-f1-178 scripts/db-flaky/order-f1-178.sh
+      # ORDER-F1-178 (probe, unmerged): alone 178 was 12/12 green (job 139603225718), so watch it inside the real suite. On
+      # a fix/order-f1-178 PR and on a repeat/**order-f1-178** push (ci-repeat, 10 attempts). Read-only.
+      - name: ORDER-F1-178 watcher start
+        if: steps.detect.outputs.present == 'true' && (startsWith(github.head_ref, 'fix/order-f1-178') || contains(github.ref, 'order-f1-178'))
+        env:
+          DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: scripts/db-flaky/order-f1-178-watch.sh start
       - name: Database tests
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh pgtap supabase test db
+      - name: ORDER-F1-178 watcher report
+        if: always() && steps.detect.outputs.present == 'true' && (startsWith(github.head_ref, 'fix/order-f1-178') || contains(github.ref, 'order-f1-178'))
+        run: scripts/db-flaky/order-f1-178-watch.sh report
       # WORK1-C5 (ADR-126): evidence that pgTAP 079 test 44 holds against the local stack's concurrent pg_cron writes.
       # Runs on a WORK1-C5 branch only (about 4-6 min: a 65 s probe, then 079 fifty times); the pinned clock is still set.
       - name: WORK1-C5 probe and pgTAP 079 repeated

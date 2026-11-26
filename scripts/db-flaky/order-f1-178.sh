@@ -55,7 +55,7 @@ for i in $(seq 1 "$REPEATS"); do
   bad=$(grep -c '^not ok ' "$work/run.out")
   if [ "$rs" -eq 0 ] && [ "$oks" -eq "$PLAN" ] && [ "$bad" -eq 0 ]; then
     green=$((green + 1))
-    echo "run $i: green in ${secs} s; $(grep -m1 'ORDER-F1 budget: ' "$work/run.out" | sed 's/^# //')"
+    echo "run $i: green in ${secs} s; $(grep -m1 '^# ORDER-F1 budget: ' "$work/run.out" | sed 's/^# //')"
   else
     status=1
     [ "$secs" -ge "$RUN_SECONDS" ] && hung=$((hung + 1))
