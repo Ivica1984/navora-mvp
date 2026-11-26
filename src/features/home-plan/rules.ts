@@ -549,6 +549,16 @@ const PROBLEM_TEXT: Record<string, string> = {
   shift_model_not_valid: "Bitte ein Schichtmodell wählen. Nichts wurde gespeichert.",
   shift_class_unknown: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
   shift_class_not_valid: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
+  // HD-3s: the split shift (two blocks). V1-V5 with the same codes as the database (split.ts, migration 0182).
+  time_format: "Geteilter Dienst: bitte jede Zeit als HH:MM eingeben (00:00 bis 23:59). Nichts wurde gespeichert.",
+  zero_length: "Geteilter Dienst: ein Block muss länger als 0 Minuten sein. Nichts wurde gespeichert.",
+  block_crosses_midnight: "Geteilter Dienst: ein Block darf nicht über Mitternacht gehen. Nichts wurde gespeichert.",
+  block_order: "Geteilter Dienst: Block 2 muss nach dem Ende von Block 1 beginnen. Nichts wurde gespeichert.",
+  no_pause: "Geteilter Dienst: zwischen Block 1 und Block 2 braucht es eine Pause. Nichts wurde gespeichert.",
+  shift_type_is_split: "Diese Dienstart ist ein geteilter Dienst. Bitte die zwei Blöcke unter «Geteilter Dienst» ändern. Nichts wurde gespeichert.",
+  split_shift_not_orderable: "Ein geteilter Dienst kann noch nicht als externer Auftrag gesendet werden (ein Auftrag hat eine Zeit). Die Lücke bleibt.",
+  work_days_not_whole: "Arbeitstage pro Woche: bitte eine ganze Zahl eingeben (1 bis 7). Nichts wurde gespeichert.",
+  work_days_per_week_not_valid: "Arbeitstage pro Woche: 1 bis 7. Nichts wurde gespeichert.",
   changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
@@ -570,6 +580,8 @@ const DONE_TEXT: Record<string, string> = {
   order_discarded: "Entwurf verworfen. Die Lücke bleibt.",
   order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
   limits_saved: "Planungsgrenzen des Heims gespeichert.",
+  split_saved: "Geteilter Dienst gespeichert: ein Arbeitstag mit zwei Blöcken.",
+  work_days_saved: "Arbeitstage pro Woche gespeichert.",
   staff_planning_saved: "Pensum und Schichtmodell gespeichert.",
 };
 

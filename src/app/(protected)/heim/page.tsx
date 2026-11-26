@@ -5,12 +5,14 @@ import { DRAFT_MARK, WORKING_TIME_LAW_MARK, gapReasonText, unmetWishReasonText }
 import { draftInputFromPlan, draftPeriodRange, rowsFormValue, sortGaps, sortRows, timedDraft, type DraftPeriod } from "@/features/home-plan/draft-screen";
 import {
   addStaff, addStation, applyDraft, assignStaff, checkGapOrder, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
-  setPlanningLimits, setShiftClass, setShiftType, setStaffActive, setStaffPlanning, setStaffingRule, unassignStaff,
+  setPlanningLimits, setShiftClass, setShiftType, setSplitShiftType, setStaffActive, setStaffPlanning, setStaffingRule, setWorkDaysPerWeek,
+  unassignStaff,
 } from "@/features/home-plan/commands";
+import { dailyTargetHint, dailyTargetText, isSplit, shiftTimesText } from "@/features/home-plan/split";
 import {
-  LIMIT_MARK, NOT_ENTERED, NO_CLASS, SHIFT_CLASS_LABEL, SHIFT_MODEL_LABEL, shiftClassLabel, shiftModelLabel, shownValue,
+  LIMIT_MARK, NOT_ENTERED, NO_CLASS, SELECTABLE_SHIFT_CLASSES, SHIFT_CLASS_LABEL, SHIFT_MODEL_LABEL, shiftClassLabel, shiftModelLabel, shownValue,
 } from "@/features/home-plan/planning-inputs";
-import { SHIFT_CLASSES, SHIFT_MODELS } from "@/features/home-plan/draft";
+import { SHIFT_MODELS, shiftMinutes } from "@/features/home-plan/draft";
 import {
   ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
@@ -143,7 +145,7 @@ function RuleWarning({ plan, pending, back }: { plan: Plan; pending: PendingWarn
     <section role="alert" aria-label="Regelwarnung" data-testid="heim-rule-warning"
       className="grid gap-2 rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950">
       <p className="font-semibold">
-        {person} · {t ? `${t.label} ${t.starts_at}–${t.ends_at}` : "Dienst"}{station ? ` · ${station}` : ""} · {dayLabel(pending.date)}
+        {person} · {t ? `${t.label} ${shiftTimesText(t)}` : "Dienst"}{station ? ` · ${station}` : ""} · {dayLabel(pending.date)}
       </p>
       <ul className="list-disc pl-5" data-testid="heim-rule-warning-rules">
         {pending.rules.map((r) => <li key={r}>{ruleText(r)}</li>)}
@@ -254,7 +256,7 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
                     <div key={t.id} className={`grid gap-1 rounded-md border p-2 text-sm ${statusClass(c)}`}
                       data-testid="heim-cell" data-status={c.status} data-station={s.name} data-shift={t.code}>
                       <p className="flex flex-wrap justify-between gap-1">
-                        <span className="font-semibold">{t.label} {t.starts_at}–{t.ends_at}</span>
+                        <span className="font-semibold" data-testid="heim-cell-times">{t.label} {shiftTimesText(t)}</span>
                         <span data-testid="heim-cell-status" className={c.status === "gap" ? "font-semibold text-rose-800" : "text-secondary"}>
                           {cellStatusText(c)}
                         </span>
@@ -292,7 +294,12 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
                         <OrderBlock order={c.order} reviewHref={`${HOME_PLAN_PATH}?ansicht=auftrag&datum=${d}&entwurf=${c.order.gap_order_id}`}
                           planner={planner} withdraw={canWithdrawOrder(plan, c.order)} back={back} />
                       )}
-                      {canPrepareOrder(plan, c) && (
+                      {canPrepareOrder(plan, c) && isSplit(t) && (
+                        <p className="text-xs text-secondary" data-testid="heim-split-no-order">
+                          Geteilter Dienst: noch kein externer Auftrag möglich (ein Auftrag hat eine Zeit).
+                        </p>
+                      )}
+                      {canPrepareOrder(plan, c) && !isSplit(t) && (
                         <form action={prepareGapOrder}>
                           <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
                           <button type="submit" className={`${btn} w-full`} data-testid="heim-prepare-order">Externen Auftrag vorbereiten</button>
@@ -334,7 +341,7 @@ function MonthView({ plan, prev, next, personHref, draftHref }: {
       <PeriodNav title={monthLabel(plan.from)} prev={prev} next={next}
         extra={canPlan(plan.institution.role) ? <DraftButton href={draftHref} /> : undefined} />
       <p className="text-xs text-secondary">
-        Kürzel je Tag: {plan.shift_types.map((t) => `${t.code} = ${t.label} ${t.starts_at}–${t.ends_at}`).join(" · ")} · A = abwesend
+        Kürzel je Tag: {plan.shift_types.map((t) => `${t.code} = ${t.label} ${shiftTimesText(t)}`).join(" · ")} · A = abwesend
         {" "}· (N) = eingeteilt, zählt aber nicht (abwesend oder nicht mehr aktiv) · eine Nacht steht am Tag ihres Beginns
         {" "}· Extern: E = vorbereitet, A = Angebot versandt, T = Team hat übernommen, G = gedeckt, K = nicht gedeckt, N = nicht mehr gedeckt
       </p>
@@ -532,6 +539,9 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
   return (
     <section aria-label="Einstellungen" className="grid gap-4 lg:grid-cols-2">
       <PlanningLimits plan={plan} back={back} />
+      <div className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3 lg:col-span-2">
+        <WorkDaysForm plan={plan} back={back} />
+      </div>
       <div className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3">
         <h2 className="text-lg font-bold">Stationen</h2>
         <ul className="grid gap-1 text-sm">{plan.stations.map((s) => <li key={s.id}>{s.name}</li>)}</ul>
@@ -547,17 +557,19 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
         <ul className="grid gap-2 text-sm" data-testid="heim-shift-types">
           {plan.shift_types.map((t) => (
             <li key={t.id} className="grid gap-1" data-testid="heim-shift-type" data-code={t.code}>
-              <span>{t.code} · {t.label} {t.starts_at}–{t.ends_at} · <span data-testid="heim-shift-class-now">Klasse: {shiftClassLabel(t.shift_class)}</span></span>
+              <span>{t.code} · {t.label} <span data-testid="heim-shift-times">{shiftTimesText(t)}</span> · <span data-testid="heim-shift-class-now">Klasse: {shiftClassLabel(t.shift_class)}</span></span>
+              {isSplit(t) ? <SplitHint plan={plan} t={t} /> : (
               <form action={setShiftClass} className="flex flex-wrap items-end gap-2" data-testid="heim-shift-class-form">
                 <Hidden values={{ institution: plan.institution.id, shift: t.id, was_class: shownValue(t.shift_class), back }} />
                 <label className="grid gap-1 text-sm">Schichtklasse {t.code}
                   <select name="class" defaultValue={t.shift_class ?? NO_CLASS} className={input} data-testid="heim-shift-class">
-                    {SHIFT_CLASSES.map((c) => <option key={c} value={c}>{SHIFT_CLASS_LABEL[c]}</option>)}
+                    {SELECTABLE_SHIFT_CLASSES.map((c) => <option key={c} value={c}>{SHIFT_CLASS_LABEL[c]}</option>)}
                     <option value={NO_CLASS}>keine Klasse</option>
                   </select>
                 </label>
                 <button type="submit" className={btn} data-testid="heim-shift-class-save">Klasse speichern</button>
               </form>
+              )}
             </li>
           ))}
         </ul>
@@ -574,6 +586,7 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
           <button type="submit" className={btn}>Speichern</button>
         </form>
         <p className="text-xs text-secondary">Gleiches Kürzel überschreibt die Dienstart. Endet ein Dienst vor seinem Beginn, endet er am Folgetag.</p>
+        <SplitShiftForm plan={plan} back={back} />
       </div>
       <div className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3 lg:col-span-2">
         <h2 className="text-lg font-bold">Mindestbesetzung (Ihre Vorgabe)</h2>
@@ -587,7 +600,7 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
               const c = cells.get(`${plan.from}|${s.id}|${t.id}`);
               return (
                 <form key={`${s.id}-${t.id}`} action={setStaffingRule} className="flex flex-wrap items-end gap-2 rounded-md border border-stone-200 p-2"
-                  data-testid="heim-rule-form">
+                  data-testid="heim-rule-form" data-station={s.name} data-shift={t.code}>
                   <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, back }} />
                   <p className="w-full text-sm font-semibold">{s.name} · {t.label} <span className="font-normal text-secondary">({c ? requirementText(c) : "keine Vorgabe"}{c?.example ? `, ${EXAMPLE_NOTE}` : ""})</span></p>
                   <label className="grid gap-1 text-sm">Personen
@@ -688,7 +701,7 @@ async function OrderReview({ plan, back, draft, weekHref, values }: {
       <h2 className="text-lg font-bold">Externen Auftrag prüfen</h2>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
         <dt className="text-secondary">Dienst</dt>
-        <dd data-testid="heim-order-review-shift">{dayLabel(cell.date)} · {station?.name} · {shift?.label} {shift?.starts_at}–{shift?.ends_at}</dd>
+        <dd data-testid="heim-order-review-shift">{dayLabel(cell.date)} · {station?.name} · {shift?.label} {shift ? shiftTimesText(shift) : ""}</dd>
         <dt className="text-secondary">Lücke</dt>
         <dd>{cellStatusText(cell)}</dd>
         {order.grade_fixed && (<><dt className="text-secondary">Stufe</dt><dd data-testid="heim-order-review-grade">{gradeLabel(order.grade)} (fehlt in diesem Dienst)</dd></>)}
@@ -826,7 +839,7 @@ async function DraftProposal({ institutionId, period, date, back, limitsHref, pe
   const person = new Map(plan.staff.map((s) => [s.id, s]));
   const shiftText = (id: string) => {
     const t = shift.get(id);
-    return t ? `${t.label} ${t.starts_at}–${t.ends_at}` : "";
+    return t ? `${t.label} ${shiftTimesText(t)}` : "";
   };
   const days = daysBetween(from, to).filter((d) => rows.some((r) => r.date === d) || gaps.some((g) => g.date === d));
   const unmet = result.wishes.unmet;
@@ -953,6 +966,66 @@ function PlanningLimits({ plan, back }: { plan: Plan; back: string }) {
       <p className="text-sm" data-testid="heim-limits-now">
         Jetzt: Ruhezeit {i.min_rest_hours ?? "nicht eingetragen"}{i.min_rest_hours != null ? " h" : ""} · Arbeitstage in Folge {i.max_consecutive_days ?? "nicht eingetragen"} ·
         Wochensoll {weekly === null ? "nicht eingetragen" : `${String(weekly).replace(".", ",")} h`}
+      </p>
+    </form>
+  );
+}
+
+// HD-3s (brief HD-3s.md scope 1): a shift type with two blocks on one day. The screen checks V1-V5 with the same codes
+// as the database; the database checks again. No minimum or maximum pause (none given).
+function SplitShiftForm({ plan, back }: { plan: Plan; back: string }) {
+  return (
+    <form action={setSplitShiftType} className="grid gap-2 rounded-md border border-stone-200 p-2" data-testid="heim-split-form">
+      <h3 className="text-base font-semibold">Geteilter Dienst (zwei Blöcke)</h3>
+      <Hidden values={{ institution: plan.institution.id, back }} />
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="grid gap-1 text-sm">Kürzel<input name="code" required maxLength={12} className={`${input} w-16`} data-testid="heim-split-code" /></label>
+        <label className="grid gap-1 text-sm">Name<input name="label" required maxLength={40} className={`${input} w-32`} data-testid="heim-split-label" /></label>
+      </div>
+      <fieldset className="flex flex-wrap items-end gap-2">
+        <legend className="text-sm">Block 1</legend>
+        <label className="grid gap-1 text-sm">von<input type="time" name="b1_starts" required className={input} data-testid="heim-split-b1-starts" /></label>
+        <label className="grid gap-1 text-sm">bis<input type="time" name="b1_ends" required className={input} data-testid="heim-split-b1-ends" /></label>
+      </fieldset>
+      <fieldset className="flex flex-wrap items-end gap-2">
+        <legend className="text-sm">Block 2</legend>
+        <label className="grid gap-1 text-sm">von<input type="time" name="b2_starts" required className={input} data-testid="heim-split-b2-starts" /></label>
+        <label className="grid gap-1 text-sm">bis<input type="time" name="b2_ends" required className={input} data-testid="heim-split-b2-ends" /></label>
+      </fieldset>
+      <button type="submit" className={`${btn} justify-self-start`} data-testid="heim-split-save">Geteilten Dienst speichern</button>
+      <p className="text-xs text-secondary">
+        Ein Arbeitstag mit zwei Blöcken am selben Tag. Die Pause zählt nicht als Arbeitszeit; die Ruhezeit beginnt nach
+        Block 2. Nur für Personen mit «alle Dienste» oder «kein Nachtdienst». {WORKING_TIME_LAW_MARK}.
+      </p>
+    </form>
+  );
+}
+
+// HD-3s S5: the daily target (weekly target ÷ working days per week) next to a split shift: a hint, never a block.
+function SplitHint({ plan, t }: { plan: Plan; t: Plan["shift_types"][number] }) {
+  const minutes = shiftMinutes(plan.from, { ...t, shift_class: "split" });
+  const hint = dailyTargetHint(minutes, plan.institution.weekly_target_hours, plan.institution.work_days_per_week ?? 5);
+  return (
+    <p className="text-xs text-secondary" data-testid="heim-split-hint">
+      {hint ? dailyTargetText(minutes, hint) : plan.institution.weekly_target_hours == null
+        ? "Kein Wochensoll eingetragen: kein Hinweis zum Soll pro Tag."
+        : "Arbeitszeit entspricht dem Soll pro Tag."}
+    </p>
+  );
+}
+
+// HD-3s S5: «Arbeitstage pro Woche» of the home (default 5); only for the daily target hint.
+function WorkDaysForm({ plan, back }: { plan: Plan; back: string }) {
+  const days = plan.institution.work_days_per_week ?? 5;
+  return (
+    <form action={setWorkDaysPerWeek} className="flex flex-wrap items-end gap-2" data-testid="heim-workdays-form">
+      <Hidden values={{ institution: plan.institution.id, back }} />
+      <label className="grid gap-1 text-sm">Arbeitstage pro Woche (für das Soll pro Tag)
+        <input name="work_days" inputMode="numeric" defaultValue={String(days)} required className={`${input} w-20`} data-testid="heim-workdays" />
+      </label>
+      <button type="submit" className={btn} data-testid="heim-workdays-save">Speichern</button>
+      <p className="w-full text-xs text-secondary" data-testid="heim-workdays-now">
+        Jetzt: {days} Arbeitstage. Soll pro Tag = Wochensoll ÷ Arbeitstage; nur ein Hinweis, keine Sperre.
       </p>
     </form>
   );

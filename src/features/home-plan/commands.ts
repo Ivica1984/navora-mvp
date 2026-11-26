@@ -10,7 +10,8 @@ import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { zurichToday } from "@/features/orders/queries";
 import { applyOutcome } from "./draft-screen";
-import { readLimitsForm, readShiftClassForm, readStaffPlanningForm, sameAsShown } from "./planning-inputs";
+import { parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm, sameAsShown } from "./planning-inputs";
+import { validateSplitShift } from "./split";
 import { getPlan } from "./queries";
 import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withAffected, withDraftCounts, withMessage, withWarning } from "./rules";
 
@@ -142,6 +143,37 @@ export async function setShiftType(form: FormData) {
   await run("institution_set_shift_type", {
     p_institution_id: v.institution, p_code: v.code, p_label: v.label, p_starts_at: v.starts, p_ends_at: v.ends,
   }, "shift_saved", back);
+}
+
+/**
+ * HD-3s: a shift type with two blocks. The screen checks V1-V5 first (the same codes as the database, which checks
+ * again under the row lock); a time that is not HH:MM is `time_format`, never coerced.
+ */
+export async function setSplitShiftType(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({ institution: uuid, code: z.string().min(1).max(12), label: z.string().min(1).max(40) }), {
+    institution: str(form, "institution"), code: str(form, "code"), label: str(form, "label"),
+  }, back);
+  const times = {
+    block1: { starts_at: raw(form, "b1_starts")?.trim() ?? "", ends_at: raw(form, "b1_ends")?.trim() ?? "" },
+    block2: { starts_at: raw(form, "b2_starts")?.trim() ?? "", ends_at: raw(form, "b2_ends")?.trim() ?? "" },
+  };
+  const shape = validateSplitShift(times);
+  if (!shape.ok) redirect(withMessage(back, shape.reason));
+  await run("institution_set_split_shift_type", {
+    p_institution_id: v.institution, p_code: v.code, p_label: v.label,
+    p_block1_starts_at: times.block1.starts_at, p_block1_ends_at: times.block1.ends_at,
+    p_block2_starts_at: times.block2.starts_at, p_block2_ends_at: times.block2.ends_at,
+  }, "split_saved", back);
+}
+
+/** HD-3s S5: «Arbeitstage pro Woche» (1-7, checked by the database); the daily target hint only. */
+export async function setWorkDaysPerWeek(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const institution = parse(uuid, str(form, "institution"), back);
+  const days = parseWhole(raw(form, "work_days"));
+  if (days === null) redirect(withMessage(back, "work_days_not_whole"));
+  await run("institution_set_work_days_per_week", { p_institution_id: institution, p_work_days_per_week: days }, "work_days_saved", back);
 }
 
 export async function setStaffingRule(form: FormData) {
