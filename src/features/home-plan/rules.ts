@@ -16,7 +16,12 @@ export type InstitutionRole = "lead" | "planner" | "viewer";
 export type Station = { id: string; name: string };
 // HD-3a: `shift_class` (0172), `pensum_pct` and `shift_model` (0171) as `institution_plan` returns them; optional so an
 // older plan answer still reads.
-export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string; shift_class?: string | null };
+// HD-3s (0182): a split shift has `shift_class` `split` and the two block fields (block 1 = starts_at..block1_ends_at,
+// block 2 = block2_starts_at..ends_at); NULL for a shift with one block.
+export type ShiftType = {
+  id: string; code: string; label: string; starts_at: string; ends_at: string; shift_class?: string | null;
+  block1_ends_at?: string | null; block2_starts_at?: string | null;
+};
 export type Staff = {
   id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean;
   pensum_pct?: number | null; shift_model?: string | null;
@@ -87,6 +92,8 @@ export type Plan = {
     min_rest_hours?: number | null;
     max_consecutive_days?: number | null;
     weekly_target_hours?: number | null;
+    /** HD-3s S5 (0182): «Arbeitstage pro Woche», default 5; the daily target is a hint only. */
+    work_days_per_week?: number | null;
   };
   from: string;
   to: string;

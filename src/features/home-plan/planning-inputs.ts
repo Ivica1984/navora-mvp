@@ -18,7 +18,9 @@ export const SHIFT_MODEL_LABEL: Record<ShiftModel, string> = {
 export const shiftModelLabel = (m: string | null | undefined): string =>
   SHIFT_MODELS.includes(m as ShiftModel) ? SHIFT_MODEL_LABEL[m as ShiftModel] : "unbekannt";
 
-export const SHIFT_CLASS_LABEL: Record<ShiftClass, string> = { early: "Früh", late: "Spät", night: "Nacht" };
+export const SHIFT_CLASS_LABEL: Record<ShiftClass, string> = { early: "Früh", late: "Spät", night: "Nacht", split: "Geteilt" };
+/** HD-3s: the classes the class form offers for a one-block type; `split` comes only with two blocks (0182). */
+export const SELECTABLE_SHIFT_CLASSES: ReadonlyArray<ShiftClass> = SHIFT_CLASSES.filter((c) => c !== "split");
 export const shiftClassLabel = (c: string | null | undefined): string =>
   SHIFT_CLASSES.includes(c as ShiftClass) ? SHIFT_CLASS_LABEL[c as ShiftClass] : "keine Klasse";
 
@@ -108,7 +110,7 @@ export function readStaffPlanningForm(f: FormData): { ok: true; value: StaffPlan
 export function readShiftClassForm(f: FormData): { ok: true; value: ShiftClass | null } | { ok: false; error: FieldError } {
   const v = field(f, "class");
   if (v === NO_CLASS) return { ok: true, value: null };
-  if (SHIFT_CLASSES.includes(v as ShiftClass)) return { ok: true, value: v as ShiftClass };
+  if (SELECTABLE_SHIFT_CLASSES.includes(v as ShiftClass)) return { ok: true, value: v as ShiftClass };
   return { ok: false, error: "shift_class_unknown" };
 }
 

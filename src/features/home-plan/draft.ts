@@ -29,11 +29,13 @@
 // instant); a non-existent local time is read as CET in both. Absence days follow `private.institution_shift_days`.
 
 import { addDays, weekStart, type Absence, type PlanCell, type ShiftType, type Staff } from "./rules";
+import { blocksOf } from "./split";
 
 export const DRAFT_MARK = "Optimierung (feste Regeln)";
 export const WORKING_TIME_LAW_MARK = "Arbeitszeitgesetz nicht abschliessend geprüft";
 
-export const SHIFT_CLASSES = ["early", "late", "night"] as const;
+// HD-3s: `split` = a shift with two blocks (migration 0182); the home sets it only with the two blocks.
+export const SHIFT_CLASSES = ["early", "late", "night", "split"] as const;
 export type ShiftClass = (typeof SHIFT_CLASSES)[number];
 export const SHIFT_MODELS = ["any", "early_only", "late_only", "night_only", "no_night"] as const;
 export type ShiftModel = (typeof SHIFT_MODELS)[number];
@@ -43,7 +45,8 @@ const MODEL_ALLOWS: Record<Exclude<ShiftModel, "any">, ReadonlyArray<ShiftClass>
   early_only: ["early"],
   late_only: ["late"],
   night_only: ["night"],
-  no_night: ["early", "late"],
+  // HD-3s (founder FE-127 (3)): a split shift fits «alle Dienste» and «keine Nacht» only.
+  no_night: ["early", "late", "split"],
 };
 
 export function modelAllows(model: ShiftModel, cls: ShiftClass | null): boolean {
@@ -177,6 +180,20 @@ export function shiftSpan(date: string, starts: string, ends: string): Span {
   spanCache.set(key, span);
   return span;
 }
+/**
+ * HD-3s R-h: the working minutes of one shift on its work date, as `private.institution_shift_minutes`: one block = the
+ * whole span (HD-3a); a split shift = block 1 + block 2, each turned into instants on its own, the pause never counted
+ * (founder FE-127 (3) point 1). The span of the whole working day stays `shiftSpan(date, starts_at, ends_at)`.
+ */
+export function shiftMinutes(date: string, t: Pick<DraftShiftType, "starts_at" | "ends_at" | "shift_class"> &
+  Partial<Pick<DraftShiftType, "block1_ends_at" | "block2_starts_at">>): number {
+  let m = 0;
+  for (const b of blocksOf(t)) {
+    const s = shiftSpan(date, b.starts_at, b.ends_at);
+    m += (s.end - s.start) / MIN;
+  }
+  return m;
+}
 /** ISO weekday of a date string: 1 = Monday ... 7 = Sunday. */
 export function isoWeekday(date: string): number {
   const d = new Date(dayWall(date)).getUTCDay();
@@ -231,7 +248,7 @@ function blockFor(p: Person, date: string, t: DraftShiftType, input: DraftInput,
   const ws = weekStart(date);
   let used = 0;
   for (const s of p.shifts) if (s.week === ws) used += s.minutes;
-  const minutes = (span.end - span.start) / MIN;
+  const minutes = shiftMinutes(date, t);
   const cap = Math.floor(((p.pensum_pct ?? 0) * (limits.fullTimeMinutesPerWeek ?? 0)) / 100);
   if (used + minutes > cap) return "pensum_full";
   return null;
@@ -277,7 +294,7 @@ export function buildDraft(input: DraftInput): DraftResult {
   };
   const addShift = (p: Person, date: string, t: DraftShiftType, proposed: boolean) => {
     const span = shiftSpan(date, t.starts_at, t.ends_at);
-    const minutes = (span.end - span.start) / MIN;
+    const minutes = shiftMinutes(date, t);
     p.shifts.push({ date, week: weekStart(date), typeId: t.id, span, minutes, proposed });
     p.dates.set(date, (p.dates.get(date) ?? 0) + 1);
     if (inPeriod(date)) p.minutesInPeriod += minutes;
@@ -473,6 +490,15 @@ function gapOf(
 }
 
 // --- Independent check ------------------------------------------------------------------------------------------------
+/** The verifier's own reading of the working minutes: the whole day minus the pause (written apart from shiftMinutes). */
+function workMinutes(date: string, t: DraftShiftType): number {
+  const day = shiftSpan(date, t.starts_at, t.ends_at);
+  const whole = (day.end - day.start) / MIN;
+  if (t.shift_class !== "split" || !t.block1_ends_at || !t.block2_starts_at) return whole;
+  const pauseStart = shiftSpan(date, t.starts_at, t.block1_ends_at).end;
+  const pauseEnd = shiftSpan(date, t.block2_starts_at, t.ends_at).start;
+  return whole - (pauseEnd - pauseStart) / MIN;
+}
 export type Violation = { staff_id: string; date: string; rule: "unknown_staff" | "inactive" | BlockReason | "overlap" | "outside_period" };
 
 /**
@@ -485,7 +511,7 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
   const types = new Map(input.shiftTypes.map((t) => [t.id, t]));
   const staff = new Map(input.staff.map((s) => [s.id, s]));
   const fullTime = input.limits.fullTimeMinutesPerWeek ?? 0;
-  type S = { date: string; span: Span; proposed: boolean };
+  type S = { date: string; span: Span; minutes: number; proposed: boolean };
   const by = new Map<string, S[]>();
   const push = (id: string, s: S) => by.set(id, [...(by.get(id) ?? []), s]);
   const ids = new Set<string>();
@@ -495,7 +521,7 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
     for (const a of c.assigned) {
       if (ids.has(a.assignment_id)) continue;
       ids.add(a.assignment_id);
-      push(a.staff_id, { date: c.date, span: shiftSpan(c.date, t.starts_at, t.ends_at), proposed: false });
+      push(a.staff_id, { date: c.date, span: shiftSpan(c.date, t.starts_at, t.ends_at), minutes: workMinutes(c.date, t), proposed: false });
     }
   }
   for (const r of rows) {
@@ -516,7 +542,7 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
         break;
       }
     }
-    push(p.id, { date: r.date, span: shiftSpan(r.date, t.starts_at, t.ends_at), proposed: true });
+    push(p.id, { date: r.date, span: shiftSpan(r.date, t.starts_at, t.ends_at), minutes: workMinutes(r.date, t), proposed: true });
   }
   const rest = input.limits.minRestHours * 60 * MIN;
   for (const [id, list] of by) {
@@ -536,7 +562,7 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
     for (const s of list) {
       const w = weekStart(s.date);
       const v = weeks.get(w) ?? { minutes: 0, proposed: false };
-      v.minutes += (s.span.end - s.span.start) / MIN;
+      v.minutes += s.minutes;
       v.proposed ||= s.proposed;
       weeks.set(w, v);
     }
