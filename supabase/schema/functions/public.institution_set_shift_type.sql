@@ -25,6 +25,11 @@ begin
   -- included); the home creates a new shift type instead. The row lock serialises with institution_assign_staff.
   select * into cur from public.institution_shift_types
     where institution_id = p_institution_id and code = btrim(p_code) for update;
+  -- HD-3s: a split shift (two blocks) is changed only through institution_set_split_shift_type, so its blocks and its
+  -- class always change together (the check constraints refuse a half-changed row).
+  if cur.id is not null and cur.shift_class = 'split' then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('shift_type_is_split'));
+  end if;
   if cur.id is not null and (cur.starts_at <> p_starts_at or cur.ends_at <> p_ends_at)
      and exists (select 1 from public.institution_assignments a where a.shift_type_id = cur.id) then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('shift_type_in_use'));

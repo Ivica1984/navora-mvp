@@ -16,7 +16,12 @@ export type InstitutionRole = "lead" | "planner" | "viewer";
 export type Station = { id: string; name: string };
 // HD-3a: `shift_class` (0172), `pensum_pct` and `shift_model` (0171) as `institution_plan` returns them; optional so an
 // older plan answer still reads.
-export type ShiftType = { id: string; code: string; label: string; starts_at: string; ends_at: string; shift_class?: string | null };
+// HD-3s (0182): a split shift has `shift_class` `split` and the two block fields (block 1 = starts_at..block1_ends_at,
+// block 2 = block2_starts_at..ends_at); NULL for a shift with one block.
+export type ShiftType = {
+  id: string; code: string; label: string; starts_at: string; ends_at: string; shift_class?: string | null;
+  block1_ends_at?: string | null; block2_starts_at?: string | null;
+};
 export type Staff = {
   id: string; display_name: string; grade: string; home_station_id: string | null; active: boolean;
   pensum_pct?: number | null; shift_model?: string | null;
@@ -87,6 +92,8 @@ export type Plan = {
     min_rest_hours?: number | null;
     max_consecutive_days?: number | null;
     weekly_target_hours?: number | null;
+    /** HD-3s S5 (0182): «Arbeitstage pro Woche», default 5; the daily target is a hint only. */
+    work_days_per_week?: number | null;
   };
   from: string;
   to: string;
@@ -542,6 +549,16 @@ const PROBLEM_TEXT: Record<string, string> = {
   shift_model_not_valid: "Bitte ein Schichtmodell wählen. Nichts wurde gespeichert.",
   shift_class_unknown: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
   shift_class_not_valid: "Bitte Früh, Spät, Nacht oder «keine Klasse» wählen. Nichts wurde gespeichert.",
+  // HD-3s: the split shift (two blocks). V1-V5 with the same codes as the database (split.ts, migration 0182).
+  time_format: "Geteilter Dienst: bitte jede Zeit als HH:MM eingeben (00:00 bis 23:59). Nichts wurde gespeichert.",
+  zero_length: "Geteilter Dienst: ein Block muss länger als 0 Minuten sein. Nichts wurde gespeichert.",
+  block_crosses_midnight: "Geteilter Dienst: ein Block darf nicht über Mitternacht gehen. Nichts wurde gespeichert.",
+  block_order: "Geteilter Dienst: Block 2 muss nach dem Ende von Block 1 beginnen. Nichts wurde gespeichert.",
+  no_pause: "Geteilter Dienst: zwischen Block 1 und Block 2 braucht es eine Pause. Nichts wurde gespeichert.",
+  shift_type_is_split: "Diese Dienstart ist ein geteilter Dienst. Bitte die zwei Blöcke unter «Geteilter Dienst» ändern. Nichts wurde gespeichert.",
+  split_shift_not_orderable: "Ein geteilter Dienst kann noch nicht als externer Auftrag gesendet werden (ein Auftrag hat eine Zeit). Die Lücke bleibt.",
+  work_days_not_whole: "Arbeitstage pro Woche: bitte eine ganze Zahl eingeben (1 bis 7). Nichts wurde gespeichert.",
+  work_days_per_week_not_valid: "Arbeitstage pro Woche: 1 bis 7. Nichts wurde gespeichert.",
   changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
@@ -563,6 +580,8 @@ const DONE_TEXT: Record<string, string> = {
   order_discarded: "Entwurf verworfen. Die Lücke bleibt.",
   order_withdrawn: "Auftrag zurückgezogen. Kein Team erhält das Angebot mehr; die Lücke bleibt.",
   limits_saved: "Planungsgrenzen des Heims gespeichert.",
+  split_saved: "Geteilter Dienst gespeichert: ein Arbeitstag mit zwei Blöcken.",
+  work_days_saved: "Arbeitstage pro Woche gespeichert.",
   staff_planning_saved: "Pensum und Schichtmodell gespeichert.",
 };
 

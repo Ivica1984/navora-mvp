@@ -43,6 +43,11 @@ begin
   if cell ->> 'status' <> 'gap' then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('not_a_gap'));
   end if;
+  -- HD-3s (fail closed): an order has one start and one end time; a split shift has two blocks, so the order would ask
+  -- for the whole day including the pause. Not orderable until a package builds orders with two blocks (HD-3s-F2).
+  if t.shift_class = 'split' then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('split_shift_not_orderable'));
+  end if;
   if private.at_zurich(p_work_date + t.starts_at) <= private.now() then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('starts_in_past'));
   end if;

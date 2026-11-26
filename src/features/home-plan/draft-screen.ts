@@ -19,6 +19,7 @@ import {
   type ShiftModel,
 } from "./draft";
 import { addDays, cellKey, monthEnd, monthStart, weekStart, type Plan } from "./rules";
+import { validateSplitShift } from "./split";
 
 /** The two periods the screen offers; «übernehmen» refuses more than 31 days (migration 0177). */
 export type DraftPeriod = "woche" | "monat";
@@ -130,10 +131,17 @@ export function draftInputFromPlan(plan: DraftPlan, from: string, to: string): D
   const l = readLimits(plan);
   if (!l.ok) return null;
   if (plan.shift_types.some((t) => t.shift_class != null && !isClass(t.shift_class))) return null;
+  // HD-3s (fail closed): a split type must carry two valid blocks, and blocks only on a split type; else no draft.
+  if (plan.shift_types.some((t) => (t.shift_class === "split") !== (t.block1_ends_at != null || t.block2_starts_at != null))) return null;
+  if (plan.shift_types.some((t) => t.shift_class === "split" && !validateSplitShift({
+    block1: { starts_at: t.starts_at, ends_at: String(t.block1_ends_at) },
+    block2: { starts_at: String(t.block2_starts_at), ends_at: t.ends_at },
+  }).ok)) return null;
   if (plan.staff.some((s) => !isModel(s.shift_model))) return null;
   const shiftTypes: DraftShiftType[] = plan.shift_types.map((t) => ({
     id: t.id, code: t.code, label: t.label, starts_at: t.starts_at, ends_at: t.ends_at,
     shift_class: isClass(t.shift_class) ? t.shift_class : null,
+    block1_ends_at: t.block1_ends_at ?? null, block2_starts_at: t.block2_starts_at ?? null,
   }));
   const staff: DraftStaff[] = plan.staff.map((s) => ({
     id: s.id, display_name: s.display_name, grade: s.grade, home_station_id: s.home_station_id, active: s.active,

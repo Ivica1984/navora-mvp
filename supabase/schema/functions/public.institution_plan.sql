@@ -28,6 +28,8 @@ begin
       -- HD-3a: the home's planning inputs (FE-119, FE-123), read by the draft and the screen.
       'min_rest_hours', inst.min_rest_hours, 'max_consecutive_days', inst.max_consecutive_days,
       'weekly_target_hours', inst.weekly_target_hours,
+      -- HD-3s S5: «Arbeitstage pro Woche» for the daily target hint (never a block).
+      'work_days_per_week', inst.work_days_per_week,
       'can_order', exists (select 1 from public.client_accounts ca
                            where ca.institution_id = inst.id and private.is_client_member(ca.id))),
     'from', p_from, 'to', p_to,
@@ -35,7 +37,11 @@ begin
                           from public.institution_stations s where s.institution_id = inst.id), '[]'::jsonb),
     'shift_types', coalesce((select jsonb_agg(jsonb_build_object('id', t.id, 'code', t.code, 'label', t.label,
                                      'starts_at', to_char(t.starts_at, 'HH24:MI'), 'ends_at', to_char(t.ends_at, 'HH24:MI'),
-                                     'shift_class', t.shift_class)
+                                     'shift_class', t.shift_class,
+                                     -- HD-3s: a split shift is block 1 starts_at..block1_ends_at, block 2
+                                     -- block2_starts_at..ends_at; NULL for a shift with one block.
+                                     'block1_ends_at', to_char(t.block1_ends_at, 'HH24:MI'),
+                                     'block2_starts_at', to_char(t.block2_starts_at, 'HH24:MI'))
                                    order by t.sort, t.starts_at)
                              from public.institution_shift_types t where t.institution_id = inst.id), '[]'::jsonb),
     'staff', coalesce((select jsonb_agg(jsonb_build_object('id', p.id, 'display_name', p.display_name, 'grade', p.grade,

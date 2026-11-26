@@ -246,7 +246,9 @@ describe("HD-3a draft: hard rules", () => {
   });
 
   it("has no day class and no `day_only` model any more (FE-123 forward migration)", () => {
-    expect([...SHIFT_CLASSES]).toEqual(["early", "late", "night"]);
+    // HD-3s (brief HD-3s.md scope 1): `split` is the class of a shift with two blocks; still no day class.
+    expect([...SHIFT_CLASSES]).toEqual(["early", "late", "night", "split"]);
+    expect(SHIFT_CLASSES as ReadonlyArray<string>).not.toContain("day");
     expect([...SHIFT_MODELS]).toEqual(["any", "early_only", "late_only", "night_only", "no_night"]);
     expect(modelAllows("early_only", "early")).toBe(true);
     expect(modelAllows("early_only", "late")).toBe(false);
