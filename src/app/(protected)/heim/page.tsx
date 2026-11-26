@@ -294,12 +294,8 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
                         <OrderBlock order={c.order} reviewHref={`${HOME_PLAN_PATH}?ansicht=auftrag&datum=${d}&entwurf=${c.order.gap_order_id}`}
                           planner={planner} withdraw={canWithdrawOrder(plan, c.order)} back={back} />
                       )}
-                      {canPrepareOrder(plan, c) && isSplit(t) && (
-                        <p className="text-xs text-secondary" data-testid="heim-split-no-order">
-                          Geteilter Dienst: noch kein externer Auftrag möglich (ein Auftrag hat eine Zeit).
-                        </p>
-                      )}
-                      {canPrepareOrder(plan, c) && !isSplit(t) && (
+                      {/* HD-3s-F2: a split gap is one order with both blocks (FE-133 (1)); the same button as every gap. */}
+                      {canPrepareOrder(plan, c) && (
                         <form action={prepareGapOrder}>
                           <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
                           <button type="submit" className={`${btn} w-full`} data-testid="heim-prepare-order">Externen Auftrag vorbereiten</button>
@@ -690,7 +686,7 @@ async function OrderReview({ plan, back, draft, weekHref, values }: {
   // UXR-269: the line next to «Senden» comes from the same values the preview checked and the snapshot carries.
   const summary = canSend
     ? orderSendSummary({
-      grade: grade!, day: dayLabel(cell.date), time: `${shift?.starts_at ?? ""}–${shift?.ends_at ?? ""}`, postcode: postcode!,
+      grade: grade!, day: dayLabel(cell.date), time: shift ? shiftTimesText(shift) : "", postcode: postcode!,
       place: choices.postcodes.find((p) => p.postcode === postcode)?.place_name ?? null, tags: values.tags, activities: choices.activities,
     })
     : null;
