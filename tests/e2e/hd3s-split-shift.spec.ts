@@ -125,8 +125,11 @@ test("HD-3s T-1: «Plan vorschlagen» plans the split shift, «übernehmen» sav
   await page.getByTestId("heim-draft-start").click();
   await expect(page).toHaveURL(/ansicht=vorschlag/);
   const draft = page.getByTestId("heim-draft");
+  // Wait for the rendered draft itself (its summary line) before counting rows: the URL changes first.
+  await expect(draft.getByTestId("heim-draft-summary")).toHaveText(/^\d+ Dienste? vorgeschlagen · /);
   const splitRows = draft.locator(`[data-testid="heim-draft-row"][data-shift="${CODE}"]`);
-  expect(await splitRows.count()).toBeGreaterThan(0);
+  const splitGaps = await draft.locator(`[data-testid="heim-draft-gap"][data-shift="${CODE}"]`).allTextContents();
+  expect(await splitRows.count(), `no split row proposed; split gaps: ${splitGaps.join(" | ") || "none"}`).toBeGreaterThan(0);
   await expect(splitRows.first()).toContainText("07:00–11:30 und 16:00–20:00");
   const shown: Array<{ date: string; station: string; person: string }> = [];
   for (const day of await draft.getByTestId("heim-draft-day").all()) {
