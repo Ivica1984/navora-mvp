@@ -74,7 +74,8 @@ jobs:
   db:
     name: db (migrations · seed · pgTAP)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # ORDER-F1-178 probe branch only: room for the bounded probe runs below (12 x at most 5 min); 30 min otherwise.
+    timeout-minutes: ${{ startsWith(github.head_ref, 'fix/order-f1-178') && 75 || 30 }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -165,6 +166,15 @@ jobs:
           DB="postgresql://postgres@127.0.0.1:54322/postgres"
           scripts/ci-step.sh db-seed psql "$DB" -X -q -1 -v ON_ERROR_STOP=1 -f supabase/seed.sql
           psql "$DB" -Atc "select 'pinned database clock: ' || current_setting('navora.test_now') || ', private.now() = ' || private.now()"
+      # ORDER-F1-178 (probe, unmerged): pgTAP 178 hung until the job timeout in 3 runs since 0178; names the statement
+      # that does not end and what it waits for. Runs on a fix/order-f1-178 branch only, before the full suite.
+      - name: ORDER-F1-178 probe (pgTAP 178 repeated, bounded, watched)
+        if: steps.detect.outputs.present == 'true' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'fix/order-f1-178')
+        env:
+          DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          REPEATS: "12"
+          RUN_SECONDS: "240"
+        run: scripts/ci-step.sh order-f1-178 scripts/db-flaky/order-f1-178.sh
       - name: Database tests
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh pgtap supabase test db
