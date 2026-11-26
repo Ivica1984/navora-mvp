@@ -17,7 +17,7 @@
 -- What it proves:
 -- (1) Positive control: the frozen BK-c3 definition (pg_temp copy of 0137) reads the clock more than once per call
 --     under at least one pinned plan, so this fixture reproduces the defect (stays true after the fix).
--- (2) For each pinned plan (default; index scans only, so partner_requests is entered by the client index; sequential
+-- (2) For each pinned plan (default; index scans only; sequential
 --     scans with hash joins; the join order as written, nested loops only) the deployed function calls private.now()
 --     at most once per call.
 -- (3) Same clause codes: under every pinned plan the deployed function returns, for every (order, team) pair of the
@@ -194,12 +194,12 @@ create function pg_temp.now_calls() returns bigint language sql as $$
   select coalesce(sum(s.calls), 0)::bigint from pg_stat_xact_user_functions s where s.schemaname = 'private' and s.funcname = 'now'
 $$;
 
+create temp table got (k text, def text, order_id uuid, team_id uuid, codes text[], primary key (k, def, order_id, team_id));
+create temp table cost (k text, def text, calls bigint, now_calls bigint, primary key (k, def));
 -- Clock reads of a definition's own body under one plan: its statement minus the baseline statement.
 create function pg_temp.own_reads(p_k text, p_def text) returns bigint language sql as $$
   select d.now_calls - b.now_calls from cost d join cost b on b.k = d.k and b.def = 'base' where d.k = p_k and d.def = p_def
 $$;
-create temp table got (k text, def text, order_id uuid, team_id uuid, codes text[], primary key (k, def, order_id, team_id));
-create temp table cost (k text, def text, calls bigint, now_calls bigint, primary key (k, def));
 -- One statement per (plan, definition): the function body is planned at its first call under the pinned settings.
 create function pg_temp.run(p_k text, p_def text) returns void language plpgsql as $$
 declare n0 bigint; n bigint; t0 timestamptz;
@@ -230,7 +230,7 @@ select ok((select bool_or(pg_temp.own_reads(c.k, 'old') > c.calls) from cost c w
 select cmp_ok(pg_temp.own_reads('plan_default', 'new'), '<=', 46::bigint,
               'ORDER-F1-F5: default plan: at most one private.now() call per order_offer_reasons call');
 select cmp_ok(pg_temp.own_reads('plan_index_only', 'new'), '<=', 46::bigint,
-              'ORDER-F1-F5: index scans only (client index first): at most one private.now() call per call');
+              'ORDER-F1-F5: index scans only: at most one private.now() call per call');
 select cmp_ok(pg_temp.own_reads('plan_seq_hash', 'new'), '<=', 46::bigint,
               'ORDER-F1-F5: sequential scans, hash joins: at most one private.now() call per call');
 select cmp_ok(pg_temp.own_reads('plan_written_order', 'new'), '<=', 46::bigint,
