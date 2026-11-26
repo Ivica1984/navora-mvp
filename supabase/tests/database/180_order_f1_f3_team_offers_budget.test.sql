@@ -22,12 +22,18 @@
 --     offer, including three release cases: her team's release hidden by a later release of another team, her
 --     team's release after another team's, and her team's release on an order whose new round offers her team
 --     nothing (CGR-234 (d)). is_team_member runs once per own team; the deployed text holds the new CTEs.
+-- (5) AUT-220 (brief docs/agents/briefs/AUT-220.md): the budget (2) also holds under the three forced plans of pgTAP 181
+--     (index scans only; sequential scans with hash joins; the join order as written, nested loops only), one assertion
+--     per plan with the same bounds as under the default plan (every helper: B calls = A calls; is_team_member once;
+--     positive control order_member_step > 0). Wall time is printed with diag() only. A probe proves per run that the
+--     pin reaches a warmed plpgsql body (order_member_step is plpgsql) and that the four plans of team_order_offers()
+--     differ (EXPLAIN of its body). The default-plan measurement above is unchanged; it runs first.
 -- Users: kundebs …9e8 (client). Synthetic: M1 (nurse, T1, org 019, verified FaGe), M2 (nurse, T2, org 019).
 -- Pinned clock, moved forward only. Synthetic data only; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(26);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -78,6 +84,92 @@ end $$;
 create function pg_temp.used(p_k text, p_f text) returns bigint language sql as $$
   select b.calls - a.calls from stat a join stat b on b.f = a.f and b.k = p_k || '1' where a.k = p_k || '0' and a.f = p_f
 $$;
+
+-- AUT-220 pinned plans (brief docs/agents/briefs/AUT-220.md). The four plan cases and pg_temp.pin() are copied from pgTAP
+-- 181 («Pinned plans»; one copy per file, ADR draft docs/engineering/probes/AUT-220_ADR_DRAFT.md point 4). Added here:
+-- the plpgsql plan-cache trap. A plpgsql body (private.order_member_step, private.recheck_member_takes) keeps its plan
+-- for the session, so a later enable_* change alone does not replan it (shown on PostgreSQL 16 by eng, 2026-11-26: a body
+-- warmed under the default plan read 20 rows by index under «seq scans only»; with discard plans, 10 000 by scan). So
+-- every pin also runs `discard plans` and, in the forced cases, plan_cache_mode = force_custom_plan; the probe below
+-- proves per run that the pin reaches a warmed plpgsql body and that the cases give different plans.
+create temp table plan_case (k text primary key, ord int, settings jsonb);
+insert into plan_case values
+  ('plan_default', 1, '{}'),
+  ('plan_index_only', 2, '{"enable_seqscan": "off", "plan_cache_mode": "force_custom_plan"}'),
+  ('plan_seq_hash', 3, '{"enable_indexscan": "off", "enable_bitmapscan": "off", "enable_indexonlyscan": "off", "enable_nestloop": "off", "plan_cache_mode": "force_custom_plan"}'),
+  ('plan_written_order', 4, '{"join_collapse_limit": "1", "from_collapse_limit": "1", "enable_hashjoin": "off", "enable_mergejoin": "off", "plan_cache_mode": "force_custom_plan"}');
+create temp table planner_default as
+select s.name, current_setting(s.name) as setting
+from unnest(array['enable_seqscan', 'enable_indexscan', 'enable_bitmapscan', 'enable_indexonlyscan', 'enable_nestloop',
+                  'enable_hashjoin', 'enable_mergejoin', 'join_collapse_limit', 'from_collapse_limit',
+                  'plan_cache_mode']) s(name);
+create function pg_temp.pin(p_k text) returns void language plpgsql as $$
+declare r record;
+begin
+  if not exists (select 1 from plan_case c where c.k = p_k) then raise exception 'AUT-220: unknown plan case %', p_k; end if;
+  for r in select d.name, coalesce(c.settings ->> d.name, d.setting) as v
+           from planner_default d left join plan_case c on c.k = p_k loop
+    perform set_config(r.name, r.v, true);
+  end loop;
+  execute 'discard plans';
+end $$;
+-- Probe: the settings a plpgsql body reads, and a plpgsql body warmed under the default plan (index, 20 rows) that must
+-- read all 10 000 rows once the case forbids index scans.
+create function pg_temp.pin_seen() returns jsonb language plpgsql stable as $$
+begin
+  return (select jsonb_object_agg(d.name, current_setting(d.name)) from planner_default d);
+end $$;
+create function pg_temp.pin_wanted(p_k text) returns jsonb language sql stable as $$
+  select jsonb_object_agg(d.name, coalesce(c.settings ->> d.name, d.setting))
+  from planner_default d left join plan_case c on c.k = p_k
+$$;
+create temp table probe_rows as select i as id, i % 500 as g from generate_series(1, 10000) i;
+create index on probe_rows (g);
+analyze probe_rows;
+create function pg_temp.probe_tick(x int) returns boolean language plpgsql volatile cost 0.0001 as $$ begin return true; end $$;
+create function pg_temp.probe_count(p int) returns bigint language plpgsql stable as $$
+declare n bigint;
+begin
+  select count(*) into n from probe_rows r where r.g = p and pg_temp.probe_tick(r.id);
+  return n;
+end $$;
+create function pg_temp.probe_ticks() returns bigint language sql as $$
+  select coalesce(sum(s.calls), 0)::bigint from pg_stat_xact_user_functions s where s.funcname = 'probe_tick'
+$$;
+create temp table pin_probe (k text primary key, settings_ok boolean, ticks bigint);
+create function pg_temp.probe(p_k text) returns void language plpgsql as $$
+declare t0 bigint;
+begin
+  perform pg_temp.pin('plan_default');
+  perform pg_temp.probe_count(7) from generate_series(1, 8);  -- warm: the body's plan is cached under the default plan
+  perform pg_temp.pin(p_k);
+  t0 := pg_temp.probe_ticks();
+  perform pg_temp.probe_count(7);
+  insert into pin_probe values (p_k, pg_temp.pin_seen() = pg_temp.pin_wanted(p_k), pg_temp.probe_ticks() - t0);
+  perform pg_temp.pin('plan_default');
+end $$;
+-- The plan shape of one statement of the measured function under each case (EXPLAIN, costs off).
+create temp table shape (k text primary key, plan jsonb);
+create function pg_temp.shape(p_k text, p_sql text) returns void language plpgsql as $$
+declare j json;
+begin
+  perform pg_temp.pin(p_k);
+  execute 'explain (costs off, format json) ' || p_sql into j;
+  insert into shape values (p_k, j::jsonb);
+  perform pg_temp.pin('plan_default');
+end $$;
+create function pg_temp.nodes(p jsonb) returns text language sql immutable as $$
+  select string_agg(x #>> '{}', ' > ') from jsonb_path_query(p, 'strict $.**."Node Type"') x
+$$;
+-- One call of team_order_offers() for M1 under a pinned plan; rows and helper calls kept under <k>_<case>.
+create function pg_temp.offers_pinned(p_k text, p_case text) returns int language plpgsql as $$
+declare n int;
+begin
+  perform pg_temp.pin(p_case);
+  n := pg_temp.offers(p_k || '_' || p_case, pg_temp.m1());
+  perform pg_temp.pin('plan_default');
+  return n;
+end $$;
 
 select is(current_setting('track_functions'), 'all', 'the db job sets track_functions = all, so the call counts below measure');
 
@@ -145,6 +237,16 @@ from ot o, generate_series(1, 1000) i;
 select pg_temp.clock('2026-11-30 10:00:00+01');
 select cmp_ok(pg_temp.offers('a', pg_temp.m1()), '>=', 1002,
               'size: M1 reads at least 1 002 rows (F, its 1 000 copies, her taken order H)');
+-- AUT-220: the same call under the three forced plans, before the platform grows (A).
+select pg_temp.offers_pinned('a', c.k) from plan_case c where c.k <> 'plan_default' order by c.ord;
+-- Re-warm under the default plan, so the default measurement B below follows a warm default-plan call as before AUT-220.
+-- private.now() counts include the planner's own reads while it plans a statement after `discard plans` (first CI run of
+-- AUT-220, 0173e485, db job 139873562785: B right after the pins read the clock 1 010 times, A 1 006; under each forced
+-- plan A and B both 1 010). That is a cache state, not platform growth; without this call test 9 compares a cold B to a
+-- warm A. Not asserted.
+select pg_temp.offers('a_rewarm', pg_temp.m1());
+select diag(format('AUT-220 re-warm (default plan, after the pins): private.now() %s calls, A %s', pg_temp.used('a_rewarm', 'now'),
+                   pg_temp.used('a', 'now')));
 
 -- Config B: the platform grows around T1 without touching T1's offers --------------------------------------------------------
 -- (i) T2 is offered the same 1 001 orders in the same round (another team's rows).
@@ -202,6 +304,42 @@ select cmp_ok(pg_temp.used('a', 'order_member_step'), '>', 0::bigint,
 
 select is(pg_temp.used('a', 'is_team_member'), 1::bigint,
           'ORDER-F1-F3: one call checks is_team_member (LEAVE1-3) once per own team (M1 has one), not once per row');
+
+-- (5) AUT-220: the budget (2) under each forced plan, the same bounds as above ----------------------------------------------
+select pg_temp.offers_pinned('b', c.k) from plan_case c where c.k <> 'plan_default' order by c.ord;
+select diag(format('AUT-220 %s: rows A %s B %s; %s', c.k,
+                   (select count(*) from seen s where s.k = 'a_' || c.k), (select count(*) from seen s where s.k = 'b_' || c.k),
+                   (select string_agg(format('%s A %s B %s', h.f, pg_temp.used('a_' || c.k, h.f), pg_temp.used('b_' || c.k, h.f)),
+                                      ', ' order by h.f) from helper h)))
+from plan_case c where c.k <> 'plan_default' order by c.ord;
+create function pg_temp.budget_holds(p_case text) returns boolean language sql as $$
+  select not exists (select 1 from helper h
+                     where pg_temp.used('b_' || p_case, h.f) is distinct from pg_temp.used('a_' || p_case, h.f))
+         and pg_temp.used('a_' || p_case, 'is_team_member') = 1
+         and pg_temp.used('a_' || p_case, 'order_member_step') > 0
+$$;
+select ok(pg_temp.budget_holds('plan_index_only'),
+          'AUT-220 plan_index_only: no helper call grows with the platform; is_team_member once; the counts measure');
+select ok(pg_temp.budget_holds('plan_seq_hash'),
+          'AUT-220 plan_seq_hash: no helper call grows with the platform; is_team_member once; the counts measure');
+select ok(pg_temp.budget_holds('plan_written_order'),
+          'AUT-220 plan_written_order: no helper call grows with the platform; is_team_member once; the counts measure');
+
+-- AUT-220 proof that the plans are forced: settings and a warmed plpgsql body, then the plan shapes of the measured body.
+select pg_temp.probe(c.k) from plan_case c order by c.ord;
+select diag(format('AUT-220 probe %s: a warmed plpgsql body read %s rows', p.k, p.ticks))
+from pin_probe p join plan_case c on c.k = p.k order by c.ord;
+select ok((select bool_and(settings_ok) and count(*) = 4 from pin_probe),
+          'AUT-220: under every plan case a plpgsql body reads exactly the pinned planner settings');
+select ok((select ticks from pin_probe where k = 'plan_default') = 20
+          and (select ticks from pin_probe where k = 'plan_seq_hash') = 10000,
+          'AUT-220: the pin reaches a plpgsql body planned before it (20 rows by index, then all 10 000 without index scans)');
+select pg_temp.shape(c.k, (select rtrim(rtrim(p.prosrc), ';') from pg_proc p
+                           where p.oid = 'public.team_order_offers()'::regprocedure))
+from plan_case c order by c.ord;
+select diag(format('AUT-220 shape %s: %s', s.k, pg_temp.nodes(s.plan))) from shape s join plan_case c on c.k = s.k order by c.ord;
+select cmp_ok((select count(distinct plan)::int from shape), '>=', 2,
+              'AUT-220: the four cases give the body of team_order_offers() at least two different plans (forced, not assumed)');
 
 -- (4) Same rows, same order: previous definition (frozen copy, recovery/main 5808e9bd) against the deployed one -----------
 create function pg_temp.tof_old() returns table(order_id uuid, team_id uuid, sentence text, starts_at timestamp with time zone, ends_at timestamp with time zone, duration_minutes integer, postcode text, place_name text, grade text, activity_tags text[], required_tags text[], distance_km numeric, limit_km numeric, offer_state text, taken_member_id uuid, taken_by uuid, taken_at timestamp with time zone, acknowledged_at timestamp with time zone, latest_cover_at timestamp with time zone, caller_free boolean, release_kind text, released_member_id uuid, reasons text[])
