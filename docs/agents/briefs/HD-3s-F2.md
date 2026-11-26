@@ -2,7 +2,7 @@
 id: HD-3s-F2
 title: Externer Auftrag mit zwei Blöcken (geteilter Dienst), feste Regeln
 author: po
-status: approved   # PO-Paketvertrag 2026-11-26 22:39 nach dem HD-3s-Merge (FE-133 (1): «one explicitly linked immediate follow-up»)
+status: approved   # PO-Paketvertrag 2026-11-26 22:39 nach dem HD-3s-Merge (FE-133 (1): «one explicitly linked immediate follow-up»); Nachtrag Integration (FE-136) 23:39
 updated: 2026-11-26
 ---
 
@@ -60,6 +60,17 @@ Alle Regeln sind *visit/schedule facts* (Zeiten, Überschneidung, Ruhezeit, Minu
 4. **AI prepares:** keine KI (Grund: Arbeitszeit- und Auftragsschutz gehören ins feste Rechenwerk).
 5.–7. Heimleitung bestellt, Team-Mitglied entscheidet mit «übernehmen»; Unterschriften und Bericht unverändert.
 Gate: Simulation, synthetische Daten; D-35 Regel A unverändert. Die KI darf hier nichts.
+
+## Integration (FE-136; PO-Nachtrag 2026-11-26 23:39)
+
+Nachgetragen vor dem Baustart (kein Branch `feature/hd3s-f2` um 23:39), auf Founder-Bestätigung [#1712 7204197616](https://github.com/Ivica1984/navora-mvp/issues/1712#issuecomment-7204197616). Der Abschnitt beschreibt, was Scope und Kriterien oben schon festlegen; **er fügt keine Merge-Bedingung hinzu** (FE-089 (3)). Wo der PO den heutigen Stand nicht kennt, steht UNKNOWN.
+
+1. **Geänderte Sichten:** `/heim` Woche (Lücke eines geteilten Dienstes → «Externen Auftrag vorbereiten» statt Sperrhinweis) und Sicht «Externe Aufträge» (Auftrag mit beiden Blöcken); Angebotsliste des Teams (`/team`); `/field` (zwei Einsätze). Monat und individueller Plan: zeigen die gedeckte Lücke aus demselben Stand wie heute (keine eigene Änderung). Tag-, Personal- und Leitungssicht: unverändert (noch nicht gebaut bzw. nicht betroffen).
+2. **Gemeinsame Datensätze:** liest Diensttyp mit beiden Blöcken (HD-3s), Lücke/Vorgabe, Qualifikation, Abwesenheit, Zugriffsende; schreibt einen Auftrag (beide Blöcke in einer Zeile), Angebot, Übernahme, zwei Einsätze, Abrechnungsentwurf je Einsatz, Audit. Keine zweite Auftragszeile, keine Kopie der Planungsdaten.
+3. **Folgeabläufe:** Auftrag → Angebot an Teams → Übernahme durch eine Person → zwei Einsätze auf `/field` (Ein- und Auschecken je Block) → Zeitprüfung → Abrechnungs- und Rechnungsentwurf je Einsatz (BK-f, unverändert). Die Heim-Woche zeigt den Stand der Lücke wie bei Ein-Block-Aufträgen (HD-2).
+4. **Benachrichtigungen und Audit:** Audit für jeden Befehl (Scope 7). Benachrichtigungen: F2 fügt keine neue hinzu; welche der bestehende Auftragsablauf heute sendet, ist dem PO **UNKNOWN** — `eng` nennt es im Bereitbericht (Rückfrage, keine Bedingung). Fehlt eine, ist das ein Folgepunkt nach FE-136 (11), nicht Teil von F2.
+5. **Pflichtregeln und Nachprüfung:** Scope 4 und 5 (Stufe, Tätigkeiten, Überschneidung über die ganze Spanne, Abwesenheit, LEAVE1, Personensperre, Ruhezeit ab Block 2, CGR-288), Prüfung in der Datenbank bei jeder Übernahme; Ein-Block-Regression.
+6. **End-to-End-Pfad auf Staging:** Kriterium `staging-smoke` oben: Heimleitung bestellt die geteilte Lücke → Team sieht beide Blöcke → Pflegende übernimmt → `/field` zeigt zwei Einsätze; die Heim-Woche zeigt den Stand der Lücke wie bei Ein-Block-Aufträgen (HD-2, Punkt 3). Bis zur Lieferung bleibt die Marke «Geteilter Dienst: noch kein externer Auftrag möglich» sichtbar (FE-136 (10)).
 
 ## Out of scope (Nicht-Ziele)
 
