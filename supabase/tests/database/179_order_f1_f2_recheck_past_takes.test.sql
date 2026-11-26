@@ -2,13 +2,16 @@
 -- absence or qualification write (bk_c1_recheck_takes -> private.recheck_member_takes) costs work only for the member's
 -- takes of orders not yet started. Before 0179 the loop query applied private.take_visit_under_way (sql, security
 -- definer, not inlined, reads care_visits) to EVERY live take of hers, including takes of orders that already started,
--- and filtered those only afterwards; with unanalyzed tables pgTAP 178 hung computing in its 2 000-visit insert
--- (ci-repeat run 45730014560, db attempt 8, job 139609445952: 25 min, no wait event, no blocker).
+-- and filtered those only afterwards, by `p.starts_at > private.now()`, which itself ran once per order row the plan
+-- visited (sql security definer, never inlined). With unanalyzed tables pgTAP 178 hung computing in its 2 000-visit
+-- insert (ci-repeat run 45730014560, db attempt 8, job 139609445952: 25 min, no wait event, no blocker; with a statement
+-- bound the cancel lands inside private.now() under recheck_member_takes, ci-repeat run 45736138812 attempt 7).
 -- Deterministic (call counts, no wall clock; track_functions = all is set by the db job and asserted first). This file
 -- proves:
 -- (1) Cost: M1 holds 50 live takes of started orders and 1 of an order not yet started. One visit write for her calls
 --     take_visit_under_way exactly once (before 0179: 51 times) and order_member_step once (positive control: the
---     re-check ran for her one take that can still be released).
+--     re-check ran for her one take that can still be released); private.now() runs fewer times than she has takes
+--     (the re-check reads the clock once).
 -- (2) Behaviour kept: the take of the order not yet started stays live after a write that leaves her eligible; an absence
 --     over its slot releases it (release_reason step_3, CGR-223 (c)); the 50 takes of started orders are never touched.
 -- (3) Same rows, same order: for every member who holds a live take (seed and fixture), the previous loop query (frozen
@@ -20,7 +23,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(12);
+select plan(13);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -40,9 +43,9 @@ create function pg_temp.po(i int) returns uuid language sql immutable as $$
 create function pg_temp.calls(f text) returns bigint language sql volatile as $$
   select coalesce((select s.calls from pg_stat_xact_user_functions s where s.schemaname = 'private' and s.funcname = f), 0)
 $$;
-create temp table mark (k text primary key, under_way bigint, member_step bigint);
+create temp table mark (k text primary key, under_way bigint, member_step bigint, clock bigint);
 create function pg_temp.mark(k text) returns void language sql as $$
-  insert into mark values (k, pg_temp.calls('take_visit_under_way'), pg_temp.calls('order_member_step'))
+  insert into mark values (k, pg_temp.calls('take_visit_under_way'), pg_temp.calls('order_member_step'), pg_temp.calls('now'))
 $$;
 
 select is(current_setting('track_functions'), 'all', 'the db job sets track_functions = all, so the call counts below measure');
@@ -132,20 +135,22 @@ create function pg_temp.rows_old(p_user uuid) returns uuid[] language sql as $$
     where t.member_id = p_user and t.released_at is null and p.starts_at > private.now()
       and not private.take_visit_under_way(t.id)) x
 $$;
-create function pg_temp.rows_new(p_user uuid) returns uuid[] language sql as $$
+create function pg_temp.rows_new(p_user uuid, now_ timestamptz) returns uuid[] language sql as $$
   select coalesce(array_agg(x.id order by x.ord), '{}') from (
     with live as materialized (
       select t.id, t.order_id, t.team_id, t.member_id, p.starts_at
       from public.order_takes t join public.partner_requests p on p.id = t.order_id
-      where t.member_id = p_user and t.released_at is null and p.starts_at > private.now())
+      where t.member_id = p_user and t.released_at is null and p.starts_at > now_)
     select l.id, row_number() over (order by l.starts_at, l.id) as ord
     from live l
     where not private.take_visit_under_way(l.id)) x
 $$;
 select is((select count(*)::int from (select distinct member_id from public.order_takes where released_at is null) m
-           where pg_temp.rows_old(m.member_id) is distinct from pg_temp.rows_new(m.member_id)), 0,
+           where pg_temp.rows_old(m.member_id) is distinct from pg_temp.rows_new(m.member_id, private.now())), 0,
           'ORDER-F1-F2: for every member with a live take, the new loop query returns the previous takes in the same order');
-select ok(strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'with live as materialized (') > 0
+select ok(strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'now_ := private.now();') > 0
+          and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'with live as materialized (') > 0
+          and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'p.starts_at > now_)') > 0
           and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure),
                      'where not private.take_visit_under_way(l.id)') > 0,
           'the deployed function holds exactly the new loop query compared above');
@@ -161,6 +166,8 @@ select is((select b.member_step - a.member_step from mark a, mark b where a.k = 
           'positive control: the visit write re-checked her one take of an order not yet started (order_member_step once)');
 select is((select b.under_way - a.under_way from mark a, mark b where a.k = 'visit0' and b.k = 'visit1')::int, 1,
           'ORDER-F1-F2: one visit write reads take_visit_under_way once, not once per take of a started order (before: 51)');
+select cmp_ok((select b.clock - a.clock from mark a, mark b where a.k = 'visit0' and b.k = 'visit1')::int, '<', 51,
+          'ORDER-F1-F2: the visit write reads private.now() fewer times than she has live takes (the re-check reads it once)');
 select ok(pg_temp.live(true) = 50 and pg_temp.live(false) = 1,
           'a write that leaves her eligible releases nothing: all 51 takes stay live');
 
