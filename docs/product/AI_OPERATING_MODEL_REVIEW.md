@@ -833,6 +833,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control status:** no model value, so no suggestion-ledger or accept-all question arises. AUT-217 (PROPOSED, medium): a parallel-render smoke check so the `57014` criterion does not rest on a manual Render-log read alone. AUT-218, AUT-219 (PROPOSED, low): smoke path 3 picks the next valid day; a reporter that cannot read results says so.
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**ORDER-F1 follow-up fixes (`aia` 2026-11-26 08:18, review 95, AUT-220, AUT-221):**
+- **Label check:** ORDER-F1-F2 (`00b59f9d`), F3 (`57d1ae4d`) and F5 (#1780, not merged) are speed fixes of deterministic readings, including the Engine 1 offer reasons (fixed rules, no model). The `/team` offer list now fails visibly and never reads as «no offer».
+- **Control status:** no model value, so no suggestion-ledger or accept-all question arises. AUT-220 (PROPOSED, low): budget tests also under forced join orders. AUT-221 (PROPOSED, low): the parallel-render smoke check of AUT-217 also on `/team`.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -929,3 +934,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-25 14:21 | `aia` | §12: block «HD-3a slice 6 planning inputs»: label check (`a2df8eec`, fixed rules, no proposed value); AUT-213 (PROPOSED). No agent added or removed |
 | 2026-11-25 16:53 | `aia` | §12: block «HD-3a gate and FE-130»: gate clear on `203507b` (fixed rules); AUT-214, AUT-215 (PROPOSED, low), AUT-216 (PROPOSED, medium, QG2). No agent added or removed |
 | 2026-11-26 02:20 | `aia` | §12: block «ORDER-F1 stabilisation»: label check (`992a7e3c`, fixed rules); AUT-217 (PROPOSED, medium), AUT-218, AUT-219 (PROPOSED, low). No agent added or removed |
+| 2026-11-26 08:18 | `aia` | §12: block «ORDER-F1 follow-up fixes»: label check (F2 `00b59f9d`, F3 `57d1ae4d`, F5 #1780; fixed rules); AUT-220, AUT-221 (PROPOSED, low). No agent added or removed |
