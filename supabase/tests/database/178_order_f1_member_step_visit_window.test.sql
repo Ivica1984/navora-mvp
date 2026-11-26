@@ -279,29 +279,32 @@ prepare f2q(uuid, timestamptz) as
     where t.member_id = $1 and t.released_at is null and p.starts_at > $2)
   select l.id, l.order_id, l.team_id, l.member_id from live l
   where not private.take_visit_under_way(l.id) order by l.starts_at, l.id;
+-- DIAG ONLY: the same 2 000 visits in 20 batches; after each batch its time, the loop plan and the table statistics.
 do $$
-declare r text; m text; n timestamptz := private.now();
+declare b int; t0 timestamptz; r text; pl text; st text; n timestamptz := private.now();
 begin
-  foreach m in array array['force_custom_plan', 'force_generic_plan'] loop
-    perform set_config('plan_cache_mode', m, true);
+  for b in 0..19 loop
+    t0 := clock_timestamp();
+    insert into public.care_visits (organization_id, case_id, team_id, visit_date, time_start, time_end, services_provided,
+                                    billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+    select '00000000-0000-4000-b000-000000000011', pg_temp.cv(), pg_temp.tv(), date '2026-10-29' - i, t.s, t.e,
+           array['Grundpflege'], false, 'planned', 30, 0, pg_temp.m1()
+    from generate_series(b * 50, b * 50 + 49) i, (values (time '06:00', time '07:00'), (time '14:00', time '15:00')) t(s, e);
+    pl := '';
     for r in execute format('explain execute f2q(%L, %L)', pg_temp.m1(), n) loop
-      raise notice 'F2DIAG % | %', m, r;
+      if r ~ '(Scan|Join|Loop)' then pl := pl || ' / ' || btrim(r); end if;
     end loop;
-  end loop;
-  perform set_config('plan_cache_mode', 'auto', true);
-  for r in select relname || ' reltuples ' || c.reltuples || ' relpages ' || c.relpages || ' blocks ' || pg_relation_size(c.oid) / 8192
-             || ' last_analyze ' || coalesce(greatest(s.last_analyze, s.last_autoanalyze)::text, 'never')
-           from pg_class c join pg_stat_user_tables s on s.relid = c.oid
-           where s.schemaname = 'public' and s.relname in ('order_takes', 'partner_requests', 'care_visits') loop
-    raise notice 'F2DIAG stats | %', r;
+    select string_agg(c.relname || ' tup ' || c.reltuples || ' pg ' || c.relpages || ' blk ' || pg_relation_size(c.oid) / 8192
+                      || ' an ' || coalesce(greatest(z.last_analyze, z.last_autoanalyze)::time(0)::text, 'never')
+                      || ' vac ' || coalesce(greatest(z.last_vacuum, z.last_autovacuum)::time(0)::text, 'never'), '; ')
+      into st
+      from pg_class c join pg_stat_user_tables z on z.relid = c.oid
+      where z.schemaname = 'public' and z.relname in ('order_takes', 'partner_requests', 'care_visits');
+    raise notice 'F2DIAG batch % took % ms at % | plan%| %', b,
+      round(extract(epoch from clock_timestamp() - t0) * 1000), clock_timestamp()::time(0), pl, st;
   end loop;
 end $$;
 deallocate f2q;
-insert into public.care_visits (organization_id, case_id, team_id, visit_date, time_start, time_end, services_provided,
-                                billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
-select '00000000-0000-4000-b000-000000000011', pg_temp.cv(), pg_temp.tv(), date '2026-10-29' - i, t.s, t.e,
-       array['Grundpflege'], false, 'planned', 30, 0, pg_temp.m1()
-from generate_series(0, 999) i, (values (time '06:00', time '07:00'), (time '14:00', time '15:00')) t(s, e);
 
 -- As autovacuum would after such a load in operation: fresh statistics, so the planner sees 1 000 takes of one member.
 analyze public.partner_requests;
