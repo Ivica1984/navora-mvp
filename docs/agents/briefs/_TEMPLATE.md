@@ -46,6 +46,15 @@ Also state:
 
 **A brief in which AI makes an accountable decision, replaces a signature or a required approval, or executes clinical judgement is rejected.** "No AI leverage" is valid only with a reason.
 
+## Integration (FE-136) — required for every planning package
+A planning contract is not `approved` without this section (founder FE-136 (15), 2026-11-26). State, before Engineering starts:
+1. Views changed: day, week, month, staff, management, external-order view (name each, or "unchanged").
+2. Shared records read and written (one source of truth; no duplicate planning data).
+3. Downstream workflows triggered.
+4. Notifications and audit records that result (or the honest limit: "no notification yet").
+5. Deterministic rules and database re-checks that protect it.
+6. The end-to-end staging path that proves it works across the system.
+
 ## Out of scope
 What this item deliberately does not do.
 
