@@ -206,6 +206,16 @@ Quelle: Founder-Freigabe in der `eng`-Live-Sitzung ca. 19:40, Wiedergabe durch `
 
 **Nicht HD-3a-Bedingung (benannte Folgepunkte):** gespeicherter Planungslauf je Übernahme (AUT-201) und M1b/Stichtag (AUT-202) gehören nach der Founder-Tabelle zu HD-3b; `eng` darf eine Lauf-Kennung (`apply_id`) schon in HD-3a schreiben, wie in §5b für M1 nötig (WIE bei `eng`).
 
+### 5d. Richtung künftiges Rechenwerk (FE-134; PO-Einordnung 2026-11-26 21:39)
+
+Quelle: Founder-Kommentar [#1712 7202183900](https://github.com/Ivica1984/navora-mvp/issues/1712#issuecomment-7202183900) (vom PO selbst gelesen). **Richtung, kein Baustart.**
+
+- **Pflichtregeln immer hart:** Qualifikation und Skill-Mix, Verfügbarkeit, Absenzen, Schichtmodell, bestätigte Einteilungen, Ruhezeit, vertragliche Kapazität, alle Schutzregeln. Verstösse immer 0 (wie §5c).
+- **Rangfolge nur unter vollständig gültigen Plänen:** (1) weniger HF-kritische Lücken; (2) höhere Gesamtabdeckung; (3) Nähe zum vertraglichen Monatssoll / Pensum je Person (HD-3a-F3, FE-133 (2)); (4) faire Verteilung unbeliebter Dienste (Nacht, Wochenende, geteilt); (5) weniger externe Aufträge, nie zulasten von 1–4. Die Strafpunkt-Profile aus FE-127 (2) ordnen sich dieser Rangfolge unter.
+- **Neuer Löser nur nach Benchmark:** ein Kandidat (z. B. HiGHS) ersetzt den Greedy aus HD-3a nicht, weil er fortgeschrittener ist. **HD-3b-0 «Löser-Benchmark (synthetisch)»** (PLANNED, eigener Vertrag durch `po` nach HD-3a-F1) muss zeigen: 0 Pflichtregelverstösse; messbare Verbesserung in der Rangfolge oben; begrenzte Serverlaufzeit; deterministische und erklärbare Ergebnisse; der Löser schreibt nie direkt in die Datenbank (Übernahme nur über die bestehenden Prüfungen). Ohne Abnahme von HD-3b-0 bleibt der Greedy.
+- **Präzisierung von §5c:** die Zeile HD-3b («HiGHS … ab HD-3b») gilt nur noch unter dieser Bedingung (FE-134 vor FE-126/FE-127, README-Regel 10).
+- **Paketfolge (Stand 21:39):** HD-3s → HD-3s-F2 → HD-3a-F1 → HD-3a-F3 (nach Founder-Wahl) → HD-3b-0 → HD-3b → INTAKE-E2E → HD-3c → HD-3d.
+
 ## 6. Gemeinsames End-to-End-Abnahmekriterium auf Staging
 
 Es gibt drei ausdrücklich benannte Abnahmen, jede auf einem benannten Commit mit `ci` grün, `ci-repeat` 10/10 (`db`, `e2e`) und `staging-smoke` grün auf dem Merge-Commit. Danach schickt der PO eine Meldung mit App-Commit, Migrationsstand und Lauf-ID. Der Founder bedient den Weg selbst, bevor «geliefert» gilt.
