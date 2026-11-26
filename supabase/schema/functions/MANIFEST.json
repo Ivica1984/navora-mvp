@@ -64,7 +64,9 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "order_take_member:",
-        "order_member_step"
+        "order_member_step",
+        "take_visit_under_way",
+        "with live as materialized"
       ]
     },
     {

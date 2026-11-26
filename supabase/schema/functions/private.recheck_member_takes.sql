@@ -16,12 +16,18 @@ begin
   -- BK-E1B-S (CGR-255): the take's person lock before reading her takes, so a take of hers still in flight is waited
   -- for and then seen as committed (the serial outcome «take, then hand»).
   perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || p_user::text, 0));
+  -- ORDER-F1-F2: the start filter runs first (materialised), so take_visit_under_way reads care_visits only for takes of
+  -- orders not yet started; before, the planner applied it to every live take of hers, past orders included, at every
+  -- visit write (pgTAP 179). Same rows, same order.
   for k in
-    select t.id, t.order_id, t.team_id, t.member_id
-    from public.order_takes t join public.partner_requests p on p.id = t.order_id
-    where t.member_id = p_user and t.released_at is null and p.starts_at > private.now()
-      and not private.take_visit_under_way(t.id)  -- BK-E1B-R (CGR-244): never while her visit is under way
-    order by p.starts_at, t.id
+    with live as materialized (
+      select t.id, t.order_id, t.team_id, t.member_id, p.starts_at
+      from public.order_takes t join public.partner_requests p on p.id = t.order_id
+      where t.member_id = p_user and t.released_at is null and p.starts_at > private.now())
+    select l.id, l.order_id, l.team_id, l.member_id
+    from live l
+    where not private.take_visit_under_way(l.id)  -- BK-E1B-R (CGR-244): never while her visit is under way
+    order by l.starts_at, l.id
   loop
     step := private.order_member_step(k.order_id, k.team_id, k.member_id);
     if step < 4 then
