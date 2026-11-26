@@ -67,7 +67,8 @@
         "order_member_step",
         "take_visit_under_way",
         "with live as materialized",
-        "now_ := private.now();"
+        "now_ := private.now();",
+        "using p_user, now_"
       ]
     },
     {

@@ -9,11 +9,17 @@
 --     cancel lands inside private.now() under recheck_member_takes, ci-repeat run 45736138812 attempt 7). The same loop
 --     also applied take_visit_under_way (sql security definer, reads care_visits) to every live take of hers, including
 --     takes of orders that already started, before the start filter removed them. In operation the cost grows with every
---     past take of a carer, since such takes stay live.
+--     past take of a carer, since such takes stay live. Third, the loop query's plan is cached per session: in 178
+--     section 3 re-checks her 2 376 times while she has no take, and depending on the statistics autovacuum has left at
+--     that moment plpgsql keeps a plan that is cheap for none but walks all her takes per order row for 1 000 (diag job
+--     139639776198: every batch of 100 writes 12.9 s, 129 ms per write, while EXPLAIN with current statistics shows the
+--     linear plan; good runs 1.2 ms per write).
 --   * Now: the clock is read once into a variable; the start filter runs first in a materialised CTE, so
---     take_visit_under_way runs only for takes of orders not yet started (the only rows the loop ever used). Same rows,
---     same order (starts_at, id); the clock value is the same (private.now() is stable within the transaction's statement).
--- Diff against the previous definition: only the clock variable, the loop query and a comment. security definer,
+--     take_visit_under_way runs only for takes of orders not yet started (the only rows the loop ever used); and the
+--     query runs through `execute … using`, so it is planned with current statistics at every call (one plan per
+--     re-check, a fraction of a millisecond). Constant query text, values only as parameters: no injection surface.
+--     Same rows, same order (starts_at, id); the clock value is the same (private.now() is stable within the statement).
+-- Diff against the previous definition: only the clock variable, the loop query (now via execute) and a comment. security definer,
 -- search_path, the order_take_member person lock before the read (CGR-255), the under-way refusal (CGR-244),
 -- order_member_step, the release and the broadcast, revoke and comment are kept (pgTAP 148, 157, 179). Idempotent
 -- (create or replace, revoke, comment). Way back: re-create the function from its previous canonical file
@@ -41,18 +47,20 @@ begin
   -- for and then seen as committed (the serial outcome «take, then hand»).
   perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || p_user::text, 0));
   -- ORDER-F1-F2 (pgTAP 179): the clock is read once (private.now() is security definer sql, never inlined; as a row filter
-  -- it ran once per order row the plan visited), and the start filter runs first (materialised), so take_visit_under_way
-  -- reads care_visits only for takes of orders not yet started. Same rows, same order.
+  -- it ran once per order row the plan visited); the start filter runs first (materialised), so take_visit_under_way
+  -- reads care_visits only for takes of orders not yet started; and the query is planned at every call (execute), so a
+  -- plan cached in this session while her takes were few is never reused once they are many. Same rows, same order.
   now_ := private.now();
-  for k in
-    with live as materialized (
-      select t.id, t.order_id, t.team_id, t.member_id, p.starts_at
-      from public.order_takes t join public.partner_requests p on p.id = t.order_id
-      where t.member_id = p_user and t.released_at is null and p.starts_at > now_)
-    select l.id, l.order_id, l.team_id, l.member_id
-    from live l
-    where not private.take_visit_under_way(l.id)  -- BK-E1B-R (CGR-244): never while her visit is under way
-    order by l.starts_at, l.id
+  for k in execute
+    'with live as materialized (
+       select t.id, t.order_id, t.team_id, t.member_id, p.starts_at
+       from public.order_takes t join public.partner_requests p on p.id = t.order_id
+       where t.member_id = $1 and t.released_at is null and p.starts_at > $2)
+     select l.id, l.order_id, l.team_id, l.member_id
+     from live l
+     where not private.take_visit_under_way(l.id)
+     order by l.starts_at, l.id'  -- BK-E1B-R (CGR-244): never while her visit is under way
+    using p_user, now_
   loop
     step := private.order_member_step(k.order_id, k.team_id, k.member_id);
     if step < 4 then

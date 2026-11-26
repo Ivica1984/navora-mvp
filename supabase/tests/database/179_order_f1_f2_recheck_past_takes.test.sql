@@ -5,7 +5,10 @@
 -- and filtered those only afterwards, by `p.starts_at > private.now()`, which itself ran once per order row the plan
 -- visited (sql security definer, never inlined). With unanalyzed tables pgTAP 178 hung computing in its 2 000-visit
 -- insert (ci-repeat run 45730014560, db attempt 8, job 139609445952: 25 min, no wait event, no blocker; with a statement
--- bound the cancel lands inside private.now() under recheck_member_takes, ci-repeat run 45736138812 attempt 7).
+-- bound the cancel lands inside private.now() under recheck_member_takes, ci-repeat run 45736138812 attempt 7). A third
+-- cost: the loop query's plan was cached in the session while her takes were few (178 section 3 re-checks her 2 376
+-- times with none) and reused for 1 000 (diag job 139639776198: 129 ms per write, every batch); it is now planned at
+-- every call.
 -- Deterministic (call counts, no wall clock; track_functions = all is set by the db job and asserted first). This file
 -- proves:
 -- (1) Cost: M1 holds 50 live takes of started orders and 1 of an order not yet started. One visit write for her calls
@@ -150,7 +153,8 @@ select is((select count(*)::int from (select distinct member_id from public.orde
           'ORDER-F1-F2: for every member with a live take, the new loop query returns the previous takes in the same order');
 select ok(strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'now_ := private.now();') > 0
           and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'with live as materialized (') > 0
-          and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'p.starts_at > now_)') > 0
+          and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'p.starts_at > $2)') > 0
+          and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure), 'using p_user, now_') > 0
           and strpos(pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure),
                      'where not private.take_visit_under_way(l.id)') > 0,
           'the deployed function holds exactly the new loop query compared above');
