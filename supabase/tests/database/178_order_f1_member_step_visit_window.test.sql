@@ -31,6 +31,14 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(21);
 
+-- ORDER-F1-F2 (PO 2026-11-26 01:39 point 3): every statement is bounded, so a stall goes red at its own line (psql prints
+-- «178_…test.sql:<line>: ERROR: canceling statement due to statement timeout» or «… lock timeout») instead of running into
+-- the 30-min job timeout. This file is one session and waits for no other one, so any lock wait over 60 s is a fault.
+-- Per section: 30 s for light statements (the slowest measured 1.7 s), 120 s for the three heavy ones (measured 11-17 s,
+-- probe job 139603225718). Diagnostic bounds only; no assertion, budget or test changed.
+set local lock_timeout = '60s';
+set local statement_timeout = '30s';
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -64,6 +72,7 @@ select ok(exists (select 1 from pg_indexes where schemaname = 'public' and table
           'ORDER-F1: an order''s slot is indexed as a range (overlap with her other live takes)');
 
 -- 1. and 2. The bound and the predicate (pure, no rows written) -----------------------------------------------------------
+set local statement_timeout = '120s';
 create temp table shapes as
   select vd, ts, te, pm,
          private.visit_interval(jsonb_populate_record(null::public.care_visits, jsonb_build_object(
@@ -104,6 +113,7 @@ select ok((select count(*) filter (where old_p) > 0 and count(*) filter (where n
           'the predicate grid holds overlapping and non-overlapping pairs (both outcomes tested)');
 
 -- 3. Fixture (synthetic), as the table owner --------------------------------------------------------------------------------
+set local statement_timeout = '30s';
 insert into public.client_accounts (id, organization_id, display_name, client_kind) values
   ('00000000-0000-4000-a000-0000000003d8', '00000000-0000-4000-b000-000000000019', 'Haushalt ORDER-F1 A (synthetisch)', 'household'),
   ('00000000-0000-4000-a000-0000000003d9', '00000000-0000-4000-b000-000000000019', 'Haushalt ORDER-F1 B (synthetisch)', 'household');
@@ -203,6 +213,7 @@ insert into public.care_visits (organization_id, id, case_id, team_id, visit_dat
 values ('00000000-0000-4000-b000-000000000011', pg_temp.vv(), pg_temp.cv(), pg_temp.tv(), date '2026-11-10', '14:00', '15:00',
         array['Grundpflege'], false, 'planned', 30, 0, pg_temp.m1());
 
+set local statement_timeout = '120s';
 create temp table eq (anchor date, vd date, ts time, te time, pm int, k text, old_step int, new_step int);
 do $$
 declare
@@ -234,6 +245,7 @@ select ok((select count(*) filter (where old_step = 3) > 0 and count(*) filter (
           'both outcomes occur: busy through the visit (3) and eligible (4)');
 select ok((select bool_and(old_step in (3, 4)) from eq), 'the member passes level and activity, so only availability varies');
 
+set local statement_timeout = '120s';
 -- 4. Budget: 1 000 orders of one client, one live acknowledged take each, 2 000 visits of the member ----------------------
 create function pg_temp.take(k text, key text) returns jsonb language plpgsql as $$
 declare res jsonb;
@@ -319,6 +331,7 @@ select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas)
           'ORDER-F1: one eligibility check per order and at most 20 interval tests per order (previous: 2 000 per order)');
 select ok((select ms < 4000 from meas), 'loose wall-clock limit: 1 000 orders list in under 4 s (statement timeout 8 s)');
 
+set local statement_timeout = '30s';
 -- 5. Isolation --------------------------------------------------------------------------------------------------------------
 create function pg_temp.orders_seen_by(uid uuid) returns int language plpgsql as $$
 declare n int;
