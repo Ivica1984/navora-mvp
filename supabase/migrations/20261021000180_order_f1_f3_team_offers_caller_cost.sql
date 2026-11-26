@@ -12,6 +12,10 @@
 --     in `me` is exactly is_team_member(team)); the clock once (`clock`); ended, withdrawn and other teams' offers are
 --     removed in a materialised CTE before any per-row helper; last_release only for orders where one of her teams has
 --     a release on an order not yet ended, still taking the latest release of all teams for such an order.
+--   * Measured after the fix (ci 45748638949, db job 139670783777, head ead7b8d): A and B make the same calls (is_team_member 1,
+--     access_ended 2 004, order_round 1 002, now 1 007), so the cost no longer grows with other teams or old orders.
+--     Wall time per call at 1 002 rows stays about 2 s in CI (diagnostic): the per-row helpers order_member_step (2 per
+--     row) and order_offer_reasons remain; they are the next lever if a team's open offers grow (follow-up, not here).
 -- Created whole from its canonical file (STAB-1, TESTS 6); no text patch. Diff against the previous definition: only the
 -- CTEs `me`, `clock`, `mine`, the last_release order filter and the membership joins replacing per-row is_team_member.
 -- security definer, search_path '', LEAVE1-3 (is_team_member), withdrawn_at, grants, revoke and comment are kept

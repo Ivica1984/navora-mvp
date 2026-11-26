@@ -138,7 +138,7 @@ export default function TeamClient({
   /** PLAN3-11 (ADR-149): stops with open look-back lines of the caller's own teams. */
   lookbackStops?: TeamLookbackStop[];
   /** BK-c2 (ADR-200): the shift-order offers of the caller's teams (`team_order_offers()`). */
-  shiftOffers?: TeamShiftOffer[];
+  shiftOffers?: TeamShiftOffer[] | null;
   /** BK-f (0156): invoice drafts of the caller's teams (drafts, sent, void after sending, newest refusal). */
   invoiceDrafts?: TeamInvoiceRow[];
   /** BK-f (0155): the current price per hour of each of the caller's teams. */

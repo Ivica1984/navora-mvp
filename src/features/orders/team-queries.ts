@@ -8,14 +8,23 @@ import { teamOfferView, type TakeCandidateRow, type TeamOfferView, type TeamOrde
 
 export type TeamShiftOffer = { row: TeamOrderOfferRow; view: TeamOfferView };
 
-export async function getTeamShiftOffers(): Promise<TeamShiftOffer[]> {
+/** ORDER-F1-F3 (c): the offer list fails alone. A database error (for example the statement timeout 57014) or a
+ * transport failure is logged with its code (`orders.team_offers_failed`, as before, so the Render log still names it)
+ * and returns `null`; `/team` then shows one line in the offer section, never a thrown page and never «no offer». */
+export async function getTeamShiftOffers(): Promise<TeamShiftOffer[] | null> {
   const { supabase, user } = await requireUser();
-  const offers = await supabase.rpc("team_order_offers");
-  if (offers.error) {
-    logEvent("error", "orders.team_offers_failed", errorFields(offers.error));
-    throw new Error("Schichtangebote konnten nicht geladen werden.");
+  let rows: TeamOrderOfferRow[];
+  try {
+    const offers = await supabase.rpc("team_order_offers");
+    if (offers.error) {
+      logEvent("error", "orders.team_offers_failed", errorFields(offers.error));
+      return null;
+    }
+    rows = (offers.data ?? []) as unknown as TeamOrderOfferRow[];
+  } catch (e) {
+    logEvent("error", "orders.team_offers_failed", errorFields(e));
+    return null;
   }
-  const rows = (offers.data ?? []) as unknown as TeamOrderOfferRow[];
   const candidates = new Map<string, TakeCandidateRow[]>();
   await Promise.all(
     rows

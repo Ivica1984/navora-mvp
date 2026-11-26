@@ -270,7 +270,8 @@ end $$;
 -- Release cases on three of T1's future orders (copies of H's take, as the table owner).
 insert into public.order_takes
 select (jsonb_populate_record(k, jsonb_build_object('id', gen_random_uuid(), 'order_id', c.o, 'team_id', c.t,
-          'member_id', c.m, 'taken_by', c.m, 'released_at', c.at, 'release_reason', c.why))).*
+          'member_id', c.m, 'taken_by', c.m, 'released_at', c.at, 'release_reason', c.why,
+          'released_by', case when c.why = 'member_cannot' then c.m end))).*  -- order_takes_released_by_check
 from kt k, (values
   (pg_temp.fo(1), pg_temp.t1(), pg_temp.m1(), '2026-11-26 10:00:00+01'::timestamptz, 'member_cannot'),
   (pg_temp.fo(1), pg_temp.t2(), pg_temp.m2(), '2026-11-27 10:00:00+01'::timestamptz, 'not_acknowledged'),

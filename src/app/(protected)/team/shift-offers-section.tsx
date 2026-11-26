@@ -24,7 +24,10 @@ import {
   type OfferCommandResult,
 } from "@/features/orders/team-commands";
 
-export default function ShiftOffersSection({ offers }: { offers: TeamShiftOffer[] }) {
+export const SHIFT_OFFERS_UNAVAILABLE = "Schichtangebote konnten nicht geladen werden, bitte neu laden.";
+
+/** `offers === null`: the list read failed (ORDER-F1-F3 (c)); only this section says so, the rest of /team stands. */
+export default function ShiftOffersSection({ offers }: { offers: TeamShiftOffer[] | null }) {
   const [notice, setNotice] = useState<string | null>(null);
   return (
     <section aria-labelledby="shift-offers-heading" className="grid gap-3" data-testid="shift-offers">
@@ -37,14 +40,21 @@ export default function ShiftOffersSection({ offers }: { offers: TeamShiftOffer[
           </button>
         </div>
       )}
-      {offers.length === 0 && <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-4 text-sm">Zurzeit kein Schichtangebot für deine Teams.</p>}
-      <ul className="grid gap-3" aria-label="Schichtangebote">
-        {offers.map((o) => (
-          <li key={`${o.row.order_id}-${o.row.team_id}`}>
-            <ShiftOfferCard offer={o} onNotice={setNotice} />
-          </li>
-        ))}
-      </ul>
+      {offers === null && (
+        <p role="alert" data-testid="shift-offers-failed" className="rounded-lg border border-rose-300 bg-rose-50 p-2 text-sm font-semibold text-rose-800">
+          {SHIFT_OFFERS_UNAVAILABLE}
+        </p>
+      )}
+      {offers !== null && offers.length === 0 && <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-4 text-sm">Zurzeit kein Schichtangebot für deine Teams.</p>}
+      {offers !== null && (
+        <ul className="grid gap-3" aria-label="Schichtangebote">
+          {offers.map((o) => (
+            <li key={`${o.row.order_id}-${o.row.team_id}`}>
+              <ShiftOfferCard offer={o} onNotice={setNotice} />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
