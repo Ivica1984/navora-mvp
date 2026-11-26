@@ -27,6 +27,12 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-26 / AUT-220 #1788, db-Job 139873562785] Gelernte Lektion: Ein Aufrufzähler misst auch den Planer, also gleicher Plan-Cache-Zustand für beide Seiten eines Vergleichs
+- **Was war das Fehlerbild?** Der erste Lauf von AUT-220 (`0173e485`) war rot im unveränderten pgTAP 180 Test 9: `private.now()` B 1 010 statt A 1 006. Unter jedem erzwungenen Plan lasen A und B je 1 010. Mit derselben Messung, aber einem Aufruf unter dem Standardplan vor B (`b1c2cc22`, Job 139877707024), las der Aufwärmaufruf 1 010 und B wieder 1 006 = A.
+- **Was war die technische Ursache?** Mein `discard plans` (nötig, damit erzwungene Pläne einen plpgsql-Körper erreichen) liess B mit kaltem Plan-Cache laufen, A lief warm. Das Neuplanen liest die Uhr selbst ein paar Mal; die genaue Stelle ist UNKNOWN (wahrscheinlich die Schätzung stabiler Funktionen beim Planen). Kein Wachstum mit der Plattform: konstant +4.
+- **Die verbindliche Lösungsregel ab jetzt:** Wer zwei Aufrufzählungen vergleicht (A gegen B), misst beide im gleichen Plan-Cache-Zustand: beide direkt nach demselben Pin oder beide nach einem Aufwärmaufruf unter demselben Plan. Nie eine Schranke anpassen, um den Unterschied aufzufangen.
+- **Abgesichert durch:** pgTAP 180 (Aufwärmaufruf `a_rewarm` mit `diag()` der Uhrzugriffe; Test 9 unverändert) und die Vergleiche je Plan in 178, 179, 180, die A und B je direkt nach demselben Pin messen.
+
 ### [2026-11-26 / ORDER-F1-F5 #1780, staging-smoke 45777230637 (job 139763837190), 45750532417, 45750496418] Gelernte Lektion: Ein roter Smoke-Pfad während eines Render-Deploywechsels ist kein Beleg, weder für einen App-Fehler noch für «grün»
 - **Was war das Fehlerbild?** `staging-smoke` auf dem Merge-Commit `661f8cb4` war rot: Pfad 6 fand die Meldung «Auftrag zurückgezogen» nach 20 s nicht. Der Job meldete selbst: Render lieferte vor den Klickpfaden `0e625e3`, danach `217a9a5`. Die roten Läufe 45750532417 und 45750496418 (04:41) zeigen dasselbe Muster. Der nächste Lauf 45779137337 auf `217a9a58` (gleicher App-Code, kein Wechsel) war 8/8 grün.
 - **Was war die technische Ursache?** Wahrscheinlich, nicht bewiesen: Mehrere Merges kurz hintereinander lösen Render-Deploys aus. Während des Instanzwechsels kann eine Server Action ihre Antwort verlieren. Der Smoke-Lauf misst dann den Wechsel, nicht die App.
