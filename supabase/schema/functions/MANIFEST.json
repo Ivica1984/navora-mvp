@@ -769,6 +769,43 @@
         "assert_access_open",
         "work_days_per_week_not_valid"
       ]
+    },
+    {
+      "name": "private.write_take_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "private.take_invoice_build",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "take_invoice:"
+      ]
+    },
+    {
+      "name": "private.take_report_final_invoice",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.my_team_invoice_drafts",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.my_take_invoice_state",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
     }
   ]
 }
