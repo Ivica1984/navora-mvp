@@ -239,6 +239,14 @@ select cmp_ok(pg_temp.offers('a', pg_temp.m1()), '>=', 1002,
               'size: M1 reads at least 1 002 rows (F, its 1 000 copies, her taken order H)');
 -- AUT-220: the same call under the three forced plans, before the platform grows (A).
 select pg_temp.offers_pinned('a', c.k) from plan_case c where c.k <> 'plan_default' order by c.ord;
+-- Re-warm under the default plan, so the default measurement B below follows a warm default-plan call as before AUT-220.
+-- private.now() counts include the planner's own reads while it plans a statement after `discard plans` (first CI run of
+-- AUT-220, 0173e485, db job 139873562785: B right after the pins read the clock 1 010 times, A 1 006; under each forced
+-- plan A and B both 1 010). That is a cache state, not platform growth; without this call test 9 compares a cold B to a
+-- warm A. Not asserted.
+select pg_temp.offers('a_rewarm', pg_temp.m1());
+select diag(format('AUT-220 re-warm (default plan, after the pins): private.now() %s calls, A %s', pg_temp.used('a_rewarm', 'now'),
+                   pg_temp.used('a', 'now')));
 
 -- Config B: the platform grows around T1 without touching T1's offers --------------------------------------------------------
 -- (i) T2 is offered the same 1 001 orders in the same round (another team's rows).
