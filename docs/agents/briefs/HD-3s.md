@@ -84,3 +84,12 @@ FE-117, FE-119, FE-120, FE-123, FE-127, FE-129; `HD.md` §5b/§5c; Regelentwurf 
 - Schätzung 1–2 Läufe (Founder-Tabelle); bitte im Bereitbericht die tatsächliche Zahl.
 - Wie viele Zeilen der Probe unverändert übernommen werden und welche Tests sich änderten (Bereitbericht).
 - Ob R-i/R-j als leere Parameter klein genug bleiben; sonst ganz weglassen und als HD-3s-F1 melden.
+
+## PO amendment 2026-11-26 21:39 (geplanter PO-Lauf, Signale (b) und (e); keine neue Merge-Bedingung)
+
+- **Gate-Stand auf `27cb1fc6`:** `lca` clear (7195331421), `cra` clear (7202806794; Lauf nach der Frist 18:39, Kopf unverändert, die Zeile gilt für dieses Fenster), `uxa` **fehlt**. Das Fenster bleibt auf diesem Kopf offen, bis die `uxa`-Zeile steht; ein neuer Push schliesst es.
+- **Founder-Klarstellung FE-133 (#1790 7201934395):** (1) Externer Auftrag mit beiden Blöcken als ein Auftrag: nach `eng` (7201953843) kein kleinster sicherer Zusatz, daher **nicht in HD-3s**, sondern **HD-3s-F2** als unmittelbar nächstes Paket nach dem Merge; Inhalt: ein Auftrag mit zwei Zeitblöcken, Angebot und Übernahme je Block geprüft, Pause für die Pflegende frei, keine automatische Aufteilung in zwei Aufträge, Qualifikations- und Auftragsschutz unverändert, dazu `cra` CGR-288 (Arbeit in der Pause zählt für Wochenminuten, Ruhezeit ab Block 2 und R-j; pgTAP-Fall). Staging-Grenze bis dahin: «Geteilter Dienst: noch kein externer Auftrag möglich» und `split_shift_not_orderable` (fail closed). (2) Monatssoll: nicht in HD-3s; Folgepunkt **HD-3a-F3 «Monatssoll»** mit Founder-Wahl. (3) HD-3a-F1 wie gebilligt, vor realen Daten. (4) Kein weiterer Arbeitsrecht- oder Optimierungsumfang in HD-3s; Knappheitsreihenfolge bleibt (`cra` Antwort 4).
+- **`cra`-Befunde als Folgepunkte (FE-089 (3)):** CGR-287 (S1 vor realen Personaldaten) → **HD-3s-F4** erweitert: Markierung «enthält Nachtarbeit ja/nein» je geteiltem Diensttyp mit Audit; ohne Markierung oder mit «ja» passt `no_night` nicht; Test mit Block 00:00–04:00; Nachtfenster erst nach Founder und `lca`. CGR-288 → HD-3s-F2 (oben).
+- **`aia`-Vorschläge zur Form (AUT-225, AUT-226):** werden in den Briefen von F1, F3, F4, F5 entschieden, nicht hier.
+- **Merge:** erst wenn `uxa-gate: #1790 27cb1fc6 clear` steht und §4 erfüllt ist.
+
