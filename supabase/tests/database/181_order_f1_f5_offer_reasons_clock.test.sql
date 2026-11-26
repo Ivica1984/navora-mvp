@@ -9,6 +9,10 @@
 -- Deterministic: call counts from pg_stat_xact_user_functions (track_functions = all, set by the db job and asserted
 -- first); the planner is pinned per case with transaction-local settings (they reach the security definer function,
 -- whose only own setting is search_path). Wall time is printed with diag() only.
+-- The clock reads of the function's own body are the reads of one statement minus a baseline: the same statement
+-- with only the member_free branch (pg_temp.reasons_base), because the nested private.order_member_step may read the
+-- clock itself (first red run on 28a16255, ci 45767019483, db job 139730245834: 47 reads for 46 calls in every plan,
+-- old and new alike; that one read is the helper's, not this function's, and is now subtracted).
 --
 -- What it proves:
 -- (1) Positive control: the frozen BK-c3 definition (pg_temp copy of 0137) reads the clock more than once per call
@@ -70,6 +74,18 @@ as $old$
          then 'knows_client' end
   ], null)
 $old$;
+
+-- Baseline: the member_free branch alone (identical in both definitions), to subtract the nested helper's clock reads.
+create function pg_temp.reasons_base(p_order_id uuid, p_team_id uuid)
+returns text[] language sql stable security definer set search_path = ''
+as $base$
+  select array_remove(array[
+    case when exists (select 1 from public.team_memberships m
+                      where m.team_id = p_team_id
+                        and private.order_member_step(p_order_id, p_team_id, m.user_id) = 4)
+         then 'member_free' end
+  ], null)
+$base$;
 
 -- Fixture (synthetic), as the table owner ------------------------------------------------------------------------------------
 select pg_temp.clock('2026-11-24 10:00:00+01');
@@ -178,6 +194,10 @@ create function pg_temp.now_calls() returns bigint language sql as $$
   select coalesce(sum(s.calls), 0)::bigint from pg_stat_xact_user_functions s where s.schemaname = 'private' and s.funcname = 'now'
 $$;
 
+-- Clock reads of a definition's own body under one plan: its statement minus the baseline statement.
+create function pg_temp.own_reads(p_k text, p_def text) returns bigint language sql as $$
+  select d.now_calls - b.now_calls from cost d join cost b on b.k = d.k and b.def = 'base' where d.k = p_k and d.def = p_def
+$$;
 create temp table got (k text, def text, order_id uuid, team_id uuid, codes text[], primary key (k, def, order_id, team_id));
 create temp table cost (k text, def text, calls bigint, now_calls bigint, primary key (k, def));
 -- One statement per (plan, definition): the function body is planned at its first call under the pinned settings.
@@ -188,7 +208,8 @@ begin
   n0 := pg_temp.now_calls();
   t0 := clock_timestamp();
   execute format('insert into got select %L, %L, x.order_id, x.team_id, %s(x.order_id, x.team_id) from pairs x',
-                 p_k, p_def, case p_def when 'old' then 'pg_temp.reasons_old' else 'private.order_offer_reasons' end);
+                 p_k, p_def, case p_def when 'old' then 'pg_temp.reasons_old' when 'base' then 'pg_temp.reasons_base'
+                                 else 'private.order_offer_reasons' end);
   get diagnostics n = row_count;
   insert into cost values (p_k, p_def, n, pg_temp.now_calls() - n0);
   perform pg_temp.pin('plan_default');
@@ -196,23 +217,23 @@ begin
     (select c.now_calls from cost c where c.k = p_k and c.def = p_def),
     round(extract(epoch from clock_timestamp() - t0) * 1000);
 end $$;
-select pg_temp.run(c.k, d.def) from plan_case c, (values ('old'), ('new')) d(def) order by c.ord, d.def;
-select diag(format('ORDER-F1-F5 %s %s: %s calls, %s private.now() calls', c.def, c.k, c.calls, c.now_calls))
+select pg_temp.run(c.k, d.def) from plan_case c, (values ('base'), ('old'), ('new')) d(def) order by c.ord, d.def;
+select diag(format('ORDER-F1-F5 %s %s: %s calls, %s private.now() calls in the statement', c.def, c.k, c.calls, c.now_calls))
 from cost c join plan_case p on p.k = c.k order by p.ord, c.def;
 
 -- (1) Positive control ------------------------------------------------------------------------------------------------------
 select is((select count(*)::int from cost where calls <> 46), 0, 'every case made 46 calls');
-select ok((select bool_or(c.now_calls > c.calls) from cost c where c.def = 'old'),
+select ok((select bool_or(pg_temp.own_reads(c.k, 'old') > c.calls) from cost c where c.def = 'old'),
           'positive control: the frozen BK-c3 definition reads the clock more than once per call under a pinned plan');
 
 -- (2) At most one clock read per call, under every pinned plan ---------------------------------------------------------------
-select cmp_ok((select c.now_calls from cost c where c.def = 'new' and c.k = 'plan_default'), '<=', 46::bigint,
+select cmp_ok(pg_temp.own_reads('plan_default', 'new'), '<=', 46::bigint,
               'ORDER-F1-F5: default plan: at most one private.now() call per order_offer_reasons call');
-select cmp_ok((select c.now_calls from cost c where c.def = 'new' and c.k = 'plan_index_only'), '<=', 46::bigint,
+select cmp_ok(pg_temp.own_reads('plan_index_only', 'new'), '<=', 46::bigint,
               'ORDER-F1-F5: index scans only (client index first): at most one private.now() call per call');
-select cmp_ok((select c.now_calls from cost c where c.def = 'new' and c.k = 'plan_seq_hash'), '<=', 46::bigint,
+select cmp_ok(pg_temp.own_reads('plan_seq_hash', 'new'), '<=', 46::bigint,
               'ORDER-F1-F5: sequential scans, hash joins: at most one private.now() call per call');
-select cmp_ok((select c.now_calls from cost c where c.def = 'new' and c.k = 'plan_written_order'), '<=', 46::bigint,
+select cmp_ok(pg_temp.own_reads('plan_written_order', 'new'), '<=', 46::bigint,
               'ORDER-F1-F5: join order as written, nested loops: at most one private.now() call per call');
 
 -- (3) Same clause codes for every pair, under every plan ----------------------------------------------------------------------
@@ -220,7 +241,7 @@ create function pg_temp.differ(p_k text, p_def text) returns int language sql as
   select count(*)::int from got a join got b on b.order_id = a.order_id and b.team_id = a.team_id
   where a.k = 'plan_default' and a.def = 'old' and b.k = p_k and b.def = p_def and a.codes is distinct from b.codes
 $$;
-select is((select count(*)::int from got), 46 * 8, 'every (plan, definition) case read every pair once');
+select is((select count(*)::int from got), 46 * 12, 'every (plan, definition) case read every pair once');
 select is(pg_temp.differ('plan_default', 'new'), 0, 'ORDER-F1-F5: default plan: the same codes as BK-c3 for every pair');
 select is(pg_temp.differ('plan_index_only', 'new'), 0, 'ORDER-F1-F5: index scans only: the same codes for every pair');
 select is(pg_temp.differ('plan_seq_hash', 'new'), 0, 'ORDER-F1-F5: sequential scans, hash joins: the same codes for every pair');
