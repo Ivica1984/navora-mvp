@@ -271,6 +271,32 @@ insert into public.order_takes
 select (jsonb_populate_record(k, jsonb_build_object('id', gen_random_uuid(), 'order_id', pg_temp.bo(i),
           'taken_at', k.taken_at - make_interval(days => i), 'acknowledged_at', k.acknowledged_at - make_interval(days => i)))).*
 from kt k, generate_series(1, 999) i;
+-- DIAG ONLY (repeat branch, never merged): the plans of the re-check loop query as the trigger would plan it.
+prepare f2q(uuid, timestamptz) as
+  with live as materialized (
+    select t.id, t.order_id, t.team_id, t.member_id, p.starts_at
+    from public.order_takes t join public.partner_requests p on p.id = t.order_id
+    where t.member_id = $1 and t.released_at is null and p.starts_at > $2)
+  select l.id, l.order_id, l.team_id, l.member_id from live l
+  where not private.take_visit_under_way(l.id) order by l.starts_at, l.id;
+do $$
+declare r text; m text; n timestamptz := private.now();
+begin
+  foreach m in array array['force_custom_plan', 'force_generic_plan'] loop
+    perform set_config('plan_cache_mode', m, true);
+    for r in execute format('explain execute f2q(%L, %L)', pg_temp.m1(), n) loop
+      raise notice 'F2DIAG % | %', m, r;
+    end loop;
+  end loop;
+  perform set_config('plan_cache_mode', 'auto', true);
+  for r in select relname || ' reltuples ' || c.reltuples || ' relpages ' || c.relpages || ' blocks ' || pg_relation_size(c.oid) / 8192
+             || ' last_analyze ' || coalesce(greatest(s.last_analyze, s.last_autoanalyze)::text, 'never')
+           from pg_class c join pg_stat_user_tables s on s.relid = c.oid
+           where s.schemaname = 'public' and s.relname in ('order_takes', 'partner_requests', 'care_visits') loop
+    raise notice 'F2DIAG stats | %', r;
+  end loop;
+end $$;
+deallocate f2q;
 insert into public.care_visits (organization_id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', pg_temp.cv(), pg_temp.tv(), date '2026-10-29' - i, t.s, t.e,
