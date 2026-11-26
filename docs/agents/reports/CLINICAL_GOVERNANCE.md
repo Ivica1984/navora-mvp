@@ -16,6 +16,69 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-26 21:30 CET: gate on **#1790** HD-3s «Geteilter Dienst (zwei Blöcke) im Heimplan, feste Regeln» (Block HEIM-DP), ready head `27cb1fc6`; `eng` gate questions and the second-review question on R-c; founder clarification 7201934395. **`cra-gate: #1790 27cb1fc6 clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). Two new advisory findings (CGR-287, CGR-288), both to named follow-up items (FE-089 (3)). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `a96d7218`. Since my 2026-11-25 16:44 section: HD-3a and ORDER-F1 accepted for the simulation (`ABNAHMEAKTE.md` §2, `217a9a58`), AUT-220 merged (test guard, no product rule), role docs and PO cycles. `FOUNDER_DECISIONS.md`: FE-131 (stabilisation order) and FE-132 (Render read-only access): no clinical content. Blueprint 3.2.89 to 3.2.92: version table only; **Annex B §1 (20 guarantees) and the qualification matrix unchanged**; Handbook V2.2 unchanged. No FE-079 renewal due; my sign-off on #1279 stands (reservation CGR-221).
+- #1790 head `27cb1fc6` (28 files): `private.institution_split_problem.sql`, `private.institution_shift_minutes.sql`, `private.institution_rule_breaches.sql` (whole files), `private.institution_gap_order_args.sql`, the diffs of `draft.ts`, `draft-screen.ts`, `rules.ts`, `split.ts` (whole), the test list of pgTAP 182 (§1 to §8) and of unit `hd3s-split-shift`, e2e `hd3s-split-shift.spec.ts` (gap assertions). PR comments: `eng` second review 7193061731, ready report 7193712249, PO window 7195177516, `lca` gate 7195331421, founder 7201934395, `eng` answer 7201953843.
+- CI on the head, read by me through the API: check runs `app`, `db`, `e2e`, `ui-screenshots`, `staging`, `codeql` all `success`. Job logs read in part: `db` 139941541865 «182_hd3s_split_shift.test.sql … ok», «Files=179, Tests=7197 … Result: PASS»; `e2e` 139941541654 «230 passed». `ci-repeat` 10/10 not run (belongs to acceptance on the integrated commit).
+- **Timing (honest):** the window deadline was 18:39 CET; this run started after it (the scheduled start at 15:44 was refused, PO 15:39). The head is unchanged since the window opened. Whether this line counts for the window is for `po` (`PO_MERGE_PROCESS.md` §4a).
+
+### Answers to `eng`'s gate questions (ready report 7193712249)
+
+1. **Does a split shift fill only its own cell, never an early or late gap? Yes.** pgTAP 182 §5: after take-over the split cell with 1 of 2 stays `gap`, and the early cell still misses 1 although the split person is present in the morning; unit «minimum staffing (fail closed): a person in the split shift never fills the early shift gap». This errs on the safe side: coverage is never overstated. (Minimum staffing stays per shift type, not per hour; the home sets it.)
+2. **Is the gap reason right when nobody is free? Yes.** `gapOf` is unchanged from HD-3a (counts per blocking rule, exact missing grade); a person on early or late is counted as busy for the split cell because the whole day `starts_at..ends_at` is her span (K3); unit «two split shifts … the second stays a gap with «Pensum ausgeschöpft»»; the e2e test names the gap texts. CGR-285 (grade-only wording) applies here as before; nothing new.
+3. **Does an absence on the work date refuse the shift? Yes.** Hand assignment on an absent day → `staff_absent` (pgTAP 182 §4, line 214), a block, not a warning; the draft rule R-d is unchanged and a split shift has one work date.
+4. **Should a split shift be preferred in the scarcity order? No clinical reason to change it.** The order is not a type priority: cells with the fewest eligible persons first, then date and start time (`draft.ts` lines 263-264, 337-349). NAVORA must not invent which kind of shift matters more clinically for a home; the split gap stays visible with its reason and both times, and the lead decides by hand. With founder point 4 (7201934395): keep as built. A home-set priority, if ever wanted, is for the Clinical Owner (UNKNOWN) and not this package.
+
+### Second-review question (R-c «class decides», 7193061731) and `lca` point 3
+
+**Not correct for real persons; acceptable for the simulation: CGR-287.** A split type always has class `split`, which fits `no_night`; V1–V5 allow blocks in the night (00:00–04:00 + 19:00–23:59). «Keine Nacht» can be a protection for a person's health or a legal limit (`lca` to name which), so it must not be satisfied by a label. I invent no night window; the remedy fails closed without one.
+
+### Other checks (IMPLEMENTED on the head)
+
+- Rest counts after block 2 and before block 1, never between the blocks (`institution_rule_breaches` R-f uses the whole-day span; pgTAP 182 §4; unit R-f 20:00 → 06:30 refused). This is the more protective reading (`lca`: no reduction to 8 or 9 h).
+- A shift inside the pause is a double booking (`staff_overlap`, pgTAP 182 §4); a split shift is one working day (§6).
+- Working minutes leave the pause out in the solver, the independent verifier (`workMinutes`, written apart) and the database (`institution_shift_minutes`). Per `lca`, this is right only if the person may leave the workplace during the gap; HD-3s-F3 holds that before real data. I agree with that placement: otherwise Pensum is understated (fatigue, H-50 family).
+- No external order for a split gap (fail closed, `split_shift_not_orderable` in `institution_gap_order_args` and the screen). The gap stays visible; nothing is silently half-ordered.
+- `draft-screen` refuses a draft when a split type has broken blocks or blocks without the class (fail closed).
+- No clinical, tariff, LTCF, PAG or MQI rule in the package; no health data (absence kinds unchanged). CR-258 added.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-287** | #1790 R-c for split shifts and «keine Nacht» | **advisory** for the simulation; **S1 before real staff data**; placement `po` (HD-3s-F4, R-k); not a merge condition (FE-089 (3)) | The shift model check reads only the class. Every split type has class `split`, and `split` fits `no_night`, whatever the block times. V1–V5 accept a block in the night. A person with «keine Nacht» is then planned on night work, with no warning in the draft and none on hand assignment. Before HD-3s the home itself classed a type as `night`; for split types it can no longer do so. | `private.institution_rule_breaches.sql` R-c (`t.shift_class in ('early', 'late', 'split')`); `draft.ts` `MODEL_ALLOWS.no_night`; `private.institution_split_problem.sql` (no time window); pgTAP 182 line 204 tests R-c only with 07:00–11:30 + 16:00–20:00 | Fail closed without inventing a window: (a) each split type carries a lead's mark «enthält Nachtarbeit ja/nein», audited; without a mark, or with «ja», `no_night` does not fit (draft refuses, hand assignment warns with `shift_model`, apply refuses); (b) once the founder and `lca` name the night window, the mark is checked against the block times; (c) pgTAP and unit: a `no_night` person on a split type with a 00:00–04:00 block → `shift_model`. |
+| **CGR-288** | HD-3s-F2 (external order with two blocks; founder point 1, 7201934395) | **advisory**; S2; for the F2 brief; not this PR | `eng` proposes «the pause free for the carer» (7201953843). A carer could then take a second order inside the pause of her own split assignment. The 14-h span counts the gap (`lca` 7195331421 (2)), and her weekly minutes and rest are read per order. A second take in the gap could escape these readings. | `eng` 7201953843 (1); `lca` 7195331421 (2); founder 7201934395 (1) | In the F2 brief: (a) a take inside the pause of the carer's own split assignment counts toward her weekly minutes and, once built, R-j; (b) rest is counted from the end of block 2; (c) the offer carries both blocks and the existing qualification guard unchanged; no automatic split into two orders; (d) pgTAP case for (a) and (b). |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1790 HD-3s | `27cb1fc6` | **`cra-gate: #1790 27cb1fc6 clear`**, gate «Simulation, synthetic data». Checked: a split shift fills only its own cell (never overstates coverage); gap reason plan data, unchanged; absence on the work date blocks; rest after block 2, never between blocks; pause is a double booking; one working day; pause not counted in solver, verifier and database alike; split gap not orderable (fail closed); no health data. Not checked by me: 390/1440 px readability (`uxa`), ArG reading (`lca`, given). Before real data: CGR-287, HD-3s-F3, F5. Acceptance still needs the integrated commit, `ci-repeat` 10/10 and the `ABNAHMEAKTE.md` record (README rule 12). |
+
+Not reviewed as gates: #1794 (HD-3a-F1 red probe, do not merge; it shows the CGR-286 gap), #1767, #1716, #1612, #1611, #1541, #1540 (not the active package).
+
+### Founder clarification 7201934395 (Clinical Architect 2026-11-26; recommends, decides nothing)
+
+- **(1) External order with both blocks:** clinically the right direction (one person for both blocks, continuity within the day; qualification unchanged). F2 as an immediate follow-up, with CGR-288 in its brief. Until then, a split shift with a minimum staffing in a real home has no external cover path; it must stay a visible gap (as built).
+- **(2) Monthly budget, six days in a row:** today's build matches it except the budget period (weekly, `eng` deviation). For the follow-up (HD-3a-F3 proposed): a monthly budget allows heavier weeks, so rest (R-f), days in a row (R-g) and, once built, R-i and R-j must stay per week or per day, not per month. Which month counts and how the monthly target is set: UNKNOWN, owner founder; `lca` before real data.
+- **(3) HD-3a-F1:** the approved direction (missing Pensum refuses the row; missing Wochensoll refuses the whole take-over) meets the remedy of my CGR-286 (a) for the apply path. CGR-286 stays open until code and a test show it, including the hand-assignment warning. Recording the founder rules in `FOUNDER_DECISIONS.md` is the PO's job; not yet done.
+
+### Decisions requested
+
+- **`po`:** decide whether this line counts for the window after 18:39; merge this PR; place CGR-287 (HD-3s-F4) and CGR-288 (HD-3s-F2 brief); record the founder clarification 7201934395 in `FOUNDER_DECISIONS.md`; CGR-285, CGR-286 unchanged.
+- **`eng`:** none for HD-3s; the two remedies when the follow-ups are briefed.
+- **founder and `lca`:** the night window for split blocks (CGR-287, R-k); applicability of the ArG to the Phase B home (`lca` 7195331421).
+- **Clinical Owner (UNKNOWN):** unchanged: FE-130 severity definitions, rest-time override, CGR-273, CGR-276, CGR-278, PERF1-F1, CGR-267 (D-29).
+
+### Findings closed with evidence
+
+- None in this run. CGR-286 is not closed: the founder approved its remedy direction (HD-3a-F1), code and test are still missing.
+
+---
+
 ## 2026-11-25 16:44 CET: gate on **#1729** HD-3a «Optimierung (feste Regeln)» (Block HEIM-DP), ready head `203507b`; FE-130 reading asked of `cra`. **`cra-gate: #1729 203507b clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). CGR-284 closed with evidence. Two new advisory findings (CGR-285, CGR-286), both to named follow-up items (FE-089 (3)). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
