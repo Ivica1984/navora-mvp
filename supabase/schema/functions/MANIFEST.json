@@ -592,6 +592,20 @@
       ]
     },
     {
+      "name": "private.order_offer_reasons",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "ORDER-F1-F5",
+        "with clock as materialized (select private.now() as now_)",
+        "q.ends_at <= c.now_",
+        "from clock c",
+        "t.acknowledged_at is not null",
+        "t.released_at is null",
+        "q.id <> o.id"
+      ]
+    },
+    {
       "name": "public.institution_withdraw_gap_order",
       "required": [
         "SECURITY DEFINER",
