@@ -3,7 +3,7 @@ id: ORDER-F1
 title: The client order list stays loadable as orders grow; a slow list never breaks /order
 author: po
 status: approved
-updated: 2026-11-25
+updated: 2026-11-26
 ---
 
 # ORDER-F1 — The client order list stays loadable as orders grow
@@ -85,7 +85,12 @@ Merged #1760 at head `d634d9a` → `992a7e3c`. Not yet accepted. The PO ran no t
 | T-1 «sent = shown» | met on head | `bk-a-order.spec.ts` green in `e2e` 139544531663 |
 | T-2 list-only error | met on head | `order-f1-list-degrade.spec.ts` 390/1440 px green |
 | `staging-smoke` paths 1–7 on merge commit, no `57014` | partly met (2026-11-26 00:39) | 0178 applied to `navora-staging` by `staging` job 139573817375 (run on `0accd105`, contains `992a7e3c`: «Applying migration 20261021000178…», «Finished supabase db push»); `staging` job on `992a7e3c` then «Remote database is up to date». Smoke 45715319587 on `992a7e3c`: red at sign-in, Render switched `0accd105`→`89fe091e` during the run (deploy swap, warning in log), no app finding. Smoke 45719590699 attempt 2 on `89fe091e` (contains ORDER-F1, later commits docs only): Render served `89fe091e` before and after; **paths 1–6 green** (incl. path 1 `/order` order listed, path 6 `/order` «Zurückgezogen»); **path 7 red** at line 483 as before (`heim-draft-summary` not found), screenshot artifact 15072658034. `57014` check in the Render log: OPEN (`eng`). |
-| `staging-smoke` paths 1–7 on the integrated commit, `ci-repeat` 10/10 | met (2026-11-26 09:39) | `staging-smoke` 45779137337 (job 139770939063) on `217a9a58` (contains ORDER-F1, F2, F3, F5), Render served `217a9a58` before and after: «8 passed». `ci-repeat` 45781858795 on `217a9a58`: 22/22 `success`, PO read all 20 raw logs (`db` «Files=178, Tests=7060», «Result: PASS» ×10; `e2e` «227 passed» ×10). `57014` in the Render log: **OPEN** (no Render workspace selected; owner choice). PO did not run tests locally. |
+| `staging-smoke` paths 1–7 on the integrated commit, `ci-repeat` 10/10 | met (2026-11-26 09:39) | `staging-smoke` 45779137337 (job 139770939063) on `217a9a58` (contains ORDER-F1, F2, F3, F5), Render served `217a9a58` before and after: «8 passed». `ci-repeat` 45781858795 on `217a9a58`: 22/22 `success`, PO read all 20 raw logs (`db` «Files=178, Tests=7060», «Result: PASS» ×10; `e2e` «227 passed» ×10). `57014` in the Render log: met 2026-11-26 11:39 (next row). PO did not run tests locally. |
+| No `57014` on `/order` in the Render log (as read by `eng`) | met (2026-11-26 11:39) | `eng` [#1780 7188943285](https://github.com/Ivica1984/navora-mvp/pull/1780#issuecomment-7188943285), read-only with founder approval for the workspace: positive control 6 × `orders.load_failed` `57014` on 25.11. 19:55–20:06 UTC; ORDER-F1 live 22:42:39 UTC (`dep-dc3m80g473hc738htocg`); none after, window to 26.11. 09:45 UTC; no `error`/`warn*`/`fatal` in the green smoke window on `217a9a58` (`dep-dc3ucjl9el5s73aopga0`). Not read by the PO in Render itself. |
 | No test skipped or weakened; CI green on head | met | diff read by the PO; all check runs `success` |
 
 Freeze of past orders: not done (inputs can change after end, ready report); brief rule held. Follow-ups: STG-SMOKE-1-F2, ORDER-F1-F1.
+
+## PO acceptance 2026-11-26 11:39 (scheduled run, signal (d))
+
+**Accepted for the simulation** (gate «Simulation, synthetic data») together with HD-3a, on the named commit `217a9a58` (ORDER-F1 incl. F2, F3, F5). All rows of the table above are met. Record: `docs/product/ABNAHMEAKTE.md` §2 «HD-3a … mit ORDER-F1». Probable, not proven: F2 and F3 removed the two team `57014` entries of 26.11. 00:15 UTC. Follow-ups (not conditions): ORDER-F1-F1, ORDER-F1-F3-UX, ORDER-F1-F4, ORDER-F1-F6, AUT-220 (brief `AUT-220.md`), STG-SMOKE-3, STG-OBS-1 (needs a Render API key as a GitHub secret; founder decision). Fixed rules only; no AI model. The PO did not run tests locally.
