@@ -23,13 +23,20 @@
 --     wall-clock limit of 4 s (half the 8 s authenticated statement timeout; target set by eng, estimate of CI speed)
 --     only catches order-of-magnitude regressions; the measured value is printed as a diagnostic.
 -- (5) Isolation: a member who is not in the client account reads none of the orders (existing pgTAP 135/147 unchanged).
+-- (6) AUT-220 (brief docs/agents/briefs/AUT-220.md): the budget (4) also holds under the three forced plans of pgTAP 181
+--     (index scans only; sequential scans with hash joins; the join order as written, nested loops only), one assertion
+--     per plan with the same bound (one eligibility check per order, at most 20 interval tests per order); the wall
+--     clock is asserted under the default plan only and printed with diag() for the forced plans. order_member_step is
+--     plpgsql and was planned and cached in section 3, so each pin also discards plans (the trap, see the helper); a
+--     probe proves per run that the pin reaches a warmed plpgsql body and that the availability clauses of
+--     order_member_step get different plans. The default-plan measurement is unchanged and runs first.
 -- The function guards (security definer, search_path, LEAVE1-3 access_ended, the window and the null-date clause) are in
 -- the generated pgTAP 157. Users: kundebs …9e8 (client). Synthetic: M1 (nurse in team T1, org 019, verified FaGe; and in
 -- team TV of org 011 for her visits). Pinned clock, moved forward only. Synthetic data only; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(27);
 
 -- ORDER-F1-F2 (PO 2026-11-26 01:39 point 3): every statement is bounded, so a stall goes red at its own line (psql prints
 -- «178_…test.sql:<line>: ERROR: canceling statement due to statement timeout» or «… lock timeout») instead of running into
@@ -58,6 +65,83 @@ create function pg_temp.bo(i int) returns uuid language sql immutable as $$
   select ('00000000-0000-4000-e178-' || lpad(i::text, 12, '0'))::uuid $$;
 create function pg_temp.calls(f text) returns bigint language sql volatile as $$
   select coalesce((select s.calls from pg_stat_xact_user_functions s where s.schemaname = 'private' and s.funcname = f), 0)
+$$;
+
+-- AUT-220 pinned plans (brief docs/agents/briefs/AUT-220.md). The four plan cases and pg_temp.pin() are copied from pgTAP
+-- 181 («Pinned plans»; one copy per file, ADR draft docs/engineering/probes/AUT-220_ADR_DRAFT.md point 4). Added here:
+-- the plpgsql plan-cache trap. A plpgsql body (private.order_member_step, private.recheck_member_takes) keeps its plan
+-- for the session, so a later enable_* change alone does not replan it (shown on PostgreSQL 16 by eng, 2026-11-26: a body
+-- warmed under the default plan read 20 rows by index under «seq scans only»; with discard plans, 10 000 by scan). So
+-- every pin also runs `discard plans` and, in the forced cases, plan_cache_mode = force_custom_plan; the probe below
+-- proves per run that the pin reaches a warmed plpgsql body and that the cases give different plans.
+create temp table plan_case (k text primary key, ord int, settings jsonb);
+insert into plan_case values
+  ('plan_default', 1, '{}'),
+  ('plan_index_only', 2, '{"enable_seqscan": "off", "plan_cache_mode": "force_custom_plan"}'),
+  ('plan_seq_hash', 3, '{"enable_indexscan": "off", "enable_bitmapscan": "off", "enable_indexonlyscan": "off", "enable_nestloop": "off", "plan_cache_mode": "force_custom_plan"}'),
+  ('plan_written_order', 4, '{"join_collapse_limit": "1", "from_collapse_limit": "1", "enable_hashjoin": "off", "enable_mergejoin": "off", "plan_cache_mode": "force_custom_plan"}');
+create temp table planner_default as
+select s.name, current_setting(s.name) as setting
+from unnest(array['enable_seqscan', 'enable_indexscan', 'enable_bitmapscan', 'enable_indexonlyscan', 'enable_nestloop',
+                  'enable_hashjoin', 'enable_mergejoin', 'join_collapse_limit', 'from_collapse_limit',
+                  'plan_cache_mode']) s(name);
+create function pg_temp.pin(p_k text) returns void language plpgsql as $$
+declare r record;
+begin
+  if not exists (select 1 from plan_case c where c.k = p_k) then raise exception 'AUT-220: unknown plan case %', p_k; end if;
+  for r in select d.name, coalesce(c.settings ->> d.name, d.setting) as v
+           from planner_default d left join plan_case c on c.k = p_k loop
+    perform set_config(r.name, r.v, true);
+  end loop;
+  execute 'discard plans';
+end $$;
+-- Probe: the settings a plpgsql body reads, and a plpgsql body warmed under the default plan (index, 20 rows) that must
+-- read all 10 000 rows once the case forbids index scans.
+create function pg_temp.pin_seen() returns jsonb language plpgsql stable as $$
+begin
+  return (select jsonb_object_agg(d.name, current_setting(d.name)) from planner_default d);
+end $$;
+create function pg_temp.pin_wanted(p_k text) returns jsonb language sql stable as $$
+  select jsonb_object_agg(d.name, coalesce(c.settings ->> d.name, d.setting))
+  from planner_default d left join plan_case c on c.k = p_k
+$$;
+create temp table probe_rows as select i as id, i % 500 as g from generate_series(1, 10000) i;
+create index on probe_rows (g);
+analyze probe_rows;
+create function pg_temp.probe_tick(x int) returns boolean language plpgsql volatile cost 0.0001 as $$ begin return true; end $$;
+create function pg_temp.probe_count(p int) returns bigint language plpgsql stable as $$
+declare n bigint;
+begin
+  select count(*) into n from probe_rows r where r.g = p and pg_temp.probe_tick(r.id);
+  return n;
+end $$;
+create function pg_temp.probe_ticks() returns bigint language sql as $$
+  select coalesce(sum(s.calls), 0)::bigint from pg_stat_xact_user_functions s where s.funcname = 'probe_tick'
+$$;
+create temp table pin_probe (k text primary key, settings_ok boolean, ticks bigint);
+create function pg_temp.probe(p_k text) returns void language plpgsql as $$
+declare t0 bigint;
+begin
+  perform pg_temp.pin('plan_default');
+  perform pg_temp.probe_count(7) from generate_series(1, 8);  -- warm: the body's plan is cached under the default plan
+  perform pg_temp.pin(p_k);
+  t0 := pg_temp.probe_ticks();
+  perform pg_temp.probe_count(7);
+  insert into pin_probe values (p_k, pg_temp.pin_seen() = pg_temp.pin_wanted(p_k), pg_temp.probe_ticks() - t0);
+  perform pg_temp.pin('plan_default');
+end $$;
+-- The plan shape of one statement of the measured function under each case (EXPLAIN, costs off).
+create temp table shape (k text primary key, plan jsonb);
+create function pg_temp.shape(p_k text, p_sql text) returns void language plpgsql as $$
+declare j json;
+begin
+  perform pg_temp.pin(p_k);
+  execute 'explain (costs off, format json) ' || p_sql into j;
+  insert into shape values (p_k, j::jsonb);
+  perform pg_temp.pin('plan_default');
+end $$;
+create function pg_temp.nodes(p jsonb) returns text language sql immutable as $$
+  select string_agg(x #>> '{}', ' > ') from jsonb_path_query(p, 'strict $.**."Node Type"') x
 $$;
 
 -- 0. Surface ---------------------------------------------------------------------------------------------------------------
@@ -302,23 +386,24 @@ select ok((select count(*) filter (where old_c) > 0 and count(*) filter (where n
           'both outcomes occur in the take comparison (an overlapping take of hers, and none)');
 
 create temp table fstat0 as select funcid, calls, total_time, self_time from pg_stat_xact_user_functions where schemaname = 'private';
-create temp table meas (ms numeric, n int, member_step bigint, visit_interval bigint);
+create temp table meas (k text primary key, ms numeric, n int, member_step bigint, visit_interval bigint);
 grant all on meas to authenticated;
-create function pg_temp.measure() returns void language plpgsql as $$
+create function pg_temp.measure(p_k text default 'plan_default') returns void language plpgsql as $$
 declare t0 timestamptz; n int; ms0 bigint := pg_temp.calls('order_member_step'); vi0 bigint := pg_temp.calls('visit_interval');
 begin
   perform pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
   set local role authenticated;
   t0 := clock_timestamp();
   select count(*) filter (where x.client_account_id = '00000000-0000-4000-a000-0000000003d9') into n from public.client_orders() x;
-  insert into meas values (extract(epoch from clock_timestamp() - t0) * 1000, n, 0, 0);
+  insert into meas values (p_k, extract(epoch from clock_timestamp() - t0) * 1000, n, 0, 0);
   reset role;
   perform pg_temp.as_owner();
-  update meas set member_step = pg_temp.calls('order_member_step') - ms0, visit_interval = pg_temp.calls('visit_interval') - vi0;
+  update meas set member_step = pg_temp.calls('order_member_step') - ms0, visit_interval = pg_temp.calls('visit_interval') - vi0
+   where meas.k = p_k;
 end $$;
 select pg_temp.measure();
 select diag('ORDER-F1 budget: client_orders() for 1 000 orders and 2 000 visits took ' || round(ms) || ' ms; order_member_step '
-            || member_step || ' calls, visit_interval ' || visit_interval || ' calls') from meas;
+            || member_step || ' calls, visit_interval ' || visit_interval || ' calls') from meas where k = 'plan_default';
 -- Diagnostic only (no assertion): where the time goes, per private function, during the one measured call.
 select diag('ORDER-F1 budget, per function: ' || string_agg(f.funcid::regprocedure::text || ' calls ' || (f.calls - coalesce(z.calls, 0))
             || ' total ' || round((f.total_time - coalesce(z.total_time, 0))::numeric) || ' ms self '
@@ -326,10 +411,64 @@ select diag('ORDER-F1 budget, per function: ' || string_agg(f.funcid::regprocedu
             order by f.self_time - coalesce(z.self_time, 0) desc))
 from pg_stat_xact_user_functions f left join fstat0 z using (funcid)
 where f.schemaname = 'private' and f.calls > coalesce(z.calls, 0);
-select is((select n from meas), 1000, 'the client lists all 1 000 budget orders');
-select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas),
+select is((select n from meas where k = 'plan_default'), 1000, 'the client lists all 1 000 budget orders');
+select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas where k = 'plan_default'),
           'ORDER-F1: one eligibility check per order and at most 20 interval tests per order (previous: 2 000 per order)');
-select ok((select ms < 4000 from meas), 'loose wall-clock limit: 1 000 orders list in under 4 s (statement timeout 8 s)');
+select ok((select ms < 4000 from meas where k = 'plan_default'),
+          'loose wall-clock limit: 1 000 orders list in under 4 s (statement timeout 8 s)');
+
+-- 6. AUT-220: the budget (4) under each forced plan, the same bound; wall time printed only ------------------------------
+create function pg_temp.measure_pinned(p_case text) returns void language plpgsql as $$
+begin
+  perform pg_temp.pin(p_case);
+  perform pg_temp.measure(p_case);
+  perform pg_temp.pin('plan_default');
+end $$;
+select pg_temp.measure_pinned(c.k) from plan_case c where c.k <> 'plan_default' order by c.ord;
+select diag('AUT-220 ' || m.k || ': client_orders() took ' || round(m.ms) || ' ms (not asserted), ' || m.n || ' orders; order_member_step '
+            || m.member_step || ' calls, visit_interval ' || m.visit_interval || ' calls')
+from meas m join plan_case c on c.k = m.k where m.k <> 'plan_default' order by c.ord;
+select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas where k = 'plan_index_only'),
+          'AUT-220 plan_index_only: one eligibility check per order and at most 20 interval tests per order');
+select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas where k = 'plan_seq_hash'),
+          'AUT-220 plan_seq_hash: one eligibility check per order and at most 20 interval tests per order');
+select ok((select member_step >= 1000 and visit_interval <= 20 * 1000 from meas where k = 'plan_written_order'),
+          'AUT-220 plan_written_order: one eligibility check per order and at most 20 interval tests per order');
+
+-- AUT-220 proof that the plans are forced: settings and a warmed plpgsql body, then the plan shapes of the availability
+-- clauses of private.order_member_step (canonical source supabase/schema/functions/private.order_member_step.sql, its
+-- visit and take clauses with the values of one budget order; a plan witness, the measurement above runs the real body).
+select pg_temp.probe(c.k) from plan_case c order by c.ord;
+select diag(format('AUT-220 probe %s: a warmed plpgsql body read %s rows', p.k, p.ticks))
+from pin_probe p join plan_case c on c.k = p.k order by c.ord;
+select ok((select bool_and(settings_ok) and count(*) = 4 from pin_probe),
+          'AUT-220: under every plan case a plpgsql body reads exactly the pinned planner settings');
+select ok((select ticks from pin_probe where k = 'plan_default') = 20
+          and (select ticks from pin_probe where k = 'plan_seq_hash') = 10000,
+          'AUT-220: the pin reaches a plpgsql body planned before it (20 rows by index, then all 10 000 without index scans)');
+select pg_temp.shape(c.k, format($q$
+  select exists (select 1 from public.care_visits v
+                 where (v.responsible_user_id = %1$L::uuid or v.covered_by = %1$L::uuid)
+                   and v.status in ('planned', 'on_the_way', 'started', 'paused')
+                   and (v.visit_date is null
+                        or v.visit_date between (%2$L::timestamptz at time zone 'UTC')::date - 4
+                                            and (%3$L::timestamptz at time zone 'UTC')::date + 4)
+                   and (v.visit_date is null
+                        or ((v.visit_date + coalesce(v.time_start, time '00:00')) at time zone 'UTC')
+                           between %2$L::timestamptz - interval '32 hours' and %3$L::timestamptz + interval '6 hours')
+                   and private.visit_interval(v) && tstzrange(%2$L::timestamptz, %3$L::timestamptz, '[)')
+                   and not exists (select 1 from public.order_takes vt
+                                   where vt.id = v.order_take_id and vt.order_id = %4$L::uuid))
+      or exists (select 1 from public.order_takes k
+                 join public.partner_requests q on q.id = k.order_id
+                 where k.member_id = %1$L::uuid and k.released_at is null and k.order_id <> %4$L::uuid
+                   and q.starts_at < %3$L::timestamptz and q.ends_at > %2$L::timestamptz
+                   and tstzrange(q.starts_at, q.ends_at, '[)') && tstzrange(%2$L::timestamptz, %3$L::timestamptz, '[)'))
+  $q$, pg_temp.m1(), o.starts_at, o.ends_at, o.id))
+from plan_case c, public.partner_requests o where o.id = pg_temp.bo(500) order by c.ord;
+select diag(format('AUT-220 shape %s: %s', s.k, pg_temp.nodes(s.plan))) from shape s join plan_case c on c.k = s.k order by c.ord;
+select cmp_ok((select count(distinct plan)::int from shape), '>=', 2,
+              'AUT-220: the four cases give the availability clauses of order_member_step at least two different plans');
 
 set local statement_timeout = '30s';
 -- 5. Isolation --------------------------------------------------------------------------------------------------------------
