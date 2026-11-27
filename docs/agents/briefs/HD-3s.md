@@ -2,8 +2,8 @@
 id: HD-3s
 title: Geteilter Dienst (zwei Blöcke) im Heimplan, feste Regeln
 author: po
-status: approved   # PO-Paketvertrag 2026-11-26 11:39 nach der HD-3a-Abnahme (FE-127 «po: Brief HD-3s nach HD-3a-Abnahme»)
-updated: 2026-11-26
+status: accepted   # für die Simulation teilabgenommen 2026-11-27 03:39 auf `5e9a0474` (ABNAHMEAKTE.md §2); Vertrag 2026-11-26 11:39
+updated: 2026-11-27
 ---
 
 # HD-3s — Geteilter Dienst (zwei Blöcke) im Heimplan
@@ -102,3 +102,20 @@ FE-117, FE-119, FE-120, FE-123, FE-127, FE-129; `HD.md` §5b/§5c; Regelentwurf 
 - **Noch nicht abgenommen:** Ursache Pfad-3-Rot benannt, dann `ci-repeat` 10/10 (`db`, `e2e`) auf einem integrierten Commit, dann `ABNAHMEAKTE.md` und Founder-Staging-Bericht.
 - **Korrektur PO-Nachtrag 21:39:** der Satz «Pause für die Pflegende frei» für HD-3s-F2 ist ersetzt: in HD-3s-F2 ist die Pause **besetzt** (`eng` 7203486480 (1); kein Founder-Auftrag für eine freie Pause; fail closed, erfüllt CGR-288 (a)/(b)). Vertrag: [`HD-3s-F2.md`](HD-3s-F2.md).
 - **`uxa`-Befunde als Folgepunkte (FE-089 (3)):** UXR-294 (mittel, vor realen Daten: Split-Formular macht still einen ungenutzten Ein-Block-Typ mit gleichem Kürzel zum geteilten Dienst) → **HD-3s-F6** (ablehnen mit Grund oder Änderung in der Erfolgsmeldung nennen; vor realen Daten). UXR-293 entfällt mit HD-3s-F2. UXR-295 bis UXR-298 (niedrig) → **HD-3s-F6** zusammen, Reihenfolge `po` nach HD-3a-F1.
+
+## PO acceptance 2026-11-27 03:39 (geplanter PO-Lauf, Signal FE-105 (1) (d): `ci-repeat` im Fenster, `eng` #1790 7207404185; Gate «Simulation, synthetische Daten»)
+
+Benannter Commit **`5e9a0474`** (enthält `7e48a7a4`; darüber nur Dokumentation). Der PO hat keine Tests lokal ausgeführt; Belege aus Job-Protokollen, Gate-Zeilen und dem Bereitbericht (#1790 7193712249).
+
+| Kriterium | Ergebnis | Beleg |
+|---|---|---|
+| Unit: Regeln V1–V5, R-b bis R-h, 0 Pflichtverstösse, Pause nie im Pensum, Ruhezeit nie zwischen den Blöcken, ein Arbeitstag | erfüllt | Bereitbericht 7193712249 (Tests je Regel); `app`-Job `ci` 45899843762 `success` |
+| Negativ: `split` an «nur Früh/Spät/Nacht» nie vorgeschlagen und in der DB abgelehnt; Dienst in der Pause `busy`; ungültige Blockform mit gleichem Grund | erfüllt | Bereitbericht; `cra-gate` 7202806794 clear; pgTAP im `db`-Job |
+| pgTAP: Schreibrecht nur `lead`/`planner` derselben Institution, Audit, Check-Constraints V1–V5, Übernehmen prüft beide Blöcke, «Arbeitstage pro Woche» im Bereich | erfüllt | `db` «Files=179, Tests=7197», «Result: PASS» in `ci` 45899843762 und 10/10 in `ci-repeat` 45922060591 (Rohprotokolle vom PO gelesen) |
+| Mindestbesetzung: geteilter Dienst füllt keine Früh- oder Spätlücke | erfüllt | `cra-gate` 7202806794 (Punkt 10); pgTAP im `db`-Job |
+| T-1 «übernommen = gezeigt» mit geteiltem Dienst; e2e 390 und 1440 px | erfüllt | `e2e` 10/10 «230 passed», 0 skipped, 0 failed, 0 flaky (`ci-repeat` 45922060591); `uxa-gate` 7203139137 clear |
+| `staging-smoke`: Pfad 7 grün, neuer Pfad 8 (geteilte Dienstart → vorschlagen → übernehmen → ein Tag mit zwei Zeiten); kein Timeout verlängert, kein Test übersprungen | erfüllt | `staging-smoke` 45901445047 «9 passed» auf `5e9a0474` (Render lieferte `5e9a0474`, `eng` 7204514910); roter Lauf 45899843787 Pfad 3: Render-Wechsel wahrscheinlich, nicht bewiesen (STG-SMOKE-3) |
+| Migration als ganze Datei, STAB1; `ci` grün auf dem Kopf; `staging`-Job; `ci-repeat` 10/10 | erfüllt | Merge-Protokoll 7203964368; `staging`-Job 140186862373 «Applying migration 20261021000182_hd3s_split_shift.sql»; `ci-repeat` 45922060591 22/22, Fensterurteil Job 140258626480 «Inside the e2e acceptance window» |
+
+**PO-Status: `accepted`** (Simulation, synthetische Daten). Keine Freigabe für reale Personen und Daten. Offen vor realen Daten: HD-3s-F1, F3, F4, F5, F6 (UXR-294), ArG-Lesart `lca`, HD-3a-F1. Nächstes Paket: HD-3s-F2 (#1808).
+
