@@ -89,7 +89,7 @@ import type { SignalLoad } from "@/features/signals/banner-state";
 import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel, teamOffersHref, teamOffersLabel } from "@/features/field/todo";
 import { placeLine } from "@/features/field/place";
-import { TAKE_HEADING, visitHeading } from "@/features/field/heading";
+import { TAKE_HEADING, takeBlocksLine, visitHeading } from "@/features/field/heading";
 import { TAKE_ENDED_STATUS, takeEndedText } from "@/features/field/take-end";
 import { TAKE_CANNOT_GO_LINE, fieldMoreItems, showTakeCannotGoLine } from "@/features/field/more-actions";
 
@@ -491,6 +491,8 @@ function VisitCard({
   const place = placeLine(visit.address, visit.plz, visit.ort, visit.from_take);
   // BK-e1b / UXR-239: a take card names the kind, never «ohne Namen»; UXR-237: the place line names the simulation limit.
   const heading = visitHeading(visit.client_name, visit.from_take);
+  // HD-3s-F2 (brief scope 3): a block card of a split shift names both blocks, never only its own.
+  const blocksLine = visit.from_take ? takeBlocksLine(visit.take_block, visit.take_blocks) : null;
   // BK-e1b / CGR-242 (c): a take visit ended before the start stays on her day, in text, never as «abgesagt».
   const takeEnded = takeEndedText(visit.system_end_reason);
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
@@ -544,6 +546,11 @@ function VisitCard({
         <div>
           <p className="text-lg font-bold tabular-nums">{time}</p>
           <h2 className="text-base font-semibold">{heading}</h2>
+          {blocksLine && (
+            <p data-testid="take-blocks" className="mt-1 text-sm text-stone-800">
+              {blocksLine}
+            </p>
+          )}
           {sameSlot && (
             // VIS2-3 (ADR-121): tells two cards of one client at one time apart; a fact, `info`, nothing refused.
             <p data-testid="same-slot-line" data-tone="info" className="mt-1 text-sm text-stone-700">

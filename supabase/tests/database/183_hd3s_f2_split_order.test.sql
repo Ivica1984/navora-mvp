@@ -15,13 +15,19 @@
 --   §8 invoice draft per visit: one live draft per block, ordered minutes per block (270 and 240, never 780), no refusal.
 --   §9 take_member_dropped per visit: block 2 is flagged only after its own start, under its own key.
 --   §10 the order lists of the home and the team read the minutes without the pause.
+--   §8b a correction of block 2 voids only the block-2 draft; block 1 keeps its live draft (review 7206259909 (1)).
+--   §11 /field (field_visits, 0184): each block card names both blocks; another member sees neither; a one-block take
+--       has no block line; anon cannot call it.
+--   §12 LEAVE1: after the access end the split prepare and send raise access_ended (review 7206259909 (2)).
+--   §13 clock-change days: the standard split counts 510 minutes on both 2027-03-28 and 2026-10-25; a block over the
+--       switch counts elapsed minutes (review 7206259909 (3)).
 -- Users: lead kundebs …9e8 (lead of «Testheim Rhein» …4c1, member of its client account …3c1); …a183-…02 viewer,
 -- …03 stranger, …04 planner, the seed lead …9ed of another home (…4c2); nurses …11, …12 (HF), …13 (FaGe) in team …b183-…01 of
 -- Testorganisation S (…b000-…019); …09 admin.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(57);
+select plan(70);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -279,6 +285,24 @@ select is((select string_agg(take_block || ':' || ordered_minutes || '/' || reco
 select is((select count(distinct take_id)::int from drafts), 1, '§8 both drafts belong to the one take (one price snapshot)');
 select is((select count(*)::int from public.team_invoice_drafts where order_id = pg_temp.id('o2') and state = 'refused'), 0,
           '§8 no refusal (no times_disagree against the whole window)');
+
+-- §8b A correction of one block voids only that block's draft (CGR-210 (b) per visit) --------------------------------
+create temp table corr (id uuid);
+grant all on corr to authenticated;
+insert into corr select (pg_temp.cmd(pg_temp.u('12')::text, format('select public.correct_report(%L, %L, null, %L)',
+  pg_temp.id('r2'), 'Korrektur Testfall', 'eeee0000-0000-4000-8183-000000000024')) ->> 'report_id')::uuid;
+select is(pg_temp.sign((select id from corr), 'eeee0000-0000-4000-8183-000000000025'), 'ok',
+          '§8b she signs the correction of block 2');
+select is((select string_agg(d.state || '/' || coalesce(d.void_reason, '-'), ',' order by d.seq) from public.team_invoice_drafts d
+           where d.visit_id = pg_temp.bv(pg_temp.id('o2'), 1)), 'draft/-',
+          '§8b block 1 keeps its one live draft (the correction of block 2 does not touch it)');
+select is((select d.state || '/' || d.void_reason from public.team_invoice_drafts d
+           where d.visit_id = pg_temp.bv(pg_temp.id('o2'), 2) and d.report_id = pg_temp.id('r2')), 'void/report_corrected',
+          '§8b the block-2 draft of the first version is void (report_corrected)');
+select is((select count(*)::int || '/' || max(d.report_version) from public.team_invoice_drafts d
+           where d.visit_id = pg_temp.bv(pg_temp.id('o2'), 2) and d.state in ('draft', 'sent')
+             and d.report_id = (select id from corr)), '1/2',
+          '§8b one new live block-2 draft from the corrected version 2');
 select set_config('navora.test_now', '2026-11-16 12:00:00+01', true);
 
 -- §9 take_member_dropped per visit (ADR-229 (5)) ------------------------------------------------------------------------
@@ -312,6 +336,18 @@ select is(pg_temp.cmd(pg_temp.lead(), format('select x.duration_minutes from pub
 select is(pg_temp.cmd(pg_temp.u('12')::text, format('select x.duration_minutes from public.team_order_offers() x where x.order_id = %L',
             pg_temp.id('o2'))) #>> '{}', '510', '§10 the team''s offer list reads 510 minutes, not 780');
 
+-- §11 /field names both blocks (field_visits, migration 0184; brief scope 3) ------------------------------------------
+select is(pg_temp.cmd(pg_temp.u('12')::text, $q$select string_agg(take_block || '|' || take_blocks, ',' order by take_block)
+            from public.field_visits('2026-11-20') where from_take$q$) #>> '{}',
+          '1|07:00 – 11:30 und 16:00 – 20:00,2|07:00 – 11:30 und 16:00 – 20:00',
+          '§11 /field: two cards for her, each names its block and both blocks (never only one)');
+select is(pg_temp.cmd(pg_temp.u('11')::text, format($q$select count(*)::int from public.field_visits('2026-11-20')
+            where visit_id in (%L, %L)$q$, pg_temp.bv(pg_temp.id('o2'), 1), pg_temp.bv(pg_temp.id('o2'), 2))) #>> '{}', '0',
+          '§11 another member of the team sees neither block card (BK-7: the named member only)');
+select ok(not has_function_privilege('anon', 'public.field_visits(date)', 'execute')
+          and has_function_privilege('authenticated', 'public.field_visits(date)', 'execute'),
+          '§11 field_visits: no anon execute, authenticated execute kept after the re-creation');
+
 -- One-block regression (pgTAP 148, 156, 161 stay unchanged): a one-block order writes one visit, take_block NULL.
 insert into ids values ('one', pg_temp.order_at('07:00', '11:00', 'eeee0000-0000-4000-8183-000000000013'));
 select pg_temp.act_as(pg_temp.u('12')::text);
@@ -323,6 +359,36 @@ select pg_temp.as_owner();
 select is((select count(*)::int || '/' || coalesce(max(take_block)::text, 'null') from public.care_visits v
              join public.order_takes k on k.id = v.order_take_id where k.order_id = pg_temp.id('one')), '1/null',
           'regression: one visit, no block number');
+select is(pg_temp.cmd(pg_temp.u('12')::text, format($q$select coalesce(take_block::text, 'null') || '|'
+            || coalesce(take_blocks, 'null') from public.field_visits('2026-11-19') where visit_id = %L$q$,
+            pg_temp.bv(pg_temp.id('one'), 1))) #>> '{}', 'null|null',
+          'regression: the /field card of a one-block take has no block line');
+
+-- §12 LEAVE1: an ended access cannot prepare or send a split order ------------------------------------------------------
+insert into public.organization_memberships (organization_id, user_id, role) values (pg_temp.org(), pg_temp.u('04'), 'nurse');
+insert into public.member_access_events (organization_id, user_id, kind, reason_code, actor_id) values
+  (pg_temp.org(), pg_temp.u('04'), 'ended', 'employment_ended', pg_temp.u('09'));
+select pg_temp.act_as(pg_temp.u('04')::text);
+set local role authenticated;
+select throws_ok(format('select public.institution_prepare_gap_order(%L, %L, %L, %L)', pg_temp.inst(), pg_temp.st(),
+                        pg_temp.sp(), '2026-11-19'),
+                 '42501', null, '§12 after the access end the planner''s split prepare raises access_ended');
+select throws_ok(format($q$select public.institution_send_gap_order(%L, '4102', 'nurse_hf_fh', '{A1}', '{}', null,
+                        'eeee0000-0000-4000-8183-000000000040')$q$, pg_temp.id('g1')),
+                 '42501', null, '§12 after the access end the split send raises access_ended (before any other answer)');
+reset role;
+select pg_temp.as_owner();
+
+-- §13 Clock-change days (Europe/Zurich): minutes are elapsed time, the pause never counted -----------------------------
+select is(private.order_work_minutes(private.at_zurich('2027-03-28 07:00'::timestamp), private.at_zurich('2027-03-28 11:30'::timestamp),
+                                     private.at_zurich('2027-03-28 16:00'::timestamp), private.at_zurich('2027-03-28 20:00'::timestamp)), 510,
+          '§13 spring change day 2027-03-28: the standard split counts 510 minutes');
+select is(private.order_work_minutes(private.at_zurich('2026-10-25 07:00'::timestamp), private.at_zurich('2026-10-25 11:30'::timestamp),
+                                     private.at_zurich('2026-10-25 16:00'::timestamp), private.at_zurich('2026-10-25 20:00'::timestamp)), 510,
+          '§13 autumn change day 2026-10-25: the standard split counts 510 minutes');
+select is(private.order_work_minutes(private.at_zurich('2027-03-28 01:00'::timestamp), private.at_zurich('2027-03-28 05:00'::timestamp),
+                                     private.at_zurich('2027-03-28 08:00'::timestamp), private.at_zurich('2027-03-28 12:00'::timestamp)), 420,
+          '§13 a block over the spring switch counts elapsed minutes (01:00–05:00 = 180, plus 240)');
 
 select * from finish();
 rollback;

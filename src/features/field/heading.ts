@@ -10,3 +10,11 @@ export function visitHeading(clientName: string | null | undefined, fromTake: bo
   if (fromTake) return TAKE_HEADING;
   return clientName ?? CLIENT_WITHOUT_NAME;
 }
+
+// HD-3s-F2 (brief scope 3; ADR-229 (3)): a two-block take writes one visit per block; each /field card names its block
+// and BOTH blocks, never only one. `blocks` comes from public.field_visits (take_blocks, migration 0184). Fail closed: a
+// missing or partial value shows no line rather than half a day.
+export function takeBlocksLine(block: number | null | undefined, blocks: string | null | undefined): string | null {
+  if ((block !== 1 && block !== 2) || !blocks) return null;
+  return `Teil ${block} von 2 · Geteilter Dienst ${blocks}`;
+}
