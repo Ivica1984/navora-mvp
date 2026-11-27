@@ -3,13 +3,16 @@
 # assignment of an overlapping visit to the same member, in two real, parallel database sessions. pgTAP runs inside
 # one transaction and cannot open a second session, so this check uses two psql processes (as order-take.sh).
 # The hand-assignment paths (plan_visit, reschedule_visit, move_visit_to_today, take_open_visit, AIG1 apply) never
-# refuse for an overlap: they return the server's `member_overlap` fact (PLAN3-16, ADR-161). `take_order` refuses a
+# refuse for an overlap with another visit: they return the server's `member_overlap` fact (PLAN3-16, ADR-161). Since
+# HD-3s-F2-F1 they refuse inside the window of her own live take (`member_take_window`, CGR-289 (c)). `take_order` refuses a
 # member with an overlapping open visit (step 3, CGR-204 (a)). Both readings must be serialisable per member:
 #   Case 1, take first: the take (and its visit) is uncommitted when the member takes an overlapping open visit.
-#           The race must end in the serial outcome «take, then hand» (0135 §10, 0138 §3; CGR-255): the hand write's
-#           automatic re-check (`bk_c1_recheck_takes` → `private.recheck_member_takes`) waits for the take, sees it
-#           committed and releases it with `step_3`; the take visit is `cancelled`; the open visit is hers; the hand
-#           path then reads `member_overlap: false`. No refusal is asked of the hand path (CGR-137).
+#           The race must end in the serial outcome «take, then hand». HD-3s-F2-F1 (CGR-289 (c), PO decision 2026-11-27,
+#           ADR-230, migration 0185) changed that serial outcome on purpose: the hand path no longer writes into the
+#           window of her live take and lets the re-check release the take silently (the CGR-255 outcome of 0135 §10 /
+#           0138 §3); it waits for the take under the same person lock, sees it committed and rejects with
+#           `member_take_window`. So: the take stays live (no `step_3` release), the take visit stays `planned`, the open
+#           visit stays open, nothing is written by the hand path.
 #   Case 1s, serial control: the same two commands one after the other (take committed first, no sleep); same values.
 #   Case 2, visit first: the member's take of an open visit is uncommitted when a take naming her for an overlapping
 #           order runs. The take must wait and then refuse with step 3 (`member_not_eligible:3`) and write nothing.
@@ -119,12 +122,12 @@ commit;
 SQL
 }
 
-take_open() {  # $1 visit, $2 seconds to hold → prints result:member_overlap (M1 takes the open visit, PLAN3-16 fact)
+take_open() {  # $1 visit, $2 seconds to hold → prints result:reason, else result:member_overlap (PLAN3-16 fact)
   psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 <<SQL
 begin;
 set local request.jwt.claims to '{"sub":"$M1","role":"authenticated"}';
 set local role authenticated;
-select (r ->> 'result') || ':' || coalesce(r ->> 'member_overlap', 'null')
+select (r ->> 'result') || ':' || coalesce(r ->> 'reason', r ->> 'member_overlap', 'null')
   from public.take_open_visit('$1', gen_random_uuid(), null) r;
 select pg_sleep($2);
 commit;
@@ -152,19 +155,22 @@ offers=$(q "select count(*) from public.order_offers where order_id in ('$O1', '
 fail=0
 
 # «take, then hand» (case 1 and 1s): $1 label, $2 order, $3 visit, $4 take result, $5 hand result.
+# HD-3s-F2-F1 (CGR-289 (c)): the hand path is rejected with member_take_window; the take stays live.
 check_take_then_hand() {
-  local rel tvc r inv
+  local rel live tvc r inv
   rel=$(q "select count(*) from public.order_takes where order_id = '$2' and member_id = '$M1'
-           and released_at is not null and release_reason = 'step_3'")
+           and released_at is not null")
+  live=$(q "select count(*) from public.order_takes where order_id = '$2' and member_id = '$M1' and released_at is null")
   tvc=$(q "select string_agg(v.status, ',' order by v.status) from public.care_visits v
            join public.order_takes k on k.id = v.order_take_id where k.order_id = '$2'")
   r=$(q "select count(*) from public.care_visits where id = '$3' and responsible_user_id = '$M1' and status <> 'cancelled'")
   inv=$(invariant)
-  echo "$1: take: $4; open visit: $5; take released step_3: $rel; take visit: ${tvc:-none}; open visit assigned: $r; invariant violations: $inv"
-  if [ "$4" = "ok" ] && [ "$5" = "ok:false" ] && [ "$rel" = "1" ] && [ "$tvc" = "cancelled" ] && [ "$r" = "1" ] && [ "$inv" = "0" ]; then
-    echo "ok - CGR-255 $1: serial outcome «take, then hand» (take released step_3, take visit cancelled, open visit hers, member_overlap false)"
+  echo "$1: take: $4; open visit: $5; take released: $rel; take live: $live; take visit: ${tvc:-none}; open visit assigned: $r; invariant violations: $inv"
+  if [ "$4" = "ok" ] && [ "$5" = "rejected:member_take_window" ] && [ "$rel" = "0" ] && [ "$live" = "1" ] \
+     && [ "$tvc" = "planned" ] && [ "$r" = "0" ] && [ "$inv" = "0" ]; then
+    echo "ok - CGR-255/CGR-289 $1: serial outcome «take, then hand» (hand rejected member_take_window, take live, take visit planned, open visit open)"
   else
-    echo "not ok - CGR-255 $1: expected take ok, open visit ok:false, take released step_3, take visit cancelled, open visit hers, invariant 0"
+    echo "not ok - CGR-255/CGR-289 $1: expected take ok, open visit rejected:member_take_window, take live (not released), take visit planned, open visit open, invariant 0"
     fail=1
   fi
 }
@@ -185,7 +191,7 @@ check_hand_then_take() {
 }
 
 pick_take() { grep -E '^[a-z_]+(:[0-9])?$' "$1" || true; }
-pick_hand() { grep -E '^[a-z_]+:(true|false|null)$' "$1" || true; }
+pick_hand() { grep -E '^[a-z_]+:(true|false|null|[a-z_]+)$' "$1" || true; }
 
 # Case 1: take first (held 2 s), the hand path 0.7 s later.
 take "$O1" 2 > "$tmp/t1" &

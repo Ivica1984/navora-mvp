@@ -137,7 +137,7 @@ begin
     tk := private.member_take_window(who, private.visit_interval(new), new.order_take_id);
     if tk is not null then
       raise exception 'member_take_window'
-        using errcode = 'P0001', detail = 'The visit lies in the window of a live take of its person (take ' || tk::text || ').',
+        using errcode = 'P0001', detail = 'The visit lies in the window of a live take of its person.',
               hint = 'Plan another person or another time; the take is released only through its own release.';
     end if;
   end loop;

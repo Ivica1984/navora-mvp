@@ -11,7 +11,7 @@ import { workDateLabel } from "@/features/team/take-window";
 // same visit at 20:00–20:30 (after block 2) is saved. Fixed, checkable rules, no AI. Synthetic local accounts only.
 // Fixture (local database only): the split order is prepared, sent and taken through the real commands as the home lead
 // and as pflegebs (the UI of that path is the HD-3s-F2 spec); a synthetic case «Testfall F1 <width>» in Testteam Basel
-// (copy of seed case …208). Weeks 23 and 24 ahead, Thursday: no other spec uses them (hd3s-f2 20–21, hd3s 17).
+// (copy of seed case …208; an RFC 4122 variant id, the app validates ids with z.uuid()). Weeks 23 and 24 ahead, Thursday: no other spec uses them (hd3s-f2 20–21, hd3s 17).
 const PASSWORD = "navora-local-only";
 const PLANNER = "kolleginbs.test@navora.test";
 const LEAD = "00000000-0000-4000-a000-0000000009e8"; // kundebs, lead of «Testheim Rhein»
@@ -61,7 +61,7 @@ function splitTake(day: string, width: number): string {
   const took = JSON.parse(as(NURSE, `public.take_order('${sent.order_id}', '${TEAM}', '${NURSE}', gen_random_uuid())`));
   expect(took.result, `take ${JSON.stringify(took)}`).toBe("ok");
   // The case the colleague plans for (needs assessment done, no automatic plan), one per width.
-  const caseId = `00000000-0000-4000-c185-00000000${String(width).padStart(4, "0")}`;
+  const caseId = `00000000-0000-4000-8185-00000000${String(width).padStart(4, "0")}`;
   psql(`insert into public.cases
         select (jsonb_populate_record(k, jsonb_build_object('id', '${caseId}', 'organization_id', '${ORG}',
           'assigned_team_id', '${TEAM}', 'first_name', 'Testfall', 'last_name', 'F1 ${width}', 'auto_planning', false,
@@ -99,7 +99,7 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     const live = () => psql(`select count(*) from public.order_takes where order_id = '${orderId}' and member_id = '${NURSE}'
                                and released_at is null`);
     const visitsOfCase = () => psql(`select count(*) from public.care_visits
-                                       where case_id = '00000000-0000-4000-c185-00000000${String(width).padStart(4, "0")}'`);
+                                       where case_id = '00000000-0000-4000-8185-00000000${String(width).padStart(4, "0")}'`);
     expect(live()).toBe("1");
 
     // 1. The colleague opens the case and plans 12:00–13:00 for pflegebs: the form reads her as busy (CGR-289 (b)).
@@ -132,6 +132,8 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     // 3. Negative: after block 2 (20:00–20:30) the same visit is saved and listed; the take is still live.
     await form.getByLabel("Von").fill("20:00");
     await form.getByLabel("Bis").fill("20:30");
+    await expect(note).toHaveAttribute("data-read", "yes");
+    await expect(note).not.toContainText("hat zu dieser Zeit schon einen Einsatz");
     await form.getByRole("button", { name: "Einsatz speichern" }).click();
     await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:00–20:30");
     expect(visitsOfCase()).toBe("1");
