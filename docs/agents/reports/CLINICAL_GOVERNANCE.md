@@ -16,6 +16,49 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-28 00:41 CET: gate on **#1838** HD-3a-F1 «übernehmen prüft Pensum und Wochensoll in der Datenbank (fail closed)» (Block HEIM-DP), stable head `4a210609`; PO gate start (FE-089 (2), FE-091), window [7230323014](https://github.com/Ivica1984/navora-mvp/pull/1838#issuecomment-7230323014) (due 03:39). **`cra-gate: #1838 4a210609 clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). CGR-286 met for the apply path on the PR (closes on merge for that path); its hand-assignment part stays open and goes to the named proposal HD-PEN-HAND / `ENG-PH1` (FE-089 (3)). No new finding. No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `cf35b17a`. Since my 18:44 section: #1825 HD-3s-F2-F1 merged and accepted for the simulation on `bfa275ae` (Blueprint 3.2.102 to 3.2.104: version table and block map only; **Annex B §1 (20 guarantees) and the qualification matrix unchanged**; Handbook V2.2 unchanged); `eng` journals 21:15, 22:10; proposal HD-PEN-HAND and decision row `ENG-PH1` (`po`). No new founder decision (FOUNDER_DECISIONS v90 = FE-091 note (ac)).
+- #1838 head `4a210609` (35 files): canonical `public.institution_apply_draft.sql` diff (new lock order persons → shift types `for share` → home `for share` → cells; repeat lookup before the new check; `weekly_target_missing` for the whole call; `pensum_missing` per row, checked last before the save); the three setters with `p_expected` compared under the one `for update` lock (`institution_set_staff_planning.sql` read whole); `/heim` page, `commands.ts`, `rules.ts` diffs (name line per refused person, link to her Pensum field, only the apply id in the URL); pgTAP 185 assertions; e2e `hd3a-f1-apply-checks.spec.ts` assertions; brief `HD-3a-F1.md` and its fixed residual list; `eng` ready report [7230256465](https://github.com/Ivica1984/navora-mvp/pull/1838#issuecomment-7230256465).
+- CI on the head, read by me through the check-runs API: `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run), `codeql` all `completed success`. The job-log figures («Files=183, Tests=7546», «234 passed», 4 skipped = ADR-113 midnight guards outside this package) are from `eng`'s report; I did not read the logs this run.
+
+### Answers to `eng`'s gate questions
+
+1. **(a) Does understaffing stay visible? Yes.** A refused row saves nothing, so its cell keeps its count from `institution_plan`; the week cell then reads «n von m · Lücke: k fehlt» (`cellStatusText`, `rules.ts` 253–267, unchanged, read from the database, not from the redirect). The name line «X: n Dienste nicht übernommen, weil kein Pensum eingetragen ist …» with the link is the reason and the next action on top of that; it is read back from the run record (`institution_draft_run_refusals`, T-1), also after a double click (`draft_already_applied` with refusals). The name line disappears on the next navigation, but the gap does not: that is the durable signal, and it is the same one the lead already uses for every other gap (HD-2 external order path unchanged). Enough for the simulation. Not tested by me: an e2e assertion that the refused cell shows «Lücke» after a partial take-over (the e2e checks `savedInWeek(victim) = 0`); not a condition (the gap display is HD-3a code under existing tests).
+2. **(b) Is there a path that saves a row without the hours check? On «übernehmen»: no** (read in the function: Wochensoll NULL → `invalid` before any run record or audit; Pensum NULL → `pensum_missing` for that row; a lowered Pensum still goes through `institution_assign_staff` → `institution_rule_breaches` R-h; the person row is `for update`-locked and the home `for share`-locked to commit, so neither value can change between check and save). pgTAP 185 (Pensum cleared → only that row; Wochensoll cleared → whole call, 0 runs, 0 audits; lowered Pensum → R-h; retry → `already_applied`, no second audit) and e2e T-2. **The hand assignment of a person without Pensum (or in a home without Wochensoll) still saves without R-h and without a warning:** tolerable **for the simulation only** (synthetic staff, mark «Arbeitszeitgesetz nicht abschliessend geprüft» stays); before real staff data it must warn (S2). This is the open remainder of CGR-286; it is outside the brief's fixed residual list, so it is no merge condition (FE-089 (3)).
+3. **R-6-2 (b) (planning inputs under the row lock):** the compare runs after the `for update` of the one row, a missing key is `expected_not_valid` (not «nicht eingetragen»), 42 = 42,0 compared numerically; two sessions from the same shown Pensum: one wins, one `changed_meanwhile`, one audit (`home-plan-assign.sh` J, per `eng`). I accept the two-session proof in the concurrency script instead of pgTAP (pgTAP cannot open a second session). The deploy window (old app against new setters → «failed», nothing written) fails closed: accepted.
+
+### Findings
+
+No new finding.
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-286** (narrowed) | Hand assignment without Pensum or Wochensoll | **advisory**; S2 (before real staff data); placement `po` (HD-PEN-HAND, decision `ENG-PH1`); not a merge condition for #1838 | Apply path: met on #1838 (below). Remaining: `private.institution_rule_breaches` still skips R-h when Pensum or Wochensoll is NULL, so a hand assignment of such a person is saved with no warning and no override mark: the weekly hours limit is silently not watched (fatigue, H-50 family). | `private.institution_rule_breaches.sql` R-h block (`if p.pensum_pct is not null and h.weekly_target_hours is not null`), unchanged by #1838; `eng` ready report, known limit and F-1 | As before, hand part only: `institution_rule_breaches` returns a rule (e.g. `pensum_unknown`) when Pensum or Wochensoll is NULL, so the hand assignment warns and stores the confirmation (`override_rules`); pgTAP: hand assignment without Pensum → `warning`; confirm → saved with the rule in `override_rules` and audit. |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1838 HD-3a-F1 | `4a210609` | **`cra-gate: #1838 4a210609 clear`**, gate «Simulation, synthetic data». Checked: no row saved by «übernehmen» without Pensum and Wochensoll (fail closed, whole call or row); retry answers from the run record before the new check (no false «nothing saved»); refused rows stay visible gaps; the person and next action named, no id or name in the URL; planning inputs compared under the write lock; all guards kept (security definer, `search_path ''`, LEAVE1-3, membership, locks, audit, grants; pgTAP 157 regenerated). Not a clinical release (D-27); `lca` before real data (contract hours). |
+
+### Findings closed with evidence
+
+- **CGR-286, apply path** met on #1838 `4a210609`: `institution_apply_draft` `weekly_target_missing` / `pensum_missing` (canonical file and migration 0186); pgTAP 185; e2e `hd3a-f1-apply-checks` (Pensum refusal 390/1440 px, Wochensoll refusal 390 px); CI all `success`. **Closes on merge for the apply path**; the FE-129 known limit ends with it. CGR-286 stays open for the hand path (above).
+
+### Still open (unchanged)
+
+- CGR-291 (`HD-3s-F2-F1-F1`), CGR-290 (`HD-3s-F2-F2`), CGR-287 (night window, `lca`/Clinical Owner); rest-time rule in the order path UNKNOWN (CGR-221).
+
+### Decisions requested
+
+- **po (`ENG-PH1`):** Clinical Architect 2026-11-28 (recommendation, decides nothing): yes to HD-PEN-HAND, as a warning with confirmation (no block, no new rule), placed before HD-3b acceptance or at the latest before real staff data; it closes the rest of CGR-286.
+- No clinical, legal or owner decision requested by this section.
+
+---
+
 ## 2026-11-27 18:44 CET: gate on **#1825** HD-3s-F2-F1 «Handweg sieht die Pause einer geteilten Übernahme als belegt» (Block HEIM-DP), stable head `54d0eb4e`; PO gate start (FE-089 (2), FE-091), window [7224685428](https://github.com/Ivica1984/navora-mvp/pull/1825#issuecomment-7224685428) (due 21:39). **`cra-gate: #1825 54d0eb4e clear`** (gate «Simulation, synthetic data»; fixed rule, no model; not a clinical release, D-27). CGR-289 met on the PR (closes on merge). One new advisory finding (CGR-291) to the named follow-up `HD-3s-F2-F1-F1` (FE-089 (3)). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
