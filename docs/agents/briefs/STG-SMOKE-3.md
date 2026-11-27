@@ -67,3 +67,22 @@ Ein halb gelaufener Pfad kann Daten hinterlassen, die die Wiederholung rot mache
 ## Vision check (FE-070 (7), kurz)
 
 Mehr Pflegezeit nur indirekt: kürzere Abnahmewartezeit für jedes folgende Paket; keine Hierarchie, kein Geldfluss, keine Daten. Schätzung `eng`: 2 Läufe (Schätzung, nicht gemessen).
+
+## PO-Entscheid zur Abweichung (2026-11-27 08:39, Merge #1821)
+
+`eng` meldete ([7212008842](https://github.com/Ivica1984/navora-mvp/pull/1821#issuecomment-7212008842)): ein `workflow_dispatch`-Lauf auf dem Zweig ist nur möglich, wenn der Wächter «Only reviewed code gets the secrets» geschwächt wird; zudem würde `notify` ein `agents`-Issue öffnen. **Entscheid PO:** Das Kriterium «`workflow_dispatch`-Lauf auf dem Zweig (grüner Pfad)» wird ersetzt durch: der erste automatische `staging-smoke`-Lauf auf einem integrierten Commit, der `4130c011` enthält, zitiert mit seiner Urteilszeile («green: click paths green on the first run …» oder der Wiederholungszeile). Der Wächter bleibt unverändert. Ersetzt ein Kriterium, fügt keines hinzu (FE-089 (3)). Antworten auf die Prüffragen 1–3: im Merge-Protokoll [7212723196](https://github.com/Ivica1984/navora-mvp/pull/1821#issuecomment-7212723196).
+
+## PO-Prüfung (Stand 2026-11-27 08:39; PO hat keine Tests lokal ausgeführt)
+
+| Kriterium | Ergebnis | Beleg |
+|---|---|---|
+| `id: paths`, `continue-on-error`, `SERVED_BEFORE`/`SERVED_AFTER` | erfüllt (Diff gelesen) | #1821 `staging-smoke.yml` |
+| Genau ein `--last-failed`-Schritt, an den Wechsel gebunden | erfüllt (Diff gelesen; zusätzlich `FAILED_PATHS ∉ {'', '0'}`) | #1821 |
+| Urteilsskript, fail closed, Warnzeile | erfüllt (Diff gelesen) | `scripts/staging-smoke-verdict.mjs` |
+| Unit-Matrix und Katalogprüfung | grün auf CI | `app` 140353163160 «1944 tests passed» (laut `eng`; Check-Run `success`) |
+| Negativ: kein Pfad, Wächter, Timeout geändert; `notify` feuert | erfüllt (Diff gelesen) | #1821 |
+| `ci` grün auf dem Kopf | erfüllt | `ci` 45953066910, sechs Check-Runs `success` |
+| Grüner Pfad auf CI (ersetzt, siehe oben) | **OFFEN** | erster `staging-smoke` auf Commit mit `4130c011` |
+| `ci` auf dem Merge-Commit | **OFFEN** | läuft |
+
+PO-Status: **merged, nicht abgenommen.**
