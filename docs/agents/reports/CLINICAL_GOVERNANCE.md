@@ -16,6 +16,51 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-27 18:44 CET: gate on **#1825** HD-3s-F2-F1 «Handweg sieht die Pause einer geteilten Übernahme als belegt» (Block HEIM-DP), stable head `54d0eb4e`; PO gate start (FE-089 (2), FE-091), window [7224685428](https://github.com/Ivica1984/navora-mvp/pull/1825#issuecomment-7224685428) (due 21:39). **`cra-gate: #1825 54d0eb4e clear`** (gate «Simulation, synthetic data»; fixed rule, no model; not a clinical release, D-27). CGR-289 met on the PR (closes on merge). One new advisory finding (CGR-291) to the named follow-up `HD-3s-F2-F1-F1` (FE-089 (3)). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `69822743`. Since my 04:45 section: #1808 HD-3s-F2 merged and accepted for the simulation on `1aeb5459`; STG-SMOKE-3 (b) accepted as test guard; FE-137 (founder: reduce waiting, protect the delivery flow; no quality relaxation, (6)). Blueprint 3.2.97 to 3.2.101: version table and block map (HEIM-DP active, BK-d/BK-g formally deferred); **Annex B §1 (20 guarantees) and the qualification matrix unchanged**; Handbook V2.2 unchanged. No FE-079 renewal due; my sign-off on #1279 stands (reservation CGR-221).
+- #1825 head `54d0eb4e` (29 files): migration 0185 whole (`private.member_take_window`, `private.member_take_window_facts`, `private.guard_take_window` + trigger `care_visits_take_window`, `private.member_visit_overlap`, `public.member_slot_overlap`, `public.plan_visit`, `public.take_open_visit`, `public.reschedule_visit`); pgTAP 184 (§1–§10) and the 157 diff; `scripts/db-concurrency/take-visit.sh` diff; e2e `hd3s-f2-f1-take-window.spec.ts`; `src/features/team/take-window.ts`. Brief `briefs/HD-3s-F2-F1.md` (incl. PO decision path 10, 15:39). `eng` journals 14:12 and 18:10 (finding (f)).
+- CI on the head, read by me through the API: check runs `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run), `codeql` all `success`. Job logs read in part: `db` 140645196700 «Files=181, Tests=7462», «Result: PASS», «ok - CGR-255/CGR-289 case 1 (take first, race)» and «… case 1s (serial)»; `e2e` 140645196489 «234 passed», both `hd3s-f2-f1-take-window` cases (1440 px, 390 px) ✓. `ci-repeat` 10/10 not run (belongs to acceptance on the integrated commit).
+
+### Answers to `eng`'s gate questions
+
+1. **Is CGR-289 (a)–(c) closed by the database rejection on every hand path plus the backstop? Yes (met on the PR; closes on merge).**
+   - (a) `private.member_take_window` reads the whole order slot `[starts_at, ends_at)` of each live take of the person, pause included, the visit's own take excluded: the same window as `order_member_step` step 3. `member_visit_overlap` and `member_slot_overlap` now answer true there.
+   - (b) pgTAP 184 §2: 12:00–13:00 true, 20:00–21:00 false, 06:00–07:00 false (`member_slot_overlap`). `member_visit_overlap` true in the pause is shown through the day-plan confirm (§9, `overlap`); a direct `member_overlap: true` from `plan_visit` cannot occur any more, because the save is now rejected first. Accepted as meeting the criterion.
+   - (c) PO form: `plan_visit` (§3), `take_open_visit` and `reschedule_visit` (§4) reject with `member_take_window` and the take named; nothing written, both take visits unchanged, no `take_member_dropped`, the home still reads «Gedeckt» (§3). `move_visit_to_today` goes through `reschedule_visit` (0158 comment; not separately tested by me). Backstop: a direct insert and a slot update raise P0001 (§6); AIG1 apply fails closed in both forms (§9); a change of `order_take_id` alone is not re-checked, but no client role may update that column (§8). Privacy: the home is named only within the take's own team (§7, CGR-137).
+2. **Is the changed serial expectation in `take-visit.sh` case 1/1s right? Yes.** The old expected outcome («take, then hand» → the take released with `step_3`, its visit cancelled) is exactly the silent release CGR-289 was opened for. The new outcome (the hand path waits on the person lock, sees the committed take, rejects with `member_take_window`; take live, take visit `planned`, open visit stays open, invariant 0) is the serial outcome under the new rule, in the race and in the serial control. CI log shows both `ok`.
+3. **Absence plus take window: rejected instead of released (ABS1-C4 change). Accept? Yes, for the simulation.** In `reschedule_visit` the take-window check now runs before the ABS1-C4 release. Before: the visit moved and was released to «Offen im Team» (the take untouched, because the visit then has no person). Now: nothing moves, the visit stays at its old time with its person, one refusal row, and the lead reads the take named. Both outcomes are visible; neither overstates cover or releases a take silently; the absence keeps its own signals at the visit's old time. The rejection is the more conservative reading (nothing changes without the lead's next decision). `plan_visit` and `take_open_visit` still check absence first (`responsible_absent` / `absent`), unchanged. No clinical value is involved.
+4. **«Every live take counts, before and after its start»: right? Yes.** After the start the take is still her commitment (CGR-242 (e): no release after the start); a hand visit there is a double booking or a false P1. A take whose window lies in the past only blocks hand writes into that past window, where she was busy; documenting a completed visit is not touched (the trigger returns early for non-active status and for a status step of an unchanged slot).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-291** | #1825 day-plan proposal (`eng` finding (f), 14:12; AUT-235) | **advisory**; S3 (during the pilot); follow-up `HD-3s-F2-F1-F1`, placement `po`; not a merge condition (FE-089 (3)) | The day-plan proposal (`private.plan3_lines`) still builds a person's busy time from visits only, so it can propose her for a visit in the pause of her split take. The confirm fails closed (`overlap` for a day-plan line; `member_take_window` for another AIG1 line), the take stays live and no false P1 arises, but the proposed visit stays without a person until the lead plans again. Not a safety defect of the agreed flow; extra planning work and a proposal that contradicts the rule the hand path now applies. | `eng` journal 2026-11-27 14:12 (f); pgTAP 184 §9; `private.plan3_confirm_overlaps` → `member_visit_overlap` (0185) | (a) `plan3_lines` counts each live take window of the person (pause included) as busy, through `private.member_take_window`. (b) pgTAP: a live split take 07:00–11:30 / 16:00–20:00 and an open 12:00 visit → the proposal does not name her; a 20:30 visit → may name her. (c) ADR-230 «Known limits» names this until then. |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1825 HD-3s-F2-F1 | `54d0eb4e` | **`cra-gate: #1825 54d0eb4e clear`**, gate «Simulation, synthetic data». Checked: the take window (pause included) is busy on every hand path and in the form's read; the save is rejected with the take named, nothing written, the take stays live, no false P1, «Gedeckt» kept; backstop for every other writer; documentation of a visit never blocked; lock order consistent with CGR-255; one-block takes unchanged in kind (§5); privacy across teams (§7). Not checked by me: 390/1440 px readability of the text (`uxa`); staging path 10 (known limit, STG-P10, PO 15:39). Acceptance still needs the integrated commit, the `staging` job, `ci-repeat` 10/10 from the job logs and the `ABNAHMEAKTE.md` record (README rule 12). |
+
+### Findings closed with evidence
+
+- **CGR-289** met on #1825 `54d0eb4e`: migration 0185 (`member_take_window`; the three hand commands; `guard_take_window`); pgTAP 184 §2–§9; `take-visit.sh` case 1/1s `ok` (CI `db` 140645196700); e2e `hd3s-f2-f1-take-window` 390/1440 ✓ (CI `e2e` 140645196489). **Closes on merge** (H-60 → `mitigated-in-code`, PS-245 closes).
+
+### Still open (unchanged)
+
+- CGR-290 (block 2 after block 1, `HD-3s-F2-F2`, founder/`po`); CGR-287 (night window, `lca`/Clinical Owner); rest-time rule in the order path UNKNOWN (CGR-221).
+
+### Decisions requested
+
+- **po:** place CGR-291 as `HD-3s-F2-F1-F1` (as `eng` proposed).
+- No clinical, legal or owner decision requested by this section.
+
+---
+
 ## 2026-11-27 04:45 CET: gate on **#1808** HD-3s-F2 «Externer Auftrag mit zwei Blöcken (geteilter Dienst), feste Regeln» (Block HEIM-DP), ready head `fcfebf8d`; PO window 7209190459 (due 07:39); `eng` gate questions (ready report 7208647192). **`cra-gate: #1808 fcfebf8d clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). CGR-288 met on the PR (closes on merge). Two new advisory findings (CGR-289, CGR-290), both to named follow-up items `HD-3s-F2-F…` (FE-089 (3)). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
