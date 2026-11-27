@@ -1,91 +1,102 @@
 # NAVORA Founder Executive Report
 
-**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 47, Stand Freitag, 20. November 2026, 09:39 (Europe/Zurich), geplanter PO-Lauf 09:39 · **Vorausgabe:** KW 46 (13.11.2026, in der Git-Historie) · **Nächste Ausgabe:** Freitag, 27. November 2026 · **Rhythmus:** jeden Freitag neu (Prompt `po`)
+**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 48, Stand Freitag, 27. November 2026, 03:39 (Europe/Zurich), geplanter PO-Lauf 03:39 · **Vorausgabe:** KW 47 (20.11.2026, in der Git-Historie) · **Nächste Ausgabe:** Freitag, 4. Dezember 2026 · **Rhythmus:** jeden Freitag neu, im ersten Signal-Lauf des Freitags (FE-105)
 
-**Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Quellen: [Blueprint V3.2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md) §8 (Blockkette), §10 (Meilensteine und Kennzahlen), §11 (Entscheidungsboard); [`ABNAHMEAKTE.md`](ABNAHMEAKTE.md) §2; [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) v53. Der PO hat keine Tests selbst ausgeführt; alle Nachweise sind aus CI-Job-Protokollen gelesen. Jede Aussage ist gekennzeichnet: IMPLEMENTED, PLANNED, OPEN, UNKNOWN.
+**Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Quellen: [Blueprint V3.2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md) §8 (Blockkette), §10 (Meilensteine und Kennzahlen), §11 (Entscheidungsboard), Stand 3.2.96; [`ABNAHMEAKTE.md`](ABNAHMEAKTE.md) §2; [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) v88 (bis FE-136). Der PO hat keine Tests selbst ausgeführt; alle Nachweise sind aus CI-Job-Protokollen gelesen. Jede Aussage ist gekennzeichnet: IMPLEMENTED, PLANNED, OPEN, UNKNOWN.
 
 ## Auf einen Blick (1 Minute)
 
-- **Die Woche des Kernablaufs.** Block BK (der durchgehende Auftragsablauf) hat diese Woche vier Teilstücke für die Simulation abgenommen: **BK-b** (harte Prüfung, 17.11.), **BK-c** (Übernahme und Deckungsstand, 18.11.), **BK-e1** (Einsatz in `/field`, 18.11.) und **BK-e2**, damit **BK-e als Ganzes** (Berichtsentwurf und Unterschrift, 20.11.). Jede Abnahme auf einem benannten Commit mit `ci-repeat` 20/20. Gate jeweils: «Simulation, synthetische Daten», keine Freigabe für reale Personen.
-- **Staging lebt.** Am 20.11. um ca. 09:05 lief `staging-smoke` zum ersten Mal grün gegen `navora-staging` (Lauf 44699041140, 3 von 3): Anmeldung, Auftrag bis «Gedeckt», Nachtschicht in `/field`. Die Datenbank auf Staging steht auf Migration 0153; App und Datenbank passen zusammen (`staging-version` grün). IMPLEMENTED.
-- **Aktiv jetzt: BK-f «Rechnungsentwurf aus dem unterschriebenen Bericht»** (#1581, Entwurf). Ein Rundungsfehler von 1 Rappen wurde gefunden und behoben (BKF-F2). Noch nicht prüfbereit; offen ist der Klickpfad bei 390 px. PLANNED bis zum Merge.
-- **Ihr Grundsatzentscheid dieser Woche (FE-099, FE-100):** keine Textflicken an Datenbankfunktionen mehr. Nach BK-f kommt **STAB1** (eine lesbare Datei je Kernfunktion, Drift-Wächter in der CI), dann **AI1** (erste echte KI-Funktion), dann BK-d, BK-g.
-- **KI-Ehrlichkeit:** In keiner Umgebung ist heute ein KI-Modell angeschlossen. Der Berichtsentwurf auf Staging ist ein Testersatz mit festen Regeln («regelbasiert, keine KI»). Alle BK-f-Funktionen sind feste Regeln.
+- **Die Woche der Heim-Dienstplanung.** Der Block HEIM-DP (Dienstplanung im Heim, `/heim`) hat diese Woche fünf Pakete für die Simulation abgenommen: **HD-1** Planen im Heim (21.11.), **HD-2** Lücke → externer Auftrag → Status zurück (21.11.), **PERF1** sichtbare Hinweise statt kaputter Seiten (22.11.), **HD-3a** «Plan vorschlagen» nach festen Pflichtregeln mit der schnellen Auftragsliste **ORDER-F1** (26.11.) und heute Nacht **HD-3s** geteilter Dienst (27.11.). Gate jeweils: «Simulation, synthetische Daten», keine Freigabe für reale Personen.
+- **Was eine Heimleitung heute auf Staging bedienen kann (IMPLEMENTED, getestet):** Planungswerte eingeben → Monatsplan vorschlagen lassen → übernehmen (die Datenbank prüft jede Zeile erneut) → verbleibende Lücke als externen Auftrag senden → ein Team übernimmt → Status kommt zurück. Neu seit heute: auch Dienste mit zwei Blöcken (z. B. 07:00–11:30 und 16:00–20:00) als ein Arbeitstag. Staging-Klickpfade 1–8 grün; Datenbank `navora-staging` auf Migration 20261021000182.
+- **Aktiv jetzt: HD-3s-F2** «Externer Auftrag mit zwei Blöcken» (#1808, im Bau). Bis dahin ist die bekannte Grenze sichtbar: «Geteilter Dienst: noch kein externer Auftrag möglich» (fail closed).
+- **Ihre Richtungsentscheide dieser Woche:** Ziel ca. 80 % der heutigen Planungsarbeit durch NAVORA (FE-125); «Das Rechenwerk plant, die Heimleitung entscheidet, die KI hilft» (FE-126); neuer Löser erst nach Benchmark (FE-134); **ein verbundenes Planungs- und Betriebssystem** mit Integrationspflicht für jeden Planungsvertrag (FE-136); Gebührenbasis nach Vollzeit-Äquivalent, nie Provision (FE-115, D-14).
+- **KI-Ehrlichkeit:** In keiner Umgebung ist ein KI-Modell in einem getesteten Pfad aktiv. AI1 (Kostenbremse, Notschalter, feste Prompt-Version) ist seit 24.11. gemergt, der Berichtsentwurf auf Staging bleibt Testersatz «regelbasiert, keine KI»; Abnahme AI1 erst nach AI1-F1. Alle Planungsfunktionen sind **feste, prüfbare Regeln**.
 
 ## 1. Abgeschlossene Lieferungen
 
-### 1.1 Teilstücke von Block BK (für die Simulation abgenommen)
+### 1.1 Für die Simulation abgenommen (KW 48)
 
-| Teilstück | Was eine Person jetzt tun kann (Simulation) | Commit, Nachweis |
+| Paket | Was eine Person jetzt tun kann (Simulation) | Commit, Nachweis |
 |---|---|---|
-| BK-b Harte Prüfung | Ein Auftrag geht nur an Teams, die Distanz, Stufe und Verfügbarkeit erfüllen | `ab90875`, `ci-repeat` 20/20 (17.11.) |
-| BK-c Übernahme | Ein Mitglied übernimmt für sein Team, genau eine Übernahme gewinnt; die Auftraggeberin sieht «Gedeckt» erst nach Bestätigung, nie eine Teamzahl | `d51d1c1`, `ci-repeat` 20/20 (18.11.) |
-| BK-e1 Einsatz in `/field` | Die benannte Pflegekraft sieht die übernommene Schicht; eine Nacht 22:00–07:00 ist ein Einsatz unter «Heute» | `3ea17ee`, `ci-repeat` 20/20 (18.11.) |
-| BK-e2 Bericht | Notizen tippen → Entwurf mit Quellsatz je Zeile → jede Zeile einzeln entscheiden → unterschreiben | `8155ac6`, `ci-repeat` 20/20 (20.11.) |
+| HD-1 Planen im Heim | Heimleitung pflegt Stationen, Dienstarten, Personal und Wochenplan auf `/heim` | `9debf74`, `ci-repeat` 20/20 (21.11.) |
+| HD-2 Lücke → Auftrag | Aus einer Planlücke wird ein vorausgefüllter externer Auftrag; der Status kommt in den Plan zurück | `0b8f537`, `ci-repeat` 20/20 (21.11.) |
+| PERF1 | `/field` und `/team` bleiben bedienbar, wenn eine Hinweisliste nicht lädt, mit sichtbarem Hinweis | `4310526`, `ci-repeat` 20/20 (22.11.) |
+| HD-3a + ORDER-F1 | «Plan vorschlagen» nach Ruhezeit, Tagen in Folge, Schichtmodell, Abwesenheit, Pensum; «übernehmen» mit erneuter Prüfung; `/order` lädt auch mit vielen Aufträgen | `217a9a58`, `ci-repeat` 22/22, `staging-smoke` 8 passed (26.11.) |
+| AUT-220 (Testwächter) | Keine Produktänderung: die Tempotests der Auftragslisten prüfen auch unter erzwungenen Abfrageplänen | `d2e78ace` (26.11.) |
+| **HD-3s** geteilter Dienst | Dienstart mit zwei Blöcken anlegen, planen, übernehmen; Pause zählt nicht als Arbeitszeit, Ruhezeit erst nach Block 2, ein Arbeitstag | `5e9a0474`, `ci-repeat` 22/22 im Fenster, `staging-smoke` 9 passed (27.11.) |
 
-Nicht Teil der Abnahmen: Freigabe für reale Personen und Daten, klinische Freigabe (D-27), echter KI-Entwurf. Die Liste der Punkte vor realen Personen steht je Teilstück in `ABNAHMEAKTE.md` §2 (OPEN).
+Sicherheits- und Stabilitätsfixes gemergt: UXR-269 («Senden» sendet genau, was angezeigt ist, 21.11.), S-1 (fehlende Sicherheitssignale sind rot sichtbar statt «kein Signal», 22.11.), SEC-DEP1 (Abhängigkeiten, nur Entwicklungswerkzeuge, 24.11.). IMPLEMENTED.
 
-### 1.2 Staging (Founder-Priorität FE-090)
+Nicht Teil der Abnahmen: Freigabe für reale Personen und Daten, klinische Freigabe (D-27), Arbeitsgesetz-Lesart, echter KI-Entwurf. Die Liste je Paket steht in `ABNAHMEAKTE.md` §2 (OPEN).
 
-- `staging-smoke` erster grüner Lauf gegen die echte Staging-Website: 20.11., Lauf 44699041140 (IMPLEMENTED).
-- Migrationen bis 0153 auf `navora-staging` eingespielt, aus dem `staging`-Job-Protokoll gelesen (IMPLEMENTED).
-- Versionsanzeige und `/api/version` auf Staging (#1561, #1580), App-Commit und Datenbankstand abgleichbar (IMPLEMENTED).
+### 1.2 Ihre Entscheide diese Woche (FE-101 bis FE-136)
 
-### 1.3 Ihre Entscheide diese Woche (FE-080 bis FE-100)
-
-Wichtigste: FE-080 «Werkzeug-Modell» (NAVORA ist Software, kein Vermittler); FE-082/FE-083 Pflege-Genossenschaft als Zielform; FE-089 Bauphase mit pausierten Prüfrollen und Gate-Starts; FE-094 Claude über die Anthropic-API direkt, nur Staging, nur synthetisch; FE-095 «prüfbereites Paket statt Stundentakt»; FE-097 ein Freigabefenster je Paket; FE-098 Qualitätsprogramm Q1–Q6; FE-099 drei Engineering-Verbesserungen, Kostendeckel AI1 CHF 50 je Monat und 300 Aufrufe je Tag; **FE-100** STAB-1-Masterplan (heute ca. 09:35). Volltext: `FOUNDER_DECISIONS.md`.
+Wichtigste: FE-105 ereignisgesteuertes Prüfen; FE-109/FE-110 HEIM-DP jetzt bauen; FE-111 «Stabil zuerst»; FE-115 D-14 Gebührenbasis; FE-117/FE-119 automatische Dienstplanung, Absenzen ohne Gesundheitsgrund; FE-121 D-15 Option C (vorläufig); FE-122 Spitalaustritts-Flow (INTAKE-E2E); FE-125 bis FE-127 Planungsziel und Paketfolge; FE-130 D-16 Option B (vorläufig); FE-131 kleinstes sicheres Paket zuerst; FE-133 bis FE-136 geteilter Dienst, Monatssoll Option A, Löser-Benchmark, verbundenes System. Volltext: `FOUNDER_DECISIONS.md`.
 
 ## 2. Laufende Arbeit
 
 | Paket | Stand | Kennzeichnung |
 |---|---|---|
-| **BK-f** Rechnungsentwurf (#1581) | Datenbank und drei Ansichten gebaut, pgTAP 156 grün; offen: e2e 390 px, Umstellung Migration 0154 auf vollständige Definitionen (FE-100), Bereitbericht, Gate `lca` (Pflicht), `cra`, `uxa` | Code auf Branch; PLANNED bis Merge |
-| Toleranzzeile für Staging | Wert nennt `lca` im Gate; eigener einzeiliger PR nach dem BK-f-Merge; ohne sie zeigt Staging «Der Zeitabgleich ist noch nicht eingerichtet» | PLANNED |
-| **STAB1** eine Quelle je Funktion | Vertrag geschrieben, nach FE-100 geschärft; `eng` bereitet auf `feature/STAB-1` vor, PR erst nach BK-f | PLANNED |
-| **AI1** erste echte KI-Funktion | Berichtsentwurf aus den Worten der Pflegenden mit Claude, Staging, synthetisch; von Ihnen am 20.11. bestätigt | PLANNED |
+| **HD-3s-F2** externer Auftrag mit zwei Blöcken (#1808) | Auf dem Branch: Auftrag mit beiden Blöcken, Pause besetzt, zwei Einsätze je Übernahme, `/field` zeigt «Teil 1 von 2 · Geteilter Dienst …»; pgTAP 183 70/70 lokal; CI auf dem Kopf läuft; noch kein Bereitbericht; Gates `cra`, `uxa`, `lca` danach | PLANNED bis Merge |
+| HD-3a-F1 | Pensum/Wochensoll zwischen Vorschlag und Übernahme ohne Wochenstunden-Prüfung (bekannte Grenze FE-129); Pflicht vor realen Daten | PLANNED |
+| HD-3a-F3 Monatssoll | Option A gewählt (FE-135); Vertrag `draft`, offene Schwellen (siehe §3) | PLANNED |
+| HD-3b-0 Löser-Benchmark | erst nach HD-3a-F3; Greedy bleibt bis dahin (FE-134) | PLANNED |
+| AI1-F1 | Bewertungsset und Messung, dann AI1-Abnahme | PLANNED |
 
 ## 3. Owner Decision Board (offen)
 
 | # | Frage | Dringlichkeit |
 |---|---|---|
-| AI1 Render-Werte | Sie setzen API-Schlüssel und Schalter auf Render nach dem AI1-Bereitbericht (FE-099 (7) (4)) | hoch, nach STAB1 |
-| G-1 / D-43 | Ernennung einer Clinical Owner (klinische Regeln, Matrix, Schwellen) | hoch vor Phase B |
-| D-44 | Rechtsform und Vertragsweg der Teams (Genossenschaft gewählt als Ziel, Details offen); wer stellt die Rechnung: Team oder Genossenschaft | hoch vor realer Rechnung |
-| D-14 | Höhe der Plattformgebühr | mittel |
-| D-41 | KI-Pfad für reale Daten (Rechenzentrum, Gutachten, DSFA) | vor Phase B |
-| D-2 | Auftragsverarbeitungsvertrag Hosting, Upgrade vor realen Daten | vor Phase B |
-| B0-6 | Repository-Schutz (Ruleset) | mittel |
-| GM-2 | Preis und Reihenfolge der B2B-Module | mittel |
+| G-1 / D-43 | Ernennung einer Clinical Owner (D-15, D-16 sind nur vorläufig entschieden) | hoch vor Phase B |
+| D-44 | Rechtsform und Vertragsweg der Teams (Genossenschaft als Ziel); wer stellt die Rechnung | hoch vor realer Rechnung |
+| D-14 | Höhe der Monatsgebühr je VZE und Umsetzung S4 (Basis entschieden, FE-115) | mittel |
+| HD-3s-F1 | Startwerte für 50 h/Woche (R-i) und 14-h-Tagesspanne (R-j): bleiben «leer, nicht geprüft», bis `lca` liest und Sie wählen | mittel, vor realen Daten |
+| HD-3a-F3 | Schwelle «wesentlich abweichend», Bezug zum Wochensoll, Planungsperiode, Verhalten ohne Monatssoll | mittel, vor dem Bau von F3 |
+| STG-OBS-1 | Render-API-Schlüssel als GitHub-Secret, damit der Staging-Test das Render-Protokoll lesen kann | niedrig |
+| D-41 / D-2 | KI-Pfad und Hosting-Vertrag für reale Daten | vor Phase B |
+| B0-6, GM-2, PLZ-Quelle | Repository-Schutz; Preis und Reihenfolge B2B-Module; swisstopo-Bestätigung | mittel |
 
 ## 4. Kritischer Pfad
 
-BK-f (aktiv) → Toleranzzeile → BK-f-Abnahme → STAB1 → AI1 → BK-d «Station bestellt» → Abwesenheit für die Station → BK-g Szenario-Matrix → Abnahme Block BK → B2-Kern … → B11 Gesamttest → **M9 Phase A am 2027-03-12** (in Arbeit). Engpass dieser Woche: Wartezeit auf Gate-Zeilen pausierter Rollen und ein fehlender Konfigurationswert auf Staging.
+HD-3s-F2 (aktiv) → HD-3a-F1 → HD-3a-F3 → HD-3b-0 → HD-3b → INTAKE-E2E → HD-3c (erste KI-Hilfe in der Planung) → HD-3d (Ausfall-Umplanung) → … → **M9 Phase A am 2027-03-12** (in Arbeit; 15 Wochen). Engpass dieser Woche: **instabiler Staging-Test** (siehe §6) und die Wartezeit von der Prüfbereit-Meldung bis zur letzten Gate-Zeile.
 
-## 5. Die nächsten 7 Tage (21.–27. November 2026)
+## 5. Kennzahlen (Blueprint §10)
 
-1. BK-f prüfbereit, Gate-Fenster, Merge, Toleranzzeile, `staging-smoke` mit Rechnungspfad grün, Abnahme mit `ci-repeat`.
-2. STAB1 starten (25 Kernfunktionen als Dateien, Konsolidierungs-Migration, Drift-Wächter).
-3. **Bis 25.11.:** PO-Empfehlung zum Prüfrhythmus aus den realen Wartezeiten (FE-089 (6)).
+| Kennzahl | Wert KW 48 | Kennzeichnung |
+|---|---|---|
+| M-13 Nordstern (direkte Pflegezeit), M-15/M-16, M-11/M-17, M-19, M-18 | in Phase A noch nicht gemessen; keine echten Teams | UNKNOWN |
+| M-14 CI-Gesundheit `recovery/main` | `ci` auf Push seit 21.11.: 151 grün, 4 rot, 4 abgebrochen | IMPLEMENTED (aus der Actions-Liste gezählt) |
+| Staging-Test `staging-smoke` | seit 21.11.: 81 grün, **52 rot**, 28 abgebrochen; Ursache meist Render-Wechsel während des Laufs (wahrscheinlich, nicht bewiesen), Folgepunkt STG-SMOKE-3 | IMPLEMENTED (Zählung); Ursache UNKNOWN |
+| M-03 Durchlaufzeit (Beispiel HD-3s) | Prüfbereit 26.11. 14:41 → Merge 22:39 (≈ 8 h, Warten auf Gate-Zeilen) → Abnahme 27.11. 03:39 (≈ 5 h, Abnahmefenster ab 02:20) | IMPLEMENTED |
+| Merges auf `recovery/main` seit 21.11. | 161 Merge-Commits, davon über 20 Engineering-PRs mit Code oder Tests (aus den Merge-Titeln gezählt), der Rest Rollen-Dokumente und PO-Läufe | IMPLEMENTED |
+| neu (BK) Minuten bis «gedeckt», Handlungen je Auftrag | nicht gemessen | UNKNOWN |
 
 ## 6. Risiken
 
 | Risiko | Wirkung | Gegenmassnahme |
 |---|---|---|
-| Geflickte Datenbankfunktionen (60 laut `eng`) | Schutzprüfungen können unbemerkt verloren gehen | STAB1 nach FE-100; Drift-Wächter |
-| Wartezeit auf pausierte Prüfrollen | Pakete stehen fertig, aber ungeprüft | ein Gate-Fenster je Paket (FE-097); Empfehlung bis 25.11. |
-| Staging-Konfiguration fehlt (Toleranz) | Klickpfad Rechnung auf Staging nicht bedienbar | einzeiliger PR nach `lca`-Wert |
-| Kein KI-Modell angeschlossen | Kernversprechen «KI-first» noch nicht sichtbar | AI1 direkt nach STAB1 |
+| Staging-Test rot bei Deploy-Wechsel | Echte Fehler können in Rauschen untergehen; Abnahmen verzögern sich | STG-SMOKE-3 (einmal wiederholen nur wenn der Commit wechselte, sonst rot bleiben); STG-OBS-1 |
+| Langsame Datenbankabfragen mit wachsender Datenmenge | Seiten überschreiten das Zeitlimit (in dieser Woche viermal gefunden und behoben) | AUT-220-Testwächter, Budget-Tests je Liste |
+| Arbeitszeitwerte ohne Rechtslesart | Plan wirkt «konform», ist es aber nicht geprüft | Marke «Arbeitszeitgesetz nicht abschliessend geprüft»; `lca` vor realen Daten |
+| Kein KI-Modell im getesteten Pfad | Kernversprechen «KI-first» noch nicht sichtbar | AI1-F1; HD-3c nach dem Löser |
 | Reale Daten | Clinical Owner, Rechtsform, Gutachten offen | Phase-B-Tor B12; D-35 Regel A bleibt |
 
-## 7. Founder Actions
+## 7. Die nächsten 7 Tage (28. November – 4. Dezember 2026)
+
+1. HD-3s-F2 prüfbereit, Gate-Fenster, Merge, Staging-Pfad 9, Abnahme mit `ci-repeat` im Fenster.
+2. HD-3a-F1 bauen und abnehmen (Pflicht vor realen Daten).
+3. HD-3a-F3-Vertrag mit Ihren Antworten auf die offenen Schwellen freigeben.
+
+## 8. Founder Actions
 
 1. Keine Handlung sofort nötig.
-2. Nach dem AI1-Bereitbericht: Render-Werte setzen (Klickpfad in `docs/agents/briefs/AI1.md`).
-3. Optional: Kandidatin für die Clinical Owner benennen (G-1).
+2. Optional: Auswahlfragen zu HD-3a-F3 beantworten, sobald sie auf #1790/#1712 gestellt sind.
+3. Optional: Entscheid STG-OBS-1 (Render-API-Schlüssel als Secret).
+4. Optional: Kandidatin für die Clinical Owner benennen (G-1).
 
 ## Pflege dieses Berichts
 
 - Der PO schreibt diesen Bericht jeden Freitag neu, aus Blueprint V3.2 §8, §10, §11. Die Vorwoche bleibt in der Git-Historie.
 - Ein beantworteter Entscheid verschwindet aus §3 und erscheint in §1 der nächsten Ausgabe.
-- Unbekannte Werte stehen als UNKNOWN da und werden nie stillschweigend geschätzt. Die Kennzahlen aus Blueprint §10 (M-13 Nordstern usw.) sind in Phase A noch nicht gemessen (UNKNOWN); erste Zählung «Taps vom Unterschreiben bis gesendet» kommt mit BK-f.
+- Unbekannte Werte stehen als UNKNOWN da und werden nie stillschweigend geschätzt. Engineering-Zahlen in §5 sind aus der GitHub-Actions-Liste gezählt, nicht aus jedem Protokoll gelesen.
 - Keine Personen- oder Gesundheitsdaten in diesem Dokument.

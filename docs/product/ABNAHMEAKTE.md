@@ -255,6 +255,25 @@ Was die Protokolle zeigen:
 - **Vor realen Personen offen:** ArG-Lesart aller Arbeitszeitwerte (Marke «Arbeitszeitgesetz nicht abschliessend geprüft», `lca`); HD-3a-F1; `lca`-Gate (FE-109 (A)); G-COACH (§4).
 - **Folge:** HD-3s (Brief `docs/agents/briefs/HD-3s.md`, FE-127 (1)) und parallel der Testwächter AUT-220 (`docs/agents/briefs/AUT-220.md`, nur Tests).
 
+### HD-3s Geteilter Dienst (zwei Blöcke) im Heimplan, feste Regeln (Teilabnahme im Block HEIM-DP, FE-127, FE-133, FE-135)
+
+- **Status:** **für die Simulation teilabgenommen** (Gate «Simulation, synthetische Daten»; keine Freigabe für reale Personen und Daten). Entscheid geplanter PO-Lauf 2026-11-27 03:39 auf dem benannten Commit **`5e9a0474`** (`recovery/main` nach #1790 `7e48a7a4` und den reinen Dokumentations-Merges #1803, #1802; Code gleich `7e48a7a4`). Kriterien: `docs/agents/briefs/HD-3s.md` §Acceptance criteria mit den PO-Ergänzungen 21:39 und 22:39 vom 26.11. Ausdrücklich eine **Teilabnahme des Pakets**, nicht die Registerabnahme HEIM-DP «KI-gestützt».
+- **Umfang:** Dienstart mit zwei Blöcken (Klasse `split`) auf `/heim` durch `lead`/`planner` derselben Institution, mit Audit; Formprüfungen V1–V5 mit gleichen Gründen in Bildschirm und Datenbank; Pause nie im Pensum; Ruhezeit erst nach Block 2, nie zwischen den Blöcken; ein Arbeitstag für «Tage in Folge»; Überschneidung je Block, Dienst in der Pause `busy`; geteilter Dienst nur für Schichtmodelle `any` und `no_night`; Soll pro Tag nur als Hinweis (S5, Feld «Arbeitstage pro Woche»); ein geteilter Dienst füllt nur die Mindestbesetzung seiner eigenen Dienstart (fail closed); drei Prüfungen (Rechenwerk, Prüfer, Datenbank je Zeile). Migration 0182.
+- **Nachweis (aus Job-Protokollen und Berichten, vom PO gelesen, nicht selbst ausgeführt):**
+  - Gates auf dem Endstand `27cb1fc6` von #1790: `lca-gate` clear (7195331421), `cra-gate` clear (7202806794), `uxa-gate` clear (7203139137). Merge-Protokoll 7203964368.
+  - `ci` 45899843762 auf `7e48a7a4`: `db` «Files=179, Tests=7197», «Result: PASS»; `e2e` «228 passed», 2 übersprungen (Nachtwächter ausserhalb des Fensters); `app`, `ui-screenshots`, `staging` `success`. `ci` 45901452655 auf `5e9a0474` `success`.
+  - Migration 20261021000182 durch `staging`-Job 140186862373 (Lauf auf `14f07d03`, enthält `7e48a7a4`) auf `navora-staging` eingespielt; `staging-version` 45899881300 «app and database match».
+  - **Auf Staging ausgeführt:** `staging-smoke` 45901445047 auf `5e9a0474`, Render lieferte `5e9a0474` (`eng` 7204514910, aus dem Smoke-Protokoll): **«9 passed»**, Anmeldung und Pfade 1–8, darunter neuer Pfad 8 (geteilte Dienstart anlegen → Plan vorschlagen → übernehmen → Woche zeigt einen Arbeitstag mit zwei Zeiten) und Pfad 7.
+  - `ci-repeat` 45922060591 auf `5e9a0474` (Zweig `repeat/accept-hd3s-5e9a047-w2`): **22/22 `success`**; Fensterurteil Job 140258626480 «Inside the e2e acceptance window: start 2026-11-27 02:21, end 2026-11-27 02:33 (Europe/Zurich)». Alle 20 `db`/`e2e`-Rohprotokolle vom PO gelesen: `db` ×10 «Files=179, Tests=7197», «Result: PASS» (die Zeichenfolgen «17 failed of 58» und «test 44 failed» stehen in `ok`-Zeilen der absichtlich roten Reproduktionen); `e2e` ×10 «230 passed», keine Zeile mit «skipped», «failed» oder «flaky».
+  - Der frühere Lauf 45903674667 (10/10, aber 227 passed, 3 übersprungen, nach 22:05) zählt **nicht** (Urteil «NOT acceptance evidence»).
+- **Abgenommen:** Die Heimleitung eines synthetischen Heims legt eine Dienstart mit zwei Blöcken an (z. B. 07:00–11:30 und 16:00–20:00), lässt einen Monatsplan nach festen Pflichtregeln vorschlagen und übernimmt ihn; die Woche zeigt einen Arbeitstag mit zwei Zeiten; die Datenbank prüft jede Zeile erneut (Ruhezeit nach Block 2, ein Tag, Pensum ohne Pause); eine Früh- oder Spätlücke bleibt Lücke.
+- **KI-Ehrlichkeit:** Jede Funktion ist eine **feste, prüfbare Regel**. Kein KI-Modell in einem getesteten Pfad; AI1 bleibt Testersatz «regelbasiert, keine KI». D-35 Regel A unverändert.
+- **Bekannte Grenzen:** Geteilte Lücke ist noch **nicht als externer Auftrag** möglich («Geteilter Dienst: noch kein externer Auftrag möglich», `split_shift_not_orderable`, fail closed) bis HD-3s-F2 (FE-133 (1)). FE-129 (Pensum/Wochensoll zwischen Vorschlag und Übernahme) bleibt bis HD-3a-F1.
+- **Wahrscheinlich, nicht bewiesen:** dass der rote Pfad 3 von `staging-smoke` 45899843787 auf `7e48a7a4` nur der Render-Wechsel während des Laufs war (Warnung im Protokoll; Folgepunkt STG-SMOKE-3).
+- **Nicht Teil der Abnahme:** externer Auftrag mit zwei Blöcken (HD-3s-F2); R-i/R-j-Werte (HD-3s-F1, leer = nicht geprüft); Pause-frei-Bestätigung (HD-3s-F3); Nachtmarkierung geteilter Diensttypen (HD-3s-F4, CGR-287); S6 (HD-3s-F5); UXR-294 bis UXR-298 (HD-3s-F6); Monatssoll (HD-3a-F3); HiGHS, Fairness (HD-3b-0, HD-3b); Registerabnahme HEIM-DP «KI-gestützt».
+- **Vor realen Personen offen:** ArG-Lesart aller Arbeitszeitwerte (`lca`, Marke «Arbeitszeitgesetz nicht abschliessend geprüft»); HD-3s-F1, F3, F4, F5, F6 (UXR-294); HD-3a-F1; G-COACH (§4).
+- **Folge:** HD-3s-F2 (#1808, Brief `docs/agents/briefs/HD-3s-F2.md`), dann HD-3a-F1, HD-3a-F3, HD-3b-0.
+
 ## 3. Offene Testfälle und was vor einer Abnahme zu beheben ist
 
 | Block | Offen | Vor der Abnahme zu tun |
@@ -299,3 +318,4 @@ Was die Protokolle zeigen:
 - 2026-11-21 03:39 (`po`): Blockakte HD-1 (Teilabnahme im Block HEIM-DP, für die Simulation abgenommen auf `9debf74`, `ci-repeat` 44852899930 20/20).
 - 2026-11-21 14:39 (`po`): Blockakte HD-2 (Teilabnahme Paket im Block HEIM-DP, für die Simulation abgenommen auf `0b8f537`, `ci-repeat` 44905215040 20/20); bekannte Staging-Grenze Pfad 3.
 - 2026-11-26 11:39 (`po`): Blockakte HD-3a mit ORDER-F1 (inkl. F2, F3, F5) (Teilabnahme im Block HEIM-DP, für die Simulation abgenommen auf `217a9a58`, `ci-repeat` 45781858795 22/22, `staging-smoke` 45779137337 8 passed, `57014`-Prüfung `eng` 7188943285).
+- 2026-11-27 03:39 (`po`): Blockakte HD-3s (Teilabnahme im Block HEIM-DP, für die Simulation abgenommen auf `5e9a0474`, `ci-repeat` 45922060591 22/22 im Fenster, `staging-smoke` 45901445047 9 passed). Nachtrag: die PERF1-Akte vom 2026-11-22 08:39 fehlte in diesem Protokoll.
