@@ -101,3 +101,19 @@ FE-078, FE-089, FE-097, FE-127, FE-133; `HD-3s.md`; `HD.md` §5b–§5d; `report
 - Schätzung laut `eng` 4–6 Läufe; bitte im Bereitbericht die tatsächliche Zahl.
 - Grösstes Risiko laut `eng`: zwei Einsätze im Einsatz- und Abrechnungsweg; bitte im Bereitbericht nennen, welche bestehenden Tests sich änderten.
 - AUT-222: wie viele geteilte Lücken der Seed heute hat (Messung im Bereitbericht).
+
+## PO acceptance 2026-11-27 06:39 (geplanter PO-Lauf, Signal FE-105 (1) (d): `staging-smoke` und `ci-repeat` nach dem Merge, `eng` #1808 7210433803 und 7210637038; Gate «Simulation, synthetische Daten»)
+
+Benannter Commit **`1aeb5459`** (enthält `d3612055`; darüber nur Dokumentation). Der PO hat keine Tests lokal ausgeführt; Belege aus Job-Protokollen, Gate-Zeilen und dem Bereitbericht (#1808 7208647192).
+
+| Kriterium | Ergebnis | Beleg |
+|---|---|---|
+| pgTAP: Auftrag aus geteilter Lücke trägt beide Blöcke; Formfehler mit gleichen Gründen; nur `lead`/`planner` derselben Institution, Audit; Fremd-Institution und andere Rollen abgelehnt | erfüllt | Bereitbericht (pgTAP 183 §1–§3); `db` «Files=180, Tests=7341», «Result: PASS» 10/10 in `ci-repeat` 45944289812 (Rohprotokolle vom PO gelesen) |
+| pgTAP: Übernahme schreibt zwei Einsätze; zweiter Auftrag in der Pause abgelehnt (CGR-288 (a)); Ruhezeit ab Block 2 (CGR-288 (b)); Qualifikation/Tätigkeit geprüft, zu tiefe Stufe abgelehnt | erfüllt, mit Grenze | pgTAP 183 §4–§6; `cra-gate` 7209268035 clear. **Grenze:** §5 belegt den Bezugspunkt «belegt bis Ende Block 2»; eine Ruhezeitregel gibt es auf dem Auftragsweg nicht (Wert UNKNOWN, `lca`/Clinical Owner) |
+| pgTAP Regression: Ein-Block-Aufträge unverändert; Katalogwächter 157 für jede geänderte Funktion | erfüllt | Bereitbericht (Ein-Block-Regression inkl. `/field`; 157 neu erzeugt); `db` 10/10 |
+| Unit: Anzeige beider Blöcke, geplante Minuten ohne Pause | erfüllt | Unit `hd3s-f2-field-both-blocks`; Minuten über HD-3s-Unit `shiftMinutes` und pgTAP §4, §10, §13; `app`-Job `ci` 45941372007 `success` |
+| e2e 390 und 1440 px: bestellen → Team sieht beide Blöcke → übernehmen → `/field` zwei Einsätze; Negativ: andere Rolle kann nicht bestellen | erfüllt | `e2e` 10/10 «232 passed», 0 skipped, 0 failed, 0 flaky (`ci-repeat` 45944289812); `uxa-gate` 7209242300 clear |
+| `staging-smoke`: derselbe Weg als Pfad; bestehende Pfade grün; kein Timeout verlängert, kein Test übersprungen | erfüllt | `staging-smoke` 45941371981 «10 passed (6.7m)», Pfad 9 grün (Zeile vom PO gelesen); Render lieferte `1aeb5459` vor und nach dem Lauf (`eng` 7210433803) |
+| Migration als ganze Datei, STAB1; `ci` grün auf dem Kopf; `staging`-Job; `ci-repeat` 10/10 | erfüllt | Merge-Protokoll 7210007305; `staging`-Job 140318781086 0183/0184; `ci-repeat` 45944289812 22/22, Fensterurteil Job 140329673175 «Inside the e2e acceptance window» |
+
+**PO-Status: `accepted`** (Simulation, synthetische Daten). Keine Freigabe für reale Personen und Daten. Offen vor realen Daten: CGR-289 (HD-3s-F2-F1), CGR-290 (HD-3s-F2-F2), `lca`-Punkte, ArG-Lesart. Tatsächliche Laufzahl laut `eng`: 5 (Schätzung 4–6). Nächstes Paket: STG-SMOKE-3 (b), dann HD-3s-F2-F1.
