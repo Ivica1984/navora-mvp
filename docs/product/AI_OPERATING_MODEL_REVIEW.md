@@ -863,6 +863,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control status:** AUT-235 (PROPOSED, medium): a proposer reads the same busy truth as its confirmer (the AI1 day plan `plan3_lines` must read `member_take_window`), so no line is proposed that the confirm must refuse; a precondition before any model sits behind AI1, because a weaker proposer inflates the correction rate. AUT-236 (PROPOSED, medium): every writer names the take on the backstop refusal; the series leaves the conflicting slot open (AUT-231 (2)). AUT-237, AUT-238 (PROPOSED, low). AUT-231 (1) and AUT-233 reflected on the branch.
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**FE-137, HD-3a-F1 and HD-3a-F3 contract-ready (`aia` 2026-11-27 20:18, review 101, AUT-239 to AUT-242):**
+- **Label check:** HD-3s-F2-F1 (merged `2ca16e9c`, not accepted), HD-3a-F1 and HD-3a-F3 (approved briefs, not built) are fixed rules and arithmetic («Keine KI»). No model, no proposed AI value.
+- **Control status:** AUT-241 (PROPOSED, medium) extends the AUT-235 control to the nursing-home planner: proposer and take-over read one database reading of R-h (`private.institution_rule_breaches`), with a parity test (0 refusals after a fresh proposal on unchanged inputs). This is a precondition before HD-3b-0 compares solvers and before any ranking engine (Engine 2) sits behind the planner. AUT-239, AUT-240 (medium) and AUT-242 (low) are form proposals for the monthly target and the refusal path.
+- **Stage note:** AI1-F1 placed before the first package with a connected model; BK-d (needs a model) formally deferred to «BK-Abschluss» (FE-137 (4)).
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -965,3 +971,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-27 02:19 | `aia` | §12: block «HD-3s-F2, HD-3a-F3, HD-3b-0 and FE-136»: label check (fixed rules; FE-134 solver stays a fixed rule); AUT-227, AUT-228, AUT-229 (PROPOSED, medium), AUT-230 (PROPOSED, low). No agent added or removed |
 | 2026-11-27 08:20 | `aia` | §12: block «HD-3s-F2 accepted, STG-SMOKE-3, HD-3s-F2-F1»: label check (fixed rules); AUT-231, AUT-232 (PROPOSED, medium), AUT-233, AUT-234 (PROPOSED, low); AUT-222 closed. No agent added or removed |
 | 2026-11-27 14:18 | `aia` | §12: block «STG-SMOKE-3 accepted, draft #1825 HD-3s-F2-F1»: label check (fixed rules); AUT-235, AUT-236 (PROPOSED, medium), AUT-237, AUT-238 (PROPOSED, low); AUT-231 split, AUT-233 reflected on the branch. No agent added or removed |
+| 2026-11-27 20:18 | `aia` | §12: block «FE-137, HD-3a-F1, HD-3a-F3»: label check (fixed rules and arithmetic, «Keine KI»); AUT-239, AUT-240, AUT-241 (PROPOSED, medium), AUT-242 (PROPOSED, low); AUT-237 closed (STG-P10); stage note: AI1-F1 placed before the first model package, BK-d deferred. No agent added or removed |
