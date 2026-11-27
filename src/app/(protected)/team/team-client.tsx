@@ -1191,7 +1191,10 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
         )}
       </div>
       {mode !== "view" && (
-        <form action={submit} onChange={(e) => { if (mode === "move") setSlot(slotFromForm(e.currentTarget, slot)); }}
+        // HD-3s-F2-F1 (CGR-289 (c)): onSubmit, not a form action, as in the plan form: a rejected move (for example
+        // `member_take_window`) keeps the new date, times and «Grund», so the fields and the overlap note read the same slot.
+        <form onSubmit={(e) => { e.preventDefault(); void submit(new FormData(e.currentTarget)); }}
+          onChange={(e) => { if (mode === "move") setSlot(slotFromForm(e.currentTarget, slot)); }}
           aria-label={mode === "move" ? "Einsatz verschieben" : "Einsatz entfernen"} className="mt-2 grid gap-2">
           {mode === "move" && <SlotFields date={visit.date} start={hhmm(visit.start)} end={hhmm(visit.end)} />}
           {/* VIS2-1 / VIS2-2 (ADR-121): the moved visit itself is excluded by the database. */}

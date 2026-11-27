@@ -143,5 +143,26 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     expect(visitsOfCase()).toBe("1");
     expect(live()).toBe("1");
     await noSideScroll(page);
+
+    // 4. Moving that visit into the pause (12:00–12:30) is rejected the same way (reschedule_visit, CGR-289 (a));
+    // the visit stays at 20:00–20:30, the take stays live, and the move form keeps the new slot and the reason.
+    const planned = card.getByRole("list", { name: "Geplante Einsätze" }).getByRole("listitem").filter({ hasText: "20:00–20:30" });
+    await planned.getByRole("button", { name: "Verschieben" }).click();
+    const move = planned.getByRole("form", { name: "Einsatz verschieben" });
+    await move.getByLabel("Von").fill("12:00");
+    await move.getByLabel("Bis").fill("12:30");
+    await move.getByLabel("Grund").fill("Test Pause F1");
+    await move.getByRole("button", { name: "Verschieben" }).click();
+    await expect(planned.getByTestId("command-error")).toContainText(
+      `Nicht gespeichert: Die verantwortliche Person hat am ${workDateLabel(thu)} eine laufende geteilte Übernahme für Testheim Rhein (synthetisch): ${BOTH}.`,
+    );
+    await expect(move.getByLabel("Datum")).toHaveValue(thu);
+    await expect(move.getByLabel("Von")).toHaveValue("12:00");
+    await expect(move.getByLabel("Bis")).toHaveValue("12:30");
+    await expect(move.getByLabel("Grund")).toHaveValue("Test Pause F1");
+    expect(psql(`select to_char(time_start, 'HH24:MI') || ' ' || visit_date from public.care_visits
+                 where case_id = '00000000-0000-4000-8185-00000000${String(width).padStart(4, "0")}'`)).toBe(`20:00 ${thu}`);
+    expect(live()).toBe("1");
+    await noSideScroll(page);
   });
 }
