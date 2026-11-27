@@ -654,6 +654,10 @@ test("path 9: the home orders a split gap as one order, the nurse takes it, /fie
   for (const box of await review.getByTestId("heim-order-tag").all()) if (await box.isChecked()) await box.uncheck();
   await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
   await review.getByTestId("heim-order-check").click();
+  // UXR-269: «Senden» only on the checked screen (redirect with geprueft=1); with the tags prefilled by an earlier
+  // order a summary is already shown before «Prüfen» (e2e 140278327659: «Geändert nach dem Prüfen»).
+  await page.waitForURL(/[?&]geprueft=1/);
+  await expect(review.getByTestId("heim-order-prefill-hint")).toHaveCount(0);
   await expect(review.getByTestId("heim-order-send-summary")).toHaveText(/Tätigkeiten: C1 · [^,]*$/);
   await expect(review.getByTestId("heim-order-sentence")).toContainText(`${BOTH} (8 Std. 30 Min.)`);
   await review.getByTestId("heim-order-send").click();
