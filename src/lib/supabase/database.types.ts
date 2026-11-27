@@ -3565,6 +3565,9 @@ isOneToOne: false
 "institution_discard_gap_order":
 { Args: { "p_gap_order_id": string }; Returns: Json
                            },
+"institution_draft_run_refusals":
+{ Args: { "p_apply_id": string,"p_institution_id": string }; Returns: Json
+                           },
 "institution_load_example":
 { Args: { "p_institution_id": string,"p_week_start": string }; Returns: Json
                            },
