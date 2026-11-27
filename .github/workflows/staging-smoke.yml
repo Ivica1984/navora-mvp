@@ -96,7 +96,11 @@ jobs:
       # only: it never turns a red run green or a green run red.
       - name: App commit Render serves before the click paths
         run: echo "SERVED_BEFORE=$(node scripts/staging-served-commit.mjs)" >> "$GITHUB_ENV"
+      # STG-SMOKE-3 (b) (brief docs/agents/briefs/STG-SMOKE-3.md): the first run never ends the job by itself; its
+      # outcome stays visible (steps.paths.outcome) and the verdict step below decides the job.
       - name: Click paths on navora-staging
+        id: paths
+        continue-on-error: true
         env:
           STAGING_SMOKE_PW_KUNDEBS: ${{ secrets.STAGING_SMOKE_PW_KUNDEBS }}
           STAGING_SMOKE_PW_PFLEGEBS: ${{ secrets.STAGING_SMOKE_PW_PFLEGEBS }}
@@ -104,9 +108,9 @@ jobs:
         run: npx playwright test --config playwright.staging-smoke.config.ts
       # ORDER-F1 (c) (STG-SMOKE-1-F1): on red, the screenshot of each failed test, so the cause of a red last step can be
       # read. PNG files only (a browser masks a password field); never a trace, a video or error-context.md, which may
-      # hold typed field values (playwright.staging-smoke.config.ts).
+      # hold typed field values (playwright.staging-smoke.config.ts). Uploaded before a rerun, which clears the folder.
       - name: Screenshots of failed click paths
-        if: failure()
+        if: steps.paths.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: staging-smoke-failure-screenshots
@@ -117,11 +121,41 @@ jobs:
         if: always()
         run: |
           after="$(node scripts/staging-served-commit.mjs)"
+          echo "SERVED_AFTER=${after}" >> "$GITHUB_ENV"
+          echo "FAILED_PATHS=$(node scripts/staging-smoke-verdict.mjs count)" >> "$GITHUB_ENV"
           if [ "$after" != "$SERVED_BEFORE" ]; then
             echo "::warning title=staging-smoke::Render served ${SERVED_BEFORE:-unknown} before and ${after:-unknown} after the click paths: a deploy went live during the run; a red path may be the instance swap, not an app defect"
           else
             echo "::notice title=staging-smoke::Render served ${after:-unknown} before and after the click paths (no deploy during the run)"
           fi
+      # STG-SMOKE-3 (b): exactly one rerun, only of the failed (and not run) paths, and only when the paths were red AND
+      # Render demonstrably switched commits during them. A red run on a stable deploy is never repeated; a deploy
+      # change during this rerun is not repeated again. `retries: 0` stays in playwright.staging-smoke.config.ts.
+      - name: Rerun the failed click paths once (Render switched commits during the run)
+        id: rerun
+        if: steps.paths.outcome == 'failure' && env.SERVED_BEFORE != '' && env.SERVED_AFTER != '' && env.SERVED_BEFORE != env.SERVED_AFTER && env.FAILED_PATHS != '' && env.FAILED_PATHS != '0'
+        continue-on-error: true
+        env:
+          STAGING_SMOKE_PW_KUNDEBS: ${{ secrets.STAGING_SMOKE_PW_KUNDEBS }}
+          STAGING_SMOKE_PW_PFLEGEBS: ${{ secrets.STAGING_SMOKE_PW_PFLEGEBS }}
+          STAGING_SMOKE_PW_PFLEGE: ${{ secrets.STAGING_SMOKE_PW_PFLEGE }}
+        run: npx playwright test --config playwright.staging-smoke.config.ts --last-failed
+      - name: Screenshots of the failed rerun
+        if: steps.rerun.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-smoke-rerun-failure-screenshots
+          path: test-results/staging-smoke/**/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      # The only step that decides the job (scripts/staging-smoke-verdict.mjs, fixed decision table, fail closed). A red
+      # verdict fails the job, so `notify` below reports it as before.
+      - name: Staging smoke verdict
+        if: always()
+        env:
+          PATHS_OUTCOME: ${{ steps.paths.outcome }}
+          RERUN_OUTCOME: ${{ steps.rerun.outcome }}
+        run: node scripts/staging-smoke-verdict.mjs
 
   # STAB1 (e): a red smoke (or an unmet precondition) is reported where `po` and `eng` read: a comment on the pull
   # request merged as this commit, otherwise an issue labelled `agents`. Only the run link, the commit and the failed
