@@ -10,6 +10,7 @@ import { qualificationRefusal, type CommandResult } from "@/lib/commands/result"
 import { errorFields, logEvent } from "@/lib/log";
 import { parseMemberOverlap, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
 import { ABSENCE_MESSAGES, TAKE_MESSAGES, pastPlannedOf, resultOf } from "./rules";
+import { isTakeWindowError, parseTakeWindow, TAKE_WINDOW_REASON, takeWindowText } from "@/features/team/take-window";
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const time = z.string().regex(/^\d{2}:\d{2}$/);
@@ -105,9 +106,13 @@ export async function takeOpenVisit(input: unknown): Promise<TakeResult> {
   if (error) {
     logEvent("warn", "command.failed", { op: "take_open_visit", ...errorFields(error) });
     // QUAL1-10 (0121): the take itself asks the check; the backstop answers a race (evidence changed meanwhile).
+    if (isTakeWindowError(error)) return { ok: false, error: takeWindowText(null, "take") };  // HD-3s-F2-F1 backstop
     return { ok: false, error: qualificationRefusal(error, { subject: { kind: "self" }, context: "take" }) ?? TAKE_MESSAGES.failed };
   }
   const r = resultOf(data);
+  // HD-3s-F2-F1 (CGR-289 (c)): inside the window of her own live take; the server names the take.
+  const res = (data ?? {}) as { reason?: unknown; take?: unknown };
+  if (res.reason === TAKE_WINDOW_REASON) return { ok: false, error: takeWindowText(parseTakeWindow(res.take), "take") };
   if (r === "ok" || r === "duplicate") {
     done();
     return { ok: true, memberOverlap: parseMemberOverlap((data as { member_overlap?: unknown } | null)?.member_overlap) };

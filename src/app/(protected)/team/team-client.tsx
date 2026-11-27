@@ -24,6 +24,7 @@ import InvoiceDraftsSection from "./invoice-drafts-section";
 import type { TeamInvoiceRow, TeamPriceRow } from "@/features/invoices/queries";
 import type { TeamShiftOffer } from "@/features/orders/team-queries";
 import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
+import { settleAction } from "@/features/team/settle-action";
 import { returnReferralFacts, returningOfferText, reviewTaskLabel, type ReturnReferralFacts } from "@/features/returning/rules";
 import {
   DECLINE_REASONS,
@@ -995,7 +996,8 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
     const savedDay = String(form.get("date") ?? "");
     const m = minutesFromForm((k) => String(form.get(k) ?? ""));
     const responsible = String(form.get("responsible") ?? "");
-    const result = await planVisit({
+    // Review (e) on #1825: a thrown call (lost connection) ends in a neutral sentence and re-enables the button.
+    const result = await settleAction(() => planVisit({
       caseId,
       date: String(form.get("date") ?? ""),
       start: String(form.get("start") ?? ""),
@@ -1008,7 +1010,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       idempotencyKey: crypto.randomUUID(),
       overlapShown: shown,
       memberOverlapShown: responsible ? memberShown : undefined,
-    });
+    }));
     setPending(false);
     if (!result.ok) {
       setError(result.error);
@@ -1035,7 +1037,9 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   }
 
   return (
-    <form action={plan} onChange={(e) => {
+    // HD-3s-F2-F1 (CGR-289 (c)): onSubmit, not a form action, so a rejection keeps what the lead entered (a React form
+    // action resets the inputs to their defaults after it returns); she then changes only the person or the time.
+    <form onSubmit={(e) => { e.preventDefault(); void plan(new FormData(e.currentTarget)); }} onChange={(e) => {
       setSlot(slotFromForm(e.currentTarget, slot));
       setResponsibleId(String(new FormData(e.currentTarget).get("responsible") ?? ""));
     }} aria-label="Einsatz planen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
@@ -1117,9 +1121,10 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
     const memberShown = memberOverlap.shown;
     const savedDay = String(form.get("date") ?? "");
     const reason = String(form.get("reason") ?? "");
-    const result =
+    // Review (e) on #1825: a thrown call (lost connection) ends in a neutral sentence and re-enables the button.
+    const result = await settleAction(() =>
       mode === "move"
-        ? await rescheduleVisit({
+        ? rescheduleVisit({
             visitId: visit.visit_id,
             date: String(form.get("date") ?? ""),
             start: String(form.get("start") ?? ""),
@@ -1129,7 +1134,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
             overlapShown: shown,
             memberOverlapShown: holder ? memberShown : undefined,
           })
-        : await removePlannedVisit({ visitId: visit.visit_id, reason, idempotencyKey: crypto.randomUUID() });
+        : removePlannedVisit({ visitId: visit.visit_id, reason, idempotencyKey: crypto.randomUUID() }));
     setPending(false);
     if (!result.ok) {
       setError(result.error);
@@ -1189,7 +1194,10 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
         )}
       </div>
       {mode !== "view" && (
-        <form action={submit} onChange={(e) => { if (mode === "move") setSlot(slotFromForm(e.currentTarget, slot)); }}
+        // HD-3s-F2-F1 (CGR-289 (c)): onSubmit, not a form action, as in the plan form: a rejected move (for example
+        // `member_take_window`) keeps the new date, times and «Grund», so the fields and the overlap note read the same slot.
+        <form onSubmit={(e) => { e.preventDefault(); void submit(new FormData(e.currentTarget)); }}
+          onChange={(e) => { if (mode === "move") setSlot(slotFromForm(e.currentTarget, slot)); }}
           aria-label={mode === "move" ? "Einsatz verschieben" : "Einsatz entfernen"} className="mt-2 grid gap-2">
           {mode === "move" && <SlotFields date={visit.date} start={hhmm(visit.start)} end={hhmm(visit.end)} />}
           {/* VIS2-1 / VIS2-2 (ADR-121): the moved visit itself is excluded by the database. */}

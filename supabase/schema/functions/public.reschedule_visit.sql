@@ -18,6 +18,8 @@ declare
   n_rel  integer := 0;
   absent boolean := false;
   mo     boolean;
+  tk     uuid;
+  new_iv tstzrange;
 begin
   if uid is null then
     return jsonb_build_object('result', 'rejected', 'reason', 'not_team_member');
@@ -45,6 +47,23 @@ begin
      > extract(epoch from (p_time_end - p_time_start)) / 60 then
     perform private.end_command('rejected');
     return jsonb_build_object('result', 'rejected', 'reason', 'minutes_exceed_window');
+  end if;
+  -- HD-3s-F2-F1 (PO decision CGR-289 (c), ADR-230): never into the window of a live take of its responsible or covering
+  -- person (pause included); one refusal row as every visit refusal (CGR-252), nothing moves, the take stays live. The
+  -- person locks first, in the fixed order of recheck_takes_trigger (CGR-255).
+  if v.responsible_user_id is not null or v.covered_by is not null then
+    perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || p.u::text, 0))
+    from (select distinct u from unnest(array[v.responsible_user_id, v.covered_by]) u where u is not null) p order by p.u;
+    new_iv := private.visit_interval(jsonb_populate_record(v, jsonb_build_object(
+                'visit_date', p_visit_date, 'time_start', p_time_start, 'time_end', p_time_end)));
+    tk := coalesce(private.member_take_window(v.responsible_user_id, new_iv, null),
+                   private.member_take_window(v.covered_by, new_iv, null));
+    if tk is not null then
+      perform private.write_visit_refusal(v, 'reschedule_visit', 'member_take_window');
+      perform private.end_command('rejected');
+      return jsonb_build_object('result', 'rejected', 'reason', 'member_take_window',
+                                'take', private.member_take_window_facts(tk, v.team_id));
+    end if;
   end if;
 
   -- ABS1-C5: the move, its log and the ABS1-C4 release run in one subtransaction, undone together when refused.
@@ -119,4 +138,4 @@ $function$;
 revoke all on function public.reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) from public, anon, authenticated, service_role;
 grant execute on function public.reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) to authenticated;
 grant execute on function public.reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) to service_role;
-comment on function public.reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) is 'J3: moves a planned visit with a reason. ABS1-C4: a move into the absence of its responsible member is not refused; the visit is released (fixed text Abwesenheit) and returns {result, visit_id, released: true, flags}. ABS1-C5: when the visit would still name a member absent at its interval (a date the release rule does not cover, i.e. before today), the move is refused with responsible_absent and nothing is written. AN2 / CGR-35: a past planned visit whose responsible member is recorded absent at its interval is moved with responsible_absent = true on its moved row (server side). VIS2 (ADR-121): p_overlap_shown (what the form showed) is recorded as overlap_shown on the moved audit row; an ok result carries overlap (the server''s check). Never refused for an overlap. PLAN3-16 (ADR-161): p_member_overlap_shown is recorded as member_overlap_shown on the moved audit row; an ok result carries member_overlap (yes/no, any team). Never refused for it. BK-e1b / CGR-249: a visit written from a take (order_take_id) is refused with take_visit; the way out is the release (CGR-242). BK-e1b / CGR-252: a take_visit refusal writes one audit row (outcome take_visit, no key).';
+comment on function public.reschedule_visit(p_visit_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_reason text, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) is 'J3: moves a planned visit with a reason. ABS1-C4: a move into the absence of its responsible member is not refused; the visit is released (fixed text Abwesenheit) and returns {result, visit_id, released: true, flags}. ABS1-C5: when the visit would still name a member absent at its interval (a date the release rule does not cover, i.e. before today), the move is refused with responsible_absent and nothing is written. AN2 / CGR-35: a past planned visit whose responsible member is recorded absent at its interval is moved with responsible_absent = true on its moved row (server side). VIS2 (ADR-121): p_overlap_shown (what the form showed) is recorded as overlap_shown on the moved audit row; an ok result carries overlap (the server''s check). Never refused for an overlap. PLAN3-16 (ADR-161): p_member_overlap_shown is recorded as member_overlap_shown on the moved audit row; an ok result carries member_overlap (yes/no, any team). Never refused for it. BK-e1b / CGR-249: a visit written from a take (order_take_id) is refused with take_visit; the way out is the release (CGR-242). BK-e1b / CGR-252: a take_visit refusal writes one audit row (outcome take_visit, no key). HD-3s-F2-F1 (CGR-289 (c), ADR-230): a move into the window of a live take of its responsible or covering person (pause included) is refused with reason member_take_window and the take named (work date, blocks, the home only within its own team); one refusal row, nothing moves.';

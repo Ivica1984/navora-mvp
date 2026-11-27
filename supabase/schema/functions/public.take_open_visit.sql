@@ -12,6 +12,7 @@ declare
   uid uuid := (select auth.uid());
   v   public.care_visits%rowtype;
   mo  boolean;
+  tk  uuid;
 begin
   if uid is null then return jsonb_build_object('result', 'rejected'); end if;
   if private.begin_command('take_open_visit', p_idempotency_key) then
@@ -43,6 +44,16 @@ begin
   if private.member_absent_during(v.team_id, uid, lower(private.visit_interval(v)), upper(private.visit_interval(v))) then
     return jsonb_build_object('result', private.end_command('absent'));
   end if;
+  -- HD-3s-F2-F1 (PO decision CGR-289 (c), ADR-230): never into the window of her own live take (pause included); one
+  -- refusal row as every visit refusal (CGR-252), nothing changes, the take stays live.
+  perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || uid::text, 0));
+  tk := private.member_take_window(uid, private.visit_interval(v), null);
+  if tk is not null then
+    perform private.write_visit_refusal(v, 'take_open_visit', 'member_take_window');
+    perform private.end_command('rejected');
+    return jsonb_build_object('result', 'rejected', 'reason', 'member_take_window',
+                              'take', private.member_take_window_facts(tk, v.team_id));
+  end if;
 
   -- PLAN3-16 (ADR-161): what the form showed about the member, on this command's audit row only.
   perform set_config('navora.member_overlap_shown', coalesce(p_member_overlap_shown::text, ''), true);
@@ -62,4 +73,4 @@ $function$;
 revoke all on function public.take_open_visit(p_visit_id uuid, p_idempotency_key uuid, p_member_overlap_shown boolean) from public, anon, authenticated, service_role;
 grant execute on function public.take_open_visit(p_visit_id uuid, p_idempotency_key uuid, p_member_overlap_shown boolean) to authenticated;
 grant execute on function public.take_open_visit(p_visit_id uuid, p_idempotency_key uuid, p_member_overlap_shown boolean) to service_role;
-comment on function public.take_open_visit(p_visit_id uuid, p_idempotency_key uuid, p_member_overlap_shown boolean) is 'ABS1: a team member takes a planned, not suspended, not covered visit of her team with nobody responsible (one tap, first wins). J3 qualification rule; not while she is absent at its time. Logged as taken. PLAN3-16 (ADR-161): p_member_overlap_shown is recorded as member_overlap_shown on the care_visits audit row; an ok result carries member_overlap (yes/no, any team). Never refused for it. BK-e1b / CGR-249: a visit written from a take (order_take_id) is refused with take_visit; the way out is the release (CGR-242). BK-e1b / CGR-252: a take_visit refusal writes one audit row (outcome take_visit, no key).';
+comment on function public.take_open_visit(p_visit_id uuid, p_idempotency_key uuid, p_member_overlap_shown boolean) is 'ABS1: a team member takes a planned, not suspended, not covered visit of her team with nobody responsible (one tap, first wins). J3 qualification rule; not while she is absent at its time. Logged as taken. PLAN3-16 (ADR-161): p_member_overlap_shown is recorded as member_overlap_shown on the care_visits audit row; an ok result carries member_overlap (yes/no, any team). Never refused for it. BK-e1b / CGR-249: a visit written from a take (order_take_id) is refused with take_visit; the way out is the release (CGR-242). BK-e1b / CGR-252: a take_visit refusal writes one audit row (outcome take_visit, no key). HD-3s-F2-F1 (CGR-289 (c), ADR-230): taking an open visit inside the window of her own live take (pause included) is rejected with reason member_take_window and the take named; one refusal row, nothing changes.';

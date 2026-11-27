@@ -106,7 +106,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "begin_command"
+        "begin_command",
+        "member_take_window"
       ]
     },
     {
@@ -139,7 +140,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "begin_command"
+        "begin_command",
+        "member_take_window"
       ]
     },
     {
@@ -826,6 +828,70 @@
         "SET search_path TO ''",
         "institution_split_problem",
         "for update"
+      ]
+    },
+    {
+      "name": "private.member_visit_overlap",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "plan3_busy:",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.member_slot_overlap",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.plan_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "access_ended",
+        "has_qualification",
+        "adm2_in_contract",
+        "member_absent_during",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "private.plan3_confirm_overlaps",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "member_visit_overlap"
+      ]
+    },
+    {
+      "name": "private.member_take_window",
+      "required": [
+        "SET search_path TO ''",
+        "released_at is null",
+        "pause"
+      ]
+    },
+    {
+      "name": "private.member_take_window_facts",
+      "required": [
+        "SET search_path TO ''",
+        "own_team"
+      ]
+    },
+    {
+      "name": "private.guard_take_window",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "member_take_window"
       ]
     }
   ]

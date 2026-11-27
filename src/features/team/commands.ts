@@ -11,6 +11,7 @@ import { errorFields, logEvent } from "@/lib/log";
 import { parseOverlapFact, type OverlapFact } from "@/features/visits/overlap-rules";
 import { parseMemberOverlap, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
 import { DECLINE_REASONS } from "./rules";
+import { isTakeWindowError, parseTakeWindow, TAKE_WINDOW_REASON, takeWindowText } from "@/features/team/take-window";
 
 const decisionSchema = z.object({
   requestId: z.uuid(),
@@ -136,6 +137,8 @@ function planResult(op: string, data: unknown, error: { code?: string; message?:
     // QUAL1-10 (0121): the backstop refused the member for this visit (hand assignment, move).
     const qual = qualificationRefusal(error);
     if (qual) return { ok: false, error: qual };
+    // HD-3s-F2-F1 (0185): the database backstop refused a person inside her live take window.
+    if (isTakeWindowError(error)) return { ok: false, error: takeWindowText(null, op === "plan_visit" ? "plan" : "move") };
     return {
       ok: false,
       error: error.code === "22023" ? "Bitte Datum (ab gestern), Zeiten, Minuten pro Kategorie und – bei Änderungen – einen Grund angeben." : "Planung konnte nicht gespeichert werden.",
@@ -143,8 +146,13 @@ function planResult(op: string, data: unknown, error: { code?: string; message?:
   }
   const res = (data ?? {}) as {
     result?: string; reason?: string; flags?: unknown; released?: unknown; overlap?: unknown; member_overlap?: unknown;
+    take?: unknown;
   };
   if (res.result === "rejected") {
+    // HD-3s-F2-F1 (CGR-289 (c)): inside the window of her live take; the server names the take.
+    if (res.reason === TAKE_WINDOW_REASON) {
+      return { ok: false, error: takeWindowText(parseTakeWindow(res.take), op === "plan_visit" ? "plan" : "move") };
+    }
     if (op === "reschedule_visit" && res.reason === "responsible_absent") return { ok: false, error: MOVE_RESPONSIBLE_ABSENT };
     return { ok: false, error: PLAN_REASONS[res.reason ?? ""] ?? "Nicht gespeichert." };
   }
