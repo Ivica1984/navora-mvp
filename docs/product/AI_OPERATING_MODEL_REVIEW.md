@@ -848,6 +848,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control status:** no model value, so no suggestion-ledger or accept-all question arises. AUT-225 (PROPOSED, medium): checks fixed by the split type (span, block length, night time) once at type save, not at every «übernehmen», to keep plan warnings meaningful. AUT-226 (PROPOSED, low): «Pause frei» as one audited attribute per split type, default not confirmed (gap counts as working time).
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**HD-3s-F2, HD-3a-F3, HD-3b-0 and FE-136 (`aia` 2026-11-27 02:19, review 98, AUT-227 to AUT-230):**
+- **Label check:** HD-3s (merged `7e48a7a4`, not accepted), draft #1808 HD-3s-F2 (`0866c705`), the HD-3a-F3 draft and the HD-3b-0 direction (FE-134) are fixed rules. FE-134 keeps any future solver a fixed rule behind the existing checks (never a model, never a direct database write). FE-136 (14): AI may explain, never override a hard rule; consistent with §8. No model, no proposed AI value.
+- **Control status:** no model value, so no suggestion-ledger or accept-all question arises. AUT-227 (PROPOSED, medium): one report and signature per split take instead of two (later follow-up; `cra`, `lca`). AUT-228 (PROPOSED, medium): monthly target entered once with a validity, warning at entry. AUT-229 (PROPOSED, medium): HD-3b-0 measures lexicographic in the founder's order, fairness as team dispersion without names. AUT-230 (PROPOSED, low): order offer as the first notification candidate.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -947,3 +952,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-26 08:18 | `aia` | §12: block «ORDER-F1 follow-up fixes»: label check (F2 `00b59f9d`, F3 `57d1ae4d`, F5 #1780; fixed rules); AUT-220, AUT-221 (PROPOSED, low). No agent added or removed |
 | 2026-11-26 14:25 | `aia` | §12: block «HD-3s split shift»: label check (draft #1790 `2ef2dfe5`, fixed rules); AUT-222 (PROPOSED, medium), AUT-223, AUT-224 (PROPOSED, low); AUT-220 closed. No agent added or removed |
 | 2026-11-26 20:18 | `aia` | §12: block «HD-3s gate and `lca` follow-ups»: label check (`27cb1fc6`, fixed rules); AUT-225 (PROPOSED, medium), AUT-226 (PROPOSED, low). No agent added or removed |
+| 2026-11-27 02:19 | `aia` | §12: block «HD-3s-F2, HD-3a-F3, HD-3b-0 and FE-136»: label check (fixed rules; FE-134 solver stays a fixed rule); AUT-227, AUT-228, AUT-229 (PROPOSED, medium), AUT-230 (PROPOSED, low). No agent added or removed |
