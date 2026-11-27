@@ -153,9 +153,11 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     await move.getByLabel("Bis").fill("12:30");
     await move.getByLabel("Grund").fill("Test Pause F1");
     await move.getByRole("button", { name: "Verschieben" }).click();
-    await expect(planned.getByTestId("command-error")).toContainText(
-      `Nicht gespeichert: Die verantwortliche Person hat am ${workDateLabel(thu)} eine laufende geteilte Übernahme für Testheim Rhein (synthetisch): ${BOTH}.`,
+    const moveReason = planned.getByTestId("command-error");
+    await expect(moveReason).toContainText(
+      `Nicht verschoben: Die verantwortliche Person hat am ${workDateLabel(thu)} eine laufende geteilte Übernahme für Testheim Rhein (synthetisch): ${BOTH}.`,
     );
+    await expect(moveReason).toContainText("Die Pause zwischen den Blöcken gilt als belegt.");
     await expect(move.getByLabel("Datum")).toHaveValue(thu);
     await expect(move.getByLabel("Von")).toHaveValue("12:00");
     await expect(move.getByLabel("Bis")).toHaveValue("12:30");
