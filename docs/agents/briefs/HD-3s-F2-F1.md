@@ -2,7 +2,7 @@
 id: HD-3s-F2-F1
 title: Handweg sieht die Pause einer geteilten Übernahme als belegt (CGR-289)
 author: po
-status: approved   # PO 2026-11-27 06:39 nach der HD-3s-F2-Abnahme; aus `cra` CGR-289 Abhilfe (a)–(c); keine neue Regel des PO
+status: accepted   # PO 2026-11-27 20:39 auf `bfa275ae` (Simulation, synthetische Daten); approved 06:39; aus `cra` CGR-289 Abhilfe (a)–(c); keine neue Regel des PO
 updated: 2026-11-27
 ---
 
@@ -67,3 +67,19 @@ CGR-290 (Block 2 allein freigeben, HD-3s-F2-F2, Produktform Founder/`po`); Ruhez
 ## Vision check (FE-070 (7), kurz)
 
 Kontinuität (eine gedeckte Person verliert ihren Tag nicht durch einen Klick), weniger Nacharbeit für Team und Heim, keine Disposition, kein Geldfluss.
+
+## PO-Abnahme (2026-11-27 20:39, geplanter PO-Lauf, Signal FE-105 (1) (d))
+
+**Ergebnis: accepted** auf `bfa275ae` (enthält `2ca16e9c`), Gate «Simulation, synthetische Daten». Der PO hat die Tests nicht lokal ausgeführt; er hat Check-Runs und Rohprotokolle über die GitHub-API gelesen.
+
+| Kriterium | Ergebnis | Nachweis |
+|---|---|---|
+| Fenster jeder laufenden Übernahme zählt auf dem Handweg als belegt (CGR-289 (a)) | erfüllt | `cra-gate: #1825 54d0eb4e clear` (7224798961); Migration 0185; `eng` 7224392674 |
+| pgTAP 12:00–13:00 true; 20:00–21:00, 06:00–07:00 false (CGR-289 (b)) | erfüllt | pgTAP 184 §8–§10 laut `eng`; `db` ×10 «Files=181, Tests=7462», «Result: PASS» (`ci-repeat` 46054928186) |
+| Speichern in der Pause abgelehnt mit Grund, Übernahme live, kein `take_member_dropped` | erfüllt | pgTAP 184; `take-visit.sh` Fall 1/1s (`eng`); `db` grün |
+| Regression Ein-Block, ausserhalb erlaubt, Katalogwächter 157 | erfüllt | pgTAP 157, `fn-source` 93/92 laut `eng`; `db` grün |
+| e2e 390 und 1440 px, Negativfall | erfüllt | `hd3s-f2-f1-take-window.spec.ts` laut `eng`; `e2e` ×10 «234 passed», kein skipped/failed/flaky |
+| `staging-smoke` bestehende Pfade grün, nichts übersprungen | erfüllt | `staging-smoke` 46051349320 Job 140683265332 «10 passed» (Pfade 1–9); Pfad 10 = STG-P10 (PO-Entscheid 15:39) |
+| Migration ganze Datei, kanonische Quellen; `ci` grün; `staging`-Job; `ci-repeat` 10/10 | erfüllt | `ci` 46051349188 auf `2ca16e9c` grün; `staging`-Job 140687187525 «Applying migration 20261021000185…»; Render `004b5297` (`staging-version` 140684009936); `ci-repeat` 22/22 im Fenster 20:11–20:28 (Job 140701759860) |
+
+Grenzen und Folgepunkte: `ABNAHMEAKTE.md` §2 HD-3s-F2-F1.
