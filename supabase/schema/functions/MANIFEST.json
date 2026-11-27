@@ -827,6 +827,43 @@
         "institution_split_problem",
         "for update"
       ]
+    },
+    {
+      "name": "private.member_visit_overlap",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "plan3_busy:"
+      ]
+    },
+    {
+      "name": "public.member_slot_overlap",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended"
+      ]
+    },
+    {
+      "name": "public.plan_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "access_ended",
+        "has_qualification",
+        "adm2_in_contract",
+        "member_absent_during"
+      ]
+    },
+    {
+      "name": "private.plan3_confirm_overlaps",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "member_visit_overlap"
+      ]
     }
   ]
 }
