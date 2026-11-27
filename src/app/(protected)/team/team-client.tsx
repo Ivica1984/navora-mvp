@@ -1035,7 +1035,9 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   }
 
   return (
-    <form action={plan} onChange={(e) => {
+    // HD-3s-F2-F1 (CGR-289 (c)): onSubmit, not a form action, so a rejection keeps what the lead entered (a React form
+    // action resets the inputs to their defaults after it returns); she then changes only the person or the time.
+    <form onSubmit={(e) => { e.preventDefault(); void plan(new FormData(e.currentTarget)); }} onChange={(e) => {
       setSlot(slotFromForm(e.currentTarget, slot));
       setResponsibleId(String(new FormData(e.currentTarget).get("responsible") ?? ""));
     }} aria-label="Einsatz planen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">

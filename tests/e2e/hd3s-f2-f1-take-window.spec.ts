@@ -128,6 +128,10 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     await noSideScroll(page);
     expect(visitsOfCase()).toBe("0");
     expect(live()).toBe("1");
+    // The rejection keeps what she entered (no form reset): she changes only the time.
+    await expect(form.getByLabel("Datum")).toHaveValue(thu);
+    await expect(form.getByLabel("Verantwortlich")).toHaveValue(NURSE);
+    await expect(form.getByLabel("A", { exact: true })).toHaveValue("30");
 
     // 3. Negative: after block 2 (20:00–20:30) the same visit is saved and listed; the take is still live.
     await form.getByLabel("Von").fill("20:00");
