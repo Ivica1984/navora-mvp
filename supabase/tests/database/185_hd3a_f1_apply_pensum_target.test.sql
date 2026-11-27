@@ -5,14 +5,16 @@
 --   3. Wochensoll emptied -> the whole call `invalid` / `weekly_target_missing`: no row, no run record, no audit event;
 --   4. a retry with the apply id of a call that saved rows answers `already_applied`, even after the target was emptied;
 --   5. a lowered (not emptied) Pensum is checked on the current value: R-h refuses the row as `planning_rule`;
---   6. catalogue: the function still locks the home `for share` and keeps its guards (with pgTAP 157 and 175).
+--   6. catalogue: the function still locks the home `for share` and keeps its guards (with pgTAP 157 and 175);
+--   7. R-7-2 read-back public.institution_draft_run_refusals (migration 0187): the lead reads the refused row with
+--      `pensum_missing`; a viewer, the lead of another home and anon cannot; a run of another home is not_found.
 -- Kept guards (membership, other home, planner, LEAVE1-3, anon, idempotency, cell locks, rest time, days in a row, shift
 -- model, absence, double booking) are proven by 175, 176, 177 and 182 against the same, re-created function.
 -- Synthetic data only; rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(22);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -136,6 +138,31 @@ select ok(not pg_temp.has('p', 2) and (select x ->> 'reason' from res, jsonb_arr
 select ok((select prosecdef and proconfig @> array['search_path=""']
            from pg_proc where oid = 'public.institution_apply_draft(uuid, uuid, jsonb)'::regprocedure),
           'institution_apply_draft stays security definer with an empty search_path');
+
+-- 7. Read-back of the refused rows (R-7-2) ---------------------------------------------------------------------------
+insert into auth.users (id, email) values (pg_temp.u('b1'), 'v.hd3af1@navora.test'), (pg_temp.u('b2'), 'l.hd3af1@navora.test');
+insert into public.institutions (id, display_name, kind, simulation) values
+  (pg_temp.u('c1'), 'Testheim HD-3a-F1 (synthetisch)', 'home', true);
+insert into public.institution_members (institution_id, user_id, role) values
+  (pg_temp.inst(), pg_temp.u('b1'), 'viewer'), (pg_temp.u('c1'), pg_temp.u('b2'), 'lead');
+create function pg_temp.refusals(p_user text, p_inst uuid, k text) returns jsonb language sql as $$
+  select pg_temp.cmd(p_user, format('select public.institution_draft_run_refusals(%L, %L)', p_inst, pg_temp.id(k)))
+$$;
+select is((select x from jsonb_array_elements(pg_temp.refusals(pg_temp.lead(), pg_temp.inst(), 'a2') -> 'refused') x),
+          jsonb_build_object('staff_id', pg_temp.id('q')::text, 'date', pg_temp.d(3)::text,
+                             'shift_type_id', pg_temp.id('f')::text, 'reason', 'pensum_missing'),
+          'the lead reads back the refused row: person, day, shift type and pensum_missing');
+select is((pg_temp.refusals(pg_temp.lead(), pg_temp.inst(), 'a2') ->> 'applied'), '1', 'and the saved count of the run');
+select is((pg_temp.refusals(pg_temp.u('b1')::text, pg_temp.inst(), 'a2')), '{"result": "rejected"}'::jsonb,
+          'a viewer of the home cannot read the run');
+select is((pg_temp.refusals(pg_temp.u('b2')::text, pg_temp.u('c1'), 'a2')), '{"result": "not_found"}'::jsonb,
+          'the lead of another home asking for this run under her own home gets not_found (nothing of it)');
+select is((pg_temp.refusals(pg_temp.u('b2')::text, pg_temp.inst(), 'a2')), '{"result": "rejected"}'::jsonb,
+          'the lead of another home cannot read this home''s run');
+select ok(not has_function_privilege('anon', 'public.institution_draft_run_refusals(uuid, uuid)', 'execute')
+          and (select prosecdef and proconfig @> array['search_path=""'] from pg_proc
+               where oid = 'public.institution_draft_run_refusals(uuid, uuid)'::regprocedure),
+          'anon has no execute; the reader is security definer with an empty search_path');
 
 select * from finish();
 rollback;

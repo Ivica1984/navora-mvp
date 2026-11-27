@@ -16,7 +16,7 @@ import {
   sortRows,
   type DraftPlan,
 } from "@/features/home-plan/draft-screen";
-import { addDays, daysBetween, messageText, parseCount, withDraftCounts, withMessage, type PlanCell } from "@/features/home-plan/rules";
+import { addDays, daysBetween, messageText, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, withApplyRun, withDraftCounts, withMessage, type PlanCell } from "@/features/home-plan/rules";
 
 const ST = "00000000-0000-4000-8000-0000000000a1";
 const F = "00000000-0000-4000-8000-0000000000b1";
@@ -210,6 +210,32 @@ describe("HD-3a slice 4: the answer of «übernehmen»", () => {
     expect(m?.text).toContain("kein Wochensoll eingetragen");
     expect(m?.text).toContain("«Planungsgrenzen»");
     expect(m?.text).toContain("Es wurde nichts übernommen.");
+  });
+
+  it("HD-3a-F1 R-7-2: the URL carries only the apply id; the refused persons come from the run record", () => {
+    const id = "00000000-0000-4000-a185-0000000000a2";
+    const path = withApplyRun(withDraftCounts(withMessage("/heim?ansicht=vorschlag", "draft_applied_partly"), 1, 2), id);
+    const q = new URL(path, "http://x").searchParams;
+    expect(q.get("lauf")).toBe(id);
+    expect(parseApplyRun(q.get("lauf") ?? undefined)).toBe(id);
+    expect(parseApplyRun("x; drop")).toBeNull();
+    expect(new URL(withApplyRun("/heim", "not-a-uuid"), "http://x").searchParams.has("lauf")).toBe(false);
+    const persons = pensumMissingPersons(
+      [
+        { staff_id: "s2", date: "2030-01-08", shift_type_id: "f", reason: "pensum_missing" },
+        { staff_id: "s2", date: "2030-01-09", shift_type_id: "f", reason: "pensum_missing" },
+        { staff_id: "s1", date: "2030-01-08", shift_type_id: "f", reason: "pensum_missing" },
+        { staff_id: "s3", date: "2030-01-08", shift_type_id: "f", reason: "cell_full" },
+        { staff_id: "s9", date: "2030-01-08", shift_type_id: "f", reason: "pensum_missing" },
+      ],
+      [{ id: "s1", display_name: "Zora Test" }, { id: "s2", display_name: "Anna Test" }, { id: "s3", display_name: "Ben Test" }],
+    );
+    expect(persons).toEqual([
+      { id: "s2", name: "Anna Test", shifts: 2 }, { id: "s9", name: "Eine Person", shifts: 1 }, { id: "s1", name: "Zora Test", shifts: 1 },
+    ]);
+    expect(pensumMissingText(persons[0])).toBe(
+      "Anna Test: 2 Dienste nicht übernommen, weil kein Pensum eingetragen ist. Bitte bei der Person das Pensum eintragen und neu vorschlagen.");
+    expect(pensumMissingText({ name: "Zora Test", shifts: 1 })).toContain("1 Dienst nicht übernommen");
   });
 
   it("counts from the URL are whole numbers only", () => {

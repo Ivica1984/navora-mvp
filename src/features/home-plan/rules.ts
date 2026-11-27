@@ -645,6 +645,44 @@ export function withDraftCounts(path: string, applied: number, refused: number):
   url.searchParams.set("abgelehnt", String(Math.max(0, Math.trunc(refused))));
   return `${url.pathname}${url.search}`;
 }
+/**
+ * HD-3a-F1 R-7-2: after a partial take-over the URL carries only the apply id (`lauf`), never a name; the page reads the
+ * refused rows back from the run record (`institution_draft_run_refusals`, T-1).
+ */
+export function withApplyRun(path: string, applyId: string): string {
+  const url = new URL(path, "http://x");
+  if (UUID_RE.test(applyId)) url.searchParams.set("lauf", applyId);
+  return `${url.pathname}${url.search}`;
+}
+export function parseApplyRun(v: string | undefined): string | null {
+  return typeof v === "string" && UUID_RE.test(v) ? v : null;
+}
+
+/** One refused row of a take-over as `institution_draft_run_refusals` returns it. */
+export type RunRefusal = { staff_id: string; date: string; shift_type_id: string; reason: string };
+
+/**
+ * HD-3a-F1 R-7-2: the persons whose rows «übernehmen» refused for a missing Pensum (`pensum_missing`), each with the
+ * number of her refused shifts, in name order. A person no longer in the plan's staff list is named «Eine Person» (the
+ * screen never shows an id).
+ */
+export function pensumMissingPersons(
+  refused: ReadonlyArray<RunRefusal>, staff: ReadonlyArray<{ id: string; display_name: string }>,
+): Array<{ id: string; name: string; shifts: number }> {
+  const count = new Map<string, number>();
+  for (const r of refused) if (r.reason === "pensum_missing") count.set(r.staff_id, (count.get(r.staff_id) ?? 0) + 1);
+  const name = new Map(staff.map((s) => [s.id, s.display_name]));
+  return [...count.entries()]
+    .map(([id, shifts]) => ({ id, name: name.get(id) ?? "Eine Person", shifts }))
+    .sort((a, b) => a.name.localeCompare(b.name, "de-CH") || a.id.localeCompare(b.id));
+}
+
+/** HD-3a-F1 R-7-2: the line per person, with the next action. */
+export function pensumMissingText(p: { name: string; shifts: number }): string {
+  return `${p.name}: ${p.shifts} ${p.shifts === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil kein Pensum eingetragen ist. `
+    + "Bitte bei der Person das Pensum eintragen und neu vorschlagen.";
+}
+
 /** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */
 export function withAffected(path: string, affected: number): string {
   const url = new URL(path, "http://x");

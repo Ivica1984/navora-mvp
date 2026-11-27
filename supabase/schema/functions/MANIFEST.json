@@ -446,6 +446,15 @@
       ]
     },
     {
+      "name": "public.institution_draft_run_refusals",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member(p_institution_id, array['lead', 'planner'])",
+        "institution_id = p_institution_id"
+      ]
+    },
+    {
       "name": "public.institution_add_station",
       "required": [
         "SECURITY DEFINER",

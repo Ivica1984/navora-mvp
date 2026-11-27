@@ -13,7 +13,7 @@ import { applyOutcome } from "./draft-screen";
 import { parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm, sameAsShown } from "./planning-inputs";
 import { validateSplitShift } from "./split";
 import { getPlan } from "./queries";
-import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withAffected, withDraftCounts, withMessage, withWarning } from "./rules";
+import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withAffected, withApplyRun, withDraftCounts, withMessage, withWarning } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -354,6 +354,8 @@ export async function applyDraft(form: FormData) {
     const o = applyOutcome(data);
     logEvent("info", "draft.applied", { op: "institution_apply_draft", code: o.code, count: o.applied });
     target = withDraftCounts(withMessage(back, o.code), o.applied, o.refused);
+    // HD-3a-F1 R-7-2: only the apply id goes into the URL; the page reads the refused rows back (never a name here).
+    if (o.code === "draft_applied_partly") target = withApplyRun(target, v.apply);
   }
   revalidatePath(HOME_PLAN_PATH);
   redirect(target);

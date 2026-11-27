@@ -85,8 +85,9 @@ begin
   -- HD-3a-F1 (#1745): then the draft's shift types of this home (share, id order) and the home (share): the same prefix
   -- as institution_assign_staff (person -> type -> home), so no new lock cycle. Held to commit, so the weekly target
   -- checked below and every later rule check read the same value: institution_set_planning_limits (home `for update`)
-  -- waits for this call or this call waits for it, never in between (before, the home was share-locked only by the
-  -- first institution_assign_staff, after the cell-lock wait, and an emptied target let R-h be skipped).
+  -- waits for this call or this call waits for it, never in between. Before 0186 this held only as a side effect (the
+  -- run-record insert's foreign key takes the home `for key share`); the check below runs before that insert, so the
+  -- lock is taken here explicitly.
   perform 1 from public.institution_shift_types t
     where t.institution_id = p_institution_id
       and t.id in (select (e ->> 'shift_type_id')::uuid from jsonb_array_elements(p_rows) e)

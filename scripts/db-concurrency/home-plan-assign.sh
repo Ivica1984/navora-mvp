@@ -18,6 +18,8 @@
 #      prepare «not_a_gap»; G2 prepare first -> apply «cell_has_order».
 #   H (0176, review finding 4): the planner's role is removed while her apply waits for a person lock: «rejected», no
 #      run record, no assignment.
+#   I (HD-3a-F1, 0186): the lead empties the Wochensoll while an apply waits on a cell lock: serial outcome, the row is
+#      never saved with R-h skipped.
 # Commits its own synthetic fixture rows (fixed ids, home «Testheim Rhein» of the seed) and removes them again.
 # Usage: DB_URL=... home-plan-assign.sh
 set -euo pipefail
@@ -42,10 +44,15 @@ A7=a1600000-0000-4000-8000-0000000000d7
 A8=a1600000-0000-4000-8000-0000000000d8
 DAY3=2030-04-15
 psql_q() { psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 "$@"; }
+# HD-3a-F1 (migration 0186): «übernehmen» refuses the whole call without the home's Wochensoll and a row of a person
+# without Pensum (fail closed). The D-G applies are valid drafts, so the fixture gives the race home a Wochensoll and the
+# race person a Pensum, as the planner requires; the home's own value is read first and restored in cleanup.
+ORIG_WT=$(psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 -c "select coalesce(weekly_target_hours::text, 'null') from public.institutions where id = '$INST'")
 
 cleanup() {
   psql_q <<SQL
 set session_replication_role = replica;
+update public.institutions set weekly_target_hours = $ORIG_WT where id = '$INST';
 delete from public.institution_audit_events where institution_id = '$INST' and (entity_id in ('$ST', '$TF', '$TS', '$TU', '$PX')
   or changed ->> 'staff_id' = '$PX' or entity_id in (select id from public.institution_assignments where staff_id = '$PX'));
 delete from public.institution_audit_events where institution_id = '$INST' and entity_id in ('$A1', '$A2', '$A3', '$A4', '$A5', '$A6', '$A7', '$A8');
@@ -73,7 +80,9 @@ insert into public.institution_shift_types (id, institution_id, code, label, sta
   ('$TF', '$INST', 'XF', 'Race Früh', '07:00', '15:30', 97),
   ('$TS', '$INST', 'XS', 'Race Spät', '14:30', '23:00', 98),
   ('$TU', '$INST', 'XU', 'Race Ungenutzt', '00:00', '03:00', 99);
-insert into public.institution_staff (id, institution_id, display_name, grade) values ('$PX', '$INST', 'Race Person (synthetisch)', 'nurse_hf_fh');
+insert into public.institution_staff (id, institution_id, display_name, grade, pensum_pct) values ('$PX', '$INST', 'Race Person (synthetisch)', 'nurse_hf_fh', 100);
+set session_replication_role = replica;
+update public.institutions set weekly_target_hours = 42 where id = '$INST';
 SQL
 
 run_as() {  # $1 user, $2 sql returning one text value
@@ -217,4 +226,36 @@ echo "H apply|assignments|run records: $h"
 if [ "$h" = "rejected |0|0" ]; then echo "ok - H: role removed while waiting: «rejected», no run record, no assignment";
 else echo "not ok - H: expected rejected with no run record"; fail=1; fi
 psql_q -c "insert into public.institution_members (institution_id, user_id, role) values ('$INST', '$PLANNER', 'planner') on conflict do nothing"
+
+# I (HD-3a-F1, migration 0186; contract eng 7225259824 point 1): the lead empties the Wochensoll while an apply waits on
+# a cell lock. Regression guard: a setter committing NULL in between would let R-h be skipped and save the row of a
+# person whose Pensum (10 % of 42 h = 4.2 h) cannot hold an 8.5 h shift. Checked on the pre-0186 definition: also
+# serial (the run-record insert's foreign key already took the home `for key share` before the cell locks; the race
+# named in the contract was not real). 0186 takes the home `for share` explicitly, because its new check runs before
+# that insert. Serial outcomes only: apply first -> «planning_rule» (R-h on 42 h), setter ok, no row; setter
+# first -> «weekly_target_missing», no row. Never a saved row. A superuser session holds the cell lock for 1.5 s (the setter, held 0.3 s by run_as, commits well before it ends).
+DAY4=2030-04-22
+psql_q -c "set session_replication_role = replica; update public.institution_staff set pensum_pct = 10 where id = '$PX'"
+AUD0=$(psql "$DB_URL" -X -At -c "select coalesce(max(id), 0) from public.institution_audit_events")
+LIM=$(psql "$DB_URL" -X -At -c "select min_rest_hours || ', ' || max_consecutive_days from public.institutions where id = '$INST'")
+psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 > /dev/null <<SQL &
+begin;
+select private.institution_cell_lock('$ST', '$TF', '$DAY4');
+select pg_sleep(1.5);
+commit;
+SQL
+(sleep 0.2; apply "$LEAD" "$A8" "$TF" "$DAY4" > "$tmp/i1") &
+(sleep 0.4; run_as "$LEAD" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_planning_limits('$INST', $LIM, null) r;" > "$tmp/i2") &
+wait
+i="$(norm "$tmp/i1")|$(norm "$tmp/i2")|$(count_px)"
+echo "I apply|set_planning_limits|assignments: $i"
+case "$i" in
+  "planning_rule |ok |0"|"weekly_target_missing |ok |0") echo "ok - I: Wochensoll emptied during an apply: the setter and the apply serialise, R-h is never skipped";;
+  *) echo "not ok - I: expected a serial outcome with no saved row (a saved row means R-h was skipped)"; fail=1;;
+esac
+psql_q <<SQL
+set session_replication_role = replica;
+delete from public.institution_audit_events where institution_id = '$INST' and command = 'institution_set_planning_limits' and id > $AUD0;
+update public.institutions set weekly_target_hours = 42 where id = '$INST';
+SQL
 exit $fail
