@@ -24,6 +24,7 @@ import InvoiceDraftsSection from "./invoice-drafts-section";
 import type { TeamInvoiceRow, TeamPriceRow } from "@/features/invoices/queries";
 import type { TeamShiftOffer } from "@/features/orders/team-queries";
 import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
+import { settleAction } from "@/features/team/settle-action";
 import { returnReferralFacts, returningOfferText, reviewTaskLabel, type ReturnReferralFacts } from "@/features/returning/rules";
 import {
   DECLINE_REASONS,
@@ -995,7 +996,8 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
     const savedDay = String(form.get("date") ?? "");
     const m = minutesFromForm((k) => String(form.get(k) ?? ""));
     const responsible = String(form.get("responsible") ?? "");
-    const result = await planVisit({
+    // Review (e) on #1825: a thrown call (lost connection) ends in a neutral sentence and re-enables the button.
+    const result = await settleAction(() => planVisit({
       caseId,
       date: String(form.get("date") ?? ""),
       start: String(form.get("start") ?? ""),
@@ -1008,7 +1010,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       idempotencyKey: crypto.randomUUID(),
       overlapShown: shown,
       memberOverlapShown: responsible ? memberShown : undefined,
-    });
+    }));
     setPending(false);
     if (!result.ok) {
       setError(result.error);
@@ -1119,9 +1121,10 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
     const memberShown = memberOverlap.shown;
     const savedDay = String(form.get("date") ?? "");
     const reason = String(form.get("reason") ?? "");
-    const result =
+    // Review (e) on #1825: a thrown call (lost connection) ends in a neutral sentence and re-enables the button.
+    const result = await settleAction(() =>
       mode === "move"
-        ? await rescheduleVisit({
+        ? rescheduleVisit({
             visitId: visit.visit_id,
             date: String(form.get("date") ?? ""),
             start: String(form.get("start") ?? ""),
@@ -1131,7 +1134,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
             overlapShown: shown,
             memberOverlapShown: holder ? memberShown : undefined,
           })
-        : await removePlannedVisit({ visitId: visit.visit_id, reason, idempotencyKey: crypto.randomUUID() });
+        : removePlannedVisit({ visitId: visit.visit_id, reason, idempotencyKey: crypto.randomUUID() }));
     setPending(false);
     if (!result.ok) {
       setError(result.error);

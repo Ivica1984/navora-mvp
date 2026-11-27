@@ -11,12 +11,15 @@
 --   §5 regression: a hand visit outside every take window is saved; a one-block take refuses inside its window only.
 --   §6 backstop: a direct write of a non-take visit into her live take window raises (no writer releases silently).
 --   §7 privacy (CGR-137): a lead of another team of hers reads the date and blocks, never the home.
+--   §8 catalogue: no client role may update care_visits.order_take_id.
+--   §9 AIG1 apply (review (b) on #1825, ADR-230 point 2): a confirmed day-plan line into the pause returns `overlap`; a
+--      non-day-plan AIG1 suggestion into the pause raises member_take_window. Neither releases the take.
 -- Users: lead kundebs …9e8 of «Testheim Rhein» …4c1 (client account …3c1); nurses …11 (split take), …12 (lead of the
 -- hand plan, one-block take), …13 (other team) in Testorganisation S (…b000-…019); team …b184-…01, second team …b184-…02.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(32);
+select plan(38);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -210,6 +213,36 @@ select ok(not has_column_privilege('authenticated', 'public.care_visits', 'order
           '§8 authenticated cannot update care_visits.order_take_id');
 select ok(not has_column_privilege('anon', 'public.care_visits', 'order_take_id', 'UPDATE'),
           '§8 anon cannot update care_visits.order_take_id');
+
+-- §9 AIG1 apply (review (b) on #1825): both confirm paths fail closed in the pause, neither releases the take ----------
+-- The open 12:00 visit of §4 (no responsible person). Ledger rows written as propose_day_plan / the test agent write them.
+create function pg_temp.sugg(p_agent text) returns public.ai_suggestions language sql as $$
+  insert into public.ai_suggestions (proposal_id, organization_id, team_id, case_id, agent_key, agent_version, field,
+                                     entity_type, entity_id, input_refs, proposed_value)
+  values (gen_random_uuid(), pg_temp.org(), pg_temp.team(1), pg_temp.c(1), p_agent, '1', 'responsible_user_id',
+          'care_visits', 'dddd0000-0000-4000-8184-000000000001',
+          jsonb_build_array(jsonb_build_object('table', 'care_visits', 'id', 'dddd0000-0000-4000-8184-000000000001')),
+          to_jsonb(pg_temp.us('11')))
+  returning * $$;
+create temp table s9 as select (pg_temp.sugg('plan3_day_proposal')).*;
+insert into public.day_plan_lines (suggestion_id, proposal_id, organization_id, team_id, visit_id, plan_date,
+                                   include_assigned, reason, known_visits)
+select s.id, s.proposal_id, s.organization_id, s.team_id, s.entity_id, '2026-11-19', false, 'free_capacity', 0 from s9 s;
+select is((select private.aig1_apply(x, to_jsonb(pg_temp.us('11')), pg_temp.u('12')) from public.ai_suggestions x
+            where x.id = (select id from s9)), 'overlap',
+          '§9 a confirmed day-plan line that names her for 12:00 in the pause returns overlap');
+create temp table s9b as select (pg_temp.sugg('aig1_test_primary_nurse')).*;
+select throws_ok($q$select private.aig1_apply(x, to_jsonb(pg_temp.us('11')), pg_temp.u('12')) from public.ai_suggestions x
+                    where x.id = (select id from s9b)$q$,
+                 'P0001', 'member_take_window',
+                 '§9 a confirmed non-day-plan AIG1 suggestion that names her in the pause raises member_take_window');
+select is((select responsible_user_id from public.care_visits where id = 'dddd0000-0000-4000-8184-000000000001'), null::uuid,
+          '§9 the 12:00 visit stays unassigned after both confirms');
+select ok(pg_temp.live(), '§9 the split take is still live');
+select is((select string_agg(v.status, ',' order by v.take_block) from public.care_visits v where v.id in (select id from tv)),
+          'planned,planned', '§9 both block visits are still planned');
+select is((select count(*)::int from private.derived_exceptions_of(pg_temp.org(), array['take_member_dropped'])), 0,
+          '§9 still no take_member_dropped');
 
 select * from finish();
 rollback;
