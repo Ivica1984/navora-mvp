@@ -13,6 +13,18 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(41);
 
+-- HD-3a-F1 R-6-2 (b), migration 0188: the planning commands take the values the form showed (`p_expected`). These
+-- helpers read the current values as the test owner (authenticated cannot read the tables), so each call below states
+-- «what the screen showed» = the current row; pgTAP 186 tests the refusal when they differ.
+create function pg_temp.exp_limits(i uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('min_rest_hours', h.min_rest_hours, 'max_consecutive_days', h.max_consecutive_days,
+                            'weekly_target_hours', h.weekly_target_hours) from public.institutions h where h.id = i $exp$;
+create function pg_temp.exp_staff(s uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('pensum_pct', p.pensum_pct, 'shift_model', p.shift_model)
+  from public.institution_staff p where p.id = s $exp$;
+create function pg_temp.exp_class(t uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('shift_class', x.shift_class) from public.institution_shift_types x where x.id = t $exp$;
+
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -67,15 +79,15 @@ insert into ids select 'st', (pg_temp.cmd(pg_temp.lead(), format('select public.
 insert into ids select 't', (pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_type(%L, %L, %L, %L, %L)',
   pg_temp.inst(), 'HZ', 'HD3a Zwischen', '10:00', '18:00')) ->> 'shift_type_id')::uuid;
 create function pg_temp.planning(p_user text, staff uuid, pensum integer, model text) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.institution_set_staff_planning(%L, %s, %L)',
-    staff, coalesce(pensum::text, 'null'), model))
+  select pg_temp.cmd(p_user, format('select public.institution_set_staff_planning(%L, %s, %L, %L::jsonb)',
+    staff, coalesce(pensum::text, 'null'), model, pg_temp.exp_staff(staff)))
 $$;
 create function pg_temp.limits(p_user text, inst uuid, hours text) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.institution_set_planning_limits(%L, 11, 6, %s)', inst, hours))
+  select pg_temp.cmd(p_user, format('select public.institution_set_planning_limits(%L, 11, 6, %s, %L::jsonb)', inst, hours, pg_temp.exp_limits(inst)))
 $$;
 create function pg_temp.cls(p_user text, t uuid, c text) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.institution_set_shift_class(%L, %s)', t,
-    coalesce(quote_literal(c), 'null')))
+  select pg_temp.cmd(p_user, format('select public.institution_set_shift_class(%L, %s, %L::jsonb)', t,
+    coalesce(quote_literal(c), 'null'), pg_temp.exp_class(t)))
 $$;
 
 -- 1. Schema and the forward migration of day_only -------------------------------------------------------------------
@@ -173,8 +185,8 @@ insert into public.member_access_events (organization_id, user_id, kind, reason_
   ('00000000-0000-4000-b000-000000000011', pg_temp.u('05'), 'ended', 'employment_ended', pg_temp.u('01'));
 select is(pg_temp.cls(pg_temp.u('05')::text, pg_temp.u('31'), 'early') ->> 'sqlstate', '42501',
           'after the access end set_shift_class raises access_ended');
-select ok(not has_function_privilege('anon', 'public.institution_set_shift_class(uuid, text)', 'execute')
-          and not has_function_privilege('anon', 'public.institution_set_planning_limits(uuid, integer, integer, numeric)', 'execute'),
+select ok(not has_function_privilege('anon', 'public.institution_set_shift_class(uuid, text, jsonb)', 'execute')
+          and not has_function_privilege('anon', 'public.institution_set_planning_limits(uuid, integer, integer, numeric, jsonb)', 'execute'),
           'anon executes neither command');
 
 select * from finish();

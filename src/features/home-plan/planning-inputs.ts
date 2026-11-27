@@ -115,13 +115,49 @@ export function readShiftClassForm(f: FormData): { ok: true; value: ShiftClass |
 }
 
 /**
- * R-6-2 option (a): the form carries the values it showed (`was_*`); the server compares them with a fresh read before
- * it writes. A different value means somebody else changed it in between: nothing is written, the person reloads.
- * A short window between the read and the write remains (named in the ready report; option (b) is a follow-up).
+ * R-6-2 (b) (HD-3a-F1, migration 0188): the form carries the values it showed (`was_*`); the command sends them as
+ * `p_expected` and the database compares them under the row lock it takes for the write. A different value means
+ * somebody else changed it in between: nothing is written (`changed_meanwhile`), the page shows the current values.
+ * A missing or unreadable `was_*` sends nothing (fail closed).
  */
 export const shownValue = (v: number | string | null | undefined): string => (v === null || v === undefined ? NOT_ENTERED : String(v));
 
-export function sameAsShown(shown: string | null, current: number | string | null | undefined): boolean {
-  if (shown === null) return false;
-  return shown === shownValue(current);
+/** A shown number back from the form: «nicht eingetragen» → null; anything but a plain decimal → not readable. */
+export function shownNumber(shown: string | null): { ok: true; value: number | null } | { ok: false } {
+  if (shown === NOT_ENTERED) return { ok: true, value: null };
+  if (shown === null || !/^\d{1,6}(\.\d{1,6})?$/.test(shown)) return { ok: false };
+  return { ok: true, value: Number(shown) };
+}
+
+/** A shown text back from the form: «nicht eingetragen» → null only where the column may be empty. */
+function shownText(shown: string | null, nullable: boolean): { ok: true; value: string | null } | { ok: false } {
+  if (shown === null || shown === "") return { ok: false };
+  if (shown === NOT_ENTERED) return nullable ? { ok: true, value: null } : { ok: false };
+  return { ok: true, value: shown };
+}
+
+export type ExpectedLimits = { min_rest_hours: number; max_consecutive_days: number; weekly_target_hours: number | null };
+/** `p_expected` of `institution_set_planning_limits`; null when a shown value is missing (nothing is sent). */
+export function expectedLimits(f: FormData): ExpectedLimits | null {
+  const rest = shownNumber(field(f, "was_rest"));
+  const days = shownNumber(field(f, "was_days"));
+  const weekly = shownNumber(field(f, "was_weekly"));
+  if (!rest.ok || !days.ok || !weekly.ok || rest.value === null || days.value === null) return null;
+  return { min_rest_hours: rest.value, max_consecutive_days: days.value, weekly_target_hours: weekly.value };
+}
+
+export type ExpectedStaffPlanning = { pensum_pct: number | null; shift_model: string };
+/** `p_expected` of `institution_set_staff_planning`. */
+export function expectedStaffPlanning(f: FormData): ExpectedStaffPlanning | null {
+  const pensum = shownNumber(field(f, "was_pensum"));
+  const model = shownText(field(f, "was_model"), false);
+  if (!pensum.ok || !model.ok || model.value === null) return null;
+  return { pensum_pct: pensum.value, shift_model: model.value };
+}
+
+export type ExpectedShiftClass = { shift_class: string | null };
+/** `p_expected` of `institution_set_shift_class` («keine Klasse» shown = null). */
+export function expectedShiftClass(f: FormData): ExpectedShiftClass | null {
+  const c = shownText(field(f, "was_class"), true);
+  return c.ok ? { shift_class: c.value } : null;
 }

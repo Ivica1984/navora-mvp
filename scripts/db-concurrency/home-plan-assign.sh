@@ -20,6 +20,9 @@
 #      run record, no assignment.
 #   I (HD-3a-F1, 0186): the lead empties the Wochensoll while an apply waits on a cell lock: serial outcome, the row is
 #      never saved with R-h skipped.
+#   J (HD-3a-F1 R-6-2 (b), 0188): two planners save a different Pensum for the same person from the same shown value at
+#      once: exactly one «ok», the other «changed_meanwhile» (compared under the person row lock), the stored Pensum is
+#      the winner's; the later save never overwrites the earlier one silently (the serial outcome).
 # Commits its own synthetic fixture rows (fixed ids, home «Testheim Rhein» of the seed) and removes them again.
 # Usage: DB_URL=... home-plan-assign.sh
 set -euo pipefail
@@ -238,6 +241,8 @@ DAY4=2030-04-22
 psql_q -c "set session_replication_role = replica; update public.institution_staff set pensum_pct = 10 where id = '$PX'"
 AUD0=$(psql "$DB_URL" -X -At -c "select coalesce(max(id), 0) from public.institution_audit_events")
 LIM=$(psql "$DB_URL" -X -At -c "select min_rest_hours || ', ' || max_consecutive_days from public.institutions where id = '$INST'")
+# 0188: the setter states the values its form showed (`p_expected`): the current ones, so the setter itself succeeds.
+EXP=$(psql "$DB_URL" -X -At -c "select jsonb_build_object('min_rest_hours', min_rest_hours, 'max_consecutive_days', max_consecutive_days, 'weekly_target_hours', weekly_target_hours) from public.institutions where id = '$INST'")
 psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 > /dev/null <<SQL &
 begin;
 select private.institution_cell_lock('$ST', '$TF', '$DAY4');
@@ -245,7 +250,7 @@ select pg_sleep(1.5);
 commit;
 SQL
 (sleep 0.2; apply "$LEAD" "$A8" "$TF" "$DAY4" > "$tmp/i1") &
-(sleep 0.4; run_as "$LEAD" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_planning_limits('$INST', $LIM, null) r;" > "$tmp/i2") &
+(sleep 0.4; run_as "$LEAD" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_planning_limits('$INST', $LIM, null, '$EXP'::jsonb) r;" > "$tmp/i2") &
 wait
 i="$(norm "$tmp/i1")|$(norm "$tmp/i2")|$(count_px)"
 echo "I apply|set_planning_limits|assignments: $i"
@@ -258,4 +263,29 @@ set session_replication_role = replica;
 delete from public.institution_audit_events where institution_id = '$INST' and command = 'institution_set_planning_limits' and id > $AUD0;
 update public.institutions set weekly_target_hours = 42 where id = '$INST';
 SQL
+
+# J (HD-3a-F1 R-6-2 (b), migration 0188): lead and planner both saw Pensum 10 % / «alle Dienste» and save 50 % and 60 % at
+# the same time. A superuser session holds the person row for 1 s so both calls wait on the same lock; run_as keeps each
+# transaction open 0.3 s after its write, so the second compares against the first's committed row (READ COMMITTED
+# re-reads the locked row). Serial outcome only: one «ok», one «changed_meanwhile», the stored Pensum is the winner's.
+AUDJ=$(psql "$DB_URL" -X -At -c "select coalesce(max(id), 0) from public.institution_audit_events")
+SHOWN='{"pensum_pct": 10, "shift_model": "any"}'
+psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 > /dev/null <<SQL &
+begin;
+select 1 from public.institution_staff where id = '$PX' for update;
+select pg_sleep(1);
+commit;
+SQL
+(sleep 0.2; run_as "$LEAD" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_staff_planning('$PX', 50, 'any', '$SHOWN'::jsonb) r;" > "$tmp/j1") &
+(sleep 0.3; run_as "$PLANNER" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_staff_planning('$PX', 60, 'any', '$SHOWN'::jsonb) r;" > "$tmp/j2") &
+wait
+jr="$(norm "$tmp/j1")|$(norm "$tmp/j2")"
+jp=$(psql "$DB_URL" -X -At -c "select pensum_pct from public.institution_staff where id = '$PX'")
+ja=$(psql "$DB_URL" -X -At -c "select count(*) from public.institution_audit_events where command = 'institution_set_staff_planning' and entity_id = '$PX' and id > $AUDJ")
+echo "J lead|planner|stored Pensum|audit events: $jr|$jp|$ja"
+case "$jr|$jp|$ja" in
+  "ok |changed_meanwhile |50|1"|"changed_meanwhile |ok |60|1") echo "ok - J: two saves from the same shown Pensum: one wins, the other «changed_meanwhile», nothing overwritten silently";;
+  *) echo "not ok - J: expected one ok and one changed_meanwhile with the winner's Pensum and one audit event"; fail=1;;
+esac
+psql_q -c "set session_replication_role = replica; delete from public.institution_audit_events where command = 'institution_set_staff_planning' and entity_id = '$PX' and id > $AUDJ"
 exit $fail

@@ -39,8 +39,7 @@ export async function getPlan(institutionId: string, from: string, to: string): 
  */
 export async function getDraftRunRefusals(institutionId: string, applyId: string): Promise<RunRefusal[] | null> {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("institution_draft_run_refusals" as never,
-    { p_institution_id: institutionId, p_apply_id: applyId } as never);
+  const { data, error } = await supabase.rpc("institution_draft_run_refusals", { p_institution_id: institutionId, p_apply_id: applyId });
   if (error) {
     logEvent("warn", "query.failed", { op: "institution_draft_run_refusals", ...errorFields(error) });
     return null;

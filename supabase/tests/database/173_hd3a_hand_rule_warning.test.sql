@@ -12,6 +12,18 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(32);
 
+-- HD-3a-F1 R-6-2 (b), migration 0188: the planning commands take the values the form showed (`p_expected`). These
+-- helpers read the current values as the test owner (authenticated cannot read the tables), so each call below states
+-- «what the screen showed» = the current row; pgTAP 186 tests the refusal when they differ.
+create function pg_temp.exp_limits(i uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('min_rest_hours', h.min_rest_hours, 'max_consecutive_days', h.max_consecutive_days,
+                            'weekly_target_hours', h.weekly_target_hours) from public.institutions h where h.id = i $exp$;
+create function pg_temp.exp_staff(s uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('pensum_pct', p.pensum_pct, 'shift_model', p.shift_model)
+  from public.institution_staff p where p.id = s $exp$;
+create function pg_temp.exp_class(t uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('shift_class', x.shift_class) from public.institution_shift_types x where x.id = t $exp$;
+
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -59,10 +71,10 @@ insert into ids select 'f', (pg_temp.cmd(pg_temp.lead(), format('select public.i
   pg_temp.inst(), 'CF', 'HD3a Früh', '07:00', '15:30')) ->> 'shift_type_id')::uuid;
 insert into ids select 's', (pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_type(%L, %L, %L, %L, %L)',
   pg_temp.inst(), 'CS', 'HD3a Spät', '14:30', '23:00')) ->> 'shift_type_id')::uuid;
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('f'), 'early'));
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('s'), 'late'));
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_staff_planning(%L, 50, %L)', pg_temp.id('x'), 'early_only'));
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 6, 42)', pg_temp.inst()));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('f'), 'early', pg_temp.exp_class(pg_temp.id('f'))));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('s'), 'late', pg_temp.exp_class(pg_temp.id('s'))));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_staff_planning(%L, 50, %L, %L::jsonb)', pg_temp.id('x'), 'early_only', pg_temp.exp_staff(pg_temp.id('x'))));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 6, 42, %L::jsonb)', pg_temp.inst(), pg_temp.exp_limits(pg_temp.inst())));
 
 create function pg_temp.assign(p_user text, shift uuid, day date, confirm text) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.institution_assign_staff(%L, %L, %L, %L, %L, %s)', pg_temp.inst(),
@@ -129,7 +141,7 @@ select is(pg_temp.plan_person(pg_temp.id('s'), pg_temp.d(10)) -> 'override_rules
 select is(pg_temp.plan_person(pg_temp.id('s'), pg_temp.d(10)) -> 'rules', '["shift_model", "rest"]'::jsonb,
           'and the rules the shift breaks now (shift model, and rest towards the next morning)');
 select is(pg_temp.plan_person(pg_temp.id('f'), pg_temp.d(30)) -> 'rules', '[]'::jsonb, 'a shift without a breach shows none');
-select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('s'), 'early'))
+select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('s'), 'early', pg_temp.exp_class(pg_temp.id('s'))))
             ->> 'result', 'ok', 'the lead reclassifies the late type as early');
 select is(pg_temp.plan_person(pg_temp.id('s'), pg_temp.d(10)) -> 'rules', '["rest"]'::jsonb,
           'the current reading follows the change; the stored row is unchanged');
@@ -137,11 +149,11 @@ select is(pg_temp.plan_person(pg_temp.id('s'), pg_temp.d(10)) -> 'rules', '["res
 -- 5. A rule that appears between the two calls is never saved unconfirmed -------------------------------------------------
 select is(pg_temp.assign(pg_temp.lead(), pg_temp.id('s'), pg_temp.d(20), null) ->> 'result', 'ok',
           'fixture: the (now early) type on day 20, no breach');
-select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_staff_planning(%L, 50, %L)', pg_temp.id('x'), 'late_only'))
+select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_staff_planning(%L, 50, %L, %L::jsonb)', pg_temp.id('x'), 'late_only', pg_temp.exp_staff(pg_temp.id('x'))))
             ->> 'result', 'ok', 'fixture: the person becomes late_only');
 select is(pg_temp.assign(pg_temp.lead(), pg_temp.id('f'), pg_temp.d(50), null),
           '{"result": "warning", "rules": ["shift_model"]}'::jsonb, 'first call: shift model');
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 6, 1)', pg_temp.inst()));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 6, 1, %L::jsonb)', pg_temp.inst(), pg_temp.exp_limits(pg_temp.inst())));
 select is(pg_temp.assign(pg_temp.lead(), pg_temp.id('f'), pg_temp.d(50), '{shift_model}'),
           '{"result": "warning", "rules": ["shift_model", "pensum_full"]}'::jsonb,
           'after the target hours fell in between: a warning again, now with the Pensum');

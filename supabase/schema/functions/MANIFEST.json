@@ -384,7 +384,10 @@
         "SET search_path TO ''",
         "is_institution_member",
         "institution_audit",
-        "assert_access_open"
+        "assert_access_open",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update"
       ]
     },
     {
@@ -395,7 +398,10 @@
         "is_institution_member",
         "institution_audit",
         "assert_access_open",
-        "weekly_target_hours_not_valid"
+        "weekly_target_hours_not_valid",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update"
       ]
     },
     {
@@ -407,7 +413,10 @@
         "institution_audit",
         "assert_access_open",
         "shift_class_not_valid",
-        "shift_type_is_split"
+        "shift_type_is_split",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update"
       ]
     },
     {

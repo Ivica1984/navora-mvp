@@ -3590,10 +3590,10 @@ isOneToOne: false
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
                            },
 "institution_set_planning_limits":
-{ Args: { "p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number,"p_weekly_target_hours": number }; Returns: Json
+{ Args: { "p_expected": Json,"p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number,"p_weekly_target_hours": number }; Returns: Json
                            },
 "institution_set_shift_class":
-{ Args: { "p_shift_class": string,"p_shift_type_id": string }; Returns: Json
+{ Args: { "p_expected": Json,"p_shift_class": string,"p_shift_type_id": string }; Returns: Json
                            },
 "institution_set_shift_type":
 { Args: { "p_code": string,"p_ends_at": string,"p_institution_id": string,"p_label": string,"p_starts_at": string }; Returns: Json
@@ -3605,7 +3605,7 @@ isOneToOne: false
 { Args: { "p_active": boolean,"p_staff_id": string }; Returns: Json
                            },
 "institution_set_staff_planning":
-{ Args: { "p_pensum_pct": number,"p_shift_model": string,"p_staff_id": string }; Returns: Json
+{ Args: { "p_expected": Json,"p_pensum_pct": number,"p_shift_model": string,"p_staff_id": string }; Returns: Json
                            },
 "institution_set_staff_wishes":
 { Args: { "p_staff_id": string,"p_wishes": Json }; Returns: Json

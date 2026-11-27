@@ -564,6 +564,8 @@ const PROBLEM_TEXT: Record<string, string> = {
   work_days_not_whole: "Arbeitstage pro Woche: bitte eine ganze Zahl eingeben (1 bis 7). Nichts wurde gespeichert.",
   work_days_per_week_not_valid: "Arbeitstage pro Woche: 1 bis 7. Nichts wurde gespeichert.",
   changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
+  // HD-3a-F1 R-6-2 (b): the form sent no readable shown values (an old or altered form); nothing was saved.
+  expected_not_valid: "Das Formular war nicht mehr aktuell. Nichts wurde gespeichert. Bitte die Seite neu laden und noch einmal speichern.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
@@ -653,6 +655,14 @@ export function withApplyRun(path: string, applyId: string): string {
   const url = new URL(path, "http://x");
   if (UUID_RE.test(applyId)) url.searchParams.set("lauf", applyId);
   return `${url.pathname}${url.search}`;
+}
+/**
+ * HD-3a-F1 R-7-2 (review 7228232661, 5): the answers whose refused rows the page reads back. A double click or a retry
+ * shows the answer of the second call (`draft_already_applied`), which still carries the refused rows of the first.
+ */
+export const APPLY_RUN_CODES: ReadonlyArray<string> = ["draft_applied_partly", "draft_already_applied"];
+export function carriesApplyRun(code: string | undefined, refused: number): boolean {
+  return code === "draft_applied_partly" || (code === "draft_already_applied" && refused > 0);
 }
 export function parseApplyRun(v: string | undefined): string | null {
   return typeof v === "string" && UUID_RE.test(v) ? v : null;

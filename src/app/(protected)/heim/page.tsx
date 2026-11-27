@@ -14,7 +14,7 @@ import {
 } from "@/features/home-plan/planning-inputs";
 import { SHIFT_MODELS, shiftMinutes } from "@/features/home-plan/draft";
 import {
-  ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
+  ABSENCE_KINDS, APPLY_RUN_CODES, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
   monthCode, monthLabel, monthPeople, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
   type PendingWarning,
@@ -54,8 +54,8 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
   const view: PlanView = (asked === "einstellungen" && !canSettle(inst.role)) || (asked === "vorschlag" && !canPlan(inst.role)) ? "woche" : asked;
   const { from, to } = rangeFor(view, date);
   const plan = await getPlan(inst.id, from, to);
-  // HD-3a-F1 R-7-2: after a partial take-over, the persons refused for a missing Pensum, read back from the run record.
-  const run = one(sp.meldung) === "draft_applied_partly" ? parseApplyRun(one(sp.lauf)) : null;
+  // HD-3a-F1 R-7-2: after a partial take-over (or its retry), the persons refused for a missing Pensum, read back from the run record.
+  const run = APPLY_RUN_CODES.includes(one(sp.meldung) ?? "") ? parseApplyRun(one(sp.lauf)) : null;
   const refusals = run && canPlan(inst.role) ? await getDraftRunRefusals(inst.id, run) : null;
   const noPensumRefused = refusals && plan ? pensumMissingPersons(refusals, plan.staff) : [];
   const href = (q: Record<string, string | undefined>) => {

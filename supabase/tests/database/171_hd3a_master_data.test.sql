@@ -12,6 +12,18 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(43);
 
+-- HD-3a-F1 R-6-2 (b), migration 0188: the planning commands take the values the form showed (`p_expected`). These
+-- helpers read the current values as the test owner (authenticated cannot read the tables), so each call below states
+-- «what the screen showed» = the current row; pgTAP 186 tests the refusal when they differ.
+create function pg_temp.exp_limits(i uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('min_rest_hours', h.min_rest_hours, 'max_consecutive_days', h.max_consecutive_days,
+                            'weekly_target_hours', h.weekly_target_hours) from public.institutions h where h.id = i $exp$;
+create function pg_temp.exp_staff(s uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('pensum_pct', p.pensum_pct, 'shift_model', p.shift_model)
+  from public.institution_staff p where p.id = s $exp$;
+create function pg_temp.exp_class(t uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('shift_class', x.shift_class) from public.institution_shift_types x where x.id = t $exp$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -59,12 +71,12 @@ create function pg_temp.absence(p_user text, d1 date, d2 date, kind text) return
     pg_temp.inst(), pg_temp.id('x'), d1, d2, kind))
 $$;
 create function pg_temp.planning(p_user text, staff uuid, pensum integer, model text) returns jsonb language sql as $$
-  select pg_temp.cmd(p_user, format('select public.institution_set_staff_planning(%L, %s, %L)',
-    staff, coalesce(pensum::text, 'null'), model))
+  select pg_temp.cmd(p_user, format('select public.institution_set_staff_planning(%L, %s, %L, %L::jsonb)',
+    staff, coalesce(pensum::text, 'null'), model, pg_temp.exp_staff(staff)))
 $$;
 create function pg_temp.limits(p_user text, inst uuid, rest integer, days integer) returns jsonb language sql as $$
   -- 0172 added the weekly target hours (FE-123); NULL keeps «not entered». 172 tests that argument.
-  select pg_temp.cmd(p_user, format('select public.institution_set_planning_limits(%L, %s, %s, null)', inst, rest, days))
+  select pg_temp.cmd(p_user, format('select public.institution_set_planning_limits(%L, %s, %s, null, %L::jsonb)', inst, rest, days, pg_temp.exp_limits(inst)))
 $$;
 
 -- 1. Schema ------------------------------------------------------------------------------------------------------------
@@ -148,8 +160,8 @@ select is(pg_temp.limits(pg_temp.u('05')::text, pg_temp.u('11'), 11, 6) ->> 'sql
           'after the access end set_planning_limits raises access_ended');
 select is(pg_temp.planning(pg_temp.u('05')::text, pg_temp.u('21'), 50, 'any') ->> 'sqlstate', '42501',
           'after the access end set_staff_planning raises access_ended');
-select ok(not has_function_privilege('anon', 'public.institution_set_staff_planning(uuid, integer, text)', 'execute')
-          and not has_function_privilege('anon', 'public.institution_set_planning_limits(uuid, integer, integer, numeric)', 'execute')
+select ok(not has_function_privilege('anon', 'public.institution_set_staff_planning(uuid, integer, text, jsonb)', 'execute')
+          and not has_function_privilege('anon', 'public.institution_set_planning_limits(uuid, integer, integer, numeric, jsonb)', 'execute')
           and not has_function_privilege('anon', 'public.institution_record_absence(uuid, uuid, date, date, text)', 'execute'),
           'anon executes none of the three commands');
 

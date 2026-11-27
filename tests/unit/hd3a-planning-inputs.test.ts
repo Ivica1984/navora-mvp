@@ -4,7 +4,7 @@
 // range again (pgTAP 171, 172). Fixed rules, no AI.
 import { describe, expect, it } from "vitest";
 import {
-  NOT_ENTERED, NO_CLASS, parseHours, parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm, sameAsShown,
+  NOT_ENTERED, NO_CLASS, parseHours, parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm, expectedLimits, expectedShiftClass, expectedStaffPlanning, shownNumber,
   shiftClassLabel, shiftModelLabel, shownValue,
 } from "@/features/home-plan/planning-inputs";
 import { SHIFT_MODELS } from "@/features/home-plan/draft";
@@ -90,15 +90,32 @@ describe("HD-3a planning inputs: shift class form", () => {
   });
 });
 
-describe("HD-3a planning inputs: stale values (R-6-2 option (a))", () => {
-  it("matches only the value the form showed", () => {
-    expect(sameAsShown(shownValue(11), 11)).toBe(true);
-    expect(sameAsShown(shownValue(null), null)).toBe(true);
-    expect(sameAsShown(shownValue(null), undefined)).toBe(true);
-    expect(sameAsShown(shownValue(11), 12)).toBe(false);
-    expect(sameAsShown(shownValue(null), 42)).toBe(false);
-    expect(sameAsShown(shownValue(42.5), 42.5)).toBe(true);
-    expect(sameAsShown(null, 11)).toBe(false);
+describe("HD-3a-F1 planning inputs: shown values for the database compare (R-6-2 (b))", () => {
+  it("reads the shown value back exactly as the page wrote it", () => {
+    expect(shownNumber(shownValue(11))).toEqual({ ok: true, value: 11 });
+    expect(shownNumber(shownValue(42.5))).toEqual({ ok: true, value: 42.5 });
+    expect(shownNumber(shownValue(null))).toEqual({ ok: true, value: null });
+    expect(shownNumber(shownValue(undefined))).toEqual({ ok: true, value: null });
+    for (const bad of [null, "", " 11", "11,5", "1e3", "-1", "abc"]) expect(shownNumber(bad)).toEqual({ ok: false });
+  });
+
+  it("builds p_expected with every key, or nothing (fail closed)", () => {
+    expect(expectedLimits(form({ was_rest: "11", was_days: "6", was_weekly: NOT_ENTERED })))
+      .toEqual({ min_rest_hours: 11, max_consecutive_days: 6, weekly_target_hours: null });
+    expect(expectedLimits(form({ was_rest: "11", was_days: "6", was_weekly: "42.5" }))?.weekly_target_hours).toBe(42.5);
+    expect(expectedLimits(form({ was_rest: "11", was_days: "6" }))).toBeNull();
+    expect(expectedLimits(form({ was_rest: NOT_ENTERED, was_days: "6", was_weekly: "42" }))).toBeNull();
+    expect(expectedStaffPlanning(form({ was_pensum: NOT_ENTERED, was_model: "any" }))).toEqual({ pensum_pct: null, shift_model: "any" });
+    expect(expectedStaffPlanning(form({ was_pensum: "80", was_model: "no_night" }))).toEqual({ pensum_pct: 80, shift_model: "no_night" });
+    expect(expectedStaffPlanning(form({ was_pensum: "80", was_model: NOT_ENTERED }))).toBeNull();
+    expect(expectedStaffPlanning(form({ was_pensum: "80" }))).toBeNull();
+    expect(expectedShiftClass(form({ was_class: NOT_ENTERED }))).toEqual({ shift_class: null });
+    expect(expectedShiftClass(form({ was_class: "early" }))).toEqual({ shift_class: "early" });
+    expect(expectedShiftClass(form({}))).toBeNull();
+  });
+
+  it("words a form without readable shown values", () => {
+    expect(messageText("expected_not_valid")?.text).toContain("Nichts wurde gespeichert");
   });
 });
 
