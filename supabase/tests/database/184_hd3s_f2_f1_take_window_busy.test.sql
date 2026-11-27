@@ -16,7 +16,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(32);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -202,6 +202,14 @@ select is((select (r -> 'take' ->> 'work_date') || '|' || (r -> 'take' ->> 'bloc
           '2026-11-19|07:00 – 11:30 und 16:00 – 20:00', '§7 she reads the date and the blocks');
 select ok((select not (r -> 'take' ? 'client_name') and r::text not like '%Testheim%' from p7),
           '§7 she never reads the home of another team''s take');
+
+-- §8 Catalogue (review (d) on #1825): the trigger does not re-check a change of order_take_id alone. No client role may
+-- update that column, and no migration does so after insert; a change of this needs its own guard first.
+reset role;
+select ok(not has_column_privilege('authenticated', 'public.care_visits', 'order_take_id', 'UPDATE'),
+          '§8 authenticated cannot update care_visits.order_take_id');
+select ok(not has_column_privilege('anon', 'public.care_visits', 'order_take_id', 'UPDATE'),
+          '§8 anon cannot update care_visits.order_take_id');
 
 select * from finish();
 rollback;
