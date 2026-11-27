@@ -1,8 +1,31 @@
-# Abgestimmte Übersicht für den Founder: Staging, BK-e, KI
+# Abgestimmte Übersicht für den Founder: Staging und KI
 
-**Besitzer:** Product Owner (`po`) · **Stand:** 2026-11-18 22:00 (Europe/Zurich; erneute Founder-Nachricht FE-090 um ca. 21:45, abgeglichen mit `eng` #1465 Kommentar 21:45 und `aia` #1466) · Keine Zugangsdaten in diesem Dokument. Fassung 16:20: Git-Verlauf.
+**Besitzer:** Product Owner (`po`) · **Stand:** 2026-11-27 15:39 (Europe/Zurich; FE-137 (4), oberster Abschnitt). Der Teil ab «Stand 18.11.» ist Verlauf (damals: 2026-11-18 22:00; erneute Founder-Nachricht FE-090 um ca. 21:45, abgeglichen mit `eng` #1465 Kommentar 21:45 und `aia` #1466) · Keine Zugangsdaten in diesem Dokument. Fassung 16:20: Git-Verlauf.
 
 Kennzeichnung: IMPLEMENTED · PLANNED · OPEN · UNKNOWN.
+
+## Stand 27.11. 15:39 (aktuell)
+
+- **JETZT:** Block HEIM-DP, Paket HD-3s-F2-F1 (#1825, Entwurf): die Teamleitung kann keinen Fallbesuch mehr in die Pause eines geteilten Heimdiensts legen; NAVORA lehnt mit Nennung der Übernahme ab (feste Regel, keine KI).
+- **BEREIT:** bedienbar auf Staging (synthetisch, automatisch geprüft): Auftrag → Übernahme → «Gedeckt» → Bericht → Rechnungsentwurf; Heim-Woche, -Monat, Plan je Person, Abwesenheit, Lücke → externer Auftrag → «Gedeckt»; Planvorschlag mit festen Regeln; geteilter Dienst mit einem Auftrag für beide Blöcke. Heute nichts neu.
+- **BLOCKIERT:** keine Frage an den PO offen; Staging-Pfad 10 entschieden (bekannte Grenze, Folgepunkt STG-P10).
+- **ENTSCHEID:** keiner zwingend. Optional: (1) als synthetisches Operations-Demokonto einen Fall mit klar synthetischem Namen anlegen und Testteam Basel zuweisen (dann baut `eng` Pfad 10); (2) Stelle von BK-d und BK-g bestätigen oder ändern (`BK_ROADMAP.md` §00).
+- **DANACH:** HD-3a-F1 (Pensum und Wochensoll beim «übernehmen» geprüft), dann HD-3a-F3 (Monatssoll); beide vertragsbereit.
+
+| Prüfpunkt | Stand | Nachweis |
+|---|---|---|
+| App auf Render `navora-staging` | `2ac2cc34` (seither nur Dokumenten-Commits) | `eng` Wochenstatus KW 48 (Render, nur lesend, ca. 12:00); vom PO nicht selbst in Render gelesen |
+| Datenbank `navora-staging` | höchste Migration **0184** = `recovery/main`; App und Datenbank passen | `staging-version` 45970011270 `success`; `eng` `list_migrations` |
+| Automatische Klickpfade | **10 bestanden** (Anmeldung und Pfade 1–9), erster Durchgang grün | `staging-smoke` 45960192885 auf `4130c011` (Log vom PO gelesen) |
+| Von einer Person durchgeklickt | **nicht festgestellt (UNKNOWN)**; der Register-Durchgang des Founders für HEIM-DP ist offen (`ABNAHMEAKTE.md` §2) | – |
+
+| Funktion | Art (FE-089 (5)) |
+|---|---|
+| Teamabgleich, Begründung, Deckung, Rechnungsbetrag, Planvorschlag, geteilter Dienst, Übernahmefenster | **feste Regeln** |
+| Berichtsentwurf aus Notizen | **Testersatz** «regelbasiert, keine KI» |
+| Angeschlossenes KI-Modell | **keines** (0 Modellaufrufe auf `navora-staging`, `eng` 27.11.); erste Stufe nach AI1-F1 und Ihren Render-Werten (PLANNED) |
+
+## Stand 18.11. (Verlauf)
 
 **Hinweis zum Stand:** #1421 (BK-e1b) ist seit 17:39 gemergt, #1476 (BK-e1c, Nachtschicht nach Mitternacht) seit 20:39. **BK-e1 (übernommene Schicht in der mobilen Ansicht) ist seit ca. 22:10 für die Simulation abgenommen** (zehnfacher Prüflauf 20/20 auf `3ea17ee`, genau dem Stand, den Staging ausliefert). Nächster Schritt: CGR-256, dann der Berichtsentwurf (BK-e2).
 
