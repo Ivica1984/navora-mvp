@@ -13,10 +13,8 @@ declare
   cell jsonb;
 begin
   select * into t from public.institution_shift_types where id = g.shift_type_id;
-  -- HD-3s (fail closed, as institution_prepare_gap_order): no order for a split shift (two blocks, one order time).
-  if t.shift_class = 'split' then
-    return jsonb_build_object('problems', jsonb_build_array('split_shift_not_orderable'));
-  end if;
+  -- HD-3s-F2 (ADR-229): a split shift gives the whole window plus its two inner times (NULL for one block); the caller
+  -- sends one order and sets its pause in the same transaction (private.order_set_pause).
   if g.grade_fixed is not null and p_grade is distinct from g.grade_fixed then
     return jsonb_build_object('problems', jsonb_build_array('grade_not_missing'));
   end if;
@@ -26,7 +24,8 @@ begin
     return jsonb_build_object('problems', jsonb_build_array('not_a_gap'));
   end if;
   return jsonb_build_object('problems', '[]'::jsonb, 'start_date', g.work_date, 'start_time', t.starts_at,
-                            'end_time', t.ends_at);
+                            'end_time', t.ends_at, 'block1_end_time', t.block1_ends_at,
+                            'block2_start_time', t.block2_starts_at);
 end $function$;
 
 revoke all on function private.institution_gap_order_args(g institution_gap_orders, p_grade text) from public, anon, authenticated, service_role;

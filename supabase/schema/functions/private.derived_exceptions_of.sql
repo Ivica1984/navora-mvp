@@ -51,18 +51,21 @@ AS $function$
   union all
   -- BK-E1B-S (CGR-246, ADR-203 (12)): a live take whose named member no longer passes while its visit is under way
   -- or still planned after the start; P1 to her own team and to her (SIG1), closes with its cause; code detail only
-  select 'take_member_dropped:' || k.id, 'take_member_dropped',
-         case when v.status = 'planned' then o.starts_at else coalesce(last.at, o.starts_at) end,
+  -- HD-3s-F2 (ADR-229 (5)): one row per take visit. A two-block take has two visits: block 2 keys `…:2` and reads its own
+  -- start (pause_ends_at), so block 2 is not flagged while block 1 runs; block 1 and a one-block take keep the key.
+  select 'take_member_dropped:' || k.id || case when v.take_block = 2 then ':2' else '' end, 'take_member_dropped',
+         case when v.status = 'planned' then bs.at else coalesce(last.at, bs.at) end,
          v.case_id, k.team_id, 'visit', v.id, 'step_' || st.step
   from public.order_takes k
   join public.partner_requests o on o.id = k.order_id
   join public.care_visits v on v.order_take_id = k.id
+  cross join lateral (select case when v.take_block = 2 then o.pause_ends_at else o.starts_at end as at) bs
   cross join lateral (select private.order_member_step(o.id, k.team_id, k.member_id) as step) st
   left join lateral (select max(e.occurred_at) as at from public.visit_events e where e.visit_id = v.id) last on true
   join rules r on r.exception_type = 'take_member_dropped'
   where k.organization_id = p_org and k.released_at is null and st.step < 4
     and (v.status in ('on_the_way', 'started', 'paused')
-         or (v.status = 'planned' and private.now() >= o.starts_at))
+         or (v.status = 'planned' and private.now() >= bs.at))
     and (p_types is null or 'take_member_dropped' = any(p_types))  -- PERF1 gate
   union all
   -- J2: team search escalations (deadline passed, candidates exhausted, no deadline)

@@ -11,6 +11,9 @@ AS $function$
 declare
   g public.institution_gap_orders;
   a jsonb;
+  pv jsonb;
+  ps timestamptz;
+  pe timestamptz;
 begin
   select * into g from public.institution_gap_orders where id = p_gap_order_id;
   if g.id is null or not private.is_institution_member(g.institution_id, array['lead', 'planner']) then
@@ -26,10 +29,22 @@ begin
   if not private.is_client_member(g.client_account_id) then
     return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('not_client_member'));
   end if;
-  return jsonb_build_object('result', 'ok', 'preview',
-    public.preview_client_order(g.client_account_id, (a ->> 'start_date')::date, (a ->> 'start_time')::time,
-                                (a ->> 'end_time')::time, p_postcode, p_grade, p_activity_tags, p_required_tags,
-                                p_radius_km));
+  pv := public.preview_client_order(g.client_account_id, (a ->> 'start_date')::date, (a ->> 'start_time')::time,
+                                    (a ->> 'end_time')::time, p_postcode, p_grade, p_activity_tags, p_required_tags,
+                                    p_radius_km);
+  -- HD-3s-F2 (ADR-229 (2)): a split shift previews both blocks and the working minutes without the pause, the same
+  -- sentence the sent order carries (private.order_split_sentence); never only the outer window.
+  if a ->> 'block1_end_time' is not null and pv ->> 'sentence' is not null then
+    ps := private.at_zurich((a ->> 'start_date')::date + (a ->> 'block1_end_time')::time);
+    pe := private.at_zurich((a ->> 'start_date')::date + (a ->> 'block2_start_time')::time);
+    pv := pv || jsonb_build_object(
+      'pause_starts_at', ps, 'pause_ends_at', pe,
+      'duration_minutes', private.order_work_minutes((pv ->> 'starts_at')::timestamptz, ps, pe,
+                                                     (pv ->> 'ends_at')::timestamptz),
+      'sentence', private.order_split_sentence(p_grade, (pv ->> 'starts_at')::timestamptz, ps, pe,
+                                               (pv ->> 'ends_at')::timestamptz, pv ->> 'postcode', pv ->> 'place_name'));
+  end if;
+  return jsonb_build_object('result', 'ok', 'preview', pv);
 end $function$;
 
 revoke all on function public.institution_preview_gap_order(p_gap_order_id uuid, p_postcode text, p_grade text, p_activity_tags text[], p_required_tags text[], p_radius_km numeric) from public, anon, authenticated, service_role;

@@ -9,7 +9,8 @@ CREATE OR REPLACE FUNCTION public.client_orders()
  SET search_path TO ''
 AS $function$
   select p.id, p.client_account_id, p.request_title, p.starts_at, p.ends_at,
-         (extract(epoch from (p.ends_at - p.starts_at)) / 60)::int, p.postcode, p.city, p.grade, p.activity_tags,
+         private.order_work_minutes(p.starts_at, p.pause_starts_at, p.pause_ends_at, p.ends_at),  -- HD-3s-F2: no pause
+         p.postcode, p.city, p.grade, p.activity_tags,
          p.required_tags, p.radius_km, p.shift_label, p.confirmed_at,
          c.cover_state, c.cover_detail, c.latest_cover_at,
          (select t.name from public.teams t where t.id = c.covered_team_id),

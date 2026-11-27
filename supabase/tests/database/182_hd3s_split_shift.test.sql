@@ -261,10 +261,11 @@ select is(pg_temp.cmd(pg_temp.u('03')::text, format('select public.institution_s
 select throws_like($$update public.institutions set work_days_per_week = 9 where id = '00000000-0000-4000-a000-0000000004c1'$$,
                    '%work_days_per_week_check%', 'the database refuses 9 itself');
 
--- 8. Orders (fail closed) ------------------------------------------------------------------------------------------------
+-- 8. Orders: HD-3s-F2 (migration 0183) replaced the fail-closed refusal; a split gap is one order with both blocks ------
+-- (the full order path is pgTAP 183).
 select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_prepare_gap_order(%L, %L, %L, %L)', pg_temp.inst(),
-            pg_temp.id('st'), pg_temp.id('sp'), pg_temp.d(3))) -> 'problems' ->> 0, 'split_shift_not_orderable',
-          'a gap in a split shift is not ordered as one time window');
+            pg_temp.id('st'), pg_temp.id('sp'), pg_temp.d(3))) -> 'prefill' ->> 'block2_start_time', '16:00',
+          'HD-3s-F2: a gap in a split shift is prepared as one order that names block 2 as well');
 
 select * from finish();
 rollback;

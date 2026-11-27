@@ -3,7 +3,7 @@
 
 -- public.field_visits(p_date date)
 CREATE OR REPLACE FUNCTION public.field_visits(p_date date)
- RETURNS TABLE(visit_id uuid, visit_date date, time_start time without time zone, time_end time without time zone, status text, services_provided text[], team_id uuid, team_name text, case_id uuid, client_name text, care_needs text[], address text, plz text, ort text, events jsonb, planned_minutes_a integer, planned_minutes_b integer, planned_minutes_c integer, is_needs_assessment boolean, responsible_me boolean, responsible_set boolean, care_goals text[], suspended boolean, pause_reason text, system_end_reason text, from_take boolean, carried_from_previous_day boolean)
+ RETURNS TABLE(visit_id uuid, visit_date date, time_start time without time zone, time_end time without time zone, status text, services_provided text[], team_id uuid, team_name text, case_id uuid, client_name text, care_needs text[], address text, plz text, ort text, events jsonb, planned_minutes_a integer, planned_minutes_b integer, planned_minutes_c integer, is_needs_assessment boolean, responsible_me boolean, responsible_set boolean, care_goals text[], suspended boolean, pause_reason text, system_end_reason text, from_take boolean, carried_from_previous_day boolean, take_block smallint, take_blocks text)
  LANGUAGE sql
  STABLE
  SET search_path TO ''
@@ -38,7 +38,15 @@ AS $function$
             order by e.created_at desc limit 1) end,
          v.system_end_reason,  -- BK-E1B-R (CGR-242 (c))
          v.order_take_id is not null,  -- BK-E1B-F (UXR-237, UXR-239)
-         v.visit_date < p_date  -- BK-E1C (CGR-257, UXR-248): carried from the previous day
+         v.visit_date < p_date,  -- BK-E1C (CGR-257, UXR-248): carried from the previous day
+         v.take_block,  -- HD-3s-F2 (ADR-229 (3)): 1 or 2 on a two-block take, NULL otherwise
+         -- HD-3s-F2 (brief scope 3): a block card names BOTH blocks, never only one. Read from the take's own visits
+         -- (same member, same team, invoker RLS as for v); NULL on a one-block take and on every non-take visit.
+         case when v.take_block is not null then
+           (select string_agg(to_char(s.time_start, 'HH24:MI') || ' – ' || to_char(s.time_end, 'HH24:MI'), ' und '
+                              order by s.take_block)
+            from public.care_visits s
+            where s.order_take_id = v.order_take_id and s.take_block is not null) end
   from public.care_visits v
   join public.team_memberships tm
     on tm.team_id = v.team_id and tm.user_id = (select auth.uid())
