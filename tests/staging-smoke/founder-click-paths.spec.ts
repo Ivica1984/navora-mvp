@@ -502,6 +502,33 @@ test("path 7: the home asks for a plan, takes it over, prepares an order for a r
   await expect(draft.getByTestId("heim-draft-summary")).toHaveText(new RegExp(`^${n} Dienste? vorgeschlagen · `));
 });
 
+// HD-3s path 8 / HD-3s-F2 path 9: the home's one synthetic split shift type «GS» 07:00–11:30 und 16:00–20:00 with the
+// minimum staffing 1 on its first station («Beispielwert des Heims»), created once through the forms on /heim and never
+// changed afterwards. Shared, so path 9 does not depend on path 8 having run first.
+async function ensureSplitType(page: Page, CODE: string, TIMES: string) {
+  await page.goto("/heim?ansicht=einstellungen");
+  const type = page.locator(`[data-testid="heim-shift-type"][data-code="${CODE}"]`);
+  if ((await type.count()) === 0) {
+    const f = page.getByTestId("heim-split-form");
+    await f.getByTestId("heim-split-code").fill(CODE);
+    await f.getByTestId("heim-split-label").fill("Geteilt");
+    await f.getByTestId("heim-split-b1-starts").fill("07:00");
+    await f.getByTestId("heim-split-b1-ends").fill("11:30");
+    await f.getByTestId("heim-split-b2-starts").fill("16:00");
+    await f.getByTestId("heim-split-b2-ends").fill("20:00");
+    await submitAndWait(page, f.getByTestId("heim-split-save"));
+    await expect(page.getByTestId("heim-message")).toHaveText("Geteilter Dienst gespeichert: ein Arbeitstag mit zwei Blöcken.");
+  }
+  await expect(type.getByTestId("heim-shift-times")).toHaveText(TIMES);
+  await expect(type.getByTestId("heim-shift-class-now")).toHaveText("Klasse: Geteilt");
+  const rule = page.locator(`[data-testid="heim-rule-form"][data-shift="${CODE}"]`).first();
+  if ((await rule.textContent())?.includes("keine Vorgabe")) {
+    await rule.locator('input[name="total"]').fill("1");
+    await submitAndWait(page, rule.getByRole("button", { name: "Speichern" }));
+    await expect(page.getByTestId("heim-message")).toHaveText("Vorgabe gespeichert.");
+  }
+}
+
 // Path 8 (HD-3s, brief HD-3s.md acceptance «geteilte Dienstart anlegen → Plan vorschlagen → übernehmen → Woche zeigt
 // einen Arbeitstag mit zwei Zeiten»): the home keeps one synthetic split shift type «GS» 07:00–11:30 und 16:00–20:00
 // with the minimum staffing 1 on its first station («Beispielwert des Heims»); the run creates both once, through the
@@ -529,27 +556,7 @@ test("path 8: the home plans a split shift (two blocks), takes it over, the week
   }
   await fillMissingPlanningInputs(page);
 
-  await page.goto("/heim?ansicht=einstellungen");
-  const type = page.locator(`[data-testid="heim-shift-type"][data-code="${CODE}"]`);
-  if ((await type.count()) === 0) {
-    const f = page.getByTestId("heim-split-form");
-    await f.getByTestId("heim-split-code").fill(CODE);
-    await f.getByTestId("heim-split-label").fill("Geteilt");
-    await f.getByTestId("heim-split-b1-starts").fill("07:00");
-    await f.getByTestId("heim-split-b1-ends").fill("11:30");
-    await f.getByTestId("heim-split-b2-starts").fill("16:00");
-    await f.getByTestId("heim-split-b2-ends").fill("20:00");
-    await submitAndWait(page, f.getByTestId("heim-split-save"));
-    await expect(page.getByTestId("heim-message")).toHaveText("Geteilter Dienst gespeichert: ein Arbeitstag mit zwei Blöcken.");
-  }
-  await expect(type.getByTestId("heim-shift-times")).toHaveText(TIMES);
-  await expect(type.getByTestId("heim-shift-class-now")).toHaveText("Klasse: Geteilt");
-  const rule = page.locator(`[data-testid="heim-rule-form"][data-shift="${CODE}"]`).first();
-  if ((await rule.textContent())?.includes("keine Vorgabe")) {
-    await rule.locator('input[name="total"]').fill("1");
-    await submitAndWait(page, rule.getByRole("button", { name: "Speichern" }));
-    await expect(page.getByTestId("heim-message")).toHaveText("Vorgabe gespeichert.");
-  }
+  await ensureSplitType(page, CODE, TIMES);
 
   const draft = page.getByTestId("heim-draft");
   const splitLines = draft.locator(`[data-testid="heim-draft-row"][data-shift="${CODE}"], [data-testid="heim-draft-gap"][data-shift="${CODE}"]`);
@@ -592,4 +599,80 @@ test("path 8: the home plans a split shift (two blocks), takes it over, the week
     await expect(page.getByTestId("heim-message")).toHaveText("Aus dem Dienst entfernt.");
     await expect(chip).toHaveCount(0);
   }
+});
+
+// Path 9 (HD-3s-F2, brief HD-3s-F2.md criterion «staging-smoke»): the home orders the gap of its split shift «GS» as ONE
+// external order with both blocks → the Basel nurse's offer card names both blocks → she takes it for herself → her
+// /field day shows two cards, each naming its block and both blocks → the home's week reads «Gedeckt» for the cell.
+// A taken order stays on staging (no withdraw after a take), so the path uses weeks of its own, 900 days and more ahead
+// (offset by the run number; paths 4 to 8 reach at most about 860 days), and a day on which the client has no order (the
+// nurse must be free). Fixed, checkable rules, no AI. Synthetic demo accounts only.
+test("path 9: the home orders a split gap as one order, the nurse takes it, /field shows two block cards (390 px)", async ({ page }) => {
+  test.setTimeout(300_000);
+  await page.setViewportSize({ width: 390, height: 900 });
+  const CODE = "GS";
+  const TIMES = "07:00–11:30 und 16:00–20:00";
+  const BOTH = "07:00 – 11:30 und 16:00 – 20:00";
+  let week = weekStart(zurichDay(Date.now(), 900 + 7 * (offsets.day - 40)));
+
+  await signIn(page, "kunde");
+  await page.goto("/heim");
+  await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
+  if (await page.getByTestId("heim-empty").isVisible()) {
+    await page.getByTestId("heim-load-example").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
+  }
+  await ensureSplitType(page, CODE, TIMES);
+  const used = await clientOrderDays(page);
+  let pick: string | null = null;
+  for (let tries = 0; ; tries++) {
+    await page.goto(`/heim?ansicht=woche&datum=${week}`);
+    await expect(page.getByTestId("heim-day").first()).toBeVisible();
+    const candidates = await page.locator('[data-testid="heim-day"]').filter({
+      has: page.locator(`[data-testid="heim-cell"][data-shift="${CODE}"] [data-testid="heim-prepare-order"]`),
+    }).evaluateAll((els) => els.map((e) => e.getAttribute("data-date") ?? ""));
+    pick = path5GapDay(candidates, used);
+    if (pick) break;
+    expect(tries, `staging-smoke path 9: no ${CODE} gap free of client orders in ${PATH5_MAX_WEEKS} weeks`).toBeLessThan(PATH5_MAX_WEEKS - 1);
+    week = addDays(week, 7);
+  }
+  const day = pick;
+  const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-shift="${CODE}"]`);
+  await expect(cellOf().getByTestId("heim-split-no-order")).toHaveCount(0);
+  await cellOf().getByTestId("heim-prepare-order").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.");
+  const review = page.getByTestId("heim-order-review");
+  await expect(review.getByTestId("heim-order-review-shift")).toContainText(TIMES);
+  const postcode = review.getByTestId("heim-order-postcode");
+  if ((await postcode.inputValue()) === "") await postcode.selectOption("4051");
+  const grade = review.getByTestId("heim-order-grade");
+  if ((await grade.count()) > 0) await grade.selectOption("nurse_hf_fh");
+  for (const box of await review.getByTestId("heim-order-tag").all()) if (await box.isChecked()) await box.uncheck();
+  await review.locator('[data-testid="heim-order-tag"][value="C1"]').check();
+  await review.getByTestId("heim-order-check").click();
+  await expect(review.getByTestId("heim-order-send-summary")).toHaveText(/Tätigkeiten: C1 · [^,]*$/);
+  await expect(review.getByTestId("heim-order-sentence")).toContainText(`${BOTH} (8 Std. 30 Min.)`);
+  await review.getByTestId("heim-order-send").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Auftrag gesendet: Angebot an alle passenden Teams gleichzeitig.");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf().getByTestId("heim-cell-order")).toHaveAttribute("data-code", "A");
+
+  await signIn(page, "pflegeBs");
+  await page.goto("/team");
+  const when = `${deDate(day)} 07:00`;
+  await expect(page.getByTestId("shift-offer-card").filter({ hasText: when }).last().getByTestId("shift-offer-sentence"))
+    .toContainText(`${BOTH} (8 Std. 30 Min.)`);
+  await takeAsHerself(page, when);
+  await page.goto(`/field?datum=${day}`);
+  const block1 = page.getByRole("article", { name: /07:00 – 11:30/ });
+  const block2 = page.getByRole("article", { name: /16:00 – 20:00/ });
+  await expect(block1).toHaveCount(1);
+  await expect(block2).toHaveCount(1);
+  await expect(block1.getByTestId("take-blocks")).toHaveText(`Teil 1 von 2 · Geteilter Dienst ${BOTH}`);
+  await expect(block2.getByTestId("take-blocks")).toHaveText(`Teil 2 von 2 · Geteilter Dienst ${BOTH}`);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+  await signIn(page, "kunde");
+  await page.goto(`/heim?ansicht=woche&datum=${day}`);
+  await expect(cellOf().getByTestId("heim-cell-order")).toHaveAttribute("data-code", "G");
 });
