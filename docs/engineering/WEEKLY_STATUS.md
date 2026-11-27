@@ -31,6 +31,122 @@ Each names the cause, the date at risk, the new estimate and what is needed. M5 
 
 ---
 
+## 2026-W48 (Mon 2026-11-23 to Sun 2026-11-29) · Friday entry, Fri 2026-11-27 13:05
+
+Read at about 11:50–12:05 UTC on `recovery/main` `2ac2cc34` (PO merge #1826), by the GitHub API (PR list, check runs and comments of the open PRs, `ci` push runs on `recovery/main` (300 newest), `staging-smoke` and `staging-version` runs, open `agent:eng` issues, PR search for merges since 20.11. 12:00 UTC), Render (service `navora-staging`, deploy list, read only, FE-132), and Supabase `navora-staging` (`list_migrations`; one read-only count of the AI call reservation and switch-event tables, counts only, no rows). Engineering ran no test for this entry; every CI statement is a read of a named GitHub run. The entry covers Fri 20.11. 12:45 (end of the W47 read) to Fri 27.11. 13:00.
+
+**Headline (date escalation against `BK_ROADMAP.md`, not against Blueprint §10):** the BK windows in `BK_ROADMAP.md` §3 (v2, 18.11.) are **missed**: BK-d «mit Testersatz frühestens Ende KW 48 (ca. 27.11.)» has not started, and BK-g «frühestens 1.–2.12.» cannot be met. **Cause:** founder order FE-109 (20.11.) made **HEIM-DP** the active block; the queue in *Active now* (09:39) is HD-3s-F2-F1 → HD-3a-F1 → HD-3a-F3 → HD-3b-0 → HD-3b → INTAKE-E2E → HD-3c → HD-3d, and BK-d and BK-g are not placed in it. **New estimate:** BK-d and BK-g **not before early to mid January 2027** if they follow HD-3d (Low confidence: eight packages at this week's pace of one package per 0.5 to 2 working days, plus HD-3c and INTAKE-E2E with a model, which are larger; no blocking clinical or legal question assumed). **M9 Phase A 2027-03-12** (Blueprint §10) needs «beide Abläufe (ambulant und Heim) und der BK-Auftragsablauf» on one named commit; 15 weeks remain; there is still no estimate for B2-Kern to B12, so whether M9 is threatened is **UNKNOWN**, not shown safe. **Needed:** the PO re-dates `BK_ROADMAP.md` (v2 is from 18.11.) and places BK-d and BK-g after or inside HEIM-DP; a founder decision only if the order should change.
+
+**Second point (good news, IMPLEMENTED):** eight acceptances for the simulation in the period, each on a named commit with `ci-repeat` green (table below), and staging now runs **nine automated click paths**, the home planning flows among them.
+
+### Contradictions found (README rule 10; documented, nothing changed)
+1. **Escalation table at the top of this file** still lists M2 2026-11-27 (today), M4, M6, M8 from pre-FE-077 plans; the same in the header of `IMPLEMENTATION_STATUS.md`. Under FE-077 and README rule 13 they are history; this entry measures only against Blueprint §10 and `BK_ROADMAP.md`. Repeated from W47; proposal for `po` unchanged (mark as archived).
+2. **Blueprint §8 body** (table «Status am 2026-11-13» and the diagram) still shows **BK as active**, while version rows 3.2.83 to 3.2.100 (Kap. 14) say «Kap. 8 Block HEIM-DP» and `NEXT_CAPABILITY.md` *Active now* names HEIM-DP. HEIM-DP appears nowhere in the §8 chain. Proposal for `po`: add HEIM-DP to the §8 chain with its place relative to B2-Kern, B3 and BK-g.
+3. **`BK_ROADMAP.md` v2 (18.11.) and `FOUNDER_STAGING_UEBERSICHT.md` (18.11. 22:00)** describe BK-e as next and «kein KI-Anbieter gewählt»; both predate FE-094 and FE-109. The current founder view is `FOUNDER_EXECUTIVE_REPORT.md` (KW 48).
+4. **`IMPLEMENTATION_STATUS.md` row AI1** says migrations 0166–0170 are «not on `navora-staging`»; `list_migrations` on `navora-staging` shows 0166–0170 applied (up to 0184). `eng` file; this report task does not edit it.
+5. **Issue #1723** («codeql red on all runs since 2026-11-24») is still open, while `codeql` is `success` on #1825 (`c790a43b`, job 140479373172) and the fix #1728 is merged. Proposal: close after a check by `eng`.
+6. **HD-3s-F2-F1 staging path:** the brief §6 names «bestehende Pfade 8/9 grün», the `eng` prompt STAGING 3a asks for a new path 10; raised by `eng` to `po` on #1825 (7217482763). Open.
+
+### Active block and package
+- **Block HEIM-DP** active since 20.11. (FE-109), replacing BK as the active block. **Package now: HD-3s-F2-F1** «the hand path reads a live take window (pause included) as busy and rejects with the take named» (CGR-289), contract `briefs/HD-3s-F2-F1.md`.
+- **State: in progress (draft), IN REVIEW not yet.** #1825, branch `fix/hd3s-f2-f1`, head **`c790a43b`**, draft, `ci` run 45991260824 all `success` (`app` 140479374421, `db` 140479374416 «Files=181, Tests=7453, Result: PASS» per the writer's log read, `e2e` 140479374344 «234 passed», `ui-screenshots` 140479373946, `staging` dry run 140485317202), `codeql` 140479373172 `success`. **No `Paket prüfbereit:` comment yet**; the writer (12:10) names one open item (AIG1 apply without day plan, pgTAP assertion) and a PO question on staging path 10 before the ready report. Gate window `cra`, `uxa` not opened.
+- **Then (PLANNED, *Active now* 09:39):** HD-3a-F1 (#1745) → HD-3a-F3 (FE-135 Monatssoll option A) → HD-3b-0 → HD-3b → INTAKE-E2E (#1726) → HD-3c (first AI help in planning) → HD-3d.
+
+### Delivered this week
+**Acceptances (PO, `ABNAHMEAKTE.md` §2; all gate «Simulation, synthetische Daten», none «released for real persons and data»):**
+
+| Package | Decided | Named commit | `ci-repeat` | Label |
+|---|---|---|---|---|
+| BK-f invoice draft from the signed report | 20.11. 15:39 run | `40a2ce1` | 44746720886 20/20 | IMPLEMENTED (accepted) |
+| STAB1 one readable source per DB function | 20.11. ca. 18:40 | `f7dfd2d` | 44778677226 20/20 | IMPLEMENTED (accepted) |
+| HD-1 planning in the home (week, month, per person) | 21.11. 03:39 | `9debf74` | 44852899930 20/20 | IMPLEMENTED (partial acceptance) |
+| HD-2 gap → external order → status back | 21.11. 14:39 | `0b8f537` | 44905215040 20/20 | IMPLEMENTED (partial acceptance) |
+| PERF1 hint lists degrade visibly | 22.11. 08:39 | `4310526` | 44999346857 20/20 | IMPLEMENTED (accepted) |
+| HD-3a optimiser (fixed rules) with ORDER-F1 (F2, F3, F5) | 26.11. 11:39 | `217a9a58` | 45781858795 22/22 | IMPLEMENTED (partial acceptance) |
+| HD-3s split shift (two blocks) | 27.11. 03:39 | `5e9a0474` | 45922060591 22/22 | IMPLEMENTED (partial acceptance) |
+| HD-3s-F2 external order with two blocks | 27.11. 06:39 | `1aeb5459` | 45944289812 22/22 | IMPLEMENTED (partial acceptance) |
+
+Test guards accepted by the PO without `ci-repeat` (no block acceptance, by their contract): AUT-220 (#1788, `d2e78ace`), STG-SMOKE-3 (b) (#1821, `4130c011`). **Not accepted:** AI1 (#1697 merged 24.11., test substitute only), S-1 (#1677), SEC-DEP1 (#1713), HD-3a register acceptance «KI-gestützt» (OPEN), HEIM-DP register walk-through by the founder on staging (OPEN, `ABNAHMEAKTE.md` §2 HD-1, PERF1).
+
+**Engineering PRs merged into `recovery/main`, Fri 20.11. 12:45 to Fri 27.11. 13:00** (merge commit; `ci` push run on that commit, attempt 1 `success` unless noted):
+- **BK-f and STAB1:** #1581 (`e4e02c9`, 44738480843); #1604 tolerance row 0157 (`3d67dd4`, 44742633356); #1619 STAB1 (`d3b2233`, 44776130676).
+- **HEIM-DP HD-1, HD-2, PERF1:** #1623 HD-1 (`2378c2a`, 44822518383); #1641 HD-2 (`ca334ce`, 44900259914); #1661 UXR-269 (`cdf7a5e`, 44942246424); #1671 PERF1 (`448e9c4`, 44995151978).
+- **AI1:** #1697 (`2f2d785`, 45428323690). Merged with green CI; IMPLEMENTED as built, not accepted.
+- **HD-3a and ORDER-F1:** #1729 HD-3a (`4823eee`, 45656780068: **`e2e` `failure`** on the merge commit, job 139355475736; test fix #1752 `b4cb8d3`, 45677677382 `success`); #1760 ORDER-F1 (`992a7e3`, 45715319517); #1765 (`edfacb8`, 45730576487 **attempt 2** `success`); #1770 ORDER-F1-F2 (`00b59f9`, 45750496490 **`cancelled`** by the concurrency group; next push `57d1ae4` #1774, 45756832135 `success`); #1774 F3; #1780 F5 (`661f8cb`, 45777230783); #1788 AUT-220 (`d2e78ac`, 45822152119).
+- **HD-3s:** #1790 (`7e48a7a`, 45899843762); #1808 HD-3s-F2 (`d361205`, 45941372007).
+- **Safety and security:** #1677 S-1 fail-visible P1 banner (`0194937`, 44977195499 **attempt 2** `success`); #1625 Next.js 16.4.6 (`e853e12`, 44857264639); #1713 SEC-DEP1 (`323e6df`, 45405736532).
+- **CI and staging smoke:** #1624, #1644, #1649, #1694, #1754, #1821 (all `success`); #1728 CodeQL permissions (`4869e38`, 45451366479); #1733 artifact retention (`126a410`, 45483233440); #1701 AN2-F1 test (`050f480`, 45377228020).
+- **Engineering docs:** #1599 W47 report, #1600, #1605, #1652 (docs only).
+- **Red on `recovery/main` in the period (`ci` push, besides #1729):** `3b8c2fc` (22.11.), `09388e4` (24.11.), `ee1c2f0` (25.11., attempt 2); causes not read for this entry (UNKNOWN). Each was followed by green push runs.
+
+**Not Engineering:** 205 PRs were merged into `recovery/main` from 20.11. 13:00 to 27.11. 13:00 CET (GitHub search); 34 carry an Engineering title, the rest are PO cycles and role reviews.
+
+### Operable on staging
+- **App:** Render `navora-staging`, deploy `dep-dc4kd10jo6nc73boqj5g`, commit **`2ac2cc34`** (= `recovery/main` head), live since 10:01 CET. Contains every code merge above (`4130c011` is an ancestor).
+- **Database:** `navora-staging` (Zurich), highest migration **0184** `hd3s_f2_field_both_blocks` = highest migration in `supabase/migrations` on `recovery/main`. **App and database match: yes**; `staging-version` 45970011270 on `2ac2cc34` `success`.
+- **Executed on staging: yes, by automation, no person's click-through recorded.** Newest run with all paths: `staging-smoke` 45960192885 on `4130c011`, «10 passed» (PO reading of the log, *Active now* 09:39; sign-in plus paths 1–9), verdict «green on the first run». The later runs 45960279709 (`581fc2c2`) and 45970011299 (`2ac2cc34`) are `success`; the latter took 14 s, so its paths were scoped out (docs-only change). The PO counts 52 red of 161 smoke runs since 21.11. (`FOUNDER_EXECUTIVE_REPORT.md` §5); STG-SMOKE-3 now separates deploy changes from real failures.
+
+| Newly operable this week (IMPLEMENTED, accepted for the simulation) | Role and click path | Run on staging? |
+|---|---|---|
+| Invoice draft from the signed report; the team sends it; the client reads it (BK-f) | carer `/field` → «Bericht unterschreiben» → team «Rechnungsentwurf» → «Senden»; client `/order` → «Rechnungen» | **yes** (path 3, 390 px) |
+| Week and month plan of the home, plan per person, absence, gap (HD-1) | home lead `/heim` → week or month → assign a person, record an absence → gap shown | **yes** (path 4, 390 px) |
+| Order a gap externally; a Basel nurse takes it; the home reads «Gedeckt»; withdraw an order (HD-2) | home lead `/heim` → gap → external order; carer `/team` → take; home `/heim` → «Gedeckt»; withdraw → `/order` «Zurückgezogen» | **yes** (paths 5, 6) |
+| Plan proposal by the optimiser, take it over, order the remaining gap (HD-3a, fixed rules) | home lead `/heim` → ask for a plan → «übernehmen» → order for a remaining gap | **yes** (path 7) |
+| Split shift with two blocks in the plan (HD-3s) | home lead `/heim` → split shift → «übernehmen» → week shows two times | **yes** (path 8) |
+| One external order for a split gap; the nurse sees two block cards (HD-3s-F2) | home `/heim` → order split gap; carer `/team` → take; carer `/field` → two cards | **yes** (path 9) |
+| P1 safety signal banner never silently empty (S-1, not accepted) | carer `/field`, `/team`, `/operations` | **no** (not in the smoke; UNKNOWN) |
+
+**Not yet built or not accepted:** HD-3s-F2-F1 hand-path rejection (#1825, draft); HD-3a-F1 server re-check of Pensum and Wochensoll (#1745; executive report: required before real data); Monatssoll HD-3a-F3; HD-3b to HD-3d; AI order capture (BK-d); BK-g end to end; intake with AI extraction (INTAKE-E2E); any connected model; DEMO1 one-click login (#1540) and `/platform` (#1541), both not placed.
+
+### AI
+- **Fixed rule (IMPLEMENTED):** home plan optimiser and its checks (HD-3a, greedy solver), split shift and split order (HD-3s, HD-3s-F2), take window (HD-3s-F2-F1, in progress), order list and offer reasons (ORDER-F1), matching and reason line (BK-b, BK-c3), invoice amount, refusals and send (BK-f), stop rule (AUT-152), staging click-path rerun decision (STG-SMOKE-3, a CI decision table).
+- **Test substitute (mock) (IMPLEMENTED):** report draft from notes (BK-e2, AI1): in CI a fake provider and the evaluation set; on staging the rule substitute «regelbasiert, keine KI».
+- **Connected AI model: none has run.** AI1 (#1697) built the guarded path (DB kill switch, call and money caps, prompt pin, reservation before a proposal; migrations 0166–0170, on `navora-staging`). Read-only count on `navora-staging` this run: **0** model call reservations and **0** switch events, so no model call was made there. Activation waits for AI1-F1 and step (b) (PLANNED). Whether the Render model variables are set: not read (UNKNOWN; values never read). Next AI functions in the queue: INTAKE-E2E extraction and HD-3c planning help (PLANNED).
+
+### In review and gates
+| PR | Item | Head | CI on head | Ready report | Gate lines | Waiting |
+|---|---|---|---|---|---|---|
+| #1825 | HD-3s-F2-F1 (draft) | `c790a43b` | 45991260824 all `success`; `codeql` `success` | none yet | none (window not opened) | open since 09:37; waits for one pgTAP item and the PO answer on path 10 |
+| #1794 | probe HD-3a-F1 (draft, do not merge) | `363e50dd` | not read | – | – | open since 26.11.; evidence for #1745 |
+| #1767 | probe pgTAP 178 hang (draft, do not merge) | `0fde6be2` | not read | – | – | open since 26.11. |
+| #1611, #1612 | HEIM1 proposal, floor plan V1 (docs, PROPOSED) | – | – | – | – | held by the PO since 20.11. |
+| #1540, #1541 | DEMO1, PLATFORM1 | `dcfa52c`, `bc2a391` | not read | none | none | open since 19.11.; not in *Active now* |
+| #1716 | Dependabot against `main` | `a49b06f` | not read | – | – | targets `main`, not `recovery/main` |
+| #3 | M2 `recovery/main` → `main` | `2ac2cc34` | – | – | – | blocked by D-7, D-8 (owner) |
+
+**Measured gate latency (PO, M-03):** HD-3s ready 26.11. 14:41 → merge 22:39 (about 8 h waiting for gate lines) → acceptance 27.11. 03:39. Review and acceptance windows, not build time, set the pace.
+
+**Open `agent:eng` issues: 29** (W47: 21). Stale candidates for `po` to close or relabel (no change by this task): #1230 and #1213 still `active` (B1.1 and BK no longer active), #1465 (answered by `staging-smoke`), #1723 (CodeQL fixed by #1728), #1222, #1211, #1194, #1544, #1626 (closed work).
+
+### Blocked
+| Item | Owner | Needed by | Safe path |
+|---|---|---|---|
+| Staging path 10 for HD-3s-F2-F1 (one synthetic case in Testteam Basel) | `po` decides (a) / (b) / limit; if (a), the founder | before the #1825 ready report (today or Mon 30.11.) | (a) founder signs in as the synthetic Operations demo account in the app, records one intake with a clearly synthetic name and assigns it to Testteam Basel; no secret. (b) a new GitHub secret for that demo account, set only by the founder in GitHub → Settings → Secrets; never in chat or a document |
+| AI1 activation (first model call on staging) | founder, after AI1-F1 is ready | when AI1-F1 is ready (not in the queue yet) | Render dashboard → `navora-staging` → Environment: model variables named in `briefs/AI1.md`; spending cap in the provider console. Never in chat, GitHub or a document |
+| STG-OBS-1 Render API key as a secret (optional, executive report §8) | founder | no date | GitHub → Settings → Secrets; a read-only key; never in a file |
+| Clinical owner named (G-1, D-27) | founder | before Phase B (B12) | name a person; unchanged |
+| B0-6 repository protection (D-7 stage 1) | owner | before B12 | GitHub → Settings → Rules; unchanged since W46 |
+
+### Milestone and date risks (read this run)
+- **Blueprint §10 M9 2027-03-12:** in progress; 15 weeks left. HEIM-DP has eight packages left; BK-d, BK-g and the blocks B2-Kern to B12 have no estimate. Engineering cannot say M9 is threatened, nor that it is safe (UNKNOWN). The executive report shows the same critical path.
+- **Blueprint §10 M10:** OPEN.
+- **`BK_ROADMAP.md` §3 windows (v2, 18.11.):** BK-e: met early (accepted 20.11.). BK-f «ca. 25.–27.11.»: **met early** (accepted 20.11. on `40a2ce1`). BK-d «frühestens Ende KW 48»: **missed**, not started. BK-g «frühestens 1.–2.12.»: **will be missed** (headline); new estimate early to mid January 2027 (Low). First live model run «KW 49»: **at risk**; AI1 is merged but AI1-F1 is not in the queue; estimate UNKNOWN.
+
+### Architecture and platform concerns
+1. **Staging smoke stability:** about a third of the smoke runs since 21.11. were red, most probably from Render deploy changes during a run (PO, cause not proven). STG-SMOKE-3 (b) reruns only on a proven deploy change. Watch whether real failures now stay red and visible.
+2. **Query cost with growing data:** slow queries were found and fixed four times this week (PO count; PERF1 and the ORDER-F1 follow-ups F2, F3, F5). The budget tests (pgTAP 178–181, AUT-220) now guard them; pgTAP 178 still hangs in some runs (probe #1767, UNKNOWN cause).
+3. **Uncontrolled React 19 forms reset after a rejected action** (#1825 review 10:10): a lead could lose her entries and save on the wrong day or person. Fixed for the plan and move forms on #1825; the same pattern may exist in other forms. Proposal: one repository-wide check (below).
+4. **Two `eng` sessions on one branch:** the writer-line rule (FE-099 2a) worked on #1825: reviews by other sessions, no overwrite. It costs reviewer runs while the writer is away.
+5. **Merge commit red after a green head:** #1729 (HD-3a) was green on its head and red in `e2e` on the merge commit (a test race, fixed by #1752). Acceptance on a named commit with `ci-repeat` caught it in time; the merge rule alone would not have.
+6. **Throughput of documents:** 205 merges in a week, about 170 of them role and PO documents. The Blueprint §8 body, `BK_ROADMAP.md` and the staging overview went stale at the same time (contradictions 2 and 3).
+
+### Innovation proposals for the PO (PROPOSED, not decided)
+1. **Form-reset guard:** a lint rule or unit check that flags `<form action={…}>` with uncontrolled inputs on any path that can return a refusal, plus one e2e pattern «rejected save keeps the inputs». Benefit: removes the class of defect found on #1825 before HD-3b adds more planning forms. Cost: about half a package-day, test and lint only. Way back: remove the rule.
+2. **Living roadmap from the queue:** a small script in `agents-check` that warns when `BK_ROADMAP.md` or Blueprint §8 names a block as active that is not *Active now* in `NEXT_CAPABILITY.md`. Benefit: the founder never reads a stale plan; contradictions 2 and 3 would have shown on 20.11. Cost: one script, no product code. Way back: delete the check.
+3. **Smoke data fixture for staging:** one documented, synthetic, read-only fixture set per path (for example the case for path 10), created once by a named person and checked by a read-only smoke step. Benefit: new click paths no longer stall on missing staging data. Cost: one founder action and one smoke step. Way back: paths fall back to «in CI only» as today.
+
+---
+
 ## 2026-W47 (Mon 2026-11-16 to Sun 2026-11-22) · Friday entry, Fri 2026-11-20 13:00
 
 Read at about 11:50–12:00 UTC on `recovery/main` `e6d8768` (PO merge #1597), by the GitHub API (PR list, PR comments and check runs, Actions runs of `ci`, `staging-smoke`, `staging-version` on `recovery/main`, open `agent:eng` issues), Render (service `navora-staging`, deploy list, read only) and Supabase (`list_migrations` on `navora-staging`, read only). Engineering ran no test for this entry; every CI statement is a read of a named GitHub run. This entry also covers the weekend Sat 14 to Sun 15 Nov, which came after the W46 entry (Fri 13:05).
