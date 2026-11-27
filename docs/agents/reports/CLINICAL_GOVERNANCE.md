@@ -16,6 +16,57 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-27 04:45 CET: gate on **#1808** HD-3s-F2 «Externer Auftrag mit zwei Blöcken (geteilter Dienst), feste Regeln» (Block HEIM-DP), ready head `fcfebf8d`; PO window 7209190459 (due 07:39); `eng` gate questions (ready report 7208647192). **`cra-gate: #1808 fcfebf8d clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). CGR-288 met on the PR (closes on merge). Two new advisory findings (CGR-289, CGR-290), both to named follow-up items `HD-3s-F2-F…` (FE-089 (3)). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `b73d77e5`. Since my 2026-11-26 21:30 section: #1790 HD-3s merged (`7e48a7a4`) and accepted for the simulation on `5e9a0474` (`ABNAHMEAKTE.md` §2); FE-133 to FE-136 recorded (FE-133 (1) is the founder clarification I followed on 21:30: one order with both blocks); HD-3s-F2 brief approved. Blueprint 3.2.93 to 3.2.96: version table only; **Annex B §1 (20 guarantees) and the qualification matrix unchanged**; Handbook V2.2 unchanged. No FE-079 renewal due; my sign-off on #1279 stands (reservation CGR-221).
+- #1808 head `fcfebf8d` (34 files): migration 0183 (header, pause columns and check, `order_work_minutes`, `order_split_sentence`, `order_set_pause`, the send path, `write_take_visit`), pgTAP 183 whole (§1 to §13), the diff of `private.derived_exceptions_of`; on the head, whole: `private.order_member_step`, `private.order_cover`, `private.order_client_state`, `public.client_orders`, `private.recheck_member_takes`, `private.recheck_takes_trigger`; `private.member_visit_overlap` (0150, unchanged by this PR); e2e `hd3s-f2-split-order.spec.ts` (cell codes). Brief `briefs/HD-3s-F2.md`. PR comments: `eng` review 7206259909, `aia` 7207222406, `eng` progress 7208296710, ready report 7208647192, PO window 7209190459.
+- CI on the head, read by me through the API: check runs `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run), `codeql` all `success`. Job logs read in part: `db` 140282159513 «183_hd3s_f2_split_order.test.sql … ok», «Files=180, Tests=7341», «Result: PASS»; `e2e` 140282159499 «232 passed». `ci-repeat` 10/10 not run (belongs to acceptance on the integrated commit).
+
+### Answers to `eng`'s gate questions
+
+1. **Is CGR-288 (a)–(d) met? Yes, in the stronger form the PO chose (decision (a), busy pause).**
+   - (a) A second order inside her pause is refused for her at step 3 and stays open for a colleague (pgTAP 183 §5, `order_member_step` reads the whole window `starts_at..ends_at`, the pause included). Because no second take in the pause can exist, nothing can escape her weekly minutes or the span; R-j is not built and is not needed for this.
+   - (b) The reference point is the end of block 2: `ends_at` equals the end of the block-2 visit; an order overlapping block 2 (19:00) is refused, one from 20:00 is not blocked by this take (§5). **Honest limit:** the order path has no rest-time rule at all today (pre-existing, also for one-block orders), so an order from 20:00 the same evening is eligible with zero rest. That is not a defect of F2; the rest value stays UNKNOWN (`lca`, Clinical Owner; H-10, CGR-221).
+   - (c) One order row, no automatic split (§3); the offer and the sentence name both blocks (§2, §3, §10); the grade is kept (§3) and the grade step refuses a FaGe member for the HF order (§6); activities, absence, LEAVE1 (§12) and the person lock are the unchanged `order_member_step`.
+   - (d) pgTAP 183 §5 has the cases for (a) and (b).
+   **CGR-288 is met on the PR and closes on merge.**
+2. **One person for both blocks; never «Gedeckt» before the take; both visits end together on a release before the start? Yes, correct.** «Gedeckt» comes only from `private.order_cover` `covered` (a live, acknowledged take whose member passes step 4), one reading for one order row, unchanged by F2; e2e reads code «A» after the send and «G» only after the take. A live take whose member no longer passes is never shown as covered (`order_cover` safety net). An absence in block 2 recorded before the start releases the whole take and cancels both visits, never only one, and never deletes them (§7). This is the safer reading: no half-covered day is shown as covered, and the offer goes out again for the whole day.
+3. **Should block 2 be releasable on its own after block 1 has started? Yes, as a named follow-up, not now: CGR-290.** Today the case «block 1 worked, absence recorded in the pause for block 2» leaves the take live (correct: CGR-242 (e), no release after the start), the home reads «Nicht gedeckt» at once (`order_cover` safety net, detail `started`), but the team's P1 signal for block 2 starts only at block 2's start (`derived_exceptions_of`, `bs.at = pause_ends_at`), and block 2 cannot be offered again. The lead time to cover block 2 is lost. Details and remedy below.
+
+### Other checks (IMPLEMENTED on the head)
+
+- The pause is never in a visit and never in planned or ordered minutes (510, not 780): §4, §8, §10, and `order_work_minutes` on the clock-change days (§13). Two invoice drafts per take with one price snapshot, a correction voids only its own block (§8, §8b): a billing form for `lca`; no tariff rule in the package.
+- `take_member_dropped` is now one row per block with its own key (§9); block 1 and one-block takes keep their key, so no open signal changes identity on deploy.
+- Shape check on the order (`partner_requests_pause_shape`) and the V1–V5 codes from HD-3s in `order_set_pause`; a shape problem undoes the whole send (fail closed, never an order without its pause).
+- No clinical, tariff, LTCF, PAG or MQI rule; no health data (absence kinds unchanged); audit keys classified `code`. CR-259 added.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-289** | #1808 busy pause (PO decision (a)) against the hand path's overlap fact | **advisory** for the simulation; **S1 before real clients**; follow-up `HD-3s-F2-F1`, placement `po`; not a merge condition (FE-089 (3)) | The order path treats her whole split day as busy, but the hand path does not. `private.member_visit_overlap` and `public.member_slot_overlap` compare only visit intervals, and a split take now writes two visits with nothing in the pause. A team lead who plans a case visit for her at 12:00 is told «no overlap». On save, the `care_visits` trigger re-checks her takes: before the start, `order_member_step` fails at step 3 and **her whole split take is released** (both blocks; the home reads «Nicht mehr gedeckt», the offer goes out again); after the start, `take_member_dropped` raises a P1 for block 1 while she is working it (false alarm). Coverage is never overstated (fail closed), but a «free» reading silently removes a whole day's cover or creates alarm noise. For a one-block take this cannot happen: its visit covers the whole window. | `private.member_visit_overlap` (0150: `visit_interval(x) && visit_interval(v)`, visits only); `private.order_member_step` step 3 (window `starts_at..ends_at`); `private.recheck_takes_trigger` → `recheck_member_takes` (release while `starts_at > now`); `derived_exceptions_of` `take_member_dropped`; migration 0183 header lines 4–6 (busy for «every existing availability reading» of the order path only) | (a) The hand path's overlap fact also counts the window of each live take of hers (`starts_at..ends_at`, the pause included) as busy; same person lock. (b) pgTAP: a live split take 07:00–11:30 / 16:00–20:00; a hand visit 12:00–13:00 for her → `member_overlap` true, and `member_slot_overlap` true; 20:00–21:00 → false. (c) If the lead saves anyway, the result names the released order (no silent release); or the PO records that the hand path refuses. |
+| **CGR-290** | #1808 block 2 after block 1 (`eng` question 3; CGR-242 (e)) | **advisory**; S2 (before real clients); follow-up `HD-3s-F2-F2`, placement `po`, product shape founder (FE-133 (1) «later»); not a merge condition | When block 1 is done and an absence covering block 2 is recorded in the pause (for example 13:00–21:00), the take stays live, block 1's visit is no longer under way and block 2's is planned before its start, so **no `take_member_dropped` row exists between 13:00 and 16:00**: no P1 to her team or to her. The home reads «Nicht gedeckt» at once (correct), but block 2 cannot be offered again and the detail reads as if the whole shift had started. The time to find cover for block 2 is lost. In a one-block take this case does not exist. | `derived_exceptions_of` (`bs.at` = `pause_ends_at` for block 2; `v.status = 'planned' and now() >= bs.at`); pgTAP 183 §9 (block 2 flagged only at 16:30); `order_cover` safety net (`not_covered` / `started`); `recheck_member_takes` (`p.starts_at > now`) | (a) Block 2's `take_member_dropped` row is raised as soon as the live take fails step 4 after the order's start, not only at block 2's start (key `…:2` unchanged). (b) pgTAP: block 1 done, absence 13:00–21:00 recorded at 13:00 → at 13:05 the `…:2` row exists. (c) Follow-up shape, decided by the founder and `po`: block 2 releasable on its own before its start (by her team or on a recorded absence), which re-offers only block 2 as a one-block order and shows it on `/heim`; audited; never a silent split. Wording of the home's detail for this case: `uxa`. |
+
+### Findings closed (evidence)
+
+- **CGR-288** (HD-3s-F2: a take in the pause must not escape span, weekly minutes or rest): met on #1808 `fcfebf8d` by the busy pause (pgTAP 183 §5: step 3 for her, step 4 for a colleague; reference point end of block 2) and §3, §6 (one order, grade guard). **Closes on merge** with `ci` green on the merged head. PS-244 follows.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1808 HD-3s-F2 | `fcfebf8d` | **`cra-gate: #1808 fcfebf8d clear`**, gate «Simulation, synthetic data». Checked: one order with both blocks, no automatic split; busy pause refuses her second order (CGR-288 (a)); reference point end of block 2 (CGR-288 (b)); grade and activity guard unchanged; never «Gedeckt» before the take, never while the member fails; release before the start ends both visits; minutes and drafts without the pause; one signal row per block; no health data. Not checked by me: 390/1440 px readability (`uxa`), invoice form and ArG reading (`lca`). Before real clients: CGR-289, CGR-290, CGR-287 (HD-3s-F4). Acceptance still needs the integrated commit, `ci-repeat` 10/10 and the `ABNAHMEAKTE.md` record (README rule 12). |
+
+### Decisions requested
+
+- **po:** place CGR-289 as `HD-3s-F2-F1` and CGR-290 as `HD-3s-F2-F2` (named follow-ups, FE-089 (3)).
+- **founder / po:** whether block 2 may later be released and re-offered on its own (CGR-290 (c)); no clinical value from me.
+- **`lca`, Clinical Owner (UNKNOWN):** a rest-time rule for the order path (none exists; CGR-221, H-10). I name no value.
+
+---
+
 ## 2026-11-26 21:30 CET: gate on **#1790** HD-3s «Geteilter Dienst (zwei Blöcke) im Heimplan, feste Regeln» (Block HEIM-DP), ready head `27cb1fc6`; `eng` gate questions and the second-review question on R-c; founder clarification 7201934395. **`cra-gate: #1790 27cb1fc6 clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). Two new advisory findings (CGR-287, CGR-288), both to named follow-up items (FE-089 (3)). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
