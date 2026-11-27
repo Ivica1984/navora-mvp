@@ -38,14 +38,21 @@ AS $function$
   -- start (released_at is null). The take a visit was written from (p_own_take, care_visits.order_take_id) never counts
   -- for that visit, so a take never blocks its own block visits. Returns the earliest such take, or null. Instants, not
   -- days, so a window across midnight is read correctly. Callers take the person lock order_take_member:<user> first.
+  -- Plan-proof cost (CI db 140559342816 on 147dfdce: the join form timed out in pgTAP 178 when the planner nested a
+  -- sequential scan of one table inside the other, 1 000 live takes x 1 000 orders per visit write). The orders whose
+  -- window meets the range are found first (GiST partner_requests_slot, or one scan), and for each of those few the one
+  -- live take is looked up through the unique partial index order_takes_one_live (LATERAL ... LIMIT 1). Any plan stays
+  -- linear in the orders and never walks every live take of the person per order. Same result as the join form.
   select k.id
-  from public.order_takes k
-  join public.partner_requests q on q.id = k.order_id
+  from public.partner_requests q
+  cross join lateral (
+    select t.id from public.order_takes t
+    where t.order_id = q.id and t.released_at is null and t.member_id = p_user
+    limit 1) k
   where p_user is not null and p_range is not null and not isempty(p_range)
-    and k.member_id = p_user and k.released_at is null
     and tstzrange(q.starts_at, q.ends_at, '[)') && p_range
     and (p_own_take is null
-         or k.order_id is distinct from (select t.order_id from public.order_takes t where t.id = p_own_take))
+         or q.id is distinct from (select o.order_id from public.order_takes o where o.id = p_own_take))
   order by q.starts_at, k.id
   limit 1
 $function$;

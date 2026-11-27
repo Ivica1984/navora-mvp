@@ -14,12 +14,15 @@
 --   §8 catalogue: no client role may update care_visits.order_take_id.
 --   §9 AIG1 apply (review (b) on #1825, ADR-230 point 2): a confirmed day-plan line into the pause returns `overlap`; a
 --      non-day-plan AIG1 suggestion into the pause raises member_take_window. Neither releases the take.
+--   §10 plan-proof cost (CI db 140559342816 on 147dfdce, pgTAP 178 timed out in the backstop): with 300 more live takes of
+--      …12 and every join and index plan switched off, one member_take_window call reads partner_requests once and
+--      order_takes once per order that meets the range only; it never walks every live take of hers per order.
 -- Users: lead kundebs …9e8 of «Testheim Rhein» …4c1 (client account …3c1); nurses …11 (split take), …12 (lead of the
 -- hand plan, one-block take), …13 (other team) in Testorganisation S (…b000-…019); team …b184-…01, second team …b184-…02.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(38);
+select plan(41);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -243,6 +246,48 @@ select is((select string_agg(v.status, ',' order by v.take_block) from public.ca
           'planned,planned', '§9 both block visits are still planned');
 select is((select count(*)::int from private.derived_exceptions_of(pg_temp.org(), array['take_member_dropped'])), 0,
           '§9 still no take_member_dropped');
+
+-- §10 Plan-proof cost of member_take_window (CI db 140559342816: pgTAP 178 timed out in guard_take_window) -------------
+-- 300 more live takes of …12 on earlier days (copies of the one-block order o2 and its take, as pgTAP 178 does).
+create temp table b10 as select * from public.partner_requests where id = pg_temp.id('o2');
+insert into public.partner_requests
+select (jsonb_populate_record(b, jsonb_build_object('id', gen_random_uuid(),
+          'starts_at', b.starts_at - make_interval(days => i), 'ends_at', b.ends_at - make_interval(days => i)))).*
+from b10 b, generate_series(1, 300) i;
+create temp table k10 as select * from public.order_takes where order_id = pg_temp.id('o2') and released_at is null;
+insert into public.order_takes
+select (jsonb_populate_record(k, jsonb_build_object('id', gen_random_uuid(),
+          'order_id', (select q.id from public.partner_requests q
+                       where q.starts_at = (select starts_at from b10) - make_interval(days => i)
+                         and q.client_account_id is not distinct from (select client_account_id from b10)
+                       order by q.id limit 1)))).*
+from k10 k, generate_series(1, 300) i;
+create temp table n10 as select (select count(*) from public.partner_requests) as pr,
+                                (select count(*) from public.order_takes) as ot,
+                                (select count(*) from public.partner_requests q where tstzrange(q.starts_at, q.ends_at, '[)')
+                                   && tstzrange('2026-11-19 09:00:00+01', '2026-11-19 09:30:00+01', '[)')) as hits;
+create function pg_temp.reads(p_rel text) returns bigint language sql as $$
+  select coalesce(seq_tup_read, 0) + coalesce(idx_tup_fetch, 0) from pg_stat_xact_user_tables
+  where schemaname = 'public' and relname = p_rel $$;
+create temp table r10 as select pg_temp.reads('partner_requests') as pr0, pg_temp.reads('order_takes') as ot0,
+                                null::uuid as hit, 0::bigint as pr1, 0::bigint as ot1;
+set local enable_indexscan = off;
+set local enable_bitmapscan = off;
+set local enable_indexonlyscan = off;
+set local enable_hashjoin = off;
+set local enable_mergejoin = off;
+update r10 set hit = private.member_take_window(pg_temp.u('12'),
+                       tstzrange('2026-11-19 09:00:00+01', '2026-11-19 09:30:00+01', '[)'), null);
+update r10 set pr1 = pg_temp.reads('partner_requests'), ot1 = pg_temp.reads('order_takes');
+reset enable_indexscan; reset enable_bitmapscan; reset enable_indexonlyscan; reset enable_hashjoin; reset enable_mergejoin;
+select is((select hit from r10), (select id from public.order_takes where order_id = pg_temp.id('o2') and released_at is null),
+          '§10 under forced sequential nested-loop plans the reading still finds her one-block take');
+select ok((select r.pr1 - r.pr0 <= n.pr + 1 from r10 r, n10 n),
+          '§10 one call reads partner_requests at most once over (no scan per take)');
+select diag('§10 reads: partner_requests ' || (r.pr1 - r.pr0) || ' of ' || n.pr || ', order_takes ' || (r.ot1 - r.ot0) || ' of '
+            || n.ot || ', orders meeting the range ' || n.hits) from r10 r, n10 n;
+select ok((select n.hits < 10 and r.ot1 - r.ot0 <= n.hits * n.ot from r10 r, n10 n),
+          '§10 one call reads order_takes once per order that meets the range only (not once per order of the database)');
 
 select * from finish();
 rollback;
