@@ -50,11 +50,15 @@ begin
       and x.visit_date between p_visit_date - 1 and p_visit_date + 1
       and x.status <> 'cancelled'
       and x.responsible_user_id = p_member_id and (ex is null or x.id <> ex)
-      and private.visit_interval(x) && rng);
+      and private.visit_interval(x) && rng)
+    -- HD-3s-F2-F1 (CGR-289 (a), (b), ADR-230): the window of her live take counts as busy, pause included; yes/no only,
+    -- nothing about the take (CGR-137).
+    or private.member_take_window(p_member_id, rng,
+                                  (select x.order_take_id from public.care_visits x where x.id = ex)) is not null;
 end;
 $function$;
 
 revoke all on function public.member_slot_overlap(p_case_id uuid, p_visit_id uuid, p_member_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone) from public, anon, authenticated, service_role;
 grant execute on function public.member_slot_overlap(p_case_id uuid, p_visit_id uuid, p_member_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone) to authenticated;
 grant execute on function public.member_slot_overlap(p_case_id uuid, p_visit_id uuid, p_member_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone) to service_role;
-comment on function public.member_slot_overlap(p_case_id uuid, p_visit_id uuid, p_member_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone) is 'PLAN3-16 (ADR-161, `cra` CGR-137): whether a member of the team already has a visit (any team, not cancelled, dated the day before, the same day or the day after: BK-CGR256 / CGR-256) at a time overlapping [date + start, date + end). The team: the given visit''s (for its team members; it is excluded), else the case''s assigned team (for its members). yes/no only: no other team''s client, case, visit, team or time. LEAVE1-3 guarded; null for anyone else, a member outside that team or an incomplete slot. Never a refusal.';
+comment on function public.member_slot_overlap(p_case_id uuid, p_visit_id uuid, p_member_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone) is 'PLAN3-16 (ADR-161, `cra` CGR-137): whether a member of the team already has a visit (any team, not cancelled, dated the day before, the same day or the day after: BK-CGR256 / CGR-256) at a time overlapping [date + start, date + end). The team: the given visit''s (for its team members; it is excluded), else the case''s assigned team (for its members). yes/no only: no other team''s client, case, visit, team or time. LEAVE1-3 guarded; null for anyone else, a member outside that team or an incomplete slot. Never a refusal. HD-3s-F2-F1 (CGR-289 (a), ADR-230): also true inside the window of her live take, pause included (member_take_window); yes/no only.';

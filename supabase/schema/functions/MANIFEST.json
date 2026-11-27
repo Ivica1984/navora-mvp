@@ -106,7 +106,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "begin_command"
+        "begin_command",
+        "member_take_window"
       ]
     },
     {
@@ -139,7 +140,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "begin_command"
+        "begin_command",
+        "member_take_window"
       ]
     },
     {
@@ -834,7 +836,8 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "order_take_member:",
-        "plan3_busy:"
+        "plan3_busy:",
+        "member_take_window"
       ]
     },
     {
@@ -842,7 +845,8 @@
       "required": [
         "SECURITY DEFINER",
         "SET search_path TO ''",
-        "access_ended"
+        "access_ended",
+        "member_take_window"
       ]
     },
     {
@@ -854,7 +858,8 @@
         "access_ended",
         "has_qualification",
         "adm2_in_contract",
-        "member_absent_during"
+        "member_absent_during",
+        "member_take_window"
       ]
     },
     {
@@ -863,6 +868,30 @@
         "SECURITY DEFINER",
         "SET search_path TO ''",
         "member_visit_overlap"
+      ]
+    },
+    {
+      "name": "private.member_take_window",
+      "required": [
+        "SET search_path TO ''",
+        "released_at is null",
+        "pause"
+      ]
+    },
+    {
+      "name": "private.member_take_window_facts",
+      "required": [
+        "SET search_path TO ''",
+        "own_team"
+      ]
+    },
+    {
+      "name": "private.guard_take_window",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "member_take_window"
       ]
     }
   ]

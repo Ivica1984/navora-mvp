@@ -25,9 +25,12 @@ begin
       and x.visit_date between v.visit_date - 1 and v.visit_date + 1
       and x.status <> 'cancelled'
       and x.responsible_user_id = p_user and x.id <> v.id
-      and private.visit_interval(x) && private.visit_interval(v));
+      and private.visit_interval(x) && private.visit_interval(v))
+    -- HD-3s-F2-F1 (CGR-289 (a), ADR-230): the window of her live take counts as busy, pause included (the take the
+    -- visit itself was written from never counts).
+    or private.member_take_window(p_user, private.visit_interval(v), v.order_take_id) is not null;
 end;
 $function$;
 
 revoke all on function private.member_visit_overlap(p_visit_id uuid, p_user uuid) from public, anon, authenticated, service_role;
-comment on function private.member_visit_overlap(p_visit_id uuid, p_user uuid) is 'PLAN3-14 (2) / PLAN3-16 (ADR-146, ADR-161): whether the member has another non-cancelled visit (any team of the organisation, dated the day before, the same day or the day after, BK-CGR256 / CGR-256) whose planned interval overlaps the visit. Takes the order_take_member person lock (BK-e1b CGR-233, ADR-203 (19), marker BK-E1B-L) and then the plan3_busy advisory lock on member and day. Internal: no permission check; nothing but the yes/no reaches a caller.';
+comment on function private.member_visit_overlap(p_visit_id uuid, p_user uuid) is 'PLAN3-14 (2) / PLAN3-16 (ADR-146, ADR-161): whether the member has another non-cancelled visit (any team of the organisation, dated the day before, the same day or the day after, BK-CGR256 / CGR-256) whose planned interval overlaps the visit. Takes the order_take_member person lock (BK-e1b CGR-233, ADR-203 (19), marker BK-E1B-L) and then the plan3_busy advisory lock on member and day. Internal: no permission check; nothing but the yes/no reaches a caller. HD-3s-F2-F1 (CGR-289 (a), ADR-230): also true inside the window of her live take, pause included (member_take_window).';

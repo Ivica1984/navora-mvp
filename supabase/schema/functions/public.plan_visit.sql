@@ -18,6 +18,7 @@ declare
   vid  uuid;
   services text[];
   mo   boolean;
+  tk   uuid;
 begin
   if uid is null then
     return jsonb_build_object('result', 'rejected', 'reason', 'not_team_member');
@@ -98,6 +99,19 @@ begin
       perform private.end_command('rejected');
       return jsonb_build_object('result', 'rejected', 'reason', 'responsible_absent');
     end if;
+    -- HD-3s-F2-F1 (PO decision CGR-289 (c), ADR-230): never into the window of her live take (pause included); the
+    -- rejection names the take, nothing is written and the take stays live. The person lock first (BK-E1B-L), so a take
+    -- of hers in flight is waited for and then seen.
+    perform pg_advisory_xact_lock(hashtextextended('order_take_member:' || p_responsible_user_id::text, 0));
+    tk := private.member_take_window(p_responsible_user_id,
+            private.visit_interval(jsonb_populate_record(null::public.care_visits, jsonb_build_object(
+              'visit_date', p_visit_date, 'time_start', p_time_start, 'time_end', p_time_end,
+              'planned_minutes_a', a, 'planned_minutes_b', b, 'planned_minutes_c', cc))), null);
+    if tk is not null then
+      perform private.end_command('rejected');
+      return jsonb_build_object('result', 'rejected', 'reason', 'member_take_window',
+                                'take', private.member_take_window_facts(tk, c.assigned_team_id));
+    end if;
   end if;
 
   select coalesce(array_agg(distinct i.service), c.care_needs, '{}') into services
@@ -147,4 +161,4 @@ $function$;
 revoke all on function public.plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) from public, anon, authenticated, service_role;
 grant execute on function public.plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) to authenticated;
 grant execute on function public.plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) to service_role;
-comment on function public.plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) is 'J3: plans a visit for the caller''s team. Rejection reasons: not_team_member, assessment_first, assessment_already_planned, assessment_category_a_only, order_required, rn_required, responsible_not_in_team, responsible_absent (ABS1-C4: the responsible member is absent at the visit''s interval), minutes_exceed_window. VIS2 (ADR-121): p_overlap_shown (what the form showed) is recorded as overlap_shown on the audit row; an ok result carries overlap (the server''s check). Never refused for an overlap. PLAN3-16 (ADR-161): p_member_overlap_shown is recorded as member_overlap_shown on the audit row; an ok result carries member_overlap (yes/no, any team; null without a member). Never refused for it.';
+comment on function public.plan_visit(p_case_id uuid, p_visit_date date, p_time_start time without time zone, p_time_end time without time zone, p_minutes_a integer, p_minutes_b integer, p_minutes_c integer, p_needs_assessment boolean, p_responsible_user_id uuid, p_idempotency_key uuid, p_overlap_shown boolean, p_member_overlap_shown boolean) is 'J3: plans a visit for the caller''s team. Rejection reasons: not_team_member, assessment_first, assessment_already_planned, assessment_category_a_only, order_required, rn_required, responsible_not_in_team, responsible_absent (ABS1-C4: the responsible member is absent at the visit''s interval), minutes_exceed_window. VIS2 (ADR-121): p_overlap_shown (what the form showed) is recorded as overlap_shown on the audit row; an ok result carries overlap (the server''s check). Never refused for an overlap. PLAN3-16 (ADR-161): p_member_overlap_shown is recorded as member_overlap_shown on the audit row; an ok result carries member_overlap (yes/no, any team; null without a member). Never refused for it. HD-3s-F2-F1 (CGR-289 (c), ADR-230): a visit for a person inside the window of her live take (pause included) is rejected with reason member_take_window and the take named (work date, blocks, the home only within its own team); nothing is written.';
