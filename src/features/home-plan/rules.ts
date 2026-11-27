@@ -502,6 +502,10 @@ const PROBLEM_TEXT: Record<string, string> = {
   duplicate_row: "Der Vorschlag enthielt einen Dienst doppelt. Es wurde nichts übernommen. Bitte neu vorschlagen.",
   period_too_long: "Ein Vorschlag umfasst höchstens einen Monat. Es wurde nichts übernommen.",
   apply_id_used: "Dieser Vorschlag gehört zu einem anderen Heim. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  // HD-3a-F1 R-6-1 (migration 0186): without the home's weekly target the database cannot check the weekly hours (R-h).
+  weekly_target_missing:
+    "Nicht übernommen: Für dieses Heim ist kein Wochensoll eingetragen; ohne Wochensoll lässt sich die Stundengrenze nicht prüfen. "
+    + "Bitte unter «Planungsgrenzen» das Wochensoll eintragen und neu vorschlagen. Es wurde nichts übernommen.",
   rule_warning: "Nicht eingeteilt: Diese Einteilung verletzt eine Planungsregel. Bitte unten prüfen und bestätigen oder abbrechen.",
   name_exists: "Diesen Namen gibt es schon.",
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",

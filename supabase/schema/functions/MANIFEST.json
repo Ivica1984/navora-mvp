@@ -439,7 +439,10 @@
         "cell_full",
         "private.institution_cell_lock(",
         "period_too_long",
-        "join public.institution_shift_types t"
+        "join public.institution_shift_types t",
+        "weekly_target_missing",
+        "pensum_missing",
+        "from public.institutions h where h.id = p_institution_id for share"
       ]
     },
     {

@@ -202,6 +202,16 @@ describe("HD-3a slice 4: the answer of «übernehmen»", () => {
     expect(messageText("duplicate_row")?.kind).toBe("error");
   });
 
+  it("HD-3a-F1: without weekly target the whole call is refused and the text names the next action", () => {
+    expect(applyOutcome({ result: "invalid", problems: ["weekly_target_missing"] }))
+      .toEqual({ code: "weekly_target_missing", applied: 0, refused: 0 });
+    const m = messageText("weekly_target_missing");
+    expect(m?.kind).toBe("error");
+    expect(m?.text).toContain("kein Wochensoll eingetragen");
+    expect(m?.text).toContain("«Planungsgrenzen»");
+    expect(m?.text).toContain("Es wurde nichts übernommen.");
+  });
+
   it("counts from the URL are whole numbers only", () => {
     expect(parseCount("12")).toBe(12);
     expect(parseCount("-1")).toBe(0);
