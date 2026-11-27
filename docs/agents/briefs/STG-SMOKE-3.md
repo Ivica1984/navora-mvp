@@ -2,7 +2,7 @@
 id: STG-SMOKE-3
 title: Staging-Klickpfade — ein Wiederholungslauf nur bei Deploy-Wechsel (Testwächter)
 author: po
-status: approved   # PO 2026-11-27 06:39 nach der HD-3s-F2-Abnahme; aus dem technischen Vertrag von `eng` (#1790 7210446002), Option (b)
+status: accepted   # PO 2026-11-27 06:39 approved (Option (b), `eng` #1790 7210446002); merged #1821 08:39; accepted 09:39 as test guard (ci and staging-smoke green on merge commit 4130c011)
 updated: 2026-11-27
 ---
 
@@ -82,7 +82,19 @@ Mehr Pflegezeit nur indirekt: kürzere Abnahmewartezeit für jedes folgende Pake
 | Unit-Matrix und Katalogprüfung | grün auf CI | `app` 140353163160 «1944 tests passed» (laut `eng`; Check-Run `success`) |
 | Negativ: kein Pfad, Wächter, Timeout geändert; `notify` feuert | erfüllt (Diff gelesen) | #1821 |
 | `ci` grün auf dem Kopf | erfüllt | `ci` 45953066910, sechs Check-Runs `success` |
-| Grüner Pfad auf CI (ersetzt, siehe oben) | **OFFEN** | erster `staging-smoke` auf Commit mit `4130c011` |
-| `ci` auf dem Merge-Commit | **OFFEN** | läuft |
+| Grüner Pfad auf CI (ersetzt, siehe oben) | **OFFEN** (Stand 08:39) | erster `staging-smoke` auf Commit mit `4130c011` |
+| `ci` auf dem Merge-Commit | **OFFEN** (Stand 08:39) | läuft |
 
-PO-Status: **merged, nicht abgenommen.**
+PO-Status (08:39): **merged, nicht abgenommen.**
+
+## PO-Abnahme (2026-11-27 09:39, Signal FE-105 (1) (d); PO hat keine Tests lokal ausgeführt, Rohprotokolle über die GitHub-API gelesen)
+
+| Kriterium | Ergebnis | Beleg |
+|---|---|---|
+| `ci` auf dem Merge-Commit `4130c011` | erfüllt | `ci` [45960192887](https://github.com/Ivica1984/navora-mvp/actions/runs/45960192887): `db`, `app`, `e2e`, `ui-screenshots`, `staging` alle `success`; `staging`: «Apply migrations» `success`, keine Migration im Paket |
+| Grüner Pfad auf CI (Ersatz nach PO-Entscheid 08:39) | erfüllt | `staging-smoke` [45960192885](https://github.com/Ivica1984/navora-mvp/actions/runs/45960192885) auf `4130c011`, Job 140376030403: «10 passed (5.9m)»; Notice «Render served `581fc2c2` before and after the click paths (no deploy during the run)»; Urteilszeile «green: click paths green on the first run (deploy `581fc2c2` → `581fc2c2`)»; `FAILED_PATHS: 0`, `PATHS_OUTCOME: success`, `RERUN_OUTCOME: skipped`; Job «report a red staging smoke» `skipped`. `581fc2c2` enthält `4130c011` |
+| Folgelauf | grün | `staging-smoke` 45963424778 auf `7ff7c8e6` `success` (Docs-Merge, Bereichsprüfung) |
+
+Der Wiederholungspfad (ii) ist weiterhin nur durch die Unit-Matrix belegt (so im Bereitbericht genannt); der erste echte Wiederholungslauf wird nach der Nachweisregel immer mit seiner Wiederholungszeile zitiert.
+
+**PO-Status: accepted** (Testwächter wie AUT-220; kein `ci-repeat`, keine Blockabnahme in `ABNAHMEAKTE.md`, keine Produktänderung).
