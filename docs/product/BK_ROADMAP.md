@@ -1,8 +1,35 @@
 # BK-Roadmap: vom Pflegeauftrag bis zur Rechnung
 
-**Besitzer:** Product Owner (`po`) · **Version:** 2, 2026-11-18 16:20 (Europe/Zurich) (~~1, 2026-11-17 17:15~~) · **Auftrag:** FE-088 (6), FE-090, FE-091 · **Founder-Übersicht:** `FOUNDER_STAGING_UEBERSICHT.md` · **Quellen:** Brief `docs/agents/briefs/BK.md`, Blueprint V3.2 §8, `FOUNDER_DECISIONS.md` FE-085, FE-087, FE-088 · **Kennzeichnung:** IMPLEMENTED, PLANNED, OPEN, UNKNOWN. Termine sind Schätzungen des PO, keine Zusagen. Der PO hat keine Tests ausgeführt.
+**Besitzer:** Product Owner (`po`) · **Version:** 3, 2026-11-27 15:39 (Europe/Zurich) (~~2, 2026-11-18 16:20~~; ~~1, 2026-11-17 17:15~~) · **Auftrag:** FE-088 (6), FE-090, FE-091, FE-137 (4) · **Founder-Übersicht:** `FOUNDER_STAGING_UEBERSICHT.md` · **Quellen:** Brief `docs/agents/briefs/BK.md`, Blueprint V3.2 §8, `FOUNDER_DECISIONS.md` FE-085, FE-087, FE-088 · **Kennzeichnung:** IMPLEMENTED, PLANNED, OPEN, UNKNOWN. Termine sind Schätzungen des PO, keine Zusagen. Der PO hat keine Tests ausgeführt.
 
-## 0. Kurzfassung
+## 00. Stand und Entscheid 2026-11-27 15:39 (FE-137 (4); gilt vor §0 bis §9, die den Verlauf vom 17./18.11. zeigen)
+
+**Fünf Zeilen für den Founder:**
+- **JETZT:** Block HEIM-DP, Paket HD-3s-F2-F1 (#1825, Entwurf): die Teamleitung kann keinen Fallbesuch mehr in die Pause eines geteilten Heimdiensts legen; NAVORA lehnt mit Nennung der Übernahme ab (feste Regel, keine KI).
+- **BEREIT:** auf Staging seit 20.11. neu bedienbar (synthetisch, Pfade 1–9 automatisch grün, `staging-smoke` 45960192885): Rechnungsentwurf (BK-f), Heim-Woche, -Monat und Plan je Person, Lücke → externer Auftrag → «Gedeckt», Planvorschlag mit festen Regeln, geteilter Dienst, ein Auftrag für beide Blöcke.
+- **BLOCKIERT:** keine Frage an den PO offen (Pfad 10 am 27.11. 15:39 entschieden: bekannte Grenze, Folgepunkt STG-P10).
+- **ENTSCHEID:** keiner zwingend; optional ein synthetischer Fall in Testteam Basel (Pfad 10) und Bestätigung oder Änderung der BK-d/BK-g-Stelle unten.
+- **DANACH:** HD-3a-F1 (Pensum und Wochensoll beim «übernehmen» in der Datenbank geprüft), dann HD-3a-F3 (Monatssoll); beide vertragsbereit.
+
+**Stand BK (IMPLEMENTED, abgenommen für die Simulation, `ABNAHMEAKTE.md` §2):** BK-a (14.11.), BK-b (17.11.), BK-c (18.11.), BK-e (20.11., Berichtsentwurf als Testersatz «regelbasiert, keine KI»), BK-f (20.11. auf `40a2ce1`). **Nicht begonnen (PLANNED):** BK-d (Auftrag aus Text oder Diktat mit KI, Bestätigung durch die Auftraggeberin), BK-g (Szenario-Matrix, ganzer Durchlauf e2e). Die Fenster aus §3 (BK-d «ca. 27.11.», BK-g «1.–2.12.») sind **verpasst**: Seit FE-109 (20.11.) ist HEIM-DP der aktive Block, und die Paketfolge FE-127 enthält BK-d und BK-g nicht.
+
+**Entscheid PO (WANN, Wertordnung und Blockregel; der Founder kann ändern):** BK-d und BK-g sind **förmlich zurückgestellt** und stehen **direkt nach dem Ende der HEIM-DP-Folge** (nach HD-3d) als nächster Block «BK-Abschluss»: zuerst BK-d, dann BK-g. Gründe: (1) Die Paketfolge HEIM-DP ist ein Founder-Entscheid (FE-109, FE-127); der PO schiebt keinen anderen Block dazwischen (README-Regel 12). (2) BK-d braucht ein angeschlossenes Modell: AI1-F1 und AI1 Schritt (b) mit den Render-Werten des Founders (Brief `AI1.md` §2–3). Dieselbe Voraussetzung haben die KI-Pakete in HEIM-DP (INTAKE-E2E-Extraktion, HD-3c); der PO setzt deshalb **AI1-F1 vor das erste Paket, das ein angeschlossenes Modell braucht** (frühestens INTAKE-E2E), damit BK-d danach den geprüften Weg wiederverwendet. (3) BK-g prüft den ganzen BK-Ablauf und braucht BK-d. (4) BK-a bis BK-f sind abgenommen und laufen auf Staging (Pfad 3); der Rückstand ist Abschluss und Nachweis, keine Lücke im bedienbaren Ablauf.
+
+**Vorschlag an den Founder (nicht entschieden):** BK-d direkt nach INTAKE-E2E statt nach HD-3d, weil beide «Freitext → geprüfte Felder → Bestätigung durch einen Menschen» sind; das zöge die erste echte KI-Demo für Auftraggeber um etwa zwei Pakete vor. Das ändert die Founder-Folge FE-127 und braucht ein Wort des Founders.
+
+**Neue Zeitfenster (Schätzung PO, niedrige Sicherheit, keine Zusage):**
+
+| Schritt | Fenster | Annahme |
+|---|---|---|
+| HD-3s-F2-F1 → HD-3a-F1 → HD-3a-F3 → HD-3b-0 → HD-3b | bis ca. KW 51 (18.12.) | 0,5 bis 2 Arbeitstage je Paket (Tempo KW 48, `eng` Wochenstatus); keine blockierende Klinik- oder Rechtsfrage |
+| AI1-F1, AI1 Schritt (b), INTAKE-E2E, HD-3c, HD-3d | KW 51 bis KW 2 (bis ca. 15.1.2027) | grössere Pakete mit Modell; Feiertage; Render-Werte des Founders rechtzeitig |
+| **BK-d** (mit Modell, nur synthetische Daten, D-35 A) | **KW 2 bis KW 3 (11.–22.1.2027)** | AI1 Schritt (b) abgenommen |
+| **BK-g** (ganzer Durchlauf e2e, Szenario-Matrix) | **KW 3 bis KW 4 (18.–29.1.2027)** | BK-d abgenommen |
+| M9 Phase A (Blueprint §10) | 2027-03-12 | **UNKNOWN**, ob gehalten: nach BK-g bleiben rund sechs Wochen für B11 (Gesamttest beider Abläufe); für B2-Kern bis B10 gibt es keine Schätzung |
+
+**Was diese Datei nicht mehr ist:** §1 bis §9 beschreiben den Stand vom 17./18.11. (BK aktiv). Den aktuellen Staging-Stand führt `FOUNDER_STAGING_UEBERSICHT.md`, den Wochenstand `FOUNDER_EXECUTIVE_REPORT.md`, die Reihenfolge *Active now* in `NEXT_CAPABILITY.md` und Blueprint §8.
+
+## 0. Kurzfassung (Verlauf, Stand 18.11.)
 
 - **Freitag 20.11., realistische Reichweite (PLANNED):** «Pflegeauftrag erfassen bis Teamzusage». Die Auftraggeberin erfasst einen Schichtauftrag. Das Team sieht ihn und übernimmt. Die benannte Pflegekraft bestätigt oder sagt «Ich kann nicht». Die Auftraggeberin sieht «Gedeckt» oder «Noch nicht gedeckt». Alles in der echten Staging-Anwendung, mit synthetischen Daten. Das ist **kein** fertiger BK-Durchstich und **kein** Pilot.
 - **KI bis Freitag:** keine. Die Abgleichsregeln (PLZ, Qualifikation, Verfügbarkeit) sind feste Regeln. Die Rangfolge (BK-c3) ist frühestens Freitag als **regelbasierte** Rangfolge mit Begründung da.
