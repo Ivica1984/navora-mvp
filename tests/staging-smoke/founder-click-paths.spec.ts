@@ -637,7 +637,11 @@ test("path 9: the home orders a split gap as one order, the nurse takes it, /fie
     week = addDays(week, 7);
   }
   const day = pick;
-  const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-shift="${CODE}"]`);
+  // The week shows a split cell on every station; only the rule's station has the gap (e2e 140274278408: two cells).
+  const station = await page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-shift="${CODE}"]`)
+    .filter({ has: page.getByTestId("heim-prepare-order") }).first().getAttribute("data-station");
+  const cellOf = () => page.locator(`[data-testid="heim-day"][data-date="${day}"] [data-testid="heim-cell"][data-station="${station}"][data-shift="${CODE}"]`);
+  await expect(cellOf()).toHaveCount(1);
   await expect(cellOf().getByTestId("heim-split-no-order")).toHaveCount(0);
   await cellOf().getByTestId("heim-prepare-order").click();
   await expect(page.getByTestId("heim-message")).toHaveText("Auftrag vorbereitet, noch nicht gesendet. Bitte prüfen und senden.");

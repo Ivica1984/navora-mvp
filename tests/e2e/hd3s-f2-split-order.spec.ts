@@ -25,7 +25,7 @@ function psql(sql: string): string {
   if (!LOCAL_DB.test(DB_URL)) throw new Error("HD-3s-F2 fixture: only the local Supabase database (port 54322)");
   return execFileSync("psql", [DB_URL, "-X", "-q", "-At", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8" }).trim();
 }
-function fixture() {
+function fixture(): string {
   psql(`insert into public.institution_shift_types (institution_id, code, label, starts_at, block1_ends_at, block2_starts_at,
           ends_at, shift_class, sort)
         values ('${INST}', '${CODE}', 'Geteilt F2', '07:00', '11:30', '16:00', '20:00', 'split', 90)
@@ -36,6 +36,8 @@ function fixture() {
                t.id, 1, 'nurse_hf_fh', 1, true
         from public.institution_shift_types t where t.institution_id = '${INST}' and t.code = '${CODE}'
         on conflict do nothing;`);
+  // The rule's station: the week shows a split cell on every station, only this one has the minimum staffing.
+  return psql(`select name from public.institution_stations where institution_id = '${INST}' order by sort, name limit 1`);
 }
 function cleanup() {
   psql(`delete from public.institution_staffing_rules where shift_type_id in
@@ -61,8 +63,8 @@ async function ensureExample(page: Page) {
     await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
   }
 }
-const splitCell = (page: Page, date: string) =>
-  page.locator(`[data-testid="heim-day"][data-date="${date}"] [data-testid="heim-cell"][data-shift="${CODE}"]`);
+const splitCell = (page: Page, date: string, station: string) =>
+  page.locator(`[data-testid="heim-day"][data-date="${date}"] [data-testid="heim-cell"][data-station="${station}"][data-shift="${CODE}"]`);
 
 test.describe.configure({ mode: "serial" });
 test.afterAll(() => cleanup());
@@ -77,9 +79,9 @@ for (const [width, days] of [[1440, 140], [390, 147]] as const) {
     await page.setViewportSize({ width, height: 900 });
     await signIn(page, HOME);
     await ensureExample(page);
-    fixture();  // after the example: the rule needs the home's first station
+    const station = fixture();  // after the example: the rule needs the home's first station
     await page.goto(week);
-    const cell = splitCell(page, thu);
+    const cell = splitCell(page, thu, station);
     await expect(cell).toHaveAttribute("data-status", "gap");
     await expect(cell.getByTestId("heim-split-no-order")).toHaveCount(0);
     await cell.getByTestId("heim-prepare-order").click();
