@@ -12,8 +12,10 @@ import { addDays, weekStart } from "@/features/home-plan/rules";
 //   saved (T-1: what the screen says = what the database holds);
 // - T-2 Wochensoll (390 px): the home's Wochensoll is emptied after the draft is shown; nothing is saved and the screen
 //   says what to enter.
-// Weeks 15 to 21 ahead of the synthetic example home (draft-screen uses week 13, the other HD specs weeks 5 to 10). The
-// change «by somebody else» is a direct write to the local test database (port 54322 only), restored in afterAll.
+// Weeks 15, 19, 22 and 26 ahead of the synthetic example home, each used by no other spec (draft-screen uses week 13,
+// HD-3s T-1 week 17, the HD-3s-F2 specs weeks 20, 21, 23, 24). The change «by somebody else» is a direct write to the
+// local test database (port 54322 only), restored in afterAll; the assignments this spec saved are deleted there too,
+// so no later spec plans a week that is already filled (ci 46089198925, e2e 140805869586: week 17 was shared).
 // Fixed rules, no AI.
 const PASSWORD = "navora-local-only";
 const HOME = "kundebs.test@navora.test";
@@ -74,11 +76,18 @@ function savedInWeek(monday: string, person?: string): number {
 
 test.describe.configure({ mode: "serial" });
 
-const WEEKS = { positive1440: 105, pensum390: 119, pensum1440: 133, target390: 147 } as const;
+const WEEKS = { positive1440: 105, pensum390: 182, pensum1440: 133, target390: 154 } as const;
+const usedMondays = new Set<string>();
 let origWeekly: string | null = null;
 const origPensum = new Map<string, string>();
 
 test.afterAll(() => {
+  // The rows this spec saved (positive and T-2 Pensum) leave the test database with the spec.
+  // The Mondays recorded by the tests themselves (a run across midnight must not recompute other weeks).
+  for (const monday of usedMondays) {
+    psql(`delete from public.institution_assignments a using public.institution_staff s
+          where s.id = a.staff_id and s.institution_id = '${INST}' and a.work_date between '${monday}' and '${addDays(monday, 6)}'`);
+  }
   for (const [id, pensum] of origPensum) {
     psql(`set session_replication_role = replica; update public.institution_staff set pensum_pct = ${pensum || "null"} where id = '${id}'`);
   }
@@ -91,6 +100,7 @@ test("HD-3a-F1 positive: proposal → «übernehmen» → the week shows the pla
   test.setTimeout(150_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   const monday = weekStart(addDays(zurichDay(), WEEKS.positive1440));
+  usedMondays.add(monday);
   await signIn(page, HOME);
   const shown = await openDraft(page, monday);
   const n = shown.length;
@@ -111,6 +121,7 @@ for (const [width, key] of [[390, "pensum390"], [1440, "pensum1440"]] as const) 
     test.setTimeout(150_000);
     await page.setViewportSize({ width, height: 900 });
     const monday = weekStart(addDays(zurichDay(), WEEKS[key]));
+    usedMondays.add(monday);
     await signIn(page, HOME);
     const shown = await openDraft(page, monday);
     const victim = shown[0].person;
@@ -148,6 +159,7 @@ test("HD-3a-F1 T-2: a Wochensoll emptied after the draft was shown refuses the w
   test.setTimeout(150_000);
   await page.setViewportSize({ width: 390, height: 900 });
   const monday = weekStart(addDays(zurichDay(), WEEKS.target390));
+  usedMondays.add(monday);
   await signIn(page, HOME);
   await openDraft(page, monday);
   if (origWeekly === null) origWeekly = psql(`select coalesce(weekly_target_hours::text, '') from public.institutions where id = '${INST}'`);
