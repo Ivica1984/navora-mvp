@@ -869,6 +869,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Stage note:** AI1-F1 placed before the first package with a connected model; BK-d (needs a model) formally deferred to «BK-Abschluss» (FE-137 (4)).
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**HD-3a-F1 merged, ENG-PH1, ADR-231 draft HD-3a-F3 (`aia` 2026-11-28 02:18, review 102, AUT-243 to AUT-245):**
+- **Label check:** HD-3a-F1 (merged `bf9185c0`, not accepted), the ADR-231 draft (HD-3a-F3) and HD-PEN-HAND (ENG-PH1, not briefed) are fixed rules and arithmetic («Keine KI»). No model, no proposed AI value.
+- **Control status:** AUT-241 IMPLEMENTED in `bf9185c0` (one database reading of R-h on «übernehmen»); ADR-231 keeps the monthly target inside the same rule source with a planner parity test, so the precondition before HD-3b-0 and any ranking engine (Engine 2) holds in the draft. AUT-243 (medium): a confirm that appears on every hand assignment is a click-through risk; fix in place. AUT-244 (medium): no weekly maximum bounds a week under a monthly target; optional home value, no number from `aia`. AUT-245 (low): spread reported at home level, no per-person list.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -972,3 +977,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-27 08:20 | `aia` | §12: block «HD-3s-F2 accepted, STG-SMOKE-3, HD-3s-F2-F1»: label check (fixed rules); AUT-231, AUT-232 (PROPOSED, medium), AUT-233, AUT-234 (PROPOSED, low); AUT-222 closed. No agent added or removed |
 | 2026-11-27 14:18 | `aia` | §12: block «STG-SMOKE-3 accepted, draft #1825 HD-3s-F2-F1»: label check (fixed rules); AUT-235, AUT-236 (PROPOSED, medium), AUT-237, AUT-238 (PROPOSED, low); AUT-231 split, AUT-233 reflected on the branch. No agent added or removed |
 | 2026-11-27 20:18 | `aia` | §12: block «FE-137, HD-3a-F1, HD-3a-F3»: label check (fixed rules and arithmetic, «Keine KI»); AUT-239, AUT-240, AUT-241 (PROPOSED, medium), AUT-242 (PROPOSED, low); AUT-237 closed (STG-P10); stage note: AI1-F1 placed before the first model package, BK-d deferred. No agent added or removed |
+| 2026-11-28 02:18 | `aia` | §12: block «HD-3a-F1 merged, ENG-PH1, ADR-231 draft HD-3a-F3»: label check (fixed rules and arithmetic, «Keine KI»); AUT-243, AUT-244 (PROPOSED, medium), AUT-245 (PROPOSED, low); AUT-241 implemented in `bf9185c0`. No agent added or removed |
