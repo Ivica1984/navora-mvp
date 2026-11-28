@@ -34,7 +34,17 @@ async function signIn(page: Page, email: string) {
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
 }
 async function noSideScroll(page: Page) {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  // The same check as the other /heim specs; on failure the message names the elements whose right edge passes the
+  // viewport (evidence for the fix, the assertion is unchanged).
+  const r = await page.evaluate(() => {
+    const over = [...document.querySelectorAll("body *")]
+      .map((e) => ({ e, right: e.getBoundingClientRect().right }))
+      .filter((x) => x.right > window.innerWidth)
+      .slice(0, 8)
+      .map((x) => `${x.e.tagName.toLowerCase()}[${x.e.getAttribute("data-testid") ?? x.e.className.toString().slice(0, 60)}] right=${x.right}`);
+    return { d: document.documentElement.scrollWidth - window.innerWidth, over };
+  });
+  expect(r.d, r.over.join(" | ")).toBeLessThanOrEqual(0);
 }
 function cell(page: Page, date: string, station: string, shift: string): Locator {
   return page.locator(`[data-testid="heim-day"][data-date="${date}"] [data-testid="heim-cell"][data-station="${station}"][data-shift="${shift}"]`);
