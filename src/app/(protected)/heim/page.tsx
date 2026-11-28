@@ -313,20 +313,23 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
         {gaps === 0 ? "Keine Lücke in dieser Woche." : `${gaps} ${gaps === 1 ? "Dienst mit Lücke" : "Dienste mit Lücke"} in dieser Woche.`}
       </p>
       {planner && <p className="text-xs text-secondary">{WORKING_TIME_NOTE}</p>}
+      {/* HD-PEN-HAND (CI 46127290060): `min-w-0` on day, station, cell and assign form, so a long staff name in the
+          assign select never widens the nested grid tracks past the page (1 px at 1440 px with a 33-character name,
+          126 px with a 53-character one in a browser repro); the select shrinks instead. */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {days.map((d) => (
-          <article key={d} className={`grid content-start gap-2 rounded-lg border p-2 ${isWeekend(d) ? "border-stone-300 bg-stone-50" : "border-stone-200 bg-white"}`}
+          <article key={d} className={`grid min-w-0 content-start gap-2 rounded-lg border p-2 ${isWeekend(d) ? "border-stone-300 bg-stone-50" : "border-stone-200 bg-white"}`}
             data-testid="heim-day" data-date={d}>
             <h2 className="font-bold">{dayLabel(d)}</h2>
             {plan.stations.map((s) => (
-              <div key={s.id} className="grid gap-1">
+              <div key={s.id} className="grid min-w-0 gap-1">
                 <h3 className="text-sm font-semibold">{s.name}</h3>
                 {plan.shift_types.map((t) => {
                   const c = cells.get(`${d}|${s.id}|${t.id}`);
                   if (!c) return null;
                   const free = planner ? assignableStaff(plan, d) : [];
                   return (
-                    <div key={t.id} className={`grid gap-1 rounded-md border p-2 text-sm ${statusClass(c)}`}
+                    <div key={t.id} className={`grid min-w-0 gap-1 rounded-md border p-2 text-sm ${statusClass(c)}`}
                       data-testid="heim-cell" data-status={c.status} data-station={s.name} data-shift={t.code}>
                       <p className="flex flex-wrap justify-between gap-1">
                         <span className="font-semibold" data-testid="heim-cell-times">{t.label} {shiftTimesText(t)}</span>
@@ -375,7 +378,7 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
                         </form>
                       )}
                       {planner && free.length > 0 && (
-                        <form action={assignStaff} className="flex flex-wrap gap-1">
+                        <form action={assignStaff} className="flex min-w-0 flex-wrap gap-1">
                           <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
                           <label className="sr-only" htmlFor={`a-${d}-${s.id}-${t.id}`}>Person für {t.label} {s.name} {dayLabel(d)}</label>
                           <select id={`a-${d}-${s.id}-${t.id}`} name="staff" className={`${input} min-w-0 flex-1`} data-testid="heim-assign-select">
