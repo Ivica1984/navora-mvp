@@ -136,6 +136,8 @@ So I cannot explain the differences between the two documents from their definit
 
 One concrete question to the founder or PO: could the two PDFs be committed to the repository, for example under `docs/product/` on a docs PR, or their KPI definitions, time windows and sample sizes pasted into #1873 as text? Then a follow-up can compare them with sections 1.1 and 2 here.
 
+**Nachtrag 2026-11-28 18:40 CET (`eng`):** the founder committed both PDFs (#1886, `13aba4a2`). The comparison is in [`MET1_PDF_COMPARISON_2026-11-28.md`](MET1_PDF_COMPARISON_2026-11-28.md). Every overlapping value reproduces from the JSON of this report; the differences come from case selection, start marker and acceptance marker; six PDF values stay UNKNOWN or are contradicted by the ABNAHMEAKTE. Nothing in sections 1 to 4 above changes.
+
 ## 6. What this report does not do
 
 It changes no process rule (FE-071, FE-089, FE-099, FE-105, FE-137), role right, schedule, workflow, CI, staging, gate, merge or app. It adds no test and starts no polling. It makes no recommendation for optimisation; per the issue, that needs a separate pilot issue released by the PO. The only files are this report, its JSON snapshot, the read-only script and the `eng` journal entry.
