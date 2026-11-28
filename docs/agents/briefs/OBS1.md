@@ -1,0 +1,119 @@
+---
+id: OBS1
+title: Every observation shows who wrote it, and whether her qualification was recorded when she wrote it
+author: po
+status: approved
+updated: 2026-10-29
+---
+
+# OBS1 — Every observation shows who wrote it
+
+## Problem
+IMPLEMENTED (as read by `cra` 13:40, CGR-93, and by `lca` 13:57 in the D-15 re-check; the PO read 0016:127-133): any active member of the visit's team may add an observation to a team visit that is `on_the_way`, `started`, `paused` or `completed` (`record_observation`, 0040:142-144), optionally for the handover. The author is stored (`visit_observations.author_id`), but:
+- the handover (`field_notes`, 0009:133) returns only whether the reader wrote it herself (`own`), not who did;
+- the report snapshot the performer drafts, signs and a registered nurse countersigns holds `content`, `recorded_at`, `handover` and `edited` per observation, **no author** (0016:127-133).
+
+So the performer signs, and a registered nurse countersigns, a report whose observations may come from a colleague, without seeing that. Two consequences:
+1. **Compliance:** `lca` 13:57 (ZH GesG § 13 Abs. 1 with § 39, read on lexfind and a hospital copy, not the official current zh.ch text): in a Spitex institution "die Urheberschaft der Einträge muss unmittelbar ersichtlich sein". Author shown for every observation in handover and snapshot: **compliant under every plausible interpretation** on the sources read; the system as built, or a qualification marker alone: **unresolved, needs a legal adviser** (question 9) and owner (D-11, D-12).
+2. **Safety (`cra` CGR-93, advisory S2, H-04, PS-82):** since ADM2 (0091) an admitted member may have no recorded qualification. ADM2-16 stops her performing a visit, but her observation enters the handover and the performer's signed snapshot like any other. Refusing her observation is not the protective option (an observation of a fall, a wound or distress must not be lost); its origin must be visible where it is relied on.
+
+And a coordination cost (challenge row 2026-10-29 14:35): a nurse who reads a handover note and wants to ask a follow-up question cannot see whom to ask.
+
+## Users and journey step
+Nurses and care assistants reading the handover (HAND1, `/field`); the performer drafting and signing her report (F6, F7); the registered nurse countersigning (F6, D-10); everyone who already reads a signed report (RLS2, RLS3). Step: Visit → Documentation.
+
+## Outcome
+Wherever an observation is relied on (the handover and the signed report), the reader sees who wrote it; if the author had no recorded qualification in the visit's team when she wrote it, the reader also sees that, without the observation being refused or hidden.
+
+## Acceptance criteria
+- [ ] **OBS1-1 Marker recorded at the time of writing.** When an observation is recorded, NAVORA records with it whether its author had a recorded qualification in the visit's team at that moment (for a covering nurse on a covered visit: in her cover team, the ADM2-16 rule `private.actor_may_perform_visit`, without a new rule). The value is fixed at write time; a later `set_member_qualification` does not change it. An observation is **never refused** for a missing qualification (pgTAP: the 094 member without a qualification records an observation on a visit a care assistant started → `ok`).
+- [ ] **OBS1-2 Handover shows the author.** `field_notes` (or its current successor) returns for every observation the author's display name (ADM1 name, as the team list shows it) and the OBS1-1 marker, in addition to `own`. pgTAP: a colleague reading the handover sees the author's name and, for the 094 member's observation, the marker; after `set_member_qualification` a new observation by her carries no marker and the old one keeps it; observations by qualified members carry none.
+- [ ] **OBS1-3 The report snapshot names the author.** Every snapshot created **after** this change (`create_report_draft` and every later path that builds a snapshot) holds per observation the author's identity, her display name at the time of the snapshot, and the OBS1-1 marker. **Signed snapshots created before the change are not rewritten** (CSR1: signed means immutable); the report view shows for such an observation one neutral line that its author is not part of the stored version (wording `uxa`'s), never a guessed name. pgTAP: a draft created after an observation by the 094 member carries her identity and the marker; a snapshot written before the migration is byte-for-byte unchanged.
+- [ ] **OBS1-4 Screens.** The handover on `/field` (HAND1 section) and the report view the performer signs and the registered nurse countersigns show the author's name per observation and, where set, the marker as one short text in `info` tone (wording `uxa`'s, no internal code, no word that judges the person or the content, no red). **Wording (`uxa` 16:10, UXR-47, taken in by po 16:24):** the marker reads "Qualifikation war beim Schreiben nicht erfasst"; the stored-version line "Wer dies geschrieben hat, ist in dieser Fassung nicht gespeichert" and "Teammitglied ohne Namen" as built; `cra` confirms the marker wording and position in its CGR-93 gate. Playwright at 390 px: one observation by a colleague with a qualification shows her name and no marker; one by the 094 member shows her name and the marker; the signer sees both before signing.
+- [ ] **OBS1-5 No read widened, no per-person list.** No person gains a read she did not have: the author's name reaches only people who already read that observation (RLS2 `private.reads_visit`, RLS3) and is returned **per observation, never as a list, count or filter per person** (D-23 term b, RLS3-4). `field_notes` and the snapshot path are listed in `docs/engineering/READ_PATHS.md` under RLS3-4 with the task "authorship of a clinical entry (ZH GesG § 13, `lca` 13:57)"; the RLS3-4 pgTAP list is updated by that entry only. pgTAP: a nurse of another team, a coach and Operations read no author through the new fields; no AN1, AN2, OPS1 or export reader returns author identities of observations.
+- [ ] **OBS1-6 `lca` read before merge.** Because G-18 (no teammate reads who performed each visit event row by row) and authorship meet here, `lca` reads the PR before merge and states whether OBS1-5 keeps G-18 and D-23 term b intact; `cra` reads it as its CGR-93 gate. Neither read is a legal or clinical determination.
+- [x] **OBS1-7 Authorship is read only through the per-visit read paths (`lca` D-23 re-check 2026-10-29 16:05, its most protective option; added by po 2026-10-29 16:24).** (a) `authenticated` has no direct table select on `visit_reports.snapshot`, `visit_reports.signed_by`, `visit_reports.signed_at`, `visit_observations.author_id` and `visit_observations.recorded_at`, following the RLS3-4 pattern of 0070 (Engineering chooses the mechanism, for example column grants, and states it in the ADR); every current reader of these values (`field_reports`, `field_notes`, the report view, countersigning, F6R, the export, AN1/AN2 and OPS1 readers) keeps working through its function, and the PR names each reader it checked. (b) `docs/engineering/READ_PATHS.md` lists these five columns as closed under RLS3-4; **until (a) is merged**, it states that the OBS1-5 "never as a list, count or filter per person" holds for the marker column only, because the team can still select snapshots and observation authors row by row. (c) `READ_PATHS.md` gains an **inventory** (no change by it): every remaining table-wide or column `select` grant to `authenticated` on a table that holds a care record with an author, actor, signer, corrector or person-linked time column, one line each (table, columns, the policy that limits rows). The PO decides on that list in a later run. Tests (pgTAP): an active member of the visit's team gets `permission denied` (42501) on a direct select of each of the five columns; `field_reports` and `field_notes` still return the snapshot, the signer and the observation author for her team's visit; the RLS3-4 list test is updated by these columns only. May be delivered in #673 or in its own small PR; if OBS1 is accepted on #673 without it, OBS1-7 becomes condition **OBS1-C1**. **Before G-18, G-23 and G-24** (first real employee, organisation or client) in either case.
+- [ ] **Negative.** No observation is refused, hidden, reordered, ranked or routed by the marker; no signal, OPS1 exception, quality event or billing fact reads it. No change to who may record an observation (that is the Clinical Owner's, D-15). No new free-text field. ADM2-16, VIS1 and CGR-12 unchanged (their pgTAP suites pass unmodified).
+
+## Rules and their input class
+- OBS1-1 marker: *visit/schedule fact* (a recorded qualification state at a recorded time, no judgement). It only **displays**; it does not rank, route or escalate. No clinical rule: whether such observations are allowed, need a countersignature or need nothing stays the Clinical Owner's (`cra` CGR-93, D-15). The PO chose the marker (the `cra` remedy (1)) over "no marker" as the protective default; the Clinical Owner may later record that it is not needed.
+- Author display: a documentation requirement as read by `lca` (advisory), not a NAVORA rule.
+
+## Out of scope
+- Whether a member without a recorded qualification may write observations at all, and any countersignature or review of them (Clinical Owner, D-15, D-10).
+- A legal determination of ZH GesG § 13 (adviser question 9; D-11 names the canton).
+- Authorship of other entry types (time corrections, care-plan entries, reports already carry their author); `cra` or `lca` may name another entry type in a later finding.
+- UX2-22 (hiding refused field controls) stays in UX2.
+
+## Constraints and references
+`cra` CGR-93 (13:40, PR #666), `lca` 13:57 D-15 re-check (`decisions/D-15.md`), H-04, PS-82, CR-137, CR-140; HAND1 (0009), F6/F7 snapshot (0016, CSR1 immutability), `record_observation` (0040), ADM2-6, ADM2-16 (0094, ADR-117), RLS2, RLS3-4, G-18, D-23 term b, D-15, D-10. Synthetic data only.
+
+**Release gates:** OBS1 accepted is a precondition of **G-23** (before a real organisation switches on team admission; `cra` 13:40 recommendation) and of the first real client in any organisation (authorship, `lca` 13:57), recorded in `CARE_OPERATING_MODEL.md`.
+
+## Open questions for engineering
+1. Marker as a column on `visit_observations` written by `record_observation`, or derived from the qualification history (0018 change log) at read time? The PO prefers the column (fixed at write time, one probe), but the choice is Engineering's; state it in the ADR.
+2. The current definition of the snapshot builder after 0016 (later migrations may have replaced it): name every path that writes a snapshot.
+
+## Pilot measures (AN2 candidates, counts only, never per person)
+- Share of observations in signed reports written by someone other than the performer (hypothesis: under 1 in 10; if higher, the handover is carrying team communication that belongs elsewhere).
+- Observations with the marker per month (target 0 once D-29 lets a qualification be verified before "Vertrag erfasst").
+
+## PO notes
+**2026-10-29 14:35 CET, approved (po).** Placed from `cra` CGR-93 and `lca` 13:57 together, because the two remedies are one change: the author is the protective fact for both, and the marker is one more field on the same line. Value 2 (continuity: the reader knows whom to ask), 5 (less coordination: no phone round to find who wrote a note); compliance precondition for real clients. Small: one column or derivation, two read paths, two screens. *Next up* 1, ahead of AIG1, because it closes a documentation gap in records that are already signed every day on synthetic data and gates both G-23 and the first real client.
+
+**2026-10-29 16:24 CET, two additions (po), no other change; nothing delivered yet (#673 open, not merged).**
+- **OBS1-7 from `lca` 16:05 (D-23 re-check on #673).** `lca`: OBS1 keeps G-18 and D-23 term (b) as worded, but the same author and marker copied into `visit_reports.snapshot` can be filtered per person by a direct Data API query (0016 table-wide select), as can `visit_observations.author_id` with `recorded_at` and `visit_reports.signed_by` with `signed_at` (pre-existing). Closing these like RLS3-4: compliant under every plausible interpretation on the federal sources read; leaving them open: unresolved, needs owner. **The PO takes the protective option** (product authority under D-23, `po-decided`; it only narrows a read, keeps every care read through its function, is reversible and touches no live system), so the as-built question is **not** put to the owner. Why it matters beyond compliance: a teammate's raw query that lists when a colleague wrote without a recorded qualification is exactly the per-person surveillance that would make a self-organised team distrust its own record. Not blocking for merging #673 on synthetic data (`lca` note 1). Part (c) is an inventory so the PO stops finding such paths one brief at a time (challenge row 16:24).
+- **UXR-47 wording taken into OBS1-4** (`uxa` 16:10; one constant, `cra` confirms in CGR-93). UXR-48 (one author label form) goes to UX2 as **UX2-27**; it may ride #673 if Engineering prefers, it does not gate OBS1.
+
+**2026-10-29 19:40 CET, accepted with two conditions (po).** #673 merged 2026-10-29 (merge commit `1fa6f26`); CI green on its head `f837fc0` (app, db, e2e, ui-screenshots) as GitHub reports it, and on `1fa6f26` for app, db and sync at the time of this review (e2e and ui-screenshots on the merge commit were still running; checked again before this cycle's PR merged, see the journal). The head after the `cra` 17:30 read changed only documents (`git diff f837fc0 4a46be2`: JOURNAL, IMPLEMENTATION_STATUS, OPEN_DECISIONS, D-1, INDEX, OWNER_AGENDA). `lca` read 16:01 (#674) and 16:05; `cra` 17:30 (PR #680, not yet merged): CGR-93 remedy met, gate clear once CI green; CGR-94 (advisory S3) on pre-0095 observations. **The PO did not run the tests**; evidence is the merged migration, tests, ADR-118 and CI as GitHub reports it.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| OBS1-1 marker fixed at write time, never refused | met | migration 0095: insert trigger sets `visit_observations.author_qualification_recorded` from the ADM2-16 rule; pgTAP 095: the 094-style member without a qualification records on a visit a care assistant started → ok; stored false, qualified colleague true; a passed value is overwritten; the marker cannot be updated; after `set_member_qualification` a new observation has no marker, the old one keeps it |
+| OBS1-2 handover shows the author | met | `field_notes` returns `author_name`, `author_qualification_missing`, `own` kept; pgTAP 095 (colleague sees name and marker; HAND1 "seit deinem letzten Einsatz" names her and carries the marker; qualified authors carry none) |
+| OBS1-3 new snapshots name the author; signed ones unchanged | met | snapshot holds `author_id`, `author_name`, `author_qualification_missing`; pgTAP 095: signed snapshot byte-identical after a later qualification and observation; a snapshot without author keys is shown as stored with "Wer dies geschrieben hat, ist in dieser Fassung nicht gespeichert", no guessed name (`snapshotAuthor`, vitest `obs1-authorship`) |
+| OBS1-4 screens | met | `/field` visit card, HAND1 and the report view (`report-section.tsx`, used by the signer and the countersigning RN) show the name and the `info` line "Qualifikation war beim Schreiben nicht erfasst" (UXR-47 wording; not red, asserted in Playwright); Playwright `obs1.spec.ts` at 390 px: colleague's name and marker, own "von dir" without marker, both visible before "Bericht unterschreiben", no horizontal overflow |
+| OBS1-5 no read widened, no per-person list | met for the new functions; residual in OBS1-C1 | marker column not selectable by `authenticated` (42501), anon none; pgTAP 095: nurse of another team, coach, Operations and administrator read no author; fixed list: no AN1, AN2, OPS1 or export reader reads observations or their author; `READ_PATHS.md` RLS3-4 entry, pgTAP 071 list + `field_notes` only. The snapshot's author and marker stay table-selectable by the team (ADR-118 deviation 6): OBS1-7 |
+| OBS1-6 `lca` and `cra` read before merge | met | `lca` 16:01 (#674) and 16:05; `cra` 17:30 (#680): gate clear; both reads before the merge |
+| OBS1-7 per-visit read paths only | **not delivered** → condition **OBS1-C1** (as the brief foresaw) | ADR-118 deviation 6: the column revoke on `snapshot` changes pgTAP 016, 026, 049 |
+| Negative | met | pgTAP 095: no signal, OPS1 exception, quality event or billing fact reads the marker; no change to who may record; no new free-text field; pgTAP suites 089-094 and CGR-12 unmodified (`git diff` on #673 touches only 071 and 095) |
+
+**Deviations decided (ADR-118):**
+1. *On-screen texts PROVISIONAL:* **accepted, closed.** The marker uses the `uxa` UXR-47 wording taken into OBS1-4 and confirmed in the `cra` gate; the stored-version line and "Teammitglied ohne Namen" are as OBS1-4 states. The "PROVISIONAL" comment in `authorship.ts` is stale; remove it with the next change to that file (no separate PR).
+2. *Pre-0095 observations carry no marker and show none:* **accepted on synthetic data only, with condition OBS1-C2** (`cra` CGR-94, `lca` 18:40). On real data a missing value would read as "qualification recorded", which is not established.
+3. *A covering nurse cannot record an observation today:* **accepted.** Who may record stays the Clinical Owner's (D-15); the cover branch of the rule is in place.
+4. *Countersigner's screen not in Playwright:* **accepted.** The countersigner sees the same component (`report-section.tsx`, OBS1-4 line 283) and pgTAP 095 proves she reads author and marker in the signed version; a second browser test would test the same render path.
+5. *OBS1-6 reads before merge:* met.
+6. *Snapshot and author columns still table-selectable:* **accepted only until OBS1-C1**; the PO keeps the protective option of 16:24, not put to the owner. Changing pgTAP 016, 026 and 049 to read through the functions is in scope of OBS1-C1, not a widening.
+
+**Condition OBS1-C1 (= OBS1-7 (a)-(c) unchanged; before G-18, G-23 and G-24):** delivered as its own small PR. Its pgTAP includes the 42501 refusals on the five columns, `field_reports` and `field_notes` still returning snapshot, signer and observation author for the team's own visit, and 016, 026, 049 rewritten to read through the functions with unchanged assertions on content.
+
+**Condition OBS1-C2 (`cra` CGR-94, `lca` 18:40; before migration 0095 reaches any database that is not a fresh synthetic build, and before G-23 and G-24):** either `eng` records in the deploy record of that database that it holds no observation written after 0091 and before 0095, or the marker of such observations is derived from the recorded qualification history at `recorded_at` (no guessing), and where it cannot be derived the screens show one neutral line "Qualifikation beim Schreiben nicht bekannt" (`uxa` may reword; not red) instead of no marker. pgTAP: an observation with a null marker is never shown as by a qualified author. No migration reaches the live project before the D-1 review result in any case (D-1 default, PO 19:15).
+
+**Why accepted (business value and care model):** the reader knows whom to ask about a note without phoning round (value 2 continuity, value 5 less coordination), the signer sees whose statement she signs, and a member admitted by the team without a recorded qualification is visible where her entries are relied on instead of being refused (patient safety without losing an observation). Handbook alignment: authorship is a fact on the entry, read per visit through a task function, not a per-person list (RLS3-4, D-23 term b); the team's record stays trustworthy for the team itself. ADM2-C1 (push subscriptions after an automatic access end) was not carried in #673 and stays open before G-23.
+
+**2026-10-29 22:10 CET, note (po):** `cra` 21:30 (PR #691, not merged) records **CGR-93 closed** with #673 merged as read (`1fa6f26`; no `src/`, `supabase/` or `tests/` difference from `f837fc0`). The OBS1 acceptance evidence above stands; OBS1-C1 is in PR #688 (`cra`: OBS1-7 (a) met, clinical gate clear to merge; `lca` 21:45: not blocking), OBS1-C2 unchanged.
+
+
+
+## PO review of condition OBS1-C1 — 2026-10-29 23:15 CET (#688 merged `b3227d2`)
+
+**Result: OBS1-C1 met** (= OBS1-7 (a)-(c)). OBS1 stays `accepted`; OBS1-C2 stays open (before 0095 reaches a non-synthetic database, G-23, G-24). Evidence read: PR #688 files, migration 0096, pgTAP 096 part 1 and the diffs of 011, 016, 026, 049, 066, 077, 095, ADR-119, `READ_PATHS.md`, `cra` 21:30 (#691) and 23:10 (#696) gate sections, `lca` 21:45 (#689). **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| (a) no direct select by `authenticated` on `visit_reports.snapshot`, `signed_by`, `signed_at`, `visit_observations.author_id`, `recorded_at`; RLS3-4 pattern; `anon` nothing | met | 0096 §1: table-wide select revoked, column grants on every other column (generated from `information_schema`), `revoke all … from anon`; ADR-119 decision 1 |
+| (a) every current reader keeps working through its function; the PR names each reader | met | ADR-119 *Readers checked*: 27 SECURITY DEFINER readers listed; `field_notes` (the only INVOKER reader) now reads author and time through `private.observation_authorship` (same team predicate as the table policy); `cra` 21:30 scan agrees |
+| (b) `READ_PATHS.md` lists the five columns as closed | met | RLS3-4 entry and table rows for `visit_reports`, `visit_observations` updated |
+| (c) inventory of remaining person-linked select grants, no change by it | met | `READ_PATHS.md` *Remaining person-linked column grants* (19 care-record tables, plus non-care line) |
+| pgTAP: 42501 on each of the five columns for an active team member | met | 096: five refusals as the care assistant, `select *` refused for signer and author, `group by author_id` refused, grant catalogue check, `anon` none |
+| pgTAP: `field_reports` and `field_notes` still return snapshot, signer and observation author for her team's visit | met | 096: snapshot author and content, `signed_at`, `i_signed` for the signer; `field_notes` time and `own`; Operations and another team's nurse read nothing; countersign queue and F6R return keep the author |
+| pgTAP 016, 026, 049 read through the functions, same content asserted | met | diffs: 016 via `field_reports` (events, services, signer as `i_signed` for the signing reader), 026 via `field_reports`, 049 helper names its columns and reads `signed_by` as owner; 011, 066, 095 likewise (ADR-119 deviation 1) |
+| CI | green on PR head `213934b`; merge commit `b3227d2` e2e cancelled (superseded); `1500cb3` e2e red = CGR-96 (test fixture collision, `cra` 23:10), not this change | REST check runs |
+
+**Deviations decided (ADR-119):**
+1. *Test reads moved to the functions or to the table owner where the stored value is asserted:* **accepted**; same content, the change OBS1-C1 named.
+2. *No new Playwright spec for the care assistant's handover view:* **accepted** (`cra` 21:30 accepted it: no role branch in the changed path; pgTAP 095/096 cover the teammate read).
+3. *Inventory (c) only lists:* **decided by the PO this run → [RLS4](RLS4.md)** (approved, *Next up*, before G-18): columns that record an act are closed as RLS3-4; columns that record who is responsible now stay readable to the team; `lca` reads the keep-list before merge.
+
+**Why met (business value and care model):** a teammate can no longer pull a colleague's notes or signatures as a list; the reader still sees per visit who wrote and who signed (value 2, whom to ask) with no extra step. G-18 and G-24 lose the OBS1-C1 item; G-18 gains RLS4.

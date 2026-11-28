@@ -1,5 +1,7 @@
 # NAVORA — Product Requirements
 
+> **ARCHIVIERT (FE-077, 2026-11-13):** Historisches Übergabedokument (Stand Oktober 2026). Massgeblich sind allein [Blueprint V3.2](docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V3.md) (fachlich) und [Architecture Handbook V2.2](docs/architecture/ARCHITECTURE_HANDBOOK_V2.md) (technisch). Kein Agent leitet aus diesem Dokument Vorgaben ab.
+
 **Status:** fachliche Zielanforderungen; bei jeder Funktion zwischen **IMPLEMENTED**, **PLANNED**, **DECIDED**, **OPEN**, **DEPRECATED** und **UNKNOWN** unterscheiden. Aktuelle Implementierung: **VERIFY AGAINST REPOSITORY**.
 
 ## Vision und Outcomes
@@ -42,9 +44,53 @@ Einmal erfassen, mit Provenienz wiederverwenden; kontinuierliche Veränderungen 
 
 Handbuch-Matrix (Kapitel, Frage, Code, Antwort, Regel, Voraussetzung, Ausnahme, Ergebnis, Nachweis, Querverweis); AS-IS/TO-BE; Schwäche→Verbesserung; Rule Repository; deterministische Engine; Smart Input; Explainability; „Warum?“-Ansicht; Human-in-the-loop; Impact Analysis; Versionierung; Tests aus Regeldefinitionen; Dashboard zu Vollständigkeit, Widersprüchen und Freigabefähigkeit. Produktive Regelübernahme erst nach qualitätsgesicherter OCR, fachlicher Prüfung und Rechteklärung.
 
-## KI und Automation [DECIDED/PLANNED]
+## KI und Automation [DECIDED: Kernsäule, Owner 2026-11-03; Umsetzung PLANNED, Governance IMPLEMENTED]
 
-AI darf Sprache strukturieren, Entwürfe, Lücken und priorisierte Hinweise vorschlagen. Ergebnisse müssen Quelle und Unsicherheit angeben. AI darf harte Regeln nicht überschreiben, keine Zeit erfinden, Berichte final signieren, Diagnosen stellen oder autonom abrechnen.
+NAVORA ist eine AI-first-Plattform. KI ist eine Kernfähigkeit jeder Journey und keine spätere Zusatzfunktion. Jede Anforderung und jeder Brief beantwortet, wie die Arbeit gestaltet wäre, wenn KI von Anfang an existiert hätte (Abschnitt *AI leverage*; Methode und Prinzipien AI-1 bis AI-12 in `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md`).
+
+**KI soll:**
+- Administration abbauen;
+- Kontinuität und Qualität verbessern;
+- Nachvollziehbarkeit erhöhen;
+- Risiken früher sichtbar machen;
+- repetitive Arbeit automatisieren.
+
+**Verbindliche Reihenfolge (Owner, 2026-11-03):** Unnötige Arbeit entfernen → Regeln anwenden → kontinuierlich überwachen → KI bereitet vor → Mensch prüft → Mensch entscheidet → Mensch unterschreibt.
+
+KI darf vorbereiten, zusammenfassen, priorisieren, entwerfen, überwachen und vorschlagen. Sie trifft keine verantwortlichen Entscheide, ersetzt keine Unterschriften oder Freigaben und übt kein klinisches Urteil aus.
+
+Sensoren (D-39) sowie Angehörigen-Kanal und Check-in (D-40) sind eingefroren: nur Spezifikation.
+
+**Formen:**
+- Vorschläge (Planung, Vertretung, Zuweisung);
+- Entwürfe (Bericht, Übergabe, Verordnungserneuerung, Antworten);
+- Extraktion (Zuweisung, Diktat);
+- kontinuierliches Monitoring (Lieferung, Vollständigkeit, Kontrollen, Agenten).
+
+**Jede Ausgabe:**
+- nennt Quellen, Zeitraum, Unsicherheit und was nicht gefunden wurde;
+- steht im unveränderlichen Vorschlagsprotokoll;
+- wird erst durch eine benannte Person zu Datensatzinhalt.
+
+**KI darf nie:**
+- klinische Regeln überschreiben;
+- Verantwortung oder vorgeschriebene Unterschriften ersetzen;
+- unkontrollierte klinische Entscheide treffen;
+- Zeit erfinden;
+- Berichte final signieren;
+- Diagnosen stellen;
+- autonom abrechnen oder codieren;
+- P1-Sicherheitssignale priorisieren;
+- Personen bewerten (keine Leistungsprofile);
+- Klientinnen, Klienten oder Angehörigen klinischen Rat geben.
+
+**Zehn operative KI-Domänen (PLANNED):** Dokumentation, Übergabe, Angehörige, Check-in, Personalkoordination, Operations-Monitoring, Qualitäts-Monitoring, Evidenz für Assessments, Zuweisungsvorbereitung, Assistenz für Pflegende. Reihenfolge und Gates: `docs/product/AI_CAPABILITY_ROADMAP.md`.
+
+**Gates unverändert:**
+- D-35 Regel A: im Pilot keine Daten an KI-Dienste bis zum Owner-Paket Stufe 1;
+- D-34 A plus C: klinische KI nur im separat qualifizierten Modul;
+- D-1;
+- G-1.
 
 ## Nichtfunktional
 
@@ -54,7 +100,7 @@ Sicherheit und Datenschutz ab Beginn; Datenminimierung; barrierearmes Mobile UI;
 
 1. Vor echtem Patienteneinsatz: Care-Verantwortlichkeiten, Auth/RLS, Datenschutz-Folgenabschätzung, Zugriffs-/Aufbewahrungsregeln, Incident und Restore geprüft.
 2. Field MVP: berechtigter Einsatz, Zeit, Beobachtung, Übergabe, Audit und Fehlerpfade E2E geprüft.
-3. KI: Quellenbindung, Validierung, menschliches Review und Sicherheitsevaluation.
+3. KI: Quellenbindung, Validierung, menschliches Review und Sicherheitsevaluation; Agentenvertrag, Evaluation auf synthetischen Fällen, Korrekturquote und Stoppregel je Agent (AIG1, AIO1); Anbieter, Region und Vertrag per Owner-Entscheid (D-35 Stufe 1); Niveau G/H nur nach Antwort der regulatorischen Beratung und im klinischen Modul (D-34).
 4. Matching: fachliche Hard Filters, Geodaten-/Qualitätsnachweis, Teamentscheid, Fairness-/Sicherheitsprüfung.
 5. LTCF/PAG/MQI: Lizenz/Spezifikation, Referenzfälle, Definitionen, autorisierter Export und fachliche Freigabe.
 6. Billing/Payroll: getrennte Faktentypen, Tarife/Verträge/Zulagen/Qualitätsholds fachlich freigegeben.

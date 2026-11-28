@@ -1,0 +1,973 @@
+{
+  "comment": "STAB-1 (founder 2026-11-20, issue #1587): the BK functions whose canonical source is the file supabase/schema/functions/<schema>.<name>.sql. The file is generated from the database (every overload of the name) by scripts/fn-source.mjs and checked for drift in CI. A change to a listed function changes its file and ships the whole file in a new migration; no text patch. required: substrings every definition must keep (lost-rule guard).",
+  "functions": [
+    {
+      "name": "private.client_order_check",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.confirm_client_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.preview_client_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.screen_order_reach",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.take_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "access_ended",
+        "LEAVE1-3",
+        "order_take_member:",
+        "order_member_step",
+        "order_withdrawn"
+      ]
+    },
+    {
+      "name": "private.order_member_step",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "order_member_step",
+        "ORDER-F1",
+        "v.visit_date is null",
+        "private.visit_interval(v) && tstzrange(o.starts_at, o.ends_at, '[)')",
+        "and q.starts_at < o.ends_at and q.ends_at > o.starts_at",
+        "between o.starts_at - interval '32 hours' and o.ends_at + interval '6 hours'"
+      ]
+    },
+    {
+      "name": "private.recheck_member_takes",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "order_member_step",
+        "take_visit_under_way",
+        "with live as materialized",
+        "now_ := private.now();",
+        "using p_user, now_"
+      ]
+    },
+    {
+      "name": "private.recheck_takes_trigger",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "private.order_take_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "private.end_take_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "public.field_visits",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.reschedule_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.move_visit_to_today",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "LEAVE1-3"
+      ]
+    },
+    {
+      "name": "public.remove_planned_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.propose_visit_responsible",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.take_open_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.record_absence",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.change_absence",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "private.derived_exceptions",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "derived_exceptions_of(p_org, null)"
+      ]
+    },
+    {
+      "name": "public.operations_exceptions",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3"
+      ]
+    },
+    {
+      "name": "private.signal_recipients",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3"
+      ]
+    },
+    {
+      "name": "public.take_signal",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.sign_report",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.correct_report",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "access_ended"
+      ]
+    },
+    {
+      "name": "private.build_billable_fact",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "visit_has_open_hold",
+        "if v.case_id is null then return null; end if;"
+      ]
+    },
+    {
+      "name": "public.generate_billable_facts",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "LEAVE1-3",
+        "and v.case_id is not null   -- BKF-F1"
+      ]
+    },
+    {
+      "name": "private.may_perform_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "private.access_ended(p_user)",
+        "private.has_qualification(p_team, p_user)",
+        "private.is_registered_nurse(p_team, p_user)"
+      ]
+    },
+    {
+      "name": "public.end_member_access",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command('end_member_access'",
+        "private.audit_command(",
+        "LEAVE1-C3",
+        "WORK1-C3"
+      ]
+    },
+    {
+      "name": "private.is_institution_member",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended"
+      ]
+    },
+    {
+      "name": "private.institution_audit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.institution_member_not_org_member",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.institution_shift_span",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.institution_rule_breaches",
+      "required": [
+        "SET search_path TO ''",
+        "STABLE",
+        "institution_shift_minutes",
+        "institution_monthly_targets",
+        "month_target_full",
+        "hours_unknown"
+      ]
+    },
+    {
+      "name": "private.institution_shift_days",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.my_institutions",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended"
+      ]
+    },
+    {
+      "name": "public.institution_plan",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_shift_days",
+        "institution_rule_breaches",
+        "institution_staff_wishes",
+        "month_targets"
+      ]
+    },
+    {
+      "name": "public.institution_assign_staff",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "institution_shift_days",
+        "for share",
+        "institution_rule_breaches",
+        "p_confirm_rules"
+      ]
+    },
+    {
+      "name": "public.institution_unassign_staff",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_record_absence",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "kind_not_valid"
+      ]
+    },
+    {
+      "name": "public.institution_remove_absence",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_add_staff",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_active",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_planning",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update"
+      ]
+    },
+    {
+      "name": "public.institution_set_monthly_target",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update",
+        "institution_monthly_targets"
+      ]
+    },
+    {
+      "name": "public.institution_set_monthly_target_threshold",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update",
+        "monthly_target_deviation_hours"
+      ]
+    },
+    {
+      "name": "public.institution_set_planning_limits",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "weekly_target_hours_not_valid",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update"
+      ]
+    },
+    {
+      "name": "public.institution_set_shift_class",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_class_not_valid",
+        "shift_type_is_split",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update"
+      ]
+    },
+    {
+      "name": "public.institution_set_staff_wishes",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "for update",
+        "wishes_not_valid",
+        "wish_conflict"
+      ]
+    },
+    {
+      "name": "public.institution_apply_draft",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "for update",
+        "order by s.id",
+        "public.institution_assign_staff(",
+        "on conflict (id) do nothing",
+        "cell_has_order",
+        "cell_full",
+        "private.institution_cell_lock(",
+        "period_too_long",
+        "join public.institution_shift_types t",
+        "weekly_target_missing",
+        "pensum_missing",
+        "from public.institutions h where h.id = p_institution_id for share",
+        "institution_monthly_targets"
+      ]
+    },
+    {
+      "name": "public.institution_draft_run_refusals",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member(p_institution_id, array['lead', 'planner'])",
+        "institution_id = p_institution_id"
+      ]
+    },
+    {
+      "name": "public.institution_add_station",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_set_shift_type",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_type_in_use",
+        "shift_type_is_split"
+      ]
+    },
+    {
+      "name": "public.institution_set_staffing_rule",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "public.institution_load_example",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open"
+      ]
+    },
+    {
+      "name": "private.order_cover",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "Safety net",
+        "withdrawn_at"
+      ]
+    },
+    {
+      "name": "public.client_orders",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "is_client_member",
+        "not (select private.access_ended((select auth.uid())))"
+      ]
+    },
+    {
+      "name": "private.order_client_state",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "private.order_cover",
+        "no_offer_open"
+      ]
+    },
+    {
+      "name": "private.institution_plan_cell",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "public.institution_plan"
+      ]
+    },
+    {
+      "name": "private.institution_cell_lock",
+      "required": [
+        "SET search_path TO ''",
+        "pg_advisory_xact_lock",
+        "hashtextextended",
+        "to_char(p_work_date, 'YYYY-MM-DD')"
+      ]
+    },
+    {
+      "name": "public.institution_prepare_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "private.institution_cell_lock(",
+        "institution_plan_cell",
+        "institution_audit",
+        "block2_start_time"
+      ]
+    },
+    {
+      "name": "private.institution_gap_order_args",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "grade_not_missing",
+        "not_a_gap",
+        "block2_start_time"
+      ]
+    },
+    {
+      "name": "public.institution_preview_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "is_client_member",
+        "public.preview_client_order"
+      ]
+    },
+    {
+      "name": "public.institution_send_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "public.confirm_client_order",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "public.institution_discard_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "institution_audit"
+      ]
+    },
+    {
+      "name": "public.team_order_offers",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_team_member",
+        "LEAVE1-3",
+        "withdrawn_at",
+        "with me as materialized (",
+        "clock as materialized (select private.now() as now_)",
+        "mine as materialized ("
+      ]
+    },
+    {
+      "name": "private.order_offer_reasons",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "ORDER-F1-F5",
+        "with clock as materialized (select private.now() as now_)",
+        "q.ends_at <= c.now_",
+        "from clock c",
+        "t.acknowledged_at is not null",
+        "t.released_at is null",
+        "q.id <> o.id"
+      ]
+    },
+    {
+      "name": "public.institution_withdraw_gap_order",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "is_institution_member",
+        "for update",
+        "institution_audit",
+        "take_visit_under_way",
+        "starts_at <= private.now()"
+      ]
+    },
+    {
+      "name": "public.team_visit_alerts",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "signal_take_lapsed",
+        "derived_exceptions_of"
+      ]
+    },
+    {
+      "name": "private.evaluate_signals",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "pg_try_advisory_xact_lock",
+        "signal_kind_of",
+        "outside_after_evaluate",
+        "derived_exceptions_of"
+      ]
+    },
+    {
+      "name": "private.derived_exceptions_of",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_cover",
+        "PERF1 gate",
+        "order_member_step"
+      ]
+    },
+    {
+      "name": "public.record_aux_list_failure",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "LEAVE1-3",
+        "aux_list_unknown"
+      ]
+    },
+    {
+      "name": "private.ai_function_off",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "ai_function_switch_events"
+      ]
+    },
+    {
+      "name": "private.report_draft_model_closed",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "not_performer",
+        "not_simulation_org",
+        "ai_function_off",
+        "stop_rule",
+        "prompt_unregistered",
+        "ai_agent_prompt_versions",
+        "AUT-194",
+        "e.created_at >= ver.to_at"
+      ]
+    },
+    {
+      "name": "public.record_report_draft_proposal",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "report_draft_model_closed",
+        "for update",
+        "reservation_missing",
+        "reservation_not_ok",
+        "reservation_used",
+        "m.agent_version",
+        "begin_command"
+      ]
+    },
+    {
+      "name": "public.reserve_report_draft_call",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "report_draft_model_closed",
+        "for update",
+        "pg_advisory_xact_lock",
+        "attempt_limit",
+        "price_missing",
+        "budget_day",
+        "budget_month",
+        "prompt_version_mismatch",
+        "agent_version"
+      ]
+    },
+    {
+      "name": "public.settle_report_draft_call",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "assert_access_open",
+        "performer_id is distinct from uid",
+        "pg_advisory_xact_lock"
+      ]
+    },
+    {
+      "name": "private.institution_split_problem",
+      "required": [
+        "SET search_path TO ''",
+        "IMMUTABLE",
+        "no_pause"
+      ]
+    },
+    {
+      "name": "private.institution_shift_minutes",
+      "required": [
+        "SET search_path TO ''",
+        "IMMUTABLE",
+        "institution_shift_span"
+      ]
+    },
+    {
+      "name": "public.institution_set_split_shift_type",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "shift_type_in_use",
+        "institution_split_problem"
+      ]
+    },
+    {
+      "name": "public.institution_set_work_days_per_week",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "work_days_per_week_not_valid"
+      ]
+    },
+    {
+      "name": "private.write_take_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:"
+      ]
+    },
+    {
+      "name": "private.take_invoice_build",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "take_invoice:"
+      ]
+    },
+    {
+      "name": "private.take_report_final_invoice",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.my_team_invoice_drafts",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "public.my_take_invoice_state",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.order_work_minutes",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.order_split_sentence",
+      "required": [
+        "SET search_path TO ''"
+      ]
+    },
+    {
+      "name": "private.order_set_pause",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "institution_split_problem",
+        "for update"
+      ]
+    },
+    {
+      "name": "private.member_visit_overlap",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "plan3_busy:",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.member_slot_overlap",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "access_ended",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.plan_visit",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "begin_command",
+        "access_ended",
+        "has_qualification",
+        "adm2_in_contract",
+        "member_absent_during",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "public.member_slot_take_window",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "public.member_slot_overlap(p_case_id, p_visit_id, p_member_id, p_visit_date, p_time_start, p_time_end)",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "private.plan3_lines",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "not_active",
+        "needs_rn",
+        "absent",
+        "plan3_other_team_busy",
+        "member_take_window(mem[i], rng, v.order_take_id)"
+      ]
+    },
+    {
+      "name": "private.plan3_confirm_overlaps",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "member_visit_overlap"
+      ]
+    },
+    {
+      "name": "private.member_take_window",
+      "required": [
+        "SET search_path TO ''",
+        "released_at is null",
+        "pause"
+      ]
+    },
+    {
+      "name": "private.member_take_window_facts",
+      "required": [
+        "SET search_path TO ''",
+        "own_team"
+      ]
+    },
+    {
+      "name": "private.guard_take_window",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "order_take_member:",
+        "member_take_window"
+      ]
+    }
+  ]
+}

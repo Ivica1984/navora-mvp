@@ -1,0 +1,100 @@
+import "server-only";
+import { randomUUID } from "node:crypto";
+
+// HD-1 / HD-2: data for /heim. The home reads only through its own functions (`my_institutions`, `institution_plan`);
+// both check the membership in the database. No NAVORA team, case or member data.
+import { requireUser } from "@/lib/auth/session";
+import { errorFields, logEvent } from "@/lib/log";
+import { readDraftPlan, type DraftPlan } from "./draft-screen";
+import { withKnownRules, type InstitutionRole, type Plan, type RunRefusal } from "./rules";
+
+export type MyInstitution = { id: string; display_name: string; kind: string; role: InstitutionRole; simulation: boolean };
+
+export async function getMyInstitutions(): Promise<MyInstitution[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("my_institutions" as never);
+  if (error) {
+    logEvent("warn", "query.failed", { op: "my_institutions", ...errorFields(error) });
+    return [];
+  }
+  return (data ?? []) as unknown as MyInstitution[];
+}
+
+export async function getPlan(institutionId: string, from: string, to: string): Promise<Plan | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_plan" as never, { p_institution_id: institutionId, p_from: from, p_to: to } as never);
+  if (error) {
+    logEvent("warn", "query.failed", { op: "institution_plan", ...errorFields(error) });
+    return null;
+  }
+  const r = (data ?? {}) as unknown as { result?: string } & Plan;
+  // HD-PEN-HAND: unknown rule codes never reach the screen as «undefined» (ADR-232 point 5).
+  return r.result === "ok" ? withKnownRules(r) : null;
+}
+
+// HD-2: the reference lists for the review screen (the same lists /order reads) and the preview through the one
+// order path (`institution_preview_gap_order` → `preview_client_order`). Writes nothing.
+/**
+ * HD-3a-F1 R-7-2: the refused rows of one take-over, read back from its run record (lead or planner of the home; the
+ * database checks it). Null when the read fails or the run is not this home's: the page then names no person.
+ */
+export async function getDraftRunRefusals(institutionId: string, applyId: string): Promise<RunRefusal[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_draft_run_refusals", { p_institution_id: institutionId, p_apply_id: applyId });
+  if (error) {
+    logEvent("warn", "query.failed", { op: "institution_draft_run_refusals", ...errorFields(error) });
+    return null;
+  }
+  const r = (data ?? {}) as { result?: string; refused?: unknown };
+  if (r.result !== "ok" || !Array.isArray(r.refused)) return null;
+  return r.refused.filter((x): x is RunRefusal =>
+    typeof x === "object" && x !== null && typeof (x as RunRefusal).staff_id === "string" && typeof (x as RunRefusal).reason === "string");
+}
+
+export type OrderChoices = {
+  postcodes: Array<{ postcode: string; place_name: string; region_name: string }>;
+  activities: Array<{ code: string; label_de: string }>;
+};
+
+export async function getOrderChoices(): Promise<OrderChoices> {
+  const { supabase } = await requireUser();
+  const [postcodes, activities] = await Promise.all([
+    supabase.from("postcodes").select("postcode, place_name, region_name").order("postcode"),
+    supabase.from("qual_activities").select("code, label_de").order("sort"),
+  ]);
+  if (postcodes.error || activities.error) {
+    logEvent("warn", "query.failed", { op: "order_choices", ...errorFields((postcodes.error ?? activities.error)!) });
+    return { postcodes: [], activities: [] };
+  }
+  return { postcodes: (postcodes.data ?? []) as OrderChoices["postcodes"], activities: (activities.data ?? []) as OrderChoices["activities"] };
+}
+
+export type GapPreview = { result: string; problems?: string[]; preview?: { problems?: string[]; sentence?: string | null; conflict_activities?: string[]; info?: string[] } };
+
+export async function previewGapOrder(args: {
+  gap: string; postcode: string | null; grade: string | null; tags: string[]; req: string[];
+}): Promise<GapPreview | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_preview_gap_order" as never, {
+    p_gap_order_id: args.gap, p_postcode: args.postcode, p_grade: args.grade, p_activity_tags: args.tags,
+    p_required_tags: args.req, p_radius_km: null,
+  } as never);
+  if (error) {
+    logEvent("warn", "query.failed", { op: "institution_preview_gap_order", ...errorFields(error) });
+    return null;
+  }
+  return (data ?? null) as GapPreview | null;
+}
+
+// HD-3a slice 4: the plan the solver needs for one period. The draft must see whole ISO weeks (Pensum) and the runs
+// before and after (days in a row), so it reads more than the period; `institution_plan` reads at most 42 days per call,
+// so a month is read in two calls. Every read checks the membership in the database; null when any read fails (the
+// screen then shows no draft rather than a draft from part of the plan).
+export async function getDraftPlan(institutionId: string, from: string, to: string): Promise<DraftPlan | null> {
+  return readDraftPlan((a, b) => getPlan(institutionId, a, b) as Promise<DraftPlan | null>, from, to);
+}
+
+/** One apply id per shown draft (`institution_apply_draft`: the same id again is answered «already_applied»). */
+export function newApplyId(): string {
+  return randomUUID();
+}

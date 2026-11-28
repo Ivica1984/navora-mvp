@@ -1,0 +1,852 @@
+-- BK-e1b database part (brief `docs/agents/briefs/BK.md`, PO amendments 2026-11-18 02:39 criteria 2–4, 03:39 (3);
+-- ADR-202 (2)–(4), ADR-203). Red first (FE-071 (2)): pushed alone, before the migration, where `care_visits` has no
+-- `order_take_id`, no visit is written from a take, and `private.order_take_visit` does not exist.
+--
+-- What it guards (each line names its source):
+--   * BK-7 / criterion 2: when a take becomes «gedeckt» (self-named: at the take; naming a colleague: at her
+--     acknowledgement, ADR-200) one visit is written in the same transaction: named member responsible, the take's
+--     team, date and times from `starts_at` / `ends_at` in Europe/Zurich, place from the order. A take awaiting the
+--     acknowledgement writes none. Only the named member reads it on `/field`; a member of the same team who is not
+--     named, and a member of another team, never do.
+--   * CGR-232 / criterion 3: writing the visit does not release the take of the person who is coming (the visit of
+--     the take is not an «open visit» of another order in `private.order_member_step` step 3).
+--   * CGR-233 / criterion 3: the visit writer takes the `order_take_member:` lock before it writes (source check here;
+--     the two-session race case is `scripts/concurrency-take-visit.mjs`).
+--   * CGR-242 (PO 03:39 (3)): positive — a release after «gedeckt» and before the start ends the visit in the same
+--     transaction as `cancelled`, never deleted, and the client no longer reads «gedeckt»; negative — after
+--     `starts_at` no automatic step releases the take or changes the visit. No lead-time rule is built (UNKNOWN,
+--     Clinical Owner).
+--   * CGR-200 / CGR-206 (a) / criterion 4: a 22:00–07:00 take becomes one visit of 9 h (Europe/Zurich).
+--   * CGR-242 (a), (c) (PO 04:39; migration 0139): the ended visit carries the stored system reason, writes no
+--     «cancelled» timeline event and no status note (never counted as a cancellation), and /field returns the reason
+--     to the named member only.
+--   * CGR-242 (f): «Ich kann nicht» before the start on a take awaiting the acknowledgement writes and ends nothing.
+--   * CGR-244 (PO 04:39): a take whose visit is under way before the start (F1 «unterwegs») is never released: her
+--     absence keeps the take and the visit (the client view follows the unchanged ADR-199 (5) safety net: not
+--     «gedeckt»); «Ich kann nicht» is refused with the visible reason `visit_under_way`.
+--   * CGR-250 (PO 08:39 (1), choice (b); migration 0143): through `record_absence` and `change_absence`, before the
+--     start the take is released and its visit ended still naming her; after the start take and visit stay unchanged,
+--     the client reads «nicht gedeckt»; no cover or AI-proposal path reaches a take visit (§13). CGR-251: the cover
+--     property also requires a visit that is not suspended and not covered by another member.
+--   * CGR-246 (PO 05:39, 08:39 (1)(b), 09:39 (1); migration 0144; `lca` 08:20 D-44 (2)): while a live take's named
+--     member no longer passes and her visit is under way (§10) or still planned after the start (§13 (b)), the SIG1
+--     path raises the P1 signal `take_member_dropped` to her own team and to her, even when she is absent; never to
+--     another team, the client or another organisation; Operations of the organisation read the OPS1 row with a code
+--     as detail, never the absence type; take and visit stay unchanged; the episode ends with its cause.
+--   * CGR-253 / UXR-245 (PO 11:39 (1), choice (b); migration 0146): `take_signal` on a `take_member_dropped` signal is
+--     refused for every caller (the named member, a colleague, Operations) with the reason `kind_not_takeable`; no
+--     `signal_takes` row, the signal stays untaken, and the SIG1 step to Operations runs at its time as without a take.
+-- Not here: the `/field` card (Playwright, same slice), the clock-change night (BK-g), the door address (ADR-202 (7),
+-- OPEN). Synthetic data only; rolled back.
+--
+-- Users: kundebs …9e8 (client). Fixture: T1 (M1, M2), T2 (M3), postcode 4102, 10 km, all FaGe. Pinned clock, moved
+-- forward only.
+begin;
+create extension if not exists pgtap with schema extensions;
+
+select plan(160);
+
+-- CGR-110 (#919, ADR-162): this file evaluates SIG1 for organisation 019 (CGR-246, §10 and §13). The local stack's
+-- pg_cron job holds each organisation's SIG1 lock while it runs and cannot see this file's fixtures; taking the lock
+-- here (waiting, never the try form) makes every evaluation in this file run. No assertion is loosened.
+select pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext('00000000-0000-4000-b000-000000000019'));
+select is((select count(*)::int from pg_locks
+           where locktype = 'advisory' and pid = pg_backend_pid() and granted and objsubid = 2
+             and classid::text::bigint = (hashtext('navora.sig1')::bigint & 4294967295)
+             and objid::text::bigint = (hashtext('00000000-0000-4000-b000-000000000019')::bigint & 4294967295)),
+  1, 'CGR-110: this file holds the SIG1 evaluation lock of organisation 019, so no concurrent evaluator takes it');
+
+create function pg_temp.act_as(uid text) returns void language sql as $$
+  select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
+  select set_config('request.jwt.claim.sub', uid, true);
+$$;
+create function pg_temp.as_owner() returns void language sql as $$
+  select set_config('request.jwt.claims', '', true);
+  select set_config('request.jwt.claim.sub', '', true);
+$$;
+create function pg_temp.clock(ts text) returns void language sql as $$ select set_config('navora.test_now', ts, true) $$;
+select pg_temp.clock('2026-11-16 12:00:00+01');
+create function pg_temp.t(n text) returns uuid language sql as $$ select ('00000000-0000-4000-b148-0000000000' || n)::uuid $$;
+create function pg_temp.m(n text) returns uuid language sql as $$ select ('00000000-0000-4000-a148-0000000000' || n)::uuid $$;
+
+-- 0. The new surface (non-aborting checks first) --------------------------------------------------------------------
+select has_column('public', 'care_visits', 'order_take_id', 'ADR-202 (2): a visit can name the take it was written from');
+select ok(exists (select 1 from pg_indexes i where i.schemaname = 'public' and i.tablename = 'care_visits'
+                  and i.indexdef ilike '%unique%'
+                  and i.indexdef ilike '%(order_take_id, COALESCE((take_block)::integer, 1))%'),
+          'ADR-202 (2), HD-3s-F2 (ADR-229 (3)): at most one visit per take and block; one block = one visit (unique index)');
+select has_column('public', 'care_visits', 'system_end_reason', 'CGR-242 (a): a visit can carry a stored system end reason');
+select has_function('private', 'order_take_visit', 'ADR-203: the one visit writer from a take exists');
+select ok(coalesce(position('order_take_member:' in
+            (select string_agg(p.prosrc, ' ') from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+             where n.nspname = 'private' and p.proname = 'order_take_visit')), 0) > 0,
+          'CGR-233: the visit writer takes the same order_take_member: lock as the take');
+
+-- 1. Fixture (synthetic), as the table owner ---------------------------------------------------------------------------
+insert into public.client_accounts (id, organization_id, display_name, client_kind) values
+  ('00000000-0000-4000-a000-0000000003cb', '00000000-0000-4000-b000-000000000019', 'Haushalt BK-e1b Fixture (synthetisch)', 'household');
+insert into public.client_account_members (client_account_id, user_id) values
+  ('00000000-0000-4000-a000-0000000003cb', '00000000-0000-4000-a000-0000000009e8');
+insert into public.teams (organization_id, id, name, region, status, max_distance_km) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', 'BK-e1b Fixture T1', 'Basel-Landschaft', 'active', 10),
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000002', 'BK-e1b Fixture T2', 'Basel-Landschaft', 'active', 10);
+insert into public.team_service_postcodes (team_id, postcode)
+  select t.id, '4102' from public.teams t where t.id::text like '00000000-0000-4000-b148-%';
+insert into auth.users (id, aud, role, email)
+  select ('00000000-0000-4000-a148-0000000000' || n)::uuid, 'authenticated', 'authenticated', 'bk-e1b-' || n || '.fixture@navora.test'
+  from unnest(array['01', '02', '03']) n;
+insert into public.organization_memberships (organization_id, user_id, role)
+  select '00000000-0000-4000-b000-000000000019', ('00000000-0000-4000-a148-0000000000' || n)::uuid, 'nurse'
+  from unnest(array['01', '02', '03']) n;
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000001', 'care_assistant'),
+  ('00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000002', 'care_assistant'),
+  ('00000000-0000-4000-b148-000000000002', '00000000-0000-4000-a148-000000000003', 'care_assistant');
+insert into public.member_qualification_evidence (organization_id, user_id, requirement, grade, state, synthetic, valid_until)
+  select '00000000-0000-4000-b000-000000000019', ('00000000-0000-4000-a148-0000000000' || n)::uuid, 'grade', 'fage_efz', 'verified', true, null
+  from unnest(array['01', '02', '03']) n;
+
+-- 2. Orders (FaGe, C1) ----------------------------------------------------------------------------------------------------
+create temp table made (k text primary key, r jsonb);
+grant all on made to authenticated;
+create function pg_temp.co(k text, d date, s time, e time, key text) returns void language sql as $$
+  insert into made select k, public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', d, s, e,
+                                                         '4102', 'fage_efz', array['C1'], array['C1'], null, key::uuid)
+$$;
+create function pg_temp.oid(k text) returns uuid language sql as $$ select (r ->> 'order_id')::uuid from made where made.k = $1 $$;
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+select pg_temp.co('o1', date '2026-11-19', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000001');  -- self-named
+select pg_temp.co('o2', date '2026-11-20', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000002');  -- colleague, ack
+select pg_temp.co('o3', date '2026-11-21', time '22:00', time '07:00', 'dddd0000-0000-4000-8148-000000000003');  -- overnight
+select pg_temp.co('o4', date '2026-11-23', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000004');  -- CGR-244
+select pg_temp.co('o5', date '2026-11-24', time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000005');  -- CGR-242 (f)
+reset role;
+select pg_temp.as_owner();
+select is((select count(*)::int from made where r ->> 'result' = 'ok'), 5, 'the five fixture orders are confirmed');
+
+-- Helpers ---------------------------------------------------------------------------------------------------------------
+create function pg_temp.take(actor text, k text, team text, member text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.take_order(pg_temp.oid(k), pg_temp.t(team), pg_temp.m(member), key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.ack(actor text, k text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.acknowledge_take(pg_temp.oid(k), key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.cs(k text) returns text language plpgsql as $$
+declare res text;
+begin
+  perform pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+  set local role authenticated;
+  select x.cover_state into res from public.client_orders() x where x.id = pg_temp.oid(k);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.live(k text) returns public.order_takes language sql as $$
+  select * from public.order_takes t where t.order_id = pg_temp.oid(k) and t.released_at is null
+$$;
+create function pg_temp.first_take(k text) returns uuid language sql as $$
+  select t.id from public.order_takes t where t.order_id = pg_temp.oid(k) order by t.taken_at, t.id limit 1
+$$;
+-- The visit written from the first take of an order, read as the table owner (dynamic: the column is new).
+create function pg_temp.visit(k text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  execute 'select to_jsonb(v) from public.care_visits v where v.order_take_id = $1' into res using pg_temp.first_take(k);
+  return res;
+end;
+$$;
+create function pg_temp.visits_of(k text) returns integer language plpgsql as $$
+declare n integer;
+begin
+  execute 'select count(*)::int from public.care_visits v join public.order_takes t on t.id = v.order_take_id
+           where t.order_id = $1' into n using pg_temp.oid(k);
+  return n;
+end;
+$$;
+create temp table fv (member text, visit_id uuid, plz text, ort text, status text, system_end_reason text, from_take boolean);
+grant all on fv to authenticated;
+create function pg_temp.field(member text, d date) returns void language plpgsql as $$
+begin
+  delete from fv where fv.member = $1;
+  perform pg_temp.act_as(pg_temp.m(member)::text);
+  set local role authenticated;
+  insert into fv select member, x.visit_id, x.plz, x.ort, x.status, x.system_end_reason, x.from_take from public.field_visits(d) x;
+  reset role;
+  perform pg_temp.as_owner();
+end;
+$$;
+create function pg_temp.sees(member text, k text, d date) returns boolean language plpgsql as $$
+begin
+  perform pg_temp.field(member, d);
+  return exists (select 1 from fv where fv.member = $1 and fv.visit_id = (pg_temp.visit(k) ->> 'id')::uuid);
+end;
+$$;
+
+create function pg_temp.release(actor text, k text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.release_named_take(pg_temp.oid(k), key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.depart(actor text, k text, key text) returns text language plpgsql as $$
+declare res text;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;  -- read as the table owner, before the role switch
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.depart_visit(vid, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+
+-- 3. Self-named take: the visit is written at the take (criterion 2; CGR-232) ------------------------------------------
+select is(pg_temp.take('01', 'o1', '01', '01', 'ffff0000-0000-4000-8148-000000000001') ->> 'result', 'ok',
+          'M1 takes O1 naming herself');
+select is(pg_temp.visits_of('o1'), 1, 'BK-7: one visit is written from the self-named take');
+select is(pg_temp.visit('o1') ->> 'responsible_user_id', pg_temp.m('01')::text, 'BK-7: the named member is responsible');
+select is(pg_temp.visit('o1') ->> 'team_id', pg_temp.t('01')::text, 'BK-7: the take''s team owns the visit');
+select is((pg_temp.visit('o1') ->> 'visit_date') || ' ' || (pg_temp.visit('o1') ->> 'time_start') || '-' ||
+          (pg_temp.visit('o1') ->> 'time_end'), '2026-11-19 08:00:00-12:00:00',
+          'BK-7: date and times from the order, Europe/Zurich wall clock');
+select is(pg_temp.visit('o1') ->> 'status', 'planned', 'BK-7: the visit is planned');
+select ok((pg_temp.live('o1')).id is not null, 'CGR-232: writing the visit does not release the take of the person who is coming');
+select is(private.order_member_step(pg_temp.oid('o1'), pg_temp.t('01'), pg_temp.m('01')), 4,
+          'CGR-232: step 3 does not count the visit written from the same take');
+select is(pg_temp.cs('o1'), 'covered', 'the client still reads «gedeckt»');
+select ok(exists (select 1 from public.audit_events a where a.table_name = 'care_visits'
+                  and a.entity_id = (pg_temp.visit('o1') ->> 'id')::uuid),
+          'AUD1: the written visit has its audit row');
+
+-- 4. Only the named member reads it on /field (criterion 2, negative cases) ---------------------------------------------
+select ok(pg_temp.sees('01', 'o1', date '2026-11-19'), 'BK-7: the named member reads the visit on /field');
+-- UXR-237, UXR-239 (PO 05:39): /field carries a take flag, so the card names the kind and the simulation limit.
+select is((select fv.from_take from fv where fv.member = '01' and fv.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid), true,
+          'UXR-237/239: field_visits.from_take is true for the visit written from a take');
+select is((select count(*)::int from fv where fv.member = '01' and fv.from_take is distinct from
+             exists (select 1 from public.care_visits v where v.id = fv.visit_id and v.order_take_id is not null)), 0,
+          'UXR-237/239: from_take is never null and true only for a visit with order_take_id');
+select is((select plz || ' ' || ort from fv where member = '01' and visit_id = (pg_temp.visit('o1') ->> 'id')::uuid),
+          '4102 ' || (select p.city from public.partner_requests p where p.id = pg_temp.oid('o1')),
+          'BK-7: the place comes from the order (postcode and place; no street, P-8)');
+select ok(not pg_temp.sees('02', 'o1', date '2026-11-19'), 'BK-7 negative: a member of the same team who is not named does not');
+select ok(not pg_temp.sees('03', 'o1', date '2026-11-19'), 'BK-7 negative: a member of another team does not');
+
+-- 5. Take naming a colleague: no visit before her acknowledgement, one after it (ADR-200) ------------------------------
+select is(pg_temp.take('01', 'o2', '01', '02', 'ffff0000-0000-4000-8148-000000000010') ->> 'result', 'ok', 'M1 takes O2 naming M2');
+select is(pg_temp.visits_of('o2'), 0, 'BK-7: a take awaiting the acknowledgement writes no visit (not «gedeckt»)');
+select is(pg_temp.ack('02', 'o2', 'ffff0000-0000-4000-8148-000000000011') ->> 'result', 'ok', 'M2 acknowledges');
+select is(pg_temp.visits_of('o2'), 1, 'BK-7: the acknowledgement writes the visit');
+select is(pg_temp.visit('o2') ->> 'responsible_user_id', pg_temp.m('02')::text, 'BK-7: the named colleague is responsible, not the taker');
+select ok((pg_temp.live('o2')).id is not null, 'CGR-232: the acknowledged take stays live after its visit is written');
+select ok(pg_temp.sees('02', 'o2', date '2026-11-20'), 'BK-7: the named colleague reads it on /field');
+select ok(not pg_temp.sees('01', 'o2', date '2026-11-20'), 'BK-7 negative: the taker of the same team who is not named does not');
+
+-- 6. Shift across midnight (criterion 4; CGR-200, CGR-206 (a)) -----------------------------------------------------------
+select is(pg_temp.take('03', 'o3', '02', '03', 'ffff0000-0000-4000-8148-000000000020') ->> 'result', 'ok', 'M3 takes O3 (22:00–07:00)');
+select is((pg_temp.visit('o3') ->> 'visit_date') || ' ' || (pg_temp.visit('o3') ->> 'time_start') || '-' ||
+          (pg_temp.visit('o3') ->> 'time_end'), '2026-11-21 22:00:00-07:00:00', 'criterion 4: one visit from 22:00 to 07:00');
+select is((select upper(private.visit_interval(v)) - lower(private.visit_interval(v)) from public.care_visits v
+           where v.id = (pg_temp.visit('o3') ->> 'id')::uuid), interval '9 hours',
+          'criterion 4: the visit covers 9 h, the same instants as the order');
+select is((select tstzrange(p.starts_at, p.ends_at, '[)') from public.partner_requests p where p.id = pg_temp.oid('o3')),
+          (select private.visit_interval(v) from public.care_visits v where v.id = (pg_temp.visit('o3') ->> 'id')::uuid),
+          'criterion 4: visit interval equals the order slot');
+
+-- 7. CGR-242 positive: release after «gedeckt», before the start → visit cancelled in the same transaction ------------
+-- Recorded while a command name is set, as the absence command does: without the 0139 rule this would write a
+-- «cancelled» timeline event for the visit.
+select set_config('navora.command', 'bk_e1b_test_absence', true);
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000001',
+   timestamptz '2026-11-19 07:00:00+01', timestamptz '2026-11-19 13:00:00+01', '00000000-0000-4000-a148-000000000001');
+select ok((pg_temp.live('o1')).id is null,
+          'precondition: her absence releases her take before the start (ADR-199 (5))');
+select is(pg_temp.visit('o1') ->> 'status', 'cancelled', 'CGR-242: the visit of the released take is cancelled in the same transaction');
+select is(pg_temp.visits_of('o1'), 1, 'CGR-242: and never deleted');
+select isnt(pg_temp.cs('o1'), 'covered', 'CGR-242: the order leaves «gedeckt» for the client');
+select set_config('navora.command', '', true);
+select is(pg_temp.visit('o1') ->> 'system_end_reason', 'take_released_absence',
+          'CGR-242 (a): the visit carries the stored system reason (her own absence released the take)');
+select ok(not exists (select 1 from public.visit_events e where e.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid
+                      and e.event_type = 'cancelled'),
+          'CGR-242 (a): no «cancelled» timeline event, so no count reads it as a cancellation');
+select ok(not exists (select 1 from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid),
+          'CGR-242 (a): no cancellation note with a client or team reason');
+select ok(pg_temp.sees('01', 'o1', date '2026-11-19'), 'CGR-242 (c): /field still lists the ended visit to the released member');
+select is((select f.status || ' ' || f.system_end_reason from fv f
+           where f.member = '01' and f.visit_id = (pg_temp.visit('o1') ->> 'id')::uuid), 'cancelled take_released_absence',
+          'CGR-242 (c): /field returns her the status and the reason code');
+select ok(not pg_temp.sees('02', 'o1', date '2026-11-19'),
+          'CGR-242 (c) / lca: a member of the same team who was not named never reads it or its reason');
+
+-- 8. CGR-242 negative: after the start no automatic step releases or changes anything -----------------------------------
+select pg_temp.clock('2026-11-20 09:00:00+01');
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000001', '00000000-0000-4000-a148-000000000002',
+   timestamptz '2026-11-20 10:00:00+01', timestamptz '2026-11-20 13:00:00+01', '00000000-0000-4000-a148-000000000002');
+select ok((pg_temp.live('o2')).member_id = pg_temp.m('02'), 'CGR-242 negative: after starts_at the take is not released automatically');
+select is(pg_temp.visit('o2') ->> 'status', 'planned', 'CGR-242 negative: after starts_at the visit is unchanged');
+
+-- 9. CGR-242 (f): «Ich kann nicht» before the start on a take awaiting the acknowledgement -----------------------------
+select is(pg_temp.take('01', 'o5', '01', '02', 'ffff0000-0000-4000-8148-000000000050') ->> 'result', 'ok', 'M1 takes O5 naming M2');
+select is(pg_temp.release('02', 'o5', 'ffff0000-0000-4000-8148-000000000051') ->> 'result', 'ok',
+          'M2 says «Ich kann nicht» before the start');
+select ok((pg_temp.live('o5')).id is null, 'CGR-242 (f): the take is released');
+select is(pg_temp.visits_of('o5'), 0, 'CGR-242 (f): no visit was written and none is left behind');
+
+-- CGR-246 helpers: the open `take_member_dropped` signal of an order's take visit, its recipients, the caller's list.
+create function pg_temp.drop_signal(k text) returns public.safety_signals language sql as $$
+  select s.* from public.safety_signals s
+  where s.visit_id = (pg_temp.visit(k) ->> 'id')::uuid and s.signal_kind = 'take_member_dropped' and s.ended_at is null
+$$;
+create function pg_temp.drop_recipients(k text) returns text language sql as $$
+  select coalesce(string_agg(d.recipient_id::text || ':' || d.reason, ' ' order by d.recipient_id::text, d.reason), '')
+  from public.signal_deliveries d where d.signal_id = (pg_temp.drop_signal(k)).id
+$$;
+create function pg_temp.sees_drop(uid text, k text) returns boolean language plpgsql as $$
+declare
+  res boolean;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;
+begin
+  perform pg_temp.act_as(uid);
+  set local role authenticated;
+  select exists (select 1 from public.my_signals() x
+                 where x.signal_kind = 'take_member_dropped' and x.visit_id = vid) into res;
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+
+-- CGR-253 helper: `take_signal` on the open take_member_dropped signal of an order's take visit, as `uid`.
+create function pg_temp.take_drop(uid text, k text, key text) returns jsonb language plpgsql as $$
+declare
+  res jsonb;
+  sid uuid := (pg_temp.drop_signal(k)).id;
+begin
+  perform pg_temp.act_as(uid);
+  set local role authenticated;
+  res := public.take_signal(sid, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+
+-- 10. CGR-244: a take whose visit is under way before the start is never released ----------------------------------------
+select is(pg_temp.take('03', 'o4', '02', '03', 'ffff0000-0000-4000-8148-000000000040') ->> 'result', 'ok',
+          'M3 takes O4 naming herself');
+select is(pg_temp.visits_of('o4'), 1, 'the take writes its visit');
+select pg_temp.clock('2026-11-23 07:30:00+01');
+select is(pg_temp.depart('03', 'o4', 'ffff0000-0000-4000-8148-000000000041'), 'ok',
+          'precondition: M3 sets «unterwegs» before the start (F1 has no time guard)');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'precondition: the visit is on the way');
+select is(pg_temp.cs('o4'), 'covered', 'precondition: on the way, the client reads «gedeckt»');
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000019', '00000000-0000-4000-b148-000000000002', '00000000-0000-4000-a148-000000000003',
+   timestamptz '2026-11-23 07:00:00+01', timestamptz '2026-11-23 13:00:00+01', '00000000-0000-4000-a148-000000000003');
+select ok((pg_temp.live('o4')).member_id = pg_temp.m('03'), 'CGR-244: her absence does not release the take while her visit is under way');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-244: the visit is unchanged');
+select ok(pg_temp.visit('o4') ->> 'system_end_reason' is null, 'CGR-244: no system end reason');
+-- Deviation from the `cra` CGR-244 case («client still gedeckt»), recorded for `cra` (ADR-203 (10)): the ADR-199 (5)
+-- safety net in private.order_cover is unchanged, so a live take whose member no longer passes is never shown as
+-- covered. Here: not covered, the take is NOT re-broadcast (it stays live). Not changed by `eng` (safety rule).
+select is(pg_temp.cs('o4'), 'not_covered',
+          'CGR-244 with ADR-199 (5): the client is not shown «gedeckt» while the absence conflicts; the take is not re-broadcast');
+select is(pg_temp.release('03', 'o4', 'ffff0000-0000-4000-8148-000000000042'),
+          jsonb_build_object('result', 'refused', 'reason', 'visit_under_way'),
+          'CGR-244: «Ich kann nicht» is refused with the visible reason visit_under_way');
+select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
+          'CGR-244: after the refusal the take is live and the visit still on the way');
+-- CGR-246 on the way: M3 is the only member of T2 and absent now, so the SIG1 rule falls back to Operations (9e5),
+-- and M3 herself receives it although she is absent. Nobody of T1, never the client.
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o4')).id is not null and (pg_temp.drop_signal('o4')).team_id = pg_temp.t('02'),
+          'CGR-246: her absence while on the way raises one open take_member_dropped signal for her own team');
+select is(pg_temp.drop_recipients('o4'),
+          '00000000-0000-4000-a000-0000000009e5:operations_fallback ' || pg_temp.m('03')::text || ':responsible',
+          'CGR-246: delivered to her (absent) and, with nobody of her team on duty, to Operations; never to T1 or the client');
+select is((select d.exception_type || ' ' || d.detail || ' ' || r.priority
+           from private.derived_exceptions('00000000-0000-4000-b000-000000000019') d
+           join private.effective_exception_rules('00000000-0000-4000-b000-000000000019') r on r.exception_type = d.exception_type
+           where d.exception_type = 'take_member_dropped' and d.entity_id = (pg_temp.visit('o4') ->> 'id')::uuid),
+          'take_member_dropped step_3 P1',
+          'CGR-246 / D-44 (2): the OPS1 row is P1 with a code as detail, never the absence type');
+select ok((pg_temp.live('o4')).member_id = pg_temp.m('03') and pg_temp.visit('o4') ->> 'status' = 'on_the_way',
+          'CGR-246: the signal changes neither take nor visit (CGR-244)');
+-- CGR-253 (PO 11:39 (1)(a)): nobody can take this kind, also not Operations (here a recipient by the fallback).
+select is(pg_temp.take_drop('00000000-0000-4000-a000-0000000009e5', 'o4', 'ffff0000-0000-4000-8148-000000000043'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (a): Operations cannot take a take_member_dropped signal (kind_not_takeable)');
+select is(pg_temp.take_drop(pg_temp.m('03')::text, 'o4', 'ffff0000-0000-4000-8148-000000000044'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (a): the named member herself (absent, on the way) cannot take it');
+select ok(not exists (select 1 from public.signal_takes t where t.signal_id = (pg_temp.drop_signal('o4')).id)
+          and (pg_temp.drop_signal('o4')).taken_by is null,
+          'CGR-253 (a): no signal_takes row, the signal stays untaken');
+
+-- 11. CGR-248 / UXR-241 (PO 06:39 (2)): no person command ends a take visit while its take stays live ------------------
+-- `cancel_visit` refuses a visit written from a take (order_take_id not null) with the stated reason `take_visit`;
+-- visit, take and client cover stay unchanged. The cancellation of a visit not from a take is unchanged (pgTAP 023,
+-- 031, 055 keep passing). Her way out before «unterwegs» stays the release with a reason (CGR-242, §7).
+create function pg_temp.cancel(actor text, k text, key text) returns text language plpgsql as $$
+declare res text;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;  -- read as the table owner, before the role switch
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.cancel_visit(vid, 'team_cancelled', null, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+-- CGR-252 (PO 09:39 (2)): every refused take_visit command writes exactly one refusal row and nothing else. The audit
+-- window opens here and closes before the owner's fixture writes of §12 (asserted at the end of the §12 commands).
+create temp table aud252 as select coalesce(max(id), 0) as last_id from public.audit_events;
+-- O2 (M2 named, taken by M1, both T1) is the live planned take visit here (O1 was released in §7).
+create temp table cov as select pg_temp.cs('o2') as before;
+select is(pg_temp.cancel('02', 'o2', 'ffff0000-0000-4000-8148-000000000060'), 'take_visit',
+          'CGR-248: the named member cannot cancel her take visit; the stated reason is take_visit');
+select is(pg_temp.visit('o2') ->> 'status', 'planned', 'CGR-248: the take visit stays planned');
+select ok((pg_temp.live('o2')).member_id = pg_temp.m('02'), 'CGR-248: the take stays live with her');
+select is(pg_temp.cs('o2'), (select before from cov), 'CGR-248: the client cover is unchanged by the refusal');
+select is((select count(*)::int from public.visit_status_notes n where n.visit_id = (pg_temp.visit('o2') ->> 'id')::uuid
+             and n.kind = 'cancelled'), 0, 'CGR-248: no cancellation note is written');
+select is(pg_temp.cancel('01', 'o2', 'ffff0000-0000-4000-8148-000000000061'), 'take_visit',
+          'CGR-248: the taker, a colleague of the same team, cannot cancel it either');
+select is(pg_temp.cancel('03', 'o4', 'ffff0000-0000-4000-8148-000000000062'), 'take_visit',
+          'CGR-248: a take visit on the way is refused as well');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-248: the visit on the way is unchanged');
+
+-- 12. CGR-249 (PO 07:39 (1)) and the cover property (PO 07:39 (2), `cra` 07:27) -------------------------------------
+-- While a take is live, no person command moves, re-dates, re-assigns or deletes its visit: `move_visit_to_today`,
+-- `reschedule_visit`, `remove_planned_visit`, `take_open_visit` and `propose_visit_responsible` refuse a visit written
+-- from a take with the stated result `take_visit` (as `cancel_visit`, §11), for the named member and for a colleague of
+-- the same team; the visit row (date, times, responsible member, status) and the client cover stay unchanged.
+-- Cover property (a control on the outcome): no order reads `covered` unless its live take has exactly one planned or
+-- under-way visit at the order's Zurich date and times for the named member. Asserted before §11, after every person
+-- command of §11 and §12, so a later command that forgets the guard turns this suite red.
+create function pg_temp.cover_violations() returns text language plpgsql as $$
+declare bad text := null;
+  r record;
+  n integer;
+begin
+  for r in select m.k, o.id, o.starts_at, o.ends_at from made m join public.partner_requests o on o.id = pg_temp.oid(m.k)
+           order by m.k loop
+    if pg_temp.cs(r.k) is distinct from 'covered' then continue; end if;
+    execute 'select count(*)::int from public.order_takes t join public.care_visits v on v.order_take_id = t.id
+             where t.order_id = $1 and t.released_at is null
+               and v.status in (''planned'', ''on_the_way'', ''started'')
+               and v.responsible_user_id = t.member_id
+               and v.suspended_at is null and v.covered_by is null  -- CGR-251: not paused, not covered by another
+               and v.visit_date = ($2 at time zone ''Europe/Zurich'')::date
+               and v.time_start = ($2 at time zone ''Europe/Zurich'')::time
+               and v.time_end = ($3 at time zone ''Europe/Zurich'')::time'
+      into n using r.id, r.starts_at, r.ends_at;
+    if n <> 1 then bad := concat_ws(',', bad, r.k || ':' || n); end if;
+  end loop;
+  return bad;
+end;
+$$;
+-- One person command on the visit of order k, as member `actor` (the visit id is read as the table owner first).
+create function pg_temp.cmd(actor text, k text, what text, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+  vid uuid := (pg_temp.visit(k) ->> 'id')::uuid;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  if what = 'today' then
+    res := public.move_visit_to_today(vid, date '2026-11-16', time '13:00', time '17:00', 'Test CGR-249', key::uuid);
+  elsif what = 'reschedule' then
+    res := public.reschedule_visit(vid, date '2026-11-22', time '09:00', time '13:00', 'Test CGR-249', key::uuid);
+  elsif what = 'remove' then
+    res := public.remove_planned_visit(vid, 'Test CGR-249', key::uuid);
+  elsif what = 'take_open' then
+    res := public.take_open_visit(vid, key::uuid);
+  elsif what = 'propose' then
+    res := public.propose_visit_responsible(vid, key::uuid);
+  end if;
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.slot(k text) returns text language sql as $$
+  select concat_ws('|', v ->> 'status', v ->> 'visit_date', v ->> 'time_start', v ->> 'time_end', v ->> 'responsible_user_id')
+  from (select pg_temp.visit(k) v) x
+$$;
+-- Back to the first clock of this file (before every start), so «Heute machen» sees the database's own today.
+select pg_temp.clock('2026-11-16 12:00:00+01');
+-- O2 (M2, T1): live take, planned visit; reads «nicht mehr gedeckt» here (her §8 absence, ADR-199 (5)), so it carries
+-- the refusals for the named member and a same-team colleague. O3 (M3, T2, 22:00–07:00) reads «gedeckt»: it carries
+-- the property-sensitive commands.
+create temp table o2_slot as select pg_temp.slot('o2') as s;
+create temp table o3_slot as select pg_temp.slot('o3') as s;
+
+select is(pg_temp.cs('o3'), 'covered', 'fixture: O3 (M3, T2) reads «gedeckt» with its live take visit');
+select is(pg_temp.cover_violations(), null, 'cover property holds after the §11 cancellations were refused');
+
+select is(pg_temp.cmd('02', 'o2', 'today', 'ffff0000-0000-4000-8148-000000000070') ->> 'result', 'take_visit',
+          'CGR-249: «Heute machen» (move_visit_to_today) is refused for the named member with take_visit');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit keeps date, times, member and status');
+select is(pg_temp.cover_violations(), null, 'cover property after move_visit_to_today (named member)');
+select is(pg_temp.cmd('01', 'o2', 'today', 'ffff0000-0000-4000-8148-000000000071') ->> 'result', 'take_visit',
+          'CGR-249: move_visit_to_today is refused for a colleague of the same team as well');
+select is(pg_temp.cover_violations(), null, 'cover property after move_visit_to_today (colleague)');
+
+select is(pg_temp.cmd('02', 'o2', 'reschedule', 'ffff0000-0000-4000-8148-000000000072') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit is refused for the named member with take_visit');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit is not re-dated');
+select is(pg_temp.cover_violations(), null, 'cover property after reschedule_visit (named member)');
+select is(pg_temp.cmd('01', 'o2', 'reschedule', 'ffff0000-0000-4000-8148-000000000073') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit is refused for a colleague of the same team as well');
+select is(pg_temp.cover_violations(), null, 'cover property after reschedule_visit (colleague)');
+select is(pg_temp.cmd('03', 'o3', 'today', 'ffff0000-0000-4000-8148-000000000081') ->> 'result', 'take_visit',
+          'CGR-249: «Heute machen» is refused on the «gedeckt» take visit O3 (named member M3)');
+select is(pg_temp.cmd('03', 'o3', 'reschedule', 'ffff0000-0000-4000-8148-000000000082') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit is refused on the «gedeckt» take visit O3 (named member M3)');
+select is(pg_temp.slot('o3'), (select s from o3_slot), 'CGR-249: O3 keeps date, times, member and status');
+select is(pg_temp.cover_violations(), null, 'cover property after the moves of O3 were refused (O3 still «gedeckt»)');
+select is((select count(*)::int from public.visit_plan_changes c
+           where c.visit_id in ((pg_temp.visit('o2') ->> 'id')::uuid, (pg_temp.visit('o3') ->> 'id')::uuid)),
+          0, 'CGR-249: no plan change is written for the refused moves');
+
+select is(pg_temp.cmd('02', 'o2', 'remove', 'ffff0000-0000-4000-8148-000000000074') ->> 'result', 'take_visit',
+          'CGR-249: remove_planned_visit is refused for the named member with take_visit');
+select is(pg_temp.cmd('01', 'o2', 'remove', 'ffff0000-0000-4000-8148-000000000075') ->> 'result', 'take_visit',
+          'CGR-249: remove_planned_visit is refused for a colleague of the same team as well');
+select is(pg_temp.visits_of('o2'), 1, 'CGR-249: the take visit is not deleted');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: the take visit is unchanged after the refused removals');
+select is(pg_temp.cover_violations(), null, 'cover property after remove_planned_visit');
+
+-- take_open_visit and propose_visit_responsible act only on a visit without a responsible member. A take visit is
+-- written with the named member (0138), and every change of its member re-checks the take (`bk_c1_recheck_takes`),
+-- so this suite reaches no live take visit without a member; the guard refuses a take visit anyway, before the
+-- «already taken» and agent checks (ADR-203 (14)), so a later path that clears the member cannot open it to the team.
+select is(pg_temp.cmd('01', 'o2', 'take_open', 'ffff0000-0000-4000-8148-000000000076') ->> 'result', 'take_visit',
+          'CGR-249: take_open_visit is refused on a take visit with take_visit');
+select is(pg_temp.cmd('01', 'o2', 'propose', 'ffff0000-0000-4000-8148-000000000077') ->> 'result', 'take_visit',
+          'CGR-249: propose_visit_responsible is refused on a take visit with take_visit');
+select is(pg_temp.slot('o2'), (select s from o2_slot), 'CGR-249: O2 is unchanged after the refused take and proposal');
+select is(pg_temp.cover_violations(), null, 'cover property after take_open_visit and propose_visit_responsible');
+
+-- A take visit on the way (O4, M3) is refused as well, and a visit not from a take keeps every command (pgTAP 023, 031,
+-- 055, 088, 093 keep passing): here the plain reschedule of a non-take visit is the control.
+select is(pg_temp.cmd('03', 'o4', 'reschedule', 'ffff0000-0000-4000-8148-000000000080') ->> 'result', 'take_visit',
+          'CGR-249: reschedule_visit refuses a take visit on the way with take_visit');
+select is(pg_temp.visit('o4') ->> 'status', 'on_the_way', 'CGR-249: the visit on the way is unchanged');
+-- CGR-252: the window of §11 and §12 holds exactly the 14 refusals, in order, one row each, and no other write.
+create function pg_temp.k_of(vid uuid) returns text language sql as $$
+  select m.k from made m where (pg_temp.visit(m.k) ->> 'id')::uuid = vid order by m.k limit 1
+$$;
+create function pg_temp.m_of(uid uuid) returns text language sql as $$
+  select n from (values ('01'), ('02'), ('03')) x(n) where pg_temp.m(n) = uid
+$$;
+select is((select string_agg(a.command || ':' || coalesce(pg_temp.k_of(a.entity_id), '?') || ':'
+                             || coalesce(pg_temp.m_of(a.actor_id), '?'), ',' order by a.id)
+           from public.audit_events a where a.id > (select last_id from aud252)),
+          'cancel_visit:o2:02,cancel_visit:o2:01,cancel_visit:o4:03,'
+          'move_visit_to_today:o2:02,move_visit_to_today:o2:01,reschedule_visit:o2:02,reschedule_visit:o2:01,'
+          'move_visit_to_today:o3:03,reschedule_visit:o3:03,remove_planned_visit:o2:02,remove_planned_visit:o2:01,'
+          'take_open_visit:o2:01,propose_visit_responsible:o2:01,reschedule_visit:o4:03',
+          'CGR-252: each refused take_visit command wrote exactly one row (command, visit, member), and no other row');
+select is((select count(*)::int from public.audit_events a where a.id > (select last_id from aud252)
+             and a.table_name = 'care_visits' and a.idempotency_key is null
+             and a.changed = '{"outcome": {"old": null, "new": "take_visit"}}'::jsonb), 14,
+          'CGR-252: every refusal row is the VIS1-10 form: care_visits, outcome take_visit, no idempotency key');
+select is((select count(*)::int from public.audit_events a where a.id > (select last_id from aud252)), 14,
+          'CGR-252: no other write was audited during the refused commands of §11 and §12');
+-- The property itself catches a moved take visit (the control is real): move O3 as the owner, check, move back.
+update public.care_visits set visit_date = date '2026-11-22' where id = (pg_temp.visit('o3') ->> 'id')::uuid;
+select is(pg_temp.cover_violations(), 'o3:0', 'cover property: a moved take visit with «gedeckt» is reported');
+update public.care_visits set visit_date = date '2026-11-21' where id = (pg_temp.visit('o3') ->> 'id')::uuid;
+select is(pg_temp.cover_violations(), null, 'cover property holds again once the slot is restored');
+-- CGR-251 (`cra` 08:27): a suspended take visit is no visit «gedeckt» either (same control, then restored).
+update public.care_visits set suspended_at = now() where id = (pg_temp.visit('o3') ->> 'id')::uuid;
+select is(pg_temp.cover_violations(), 'o3:0', 'CGR-251: cover property reports a «gedeckt» order whose take visit is suspended');
+update public.care_visits set suspended_at = null where id = (pg_temp.visit('o3') ->> 'id')::uuid;
+select is(pg_temp.cover_violations(), null, 'CGR-251: cover property holds again once the visit is no longer suspended');
+-- CGR-251 (`cra` 08:27, PO 08:39 (2)): a take visit covered by another person (covered_by) is no visit «gedeckt» for
+-- the named member either. Probed inside a sub-transaction that is always rolled back, so the cover triggers on
+-- covered_by (ADM2, QUAL1, bk_c1_recheck_takes) leave no trace on the fixture.
+create function pg_temp.probe_covered_by(k text) returns text language plpgsql as $$
+declare r text;
+begin
+  begin
+    update public.care_visits set covered_by = pg_temp.m('03') where id = (pg_temp.visit(k) ->> 'id')::uuid;
+    r := coalesce(pg_temp.cover_violations(), 'none');
+    raise exception 'probe rollback' using errcode = 'P0252';
+  exception
+    when sqlstate 'P0252' then null;
+    when others then r := 'error: ' || sqlerrm;
+  end;
+  return r;
+end;
+$$;
+select is(pg_temp.probe_covered_by('o3'), 'o3:0',
+          'CGR-251: cover property reports a «gedeckt» order whose take visit carries covered_by');
+select ok(pg_temp.cover_violations() is null and (pg_temp.visit('o3') ->> 'covered_by') is null,
+          'CGR-251: after the rolled-back probe the visit has no covered_by and the property holds');
+
+-- UXR-242 (PO 07:39 (4)): can a take exist on an order without postcode and place? Not through the commands: the only
+-- order writer, `confirm_client_order`, refuses a missing or empty postcode and one outside the BS/BL list (the place
+-- comes from that list), and a member cannot write orders directly. So the alternative line is not reachable here.
+create temp table u242 (k text primary key, r jsonb);
+grant all on u242 to authenticated;
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+insert into u242 select 'null', public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', date '2026-11-25',
+  time '08:00', time '12:00', null, 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8148-000000000090'::uuid);
+insert into u242 select 'empty', public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', date '2026-11-25',
+  time '08:00', time '12:00', '', 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8148-000000000091'::uuid);
+insert into u242 select 'unlisted', public.confirm_client_order('00000000-0000-4000-a000-0000000003cb', date '2026-11-25',
+  time '08:00', time '12:00', '9999', 'fage_efz', array['C1'], array['C1'], null, 'dddd0000-0000-4000-8148-000000000092'::uuid);
+reset role;
+select pg_temp.as_owner();
+select is((select string_agg(k || ':' || (r ->> 'result') || ':' || (r -> 'problems' ->> 0), ',' order by k) from u242),
+          'empty:invalid:missing_postcode,null:invalid:missing_postcode,unlisted:invalid:postcode_not_in_list',
+          'UXR-242: no order without a listed postcode (and so its place) is written, so no take can exist on one');
+select ok(not has_table_privilege('authenticated', 'public.partner_requests', 'INSERT')
+          and not has_column_privilege('authenticated', 'public.partner_requests', 'postcode', 'UPDATE'),
+          'UXR-242: a member cannot write an order or its postcode directly');
+
+-- 13. CGR-250 (PO 08:39 (1), choice (b)): the absence path never clears, re-assigns or moves a take visit -----------
+-- Through the real commands `record_absence` and `change_absence` (not a direct insert into `member_absences`).
+-- `record_absence` and `private.release_visits_between` read the database's own clock (`now()`), the take path reads
+-- the test clock (`private.now()`), so these orders lie 40 and 41 days after the real Zurich date: both clocks agree
+-- that the absences are in the future, and the test clock is set before (a) and after (b) the start.
+--   (a) absence before `starts_at`: the take is released, the visit `cancelled` with `take_released_absence`, still
+--       hers (the CGR-242 (c) reason reaches her); the absence does not release it a second time.
+--   (b) absence after `starts_at`, visit `planned`: take and visit unchanged (member, date, times, status), nothing is
+--       recorded as released, the client reads «nicht gedeckt» (ADR-199 (5)); the cover property holds.
+--   (c) `change_absence` (shorten, withdraw) leaves the take visit unchanged.
+--   (d) no cover or AI-proposal path reaches the take visit (named reason ADR-203 (15); the AIG1 apply by test).
+--   (b) also raises the CGR-246 signal `take_member_dropped` (migration 0144); the withdrawal in (c) ends it.
+create temp table d250 as select ((now() at time zone 'Europe/Zurich')::date + 40) as d;
+grant all on d250 to authenticated;
+select pg_temp.act_as('00000000-0000-4000-a000-0000000009e8');
+set local role authenticated;
+select pg_temp.co('o6', (select d from d250), time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000006');
+select pg_temp.co('o7', (select d + 1 from d250), time '08:00', time '12:00', 'dddd0000-0000-4000-8148-000000000007');
+reset role;
+select pg_temp.as_owner();
+select is((select count(*)::int from made where k in ('o6', 'o7') and r ->> 'result' = 'ok'), 2,
+          'CGR-250 fixture: O6 (D) and O7 (D+1) are confirmed');
+create function pg_temp.zurich(d date, t time) returns text language sql as $$
+  select ((d + t) at time zone 'Europe/Zurich')::text
+$$;
+create function pg_temp.absent(actor text, team text, d date, key text) returns jsonb language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.record_absence(pg_temp.t(team), null, d, d, null, null, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.change_abs(actor text, aid uuid, withdraw boolean, d date, t time, key text) returns jsonb
+language plpgsql as $$
+declare res jsonb;
+begin
+  perform pg_temp.act_as(pg_temp.m(actor)::text);
+  set local role authenticated;
+  res := public.change_absence(aid, withdraw, d, t, key::uuid);
+  reset role;
+  perform pg_temp.as_owner();
+  return res;
+end;
+$$;
+create function pg_temp.released_rows(k text) returns integer language sql as $$
+  select (select count(*)::int from public.absence_releases r where r.visit_id = (pg_temp.visit(k) ->> 'id')::uuid)
+       + (select count(*)::int from public.visit_plan_changes c
+          where c.visit_id = (pg_temp.visit(k) ->> 'id')::uuid and c.change = 'released')
+$$;
+create temp table abs250 (k text primary key, r jsonb);
+
+select pg_temp.clock(pg_temp.zurich((select d - 1 from d250), time '12:00'));
+select is(pg_temp.take('01', 'o6', '01', '01', 'ffff0000-0000-4000-8148-000000000101') ->> 'result', 'ok',
+          'CGR-250 fixture: M1 takes O6 naming herself');
+select is(pg_temp.take('02', 'o7', '01', '02', 'ffff0000-0000-4000-8148-000000000102') ->> 'result', 'ok',
+          'CGR-250 fixture: M2 takes O7 naming herself');
+select is(pg_temp.cs('o6') || ' ' || pg_temp.cs('o7'), 'covered covered', 'CGR-250 fixture: both read «gedeckt»');
+create temp table o7_slot as select pg_temp.slot('o7') as s;
+
+-- (a) before the start
+insert into abs250 select 'a', pg_temp.absent('01', '01', (select d from d250), 'ffff0000-0000-4000-8148-000000000103');
+select is((select r ->> 'result' from abs250 where k = 'a'), 'ok', 'CGR-250 (a): M1 records her absence on D (record_absence)');
+select ok((pg_temp.live('o6')).id is null, 'CGR-250 (a): before the start her absence releases the take');
+select is(pg_temp.visit('o6') ->> 'status', 'cancelled', 'CGR-250 (a): the take visit is cancelled');
+select is(pg_temp.visit('o6') ->> 'system_end_reason', 'take_released_absence',
+          'CGR-250 (a): with the stored reason take_released_absence');
+select is(pg_temp.visit('o6') ->> 'responsible_user_id', pg_temp.m('01')::text,
+          'CGR-250 (a): the visit stays hers, so the CGR-242 (c) reason reaches her');
+select is(pg_temp.released_rows('o6'), 0, 'CGR-250 (a): the absence does not release the take visit a second time');
+select is(pg_temp.cover_violations(), null, 'CGR-250 (a): cover property after record_absence before the start');
+-- (c) shorten (a)
+select is(pg_temp.change_abs('01', (select (r ->> 'absence_id')::uuid from abs250 where k = 'a'), false,
+                             (select d from d250), time '10:00', 'ffff0000-0000-4000-8148-000000000104') ->> 'result', 'ok',
+          'CGR-250 (c): M1 shortens the absence (change_absence)');
+select is(pg_temp.visit('o6') ->> 'status' || ' ' || (pg_temp.visit('o6') ->> 'responsible_user_id'),
+          'cancelled ' || pg_temp.m('01')::text, 'CGR-250 (c): the ended take visit is unchanged by the change');
+
+-- (b) after the start, visit still planned
+select pg_temp.clock(pg_temp.zurich((select d + 1 from d250), time '09:00'));
+insert into abs250 select 'b', pg_temp.absent('02', '01', (select d + 1 from d250), 'ffff0000-0000-4000-8148-000000000105');
+select is((select r ->> 'result' from abs250 where k = 'b'), 'ok', 'CGR-250 (b): M2 records her absence on D+1 after the start');
+select ok((pg_temp.live('o7')).member_id = pg_temp.m('02'), 'CGR-250 (b): the take stays live with her');
+select is(pg_temp.slot('o7'), (select s from o7_slot),
+          'CGR-250 (b): the take visit keeps member, date, times and status (never memberless)');
+select is(pg_temp.released_rows('o7'), 0, 'CGR-250 (b): nothing records the take visit as released');
+select is((select (r ->> 'released')::int from abs250 where k = 'b'), 0, 'CGR-250 (b): record_absence reports no release');
+select is(pg_temp.cs('o7'), 'not_covered', 'CGR-250 (b): the client reads «nicht gedeckt» (ADR-199 (5) safety net)');
+select is(pg_temp.cover_violations(), null, 'CGR-250 (b): cover property after record_absence after the start');
+-- CGR-246 for (b) (PO 08:39 (1)(b), 09:39 (1)): M1 is on duty in T1, so no Operations fallback.
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o7')).id is not null and (pg_temp.drop_signal('o7')).team_id = pg_temp.t('01'),
+          'CGR-246 (b): after the start her absence raises the take_member_dropped signal for her own team');
+select is(pg_temp.drop_recipients('o7'),
+          pg_temp.m('01')::text || ':team ' || pg_temp.m('02')::text || ':responsible',
+          'CGR-246 (b): delivered to her (absent) and to her team on duty; not to T2, not to Operations');
+select ok(pg_temp.sees_drop(pg_temp.m('02')::text, 'o7') and pg_temp.sees_drop(pg_temp.m('01')::text, 'o7'),
+          'CGR-246 (b): she and her colleague read it in my_signals');
+select ok(not pg_temp.sees_drop(pg_temp.m('03')::text, 'o7')
+          and not pg_temp.sees_drop('00000000-0000-4000-a000-0000000009e8', 'o7')
+          and not pg_temp.sees_drop('00000000-0000-4000-a000-000000000903', 'o7'),
+          'CGR-246 (b) / D-44 (2): another team, the client and another organisation read nothing');
+select is(pg_temp.slot('o7'), (select s from o7_slot), 'CGR-246 (b): the signal leaves the take visit unchanged');
+-- CGR-253 / UXR-245 (PO 11:39 (1)(a), choice (b)): no «Ich übernehme» for this kind, for any recipient.
+select is(pg_temp.take_drop(pg_temp.m('02')::text, 'o7', 'ffff0000-0000-4000-8148-000000000107'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (a): the named member (absent, after the start) cannot take her own take_member_dropped signal');
+select is(pg_temp.take_drop(pg_temp.m('01')::text, 'o7', 'ffff0000-0000-4000-8148-000000000108'),
+          jsonb_build_object('result', 'rejected', 'reason', 'kind_not_takeable'),
+          'CGR-253 (b): a colleague of her team on duty cannot take it either');
+select ok(not exists (select 1 from public.signal_takes t where t.signal_id = (pg_temp.drop_signal('o7')).id)
+          and (pg_temp.drop_signal('o7')).taken_by is null
+          and pg_temp.sees_drop(pg_temp.m('02')::text, 'o7') and pg_temp.sees_drop(pg_temp.m('01')::text, 'o7'),
+          'CGR-253: no signal_takes row; the signal stays open and untaken for both recipients');
+-- The SIG1 step to Operations runs as without any take: the untaken threshold (`signal_untaken`, 15 min, PROVISIONAL
+-- D-28; not set here) passes and Operations (9e5) receives it with the reason `untaken`.
+select pg_temp.clock(pg_temp.zurich((select d + 1 from d250), time '09:16'));
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o7')).escalated_at is not null
+          and exists (select 1 from public.signal_deliveries d where d.signal_id = (pg_temp.drop_signal('o7')).id
+                      and d.recipient_id = '00000000-0000-4000-a000-0000000009e5' and d.reason = 'untaken'),
+          'CGR-253 (a): after the untaken threshold the step reaches Operations (reason untaken), as without a take');
+select ok((pg_temp.drop_signal('o7')).taken_by is null and (pg_temp.live('o7')).member_id = pg_temp.m('02'),
+          'CGR-253: after the step the signal is still untaken and the take still live with her');
+-- (d) no cover or proposal path reaches it
+select ok(not exists (select 1 from private.cover_open_visits('00000000-0000-4000-b000-000000000019') x
+                      where x.id = (pg_temp.visit('o7') ->> 'id')::uuid)
+          and pg_temp.visit('o7') ->> 'responsible_user_id' is not null and pg_temp.visit('o7') ->> 'case_id' is null,
+          'CGR-250 (d): the take visit is not open for cover (it keeps its member and has no case; ADR-203 (15))');
+select is(private.aig1_apply_visit_responsible((pg_temp.visit('o7') ->> 'id')::uuid, pg_temp.m('01'), pg_temp.m('02'),
+                                               pg_temp.m('01')), 'not_open',
+          'CGR-250 (d): the AI-proposal apply path does not re-assign a take visit');
+select is(pg_temp.slot('o7'), (select s from o7_slot), 'CGR-250 (d): the take visit is unchanged after the apply attempt');
+-- (c) withdraw (b)
+select is(pg_temp.change_abs('02', (select (r ->> 'absence_id')::uuid from abs250 where k = 'b'), true, null, null,
+                             'ffff0000-0000-4000-8148-000000000106') ->> 'result', 'ok',
+          'CGR-250 (c): M2 withdraws her absence (change_absence)');
+select is(pg_temp.slot('o7'), (select s from o7_slot), 'CGR-250 (c): the take visit is unchanged after the withdrawal');
+select ok((pg_temp.live('o7')).member_id = pg_temp.m('02'), 'CGR-250 (c): the take is still live with her');
+select private.evaluate_signals('00000000-0000-4000-b000-000000000019', true);
+select ok((pg_temp.drop_signal('o7')).id is null
+          and exists (select 1 from public.safety_signals s where s.visit_id = (pg_temp.visit('o7') ->> 'id')::uuid
+                      and s.signal_kind = 'take_member_dropped' and s.ended_at is not null),
+          'CGR-246 (CR-041): the withdrawal removes the cause, so the episode ends with it');
+select is(pg_temp.cover_violations(), null, 'CGR-250 (c): cover property after change_absence');
+
+-- CGR-233 (ADR-203 (19)): the one member-overlap reading of every hand-assignment path takes the take's person lock
+-- before the plan3_busy lock and before it reads, so a take and a hand assignment of one member serialise. The race
+-- itself runs in two real sessions in scripts/db-concurrency/take-visit.sh (pgTAP cannot open a second session).
+select ok(position('order_take_member:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure)) > 0
+          and position('order_take_member:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure))
+              < position('plan3_busy:' in pg_get_functiondef('private.member_visit_overlap(uuid, uuid)'::regprocedure)),
+          'CGR-233: private.member_visit_overlap takes the order_take_member lock before plan3_busy and before reading');
+
+-- CGR-255 (ADR-203 (20)): the automatic release of a take (`private.recheck_member_takes`, run by the
+-- `bk_c1_recheck_takes` trigger at every hand write) reads her live takes under the same person lock, so in the race
+-- «take first» it waits for the take, sees it committed and releases it (the serial outcome; race in take-visit.sh).
+select ok(position('order_take_member:' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)) > 0
+          and position('order_take_member:' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure))
+              < position('from public.order_takes' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)),
+          'CGR-255: private.recheck_member_takes takes the order_take_member lock before it reads her live takes');
+select ok(position('take_visit_under_way' in pg_get_functiondef('private.recheck_member_takes(uuid)'::regprocedure)) > 0,
+          'CGR-244 kept: the automatic release still never touches a take whose visit is under way');
+
+-- 14. Criterion 4, F1–F4 across midnight (ADR-203 (21); PO 14:39 «F1–F4 sums») -----------------------------------------
+-- The F1 commands stamp events with the transaction's now(), which a single pgTAP transaction cannot move; the night's
+-- instants are therefore written as the table owner (pattern of pgTAP 027, 030, 032), then read back through the
+-- member's /field function and the VIS1 day rule the complete command runs. The minute sums themselves are computed in
+-- TypeScript from these instants (tests/unit/bk-e1b-night-take-times.test.ts). Regression guards: green on first run.
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
+select v.organization_id, v.id, v.team_id, x.kind, x.f, x.t, pg_temp.m('03'), x.at
+from public.care_visits v,
+     (values ('departed', 'planned', 'on_the_way', timestamptz '2026-11-21 21:40:00+01', 1),
+             ('started', 'on_the_way', 'started', timestamptz '2026-11-21 22:00:00+01', 2),
+             ('paused', 'started', 'paused', timestamptz '2026-11-22 01:00:00+01', 3),
+             ('resumed', 'paused', 'started', timestamptz '2026-11-22 01:30:00+01', 4),
+             ('completed', 'started', 'completed', timestamptz '2026-11-22 07:00:00+01', 5)) as x(kind, f, t, at, n)
+where v.id = (pg_temp.visit('o3') ->> 'id')::uuid
+order by x.n;
+create temp table night_visit as select (pg_temp.visit('o3') ->> 'id')::uuid as id;  -- read as the table owner
+grant all on night_visit to authenticated;
+create temp table night_events (events jsonb, refusal text);
+grant all on night_events to authenticated;
+select pg_temp.act_as(pg_temp.m('03')::text);
+set local role authenticated;
+insert into night_events (events) select x.events from public.field_visits(date '2026-11-21') x
+  where x.visit_id = (select id from night_visit);
+reset role;
+select pg_temp.as_owner();
+select is((select string_agg(a.e ->> 'type', ',' order by a.ord) from night_events n,
+                  jsonb_array_elements(n.events) with ordinality as a(e, ord)),
+          'departed,started,paused,resumed,completed',
+          'criterion 4: /field returns the night timeline of the take visit on its start day, in order');
+select is((select max((e ->> 'at')::timestamptz) filter (where e ->> 'type' = 'completed')
+                - max((e ->> 'at')::timestamptz) filter (where e ->> 'type' = 'started')
+           from night_events n, jsonb_array_elements(n.events) e),
+          interval '9 hours',
+          'criterion 4: started 22:00, completed 07:00 the next day = 9 h between the instants (F2 sums in TS)');
+-- VIS1 (0089): «complete» refuses only a visit started before its own date; at 07:00 the next morning the night visit
+-- started on its date, so the rule lets the end through (null = no refusal).
+select pg_temp.clock('2026-11-22 07:00:00+01');
+select pg_temp.act_as(pg_temp.m('03')::text);
+set local role authenticated;
+update night_events set refusal = coalesce(private.visit_day_refusal('complete_visit', (select id from night_visit)), 'none');
+reset role;
+select pg_temp.as_owner();
+select is((select refusal from night_events), 'none',
+          'criterion 4: at 07:00 the next day the VIS1 day rule does not refuse completing the 22:00 night visit');
+
+select * from finish();
+rollback;
