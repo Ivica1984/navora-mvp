@@ -2,13 +2,13 @@
 id: HD-3s-F2-F1-F1
 title: Tagesplan-Vorschlag sieht die Pause einer geteilten Übernahme als belegt, feste Regel
 author: po
-status: approved   # PO 2026-11-28 08:39, FE-137 (2) «vertragsbereit, nicht aktiv»; Bau erst nach der HD-PEN-HAND-Abnahme und wenn *Active now* es nennt
+status: approved   # PO 2026-11-28 08:39, FE-137 (2); **aktiv seit 2026-11-28 12:39** (nach der HD-PEN-HAND-Abnahme)
 updated: 2026-11-28
 ---
 
 # HD-3s-F2-F1-F1 — Tagesplan-Vorschlag und geteilte Übernahme
 
-Block: **HEIM-DP**. Folgepunkt aus `cra` CGR-291 (S3, advisory; `CLINICAL_GOVERNANCE.md` Gate #1825), `aia` AUT-235, `uxa` UXR-302. Reihenfolge HD-PEN-HAND → **HD-3s-F2-F1-F1** → HD-3b-0. **Vertragsbereit, nicht aktiv.** Ein Engineering-PR. Simulation, synthetische Daten. Der PO hat keinen Code gelesen; Codefakten aus CGR-291 und dem `eng`-Journal 2026-11-27 14:12 (f).
+Block: **HEIM-DP**. Folgepunkt aus `cra` CGR-291 (S3, advisory; `CLINICAL_GOVERNANCE.md` Gate #1825), `aia` AUT-235, `uxa` UXR-302. Reihenfolge HD-PEN-HAND → **HD-3s-F2-F1-F1** → HD-3b-0. **Aktiv seit 2026-11-28 12:39** (zuvor vertragsbereit, nicht aktiv). Ein Engineering-PR. Simulation, synthetische Daten. Der PO hat keinen Code gelesen; Codefakten aus CGR-291 und dem `eng`-Journal 2026-11-27 14:12 (f).
 
 ## Problem
 
