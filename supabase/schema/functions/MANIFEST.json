@@ -917,6 +917,27 @@
       ]
     },
     {
+      "name": "public.member_slot_take_window",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "public.member_slot_overlap(p_case_id, p_visit_id, p_member_id, p_visit_date, p_time_start, p_time_end)",
+        "member_take_window"
+      ]
+    },
+    {
+      "name": "private.plan3_lines",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "not_active",
+        "needs_rn",
+        "absent",
+        "plan3_other_team_busy",
+        "member_take_window(mem[i], rng, v.order_take_id)"
+      ]
+    },
+    {
       "name": "private.plan3_confirm_overlaps",
       "required": [
         "SECURITY DEFINER",

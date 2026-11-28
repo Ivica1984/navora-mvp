@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMemberOverlapFact } from "@/features/visits/overlap-commands";
-import { memberOverlapNote, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
+import { memberBusyNote, type MemberBusyFact } from "@/features/visits/member-overlap-rules";
 import type { OverlapSlot } from "@/components/visits/OverlapNote";
 
 /**
@@ -17,7 +17,7 @@ export function useMemberOverlapNote(
   slot: OverlapSlot,
   enabled = true,
 ) {
-  const [fact, setFact] = useState<{ key: string; value: MemberOverlapFact } | null>(null);
+  const [fact, setFact] = useState<{ key: string; value: MemberBusyFact } | null>(null);
   const memberId = member?.id ?? "";
   const key = `${caseId ?? ""}|${visitId ?? ""}|${memberId}|${slot.date}|${slot.start}|${slot.end}`;
   const active = enabled && memberId !== "";
@@ -38,19 +38,30 @@ export function useMemberOverlapNote(
   }, [active, key, caseId, visitId, memberId, slot.date, slot.start, slot.end]);
 
   const answered = active && fact !== null && fact.key === key;
-  const note = answered ? memberOverlapNote(fact.value, member) : null;
-  return { note, shown: note !== null, answered };
+  const busy = answered ? memberBusyNote(fact.value, member) : null;
+  const note = busy?.text ?? null;
+  // HD-3s-F2-F1-F1 (UXR-302): `kind` = take_window when the save will be refused (the note states it before the click).
+  return { note, shown: note !== null, answered, kind: busy?.kind ?? null };
 }
 
 /**
  * PLAN3-16: the one `info` line directly under "Verantwortlich"; a polite status region. It never blocks or delays
  * the save, adds no confirmation and no reason field. The save button points at it (`aria-describedby` = `id`).
  */
-export default function MemberOverlapNote({ id, note, answered }: { id: string; note: string | null; answered: boolean }) {
+export default function MemberOverlapNote({ id, note, answered, kind = null }: {
+  id: string;
+  note: string | null;
+  answered: boolean;
+  kind?: "take_window" | "overlap" | null;
+}) {
+  const refusal = note !== null && kind === "take_window";
   return (
     // data-read: whether the answer for the current member and times has arrived (tests wait on it).
-    <p id={id} data-testid="member-overlap-note" data-tone="info" data-read={answered ? "yes" : "no"} role="status" aria-live="polite"
-      className={note ? "rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-700" : "sr-only"}>
+    // HD-3s-F2-F1-F1 (UXR-302): a take window is stated as the coming refusal (tone warning), still a polite status.
+    <p id={id} data-testid="member-overlap-note" data-tone={refusal ? "warning" : "info"} data-kind={kind ?? undefined}
+      data-read={answered ? "yes" : "no"} role="status" aria-live="polite"
+      className={note ? (refusal ? "rounded-lg border border-amber-700 bg-amber-50 p-2 text-sm font-semibold text-amber-950"
+        : "rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-700") : "sr-only"}>
       {note ?? ""}
     </p>
   );

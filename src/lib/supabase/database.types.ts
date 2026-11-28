@@ -3683,6 +3683,9 @@ isOneToOne: false
 "member_slot_overlap":
 { Args: { "p_case_id": string,"p_member_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: boolean
                            },
+"member_slot_take_window":
+{ Args: { "p_case_id": string,"p_member_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: boolean
+                           },
 "move_visit_to_today":
 { Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
                            },

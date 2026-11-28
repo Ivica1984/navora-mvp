@@ -116,7 +116,12 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     await form.getByLabel("Verantwortlich").selectOption(NURSE);
     const note = form.getByTestId("member-overlap-note");
     await expect(note).toHaveAttribute("data-read", "yes");
-    await expect(note).toContainText("hat zu dieser Zeit schon einen Einsatz");
+    // HD-3s-F2-F1-F1 (UXR-302, migration 0192): the note states the coming refusal before the click, not information.
+    await expect(note).toContainText("hat zu dieser Zeit eine laufende geteilte Übernahme");
+    await expect(note).toContainText("So wird nicht gespeichert.");
+    await expect(note).not.toContainText("in diesem oder einem anderen Team");
+    await expect(note).toHaveAttribute("data-tone", "warning");
+    await expect(form.getByRole("button", { name: "Einsatz speichern" })).toHaveAttribute("aria-describedby", /member-overlap-plan-/);
 
     // 2. The save is rejected with the take named (PO decision CGR-289 (c)); nothing is saved; the take stays live.
     await form.getByRole("button", { name: "Einsatz speichern" }).click();
@@ -138,6 +143,7 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     await form.getByLabel("Bis").fill("20:30");
     await expect(note).toHaveAttribute("data-read", "yes");
     await expect(note).not.toContainText("hat zu dieser Zeit schon einen Einsatz");
+    await expect(note).not.toContainText("geteilte Übernahme");
     await form.getByRole("button", { name: "Einsatz speichern" }).click();
     await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:00–20:30");
     expect(visitsOfCase()).toBe("1");
@@ -152,6 +158,11 @@ for (const [width, days] of [[1440, 161], [390, 168]] as const) {
     await move.getByLabel("Von").fill("12:00");
     await move.getByLabel("Bis").fill("12:30");
     await move.getByLabel("Grund").fill("Test Pause F1");
+    // HD-3s-F2-F1-F1 (UXR-302): the move form states the coming refusal before the click as well.
+    const moveNote = move.getByTestId("member-overlap-note");
+    await expect(moveNote).toHaveAttribute("data-read", "yes");
+    await expect(moveNote).toContainText("eine laufende geteilte Übernahme");
+    await expect(moveNote).toHaveAttribute("data-tone", "warning");
     await move.getByRole("button", { name: "Verschieben" }).click();
     const moveReason = planned.getByTestId("command-error");
     await expect(moveReason).toContainText(
