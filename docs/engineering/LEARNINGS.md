@@ -27,6 +27,20 @@ Muster:
 
 ## Lektionen (neueste zuerst)
 
+### [2026-11-28 / HD-PEN-HAND-F1 #1885, eigene Arbeitsweise] Gelernte Lektion (Arbeitsweise): Vierte Wiederholung: `CLAUDE.md` aus dem Repository lesen, nicht aus dem Sitzungskontext
+- **Was war das Fehlerbild?** Im Lauf von 17:10 habe ich HD-PEN-HAND-F1 gebaut und `Paket prüfbereit:` [7242635166](https://github.com/Ivica1984/navora-mvp/pull/1885#issuecomment-7242635166) gepostet. Davor habe ich diese Datei nicht gelesen. Die Meldung hatte keine Zeile «Lektionen:», und der Fix des roten `app`-Jobs (Lektion unten) stand ohne Lektion auf dem Branch. Das ist dieselbe Lektion wie am 25.11. (zweimal) und heute früh (#1848).
+- **Was war die technische Ursache?** Die `CLAUDE.md` im Sitzungskontext war wieder die ältere Fassung ohne den LEARNINGS-Absatz, und die Lauf-Anweisung nennt `LEARNINGS.md` nicht. Die Regel von heute früh («`CLAUDE.md` aus dem Repository lesen, nicht aus dem Gedächtnis») habe ich nicht angewendet, weil ich sie nur in dieser Datei finde. Ich bemerkte es erst, als die Sitzung `CLAUDE.md` neu lud.
+- **Die verbindliche Lösungsregel ab jetzt:** Der erste Befehl jedes Laufs nach `git pull` ist `cat CLAUDE.md docs/engineering/LEARNINGS.md` aus dem Arbeitsverzeichnis. Der Sitzungskontext ersetzt diesen Befehl nie. Vor `Paket prüfbereit:` gibt es zwei Prüfungen: Steht die Lektion jedes roten Jobs auf dem Branch? Hat die Meldung die Zeile «Lektionen:»?
+- **Abgesichert durch:** OPEN. Die Regel allein hat viermal nicht gewirkt. Vorschlag an `po`: `LEARNINGS.md` in die Leseliste der `eng`-Lauf-Anweisung aufnehmen (Founder-Text, nicht meiner) und LRN1 (`docs/engineering/probes/LRN1_PROPOSAL.md`) einplanen.
+
+### [2026-11-28 / HD-PEN-HAND-F1 #1885, app-Job 141042534422] Gelernte Lektion: `agents-check` nach der letzten Änderung an `docs/agents/` laufen lassen, nicht davor
+- **Was war das Fehlerbild?** Der Kopf `2bbc0572` hatte einen roten `app`-Job: «IMPLEMENTATION_STATUS.md: row "HD-PEN-HAND-F1" has 4 cells, expected 9». Als Folge waren 8 Unit-Tests rot (`agents-layer`, `coord6-freeze`, `cond1-clinical-categories`), die `agents-check` aufrufen. Den Code-Kopf `7b60370f` davor hatte CI grün gemeldet.
+- **Was war die technische Ursache?** Ich habe eine neue Zeile in die Statustabelle geschrieben, ohne die Spalten aus dem Tabellenkopf zu übernehmen (`| ID | Origin | State | Summary | Next | PRs | ADRs | Blocked by | Deviations |`). Mein lokaler `agents-check` (exit 0) lief vor dieser Änderung, nicht danach.
+- **Die verbindliche Lösungsregel ab jetzt:**
+  - Nach jeder Änderung an `docs/agents/` laufen vor dem Push `node scripts/agents-check.mjs` und `npm test` erneut. Ein früherer grüner Lauf gilt nicht mehr.
+  - Eine neue Tabellenzeile übernimmt die Spaltenzahl aus dem Kopf. Der Weg: eine bestehende Zeile kopieren und jede Zelle ersetzen.
+- **Abgesichert durch:** `agents-check` (Spaltenzahl je Zeile) im `app`-Job und in `tests/unit/agents-layer.test.ts`. Grün auf `e9f85122` (`app` 141045457577).
+
 ### [2026-11-28 / HD-3a-F1 Nachlauf, #1848] Gelernte Lektion (Arbeitsweise): Lektion im selben Lauf wie der Fix, LEARNINGS zu Beginn lesen
 - **Was war das Fehlerbild?** Der Fix #1848 (e2e-Wochen-Isolation) wurde ohne Eintrag in dieser Datei fertig gemeldet und gemergt (`c2a38a9a`); die Lektion kam erst in einem Folge-PR. Nach Regel 2 war der Fix-Commit damit nicht fertig, die Zeile «Lektionen:» fehlte in der Übergabe.
 - **Was war die technische Ursache?** `eng` las zu Beginn des Laufs 2026-11-28 02:10 `LEARNINGS.md` nicht. Die Lauf-Anweisung nennt die Datei nicht; die `CLAUDE.md`-Fassung im Sitzungskontext war eine ältere ohne den LEARNINGS-Absatz. Die einschlägige Lektion 2026-11-25 («Staging-Smoke-Pfade teilen eine Pflegekraft: der Tag muss für sie frei sein») beschreibt dasselbe Muster und hätte den Fehler beim Schreiben des Specs in #1838 verhindern können.
