@@ -1077,7 +1077,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
         </select>
       </label>
       {/* PLAN3-16 (ADR-161): information under "Verantwortlich"; the save is never refused or delayed for it. */}
-      <MemberOverlapNote id={`member-overlap-plan-${caseId}`} note={memberOverlap.note} answered={memberOverlap.answered} />
+      <MemberOverlapNote id={`member-overlap-plan-${caseId}`} note={memberOverlap.note} answered={memberOverlap.answered} kind={memberOverlap.kind} />
       <ErrorText message={error} />
       <div className="grid grid-cols-[2fr_1fr] gap-2">
         <button type="submit" disabled={pending}
@@ -1204,7 +1204,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
           {mode === "move" && <OverlapNote id={`overlap-move-${visit.visit_id}`} note={overlap.note} answered={overlap.answered} />}
           {/* PLAN3-16 (ADR-161): the responsible member at the new time; information, never a refusal. */}
           {mode === "move" && holder && (
-            <MemberOverlapNote id={`member-overlap-move-${visit.visit_id}`} note={memberOverlap.note} answered={memberOverlap.answered} />
+            <MemberOverlapNote id={`member-overlap-move-${visit.visit_id}`} note={memberOverlap.note} answered={memberOverlap.answered} kind={memberOverlap.kind} />
           )}
           <label className="grid gap-1 text-xs font-semibold">
             Grund

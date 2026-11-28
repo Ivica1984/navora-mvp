@@ -13,12 +13,13 @@
 --   §5 confirm: the line the proposer gives (…12) is applied; a line naming her in the pause still fails closed with
 --      `overlap` (plan3_confirm_overlaps unchanged, regression); her take stays live.
 --   §6 the busy time ends with the take: once the take is released, the 12:00 visit is proposed for her again.
+--   §8 UXR-302: public.member_slot_take_window tells a take window from another visit, yes/no only, same guards.
 --   §7 canonical source: the function keeps SECURITY DEFINER, the empty search_path, no execute for app roles, and
 --      calls member_take_window with the visit's own take.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(18);
+select plan(24);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -167,6 +168,35 @@ select is((select responsible_user_id from public.care_visits where id = pg_temp
           '§5 the 12:00 visit now has …12 as responsible person');
 select is((select count(*)::int from public.order_takes t where t.order_id = pg_temp.id('o1') and t.released_at is null), 1,
           '§5 her split take is still live');
+
+-- §8 UXR-302 read: the form can tell a take window from another visit (yes/no only) --------------------------------
+create function pg_temp.tw(p_user text, p_visit uuid, p_member text, p_from text, p_to text) returns boolean
+language plpgsql as $$
+declare r boolean;
+begin
+  perform pg_temp.act_as(p_user);
+  execute 'set local role authenticated';
+  select public.member_slot_take_window(case when p_visit is null then pg_temp.c() end, p_visit, p_member::uuid,
+                                        '2026-11-19', p_from::time, p_to::time) into r;
+  execute 'reset role';
+  perform pg_temp.as_owner();
+  return r;
+end $$;
+select is(pg_temp.tw(pg_temp.us('12'), null, pg_temp.us('11'), '12:00', '12:30'), true,
+          '§8 a colleague planning her at 12:00 reads «take window» (the save will be refused)');
+select is(pg_temp.tw(pg_temp.us('12'), null, pg_temp.us('11'), '20:30', '21:00'), false,
+          '§8 at 20:30 (after block 2) no take window');
+select is(pg_temp.tw(pg_temp.us('11'), null, pg_temp.us('12'), '12:00', '12:30'), false,
+          '§8 another visit of …12 at 12:00 is an overlap but no take window (information only, the save is allowed)');
+select is(pg_temp.tw(pg_temp.lead(), null, pg_temp.us('11'), '12:00', '12:30'), null::boolean,
+          '§8 someone outside the team (the home lead) gets no answer');
+select is(pg_temp.tw(pg_temp.us('12'), (select v.id from public.care_visits v join public.order_takes t on t.id = v.order_take_id
+                                         where t.order_id = pg_temp.id('o1') order by v.time_start limit 1),
+                     pg_temp.us('11'), '07:00', '11:30'), false,
+          '§8 moving a block visit of her take inside its own block: her take never blocks its own visit');
+select ok(not has_function_privilege('anon', 'public.member_slot_take_window(uuid, uuid, uuid, date, time, time)', 'execute')
+          and has_function_privilege('authenticated', 'public.member_slot_take_window(uuid, uuid, uuid, date, time, time)', 'execute'),
+          '§8 execute for authenticated only, not for anon');
 
 -- §6 The busy time ends with the take -----------------------------------------------------------------------------------
 update public.care_visits set responsible_user_id = null where id = pg_temp.v(1);

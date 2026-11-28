@@ -8,7 +8,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { parseOverlapFact, type OverlapFact } from "@/features/visits/overlap-rules";
-import { parseMemberOverlap, type MemberOverlapFact } from "@/features/visits/member-overlap-rules";
+import { combineMemberBusy, parseMemberOverlap, type MemberBusyFact } from "@/features/visits/member-overlap-rules";
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const overlapSchema = z
@@ -56,7 +56,7 @@ const memberOverlapSchema = z
   })
   .refine((d) => d.caseId !== null || d.visitId !== null);
 
-export async function getMemberOverlapFact(input: unknown): Promise<MemberOverlapFact> {
+export async function getMemberOverlapFact(input: unknown): Promise<MemberBusyFact> {
   const parsed = memberOverlapSchema.safeParse(input);
   // No member chosen, or an incomplete slot: no answer, no request.
   if (!parsed.success || parsed.data.end <= parsed.data.start) return null;
@@ -75,5 +75,21 @@ export async function getMemberOverlapFact(input: unknown): Promise<MemberOverla
     logEvent("warn", "query.failed", { op: "member_slot_overlap", ...errorFields(error) });
     return null;
   }
-  return parseMemberOverlap(data);
+  const overlap = parseMemberOverlap(data);
+  if (overlap !== true) return overlap;
+  // HD-3s-F2-F1-F1 (UXR-302, migration 0192): is the busy answer her live take window (the save will be refused)?
+  // A failed read keeps the information sentence; the server still refuses the save (fail closed there, not here).
+  const take = await supabase.rpc("member_slot_take_window", {
+    p_case_id: d.caseId as string,
+    p_visit_id: d.visitId as string,
+    p_member_id: d.memberId,
+    p_visit_date: d.date,
+    p_time_start: d.start,
+    p_time_end: d.end,
+  });
+  if (take.error) {
+    logEvent("warn", "query.failed", { op: "member_slot_take_window", ...errorFields(take.error) });
+    return overlap;
+  }
+  return combineMemberBusy(overlap, take.data);
 }
