@@ -2,8 +2,8 @@
 id: HD-3a-F3
 title: Monatssoll je Person und Planungsperiode (Founder-Option A), feste Regeln
 author: po
-status: approved   # PO 2026-11-27 15:39, FE-137 (2) «vertragsbereit, nicht aktiv»; Founder-Wahl Option A (FE-135); offene Punkte mit sicherem Standard, Founder kann ändern; Bau erst nach der HD-3a-F1-Abnahme
-updated: 2026-11-27
+status: approved   # PO 2026-11-27 15:39, FE-137 (2) «vertragsbereit, nicht aktiv»; Founder-Wahl Option A (FE-135); offene Punkte mit sicherem Standard, Founder kann ändern; Bau erst nach der HD-3a-F1-Abnahme; **aktiv seit 2026-11-28 04:39** (HD-3a-F1 abgenommen)
+updated: 2026-11-28
 ---
 
 # HD-3a-F3 — Monatssoll je Person und Planungsperiode

@@ -2,8 +2,8 @@
 id: HD-3a-F1
 title: «übernehmen» prüft Pensum und Wochensoll in der Datenbank (fail closed), Eingaben unter Zeilensperre
 author: po
-status: approved   # PO 2026-11-27 15:39, FE-137 (2) «vertragsbereit, nicht aktiv»; Inhalt aus Issue #1745 (FE-129) und Brief HD §5b; keine neue Regel des PO
-updated: 2026-11-27
+status: accepted   # PO 2026-11-28 04:39 für die Simulation auf c2a38a9a (ABNAHMEAKTE §2); zuvor approved 2026-11-27 15:39, FE-137 (2)
+updated: 2026-11-28
 ---
 
 # HD-3a-F1 — Pensum und Wochensoll beim «übernehmen» in der Datenbank geprüft
@@ -68,3 +68,22 @@ Monatssoll (HD-3a-F3); neuer Löser (HD-3b-0); CGR-290 (HD-3s-F2-F2); Lesart des
 ## Vision check (FE-070 (7), kurz)
 
 Patientensicherheit: keine stille Planänderung ohne Prüfung (FE-136 (2)). Weniger Nacharbeit der Heimleitung. Keine Disposition, keine neue Hierarchie, kein Geldfluss, keine KI.
+
+## PO acceptance (2026-11-28 04:39, geplanter PO-Lauf, Signal FE-105 (1) (d))
+
+**Status: accepted** für die Simulation auf `c2a38a9a` (Gate «Simulation, synthetische Daten»; `ABNAHMEAKTE.md` §2). Der PO hat die Tests nicht lokal ausgeführt; alle Werte aus Rohdaten der Jobs über die GitHub-API und aus den `eng`-Berichten.
+
+| Kriterium | Ergebnis | Nachweis |
+|---|---|---|
+| pgTAP Person ohne Pensum → nur diese Zeile abgelehnt | erfüllt | pgTAP 185 (`eng` 7230256465: «Pensum geleert → nur diese Zeile»; Ablehnung je Zeile `pensum_missing`); `db` ×10 «Result: PASS» in `ci-repeat` 46101633614 |
+| pgTAP Wochensoll leer → ganzer Aufruf abgelehnt | erfüllt | pgTAP 185 («Wochensoll geleert → ganzer Aufruf ohne Lauf und Audit», `weekly_target_missing`) |
+| Probe #1794 rot vorher, grün nachher | erfüllt | Probe #1794 (`363e50dd`) rot auf altem Stand; pgTAP 185 grün auf `c2a38a9a` |
+| pgTAP je behaltener Wächter, Katalogwächter 157 | erfüllt | pgTAP 185, 186 (Signaturen, Wächterfolge, LEAVE1-3, anon, fremdes Heim), 157 neu erzeugt; `fn-source check` |
+| R-6-2 (b) zwei Sitzungen → serielles Ergebnis | erfüllt (Nachweisform abweichend, angenommen) | `home-plan-assign.sh` J im `db`-Job «ok \|changed_meanwhile \|50\|1» (zwei echte Sitzungen; pgTAP kann keine zweite Sitzung öffnen); Ein-Sitzungs-Logik pgTAP 186; `cra`/`uxa` clear |
+| Regression (vollständiger Entwurf, Ruhezeit, Tage in Folge, Schichtmodell, Abwesenheit, Doppelbuchung, geteilter Dienst) | erfüllt | pgTAP 171–182 und e2e `hd3a-planning-inputs`, `hd3s-split-shift` in den grünen Läufen; `db` ×10 «Files=183, Tests=7546», `e2e` ×10 «238 passed» |
+| e2e 390/1440 px positiv, T-2 negativ, T-1 | erfüllt | `hd3a-f1-apply-checks.spec.ts` 4/4 (`eng` 7230256465), nach #1848 mit eigenen Wochen; `e2e` ×10 «238 passed», kein «skipped»/«failed»/«flaky» |
+| `staging-smoke` Pfade 1–9 grün | erfüllt | `staging-smoke` 46099304527 Job 140837979482 «10 passed» auf `c2a38a9a`, Render liefert `c2a38a9a` vor und nach den Pfaden |
+| `ci` grün; `staging`-Job; `ci-repeat` 10/10 im Fenster | erfüllt | `ci` 46099304543 auf `c2a38a9a` 5/5 `success`; `staging` 140840898506 «Remote database is up to date», `staging-version` 140837871092 «up to 20261021000188», «app and database match»; Migrationen 0186–0188 durch Job 140809664169; `ci-repeat` 46101633614 22/22, Fenster 04:11–04:24 |
+| Gates `cra`, `uxa` | clear | 7230360397, 7230373232 auf `4a210609` |
+
+Bekannte Grenzen (keine Bedingung): Ablehnungsfall kein Staging-Klickpfad; Handeinteilung ohne Pensum → HD-PEN-HAND; Bereitstellungsfenster fail closed; e2e-Wochenregister (`eng`).
