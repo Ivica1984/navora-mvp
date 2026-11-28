@@ -874,6 +874,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control status:** AUT-241 IMPLEMENTED in `bf9185c0` (one database reading of R-h on «übernehmen»); ADR-231 keeps the monthly target inside the same rule source with a planner parity test, so the precondition before HD-3b-0 and any ranking engine (Engine 2) holds in the draft. AUT-243 (medium): a confirm that appears on every hand assignment is a click-through risk; fix in place. AUT-244 (medium): no weekly maximum bounds a week under a monthly target; optional home value, no number from `aia`. AUT-245 (low): spread reported at home level, no per-person list.
 - **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
 
+**HD-3a-F3 merged, HD-3a-F1 accepted, ADR-232 draft HD-PEN-HAND (`aia` 2026-11-28 08:19, review 103, AUT-246, AUT-247):**
+- **Label check:** HD-3a-F3 (merged `bf64e753`, not accepted), HD-3a-F1 (accepted for the simulation on `c2a38a9a`) and the ADR-232 draft (HD-PEN-HAND) are fixed rules and arithmetic («Keine KI»). No model, no proposed AI value.
+- **Control status:** the one-rule-source property (AUT-241, closed with the HD-3a-F1 acceptance) now holds for R-m as well: planner and confirmer read one database reading, so the precondition before HD-3b-0 and any ranking engine (Engine 2) stands. AUT-246 (medium): one audited «aus Vormonat übernehmen» for the whole home and «an Leitung melden» for the planner. AUT-247 (medium): the fail-open backlog of HD-PEN-HAND shown as one count line with the fix, not as a click-through. AUT-245 closed; AUT-240 implemented.
+- **Catalogue:** unchanged. No agent added. Stage 1 synthetic only; stage 0 real data.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -978,3 +983,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-27 14:18 | `aia` | §12: block «STG-SMOKE-3 accepted, draft #1825 HD-3s-F2-F1»: label check (fixed rules); AUT-235, AUT-236 (PROPOSED, medium), AUT-237, AUT-238 (PROPOSED, low); AUT-231 split, AUT-233 reflected on the branch. No agent added or removed |
 | 2026-11-27 20:18 | `aia` | §12: block «FE-137, HD-3a-F1, HD-3a-F3»: label check (fixed rules and arithmetic, «Keine KI»); AUT-239, AUT-240, AUT-241 (PROPOSED, medium), AUT-242 (PROPOSED, low); AUT-237 closed (STG-P10); stage note: AI1-F1 placed before the first model package, BK-d deferred. No agent added or removed |
 | 2026-11-28 02:18 | `aia` | §12: block «HD-3a-F1 merged, ENG-PH1, ADR-231 draft HD-3a-F3»: label check (fixed rules and arithmetic, «Keine KI»); AUT-243, AUT-244 (PROPOSED, medium), AUT-245 (PROPOSED, low); AUT-241 implemented in `bf9185c0`. No agent added or removed |
+| 2026-11-28 08:19 | `aia` | §12: block «HD-3a-F3 merged, HD-3a-F1 accepted, ADR-232 draft HD-PEN-HAND»: label check (fixed rules and arithmetic, «Keine KI»); AUT-246, AUT-247 (PROPOSED, medium); AUT-241, AUT-245 closed; AUT-240 implemented in `bf64e753`. No agent added or removed |
