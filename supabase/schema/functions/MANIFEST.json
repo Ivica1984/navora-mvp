@@ -917,6 +917,17 @@
       ]
     },
     {
+      "name": "private.plan3_lines",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "not_active",
+        "needs_rn",
+        "absent",
+        "plan3_other_team_busy"
+      ]
+    },
+    {
       "name": "private.plan3_confirm_overlaps",
       "required": [
         "SECURITY DEFINER",
