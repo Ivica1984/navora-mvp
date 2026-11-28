@@ -16,6 +16,55 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-28 18:43 CET: gate on **#1885** HD-PEN-HAND-F1 «Stunden nicht prüfbar» sagt Bereich, Ursache und Folge (Block HEIM-DP), head `37d43908`; PO gate start (FE-089 (2), FE-091), window [7243204134](https://github.com/Ivica1984/navora-mvp/pull/1885#issuecomment-7243204134) (due 21:39). **`cra-gate: #1885 37d43908 clear`** (gate «Simulation, synthetic data»; display and navigation of an existing fixed completeness check, no model; not a clinical release, D-27). Wording UXR-315 and UXR-317 confirmed for the simulation. One new advisory finding (CGR-293) to a named follow-up; not a merge condition (FE-089 (3)). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `948bc380`. Since my 14:50 section: #1872 merged (`9d5d90fa`) and HD-3s-F2-F1-F1 accepted for the simulation (`ABNAHMEAKTE.md` §2; CGR-291 closed); HD-PEN-HAND-F1 active since 16:39; #1886 (delivery-flow proposals, docs) merged. Blueprint 3.2.111/3.2.112 are status lines only; Annex B §1 (20 guarantees), the qualification matrix and Handbook V2.2 unchanged; no new founder decision.
+- #1885 head `37d43908` (9 files; code in `7b60370f`, the four later commits are docs only): `src/app/(protected)/heim/page.tsx`, `src/features/home-plan/rules.ts`, unit `hd-pen-hand-f1.test.ts` (14 tests) and `hd-pen-hand.test.ts`, e2e `hd-pen-hand-f1.spec.ts`. Also read: canonical `private.institution_rule_breaches.sql` (unchanged), `src/features/home-plan/commands.ts` (`run`, `assignStaff`, the three save codes).
+- CI on the head, read by me through the check-runs API: `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run), `codeql` all `completed success`. `db` log 141050442720: «188_hd_pen_hand_hours_unknown.test.sql … ok», 157 ok, «Files=186, Tests=7717», «Result: PASS», 0 «# SKIP». `e2e` log 141050442359: «246 passed», no failed or flaky line; `hd-pen-hand-f1.spec.ts` 390 and 1440 px ✓, `hd-pen-hand.spec.ts` 390 and 1440 px ✓. `app` log 141050442586: `hd-pen-hand-f1.test.ts` 14 tests ✓.
+
+### Checked
+
+- **No rule changed:** no migration; `institution_rule_breaches` untouched. The app mirror `hoursUnknownNext` matches the database branch exactly (monthly target for the month → no `hours_unknown`; else Pensum and Wochensoll → R-h; else `hours_unknown`). The count line now takes its step from that same mirror and falls back to the person when the mirror finds no gap, so it never offers nothing (unit «fallback»).
+- **Nothing is confirmed after a return (the safety point of UXR-318):** the «Jetzt einteilen» form of the returned box sends institution, station, shift, date, staff and back, **no `confirm`**; `assignStaff` passes `p_confirm_rules` only when `confirm` is non-empty, so the database reads every rule again under its locks: gap closed → «Eingeteilt.» without override (e2e line 132–134); still open or a new rule → a fresh `rule_warning` (not a return code), which offers «Trotzdem einteilen» with the **fresh** rule list (unit «a fresh database warning keeps it, but is not a return»). A rule list from an older URL is never confirmed after the facts changed.
+- **The return state only follows a successful save:** `run` sets the done code (`staff_planning_saved`, `monthly_target_saved`, `limits_saved`) only on `result = ok`; a failure, rejection or problem code drops `warnung` (unit «negative»).
+- **Roles:** the planner gets no settings link for the Wochensoll, only the sentence that the lead enters it (unit «planner (permission)»); the lead link targets `#heim-limits`.
+- **Working-time label:** «Arbeitszeitgesetz nicht abschliessend geprüft» now shows only for `rest` and `consecutive`, the two rules it is about; it is not dropped where those rules apply (unit `showsWorkingTimeNote`; e2e `heim-rule-worktime` count 0 for `hours_unknown` only). No legal status changed.
+
+### Answers to `eng`'s gate questions
+
+- **(1) UXR-315 «… ohne Stundenprüfung in dieser Woche» / «… im <Monat Jahr>»: confirmed for the simulation.** Both are true: the plan answer holds exactly the shown range (`rangeFor`: Monday–Sunday of the shown week, first to last day of the shown month), and the line is never a home total. The month form names its month; the week form says «dieser Woche» also when the shown week is not the current calendar week. Not a safety defect (the line sits on the week it counts); naming the week like the month («in KW 49») is the follow-up CGR-293 (a).
+- **(2) UXR-317 label «Stunden nicht prüfbar» + reason «Für <Monat> ist kein Monatssoll und kein Pensum eingetragen.»: the gap is stated once, and correctly.** The label names the rule only (no value, unit: no «Pensum|Monatssoll|Wochensoll|eingetragen»); the reason names the missing values once and matches the database branch for all three shapes («kein Pensum», «kein Wochensoll des Heims», both); the stored-shift mark has one colon («Regel: Stunden nicht prüfbar»). Monthly target for the **month of the shift** is named, which is the month the database reads.
+- **(3) «Wert gespeichert. Beim Einteilen prüft NAVORA alle Regeln neu.»: true for every return case, and it never claims the gap is closed.** It appears only with one of the three done codes, which `run` gives only after `result = ok`; so a value was saved in every case where it shows (also when the saved value does not close the gap, e.g. another field or a different month). The second sentence is exactly what «Jetzt einteilen» does (no `confirm`, see above). The box also keeps «Noch nicht eingeteilt.» as its first line. One edge outside the return state: a **failed** save or «Monatssoll entfernen» (`monthly_target_removed`) drops the pending assignment without a sentence, although the box said «Nach dem Speichern bleibt dieser Dienst hier offen». Nothing is assigned and nothing is confirmed (fail safe), so it is not a merge condition: CGR-293 (b).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-293** | #1885 count line and return path (UXR-315, UXR-318) | **advisory**; S3 (during the pilot); follow-up named by `po` (proposal: with HD-3s-F2-F1-F2, `uxa` wording); not a merge condition (FE-089 (3)) | (a) The week form «in dieser Woche» does not name the week, while the month form names its month; in a future or past week it can be read as the current calendar week. (b) After a link from the warning box, a failed save or «Monatssoll entfernen» drops the pending hand assignment without a sentence, while the box promised «Nach dem Speichern bleibt dieser Dienst hier offen». Fail safe in both cases: nothing is saved or confirmed; the cost is a lead who looks for the open assignment. | `rules.ts` `hoursUnknownCountText`, `WARNING_RETURN_CODES`, `keepsWarning`; `commands.ts` `run` (done code only on `ok`; `monthly_target_removed`); `page.tsx` `heim-rule-next-return` | (a) Week named («in KW n» or the date range; wording `uxa`); unit for a week other than the current one. (b) Either keep `warnung` on those codes with a sentence that the shift is still not assigned, or a sentence on the error message that the assignment must be started again; unit per code. |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1885 HD-PEN-HAND-F1 | `37d43908` | **`cra-gate: #1885 37d43908 clear`**, gate «Simulation, synthetic data». Checked: no rule change, mirror equals the database branch; the return box never confirms, the database re-checks every rule; return state only after a successful save; planner without the settings link; working-time label kept for rest and days in a row; CI all `success` (logs read). Wording UXR-315 and UXR-317 confirmed. Not a clinical release (D-27). |
+
+### Findings closed with evidence
+
+- None in this section. (CGR-291 closed with the acceptance of HD-3s-F2-F1-F1 on `9d5d90fa`.)
+
+### Still open (unchanged)
+
+- HD-3a-F3-F1 (hard weekly maximum or `lca` sign-off, S2 before real staff), HD-3a-F3-F2 (advisory); CGR-290 (`HD-3s-F2-F2`), CGR-287 (night window, `lca`/Clinical Owner); CGR-292 (named: HD-3s-F2-F1-F2); rest-time rule in the order path UNKNOWN (CGR-221); new CGR-293 (advisory). Whether a shift may be stored with no hours check at all for real staff stays with `lca`/owner (CR-263).
+
+### Decisions requested
+
+- **po:** name the follow-up for CGR-293 (wording and return path; `uxa`).
+- None for a clinical, legal or owner role in this section.
+
+---
+
 ## 2026-11-28 14:50 CET: gate on **#1872** HD-3s-F2-F1-F1 «Tagesplan-Vorschlag sieht die Pause einer geteilten Übernahme als belegt» (Block HEIM-DP), head `dd6abad9`; PO gate start (FE-089 (2), FE-091), window [7240109525](https://github.com/Ivica1984/navora-mvp/pull/1872#issuecomment-7240109525) (due 17:39). **`cra-gate: #1872 dd6abad9 clear`** (gate «Simulation, synthetic data»; fixed rule, no model; not a clinical release, D-27). **CGR-291 met on the PR; closes on merge.** One new advisory finding (CGR-292, wording) to a named follow-up; not a merge condition (FE-089 (3)). No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
