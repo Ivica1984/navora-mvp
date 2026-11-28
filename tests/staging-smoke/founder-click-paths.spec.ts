@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { minutesBack, zurichDay } from "../e2e/support/durchgang-time";
 import { TAKE_HEADING } from "@/features/field/heading";
 import { INVOICE_LABEL, SEND_BUTTON } from "@/features/invoices/rules";
-import { addDays, dayLabel, weekStart } from "@/features/home-plan/rules";
+import { addDays, dayLabel, monthStart, weekStart } from "@/features/home-plan/rules";
 import { assertBelowRowCap, busyFromOrderLines, freeDayOffset, orderDaysFromLines, PATH5_MAX_WEEKS, path5GapDay, smokeAccounts, smokeDayOffsets, smokePath3Slot, type Role } from "./target";
 
 // ADR-205 — staging smoke (founder decision 2026-11-18 ca. 23:00, «Variante b»). The founder's two click paths of
@@ -683,4 +683,43 @@ test("path 9: the home orders a split gap as one order, the nurse takes it, /fie
   await signIn(page, "kunde");
   await page.goto(`/heim?ansicht=woche&datum=${day}`);
   await expect(cellOf().getByTestId("heim-cell-order")).toHaveAttribute("data-code", "G");
+});
+
+// HD-3a-F3 path 11 (brief docs/agents/briefs/HD-3a-F3.md, migration 0189; FE-099 (2)): the home lead enters a monthly
+// target for one synthetic person of Testheim Rhein, reads Soll · geplant · Rest from the database, then removes it again
+// with the explicit choice «kein Monatssoll». A month about 13 months ahead (no other path plans there); a run that failed
+// before its clean-up left a target behind: the path removes it first. Nothing else is written.
+test("path 11: the home enters a monthly target for a person, reads Soll, geplant and Rest, then removes it (390 px)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  const month = monthStart(zurichDay(Date.now(), 400));
+  await signIn(page, "kunde");
+  await page.goto("/heim");
+  await expect(page.getByRole("heading", { name: "Dienstplanung" })).toBeVisible();
+  if (await page.getByTestId("heim-empty").isVisible()) {
+    await page.getByTestId("heim-load-example").click();
+    await expect(page.getByTestId("heim-message")).toHaveText("Beispieldaten geladen (synthetisch).");
+  }
+  await page.goto(`/heim?ansicht=personal&datum=${month}`);
+  await page.getByTestId("heim-staff-link").first().click();
+  const box = page.getByTestId("heim-person-month-target-box");
+  await expect(box.getByTestId("heim-month-target-form"), "path 11 needs the home lead account (lead only)").toBeVisible();
+  const remove = async () => {
+    await box.getByTestId("heim-month-target-input").fill("");
+    await box.getByTestId("heim-month-target-none-choice").check();
+    await submitAndWait(page, box.getByTestId("heim-month-target-save"));
+    await expect(page.getByTestId("heim-message")).toHaveText(
+      "Monatssoll entfernt. Für diesen Monat gilt wieder das Wochenbudget (Pensum × Wochensoll).");
+  };
+  if (await box.getByTestId("heim-month-target-numbers").isVisible()) await remove();
+  await expect(box.getByTestId("heim-month-target-none")).toContainText("kein Monatssoll: Wochenbudget gilt");
+
+  await box.getByTestId("heim-month-target-value").check();
+  await box.getByTestId("heim-month-target-input").fill("40");
+  await submitAndWait(page, box.getByTestId("heim-month-target-save"));
+  await expect(page.getByTestId("heim-message")).toHaveText("Monatssoll gespeichert. Für diesen Monat gilt es statt des Wochenbudgets.");
+  await expect(box.getByTestId("heim-month-target-numbers")).toHaveText(/^Soll 40 h · geplant \d+(,\d{1,2})? h · Rest -?\d+(,\d{1,2})? h$/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+  await remove();
+  await expect(box.getByTestId("heim-month-target-none")).toContainText("kein Monatssoll: Wochenbudget gilt");
 });

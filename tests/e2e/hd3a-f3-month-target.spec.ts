@@ -97,6 +97,9 @@ for (const width of [390, 1440] as const) {
     expect(psql(`select target_minutes from public.institution_monthly_targets where staff_id = '${id}' and period_month = '${month}'`)).toBe("2400");
     await expect(page.getByTestId("heim-person-month-target-box").getByTestId("heim-month-target-numbers"))
       .toHaveText("Soll 40 h · geplant 0 h · Rest 40 h");
+    // Founder requirement 2: 40 h deviates from Pensum × Wochensoll (no threshold set): a visible warning, value kept.
+    await expect(page.getByTestId("heim-person-month-target-box").getByTestId("heim-month-target-deviates"))
+      .toContainText("Das eingetragene Monatssoll gilt; nichts wurde geändert.");
     await noSideScroll(page);
 
     // The month proposal keeps the target; «übernehmen» saves; the panel reads the result back.
