@@ -502,6 +502,10 @@ const PROBLEM_TEXT: Record<string, string> = {
   duplicate_row: "Der Vorschlag enthielt einen Dienst doppelt. Es wurde nichts übernommen. Bitte neu vorschlagen.",
   period_too_long: "Ein Vorschlag umfasst höchstens einen Monat. Es wurde nichts übernommen.",
   apply_id_used: "Dieser Vorschlag gehört zu einem anderen Heim. Es wurde nichts übernommen. Bitte neu vorschlagen.",
+  // HD-3a-F1 R-6-1 (migration 0186): without the home's weekly target the database cannot check the weekly hours (R-h).
+  weekly_target_missing:
+    "Nicht übernommen: Für dieses Heim ist kein Wochensoll eingetragen; ohne Wochensoll lässt sich die Stundengrenze nicht prüfen. "
+    + "Bitte unter «Planungsgrenzen» das Wochensoll eintragen und neu vorschlagen. Es wurde nichts übernommen.",
   rule_warning: "Nicht eingeteilt: Diese Einteilung verletzt eine Planungsregel. Bitte unten prüfen und bestätigen oder abbrechen.",
   name_exists: "Diesen Namen gibt es schon.",
   not_simulation: "Beispieldaten gibt es nur im Simulationskonto.",
@@ -560,6 +564,8 @@ const PROBLEM_TEXT: Record<string, string> = {
   work_days_not_whole: "Arbeitstage pro Woche: bitte eine ganze Zahl eingeben (1 bis 7). Nichts wurde gespeichert.",
   work_days_per_week_not_valid: "Arbeitstage pro Woche: 1 bis 7. Nichts wurde gespeichert.",
   changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
+  // HD-3a-F1 R-6-2 (b): the form sent no readable shown values (an old or altered form); nothing was saved.
+  expected_not_valid: "Das Formular war nicht mehr aktuell. Nichts wurde gespeichert. Bitte die Seite neu laden und noch einmal speichern.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
@@ -641,6 +647,52 @@ export function withDraftCounts(path: string, applied: number, refused: number):
   url.searchParams.set("abgelehnt", String(Math.max(0, Math.trunc(refused))));
   return `${url.pathname}${url.search}`;
 }
+/**
+ * HD-3a-F1 R-7-2: after a partial take-over the URL carries only the apply id (`lauf`), never a name; the page reads the
+ * refused rows back from the run record (`institution_draft_run_refusals`, T-1).
+ */
+export function withApplyRun(path: string, applyId: string): string {
+  const url = new URL(path, "http://x");
+  if (UUID_RE.test(applyId)) url.searchParams.set("lauf", applyId);
+  return `${url.pathname}${url.search}`;
+}
+/**
+ * HD-3a-F1 R-7-2 (review 7228232661, 5): the answers whose refused rows the page reads back. A double click or a retry
+ * shows the answer of the second call (`draft_already_applied`), which still carries the refused rows of the first.
+ */
+export const APPLY_RUN_CODES: ReadonlyArray<string> = ["draft_applied_partly", "draft_already_applied"];
+export function carriesApplyRun(code: string | undefined, refused: number): boolean {
+  return code === "draft_applied_partly" || (code === "draft_already_applied" && refused > 0);
+}
+export function parseApplyRun(v: string | undefined): string | null {
+  return typeof v === "string" && UUID_RE.test(v) ? v : null;
+}
+
+/** One refused row of a take-over as `institution_draft_run_refusals` returns it. */
+export type RunRefusal = { staff_id: string; date: string; shift_type_id: string; reason: string };
+
+/**
+ * HD-3a-F1 R-7-2: the persons whose rows «übernehmen» refused for a missing Pensum (`pensum_missing`), each with the
+ * number of her refused shifts, in name order. A person no longer in the plan's staff list is named «Eine Person» (the
+ * screen never shows an id).
+ */
+export function pensumMissingPersons(
+  refused: ReadonlyArray<RunRefusal>, staff: ReadonlyArray<{ id: string; display_name: string }>,
+): Array<{ id: string; name: string; shifts: number }> {
+  const count = new Map<string, number>();
+  for (const r of refused) if (r.reason === "pensum_missing") count.set(r.staff_id, (count.get(r.staff_id) ?? 0) + 1);
+  const name = new Map(staff.map((s) => [s.id, s.display_name]));
+  return [...count.entries()]
+    .map(([id, shifts]) => ({ id, name: name.get(id) ?? "Eine Person", shifts }))
+    .sort((a, b) => a.name.localeCompare(b.name, "de-CH") || a.id.localeCompare(b.id));
+}
+
+/** HD-3a-F1 R-7-2: the line per person, with the next action. */
+export function pensumMissingText(p: { name: string; shifts: number }): string {
+  return `${p.name}: ${p.shifts} ${p.shifts === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil kein Pensum eingetragen ist. `
+    + "Bitte bei der Person das Pensum eintragen und neu vorschlagen.";
+}
+
 /** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */
 export function withAffected(path: string, affected: number): string {
   const url = new URL(path, "http://x");

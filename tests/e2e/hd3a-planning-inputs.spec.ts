@@ -6,7 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 // - home limits (lead): a wrong value is refused with a visible text and nothing is written (T-2); a saved value is
 //   shown as the database holds it (T-1, read back from `institution_plan`, checked against the table); «nicht
 //   eingetragen» makes the draft say «Kein Vorschlag» with a link to exactly these fields; a value changed by somebody
-//   else in between is not overwritten (R-6-2 option (a));
+//   else in between is not overwritten (R-6-2 (b), HD-3a-F1 migration 0188: compared in the database under the row lock);
 // - shift class (lead): the answer names the count the database returned;
 // - Pensum and shift model (lead, planner): «nicht eingetragen» takes the person out of the draft and the draft names
 //   her with a link to her field;
@@ -137,7 +137,8 @@ test("HD-3a FE-128: the lead enters the home limits; a wrong value is refused, �
   expect(limits()).toBe("12|5|42.5");
   await expect(page.getByTestId("heim-limits-now")).toHaveText("Jetzt: Ruhezeit 12 h · Arbeitstage in Folge 5 · Wochensoll 42,5 h");
 
-  // R-6-2: somebody else changes the rest time after this page was shown; the form does not overwrite it.
+  // R-6-2 (b): somebody else changes the rest time after this page was shown; the database compares the shown values
+  // under its row lock and writes nothing (the app no longer reads the plan again before the write).
   psql(`update public.institutions set min_rest_hours = 13 where id = '${INST}'`);
   await f.getByTestId("heim-limits-rest").fill("11");
   await f.getByTestId("heim-limits-save").click();

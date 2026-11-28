@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { zurichToday } from "@/features/orders/queries";
-import { getDraftPlan, getMyInstitutions, newApplyId, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
+import { getDraftPlan, getDraftRunRefusals, getMyInstitutions, newApplyId, getOrderChoices, getPlan, previewGapOrder } from "@/features/home-plan/queries";
 import { DRAFT_MARK, WORKING_TIME_LAW_MARK, gapReasonText, unmetWishReasonText } from "@/features/home-plan/draft";
 import { draftInputFromPlan, draftPeriodRange, rowsFormValue, sortGaps, sortRows, timedDraft, type DraftPeriod } from "@/features/home-plan/draft-screen";
 import {
@@ -14,9 +14,9 @@ import {
 } from "@/features/home-plan/planning-inputs";
 import { SHIFT_MODELS, shiftMinutes } from "@/features/home-plan/draft";
 import {
-  ABSENCE_KINDS, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
+  ABSENCE_KINDS, APPLY_RUN_CODES, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  monthCode, monthLabel, monthPeople, parseCount, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
+  monthCode, monthLabel, monthPeople, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
   type PendingWarning,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
@@ -54,6 +54,10 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
   const view: PlanView = (asked === "einstellungen" && !canSettle(inst.role)) || (asked === "vorschlag" && !canPlan(inst.role)) ? "woche" : asked;
   const { from, to } = rangeFor(view, date);
   const plan = await getPlan(inst.id, from, to);
+  // HD-3a-F1 R-7-2: after a partial take-over (or its retry), the persons refused for a missing Pensum, read back from the run record.
+  const run = APPLY_RUN_CODES.includes(one(sp.meldung) ?? "") ? parseApplyRun(one(sp.lauf)) : null;
+  const refusals = run && canPlan(inst.role) ? await getDraftRunRefusals(inst.id, run) : null;
+  const noPensumRefused = refusals && plan ? pensumMissingPersons(refusals, plan.staff) : [];
   const href = (q: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
     const merged = { ansicht: view, datum: date, person, ...(view === "vorschlag" ? { bereich: period } : {}), ...q };
@@ -97,6 +101,21 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
         >
           {message.text}
         </p>
+      )}
+      {noPensumRefused.length > 0 && (
+        <ul role="alert" className="grid gap-1 rounded-lg border border-amber-400 bg-amber-50 p-2 text-sm text-amber-950" data-testid="heim-apply-no-pensum">
+          {noPensumRefused.map((p) => (
+            <li key={p.id} data-testid="heim-apply-no-pensum-line">
+              {pensumMissingText(p)}{" "}
+              {p.name !== "Eine Person" && (
+                <Link href={`${href({ ansicht: "personal", bereich: undefined, person: p.id })}#heim-staff-planning`}
+                  className="inline-grid min-h-11 place-items-center font-semibold underline">
+                  Pensum von {p.name} eintragen
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
       )}
 
       {plan && pending && canPlan(plan.institution.role) && <RuleWarning plan={plan} pending={pending} back={back} />}

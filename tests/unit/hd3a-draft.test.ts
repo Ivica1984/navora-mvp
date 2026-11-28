@@ -162,6 +162,20 @@ describe("HD-3a draft: marks and fail closed", () => {
     expect(fullTimeMinutes(Number.NaN)).toBeNull();
   });
 
+  it("HD-3a-F1 parity (AUT-241): a fresh draft holds no row «übernehmen» refuses for Pensum or Wochensoll", () => {
+    // The database refuses a row `pensum_missing` (person without Pensum) and the whole call `weekly_target_missing`
+    // (migration 0186). The draft reads the same two inputs: on unchanged inputs a fresh proposal has 0 such refusals.
+    const staff = [person("a", HF), person("b", FAGE, { pensum_pct: null }), person("c", AGS), person("d", HF, { pensum_pct: null })];
+    const r = buildDraft(input({ from: "2026-12-01", to: "2026-12-28", stations: ["st0", "st1"], staff }));
+    expect(r.result).toBe("ok");
+    if (r.result !== "ok") return;
+    expect(r.rows.length).toBeGreaterThan(0);
+    const noPensum = new Set(staff.filter((s) => s.pensum_pct === null).map((s) => s.id));
+    expect(r.rows.filter((row) => noPensum.has(row.staff_id))).toEqual([]);
+    expect(buildDraft(input({ from: "2026-12-01", to: "2026-12-07", stations: ["st0"], staff, limits: { fullTimeMinutesPerWeek: null } })))
+      .toEqual({ result: "pensum_reference_missing" });
+  });
+
   it("refuses to draft without the full-time reference (Q1)", () => {
     const i = input({ from: "2026-12-01", to: "2026-12-07", stations: ["st0"], staff: [person("a", HF)], limits: { fullTimeMinutesPerWeek: null } });
     expect(buildDraft(i)).toEqual({ result: "pensum_reference_missing" });

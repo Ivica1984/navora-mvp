@@ -8,12 +8,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { zurichToday } from "@/features/orders/queries";
 import { applyOutcome } from "./draft-screen";
-import { parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm, sameAsShown } from "./planning-inputs";
+import { expectedLimits, expectedShiftClass, expectedStaffPlanning, parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm } from "./planning-inputs";
 import { validateSplitShift } from "./split";
-import { getPlan } from "./queries";
-import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, withAffected, withDraftCounts, withMessage, withWarning } from "./rules";
+import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, carriesApplyRun, withAffected, withApplyRun, withDraftCounts, withMessage, withWarning } from "./rules";
 
 const uuid = z.uuid();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -354,35 +352,28 @@ export async function applyDraft(form: FormData) {
     const o = applyOutcome(data);
     logEvent("info", "draft.applied", { op: "institution_apply_draft", code: o.code, count: o.applied });
     target = withDraftCounts(withMessage(back, o.code), o.applied, o.refused);
+    // HD-3a-F1 R-7-2: only the apply id goes into the URL; the page reads the refused rows back (never a name here).
+    if (carriesApplyRun(o.code, o.refused)) target = withApplyRun(target, v.apply);
   }
   revalidatePath(HOME_PLAN_PATH);
   redirect(target);
 }
 
 // HD-3a FE-128 (brief HD.md §5b, PO amendment 2026-11-25 10:39): the planning inputs of the home, through the existing
-// commands. Each form carries the values it showed (`was_*`, R-6-2 option (a)); a fresh `institution_plan` read must
-// still hold them, else nothing is written and the page shows the current values. The commands check the role
-// (limits and class: lead only; Pensum and model: lead and planner), LEAVE1-3 and the ranges, and audit old and new.
-async function currentPlan(institution: string) {
-  const today = zurichToday();
-  return getPlan(institution, today, today);
-}
-
+// commands. Each form carries the values it showed (`was_*`); HD-3a-F1 R-6-2 (b) (migration 0188): they go to the
+// database as `p_expected` and are compared under the row lock of the write, so a value somebody changed in between is
+// never overwritten silently (`changed_meanwhile`). The commands check the role (limits and class: lead only; Pensum and
+// model: lead and planner), LEAVE1-3 and the ranges, and audit old and new.
 export async function setPlanningLimits(form: FormData) {
   const back = safeReturnPath(form.get("back"));
   const institution = parse(uuid, str(form, "institution"), back);
   const read = readLimitsForm(form);
   if (!read.ok) redirect(withMessage(back, read.error));
-  const now = await currentPlan(institution);
-  if (!now) redirect(withMessage(back, "failed"));
-  const i = now.institution;
-  if (!sameAsShown(raw(form, "was_rest"), i.min_rest_hours) || !sameAsShown(raw(form, "was_days"), i.max_consecutive_days)
-      || !sameAsShown(raw(form, "was_weekly"), i.weekly_target_hours)) {
-    redirect(withMessage(back, "changed_meanwhile"));
-  }
+  const expected = expectedLimits(form);
+  if (!expected) redirect(withMessage(back, "changed_meanwhile"));
   await run("institution_set_planning_limits", {
     p_institution_id: institution, p_min_rest_hours: read.value.minRestHours, p_max_consecutive_days: read.value.maxConsecutiveDays,
-    p_weekly_target_hours: read.value.weeklyTargetHours,
+    p_weekly_target_hours: read.value.weeklyTargetHours, p_expected: expected,
   }, "limits_saved", back);
 }
 
@@ -391,15 +382,10 @@ export async function setStaffPlanning(form: FormData) {
   const v = parse(z.object({ institution: uuid, staff: uuid }), { institution: str(form, "institution"), staff: str(form, "staff") }, back);
   const read = readStaffPlanningForm(form);
   if (!read.ok) redirect(withMessage(back, read.error));
-  const now = await currentPlan(v.institution);
-  const p = now?.staff.find((s) => s.id === v.staff);
-  if (!now) redirect(withMessage(back, "failed"));
-  if (!p) redirect(withMessage(back, "not_found"));
-  if (!sameAsShown(raw(form, "was_pensum"), p.pensum_pct) || !sameAsShown(raw(form, "was_model"), p.shift_model)) {
-    redirect(withMessage(back, "changed_meanwhile"));
-  }
+  const expected = expectedStaffPlanning(form);
+  if (!expected) redirect(withMessage(back, "changed_meanwhile"));
   await run("institution_set_staff_planning", {
-    p_staff_id: v.staff, p_pensum_pct: read.value.pensumPct, p_shift_model: read.value.shiftModel,
+    p_staff_id: v.staff, p_pensum_pct: read.value.pensumPct, p_shift_model: read.value.shiftModel, p_expected: expected,
   }, "staff_planning_saved", back);
 }
 
@@ -408,13 +394,12 @@ export async function setShiftClass(form: FormData) {
   const v = parse(z.object({ institution: uuid, shift: uuid }), { institution: str(form, "institution"), shift: str(form, "shift") }, back);
   const read = readShiftClassForm(form);
   if (!read.ok) redirect(withMessage(back, read.error));
-  const now = await currentPlan(v.institution);
-  const t = now?.shift_types.find((x) => x.id === v.shift);
-  if (!now) redirect(withMessage(back, "failed"));
-  if (!t) redirect(withMessage(back, "not_found"));
-  if (!sameAsShown(raw(form, "was_class"), t.shift_class)) redirect(withMessage(back, "changed_meanwhile"));
+  const expected = expectedShiftClass(form);
+  if (!expected) redirect(withMessage(back, "changed_meanwhile"));
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("institution_set_shift_class", { p_shift_type_id: v.shift, p_shift_class: read.value as string });
+  const { data, error } = await supabase.rpc("institution_set_shift_class", {
+    p_shift_type_id: v.shift, p_shift_class: read.value as string, p_expected: expected,
+  });
   let code = "shift_class_saved";
   let target = back;
   if (error) {

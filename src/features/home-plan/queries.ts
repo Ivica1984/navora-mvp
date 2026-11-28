@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { readDraftPlan, type DraftPlan } from "./draft-screen";
-import type { InstitutionRole, Plan } from "./rules";
+import type { InstitutionRole, Plan, RunRefusal } from "./rules";
 
 export type MyInstitution = { id: string; display_name: string; kind: string; role: InstitutionRole; simulation: boolean };
 
@@ -33,6 +33,23 @@ export async function getPlan(institutionId: string, from: string, to: string): 
 
 // HD-2: the reference lists for the review screen (the same lists /order reads) and the preview through the one
 // order path (`institution_preview_gap_order` → `preview_client_order`). Writes nothing.
+/**
+ * HD-3a-F1 R-7-2: the refused rows of one take-over, read back from its run record (lead or planner of the home; the
+ * database checks it). Null when the read fails or the run is not this home's: the page then names no person.
+ */
+export async function getDraftRunRefusals(institutionId: string, applyId: string): Promise<RunRefusal[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("institution_draft_run_refusals", { p_institution_id: institutionId, p_apply_id: applyId });
+  if (error) {
+    logEvent("warn", "query.failed", { op: "institution_draft_run_refusals", ...errorFields(error) });
+    return null;
+  }
+  const r = (data ?? {}) as { result?: string; refused?: unknown };
+  if (r.result !== "ok" || !Array.isArray(r.refused)) return null;
+  return r.refused.filter((x): x is RunRefusal =>
+    typeof x === "object" && x !== null && typeof (x as RunRefusal).staff_id === "string" && typeof (x as RunRefusal).reason === "string");
+}
+
 export type OrderChoices = {
   postcodes: Array<{ postcode: string; place_name: string; region_name: string }>;
   activities: Array<{ code: string; label_de: string }>;

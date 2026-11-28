@@ -16,7 +16,7 @@ import {
   sortRows,
   type DraftPlan,
 } from "@/features/home-plan/draft-screen";
-import { addDays, daysBetween, messageText, parseCount, withDraftCounts, withMessage, type PlanCell } from "@/features/home-plan/rules";
+import { addDays, carriesApplyRun, daysBetween, messageText, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, withApplyRun, withDraftCounts, withMessage, type PlanCell } from "@/features/home-plan/rules";
 
 const ST = "00000000-0000-4000-8000-0000000000a1";
 const F = "00000000-0000-4000-8000-0000000000b1";
@@ -200,6 +200,52 @@ describe("HD-3a slice 4: the answer of «übernehmen»", () => {
     expect(messageText("draft_already_applied", { applied: 4, refused: 0 })?.text).toBe("Dieser Vorschlag wurde schon übernommen (4 Dienste). Nichts wurde doppelt eingeteilt.");
     expect(messageText("period_too_long")?.kind).toBe("error");
     expect(messageText("duplicate_row")?.kind).toBe("error");
+  });
+
+  it("HD-3a-F1: without weekly target the whole call is refused and the text names the next action", () => {
+    expect(applyOutcome({ result: "invalid", problems: ["weekly_target_missing"] }))
+      .toEqual({ code: "weekly_target_missing", applied: 0, refused: 0 });
+    const m = messageText("weekly_target_missing");
+    expect(m?.kind).toBe("error");
+    expect(m?.text).toContain("kein Wochensoll eingetragen");
+    expect(m?.text).toContain("«Planungsgrenzen»");
+    expect(m?.text).toContain("Es wurde nichts übernommen.");
+  });
+
+  it("HD-3a-F1 R-7-2: the URL carries only the apply id; the refused persons come from the run record", () => {
+    const id = "00000000-0000-4000-a185-0000000000a2";
+    const path = withApplyRun(withDraftCounts(withMessage("/heim?ansicht=vorschlag", "draft_applied_partly"), 1, 2), id);
+    const q = new URL(path, "http://x").searchParams;
+    expect(q.get("lauf")).toBe(id);
+    expect(parseApplyRun(q.get("lauf") ?? undefined)).toBe(id);
+    expect(parseApplyRun("x; drop")).toBeNull();
+    expect(new URL(withApplyRun("/heim", "not-a-uuid"), "http://x").searchParams.has("lauf")).toBe(false);
+    const persons = pensumMissingPersons(
+      [
+        { staff_id: "s2", date: "2030-01-08", shift_type_id: "f", reason: "pensum_missing" },
+        { staff_id: "s2", date: "2030-01-09", shift_type_id: "f", reason: "pensum_missing" },
+        { staff_id: "s1", date: "2030-01-08", shift_type_id: "f", reason: "pensum_missing" },
+        { staff_id: "s3", date: "2030-01-08", shift_type_id: "f", reason: "cell_full" },
+        { staff_id: "s9", date: "2030-01-08", shift_type_id: "f", reason: "pensum_missing" },
+      ],
+      [{ id: "s1", display_name: "Zora Test" }, { id: "s2", display_name: "Anna Test" }, { id: "s3", display_name: "Ben Test" }],
+    );
+    expect(persons).toEqual([
+      { id: "s2", name: "Anna Test", shifts: 2 }, { id: "s9", name: "Eine Person", shifts: 1 }, { id: "s1", name: "Zora Test", shifts: 1 },
+    ]);
+    expect(pensumMissingText(persons[0])).toBe(
+      "Anna Test: 2 Dienste nicht übernommen, weil kein Pensum eingetragen ist. Bitte bei der Person das Pensum eintragen und neu vorschlagen.");
+    expect(pensumMissingText({ name: "Zora Test", shifts: 1 })).toContain("1 Dienst nicht übernommen");
+  });
+
+  it("HD-3a-F1 R-7-2: a retry (double click) still carries the apply id when the first call refused rows", () => {
+    expect(carriesApplyRun("draft_applied_partly", 2)).toBe(true);
+    expect(carriesApplyRun("draft_already_applied", 1)).toBe(true);
+    expect(carriesApplyRun("draft_already_applied", 0)).toBe(false);
+    expect(carriesApplyRun("draft_applied", 0)).toBe(false);
+    expect(carriesApplyRun("weekly_target_missing", 0)).toBe(false);
+    expect(applyOutcome({ result: "already_applied", applied: 1, refused: [{ staff_id: "s1", reason: "pensum_missing" }] }))
+      .toMatchObject({ code: "draft_already_applied", refused: 1 });
   });
 
   it("counts from the URL are whole numbers only", () => {

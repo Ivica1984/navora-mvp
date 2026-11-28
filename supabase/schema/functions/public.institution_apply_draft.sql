@@ -82,6 +82,18 @@ begin
       and s.id in (select (e ->> 'staff_id')::uuid from jsonb_array_elements(p_rows) e)
     order by s.id
     for update;
+  -- HD-3a-F1 (#1745): then the draft's shift types of this home (share, id order) and the home (share): the same prefix
+  -- as institution_assign_staff (person -> type -> home), so no new lock cycle. Held to commit, so the weekly target
+  -- checked below and every later rule check read the same value: institution_set_planning_limits (home `for update`)
+  -- waits for this call or this call waits for it, never in between. Before 0186 this held only as a side effect (the
+  -- run-record insert's foreign key takes the home `for key share`); the check below runs before that insert, so the
+  -- lock is taken here explicitly.
+  perform 1 from public.institution_shift_types t
+    where t.institution_id = p_institution_id
+      and t.id in (select (e ->> 'shift_type_id')::uuid from jsonb_array_elements(p_rows) e)
+    order by t.id
+    for share;
+  perform 1 from public.institutions h where h.id = p_institution_id for share;
   -- The role may have been removed while this call waited for a person lock (review finding 4): checked again with a
   -- fresh snapshot, before anything is recorded, so a refused call leaves no run record and no audit event.
   if not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
@@ -89,7 +101,23 @@ begin
   end if;
   -- Safe repeat (double click, network retry): the client sends one apply id per shown draft. A second call with the
   -- same id waits for the first (on the person locks, else on the primary key) and then answers from its record;
-  -- nothing is written twice and there is no second audit event.
+  -- nothing is written twice and there is no second audit event. Looked up before the weekly-target check (HD-3a-F1):
+  -- a retry of a call that saved rows answers `already_applied` even if the target was emptied since, so the screen
+  -- never says «nothing saved» while rows are saved.
+  select * into v_run from public.institution_draft_runs where id = p_apply_id;
+  if v_run.id is not null then
+    if v_run.institution_id is distinct from p_institution_id then
+      return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('apply_id_used'));
+    end if;
+    return jsonb_build_object('result', 'already_applied', 'apply_id', v_run.id, 'applied', v_run.rows_applied,
+                              'refused', v_run.refused);
+  end if;
+  -- HD-3a-F1 R-6-1 (fail closed, as the planner): without the home's «Sollstunden pro Woche» R-h (minutes per ISO week
+  -- <= Pensum x Wochensoll) cannot be checked, so the whole call is refused: no run record, no audit event, nothing
+  -- saved (as every `invalid`). The home is share-locked above, so the value cannot change until commit.
+  if (select h.weekly_target_hours from public.institutions h where h.id = p_institution_id) is null then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('weekly_target_missing'));
+  end if;
   insert into public.institution_draft_runs (id, institution_id, applied_by, rows_offered)
     values (p_apply_id, p_institution_id, (select auth.uid()), n)
     on conflict (id) do nothing;
@@ -160,6 +188,13 @@ begin
           reason := 'cell_full';
         end if;
       end if;
+    end if;
+    -- HD-3a-F1 R-6-1: a person without Pensum is never planned automatically (the planner skips her), so «übernehmen»
+    -- refuses her row (fail closed; the other rows follow the row logic). Checked last before the save, so a row
+    -- refused for its cell is not reported as «Pensum fehlt». The person row is locked `for update` above, so the value
+    -- read here is the one institution_assign_staff checks R-h with.
+    if reason is null and v_person.pensum_pct is null then
+      reason := 'pensum_missing';
     end if;
     if reason is null then
       res := public.institution_assign_staff(p_institution_id, (r ->> 'station_id')::uuid,

@@ -14,6 +14,18 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(67);
 
+-- HD-3a-F1 R-6-2 (b), migration 0188: the planning commands take the values the form showed (`p_expected`). These
+-- helpers read the current values as the test owner (authenticated cannot read the tables), so each call below states
+-- «what the screen showed» = the current row; pgTAP 186 tests the refusal when they differ.
+create function pg_temp.exp_limits(i uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('min_rest_hours', h.min_rest_hours, 'max_consecutive_days', h.max_consecutive_days,
+                            'weekly_target_hours', h.weekly_target_hours) from public.institutions h where h.id = i $exp$;
+create function pg_temp.exp_staff(s uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('pensum_pct', p.pensum_pct, 'shift_model', p.shift_model)
+  from public.institution_staff p where p.id = s $exp$;
+create function pg_temp.exp_class(t uuid) returns jsonb language sql as $exp$
+  select jsonb_build_object('shift_class', x.shift_class) from public.institution_shift_types x where x.id = t $exp$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -66,7 +78,7 @@ declare s uuid;
 begin
   s := (pg_temp.cmd(pg_temp.lead(), format('select public.institution_add_staff(%L, %L, %L, null)', pg_temp.inst(), name,
           'fage_efz')) ->> 'staff_id')::uuid;
-  perform pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_staff_planning(%L, %s, %L)', s, pensum, model));
+  perform pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_staff_planning(%L, %s, %L, %L::jsonb)', s, pensum, model, pg_temp.exp_staff(s)));
   return s;
 end $$;
 insert into ids select 'st', (pg_temp.cmd(pg_temp.lead(), format('select public.institution_add_station(%L, %L)',
@@ -77,9 +89,9 @@ insert into ids select 'f0', (pg_temp.cmd(pg_temp.lead(), format('select public.
   pg_temp.inst(), 'SF0', 'HD3s Früh früh', '06:30', '14:00')) ->> 'shift_type_id')::uuid;
 insert into ids select 'm', (pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_type(%L, %L, %L, %L, %L)',
   pg_temp.inst(), 'SM', 'HD3s Mittag', '12:00', '15:00')) ->> 'shift_type_id')::uuid;
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('f'), 'early'));
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('f0'), 'early'));
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 6, 42)', pg_temp.inst()));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('f'), 'early', pg_temp.exp_class(pg_temp.id('f'))));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('f0'), 'early', pg_temp.exp_class(pg_temp.id('f0'))));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 6, 42, %L::jsonb)', pg_temp.inst(), pg_temp.exp_limits(pg_temp.inst())));
 insert into ids values ('x', pg_temp.staff('HD3s Xaver', 100, 'any')), ('y', pg_temp.staff('HD3s Yara', 25, 'any')),
                        ('w', pg_temp.staff('HD3s Wanda', 100, 'early_only')), ('n', pg_temp.staff('HD3s Nora', 100, 'no_night')),
                        ('z', pg_temp.staff('HD3s Zeno', 100, 'any'));
@@ -176,9 +188,9 @@ select ok(not has_function_privilege('anon', 'public.institution_set_split_shift
 select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_type(%L, %L, %L, %L, %L)', pg_temp.inst(),
             'SG', 'HD3s SG', '07:00', '15:00')) -> 'problems' ->> 0, 'shift_type_is_split',
           'the one-block command refuses a split type');
-select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('sp'), 'early'))
+select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('sp'), 'early', pg_temp.exp_class(pg_temp.id('sp'))))
             -> 'problems' ->> 0, 'shift_type_is_split', 'the class of a split type cannot be changed alone');
-select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L)', pg_temp.id('f'), 'split'))
+select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_class(%L, %L, %L::jsonb)', pg_temp.id('f'), 'split', pg_temp.exp_class(pg_temp.id('f'))))
             -> 'problems' ->> 0, 'shift_class_not_valid', 'a one-block type never gets the class split');
 
 -- 4. Rules on the database side ------------------------------------------------------------------------------------------
@@ -237,7 +249,7 @@ select is(pg_temp.cell(pg_temp.id('f'), pg_temp.d(3)) ->> 'status', 'gap',
 select is((pg_temp.cell(pg_temp.id('f'), pg_temp.d(3)) ->> 'missing')::int, 1, 'the early shift still misses 1');
 
 -- 6. One working day (R-g): with 2 days in a row allowed, two split shifts on two days are allowed, a third is not -----
-select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 2, 42)', pg_temp.inst()));
+select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_planning_limits(%L, 11, 2, 42, %L::jsonb)', pg_temp.inst(), pg_temp.exp_limits(pg_temp.inst())));
 select is(pg_temp.assign(pg_temp.id('sp'), pg_temp.d(0), pg_temp.id('z')) ->> 'result', 'ok', 'R-g: day 1');
 select is(pg_temp.breaches(pg_temp.id('z'), pg_temp.id('sp'), pg_temp.d(1)), '{}'::text[],
           'R-g: day 2 is allowed, so one split shift counted as one day');

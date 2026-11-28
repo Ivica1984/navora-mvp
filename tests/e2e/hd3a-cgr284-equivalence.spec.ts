@@ -71,8 +71,13 @@ async function buildHome(db: SupabaseClient, from: string, to: string): Promise<
   const rnd = prng(284);
   const pickOf = <T,>(xs: ReadonlyArray<T>): T => xs[Math.floor(rnd() * xs.length)];
 
+  // HD-3a-F1 R-6-2 (b) (0188): the commands take the values shown before the change; here the home's current ones.
+  const shown = (await readPlan(db, from, from))?.institution;
+  if (!shown) throw new Error("institution_plan: no home");
   await call(db, "institution_set_planning_limits", {
     p_institution_id: HOME, p_min_rest_hours: 11, p_max_consecutive_days: 6, p_weekly_target_hours: 42,
+    p_expected: { min_rest_hours: shown.min_rest_hours, max_consecutive_days: shown.max_consecutive_days,
+      weekly_target_hours: shown.weekly_target_hours ?? null },
   });
   const stations: string[] = [];
   for (const name of ["Station A", "Station B", "Station C"]) {
@@ -87,7 +92,7 @@ async function buildHome(db: SupabaseClient, from: string, to: string): Promise<
     const id = (await call(db, "institution_set_shift_type", {
       p_institution_id: HOME, p_code: code, p_label: label, p_starts_at: starts, p_ends_at: ends,
     })).shift_type_id as string;
-    await call(db, "institution_set_shift_class", { p_shift_type_id: id, p_shift_class: cls });
+    await call(db, "institution_set_shift_class", { p_shift_type_id: id, p_shift_class: cls, p_expected: { shift_class: null } });
     types.push({ id, total });
   }
   for (const s of stations) {
@@ -110,7 +115,9 @@ async function buildHome(db: SupabaseClient, from: string, to: string): Promise<
     // The last person stays «nicht eingetragen» (R-b: never planned); the rest get a made-up Pensum and model.
     const pensum = i === PERSONS - 1 ? null : pickOf([40, 50, 60, 80, 80, 90, 100, 100]);
     const model = rnd() < 0.6 ? "any" : pickOf(["early_only", "late_only", "night_only", "no_night"]);
-    await call(db, "institution_set_staff_planning", { p_staff_id: staffId, p_pensum_pct: pensum, p_shift_model: model });
+    await call(db, "institution_set_staff_planning", {
+      p_staff_id: staffId, p_pensum_pct: pensum, p_shift_model: model, p_expected: { pensum_pct: null, shift_model: "any" },
+    });
     if (rnd() < 0.2) {
       const start = pickOf(days);
       const end = addDays(start, Math.floor(rnd() * 5));
