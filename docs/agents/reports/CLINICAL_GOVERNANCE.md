@@ -16,6 +16,55 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-28 10:42 CET: gate on **#1863** HD-PEN-HAND «Stunden nicht prüfbar» auf dem Handweg (Block HEIM-DP), head `a50ff9e7` (code identical to `7e905743`); PO gate start (FE-089 (2), FE-091). **`cra-gate: #1863 a50ff9e7 clear`** (gate «Simulation, synthetic data»; fixed rule, no model; not a clinical release, D-27). **CGR-286 hand part met** on the PR; CGR-286 closes on merge. No new finding. No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `1e1716ed`. Since my 00:41 section: #1838/#1848 HD-3a-F1 merged and accepted (`c2a38a9a`); #1854 HD-3a-F3 merged and accepted (`8fa8f90a`); my gate on #1854 was given as a PR comment only ([7234839832](https://github.com/Ivica1984/navora-mvp/pull/1854#issuecomment-7234839832), `cra-gate: #1854 5740d09b clear`, follow-ups HD-3a-F3-F1 (hard weekly maximum or `lca` sign-off, S2) and HD-3a-F3-F2 (advisory)); it is recorded here and in CR-262. Brief HD-PEN-HAND approved and active. No new founder decision; Blueprint Annex B §1 (20 guarantees), the qualification matrix and Handbook V2.2 unchanged.
+- #1863 head `a50ff9e7` (24 files): migration `20261021000190_hd_pen_hand_hours_unknown.sql` and canonical `private.institution_rule_breaches.sql` (whole function; `stable`, `search_path ''`, revoke unchanged); `public.institution_assign_staff.sql` (unchanged: person `for update`, home `for share`, `rules <@ p_confirm_rules` before any write); `rules.ts` (`PLANNING_RULES`, `RULE_TEXT`, `withKnownRules`, `hoursUnknownNext`, `hoursUnknownCount`, `pensumMissingText`, `withoutPensumAndTarget`), `queries.ts`, `/heim` `page.tsx`, `month-target-choice.tsx`; pgTAP 188 (30 assertions) and the adjusted 157/158/159/161/172; `home-plan-assign.sh` case L; e2e `hd-pen-hand.spec.ts`; unit `hd-pen-hand.test.ts`.
+- CI on the head, read by me through the check-runs API: `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run 140932875540), `codeql` all `completed success`. `db` job log 140930250411 read by me: «188_hd_pen_hand_hours_unknown.test.sql … ok», «Files=185, Tests=7668», «Result: PASS», and «ok - L: Pensum removed during a hand assignment: serial on the person lock, never saved unconfirmed without hours check» (observed order `p<a`: warning, nothing saved). `e2e` figure («242 passed») from the PO gate start; not read by me.
+
+### Checked
+
+- **One rule source, exactly one hours answer:** in `private.institution_rule_breaches` the last slot is R-m (monthly target for the month of the work date) → return; else R-h when Pensum and Wochensoll are entered; else `hours_unknown`. Never two (pgTAP 188: target month → R-m, not `hours_unknown`; target only in the other month of an ISO week → `hours_unknown` only for the day without target; without Wochensoll a person with a target is checked by R-m). Shift model, rest and days in a row are evaluated before and unchanged; absence, double booking and grade stay hard in the commands.
+- **No silent save on the hand path:** first call → `{"result":"warning","rules":["hours_unknown"]}`, nothing saved, no audit; confirming a different rule (`rest`) → still warning; confirmed call → saved with `override_rules = {hours_unknown}`, `override_by` set, audit `changed.override_rules` carries the code; control person with Pensum and Wochensoll: no rule (pgTAP 188).
+- **Stale confirmation cannot save a new breach:** Pensum entered between warning and confirm → recomputed; with `hours_unknown` confirmed only, a new `pensum_full` answers `warning`, nothing saved (pgTAP 188, rows 200–204); Pensum removed concurrently → serial on the person lock (case L, log read).
+- **«übernehmen» unchanged:** `pensum_missing` / `weekly_target_missing` still refuse first; no draft row becomes `hours_unknown` (pgTAP 188 apply a1, a2).
+- **Display:** unknown codes are filtered before the screen (`withKnownRules`, no «undefined»); the warning names the exact gap and the next action per role; the count line appears only with affected shifts.
+
+### Answers to `eng`'s gate questions
+
+- **(a) Rule text: yes, keep it.** «Stunden nicht prüfbar: weder Monatssoll noch Pensum mit Wochensoll eingetragen» is correct for all three gap shapes (no Pensum; no Wochensoll; both) and names no value or threshold. The reason line from `hoursUnknownNext` («Für <Monat> ist kein Monatssoll und kein Pensum … eingetragen. Ohne diese Werte prüft NAVORA die Stunden dieses Diensts nicht.») names the actual gap and is clear. Not a condition: the warning prefix renders «Regel: Stunden nicht prüfbar: …» with two colons; `uxa` may smooth it.
+- **(b) Warning with confirmation: meets my S2 point for the simulation.** The point was «never silent»: the save now needs an explicit act by a named lead or planner, the shift carries «(von Hand bestätigt)», `override_by`/`override_at` and the audit event hold who and when, and the count line keeps the gap in view. Before real staff data this is not the end state: whether a shift may be saved with no hours check at all (block or confirm) is a `lca`/owner question together with HD-3a-F3-F1 (hard weekly maximum), not decided by me.
+- **(c) Backlog wording: «n Dienste ohne Stundenprüfung (davon m von Hand bestätigt)» is right.** It says what is true (no check happened) and separates the confirmed part without implying the confirmed ones are checked. Old silent shifts showing unconfirmed is the honest state (they were never confirmed).
+- **(d) Recompute after a later Pensum: right.** The plan shows the current check: once Pensum (or Monatssoll) exists, R-h/R-m runs against the stored shift, and an excess shows as an unconfirmed `pensum_full`/`month_target_full`, which is the safety-relevant signal. The earlier «confirmed without hours check» stays durable in `override_rules` of the row and in the audit event; that is sufficient history for the simulation. No finding.
+- **(e) Count reaches 0 only when master data are entered: intended.** A confirmation is an accepted risk, not a check; counting it is correct. Recommendation to `po` (no condition): read the brief's measure as «Dienste ohne Stundenprüfung je Heim → 0 once Pensum, Monatssoll or Wochensoll are entered», not «after the first planning week».
+
+### Findings
+
+No new finding.
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1863 HD-PEN-HAND | `a50ff9e7` | **`cra-gate: #1863 a50ff9e7 clear`**, gate «Simulation, synthetic data». Checked: one rule source returns exactly one of R-m / R-h / `hours_unknown`; no hand save without hours check unless confirmed by a named role, with audit; stale confirmation refused; concurrency serial (case L); «übernehmen» unchanged; guards kept (`stable`, `search_path ''`, revoke; LEAVE1-3 and locks in `institution_assign_staff` unchanged; pgTAP 157 extended). Not a clinical release (D-27); `lca` before real staff data (working-time rules, «Arbeitszeitgesetz nicht abschliessend geprüft» stays). |
+| #1854 HD-3a-F3 | `5740d09b` | `cra-gate: #1854 5740d09b clear` (given 2026-11-28 06:42 CET as PR comment 7234839832; recorded here). Merged `bf64e753`, accepted `8fa8f90a`. |
+
+### Findings closed with evidence
+
+- **CGR-286 (hand part)** met on #1863 `a50ff9e7`: `private.institution_rule_breaches` `hours_unknown` branch (migration 0190, canonical file); `institution_assign_staff` `rules <@ p_confirm_rules`; pgTAP 188 (log: ok); `home-plan-assign.sh` L (log: ok); CI all `success`. With the apply part (closed on #1838 merge), **CGR-286 closes on the merge of #1863.** PS-242 and the H-50 note follow.
+
+### Still open (unchanged)
+
+- HD-3a-F3-F1 (hard weekly maximum or `lca` sign-off, S2 before real staff), HD-3a-F3-F2 (advisory); CGR-291 (`HD-3s-F2-F1-F1`, next in the queue), CGR-290 (`HD-3s-F2-F2`), CGR-287 (night window, `lca`/Clinical Owner); rest-time rule in the order path UNKNOWN (CGR-221).
+
+### Decisions requested
+
+- None for a clinical, legal or owner role in this section. `lca`/owner (existing, before real staff data, with HD-3a-F3-F1): may a shift be saved with no hours check after confirmation, or must it be blocked.
+
+---
+
 ## 2026-11-28 00:41 CET: gate on **#1838** HD-3a-F1 «übernehmen prüft Pensum und Wochensoll in der Datenbank (fail closed)» (Block HEIM-DP), stable head `4a210609`; PO gate start (FE-089 (2), FE-091), window [7230323014](https://github.com/Ivica1984/navora-mvp/pull/1838#issuecomment-7230323014) (due 03:39). **`cra-gate: #1838 4a210609 clear`** (gate «Simulation, synthetic data»; fixed rules, no model; not a clinical release, D-27). CGR-286 met for the apply path on the PR (closes on merge for that path); its hand-assignment part stays open and goes to the named proposal HD-PEN-HAND / `ENG-PH1` (FE-089 (3)). No new finding. No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
