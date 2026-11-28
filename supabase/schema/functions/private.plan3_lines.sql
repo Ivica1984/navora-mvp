@@ -56,6 +56,10 @@ begin
         when not private.qual_may_perform_in(v.id, p_team, mem[i]) /* QUAL1-10 */ then 'needs_rn'
         when private.member_absent_during(p_team, mem[i], lower(rng), upper(rng)) then 'absent'
         when bus[i] && rng then 'overlap'
+        -- HD-3s-F2-F1-F1 (`cra` CGR-291, ADR-230): the window of her live take counts as busy, pause included, through
+        -- the one rule source of the hand path (member_take_window). A take never blocks its own block visits
+        -- (v.order_take_id). Same reason as the confirm-time check (plan3_confirm_overlaps -> member_visit_overlap).
+        when private.member_take_window(mem[i], rng, v.order_take_id) is not null then 'overlap'
       end;
       k := 0;
       if f is null then
@@ -86,4 +90,4 @@ end;
 $function$;
 
 revoke all on function private.plan3_lines(p_team uuid, p_date date, p_include_assigned boolean) from public, anon, authenticated, service_role;
-comment on function private.plan3_lines(p_team uuid, p_date date, p_include_assigned boolean) is 'PLAN3-1/-2/-3/-14: the proposal for one team and day, computed (writes nothing). Every PLAN3-2 limit is an existing check (ADM2-6/LEAVE1 membership and access, ADM2 contract, J3 RN rule, ABS1 absence) plus the overlap with her visits of that day in any team of the organisation (PLAN3-14). Returns only that team''s visits and cases.';
+comment on function private.plan3_lines(p_team uuid, p_date date, p_include_assigned boolean) is 'PLAN3-1/-2/-3/-14: the proposal for one team and day, computed (writes nothing). Every PLAN3-2 limit is an existing check (ADM2-6/LEAVE1 membership and access, ADM2 contract, J3 RN rule, ABS1 absence) plus the overlap with her visits of that day in any team of the organisation (PLAN3-14). Returns only that team''s visits and cases. HD-3s-F2-F1-F1 (CGR-291, ADR-230): the window of her live take, pause included, is busy too (member_take_window, one source with the hand path).';

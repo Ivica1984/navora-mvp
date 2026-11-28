@@ -924,7 +924,8 @@
         "not_active",
         "needs_rn",
         "absent",
-        "plan3_other_team_busy"
+        "plan3_other_team_busy",
+        "member_take_window(mem[i], rng, v.order_take_id)"
       ]
     },
     {
