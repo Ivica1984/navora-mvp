@@ -25,7 +25,8 @@ begin
   -- person (p_self = the shift itself when it is already stored, else NULL). One reading for the hand assignment
   -- (institution_assign_staff) and the plan (institution_plan); the same rules as the draft (src/features/home-plan/
   -- draft.ts R-c, R-f, R-g, R-h). Absence and double booking are not here: they stay blocked in the commands.
-  -- Order fixed: shift_model, rest, consecutive, then month_target_full or pensum_full (never both). Rest time and
+  -- Order fixed: shift_model, rest, consecutive, then exactly one of month_target_full, pensum_full or hours_unknown
+  -- (never two; hours_unknown only when the hours cannot be checked at all, HD-PEN-HAND). Rest time and
   -- days in a row: founder parameters,
   -- «Arbeitszeitgesetz nicht abschliessend geprüft» (`lca` before real data).
   select * into p from public.institution_staff where id = p_staff_id;
@@ -96,8 +97,9 @@ begin
     return breaches;
   end if;
   -- R-h: shift minutes per ISO week (Monday, by work date) over Pensum x weekly target hours. Not checked when the
-  -- Pensum or the target hours are not entered (the draft does not plan such a person at all). HD-3s: working minutes
-  -- only (private.institution_shift_minutes), the pause of a split shift is not working time (founder FE-127 (3)).
+  -- Pensum or the target hours are not entered (the draft does not plan such a person at all; then hours_unknown below).
+  -- HD-3s: working minutes only (private.institution_shift_minutes), the pause of a split shift is not working time
+  -- (founder FE-127 (3)).
   if p.pensum_pct is not null and h.weekly_target_hours is not null then
     week_start := p_work_date - (extract(isodow from p_work_date)::int - 1);
     select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at, o.block1_ends_at,
@@ -110,6 +112,13 @@ begin
        > floor(p.pensum_pct * round(h.weekly_target_hours * 60) / 100) then
       breaches := breaches || 'pensum_full'::text;
     end if;
+  else
+    -- HD-PEN-HAND (ENG-PH1, PO 2026-11-28; ADR-232): no monthly target for the month of the work date and no Pensum or
+    -- no Wochensoll of the home: the hours of this shift cannot be checked. Never silent: the hand assignment answers a
+    -- warning that a lead or planner confirms or cancels (institution_assign_staff), the plan marks the stored shift.
+    -- A missing home configuration, not a clinical value and no new threshold. «übernehmen» refuses these rows before
+    -- (weekly_target_missing, pensum_missing), so no draft row ever reaches this answer.
+    breaches := breaches || 'hours_unknown'::text;
   end if;
   return breaches;
 end $function$;

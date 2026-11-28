@@ -27,6 +27,10 @@
 #      the old target: the target writer and the assignment take the same first lock (person row), so the outcome is
 #      serial: either the target change waits and the assignment was judged on the old target (assignment event before
 #      the target event), or the assignment waits and answers «warning» (month_target_full) and nothing is saved.
+#   L (HD-PEN-HAND, 0190): the lead removes the Pensum of a person while a planner assigns her by hand without a
+#      confirmation: both take the person row first, so the outcome is serial: either the Pensum change waits and the
+#      shift was saved while the Pensum still held (assignment event before the planning event), or the assignment
+#      waits and answers «warning» (hours_unknown) and nothing is saved. Never saved unconfirmed without hours check.
 # Commits its own synthetic fixture rows (fixed ids, home «Testheim Rhein» of the seed) and removes them again.
 # Usage: DB_URL=... home-plan-assign.sh
 set -euo pipefail
@@ -326,5 +330,38 @@ set session_replication_role = replica;
 delete from public.institution_audit_events where id > $AUDK and (changed ->> 'staff_id' = '$PX' or entity_id in (select id from public.institution_assignments where staff_id = '$PX'));
 delete from public.institution_assignments where staff_id = '$PX' and work_date = '$DAY5';
 delete from public.institution_monthly_targets where staff_id = '$PX';
+SQL
+
+# L (HD-PEN-HAND, migration 0190): PX has a Pensum (J left 50 or 60 %) and no shift in the week of 2030-06-03; the home
+# has Wochensoll 42 and PX no monthly target for June 2030. The lead removes the Pensum (shown value = the stored one)
+# while the planner assigns PX the early shift on 2030-06-03 without a confirmation. A superuser session holds the person
+# row for 1 s so both calls queue on the same lock.
+DAY6=2030-06-03
+AUDL=$(psql "$DB_URL" -X -At -c "select coalesce(max(id), 0) from public.institution_audit_events")
+SHOWNL=$(psql "$DB_URL" -X -At -c "select jsonb_build_object('pensum_pct', pensum_pct, 'shift_model', shift_model) from public.institution_staff where id = '$PX'")
+psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 > /dev/null <<SQL &
+begin;
+select 1 from public.institution_staff where id = '$PX' for update;
+select pg_sleep(1);
+commit;
+SQL
+(sleep 0.2; run_as "$LEAD" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_staff_planning('$PX', null, 'any', '$SHOWNL'::jsonb) r;" > "$tmp/l1") &
+(sleep 0.3; run_as "$PLANNER" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_assign_staff('$INST', '$ST', '$TF', '$DAY6', '$PX') r;" > "$tmp/l2") &
+wait
+lr="$(norm "$tmp/l1")|$(norm "$tmp/l2")"
+ln=$(psql "$DB_URL" -X -At -c "select count(*) from public.institution_assignments where staff_id = '$PX' and work_date = '$DAY6'")
+lp=$(psql "$DB_URL" -X -At -c "select coalesce(pensum_pct::text, 'null') from public.institution_staff where id = '$PX'")
+# Order of the two committed writes (audit ids): «a<p» = the assignment was saved before the Pensum was removed.
+lo=$(psql "$DB_URL" -X -At -c "select case when (select min(id) from public.institution_audit_events where command = 'institution_assign_staff' and changed ->> 'staff_id' = '$PX' and id > $AUDL)
+  < (select min(id) from public.institution_audit_events where command = 'institution_set_staff_planning' and entity_id = '$PX' and id > $AUDL) then 'a<p' else 'p<a' end")
+echo "L pensum|assign|saved|pensum|order: $lr|$ln|$lp|$lo"
+case "$lr|$ln|$lp|$lo" in
+  "ok |warning |0|null|p<a"|"ok |ok |1|null|a<p") echo "ok - L: Pensum removed during a hand assignment: serial on the person lock, never saved unconfirmed without hours check";;
+  *) echo "not ok - L: expected the serial outcome (Pensum removed first -> warning hours_unknown, nothing saved; or assignment first, then the removal)"; fail=1;;
+esac
+psql_q <<SQL
+set session_replication_role = replica;
+delete from public.institution_audit_events where id > $AUDL and (entity_id = '$PX' or changed ->> 'staff_id' = '$PX' or entity_id in (select id from public.institution_assignments where staff_id = '$PX'));
+delete from public.institution_assignments where staff_id = '$PX' and work_date = '$DAY6';
 SQL
 exit $fail

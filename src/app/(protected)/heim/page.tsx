@@ -17,11 +17,12 @@ import { SHIFT_MODELS, shiftMinutes } from "@/features/home-plan/draft";
 import {
   ABSENCE_KINDS, APPLY_RUN_CODES, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  monthCode, monthLabel, monthPeople, monthTargetOf, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
+  hoursUnknownCount, hoursUnknownCountText, hoursUnknownNext, withoutPensumAndTarget, monthCode, monthLabel, monthPeople, monthTargetOf, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
   type PendingWarning, type MonthTarget,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
+import { MonthTargetChoice } from "./month-target-choice";
 
 // HD-1 / HD-2 (founder 2026-11-20; Blueprint §5.4 P4): the home plans its own staff. Week, month, plan per staff member
 // and the home's own settings. Every status comes from `institution_plan` (one source); every write is a database
@@ -119,7 +120,14 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
         </ul>
       )}
 
-      {plan && pending && canPlan(plan.institution.role) && <RuleWarning plan={plan} pending={pending} back={back} />}
+      {plan && pending && canPlan(plan.institution.role) && (
+        <RuleWarning plan={plan} pending={pending} back={back}
+          personHref={(id, d, anchor) => `${href({ ansicht: "personal", bereich: undefined, person: id, datum: d })}#${anchor}`}
+          limitsHref={`${href({ ansicht: "einstellungen", bereich: undefined })}#heim-limits`} />
+      )}
+      {plan && (view === "woche" || view === "monat") && (
+        <HoursUnknownLine plan={plan} personHref={(id, d) => href({ ansicht: "personal", bereich: undefined, person: id, datum: d })} />
+      )}
 
       {!plan ? (
         <p role="alert">Der Plan konnte nicht geladen werden.</p>
@@ -156,9 +164,33 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
 
 const btn = "min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-sm font-semibold";
 
+// HD-PEN-HAND (PO decision, AUT-247): one line above the week and month: stored shifts of the shown range whose hours
+// cannot be checked, with a link to the first affected person. No line when there are none.
+function HoursUnknownLine({ plan, personHref }: { plan: Plan; personHref: (id: string, date: string) => string }) {
+  const n = hoursUnknownCount(plan);
+  if (n.shifts === 0 || !n.first) return null;
+  const name = plan.staff.find((p) => p.id === n.first!.staff_id)?.display_name ?? "erste Person";
+  return (
+    <p role="status" data-testid="heim-hours-unknown-count"
+      className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-400 bg-amber-50 p-2 text-sm text-amber-950">
+      <span className="font-semibold">{hoursUnknownCountText(n)}</span>
+      <Link href={`${personHref(n.first.staff_id, n.first.date)}#heim-staff-planning`}
+        className="inline-grid min-h-11 place-items-center underline" data-testid="heim-hours-unknown-first">
+        {name} ansehen
+      </Link>
+    </p>
+  );
+}
+
 // HD-3a Q3 (FE-123): the hand assignment broke a planning rule. Nothing is saved yet; the person confirms or cancels.
-function RuleWarning({ plan, pending, back }: { plan: Plan; pending: PendingWarning; back: string }) {
+// HD-PEN-HAND: for «Stunden nicht prüfbar» the reason and the next action (links for what this role can enter, the
+// role that can enter the rest).
+function RuleWarning({ plan, pending, back, personHref, limitsHref }: {
+  plan: Plan; pending: PendingWarning; back: string; personHref: (id: string, date: string, anchor: string) => string; limitsHref: string;
+}) {
   const person = plan.staff.find((p) => p.id === pending.staff)?.display_name ?? "Diese Person";
+  const gap = pending.rules.includes("hours_unknown") ? hoursUnknownNext(plan, pending.staff, pending.date) : null;
+  const lead = canSettle(plan.institution.role);
   const t = plan.shift_types.find((x) => x.id === pending.shift);
   const station = plan.stations.find((x) => x.id === pending.station)?.name ?? "";
   return (
@@ -170,6 +202,27 @@ function RuleWarning({ plan, pending, back }: { plan: Plan; pending: PendingWarn
       <ul className="list-disc pl-5" data-testid="heim-rule-warning-rules">
         {pending.rules.map((r) => <li key={r}>{ruleText(r)}</li>)}
       </ul>
+      {gap && (
+        <div className="grid gap-1" data-testid="heim-rule-hours-unknown">
+          <p>{gap.reason} Ohne diese Werte prüft NAVORA die Stunden dieses Diensts nicht.</p>
+          <ul className="flex flex-wrap gap-2">
+            {gap.actions.filter((a) => lead || !a.lead_only).map((a) => (
+              <li key={a.kind}>
+                <Link data-testid={`heim-rule-next-${a.kind}`} className="inline-grid min-h-11 place-items-center font-semibold underline"
+                  href={a.kind === "weekly_target" ? limitsHref
+                    : personHref(pending.staff, pending.date, a.kind === "pensum" ? "heim-staff-planning" : "heim-month-target")}>
+                  {a.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {!lead && gap.actions.some((a) => a.lead_only) && (
+            <p className="text-xs" data-testid="heim-rule-next-lead">
+              {gap.actions.filter((a) => a.lead_only).map((a) => a.label.replace(" eintragen", "")).join(" und ")} trägt die Heimleitung ein.
+            </p>
+          )}
+        </div>
+      )}
       <p>Werte des Heims; Ruhezeit und Arbeitstage in Folge: Arbeitszeitgesetz nicht abschliessend geprüft. Die Warnung bleibt auf dem Dienst sichtbar.</p>
       <div className="flex flex-wrap gap-2">
         <form action={assignStaff}>
@@ -260,20 +313,23 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
         {gaps === 0 ? "Keine Lücke in dieser Woche." : `${gaps} ${gaps === 1 ? "Dienst mit Lücke" : "Dienste mit Lücke"} in dieser Woche.`}
       </p>
       {planner && <p className="text-xs text-secondary">{WORKING_TIME_NOTE}</p>}
+      {/* HD-PEN-HAND (CI 46127290060): `min-w-0` on day, station, cell and assign form, so a long staff name in the
+          assign select never widens the nested grid tracks past the page (1 px at 1440 px with a 33-character name,
+          126 px with a 53-character one in a browser repro); the select shrinks instead. */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {days.map((d) => (
-          <article key={d} className={`grid content-start gap-2 rounded-lg border p-2 ${isWeekend(d) ? "border-stone-300 bg-stone-50" : "border-stone-200 bg-white"}`}
+          <article key={d} className={`grid min-w-0 content-start gap-2 rounded-lg border p-2 ${isWeekend(d) ? "border-stone-300 bg-stone-50" : "border-stone-200 bg-white"}`}
             data-testid="heim-day" data-date={d}>
             <h2 className="font-bold">{dayLabel(d)}</h2>
             {plan.stations.map((s) => (
-              <div key={s.id} className="grid gap-1">
+              <div key={s.id} className="grid min-w-0 gap-1">
                 <h3 className="text-sm font-semibold">{s.name}</h3>
                 {plan.shift_types.map((t) => {
                   const c = cells.get(`${d}|${s.id}|${t.id}`);
                   if (!c) return null;
                   const free = planner ? assignableStaff(plan, d) : [];
                   return (
-                    <div key={t.id} className={`grid gap-1 rounded-md border p-2 text-sm ${statusClass(c)}`}
+                    <div key={t.id} className={`grid min-w-0 gap-1 rounded-md border p-2 text-sm ${statusClass(c)}`}
                       data-testid="heim-cell" data-status={c.status} data-station={s.name} data-shift={t.code}>
                       <p className="flex flex-wrap justify-between gap-1">
                         <span className="font-semibold" data-testid="heim-cell-times">{t.label} {shiftTimesText(t)}</span>
@@ -322,7 +378,7 @@ function WeekView({ plan, back, prev, next, todayHref, draftHref }: {
                         </form>
                       )}
                       {planner && free.length > 0 && (
-                        <form action={assignStaff} className="flex flex-wrap gap-1">
+                        <form action={assignStaff} className="flex min-w-0 flex-wrap gap-1">
                           <Hidden values={{ institution: plan.institution.id, station: s.id, shift: t.id, date: d, back }} />
                           <label className="sr-only" htmlFor={`a-${d}-${s.id}-${t.id}`}>Person für {t.label} {s.name} {dayLabel(d)}</label>
                           <select id={`a-${d}-${s.id}-${t.id}`} name="staff" className={`${input} min-w-0 flex-1`} data-testid="heim-assign-select">
@@ -515,7 +571,7 @@ function StaffView({ plan, back, person, personHref, prev, next }: {
               </Link>
               <span className="text-xs text-secondary">
                 {gradeLabel(s.grade)}{s.home_station_id ? ` · ${station.get(s.home_station_id) ?? ""}` : ""}{s.active ? "" : " · nicht aktiv"}
-                {s.active && s.pensum_pct == null ? <span className="font-semibold text-amber-900" data-testid="heim-staff-no-pensum"> · ohne Pensum</span> : ""}
+                {withoutPensumAndTarget(plan, s.id) ? <span className="font-semibold text-amber-900" data-testid="heim-staff-no-pensum"> · ohne Pensum</span> : ""}
               </span>
             </li>
           ))}
@@ -1194,16 +1250,8 @@ function PersonMonthTarget({ plan, staff, back }: { plan: Plan; staff: Plan["sta
           <Hidden values={{ staff: staff.id, month: plan.from.slice(0, 8) + "01", was_target: shownValue(target), back }} />
           <fieldset className="grid gap-1 text-sm">
             <legend>Monatssoll (Stunden)</legend>
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="flex min-h-11 items-center gap-1">
-                <input type="radio" name="target_choice" value="wert" defaultChecked={target !== null} data-testid="heim-month-target-value" /> Wert
-              </label>
-              <input name="target" inputMode="decimal" aria-label="Monatssoll in Stunden"
-                defaultValue={target === null ? "" : minutesAsHours(target).replace(" h", "")} className={`${input} w-24`} data-testid="heim-month-target-input" />
-              <label className="flex min-h-11 items-center gap-1">
-                <input type="radio" name="target_choice" value={NO_VALUE} data-testid="heim-month-target-none-choice" /> kein Monatssoll
-              </label>
-            </div>
+            <MonthTargetChoice noValue={NO_VALUE} inputClass={input}
+              target={target === null ? "" : minutesAsHours(target).replace(" h", "")} />
           </fieldset>
           <button type="submit" className={btn} data-testid="heim-month-target-save">Monatssoll speichern</button>
         </form>

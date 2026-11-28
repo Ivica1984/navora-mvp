@@ -137,9 +137,10 @@ select is(pg_temp.cls(pg_temp.u('02')::text, pg_temp.id('t'), 'early') ->> 'resu
 select is(pg_temp.cls(pg_temp.u('01')::text, pg_temp.id('t'), 'early') ->> 'result', 'rejected',
           'another home''s lead cannot set a class');
 -- An early_only person tomorrow and on a past day on the unclassified type (by hand; the cell warning follows).
--- Since 0173 the hand assignment names the breach first (Q3); the fixture confirms it.
+-- Since 0173 the hand assignment names the breach first (Q3); the fixture confirms it. Since 0190 (HD-PEN-HAND) also
+-- hours_unknown (X has no Pensum at this point).
 select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L, %L::text[])', pg_temp.inst(),
-            pg_temp.id('st'), pg_temp.id('t'), pg_temp.zurich_today() + 1, pg_temp.id('x'), '{shift_model}')) ->> 'result', 'ok',
+            pg_temp.id('st'), pg_temp.id('t'), pg_temp.zurich_today() + 1, pg_temp.id('x'), '{shift_model,hours_unknown}')) ->> 'result', 'ok',
           'fixture: the early_only person is assigned tomorrow (warning confirmed)');
 insert into public.institution_assignments (institution_id, station_id, shift_type_id, work_date, staff_id)
   values (pg_temp.inst(), pg_temp.id('st'), pg_temp.id('t'), pg_temp.zurich_today() - 3, pg_temp.id('x'));

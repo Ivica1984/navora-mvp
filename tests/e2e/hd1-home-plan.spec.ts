@@ -127,6 +127,13 @@ test("HD-1 R1: an inactive person never counts as present, in the week and in th
   await add.getByLabel("Stufe").selectOption({ label: "HF" });
   await add.getByRole("button", { name: "Hinzufügen" }).click();
   await expect(page.getByTestId("heim-message")).toHaveText("Person hinzugefügt.");
+  // HD-PEN-HAND (0190): without Pensum (and Monatssoll) a hand assignment first warns «Stunden nicht prüfbar». This spec
+  // is about inactive persons, so the new person gets a Pensum first and the assignment stays a plain one.
+  await page.getByTestId("heim-staff-link").filter({ hasText: name }).click();
+  await page.getByTestId("heim-staff-pensum-value").check();
+  await page.getByTestId("heim-staff-pensum").fill("100");
+  await page.getByTestId("heim-staff-planning-save").click();
+  await expect(page.getByTestId("heim-message")).toHaveText("Pensum und Schichtmodell gespeichert.");
 
   await page.goto(`/heim?ansicht=woche&datum=${wed}`);
   await expect(cell(page, wed, "Rhein 2", "F").getByTestId("heim-cell-status")).toHaveText("0 von 3 · Lücke: 3 fehlt, 1 HF fehlt");

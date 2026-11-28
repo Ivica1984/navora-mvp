@@ -286,7 +286,8 @@
         "STABLE",
         "institution_shift_minutes",
         "institution_monthly_targets",
-        "month_target_full"
+        "month_target_full",
+        "hours_unknown"
       ]
     },
     {

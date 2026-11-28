@@ -18,7 +18,7 @@ const ID = "00000000-0000-4000-a000-000000000001";
 
 describe("HD-3a rule warning", () => {
   it("keeps the database order of the rules and drops unknown words", () => {
-    expect([...PLANNING_RULES]).toEqual(["shift_model", "rest", "consecutive", "pensum_full", "month_target_full"]);
+    expect([...PLANNING_RULES]).toEqual(["shift_model", "rest", "consecutive", "pensum_full", "month_target_full", "hours_unknown"]);
     expect(parseRules("pensum_full,rest,absent,x")).toEqual(["rest", "pensum_full"]);
     // HD-3a-F3 (migration 0189): R-m is a known rule, so a hand assignment over the monthly target can be confirmed.
     expect(parseRules("month_target_full,rest")).toEqual(["rest", "month_target_full"]);

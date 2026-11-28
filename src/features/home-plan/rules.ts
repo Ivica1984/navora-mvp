@@ -159,8 +159,10 @@ export const WORKING_TIME_NOTE =
 /**
  * HD-3a Q3: the planning rules a shift can break, in the database's fixed order. HD-3a-F3 (FE-135 option A, migration
  * 0189): `month_target_full` replaces `pensum_full` for a person with a monthly target in the shift's month (never both).
+ * HD-PEN-HAND (ENG-PH1, migration 0190): `hours_unknown` when neither applies (no monthly target for the month and no
+ * Pensum or no Wochensoll): the hours cannot be checked, a warning to confirm or cancel. Exactly one of the three.
  */
-export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full", "month_target_full"] as const;
+export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full", "month_target_full", "hours_unknown"] as const;
 export type PlanningRule = (typeof PLANNING_RULES)[number];
 const RULE_TEXT: Record<PlanningRule, string> = {
   shift_model: "Schichtmodell der Person passt nicht zu dieser Dienstart",
@@ -168,6 +170,8 @@ const RULE_TEXT: Record<PlanningRule, string> = {
   consecutive: "zu viele Arbeitstage in Folge",
   pensum_full: "über dem Pensum dieser Woche",
   month_target_full: "über dem Monatssoll dieses Monats",
+  // Wording placeholder until the `cra` gate (brief HD-PEN-HAND: «Stunden nicht prüfbar»).
+  hours_unknown: "Stunden nicht prüfbar: weder Monatssoll noch Pensum mit Wochensoll eingetragen",
 };
 export const ruleText = (r: PlanningRule): string => RULE_TEXT[r];
 export function isPlanningRule(v: unknown): v is PlanningRule {
@@ -186,6 +190,25 @@ export function ruleWarning(a: Pick<AssignedPerson, "rules" | "override_rules">)
   const confirmed = new Set(a.override_rules ?? []);
   const all = now.every((r) => confirmed.has(r));
   return `Regel: ${now.map(ruleText).join(", ")}${all ? " (von Hand bestätigt)" : ""}`;
+}
+/**
+ * HD-PEN-HAND (ADR-232 point 5): the plan answer is cast from JSON, so a rule code this app does not know (a newer
+ * migration before the app deploy) would render as «undefined». Keeps only known codes on every assigned person;
+ * returns a new plan, the input is not changed.
+ */
+export function withKnownRules(plan: Plan): Plan {
+  const known = (v: unknown): PlanningRule[] => (Array.isArray(v) ? v.filter(isPlanningRule) : []);
+  return {
+    ...plan,
+    cells: (plan.cells ?? []).map((c) => ({
+      ...c,
+      assigned: (c.assigned ?? []).map((a) => ({
+        ...a,
+        rules: known(a.rules),
+        override_rules: a.override_rules == null ? null : known(a.override_rules),
+      })),
+    })),
+  };
 }
 export const EXAMPLE_NOTE = "Beispielwert des Heims (synthetisch), keine Vorgabe von NAVORA.";
 
@@ -725,10 +748,74 @@ export function pensumMissingPersons(
     .sort((a, b) => a.name.localeCompare(b.name, "de-CH") || a.id.localeCompare(b.id));
 }
 
-/** HD-3a-F1 R-7-2: the line per person, with the next action. */
+/**
+ * HD-3a-F1 R-7-2: the line per person, with the next action. UXR-310 (HD-PEN-HAND): «übernehmen» refuses a row with
+ * `pensum_missing` only when there is no monthly target for its month either (migration 0189), so the text names both.
+ */
 export function pensumMissingText(p: { name: string; shifts: number }): string {
-  return `${p.name}: ${p.shifts} ${p.shifts === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil kein Pensum eingetragen ist. `
-    + "Bitte bei der Person das Pensum eintragen und neu vorschlagen.";
+  return `${p.name}: ${p.shifts} ${p.shifts === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil weder Pensum noch Monatssoll `
+    + "eingetragen ist. Bitte bei der Person das Pensum oder das Monatssoll eintragen und neu vorschlagen.";
+}
+
+/**
+ * UXR-310 (HD-PEN-HAND): the staff list marks «· ohne Pensum» only when the person also has no monthly target in a
+ * month the plan shows (with a target the hours are checked by it, R-m).
+ */
+export function withoutPensumAndTarget(plan: Pick<Plan, "staff" | "month_targets">, staffId: string): boolean {
+  const s = plan.staff.find((x) => x.id === staffId);
+  if (!s || !s.active || s.pensum_pct != null) return false;
+  return !(plan.month_targets ?? []).some((m) => m.staff_id === staffId && m.target_minutes != null);
+}
+
+/**
+ * HD-PEN-HAND (ENG-PH1): why the hours of a shift of this person on this day cannot be checked, and what can be entered
+ * so they can. The same conditions as `private.institution_rule_breaches` (no monthly target for the month of the day,
+ * and no Pensum or no Wochensoll); the database decides, this only names the gap. `who`: the lead can enter all three;
+ * a planner can enter the Pensum, the Monatssoll and the Wochensoll are entered by the lead (UXR-305 pattern).
+ */
+export type HoursGapAction = { kind: "pensum" | "month_target" | "weekly_target"; label: string; lead_only: boolean };
+export function hoursUnknownNext(
+  plan: Pick<Plan, "staff" | "month_targets" | "institution">, staffId: string, date: string,
+): { reason: string; actions: HoursGapAction[] } | null {
+  const s = plan.staff.find((x) => x.id === staffId);
+  if (!s || monthTargetOf(plan, staffId, date)?.target_minutes != null) return null;
+  const noPensum = s.pensum_pct == null;
+  const noWeekly = plan.institution.weekly_target_hours == null;
+  if (!noPensum && !noWeekly) return null;
+  const missing = noPensum && noWeekly ? "kein Pensum und kein Wochensoll des Heims"
+    : noPensum ? "kein Pensum" : "kein Wochensoll des Heims";
+  const actions: HoursGapAction[] = [];
+  if (noPensum) actions.push({ kind: "pensum", label: "Pensum eintragen", lead_only: false });
+  actions.push({ kind: "month_target", label: `Monatssoll ${monthLabel(date)} eintragen`, lead_only: true });
+  if (noWeekly) actions.push({ kind: "weekly_target", label: "Wochensoll eintragen", lead_only: true });
+  return { reason: `Für ${monthLabel(date)} ist kein Monatssoll und ${missing} eingetragen.`, actions };
+}
+
+/**
+ * HD-PEN-HAND (PO decision, AUT-247): stored shifts of the shown range whose hours cannot be checked (`hours_unknown`
+ * now), confirmed by hand or not (shifts saved before migration 0190 are unconfirmed), and the first affected person
+ * (earliest day, then name) for the link. Zero → the page shows no line.
+ */
+export function hoursUnknownCount(plan: Pick<Plan, "cells">): { shifts: number; confirmed: number; first: { staff_id: string; date: string } | null } {
+  const seen = new Set<string>();
+  let confirmed = 0;
+  let first: { staff_id: string; date: string; name: string } | null = null;
+  for (const c of plan.cells ?? []) {
+    for (const a of c.assigned ?? []) {
+      if (seen.has(a.assignment_id) || !(a.rules ?? []).includes("hours_unknown")) continue;
+      seen.add(a.assignment_id);
+      if ((a.override_rules ?? []).includes("hours_unknown")) confirmed++;
+      if (!first || c.date < first.date || (c.date === first.date && a.display_name.localeCompare(first.name, "de-CH") < 0)) {
+        first = { staff_id: a.staff_id, date: c.date, name: a.display_name };
+      }
+    }
+  }
+  return { shifts: seen.size, confirmed, first: first && { staff_id: first.staff_id, date: first.date } };
+}
+/** The count line (wording placeholder until the `cra` gate). */
+export function hoursUnknownCountText(n: { shifts: number; confirmed: number }): string {
+  const what = `${n.shifts} ${n.shifts === 1 ? "Dienst" : "Dienste"} ohne Stundenprüfung`;
+  return n.confirmed > 0 ? `${what} (davon ${n.confirmed} von Hand bestätigt)` : what;
 }
 
 /** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */
