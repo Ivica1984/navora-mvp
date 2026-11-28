@@ -2,7 +2,7 @@
 id: HD-PEN-HAND
 title: Handeinteilung ohne Pensum, Monatssoll oder Wochensoll zeigt «Stunden nicht prüfbar» (bestätigen oder abbrechen), feste Regel
 author: po
-status: approved   # PO 2026-11-28 08:39 (ENG-PH1 «ja» 01:39; nach der HD-3a-F3-Abnahme); **aktiv seit 2026-11-28 08:39**
+status: accepted   # PO 2026-11-28 12:39, für die Simulation auf `ed7759e8` (ABNAHMEAKTE §2); zuvor approved 08:39, aktiv 08:39–12:39
 updated: 2026-11-28
 ---
 
@@ -84,3 +84,26 @@ ENG-PH1; CGR-286 (Handteil); ADR-232; Probe #1858; HD-3a-F1, HD-3a-F3 (`ABNAHMEA
 ## Vision check (FE-070 (7), kurz)
 
 Patientensicherheit und Personalschutz: keine Einteilung ohne sichtbare Stundengrenze. Weniger Nacharbeit; die Leitung entscheidet selbst, keine Disposition, keine neue Hierarchie, kein Geldfluss, keine KI.
+
+## PO acceptance (2026-11-28 12:39, geplanter PO-Lauf, Signal FE-105 (1) (d))
+
+**Status: accepted** für die Simulation auf `ed7759e8` (Merge-Commit von #1863; Gate «Simulation, synthetische Daten»; `ABNAHMEAKTE.md` §2). Der PO hat die Tests nicht lokal ausgeführt; alle Werte aus Rohdaten der Jobs über die GitHub-API und aus den `eng`-Berichten 7237198017 und 7238623085.
+
+| Kriterium | Ergebnis | Nachweis |
+|---|---|---|
+| Regel, eine Quelle (R-m → R-h → `hours_unknown`, nie zwei; Signatur, STABLE, search_path, revoke unverändert) | erfüllt | Migration 0190; pgTAP 188 (Ausschluss R-m/`hours_unknown`) und 157 (MANIFEST); `eng`-Zweitlesung 7237079370; `cra`-Gate |
+| Handweg: Warnung, nichts gespeichert; Bestätigung mit `override_rules` und Audit; «abbrechen» nichts; Kontrollperson unverändert | erfüllt | pgTAP 188 in `db` ×10 «Result: PASS»; e2e `hd-pen-hand.spec.ts` |
+| Probe #1858 rot vorher, grün nachher (alle Fälle inkl. ISO-Woche über Monatsende) | erfüllt | `eng` lokal: 188 auf 0189 15/30 not ok, auf 0190 30/30; CI 188 ok ×10 |
+| Nebenläufigkeit (Pensum dazwischen eingetragen/entfernt; nie unbestätigt gespeichert) | erfüllt | pgTAP 188 Neuberechnungsfälle; Zwei-Sitzungs-Skript «ok - L …» im `db`-Job (vom PO gelesen) |
+| «übernehmen» unverändert | erfüllt | pgTAP 188 (`pensum_missing`, `weekly_target_missing`) |
+| Plan-Ansicht: Marke, Zählzeile mit Link, ohne Dienste keine Zählzeile, kein «undefined» | erfüllt | e2e (Marke, Zählzeile); Unit `hd-pen-hand.test.ts` (Negativfall Zählzeile, `withKnownRules`); Negativfall nur Unit (keine Bedingung) |
+| Nächste Handlung je Rolle | erfüllt | Unit (nächste Handlung je Rolle); `cra` (a), `uxa` (a) clear |
+| UXR-309, UXR-310 | erfüllt | e2e (UXR-309), Unit/e2e Texte; `uxa` (c), (d): «closes on merge» |
+| Unit: Regelliste, Parsing, Text, Warnung, Filter, Parität | erfüllt | `tests/unit/hd-pen-hand.test.ts` im grünen `app`-Job |
+| e2e 390 und 1440 px | erfüllt | `e2e` ×10 «242 passed», beide Breiten grün, keine skipped/failed/flaky-Zeile |
+| Katalogwächter 157, Wächter 175–177, 185–187 | erfüllt | `db` ×10 «Files=185, Tests=7668», «Result: PASS», 0 «# SKIP» |
+| `staging-smoke` Pfade 1–9, 11; Pfad 12 oder STG-PH-1 | erfüllt (mit Grenze) | Job 140952514335 «11 passed», «FAILED_PATHS: 0»; STG-PH-1 nach Entscheidtabelle |
+| `ci` grün; `staging`; `ci-repeat` 10/10 | erfüllt | `ci` 46136355774 5/5; `staging` 140954944189 «Applying migration …0190…»; `staging-version` 140952729379 «up to 20261021000190», «app and database match»; `ci-repeat` 46138674419 22/22 im Fenster |
+| Gates `cra`, `uxa` | clear | 7237426357, 7237600865 auf `a50ff9e7` |
+
+Bekannte Grenzen (keine Bedingung): STG-PH-1; Bereitstellungsfenster ADR-232; Zählzeile nur im gezeigten Bereich; Render-Deploy-ID UNKNOWN. Folgepunkte: HD-PEN-HAND-F1 bis -F4 (UXR-315 bis UXR-318), UXR-290, AUT-243, HEIM-ONB.
