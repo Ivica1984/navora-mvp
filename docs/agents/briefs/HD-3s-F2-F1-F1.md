@@ -2,7 +2,7 @@
 id: HD-3s-F2-F1-F1
 title: Tagesplan-Vorschlag sieht die Pause einer geteilten Übernahme als belegt, feste Regel
 author: po
-status: approved   # PO 2026-11-28 08:39, FE-137 (2); **aktiv seit 2026-11-28 12:39** (nach der HD-PEN-HAND-Abnahme)
+status: approved   # PO 2026-11-28 08:39, FE-137 (2); aktiv seit 2026-11-28 12:39; **für die Simulation abgenommen 2026-11-28 16:39 auf `9d5d90fa`**
 updated: 2026-11-28
 ---
 
@@ -60,3 +60,20 @@ CGR-290 (HD-3s-F2-F2, Block 2 allein); Ruhezeit auf dem Auftragsweg (`lca`, Clin
 ## Vision check (FE-070 (7), kurz)
 
 Vorschläge, denen das Team vertrauen kann; weniger Nacharbeit der Teamleitung; keine Disposition, kein Geldfluss, keine KI.
+
+## PO acceptance (2026-11-28 16:39, geplanter PO-Lauf, Signal FE-105 (1) (d))
+
+Gate «Simulation, synthetische Daten», benannter Commit `9d5d90fa` (Merge-Commit von #1872). Der PO hat keine Tests lokal ausgeführt; alle Zeilen aus Rohdaten der Jobs gelesen.
+
+| Kriterium | Ergebnis | Nachweis |
+|---|---|---|
+| `private.plan3_lines` zählt jedes laufende Übernahmefenster (Pause eingeschlossen) als belegt, über `private.member_take_window` | erfüllt | Migration 0191 (kanonische Datei, revoke, kein grant); `cra-gate` 7240165987 clear |
+| pgTAP Negativ-/Positivfall (12:00 nicht, 20:30 darf), andere Person unverändert | erfüllt | `189_hd3s_f2_f1_f1_plan3_take_window.test.sql … ok` in `db` ×10 |
+| Bestätigung gelingt; `plan3_confirm_overlaps` unverändert (Regression) | erfüllt | pgTAP 189 und 157 (Katalogwächter) ok ×10, «Result: PASS» |
+| UXR-302 Hinweis verspricht keine Wahl, die die Regel nicht lässt | erfüllt | Migration 0192 `public.member_slot_take_window`; Unit `hd3s-f2-f1-f1-take-window-note.test.ts` im grünen `app`-Job; `uxa-gate` 7240137670 clear |
+| Unit/e2e 390 und 1440 px | erfüllt | `e2e` ×10 «244 passed», `hd3s-f2-f1-f1-day-plan-take.spec.ts` beide Breiten grün, keine skipped/failed/flaky-Zeile |
+| ADR-230 «Known limits» nachgeführt | erfüllt | `docs/engineering/DECISIONS.md` im Diff von #1872 (vom PO gelesen) |
+| `staging-smoke` bestehende Pfade grün, kein neuer Pfad | erfüllt (mit Grenze) | Job 141018131085 «11 passed», «FAILED_PATHS: 0»; neuer Ablauf nicht auf Staging (STG-PH-1) |
+| `ci` grün; `staging`; `ci-repeat` 10/10 | erfüllt | `ci` 46155936398 5/5; `staging` 141015694223 «Applying migration …0191…», «…0192…»; `staging-version` 141019608502 «up to 20261021000192», «0 commit(s) behind»; `ci-repeat` 46158746414 22/22 im Fenster 16:13–16:29 |
+
+Bekannte Grenzen (keine Bedingung): STG-PH-1; Render-Deploy-ID UNKNOWN. Folgepunkte: HD-3s-F2-F1-F2 (AUT-248 / Probe #1868 §4, CGR-292, UXR-319, UXR-320).

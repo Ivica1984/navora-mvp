@@ -2,13 +2,13 @@
 id: HD-PEN-HAND-F1
 title: «Stunden nicht prüfbar» sagt Bereich, Ursache und Folge (Zählzeile, Link, Warnbox), keine neue Regel
 author: po
-status: approved   # PO 2026-11-28 12:39, FE-137 (2) «vertragsbereit, nicht aktiv»; Bau erst nach der HD-3s-F2-F1-F1-Abnahme und wenn *Active now* es nennt
+status: approved   # PO 2026-11-28 12:39, FE-137 (2); **aktiv seit 2026-11-28 16:39** (nach der HD-3s-F2-F1-F1-Abnahme)
 updated: 2026-11-28
 ---
 
 # HD-PEN-HAND-F1 — Bereich, Ursache und Folge von «Stunden nicht prüfbar»
 
-Block: **HEIM-DP**. Bündelt die benannten Folgepunkte der HD-PEN-HAND-Abnahme (`ABNAHMEAKTE.md` §2, 2026-11-28 12:39): HD-PEN-HAND-F1 = UXR-315, -F2 = UXR-316, -F3 = UXR-317, -F4 = UXR-318 (`uxa` Gate 7237600865, `docs/agents/reports/UX_REVIEW.md` 2026-11-28 10:58). Reihenfolge: HD-3s-F2-F1-F1 (aktiv) → **HD-PEN-HAND-F1** (vertragsbereit) → HD-3b-0 (Founder-Freigabe offen, FE-135). Ein Engineering-PR. Simulation, synthetische Daten. Der PO hat keinen Code gelesen; Codefakten aus UXR-315 bis UXR-318 und dem `eng`-Bereitbericht 7237198017.
+Block: **HEIM-DP**. Bündelt die benannten Folgepunkte der HD-PEN-HAND-Abnahme (`ABNAHMEAKTE.md` §2, 2026-11-28 12:39): HD-PEN-HAND-F1 = UXR-315, -F2 = UXR-316, -F3 = UXR-317, -F4 = UXR-318 (`uxa` Gate 7237600865, `docs/agents/reports/UX_REVIEW.md` 2026-11-28 10:58). Reihenfolge: HD-3s-F2-F1-F1 (abgenommen 2026-11-28 16:39, `9d5d90fa`) → **HD-PEN-HAND-F1** (aktiv seit 2026-11-28 16:39) → HD-3b-0 (Founder-Freigabe offen, FE-135). Ein Engineering-PR. Simulation, synthetische Daten. Der PO hat keinen Code gelesen; Codefakten aus UXR-315 bis UXR-318 und dem `eng`-Bereitbericht 7237198017.
 
 ## Problem
 
