@@ -170,8 +170,10 @@ const RULE_TEXT: Record<PlanningRule, string> = {
   consecutive: "zu viele Arbeitstage in Folge",
   pensum_full: "über dem Pensum dieser Woche",
   month_target_full: "über dem Monatssoll dieses Monats",
-  // Wording placeholder until the `cra` gate (brief HD-PEN-HAND: «Stunden nicht prüfbar»).
-  hours_unknown: "Stunden nicht prüfbar: weder Monatssoll noch Pensum mit Wochensoll eingetragen",
+  // HD-PEN-HAND-F1 UXR-317: the rule is a label only; which value is missing is said once, by `hoursUnknownNext` (the
+  // reason in the warning box), so the stored-shift mark reads «Regel: Stunden nicht prüfbar» with one colon. Wording
+  // placeholder until the `cra` gate.
+  hours_unknown: "Stunden nicht prüfbar",
 };
 export const ruleText = (r: PlanningRule): string => RULE_TEXT[r];
 export function isPlanningRule(v: unknown): v is PlanningRule {
@@ -697,7 +699,7 @@ export function safeReturnPath(input: unknown): string {
 export function withMessage(path: string, code: string): string {
   const url = new URL(path, "http://x");
   url.searchParams.set("meldung", code);
-  if (code !== "rule_warning") url.searchParams.delete("warnung");
+  if (!keepsWarning(code)) url.searchParams.delete("warnung");
   return `${url.pathname}${url.search}`;
 }
 
@@ -812,11 +814,69 @@ export function hoursUnknownCount(plan: Pick<Plan, "cells">): { shifts: number; 
   }
   return { shifts: seen.size, confirmed, first: first && { staff_id: first.staff_id, date: first.date } };
 }
-/** The count line (wording placeholder until the `cra` gate). */
-export function hoursUnknownCountText(n: { shifts: number; confirmed: number }): string {
-  const what = `${n.shifts} ${n.shifts === 1 ? "Dienst" : "Dienste"} ohne Stundenprüfung`;
+/**
+ * The count line. HD-PEN-HAND-F1 UXR-315: it counts only the shown week or month (`hoursUnknownCount` reads the cells of
+ * the plan answer for that range), so it names the range; it is never a home-wide total. Wording placeholder until the
+ * `cra` gate.
+ */
+export function hoursUnknownCountText(n: { shifts: number; confirmed: number }, view: "woche" | "monat", from: string): string {
+  const range = view === "woche" ? "in dieser Woche" : `im ${monthLabel(from)}`;
+  const what = `${n.shifts} ${n.shifts === 1 ? "Dienst" : "Dienste"} ohne Stundenprüfung ${range}`;
   return n.confirmed > 0 ? `${what} (davon ${n.confirmed} von Hand bestätigt)` : what;
 }
+
+/**
+ * HD-PEN-HAND-F1 UXR-316: what the count line offers for its first affected shift, from the same cause as the warning
+ * box (`hoursUnknownNext`, no new query). The home's missing Wochensoll comes first (one value for everybody with a
+ * Pensum): the lead gets the link to «Einstellungen», a planner the sentence that the lead enters it. A missing Pensum
+ * gives the link to that person (lead and planner may enter it). The database decides the rule; when the mirror finds
+ * no gap although the row carries `hours_unknown`, the line falls back to the person, so it never offers nothing.
+ */
+export type HoursUnknownStep =
+  | { kind: "weekly_target"; label: string }
+  | { kind: "ask_lead"; text: string }
+  | { kind: "person"; staff_id: string; date: string; label: string };
+export function hoursUnknownSteps(
+  plan: Pick<Plan, "staff" | "month_targets" | "institution">, first: { staff_id: string; date: string }, lead: boolean,
+): HoursUnknownStep[] {
+  const name = plan.staff.find((s) => s.id === first.staff_id)?.display_name ?? "erste Person";
+  const gap = hoursUnknownNext(plan, first.staff_id, first.date);
+  const person = (label: string): HoursUnknownStep => ({ kind: "person", staff_id: first.staff_id, date: first.date, label });
+  if (!gap) return [person(`${name} ansehen`)];
+  const steps: HoursUnknownStep[] = [];
+  if (gap.actions.some((a) => a.kind === "weekly_target")) {
+    steps.push(lead ? { kind: "weekly_target", label: "Wochensoll eintragen" }
+      : { kind: "ask_lead", text: "Das Wochensoll des Heims fehlt; es trägt die Heimleitung ein." });
+  }
+  if (gap.actions.some((a) => a.kind === "pensum")) steps.push(person(`Pensum von ${name} eintragen`));
+  return steps;
+}
+/** UXR-316: the count line's hint that its link opens only the first of several affected shifts. */
+export function hoursUnknownFirstNote(shifts: number): string | null {
+  return shifts > 1 ? `Der Link öffnet den ersten von ${shifts} Diensten.` : null;
+}
+
+/**
+ * HD-PEN-HAND-F1 UXR-318: the messages after which a pending warning (`warnung`) stays in the URL. They are the saves
+ * reached from the warning box's links (Pensum, Monatssoll, Wochensoll); the shift is still not assigned, so the box
+ * stays and offers to assign again. Every other message drops it (assigned, cancelled, any error), as before.
+ */
+export const WARNING_RETURN_CODES = ["staff_planning_saved", "monthly_target_saved", "limits_saved"] as const;
+export function keepsWarning(code: string | undefined): boolean {
+  return code === "rule_warning" || (WARNING_RETURN_CODES as ReadonlyArray<string>).includes(code ?? "");
+}
+/**
+ * UXR-318: the box after such a save («zurück») never sends a confirmation. «Jetzt einteilen» calls the hand assignment
+ * without `confirm`, so the database reads every rule again under its locks: the gap closed → saved without override;
+ * still open or a new rule → a fresh warning (message `rule_warning`), which again offers «Trotzdem einteilen». A rule
+ * list from an older URL is therefore never confirmed after the facts changed.
+ */
+export function warningReturned(code: string | undefined): boolean {
+  return (WARNING_RETURN_CODES as ReadonlyArray<string>).includes(code ?? "");
+}
+/** UXR-318: the working-time sentence of the box only for the rules it is about. */
+export const showsWorkingTimeNote = (rules: ReadonlyArray<PlanningRule>): boolean =>
+  rules.includes("rest") || rules.includes("consecutive");
 
 /** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */
 export function withAffected(path: string, affected: number): string {

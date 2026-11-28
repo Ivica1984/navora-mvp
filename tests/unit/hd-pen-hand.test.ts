@@ -112,8 +112,9 @@ describe("HD-PEN-HAND hours_unknown", () => {
     ] } as unknown as Plan;
     const n = hoursUnknownCount(plan);
     expect(n).toEqual({ shifts: 3, confirmed: 1, first: { staff_id: "b", date: "2027-03-10" } });
-    expect(hoursUnknownCountText(n)).toBe("3 Dienste ohne Stundenprüfung (davon 1 von Hand bestätigt)");
-    expect(hoursUnknownCountText({ shifts: 1, confirmed: 0 })).toBe("1 Dienst ohne Stundenprüfung");
+    // HD-PEN-HAND-F1 UXR-315: the line names the range it counts (see tests/unit/hd-pen-hand-f1.test.ts).
+    expect(hoursUnknownCountText(n, "woche", "2027-03-08")).toBe("3 Dienste ohne Stundenprüfung in dieser Woche (davon 1 von Hand bestätigt)");
+    expect(hoursUnknownCountText({ shifts: 1, confirmed: 0 }, "woche", "2027-03-08")).toBe("1 Dienst ohne Stundenprüfung in dieser Woche");
     expect(hoursUnknownCount({ cells: [{ date: "2027-03-10", assigned: [a("3", "q", "Quinn", ["rest"], null)] }] } as unknown as Plan))
       .toEqual({ shifts: 0, confirmed: 0, first: null });
   });
