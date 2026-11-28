@@ -30,6 +30,8 @@ begin
       'weekly_target_hours', inst.weekly_target_hours,
       -- HD-3s S5: «Arbeitstage pro Woche» for the daily target hint (never a block).
       'work_days_per_week', inst.work_days_per_week,
+      -- HD-3a-F3: «Abweichungsschwelle (Stunden)» of the home; NULL = every deviation is shown (brief default).
+      'monthly_target_deviation_hours', inst.monthly_target_deviation_hours,
       'can_order', exists (select 1 from public.client_accounts ca
                            where ca.institution_id = inst.id and private.is_client_member(ca.id))),
     'from', p_from, 'to', p_to,
@@ -52,6 +54,38 @@ begin
                                   'starts_on', a.starts_on, 'ends_on', a.ends_on) order by a.starts_on, a.id)
                           from public.institution_absences a
                           where a.institution_id = inst.id and a.starts_on <= p_to and a.ends_on >= p_from), '[]'::jsonb),
+    -- HD-3a-F3 (T-1: the screen computes nothing): per person and every calendar month the range touches, the monthly
+    -- target, the planned working minutes of the whole month (every stored assignment by work date, split shift
+    -- without the pause, as R-m and R-h count them), the remaining minutes and the comparison value of the brief
+    -- default (weekly budget today x days of the month / 7, rounded to whole minutes; NULL without Pensum or weekly
+    -- target). `deviates` only compares, it never changes a value; NULL when there is no target or no comparison.
+    'month_targets', coalesce((
+      select jsonb_agg(jsonb_build_object(
+               'staff_id', x.staff_id, 'month', x.month, 'target_minutes', x.target_minutes,
+               'planned_minutes', x.planned_minutes,
+               'remaining_minutes', x.target_minutes - x.planned_minutes,
+               'comparison_minutes', x.comparison_minutes,
+               'deviates', case when x.target_minutes is null or x.comparison_minutes is null then null
+                                else abs(x.target_minutes - x.comparison_minutes)
+                                     > coalesce(round(inst.monthly_target_deviation_hours * 60), 0) end)
+             order by x.month, x.display_name, x.staff_id)
+      from (
+        select p.id as staff_id, p.display_name, m.m::date as month, mt.target_minutes,
+               (select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at,
+                                                                      o.block1_ends_at, o.block2_starts_at)), 0)::int
+                  from public.institution_assignments a
+                  join public.institution_shift_types o on o.id = a.shift_type_id
+                  where a.staff_id = p.id and a.work_date >= m.m::date
+                    and a.work_date < (m.m + interval '1 month')::date) as planned_minutes,
+               case when p.pensum_pct is null or inst.weekly_target_hours is null then null
+                    else round(floor(p.pensum_pct * round(inst.weekly_target_hours * 60) / 100)
+                               * extract(day from (m.m + interval '1 month' - interval '1 day')) / 7)::int end
+                 as comparison_minutes
+        from public.institution_staff p
+        cross join generate_series(date_trunc('month', p_from::timestamp), date_trunc('month', p_to::timestamp), interval '1 month') m(m)
+        left join public.institution_monthly_targets mt on mt.staff_id = p.id and mt.period_month = m.m::date
+        where p.institution_id = inst.id
+      ) x), '[]'::jsonb),
     -- HD-3a wishes (FE-125): read like the other person data of the home; the draft uses them as an order only.
     'wishes', coalesce((select jsonb_agg(jsonb_build_object('staff_id', w.staff_id, 'weekday', w.weekday, 'kind', w.kind,
                                 'shift_type_id', w.shift_type_id) order by w.staff_id, w.weekday, w.kind, w.shift_type_id)

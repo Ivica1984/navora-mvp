@@ -371,7 +371,7 @@ describe("HD-3a draft: unsolvable month", () => {
   it("words a gap without any person of the grade", () => {
     expect(
       gapReasonText(
-        { date: "2026-12-01", station_id: "s", shift_type_id: "t", kind: "unfilled", missing_total: 1, missing_grade: 1, grade: HF, pool_active: 0, blocked: { pensum_missing: 0, shift_model: 0, absent: 0, busy: 0, rest: 0, consecutive: 0, pensum_full: 0 } },
+        { date: "2026-12-01", station_id: "s", shift_type_id: "t", kind: "unfilled", missing_total: 1, missing_grade: 1, grade: HF, pool_active: 0, blocked: { pensum_missing: 0, shift_model: 0, absent: 0, busy: 0, rest: 0, consecutive: 0, pensum_full: 0, month_target_full: 0 } },
         gradeLabel,
       ),
     ).toBe("1 × HF fehlt – keine aktive Person mit HF");

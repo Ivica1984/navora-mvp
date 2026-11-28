@@ -9,7 +9,10 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { applyOutcome } from "./draft-screen";
-import { expectedLimits, expectedShiftClass, expectedStaffPlanning, parseWhole, readLimitsForm, readShiftClassForm, readStaffPlanningForm } from "./planning-inputs";
+import {
+  expectedLimits, expectedMonthTarget, expectedShiftClass, expectedStaffPlanning, expectedThreshold, parseWhole, readLimitsForm,
+  readMonthTargetForm, readShiftClassForm, readStaffPlanningForm, readThresholdForm,
+} from "./planning-inputs";
 import { validateSplitShift } from "./split";
 import { ABSENCE_KINDS, HOME_PLAN_PATH, isPlanningRule, parseRules, safeReturnPath, sameOrderChoice, carriesApplyRun, withAffected, withApplyRun, withDraftCounts, withMessage, withWarning } from "./rules";
 
@@ -413,4 +416,34 @@ export async function setShiftClass(form: FormData) {
   }
   revalidatePath(HOME_PLAN_PATH);
   redirect(withMessage(target, code));
+}
+
+/**
+ * HD-3a-F3 (founder FE-135 option A, migration 0189): the monthly target of one person for one calendar month, entered
+ * by the home lead. The database checks the role, the month, the range and the shown value under the person lock; the
+ * app only reads the form (T-2: a value it cannot read is refused with a visible text, nothing is sent).
+ */
+export async function setMonthlyTarget(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({ staff: uuid }), { staff: str(form, "staff") }, back);
+  const read = readMonthTargetForm(form);
+  if (!read.ok) redirect(withMessage(back, read.error));
+  const expected = expectedMonthTarget(form);
+  if (!expected) redirect(withMessage(back, "expected_not_valid"));
+  await run("institution_set_monthly_target", {
+    p_staff_id: v.staff, p_month: read.value.month, p_target_minutes: read.value.targetMinutes, p_expected: expected,
+  }, read.value.targetMinutes === null ? "monthly_target_removed" : "monthly_target_saved", back);
+}
+
+/** HD-3a-F3: «Abweichungsschwelle (Stunden)» of the home (lead only); «keine Schwelle» = every deviation is shown. */
+export async function setMonthlyTargetThreshold(form: FormData) {
+  const back = safeReturnPath(form.get("back"));
+  const v = parse(z.object({ institution: uuid }), { institution: str(form, "institution") }, back);
+  const read = readThresholdForm(form);
+  if (!read.ok) redirect(withMessage(back, read.error));
+  const expected = expectedThreshold(form);
+  if (!expected) redirect(withMessage(back, "expected_not_valid"));
+  await run("institution_set_monthly_target_threshold", {
+    p_institution_id: v.institution, p_hours: read.value, p_expected: expected,
+  }, "threshold_saved", back);
 }
