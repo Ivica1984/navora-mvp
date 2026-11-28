@@ -1,0 +1,1444 @@
+{
+  "retrieved": "2026-11-28T14:16:01.913Z",
+  "timezone": "Europe/Zurich",
+  "window": {
+    "from_local": "2026-11-21",
+    "to_local": "2026-11-28",
+    "from_utc": "2026-11-20T23:00:00.000Z",
+    "to_utc_exclusive": "2026-11-28T23:00:00.000Z"
+  },
+  "ref": {
+    "name": "origin/recovery/main",
+    "sha": "1638ba2c5862240b2df55bdee411b2d57d6b3742"
+  },
+  "scanned_prs": 177,
+  "cases": [
+    {
+      "pr": 1644,
+      "title": "fix(staging-smoke): free days read in the app, path 4 leftovers, deploy notice (#1642)",
+      "state": "merged",
+      "head": "26ef4a17",
+      "events": {
+        "opened": "2026-11-21T04:20:01Z",
+        "ready_first": "2026-11-21T05:13:06Z",
+        "ready_last": "2026-11-21T05:13:06Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-21T05:41:02Z",
+        "merge_commit": {
+          "sha": "15800e75",
+          "date": "2026-11-21T05:41:01.000Z",
+          "subject": "PO merge #1644: staging-smoke harness fix for #1642 (head 26ef4a1)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.47,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1649,
+      "title": "fix(staging-smoke): no path can run out of test days; refuse at the API row cap (#1642, STAB1-F4)",
+      "state": "merged",
+      "head": "ab08ee11",
+      "events": {
+        "opened": "2026-11-21T07:17:07Z",
+        "ready_first": "2026-11-21T07:43:13Z",
+        "ready_last": "2026-11-21T07:59:42Z",
+        "ready_count": 2,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-21T08:40:56Z",
+        "merge_commit": {
+          "sha": "05443987",
+          "date": "2026-11-21T08:40:55.000Z",
+          "subject": "Merge PR #1649: fix(staging-smoke): no path can run out of test days; refuse at the API row cap (#1642, STAB1-F4)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.96,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "2 READY comments (re-reports after head changes or duplicates)",
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "merge commit subject is not «PO merge #…»: «Merge PR #1649: fix(staging-smoke): no path can run out of t»"
+      ]
+    },
+    {
+      "pr": 1641,
+      "title": "HD-2: Lücke → externer Auftrag → Status zurück (HEIM-DP, draft)",
+      "state": "merged",
+      "head": "567e36b0",
+      "events": {
+        "opened": "2026-11-21T03:18:46Z",
+        "ready_first": "2026-11-21T08:53:06Z",
+        "ready_last": "2026-11-21T08:53:06Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {
+          "cra": "2026-11-21T09:45:50Z",
+          "uxa": "2026-11-21T10:44:49Z"
+        },
+        "gate_last": "2026-11-21T10:44:49Z",
+        "merged": "2026-11-21T11:40:56Z",
+        "merge_commit": {
+          "sha": "ca334ceb",
+          "date": "2026-11-21T11:40:55.000Z",
+          "subject": "Merge pull request #1641 from Ivica1984/feature/HD-2 (HEIM-DP HD-2)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-2 Lücke → externer Auftrag → Status zurück (Teilabnahme im Block HEIM-DP, FE-109, FE-110, FE-111)",
+          "local": "2026-11-21 14:39",
+          "utc": "2026-11-21T13:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": 0.94,
+        "K4_first_ready_to_merge": 2.8,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 1.97,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "merge commit subject is not «PO merge #…»: «Merge pull request #1641 from Ivica1984/feature/HD-2 (HEIM-D»",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1661,
+      "title": "fix(heim): UXR-269 «Senden» sends exactly what the boxes show",
+      "state": "merged",
+      "head": "9e6612c8",
+      "events": {
+        "opened": "2026-11-21T12:18:01Z",
+        "ready_first": "2026-11-21T13:00:48Z",
+        "ready_last": "2026-11-21T13:00:48Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {
+          "uxa": "2026-11-21T19:31:33Z",
+          "cra": "2026-11-21T19:34:33Z"
+        },
+        "gate_last": "2026-11-21T19:34:33Z",
+        "merged": "2026-11-21T19:41:06Z",
+        "merge_commit": {
+          "sha": "cdf7a5e8",
+          "date": "2026-11-21T19:41:05.000Z",
+          "subject": "Merge pull request #1661 from Ivica1984/fix/UXR-269-order-send-what-is-shown"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": 0.11,
+        "K4_first_ready_to_merge": 6.67,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "merge commit subject is not «PO merge #…»: «Merge pull request #1661 from Ivica1984/fix/UXR-269-order-se»"
+      ]
+    },
+    {
+      "pr": 1677,
+      "title": "S-1: P1 safety signals are never silently empty (fail-visible banner on /field, /team, /operations)",
+      "state": "merged",
+      "head": "97d02566",
+      "events": {
+        "opened": "2026-11-22T00:38:07Z",
+        "ready_first": "2026-11-22T01:15:39Z",
+        "ready_last": "2026-11-22T01:15:39Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {
+          "cra": "2026-11-22T01:44:21Z",
+          "uxa": "2026-11-22T01:44:28Z"
+        },
+        "gate_last": "2026-11-22T01:44:28Z",
+        "merged": "2026-11-22T02:40:39Z",
+        "merge_commit": {
+          "sha": "01949370",
+          "date": "2026-11-22T02:40:38.000Z",
+          "subject": "Merge pull request #1677 from Ivica1984/fix/S-1-safety-signals-visible"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": 0.94,
+        "K4_first_ready_to_merge": 1.42,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "merge commit subject is not «PO merge #…»: «Merge pull request #1677 from Ivica1984/fix/S-1-safety-signa»"
+      ]
+    },
+    {
+      "pr": 1671,
+      "title": "PERF1: each caller computes only the exception branches it reads; /field and /team degrade visibly",
+      "state": "merged",
+      "head": "2f067ad3",
+      "events": {
+        "opened": "2026-11-21T20:28:19Z",
+        "ready_first": "2026-11-22T05:49:21Z",
+        "ready_last": "2026-11-22T05:49:21Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {
+          "uxa": "2026-11-22T06:43:26Z",
+          "cra": "2026-11-22T06:43:51Z"
+        },
+        "gate_last": "2026-11-22T06:43:51Z",
+        "merged": "2026-11-22T06:45:16Z",
+        "merge_commit": {
+          "sha": "448e9c40",
+          "date": "2026-11-22T06:45:15.000Z",
+          "subject": "PO merge #1671: PERF1 (head 2f067ad; cra-gate, uxa-gate clear)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "PERF1 Hinweislisten degradieren sichtbar, Ausnahmen nur je Aufrufer (Paket im Block HEIM-DP, FE-111, FE-112)",
+          "local": "2026-11-22 08:39",
+          "utc": "2026-11-22T07:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": 0.02,
+        "K4_first_ready_to_merge": 0.93,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 0.9,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1694,
+      "title": "fix(staging-smoke): STG-SMOKE-1 — smoke scope against the last green smoke; staging-version waits for the ci staging job",
+      "state": "merged",
+      "head": "acc36e17",
+      "events": {
+        "opened": "2026-11-22T08:14:35Z",
+        "ready_first": "2026-11-22T08:30:29Z",
+        "ready_last": "2026-11-22T08:30:29Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-22T08:40:29Z",
+        "merge_commit": {
+          "sha": "4ee5b392",
+          "date": "2026-11-22T08:40:28.000Z",
+          "subject": "PO merge #1694: STG-SMOKE-1 (AI1 contract item 0, head acc36e1)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.17,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1713,
+      "title": "SEC-DEP1: npm audit fix (dev tooling, 2 high + 7 moderate) — FE-116, #1710",
+      "state": "merged",
+      "head": "847148b9",
+      "events": {
+        "opened": "2026-11-24T13:20:51Z",
+        "ready_first": "2026-11-24T13:31:22Z",
+        "ready_last": "2026-11-24T13:31:22Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-24T13:39:40Z",
+        "merge_commit": {
+          "sha": "323e6df7",
+          "date": "2026-11-24T13:39:39.000Z",
+          "subject": "Merge pull request #1713 from Ivica1984/feature/security-deps-audit"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.14,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "merge commit subject is not «PO merge #…»: «Merge pull request #1713 from Ivica1984/feature/security-dep»"
+      ]
+    },
+    {
+      "pr": 1697,
+      "title": "AI1: first connected model function (report draft): call budget, kill switch, evaluation — draft",
+      "state": "merged",
+      "head": "2e4d5d89",
+      "events": {
+        "opened": "2026-11-22T09:21:16Z",
+        "ready_first": "2026-11-24T15:18:12Z",
+        "ready_last": "2026-11-24T15:18:12Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {
+          "cra": "2026-11-24T15:31:24Z"
+        },
+        "gate_last": "2026-11-24T15:31:24Z",
+        "merged": "2026-11-24T15:40:50Z",
+        "merge_commit": {
+          "sha": "2f2d785e",
+          "date": "2026-11-24T15:40:49.000Z",
+          "subject": "PO merge #1697: AI1 call budget, kill switch, prompt pin, fail closed (head 2e4d5d8)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": 0.16,
+        "K4_first_ready_to_merge": 0.38,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY"
+      ]
+    },
+    {
+      "pr": 1728,
+      "title": "fix(ci): codeql actions: read, no upload, SARIF gate on severity >= 7.0 (#1723)",
+      "state": "merged",
+      "head": "a3df880d",
+      "events": {
+        "opened": "2026-11-24T16:13:25Z",
+        "ready_first": "2026-11-24T17:35:33Z",
+        "ready_last": "2026-11-24T17:35:33Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-24T17:41:33Z",
+        "merge_commit": {
+          "sha": "4869e389",
+          "date": "2026-11-24T17:41:33.000Z",
+          "subject": "PO merge #1728: CodeQL fallback, actions: read, no upload, SARIF gate >= 7.0 (head a3df880)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.1,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1733,
+      "title": "fix(ci): shorter artifact retention, Actions storage quota full (FIX-ART1)",
+      "state": "merged",
+      "head": "10335366",
+      "events": {
+        "opened": "2026-11-24T19:59:31Z",
+        "ready_first": "2026-11-24T20:17:18Z",
+        "ready_last": "2026-11-24T20:17:18Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-24T20:40:21Z",
+        "merge_commit": {
+          "sha": "126a4103",
+          "date": "2026-11-24T20:40:20.000Z",
+          "subject": "Merge pull request #1733 from Ivica1984/fix/actions-artifact-quota"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.38,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "merge commit subject is not «PO merge #…»: «Merge pull request #1733 from Ivica1984/fix/actions-artifact»"
+      ]
+    },
+    {
+      "pr": 1729,
+      "title": "HD-3a: rule-based plan optimiser (feste Regeln), slice 1 master data",
+      "state": "merged",
+      "head": "203507be",
+      "events": {
+        "opened": "2026-11-24T16:22:20Z",
+        "ready_first": "2026-11-25T14:50:56Z",
+        "ready_last": "2026-11-25T14:50:56Z",
+        "ready_count": 1,
+        "window": "2026-11-25T15:42:19Z",
+        "gate_final_clear": {
+          "cra": "2026-11-25T15:47:18Z",
+          "aia": "2026-11-25T15:55:37Z",
+          "uxa": "2026-11-25T15:59:28Z"
+        },
+        "gate_last": "2026-11-25T15:59:28Z",
+        "merged": "2026-11-25T16:42:11Z",
+        "merge_commit": {
+          "sha": "4823eee5",
+          "date": "2026-11-25T16:42:10.000Z",
+          "subject": "PO merge #1729: HD-3a Optimierung (feste Regeln) (head 203507b)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3a «Optimierung (feste Regeln)» mit ORDER-F1 (inkl. F2, F3, F5) (Teilabnahme im Block HEIM-DP, FE-117 bis FE-131)",
+          "local": "2026-11-26 11:39",
+          "utc": "2026-11-26T10:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.86,
+        "K2_window_to_last_gate": 0.29,
+        "K3_last_gate_to_merge": 0.71,
+        "K4_first_ready_to_merge": 1.85,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 17.95,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1752,
+      "title": "fix(e2e): HD-3a Pensum save waits for its own round trip, not the previous banner",
+      "state": "merged",
+      "head": "d2e67d6c",
+      "events": {
+        "opened": "2026-11-25T17:14:36Z",
+        "ready_first": "2026-11-25T17:42:45Z",
+        "ready_last": "2026-11-25T17:42:45Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-25T18:41:14Z",
+        "merge_commit": {
+          "sha": "b4cb8d36",
+          "date": "2026-11-25T18:41:12.000Z",
+          "subject": "PO merge #1752: HD-3a post-merge fix, e2e Pensum save waits for its own round trip (head d2e67d6)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.97,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1754,
+      "title": "fix(staging-smoke): path 5 orders a gap only on a day the client has no order",
+      "state": "merged",
+      "head": "f21e9a09",
+      "events": {
+        "opened": "2026-11-25T18:17:33Z",
+        "ready_first": "2026-11-25T18:32:20Z",
+        "ready_last": "2026-11-25T18:32:20Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-25T19:40:49Z",
+        "merge_commit": {
+          "sha": "a3ed5505",
+          "date": "2026-11-25T19:40:48.000Z",
+          "subject": "PO merge #1754: staging-smoke path 5 orders a gap only on a day the client has no order (head f21e9a0)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 1.14,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1760,
+      "title": "fix(ORDER-F1): order list stays loadable as orders grow; a failed list read stays in the list",
+      "state": "merged",
+      "head": "d634d9a5",
+      "events": {
+        "opened": "2026-11-25T21:28:18Z",
+        "ready_first": "2026-11-25T22:23:16Z",
+        "ready_last": "2026-11-25T22:23:16Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-25T22:41:03Z",
+        "merge_commit": {
+          "sha": "992a7e3c",
+          "date": "2026-11-25T22:41:02.000Z",
+          "subject": "PO merge #1760: fix(ORDER-F1) order list stays loadable as orders grow (head d634d9a)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3a «Optimierung (feste Regeln)» mit ORDER-F1 (inkl. F2, F3, F5) (Teilabnahme im Block HEIM-DP, FE-117 bis FE-131)",
+          "local": "2026-11-26 11:39",
+          "utc": "2026-11-26T10:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.3,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 11.97,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1765,
+      "title": "fix(HD-3a smoke): path 7 cleanup waits for each removal itself (test race, not an app defect)",
+      "state": "merged",
+      "head": "8ffb9e42",
+      "events": {
+        "opened": "2026-11-25T23:43:20Z",
+        "ready_first": "2026-11-26T00:22:21Z",
+        "ready_last": "2026-11-26T00:22:21Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-26T00:41:54Z",
+        "merge_commit": {
+          "sha": "edfacb8d",
+          "date": "2026-11-26T00:41:53.000Z",
+          "subject": "PO merge #1765: HD-3a smoke path 7 cleanup fix (head 8ffb9e4)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.33,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1770,
+      "title": "fix(ORDER-F1-F2): recheck_member_takes filters started orders first; pgTAP 178 bounded per section; pgTAP 179",
+      "state": "merged",
+      "head": "a456eba8",
+      "events": {
+        "opened": "2026-11-26T01:21:20Z",
+        "ready_first": "2026-11-26T02:42:17Z",
+        "ready_last": "2026-11-26T02:42:17Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-26T03:41:10Z",
+        "merge_commit": {
+          "sha": "00b59f9d",
+          "date": "2026-11-26T03:41:09.000Z",
+          "subject": "PO merge #1770: fix(ORDER-F1-F2): recheck_member_takes filters started orders first; pgTAP 178 bounded; pgTAP 179 (head a456eba)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3a «Optimierung (feste Regeln)» mit ORDER-F1 (inkl. F2, F3, F5) (Teilabnahme im Block HEIM-DP, FE-117 bis FE-131)",
+          "local": "2026-11-26 11:39",
+          "utc": "2026-11-26T10:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.98,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 6.96,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1774,
+      "title": "fix(ORDER-F1-F3): team_order_offers cost follows the caller, not the platform (pgTAP 180 budget first)",
+      "state": "merged",
+      "head": "905daca2",
+      "events": {
+        "opened": "2026-11-26T03:14:38Z",
+        "ready_first": "2026-11-26T04:18:06Z",
+        "ready_last": "2026-11-26T04:18:06Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-26T04:41:43Z",
+        "merge_commit": {
+          "sha": "57d1ae4d",
+          "date": "2026-11-26T04:41:42.000Z",
+          "subject": "PO merge #1774: fix(ORDER-F1-F3): team_order_offers cost follows the caller (head 905daca)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3a «Optimierung (feste Regeln)» mit ORDER-F1 (inkl. F2, F3, F5) (Teilabnahme im Block HEIM-DP, FE-117 bis FE-131)",
+          "local": "2026-11-26 11:39",
+          "utc": "2026-11-26T10:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.39,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 5.95,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1780,
+      "title": "fix(ORDER-F1-F5): offer reasons read the clock once per call, whatever the plan",
+      "state": "merged",
+      "head": "fa2a35c6",
+      "events": {
+        "opened": "2026-11-26T06:16:04Z",
+        "ready_first": "2026-11-26T07:07:54Z",
+        "ready_last": "2026-11-26T07:07:54Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-26T07:41:38Z",
+        "merge_commit": {
+          "sha": "661f8cb4",
+          "date": "2026-11-26T07:41:37.000Z",
+          "subject": "PO merge #1780: ORDER-F1-F5 (head fa2a35c)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3a «Optimierung (feste Regeln)» mit ORDER-F1 (inkl. F2, F3, F5) (Teilabnahme im Block HEIM-DP, FE-117 bis FE-131)",
+          "local": "2026-11-26 11:39",
+          "utc": "2026-11-26T10:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.56,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 2.96,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1788,
+      "title": "AUT-220: budgets 178–180 also run under the pinned plans of 181 (tests only)",
+      "state": "merged",
+      "head": "00b08536",
+      "events": {
+        "opened": "2026-11-26T11:19:34Z",
+        "ready_first": "2026-11-26T11:47:32Z",
+        "ready_last": "2026-11-26T11:47:32Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-26T12:42:21Z",
+        "merge_commit": {
+          "sha": "d2e78ace",
+          "date": "2026-11-26T12:42:20.000Z",
+          "subject": "PO merge #1788: AUT-220 (head 00b08536)"
+        },
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.91,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)"
+      ]
+    },
+    {
+      "pr": 1790,
+      "title": "HD-3s: geteilter Dienst (zwei Blöcke) im Heimplan, feste Regeln",
+      "state": "merged",
+      "head": "27cb1fc6",
+      "events": {
+        "opened": "2026-11-26T12:26:33Z",
+        "ready_first": "2026-11-26T13:41:53Z",
+        "ready_last": "2026-11-26T13:41:53Z",
+        "ready_count": 1,
+        "window": "2026-11-26T14:41:17Z",
+        "gate_final_clear": {
+          "lca": "2026-11-26T14:47:25Z",
+          "cra": "2026-11-26T20:32:37Z",
+          "uxa": "2026-11-26T20:51:13Z"
+        },
+        "gate_last": "2026-11-26T20:51:13Z",
+        "merged": "2026-11-26T21:41:17Z",
+        "merge_commit": {
+          "sha": "7e48a7a4",
+          "date": "2026-11-26T21:41:16.000Z",
+          "subject": "PO merge #1790: HD-3s (head 27cb1fc6)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3s Geteilter Dienst (zwei Blöcke) im Heimplan, feste Regeln (Teilabnahme im Block HEIM-DP, FE-127, FE-133, FE-135)",
+          "local": "2026-11-27 03:39",
+          "utc": "2026-11-27T02:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.99,
+        "K2_window_to_last_gate": 6.17,
+        "K3_last_gate_to_merge": 0.83,
+        "K4_first_ready_to_merge": 7.99,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 4.96,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "2 WINDOW comments",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1808,
+      "title": "HD-3s-F2: external order with two blocks (split shift), fixed rules (draft)",
+      "state": "merged",
+      "head": "fcfebf8d",
+      "events": {
+        "opened": "2026-11-26T23:25:45Z",
+        "ready_first": "2026-11-27T03:02:31Z",
+        "ready_last": "2026-11-27T03:02:31Z",
+        "ready_count": 1,
+        "window": "2026-11-27T03:41:15Z",
+        "gate_final_clear": {
+          "lca": "2026-11-27T03:43:45Z",
+          "uxa": "2026-11-27T03:45:09Z",
+          "cra": "2026-11-27T03:47:02Z"
+        },
+        "gate_last": "2026-11-27T03:47:02Z",
+        "merged": "2026-11-27T04:41:01Z",
+        "merge_commit": {
+          "sha": "d3612055",
+          "date": "2026-11-27T04:41:00.000Z",
+          "subject": "PO merge #1808: HD-3s-F2 (head fcfebf8d)"
+        },
+        "accept_comment": "2026-11-27T05:44:39Z",
+        "accept_akte": {
+          "heading": "HD-3s-F2 Externer Auftrag mit zwei Blöcken (geteilter Dienst), feste Regeln (Teilabnahme im Block HEIM-DP, FE-133 (1), FE-136)",
+          "local": "2026-11-27 06:39",
+          "utc": "2026-11-27T05:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": 6
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.65,
+        "K2_window_to_last_gate": 0.1,
+        "K3_last_gate_to_merge": 0.9,
+        "K4_first_ready_to_merge": 1.64,
+        "K5c_merge_to_accept_comment": 1.06,
+        "K5a_merge_to_accept_akte": 0.97,
+        "K6_first_ready_to_accept_comment": 2.7,
+        "K7_opened_to_accept_comment": 6.32
+      },
+      "anomalies": []
+    },
+    {
+      "pr": 1821,
+      "title": "STG-SMOKE-3 (b): one rerun of failed staging click paths only on a proven deploy change",
+      "state": "merged",
+      "head": "17794fbe",
+      "events": {
+        "opened": "2026-11-27T06:17:17Z",
+        "ready_first": "2026-11-27T06:57:43Z",
+        "ready_last": "2026-11-27T06:57:43Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-27T07:41:21Z",
+        "merge_commit": {
+          "sha": "4130c011",
+          "date": "2026-11-27T07:41:20.000Z",
+          "subject": "PO merge #1821: STG-SMOKE-3 (b) one rerun only on a proven deploy change (head 17794fbe)"
+        },
+        "accept_comment": "2026-11-27T08:59:55Z",
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.73,
+        "K5c_merge_to_accept_comment": 1.31,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": 2.04,
+        "K7_opened_to_accept_comment": 2.71
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "acceptance comment on the PR, but this PR is not named in an ABNAHMEAKTE status line"
+      ]
+    },
+    {
+      "pr": 1825,
+      "title": "HD-3s-F2-F1: the hand path reads a live take window (pause included) as busy and rejects with the take named (CGR-289)",
+      "state": "merged",
+      "head": "54d0eb4e",
+      "events": {
+        "opened": "2026-11-27T08:37:56Z",
+        "ready_first": "2026-11-27T17:25:39Z",
+        "ready_last": "2026-11-27T17:25:39Z",
+        "ready_count": 1,
+        "window": "2026-11-27T17:41:39Z",
+        "gate_final_clear": {
+          "uxa": "2026-11-27T17:44:34Z",
+          "cra": "2026-11-27T17:47:59Z"
+        },
+        "gate_last": "2026-11-27T17:47:59Z",
+        "merged": "2026-11-27T18:41:30Z",
+        "merge_commit": {
+          "sha": "2ca16e9c",
+          "date": "2026-11-27T18:41:29.000Z",
+          "subject": "PO merge #1825: HD-3s-F2-F1 (head 54d0eb4e)"
+        },
+        "accept_comment": "2026-11-27T19:44:05Z",
+        "accept_akte": {
+          "heading": "HD-3s-F2-F1 Pause einer geteilten Übernahme auf dem Handweg belegt, feste Regel (Teilabnahme im Block HEIM-DP, CGR-289, FE-137 (1))",
+          "local": "2026-11-27 20:39",
+          "utc": "2026-11-27T19:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": 5
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.27,
+        "K2_window_to_last_gate": 0.11,
+        "K3_last_gate_to_merge": 0.89,
+        "K4_first_ready_to_merge": 1.26,
+        "K5c_merge_to_accept_comment": 1.04,
+        "K5a_merge_to_accept_akte": 0.96,
+        "K6_first_ready_to_accept_comment": 2.31,
+        "K7_opened_to_accept_comment": 11.1
+      },
+      "anomalies": []
+    },
+    {
+      "pr": 1838,
+      "title": "HD-3a-F1: «übernehmen» checks Pensum and Wochensoll in the database (fail closed)",
+      "state": "merged",
+      "head": "4a210609",
+      "events": {
+        "opened": "2026-11-27T19:29:24Z",
+        "ready_first": "2026-11-27T23:35:24Z",
+        "ready_last": "2026-11-27T23:35:24Z",
+        "ready_count": 1,
+        "window": "2026-11-27T23:40:37Z",
+        "gate_final_clear": {
+          "cra": "2026-11-27T23:43:31Z",
+          "uxa": "2026-11-27T23:44:31Z"
+        },
+        "gate_last": "2026-11-27T23:44:31Z",
+        "merged": "2026-11-28T00:41:00Z",
+        "merge_commit": {
+          "sha": "bf9185c0",
+          "date": "2026-11-28T00:40:59.000Z",
+          "subject": "PO merge #1838: HD-3a-F1 «übernehmen» checks Pensum and Wochensoll (head 4a210609)"
+        },
+        "accept_comment": "2026-11-28T03:43:57Z",
+        "accept_akte": {
+          "heading": "HD-3a-F1 «übernehmen» prüft Pensum und Wochensoll in der Datenbank, Planungseingaben unter Zeilensperre, feste Regeln (Teilabnahme im Block HEIM-DP, FE-129, FE-137 (2))",
+          "local": "2026-11-28 04:39",
+          "utc": "2026-11-28T03:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": 5
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.09,
+        "K2_window_to_last_gate": 0.07,
+        "K3_last_gate_to_merge": 0.94,
+        "K4_first_ready_to_merge": 1.09,
+        "K5c_merge_to_accept_comment": 3.05,
+        "K5a_merge_to_accept_akte": 2.97,
+        "K6_first_ready_to_accept_comment": 4.14,
+        "K7_opened_to_accept_comment": 8.24
+      },
+      "anomalies": []
+    },
+    {
+      "pr": 1848,
+      "title": "fix(e2e): HD-3a-F1 spec shares week +119 with HD-3s T-1 — recovery/main e2e red after #1838",
+      "state": "merged",
+      "head": "1e0381bb",
+      "events": {
+        "opened": "2026-11-28T01:13:22Z",
+        "ready_first": "2026-11-28T01:45:17Z",
+        "ready_last": "2026-11-28T01:45:17Z",
+        "ready_count": 1,
+        "window": null,
+        "gate_final_clear": {},
+        "gate_last": null,
+        "merged": "2026-11-28T02:41:23Z",
+        "merge_commit": {
+          "sha": "c2a38a9a",
+          "date": "2026-11-28T02:41:22.000Z",
+          "subject": "PO merge #1848: HD-3a-F1 e2e week isolation (head 1e0381bb)"
+        },
+        "accept_comment": null,
+        "accept_akte": {
+          "heading": "HD-3a-F1 «übernehmen» prüft Pensum und Wochensoll in der Datenbank, Planungseingaben unter Zeilensperre, feste Regeln (Teilabnahme im Block HEIM-DP, FE-129, FE-137 (2))",
+          "local": "2026-11-28 04:39",
+          "utc": "2026-11-28T03:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": null,
+        "K2_window_to_last_gate": null,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": 0.94,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": 0.96,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": [
+        "no WINDOW comment after the last READY",
+        "no clear gate line naming the final head in the comments (required gates: not read)",
+        "acceptance in ABNAHMEAKTE, but no acceptance comment on this PR"
+      ]
+    },
+    {
+      "pr": 1854,
+      "title": "HD-3a-F3: Monatssoll je Person und Kalendermonat (Founder-Option A), feste Regel R-m",
+      "state": "merged",
+      "head": "5740d09b",
+      "events": {
+        "opened": "2026-11-28T04:33:23Z",
+        "ready_first": "2026-11-28T05:35:46Z",
+        "ready_last": "2026-11-28T05:35:46Z",
+        "ready_count": 1,
+        "window": "2026-11-28T05:41:28Z",
+        "gate_final_clear": {
+          "cra": "2026-11-28T05:42:56Z",
+          "lca": "2026-11-28T05:44:11Z",
+          "uxa": "2026-11-28T05:45:34Z"
+        },
+        "gate_last": "2026-11-28T05:45:34Z",
+        "merged": "2026-11-28T06:41:16Z",
+        "merge_commit": {
+          "sha": "bf64e753",
+          "date": "2026-11-28T06:41:14.000Z",
+          "subject": "PO merge #1854: HD-3a-F3 (head 5740d09b)"
+        },
+        "accept_comment": "2026-11-28T07:46:00Z",
+        "accept_akte": {
+          "heading": "HD-3a-F3 Monatssoll je Person und Kalendermonat (Founder-Option A), feste Regeln (Teilabnahme im Block HEIM-DP, FE-135, FE-137 (1))",
+          "local": "2026-11-28 08:39",
+          "utc": "2026-11-28T07:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": 7
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.1,
+        "K2_window_to_last_gate": 0.07,
+        "K3_last_gate_to_merge": 0.93,
+        "K4_first_ready_to_merge": 1.09,
+        "K5c_merge_to_accept_comment": 1.08,
+        "K5a_merge_to_accept_akte": 0.96,
+        "K6_first_ready_to_accept_comment": 2.17,
+        "K7_opened_to_accept_comment": 3.21
+      },
+      "anomalies": []
+    },
+    {
+      "pr": 1863,
+      "title": "HD-PEN-HAND: «Stunden nicht prüfbar» on the hand path (fixed rule, 0190)",
+      "state": "merged",
+      "head": "a50ff9e7",
+      "events": {
+        "opened": "2026-11-28T08:24:01Z",
+        "ready_first": "2026-11-28T09:22:33Z",
+        "ready_last": "2026-11-28T09:22:33Z",
+        "ready_count": 1,
+        "window": "2026-11-28T09:41:23Z",
+        "gate_final_clear": {
+          "cra": "2026-11-28T09:43:41Z",
+          "uxa": "2026-11-28T09:59:51Z"
+        },
+        "gate_last": "2026-11-28T09:59:51Z",
+        "merged": "2026-11-28T10:41:23Z",
+        "merge_commit": {
+          "sha": "ed7759e8",
+          "date": "2026-11-28T10:41:22.000Z",
+          "subject": "PO merge #1863: HD-PEN-HAND (head a50ff9e7)"
+        },
+        "accept_comment": "2026-11-28T11:46:17Z",
+        "accept_akte": {
+          "heading": "HD-PEN-HAND «Stunden nicht prüfbar» auf dem Handweg, feste Regel (Teilabnahme im Block HEIM-DP, ENG-PH1, CGR-286, FE-137 (1))",
+          "local": "2026-11-28 12:39",
+          "utc": "2026-11-28T11:39:00.000Z",
+          "approx": false
+        },
+        "akte_minus_comment_min": 7
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.31,
+        "K2_window_to_last_gate": 0.31,
+        "K3_last_gate_to_merge": 0.69,
+        "K4_first_ready_to_merge": 1.31,
+        "K5c_merge_to_accept_comment": 1.08,
+        "K5a_merge_to_accept_akte": 0.96,
+        "K6_first_ready_to_accept_comment": 2.4,
+        "K7_opened_to_accept_comment": 3.37
+      },
+      "anomalies": []
+    },
+    {
+      "pr": 1872,
+      "title": "HD-3s-F2-F1-F1: day-plan proposer sees the pause of a split take as busy",
+      "state": "open",
+      "head": "dd6abad9",
+      "events": {
+        "opened": "2026-11-28T12:24:52Z",
+        "ready_first": "2026-11-28T13:15:57Z",
+        "ready_last": "2026-11-28T13:15:57Z",
+        "ready_count": 1,
+        "window": "2026-11-28T13:40:58Z",
+        "gate_final_clear": {
+          "uxa": "2026-11-28T13:43:20Z",
+          "cra": "2026-11-28T13:45:40Z"
+        },
+        "gate_last": "2026-11-28T13:45:40Z",
+        "merged": null,
+        "merge_commit": null,
+        "accept_comment": null,
+        "accept_akte": null,
+        "akte_minus_comment_min": null
+      },
+      "durations_h": {
+        "K1_ready_to_window": 0.42,
+        "K2_window_to_last_gate": 0.08,
+        "K3_last_gate_to_merge": null,
+        "K4_first_ready_to_merge": null,
+        "K5c_merge_to_accept_comment": null,
+        "K5a_merge_to_accept_akte": null,
+        "K6_first_ready_to_accept_comment": null,
+        "K7_opened_to_accept_comment": null
+      },
+      "anomalies": []
+    }
+  ],
+  "kpis": {
+    "K1_ready_to_window": {
+      "n": 8,
+      "median": 0.37,
+      "min": 0.09,
+      "max": 0.99,
+      "sum": 3.69,
+      "excluded": [
+        1644,
+        1649,
+        1641,
+        1661,
+        1677,
+        1671,
+        1694,
+        1713,
+        1697,
+        1728,
+        1733,
+        1752,
+        1754,
+        1760,
+        1765,
+        1770,
+        1774,
+        1780,
+        1788,
+        1821,
+        1848
+      ],
+      "negative": []
+    },
+    "K2_window_to_last_gate": {
+      "n": 8,
+      "median": 0.11,
+      "min": 0.07,
+      "max": 6.17,
+      "sum": 7.2,
+      "excluded": [
+        1644,
+        1649,
+        1641,
+        1661,
+        1677,
+        1671,
+        1694,
+        1713,
+        1697,
+        1728,
+        1733,
+        1752,
+        1754,
+        1760,
+        1765,
+        1770,
+        1774,
+        1780,
+        1788,
+        1821,
+        1848
+      ],
+      "negative": []
+    },
+    "K3_last_gate_to_merge": {
+      "n": 12,
+      "median": 0.86,
+      "min": 0.02,
+      "max": 0.94,
+      "sum": 8.06,
+      "excluded": [
+        1644,
+        1649,
+        1694,
+        1713,
+        1728,
+        1733,
+        1752,
+        1754,
+        1760,
+        1765,
+        1770,
+        1774,
+        1780,
+        1788,
+        1821,
+        1848,
+        1872
+      ],
+      "negative": []
+    },
+    "K4_first_ready_to_merge": {
+      "n": 28,
+      "median": 0.95,
+      "min": 0.1,
+      "max": 7.99,
+      "sum": 37.9,
+      "excluded": [
+        1872
+      ],
+      "negative": []
+    },
+    "K5c_merge_to_accept_comment": {
+      "n": 6,
+      "median": 1.08,
+      "min": 1.04,
+      "max": 3.05,
+      "sum": 8.62,
+      "excluded": [
+        1644,
+        1649,
+        1641,
+        1661,
+        1677,
+        1671,
+        1694,
+        1713,
+        1697,
+        1728,
+        1733,
+        1729,
+        1752,
+        1754,
+        1760,
+        1765,
+        1770,
+        1774,
+        1780,
+        1788,
+        1790,
+        1848,
+        1872
+      ],
+      "negative": []
+    },
+    "K5a_merge_to_accept_akte": {
+      "n": 14,
+      "median": 2.47,
+      "min": 0.9,
+      "max": 17.95,
+      "sum": 61.4,
+      "excluded": [
+        1644,
+        1649,
+        1661,
+        1677,
+        1694,
+        1713,
+        1697,
+        1728,
+        1733,
+        1752,
+        1754,
+        1765,
+        1788,
+        1821,
+        1872
+      ],
+      "negative": []
+    },
+    "K6_first_ready_to_accept_comment": {
+      "n": 6,
+      "median": 2.36,
+      "min": 2.04,
+      "max": 4.14,
+      "sum": 15.76,
+      "excluded": [
+        1644,
+        1649,
+        1641,
+        1661,
+        1677,
+        1671,
+        1694,
+        1713,
+        1697,
+        1728,
+        1733,
+        1729,
+        1752,
+        1754,
+        1760,
+        1765,
+        1770,
+        1774,
+        1780,
+        1788,
+        1790,
+        1848,
+        1872
+      ],
+      "negative": []
+    },
+    "K7_opened_to_accept_comment": {
+      "n": 6,
+      "median": 4.85,
+      "min": 2.71,
+      "max": 11.1,
+      "sum": 34.95,
+      "excluded": [
+        1644,
+        1649,
+        1641,
+        1661,
+        1677,
+        1671,
+        1694,
+        1713,
+        1697,
+        1728,
+        1733,
+        1729,
+        1752,
+        1754,
+        1760,
+        1765,
+        1770,
+        1774,
+        1780,
+        1788,
+        1790,
+        1848,
+        1872
+      ],
+      "negative": []
+    }
+  }
+}
