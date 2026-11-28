@@ -17,7 +17,7 @@ import { SHIFT_MODELS, shiftMinutes } from "@/features/home-plan/draft";
 import {
   ABSENCE_KINDS, APPLY_RUN_CODES, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  hoursUnknownCount, hoursUnknownCountText, hoursUnknownNext, withoutPensumAndTarget, monthCode, monthLabel, monthPeople, monthTargetOf, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
+  hoursUnknownCount, hoursUnknownCountText, hoursUnknownFirstNote, hoursUnknownNext, hoursUnknownSteps, showsWorkingTimeNote, warningReturned, withoutPensumAndTarget, monthCode, monthLabel, monthPeople, monthTargetOf, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
   type PendingWarning, type MonthTarget,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
@@ -40,6 +40,8 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
     applied: parseCount(one(sp.uebernommen)), refused: parseCount(one(sp.abgelehnt)), affected: parseCount(one(sp.betroffen)),
   });
   const pending = parseWarning(one(sp.warnung));
+  // HD-PEN-HAND-F1 UXR-318: back from a save reached through the warning box (Pensum, Monatssoll, Wochensoll).
+  const returned = pending !== null && warningReturned(one(sp.meldung));
 
   const institutions = await getMyInstitutions();
   if (institutions.length === 0) {
@@ -67,6 +69,12 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
     return `${HOME_PLAN_PATH}?${params.toString()}`;
   };
   const back = href({});
+  // UXR-318: while a hand assignment waits in the warning box, the box's links and the forms of the person and settings
+  // views keep it in the URL (`warnung`), so entering the missing value does not drop it silently. The box's own
+  // confirm and cancel go back to the week of the pending shift without it.
+  const keep = pending ? one(sp.warnung) : undefined;
+  const viewBack = keep && (view === "personal" || view === "einstellungen") ? href({ warnung: keep }) : back;
+  const boxBack = pending ? href({ ansicht: "woche", bereich: undefined, datum: pending.date }) : back;
 
   return (
     <main className="mx-auto grid w-full max-w-7xl min-w-0 gap-4 p-4">
@@ -121,12 +129,14 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
       )}
 
       {plan && pending && canPlan(plan.institution.role) && (
-        <RuleWarning plan={plan} pending={pending} back={back}
-          personHref={(id, d, anchor) => `${href({ ansicht: "personal", bereich: undefined, person: id, datum: d })}#${anchor}`}
-          limitsHref={`${href({ ansicht: "einstellungen", bereich: undefined })}#heim-limits`} />
+        <RuleWarning plan={plan} pending={pending} back={boxBack} returned={returned}
+          personHref={(id, d, anchor) => `${href({ ansicht: "personal", bereich: undefined, person: id, datum: d, warnung: keep })}#${anchor}`}
+          limitsHref={`${href({ ansicht: "einstellungen", bereich: undefined, warnung: keep })}#heim-limits`} />
       )}
       {plan && (view === "woche" || view === "monat") && (
-        <HoursUnknownLine plan={plan} personHref={(id, d) => href({ ansicht: "personal", bereich: undefined, person: id, datum: d })} />
+        <HoursUnknownLine plan={plan} view={view} from={from}
+          personHref={(id, d) => `${href({ ansicht: "personal", bereich: undefined, person: id, datum: d })}#heim-staff-planning`}
+          limitsHref={`${href({ ansicht: "einstellungen", bereich: undefined })}#heim-limits`} />
       )}
 
       {!plan ? (
@@ -153,10 +163,10 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
             tags: tagList(one(sp.tags)), req: tagList(one(sp.req)), checked: one(sp.geprueft) === "1",
           }} />
       ) : view === "personal" ? (
-        <StaffView plan={plan} back={back} person={person} personHref={(id) => href({ person: id })}
+        <StaffView plan={plan} back={viewBack} person={person} personHref={(id) => href({ person: id })}
           prev={href({ datum: addDays(from, -1) })} next={href({ datum: addDays(to, 1) })} />
       ) : (
-        <SettingsView plan={plan} back={back} />
+        <SettingsView plan={plan} back={viewBack} />
       )}
     </main>
   );
@@ -165,28 +175,41 @@ export default async function HomePlanPage({ searchParams }: PageProps<"/heim">)
 const btn = "min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-sm font-semibold";
 
 // HD-PEN-HAND (PO decision, AUT-247): one line above the week and month: stored shifts of the shown range whose hours
-// cannot be checked, with a link to the first affected person. No line when there are none.
-function HoursUnknownLine({ plan, personHref }: { plan: Plan; personHref: (id: string, date: string) => string }) {
+// cannot be checked. No line when there are none. HD-PEN-HAND-F1: the line names its range (UXR-315) and offers the
+// step for the cause of the first affected shift, from the same function as the warning box (UXR-316).
+function HoursUnknownLine({ plan, view, from, personHref, limitsHref }: {
+  plan: Plan; view: "woche" | "monat"; from: string; personHref: (id: string, date: string) => string; limitsHref: string;
+}) {
   const n = hoursUnknownCount(plan);
   if (n.shifts === 0 || !n.first) return null;
-  const name = plan.staff.find((p) => p.id === n.first!.staff_id)?.display_name ?? "erste Person";
+  const steps = hoursUnknownSteps(plan, n.first, canSettle(plan.institution.role));
+  const note = steps.some((x) => x.kind === "person") ? hoursUnknownFirstNote(n.shifts) : null;
   return (
-    <p role="status" data-testid="heim-hours-unknown-count"
-      className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-400 bg-amber-50 p-2 text-sm text-amber-950">
-      <span className="font-semibold">{hoursUnknownCountText(n)}</span>
-      <Link href={`${personHref(n.first.staff_id, n.first.date)}#heim-staff-planning`}
-        className="inline-grid min-h-11 place-items-center underline" data-testid="heim-hours-unknown-first">
-        {name} ansehen
-      </Link>
-    </p>
+    <div role="status" data-testid="heim-hours-unknown-count"
+      className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-amber-400 bg-amber-50 p-2 text-sm text-amber-950">
+      <span className="font-semibold" data-testid="heim-hours-unknown-text">{hoursUnknownCountText(n, view, from)}</span>
+      {steps.map((x) => x.kind === "ask_lead" ? (
+        <span key={x.kind} data-testid="heim-hours-unknown-ask-lead">{x.text}</span>
+      ) : (
+        <Link key={x.kind} href={x.kind === "weekly_target" ? limitsHref : personHref(x.staff_id, x.date)}
+          className="inline-grid min-h-11 place-items-center font-semibold underline"
+          data-testid={x.kind === "weekly_target" ? "heim-hours-unknown-weekly" : "heim-hours-unknown-first"}>
+          {x.label}
+        </Link>
+      ))}
+      {note && <span className="text-xs" data-testid="heim-hours-unknown-note">{note}</span>}
+    </div>
   );
 }
 
 // HD-3a Q3 (FE-123): the hand assignment broke a planning rule. Nothing is saved yet; the person confirms or cancels.
 // HD-PEN-HAND: for «Stunden nicht prüfbar» the reason and the next action (links for what this role can enter, the
-// role that can enter the rest).
-function RuleWarning({ plan, pending, back, personHref, limitsHref }: {
-  plan: Plan; pending: PendingWarning; back: string; personHref: (id: string, date: string, anchor: string) => string; limitsHref: string;
+// role that can enter the rest). HD-PEN-HAND-F1 UXR-318: the first line says the shift is not yet assigned; the links
+// keep the pending assignment, and after the value is saved (`returned`) the box offers «Jetzt einteilen» without any
+// confirmation, so the database checks every rule again. The working-time sentence shows only for rest and days in a row.
+function RuleWarning({ plan, pending, back, returned, personHref, limitsHref }: {
+  plan: Plan; pending: PendingWarning; back: string; returned: boolean;
+  personHref: (id: string, date: string, anchor: string) => string; limitsHref: string;
 }) {
   const person = plan.staff.find((p) => p.id === pending.staff)?.display_name ?? "Diese Person";
   const gap = pending.rules.includes("hours_unknown") ? hoursUnknownNext(plan, pending.staff, pending.date) : null;
@@ -196,9 +219,23 @@ function RuleWarning({ plan, pending, back, personHref, limitsHref }: {
   return (
     <section role="alert" aria-label="Regelwarnung" data-testid="heim-rule-warning"
       className="grid gap-2 rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950">
+      <p className="font-bold" data-testid="heim-rule-warning-state">Noch nicht eingeteilt.</p>
       <p className="font-semibold">
         {person} · {t ? `${t.label} ${shiftTimesText(t)}` : "Dienst"}{station ? ` · ${station}` : ""} · {dayLabel(pending.date)}
       </p>
+      {returned ? (
+        <>
+          <p data-testid="heim-rule-returned">Wert gespeichert. Beim Einteilen prüft NAVORA alle Regeln neu.</p>
+          <div className="flex flex-wrap gap-2">
+            <form action={assignStaff}>
+              <Hidden values={{ institution: plan.institution.id, station: pending.station, shift: pending.shift, date: pending.date,
+                staff: pending.staff, back }} />
+              <button type="submit" className={btnPrimary} data-testid="heim-rule-assign-again">Jetzt einteilen</button>
+            </form>
+            <Link href={back} className={`${btn} grid place-items-center`} data-testid="heim-rule-cancel">Abbrechen</Link>
+          </div>
+        </>
+      ) : (<>
       <ul className="list-disc pl-5" data-testid="heim-rule-warning-rules">
         {pending.rules.map((r) => <li key={r}>{ruleText(r)}</li>)}
       </ul>
@@ -221,9 +258,13 @@ function RuleWarning({ plan, pending, back, personHref, limitsHref }: {
               {gap.actions.filter((a) => a.lead_only).map((a) => a.label.replace(" eintragen", "")).join(" und ")} trägt die Heimleitung ein.
             </p>
           )}
+          <p className="text-xs" data-testid="heim-rule-next-return">Nach dem Speichern bleibt dieser Dienst hier offen und kann eingeteilt werden.</p>
         </div>
       )}
-      <p>Werte des Heims; Ruhezeit und Arbeitstage in Folge: Arbeitszeitgesetz nicht abschliessend geprüft. Die Warnung bleibt auf dem Dienst sichtbar.</p>
+      {showsWorkingTimeNote(pending.rules) && (
+        <p data-testid="heim-rule-worktime">Werte des Heims; Ruhezeit und Arbeitstage in Folge: Arbeitszeitgesetz nicht abschliessend geprüft.</p>
+      )}
+      <p>Bei «Trotzdem einteilen» bleibt die Warnung auf dem Dienst sichtbar.</p>
       <div className="flex flex-wrap gap-2">
         <form action={assignStaff}>
           <Hidden values={{ institution: plan.institution.id, station: pending.station, shift: pending.shift, date: pending.date,
@@ -232,6 +273,7 @@ function RuleWarning({ plan, pending, back, personHref, limitsHref }: {
         </form>
         <Link href={back} className={`${btn} grid place-items-center`} data-testid="heim-rule-cancel">Abbrechen</Link>
       </div>
+      </>)}
     </section>
   );
 }
