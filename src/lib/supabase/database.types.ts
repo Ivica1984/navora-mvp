@@ -1263,6 +1263,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"institution_monthly_targets": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"institution_id": string,"period_month": string,"staff_id": string,"target_minutes": number,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id": string,"period_month": string,"staff_id": string,"target_minutes": number,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"institution_id"?: string,"period_month"?: string,"staff_id"?: string,"target_minutes"?: number,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "institution_monthly_targets_staff_id_institution_id_fkey"
+      columns: ["staff_id","institution_id"]
+isOneToOne: false
+      referencedRelation: "institution_staff"
+      referencedColumns: ["id","institution_id"]
+    }
+                  ]
                 },"institution_shift_types": {
                   Row: {
                     "block1_ends_at": string | null,"block2_starts_at": string | null,"code": string,"ends_at": string,"id": string,"institution_id": string,"label": string,"shift_class": string | null,"sort": number,"starts_at": string
@@ -1395,14 +1415,14 @@ isOneToOne: false
                   ]
                 },"institutions": {
                   Row: {
-                    "created_at": string,"display_name": string,"id": string,"kind": string,"max_consecutive_days": number,"min_rest_hours": number,"order_postcode": string | null,"simulation": boolean,"weekly_target_hours": number | null,"work_days_per_week": number
+                    "created_at": string,"display_name": string,"id": string,"kind": string,"max_consecutive_days": number,"min_rest_hours": number,"monthly_target_deviation_hours": number | null,"order_postcode": string | null,"simulation": boolean,"weekly_target_hours": number | null,"work_days_per_week": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null,"work_days_per_week"?: number
+                    "created_at"?: string,"display_name": string,"id"?: string,"kind": string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"monthly_target_deviation_hours"?: number | null,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null,"work_days_per_week"?: number
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null,"work_days_per_week"?: number
+                    "created_at"?: string,"display_name"?: string,"id"?: string,"kind"?: string,"max_consecutive_days"?: number,"min_rest_hours"?: number,"monthly_target_deviation_hours"?: number | null,"order_postcode"?: string | null,"simulation"?: boolean,"weekly_target_hours"?: number | null,"work_days_per_week"?: number
                   }
                   Relationships: [
                     {
@@ -3588,6 +3608,12 @@ isOneToOne: false
                            },
 "institution_send_gap_order":
 { Args: { "p_activity_tags": (string)[],"p_gap_order_id": string,"p_grade": string,"p_idempotency_key": string,"p_postcode": string,"p_radius_km": number,"p_required_tags": (string)[] }; Returns: Json
+                           },
+"institution_set_monthly_target":
+{ Args: { "p_expected": Json,"p_month": string,"p_staff_id": string,"p_target_minutes": number }; Returns: Json
+                           },
+"institution_set_monthly_target_threshold":
+{ Args: { "p_expected": Json,"p_hours": number,"p_institution_id": string }; Returns: Json
                            },
 "institution_set_planning_limits":
 { Args: { "p_expected": Json,"p_institution_id": string,"p_max_consecutive_days": number,"p_min_rest_hours": number,"p_weekly_target_hours": number }; Returns: Json
