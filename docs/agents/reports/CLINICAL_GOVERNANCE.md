@@ -16,6 +16,56 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-28 14:50 CET: gate on **#1872** HD-3s-F2-F1-F1 «Tagesplan-Vorschlag sieht die Pause einer geteilten Übernahme als belegt» (Block HEIM-DP), head `dd6abad9`; PO gate start (FE-089 (2), FE-091), window [7240109525](https://github.com/Ivica1984/navora-mvp/pull/1872#issuecomment-7240109525) (due 17:39). **`cra-gate: #1872 dd6abad9 clear`** (gate «Simulation, synthetic data»; fixed rule, no model; not a clinical release, D-27). **CGR-291 met on the PR; closes on merge.** One new advisory finding (CGR-292, wording) to a named follow-up; not a merge condition (FE-089 (3)). No blocking finding.
+
+### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
+
+- `recovery/main` `695500ce`. Since my 10:42 section: #1863 HD-PEN-HAND merged (`ed7759e8`) and accepted for the simulation (CGR-286 closed); HD-3s-F2-F1-F1 active since 12:39. No new founder decision; Blueprint V3.2 Annex B §1 (20 guarantees), the qualification matrix and Handbook V2.2 unchanged.
+- #1872 head `dd6abad9` (20 files): migration 0191 (`private.plan3_lines`, whole function; body identical to the new canonical file, checked by diff), migration 0192 (`public.member_slot_take_window`), canonical files and MANIFEST; `member-overlap-rules.ts`, `overlap-commands.ts`, `MemberOverlapNote.tsx`, `team-client.tsx`; pgTAP 189 (24 assertions) and 157; e2e `hd3s-f2-f1-f1-day-plan-take.spec.ts`; unit `hd3s-f2-f1-f1-take-window-note.test.ts`; ADR-230 «Known limits». Also read for (d): canonical `public.member_slot_overlap`, `private.member_take_window`, `private.visit_for_team` (migration 0024).
+- CI on the head, read by me through the check-runs API: `app`, `db`, `e2e`, `ui-screenshots`, `staging` (dry run 140990129199), `codeql` all `completed success`. `db` job log 140987762021 read by me: «189_hd3s_f2_f1_f1_plan3_take_window.test.sql … ok», «157_stab1_function_guards.test.sql … ok», 184 ok, «Files=186, Tests=7717», «Result: PASS» (the «not ok» lines in the log are the deliberate red reproductions of the `db-flaky` scripts, each ending «ok»). `e2e` job log 140987761844 read by me: «244 passed»; `hd3s-f2-f1-f1-day-plan-take` at 1440 and 390 px ✓, `hd3s-f2-f1-take-window` at 1440 and 390 px ✓.
+
+### Checked
+
+- **One rule source with the hand path:** in `plan3_lines` the new `when private.member_take_window(mem[i], rng, v.order_take_id) is not null then 'overlap'` comes after not_active / needs_rn / absent / visit overlap, so no existing limit is weakened or reordered; the own take is excluded through `v.order_take_id`, as on the hand path. Guards kept: STABLE, SECURITY DEFINER, `search_path ''`, revoke without grant (pgTAP 189 §7, 157).
+- **Negative and positive case (brief criterion 2):** 12:00 in the pause → not her, colleague …12 with `free_capacity` (§2); 20:30 → her as primary nurse (§3); with «zugewiesene neu planen» still not her (§4); after release of the take she is proposed again (§6).
+- **What is proposed confirms; the backstop is unchanged (criterion 3):** the proposed line is applied; a line naming her in the pause still returns `overlap`, writes nothing, and the take stays live (§5).
+- **Pre-save note (criterion 4, UXR-302):** the note now announces the refusal the server will give (`plan_visit` / `reschedule_visit` / backstop `member_take_window`) instead of the information sentence; a failed second read falls back to the information sentence while the server still refuses (fail closed server-side). It names nothing about the take (CGR-137 kept).
+- **Privacy of the new read:** `member_slot_take_window` returns early unless `member_slot_overlap` is `true`, so it is null/false exactly where that read is; yes/no only; execute for `authenticated` and `service_role` only, not `anon` (§8).
+
+### Answers to `eng`'s gate questions
+
+- **(a) Reason `overlap` for the take window in the day-plan proposal: right, keep it.** It is the same reason the confirm returns for the same fact, so proposal and confirm cannot disagree, and it says the person is busy at that time, which is true. Naming the take separately in «Ohne Vorschlag» would only change the explanation for the lead, not who is proposed; if `uxa` wants it, it is a follow-up, not a safety point. No finding.
+- **(b) Wording: acceptable for the simulation, with one inaccuracy (CGR-292, advisory).** «So wird nicht gespeichert.» is true and is what UXR-302 asked for. But `member_take_window` counts **every** live take window, and one-block takes exist (migration 0182: both block columns NULL = one block). For a one-block take, or a slot that meets a block rather than the pause, the sentences «eine laufende geteilte Übernahme» and «Die Pause zwischen den Blöcken gilt als belegt» are not true. Proposal (PROPOSED, `uxa` decides wording): «X hat zu dieser Zeit eine laufende Übernahme aus einem Heim-Auftrag; auch die Pause einer geteilten Übernahme gilt als belegt. So wird nicht gespeichert.» No condition for this head.
+- **(c) CGR-291 closes with pgTAP 189 §2, §5 and §6: yes**, together with §3 (positive case) and §4. All three remedy parts of CGR-291 are met: (a) `plan3_lines` reads `member_take_window` (migration 0191); (b) the 07:00–11:30 / 16:00–20:00 fixture with 12:00 and 20:30 (§2, §3); (c) ADR-230 «Known limits» updated. Closes on merge.
+- **(d) Does `member_slot_overlap` check `p_visit_id` against the caller's team when `p_case_id` is set: yes.** When `p_visit_id` is not null the first branch always runs, whatever `p_case_id` is: `private.visit_for_team(p_visit_id)` returns the visit only if the caller is an org member and a team member of the visit's team (migration 0024), and if `p_case_id` is set too, the visit must belong to that case; otherwise `null`. `member_slot_take_window` reaches its `order_take_id` subselect only after that read returned `true`, so the subselect only ever reads a visit that passed the guard (or `null` when only a case is given). §8 shows the outside-team call → `null` and the own block visit → `false`. No finding.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-292** | #1872 pre-save note (UXR-302) | **advisory**; S3 (during the pilot); follow-up named by `po` (proposal: with HD-PEN-HAND-F1 or the next `/team` wording item); not a merge condition (FE-089 (3)) | The take-window note says «geteilte Übernahme» and «Die Pause zwischen den Blöcken gilt als belegt» for every take window, also a one-block take and a slot that meets a block. The announced refusal is correct; the explanation is wrong for those shapes, which can make a lead look for a pause that does not exist. Not a safety defect of the agreed flow: nothing is saved, the server refuses either way. | `member-overlap-rules.ts` `memberTakeWindowText`, `MEMBER_TAKE_WINDOW_SELF_TEXT`; `private.member_take_window` («Every live take counts»); migration 0182 (one-block rows) | (a) One wording true for every take shape (no pause claim unless the take is split and the slot lies in the pause), wording `uxa`. (b) Unit test: one-block take → no «Pause»/«geteilt»; split take, slot in the pause → pause wording allowed. |
+
+### Gate status
+
+| Item | Head | Status |
+|---|---|---|
+| #1872 HD-3s-F2-F1-F1 | `dd6abad9` | **`cra-gate: #1872 dd6abad9 clear`**, gate «Simulation, synthetic data». Checked: `plan3_lines` reads the one rule source of the hand path; negative and positive case; what is proposed confirms; fail-closed confirm unchanged; new read yes/no only with the same guards; function guards kept; CI all `success` (logs read). Not a clinical release (D-27). Probe #1868 §4 / AUT-248 not reviewed in this window (PO follow-up). |
+
+### Findings closed with evidence
+
+- **CGR-291** met on #1872 `dd6abad9`: migration 0191 (`plan3_lines` → `member_take_window`), canonical file identical; pgTAP 189 §2–§6 (log: ok); e2e `hd3s-f2-f1-f1-day-plan-take` 390/1440 ✓; ADR-230 updated. **Closes on the merge of #1872.** H-62 and PS-247 follow; CR-264 added.
+
+### Still open (unchanged)
+
+- HD-3a-F3-F1 (hard weekly maximum or `lca` sign-off, S2 before real staff), HD-3a-F3-F2 (advisory); CGR-290 (`HD-3s-F2-F2`), CGR-287 (night window, `lca`/Clinical Owner); rest-time rule in the order path UNKNOWN (CGR-221); new CGR-292 (advisory).
+
+### Decisions requested
+
+- **po:** name the follow-up for CGR-292 (wording; `uxa`).
+- None for a clinical, legal or owner role in this section.
+
+---
+
 ## 2026-11-28 10:42 CET: gate on **#1863** HD-PEN-HAND «Stunden nicht prüfbar» auf dem Handweg (Block HEIM-DP), head `a50ff9e7` (code identical to `7e905743`); PO gate start (FE-089 (2), FE-091). **`cra-gate: #1863 a50ff9e7 clear`** (gate «Simulation, synthetic data»; fixed rule, no model; not a clinical release, D-27). **CGR-286 hand part met** on the PR; CGR-286 closes on merge. No new finding. No blocking finding.
 
 ### What I read (IMPLEMENTED, read by me; I ran no NAVORA test)
