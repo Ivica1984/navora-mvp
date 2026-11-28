@@ -23,6 +23,10 @@
 #   J (HD-3a-F1 R-6-2 (b), 0188): two planners save a different Pensum for the same person from the same shown value at
 #      once: exactly one «ok», the other «changed_meanwhile» (compared under the person row lock), the stored Pensum is
 #      the winner's; the later save never overwrites the earlier one silently (the serial outcome).
+#   K (HD-3a-F3, 0189): the lead lowers the monthly target of a person while a planner assigns her a shift that fits only
+#      the old target: the target writer and the assignment take the same first lock (person row), so the outcome is
+#      serial: either the target change waits and the assignment was judged on the old target (assignment event before
+#      the target event), or the assignment waits and answers «warning» (month_target_full) and nothing is saved.
 # Commits its own synthetic fixture rows (fixed ids, home «Testheim Rhein» of the seed) and removes them again.
 # Usage: DB_URL=... home-plan-assign.sh
 set -euo pipefail
@@ -64,6 +68,7 @@ delete from public.institution_audit_events where institution_id = '$INST'
 delete from public.institution_draft_runs where id in ('$A1', '$A2', '$A3', '$A4', '$A5', '$A6', '$A7', '$A8');
 delete from public.institution_gap_orders where station_id = '$ST';
 delete from public.institution_assignments where staff_id = '$PX';
+delete from public.institution_monthly_targets where staff_id = '$PX';
 delete from public.institution_staffing_rules where station_id = '$ST';
 delete from public.institution_staff where id = '$PX';
 delete from public.institution_shift_types where id in ('$TF', '$TS', '$TU');
@@ -198,6 +203,7 @@ delete from public.institution_audit_events where institution_id = '$INST'
   and entity_id in (select id from public.institution_gap_orders where station_id = '$ST');
 delete from public.institution_gap_orders where station_id = '$ST';
 delete from public.institution_assignments where staff_id = '$PX';
+delete from public.institution_monthly_targets where staff_id = '$PX';
 SQL
 }
 apply "$LEAD" "$A5" "$TF" "$DAY3" > "$tmp/g1a" & (sleep 0.15; prepare "$PLANNER" > "$tmp/g1b") & wait
@@ -288,4 +294,37 @@ case "$jr|$jp|$ja" in
   *) echo "not ok - J: expected one ok and one changed_meanwhile with the winner's Pensum and one audit event"; fail=1;;
 esac
 psql_q -c "set session_replication_role = replica; delete from public.institution_audit_events where command = 'institution_set_staff_planning' and entity_id = '$PX' and id > $AUDJ"
+
+# K (HD-3a-F3, migration 0189): PX has a target of exactly one early shift (510 min) for May 2030 and no shift there.
+# The lead lowers it to 300 min (shown value 510) while the planner assigns PX the early shift on 2030-05-06. A superuser
+# session holds the person row for 1 s so both calls queue on the same lock.
+DAY5=2030-05-06
+AUDK=$(psql "$DB_URL" -X -At -c "select coalesce(max(id), 0) from public.institution_audit_events")
+psql_q -c "insert into public.institution_monthly_targets (institution_id, staff_id, period_month, target_minutes) values ('$INST', '$PX', '2030-05-01', 510)"
+psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 > /dev/null <<SQL &
+begin;
+select 1 from public.institution_staff where id = '$PX' for update;
+select pg_sleep(1);
+commit;
+SQL
+(sleep 0.2; run_as "$LEAD" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_set_monthly_target('$PX', '2030-05-01', 300, '{\"target_minutes\": 510}'::jsonb) r;" > "$tmp/k1") &
+(sleep 0.3; run_as "$PLANNER" "select coalesce(r -> 'problems' ->> 0, r ->> 'result') from public.institution_assign_staff('$INST', '$ST', '$TF', '$DAY5', '$PX') r;" > "$tmp/k2") &
+wait
+kr="$(norm "$tmp/k1")|$(norm "$tmp/k2")"
+kn=$(psql "$DB_URL" -X -At -c "select count(*) from public.institution_assignments where staff_id = '$PX' and work_date = '$DAY5'")
+kt=$(psql "$DB_URL" -X -At -c "select target_minutes from public.institution_monthly_targets where staff_id = '$PX' and period_month = '2030-05-01'")
+# Order of the two committed writes (audit ids): «a<t» = the assignment was saved before the target changed.
+ko=$(psql "$DB_URL" -X -At -c "select case when (select min(id) from public.institution_audit_events where command = 'institution_assign_staff' and changed ->> 'staff_id' = '$PX' and id > $AUDK)
+  < (select min(id) from public.institution_audit_events where command = 'institution_set_monthly_target' and changed ->> 'staff_id' = '$PX' and id > $AUDK) then 'a<t' else 't<a' end")
+echo "K target|assign|saved|target|order: $kr|$kn|$kt|$ko"
+case "$kr|$kn|$kt|$ko" in
+  "ok |warning |0|300|t<a"|"ok |ok |1|300|a<t") echo "ok - K: a target lowered during an assignment: serial on the person lock, the shift is never saved against a target it breaks";;
+  *) echo "not ok - K: expected the serial outcome (target first -> warning, nothing saved; or assignment first, then the target)"; fail=1;;
+esac
+psql_q <<SQL
+set session_replication_role = replica;
+delete from public.institution_audit_events where id > $AUDK and (changed ->> 'staff_id' = '$PX' or entity_id in (select id from public.institution_assignments where staff_id = '$PX'));
+delete from public.institution_assignments where staff_id = '$PX' and work_date = '$DAY5';
+delete from public.institution_monthly_targets where staff_id = '$PX';
+SQL
 exit $fail

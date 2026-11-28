@@ -1,0 +1,700 @@
+-- HD-3a-F3 (brief docs/agents/briefs/HD-3a-F3.md, founder FE-135 option A; ADR-231): an explicit monthly target
+-- (Stundenbudget) that the home lead enters per person and calendar month. It is not converted from the weekly budget.
+--   * table public.institution_monthly_targets (working minutes; RLS on, no grant: written only by the command below,
+--     read only through institution_plan) and column institutions.monthly_target_deviation_hours (NULL = warn on
+--     every deviation, brief default; NAVORA ships no number)
+--   * private.institution_rule_breaches: R-m «month_target_full» replaces R-h for a shift whose work-date month has a
+--     target (planned working minutes of that month + this shift > target); without a target R-h is unchanged.
+--     Signature unchanged (no deploy window for the two writers that read it). Rest, days in a row, shift model and
+--     the blocks in the commands (absence, double booking, inactive) stay hard and unchanged.
+--   * public.institution_set_monthly_target(uuid, date, integer, jsonb): lead only, LEAVE1-3 first, membership before
+--     the person lock (`for update`, the same first lock as institution_assign_staff and institution_apply_draft),
+--     shown value compared under that lock (HD-3a-F1 R-6-2 (b) pattern), audit old/new; NULL deletes.
+--   * public.institution_set_monthly_target_threshold(uuid, numeric, jsonb): lead only, home `for update`, audited.
+--     A command of its own: institution_set_planning_limits keeps its HD-3a-F1 signature (ADR-229 precedent).
+--   * public.institution_apply_draft: a person without Pensum is refused (`pensum_missing`) only when she has no
+--     target for the month of the row either («weder Monatssoll noch Pensum», fail closed).
+--   * public.institution_plan: adds `monthly_target_deviation_hours` and `month_targets` (target, planned, remaining,
+--     comparison = weekly budget x days of the month / 7, deviates) per person and month of the range (T-1). Same
+--     signature; the old app ignores the new keys.
+-- Every function whole from its canonical file (STAB-1, TESTS 6; no text patch). Kept: security definer, empty
+-- search_path, revoke/grants, audit, LEAVE1-3, the HD-3a-F1 locks and refusal codes (pgTAP 157 from MANIFEST, which now
+-- also requires the new terms). Fixed, checkable rule and arithmetic; no AI. «Arbeitszeitgesetz nicht abschliessend
+-- geprüft» stays. Idempotent: create table / add column if not exists, guarded constraint, create or replace.
+-- Way back: drop the two new commands, the table and the column; re-create rule_breaches, apply_draft and plan from
+-- their canonical files at the previous commit (0186-0188 versions).
+
+-- 1. Data ------------------------------------------------------------------------------------------------------------------
+create table if not exists public.institution_monthly_targets (
+  id             uuid primary key default gen_random_uuid(),
+  institution_id uuid not null,
+  staff_id       uuid not null,
+  period_month   date not null check (extract(day from period_month) = 1),
+  target_minutes integer not null check (target_minutes between 1 and 44640),
+  created_by     uuid,
+  updated_by     uuid,
+  created_at     timestamptz not null default private.now(),
+  updated_at     timestamptz not null default private.now(),
+  unique (staff_id, period_month),
+  foreign key (staff_id, institution_id) references public.institution_staff (id, institution_id) on delete cascade
+);
+comment on table public.institution_monthly_targets is
+  'HD-3a-F3 (founder FE-135 option A): the monthly target (Stundenbudget) of one person for one calendar month, AS '
+  'ENTERED BY THE HOME, in working minutes. Never converted from the weekly budget; NAVORA ships no value. Written only '
+  'by public.institution_set_monthly_target (audited), read only through public.institution_plan.';
+alter table public.institution_monthly_targets enable row level security;
+revoke all on public.institution_monthly_targets from public, anon, authenticated;
+
+alter table public.institutions add column if not exists monthly_target_deviation_hours numeric;
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'institutions_monthly_target_deviation_hours_check') then
+    alter table public.institutions add constraint institutions_monthly_target_deviation_hours_check
+      check (monthly_target_deviation_hours is null
+             or (monthly_target_deviation_hours > 0 and monthly_target_deviation_hours <= 744));
+  end if;
+end $$;
+comment on column public.institutions.monthly_target_deviation_hours is
+  'HD-3a-F3: «Abweichungsschwelle (Stunden)» of the home. NULL = every deviation of a monthly target from its '
+  'comparison value is shown (brief default). Display only, never changes a value.';
+
+-- 2. Functions ----------------------------------------------------------------------------------------------------------
+-- Whole-file re-creation from supabase/schema/functions (STAB-1); generated by scripts/fn-source.mjs.
+
+-- private.institution_rule_breaches: canonical source (STAB-1). Generated by scripts/fn-source.mjs from the database; edit THIS file and
+-- ship the whole file in a new migration (node scripts/fn-source.mjs migration private.institution_rule_breaches). No text patch.
+
+-- private.institution_rule_breaches(p_staff_id uuid, p_shift_type_id uuid, p_work_date date, p_self uuid)
+CREATE OR REPLACE FUNCTION private.institution_rule_breaches(p_staff_id uuid, p_shift_type_id uuid, p_work_date date, p_self uuid)
+ RETURNS text[]
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO ''
+AS $function$
+declare
+  p public.institution_staff;
+  t public.institution_shift_types;
+  h public.institutions;
+  span tstzrange;
+  breaches text[] := '{}';
+  run int := 1;
+  d date;
+  week_start date;
+  month_start date;
+  target integer;
+  used numeric;
+begin
+  -- HD-3a (FE-123, Q3): the planning rules a shift of this person breaks, read against every other assignment of the
+  -- person (p_self = the shift itself when it is already stored, else NULL). One reading for the hand assignment
+  -- (institution_assign_staff) and the plan (institution_plan); the same rules as the draft (src/features/home-plan/
+  -- draft.ts R-c, R-f, R-g, R-h). Absence and double booking are not here: they stay blocked in the commands.
+  -- Order fixed: shift_model, rest, consecutive, then month_target_full or pensum_full (never both). Rest time and
+  -- days in a row: founder parameters,
+  -- «Arbeitszeitgesetz nicht abschliessend geprüft» (`lca` before real data).
+  select * into p from public.institution_staff where id = p_staff_id;
+  select * into t from public.institution_shift_types where id = p_shift_type_id;
+  if p.id is null or t.id is null or p_work_date is null then
+    return breaches;
+  end if;
+  select * into h from public.institutions where id = p.institution_id;
+  -- R-c: a restricted model fits only its classes, never an unclassified type. HD-3s (founder FE-127 (3)): a split
+  -- shift fits `any` and `no_night` only, never «nur Früh», «nur Spät» or «nur Nacht».
+  if p.shift_model <> 'any' and not coalesce(
+       (p.shift_model = 'early_only' and t.shift_class = 'early')
+    or (p.shift_model = 'late_only' and t.shift_class = 'late')
+    or (p.shift_model = 'night_only' and t.shift_class = 'night')
+    or (p.shift_model = 'no_night' and t.shift_class in ('early', 'late', 'split')), false) then
+    breaches := breaches || 'shift_model'::text;
+  end if;
+  -- HD-3s: starts_at..ends_at is the whole working day of a split shift (start of block 1 to end of block 2), so rest
+  -- is counted from the end of block 2 and to the start of block 1, never between the blocks (founder FE-127 (3)).
+  span := private.institution_shift_span(p_work_date, t.starts_at, t.ends_at);
+  -- R-f: less than min_rest_hours between this shift and another one (an overlap is blocked by the commands).
+  if exists (select 1 from public.institution_assignments a
+             join public.institution_shift_types o on o.id = a.shift_type_id
+             cross join lateral (select private.institution_shift_span(a.work_date, o.starts_at, o.ends_at) as s) x
+             where a.staff_id = p.id and a.id is distinct from p_self
+               and a.work_date between p_work_date - 3 and p_work_date + 3
+               and not (x.s && span)
+               and greatest(lower(span) - upper(x.s), lower(x.s) - upper(span)) < make_interval(hours => h.min_rest_hours)) then
+    breaches := breaches || 'rest'::text;
+  end if;
+  -- R-g: working days in a row (by work date; a second shift on a day already worked does not lengthen the run).
+  d := p_work_date - 1;
+  while run <= h.max_consecutive_days and exists (select 1 from public.institution_assignments a
+        where a.staff_id = p.id and a.id is distinct from p_self and a.work_date = d) loop
+    run := run + 1;
+    d := d - 1;
+  end loop;
+  d := p_work_date + 1;
+  while run <= h.max_consecutive_days and exists (select 1 from public.institution_assignments a
+        where a.staff_id = p.id and a.id is distinct from p_self and a.work_date = d) loop
+    run := run + 1;
+    d := d + 1;
+  end loop;
+  if run > h.max_consecutive_days then
+    breaches := breaches || 'consecutive'::text;
+  end if;
+  -- HD-3a-F3 R-m (founder FE-135 option A): when the home entered a monthly target for this person and the calendar
+  -- month of the work date, it is the planning condition for this shift instead of R-h: working minutes of the person
+  -- with a work date in that month (every stored assignment, as R-h counts them) plus this shift over the target.
+  -- Not converted from the weekly budget; R-h is not applied to this shift. A shift counts to the month of its work
+  -- date (a night across the month end too). Rest, days in a row, shift model above and absence, double booking and
+  -- grade in the commands stay hard and unchanged. Without a target R-h below is unchanged (also in an ISO week that
+  -- touches a month with a target: R-h then counts the whole week, conservative).
+  month_start := date_trunc('month', p_work_date::timestamp)::date;
+  select mt.target_minutes into target from public.institution_monthly_targets mt
+    where mt.staff_id = p.id and mt.period_month = month_start;
+  if target is not null then
+    select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at, o.block1_ends_at,
+                                                          o.block2_starts_at)), 0) into used
+      from public.institution_assignments a
+      join public.institution_shift_types o on o.id = a.shift_type_id
+      where a.staff_id = p.id and a.id is distinct from p_self
+        and a.work_date >= month_start and a.work_date < (month_start + interval '1 month')::date;
+    if used + private.institution_shift_minutes(p_work_date, t.starts_at, t.ends_at, t.block1_ends_at, t.block2_starts_at)
+       > target then
+      breaches := breaches || 'month_target_full'::text;
+    end if;
+    return breaches;
+  end if;
+  -- R-h: shift minutes per ISO week (Monday, by work date) over Pensum x weekly target hours. Not checked when the
+  -- Pensum or the target hours are not entered (the draft does not plan such a person at all). HD-3s: working minutes
+  -- only (private.institution_shift_minutes), the pause of a split shift is not working time (founder FE-127 (3)).
+  if p.pensum_pct is not null and h.weekly_target_hours is not null then
+    week_start := p_work_date - (extract(isodow from p_work_date)::int - 1);
+    select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at, o.block1_ends_at,
+                                                          o.block2_starts_at)), 0) into used
+      from public.institution_assignments a
+      join public.institution_shift_types o on o.id = a.shift_type_id
+      where a.staff_id = p.id and a.id is distinct from p_self
+        and a.work_date >= week_start and a.work_date < week_start + 7;
+    if used + private.institution_shift_minutes(p_work_date, t.starts_at, t.ends_at, t.block1_ends_at, t.block2_starts_at)
+       > floor(p.pensum_pct * round(h.weekly_target_hours * 60) / 100) then
+      breaches := breaches || 'pensum_full'::text;
+    end if;
+  end if;
+  return breaches;
+end $function$;
+
+revoke all on function private.institution_rule_breaches(p_staff_id uuid, p_shift_type_id uuid, p_work_date date, p_self uuid) from public, anon, authenticated, service_role;
+
+-- public.institution_set_monthly_target: canonical source (STAB-1). Generated by scripts/fn-source.mjs from the database; edit THIS file and
+-- ship the whole file in a new migration (node scripts/fn-source.mjs migration public.institution_set_monthly_target). No text patch.
+
+-- public.institution_set_monthly_target(p_staff_id uuid, p_month date, p_target_minutes integer, p_expected jsonb)
+CREATE OR REPLACE FUNCTION public.institution_set_monthly_target(p_staff_id uuid, p_month date, p_target_minutes integer, p_expected jsonb)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  p public.institution_staff;
+  cur public.institution_monthly_targets;
+begin
+  perform private.assert_access_open();  -- LEAVE1-3
+  -- HD-3a-F3 (founder FE-135 option A): the home lead enters, changes or deletes (p_target_minutes NULL) the monthly
+  -- target of one person for one calendar month. Membership first, then the person lock (a non-member never holds a
+  -- lock on the home's staff row).
+  if p_staff_id is null or not private.is_institution_member(
+       (select s.institution_id from public.institution_staff s where s.id = p_staff_id), array['lead']) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  -- The calendar month is named by its first day (the only planning period of this package).
+  if p_month is null or extract(day from p_month) <> 1 then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('month_not_valid'));
+  end if;
+  -- An input check, no working-time rule: more than 0 minutes and at most the minutes of 31 days.
+  if p_target_minutes is not null and (p_target_minutes < 1 or p_target_minutes > 31 * 24 * 60) then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('target_not_valid'));
+  end if;
+  -- HD-3a-F1 R-6-2 (b) pattern: the value the form showed; the key is required (a missing key is not «kein Monatssoll»).
+  if p_expected is null or jsonb_typeof(p_expected) <> 'object' or not (p_expected ? 'target_minutes')
+     or jsonb_typeof(p_expected -> 'target_minutes') not in ('number', 'null') then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('expected_not_valid'));
+  end if;
+  -- The same first lock as institution_assign_staff and institution_apply_draft: a target change and an assignment
+  -- of the same person are serialised, so a rule check never reads a target that changes before its insert.
+  select * into p from public.institution_staff where id = p_staff_id for update;
+  if p.id is null then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  select * into cur from public.institution_monthly_targets where staff_id = p.id and period_month = p_month;
+  -- Compared under the person lock: a target changed since the form was shown is never overwritten silently.
+  if (p_expected ->> 'target_minutes')::numeric is distinct from cur.target_minutes then
+    return jsonb_build_object('result', 'conflict', 'problems', jsonb_build_array('changed_meanwhile'));
+  end if;
+  if p_target_minutes is not distinct from cur.target_minutes then
+    return jsonb_build_object('result', 'ok');  -- nothing changes: nothing written, no audit event
+  end if;
+  if p_target_minutes is null then
+    delete from public.institution_monthly_targets where id = cur.id;
+  elsif cur.id is null then
+    insert into public.institution_monthly_targets (institution_id, staff_id, period_month, target_minutes, created_by,
+                                                    updated_by)
+      values (p.institution_id, p.id, p_month, p_target_minutes, (select auth.uid()), (select auth.uid()))
+      returning * into cur;
+  else
+    update public.institution_monthly_targets
+       set target_minutes = p_target_minutes, updated_by = (select auth.uid()), updated_at = private.now()
+     where id = cur.id;
+  end if;
+  perform private.institution_audit(p.institution_id, 'institution_set_monthly_target', 'institution_monthly_targets',
+    cur.id, jsonb_build_object('staff_id', p.id, 'month', p_month,
+                               'target_minutes', jsonb_build_object('old', (p_expected -> 'target_minutes'),
+                                                                    'new', p_target_minutes)));
+  return jsonb_build_object('result', 'ok');
+end $function$;
+
+revoke all on function public.institution_set_monthly_target(p_staff_id uuid, p_month date, p_target_minutes integer, p_expected jsonb) from public, anon, authenticated, service_role;
+grant execute on function public.institution_set_monthly_target(p_staff_id uuid, p_month date, p_target_minutes integer, p_expected jsonb) to authenticated;
+grant execute on function public.institution_set_monthly_target(p_staff_id uuid, p_month date, p_target_minutes integer, p_expected jsonb) to service_role;
+
+-- public.institution_set_monthly_target_threshold: canonical source (STAB-1). Generated by scripts/fn-source.mjs from the database; edit THIS file and
+-- ship the whole file in a new migration (node scripts/fn-source.mjs migration public.institution_set_monthly_target_threshold). No text patch.
+
+-- public.institution_set_monthly_target_threshold(p_institution_id uuid, p_hours numeric, p_expected jsonb)
+CREATE OR REPLACE FUNCTION public.institution_set_monthly_target_threshold(p_institution_id uuid, p_hours numeric, p_expected jsonb)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  h public.institutions;
+begin
+  perform private.assert_access_open();  -- LEAVE1-3
+  -- HD-3a-F3: «Abweichungsschwelle (Stunden)» of the home, set by the lead only. NULL (the default) = every deviation
+  -- of a monthly target from its comparison value is shown. NAVORA ships no number. A command of its own, so the
+  -- signature of institution_set_planning_limits stays as HD-3a-F1 left it (no second deploy window, ADR-229).
+  if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead']) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  -- An input check, no rule: more than 0 and at most the hours of 31 days, at most two decimals.
+  if p_hours is not null and (p_hours <= 0 or p_hours > 744 or p_hours <> round(p_hours, 2)) then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('threshold_not_valid'));
+  end if;
+  if p_expected is null or jsonb_typeof(p_expected) <> 'object' or not (p_expected ? 'monthly_target_deviation_hours')
+     or jsonb_typeof(p_expected -> 'monthly_target_deviation_hours') not in ('number', 'null') then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('expected_not_valid'));
+  end if;
+  select * into h from public.institutions where id = p_institution_id for update;
+  if h.id is null then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  if (p_expected ->> 'monthly_target_deviation_hours')::numeric is distinct from h.monthly_target_deviation_hours then
+    return jsonb_build_object('result', 'conflict', 'problems', jsonb_build_array('changed_meanwhile'));
+  end if;
+  if p_hours is not distinct from h.monthly_target_deviation_hours then
+    return jsonb_build_object('result', 'ok');
+  end if;
+  update public.institutions set monthly_target_deviation_hours = p_hours where id = h.id;
+  perform private.institution_audit(h.id, 'institution_set_monthly_target_threshold', 'institutions', h.id,
+    jsonb_build_object('monthly_target_deviation_hours',
+                       jsonb_build_object('old', h.monthly_target_deviation_hours, 'new', p_hours)));
+  return jsonb_build_object('result', 'ok');
+end $function$;
+
+revoke all on function public.institution_set_monthly_target_threshold(p_institution_id uuid, p_hours numeric, p_expected jsonb) from public, anon, authenticated, service_role;
+grant execute on function public.institution_set_monthly_target_threshold(p_institution_id uuid, p_hours numeric, p_expected jsonb) to authenticated;
+grant execute on function public.institution_set_monthly_target_threshold(p_institution_id uuid, p_hours numeric, p_expected jsonb) to service_role;
+
+-- public.institution_apply_draft: canonical source (STAB-1). Generated by scripts/fn-source.mjs from the database; edit THIS file and
+-- ship the whole file in a new migration (node scripts/fn-source.mjs migration public.institution_apply_draft). No text patch.
+
+-- public.institution_apply_draft(p_institution_id uuid, p_apply_id uuid, p_rows jsonb)
+CREATE OR REPLACE FUNCTION public.institution_apply_draft(p_institution_id uuid, p_apply_id uuid, p_rows jsonb)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  r jsonb;
+  n int;
+  inserted int;
+  v_run public.institution_draft_runs;
+  v_rule public.institution_staffing_rules;
+  v_person public.institution_staff;
+  v_shift public.institution_shift_types;
+  present int;
+  grade_present int;
+  res jsonb;
+  reason text;
+  v_rules jsonb;
+  v_applied uuid[] := '{}';
+  v_refused jsonb := '[]'::jsonb;
+  uuid_re constant text := '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+  c record;
+begin
+  perform private.assert_access_open();  -- LEAVE1-3
+  if p_institution_id is null or not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  -- HD-3a «übernehmen» (ADR-224 rev. 2 point «Apply and races», rule catalogue §1 step 8): the home takes over the rows
+  -- of a draft it was shown (T-1 «übernommen = gezeigt»: the screen sends exactly the rows it shows). The database
+  -- decides, not the solver: every row goes through institution_assign_staff itself (one source of every block and
+  -- rule) without a confirmation, so a row that breaks a planning rule is refused and is never saved as an override.
+  -- Partial take-over: a refused row is reported with its reason and stays a gap; the accepted rows are kept.
+  -- Up to 2000 rows (60 persons x 31 days, with room) is an input check that bounds the lock time.
+  if p_apply_id is null or p_rows is null or jsonb_typeof(p_rows) <> 'array' or jsonb_array_length(p_rows) = 0
+     or jsonb_array_length(p_rows) > 2000 then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('rows_not_valid'));
+  end if;
+  n := jsonb_array_length(p_rows);
+  for r in select e from jsonb_array_elements(p_rows) e loop
+    -- Nested checks: SQL does not promise the order of OR, and jsonb_object_keys raises on a non-object.
+    if jsonb_typeof(r) <> 'object' then
+      return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('rows_not_valid'));
+    end if;
+    if exists (select 1 from jsonb_object_keys(r) k where k not in ('date', 'station_id', 'shift_type_id', 'staff_id'))
+       or jsonb_typeof(r -> 'date') is distinct from 'string'
+       or jsonb_typeof(r -> 'station_id') is distinct from 'string'
+       or jsonb_typeof(r -> 'shift_type_id') is distinct from 'string'
+       or jsonb_typeof(r -> 'staff_id') is distinct from 'string' then
+      return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('rows_not_valid'));
+    end if;
+    if (r ->> 'date') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' or (r ->> 'station_id') !~* uuid_re
+       or (r ->> 'shift_type_id') !~* uuid_re or (r ->> 'staff_id') !~* uuid_re then
+      return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('rows_not_valid'));
+    end if;
+  end loop;
+  begin
+    perform (e ->> 'date')::date from jsonb_array_elements(p_rows) e;
+  exception when invalid_datetime_format or datetime_field_overflow then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('rows_not_valid'));
+  end;
+  if (select count(distinct ((e ->> 'staff_id')::uuid, (e ->> 'date')::date, (e ->> 'shift_type_id')::uuid))
+      from jsonb_array_elements(p_rows) e) <> n then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('duplicate_row'));
+  end if;
+  -- One draft covers one week or one calendar month (the periods the screen offers), so its rows span at most 31 days
+  -- (review R-3b-1). An input check like the 2000 rows above: it bounds the cell locks taken below to stations x shift
+  -- types x 31 of this home. A technical bound, no planning rule.
+  if (select max((e ->> 'date')::date) - min((e ->> 'date')::date) from jsonb_array_elements(p_rows) e) > 30 then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('period_too_long'));
+  end if;
+  -- Lock every person of the draft of this home, in id order, before the first check: the same first lock as
+  -- institution_assign_staff (person -> type share -> home share), so two applies or an apply and a hand assignment,
+  -- an absence or a planning change of the same person are serialised and cannot deadlock. A person of another home is
+  -- not locked here and is refused below as not_found.
+  perform 1 from public.institution_staff s
+    where s.institution_id = p_institution_id
+      and s.id in (select (e ->> 'staff_id')::uuid from jsonb_array_elements(p_rows) e)
+    order by s.id
+    for update;
+  -- HD-3a-F1 (#1745): then the draft's shift types of this home (share, id order) and the home (share): the same prefix
+  -- as institution_assign_staff (person -> type -> home), so no new lock cycle. Held to commit, so the weekly target
+  -- checked below and every later rule check read the same value: institution_set_planning_limits (home `for update`)
+  -- waits for this call or this call waits for it, never in between. Before 0186 this held only as a side effect (the
+  -- run-record insert's foreign key takes the home `for key share`); the check below runs before that insert, so the
+  -- lock is taken here explicitly.
+  perform 1 from public.institution_shift_types t
+    where t.institution_id = p_institution_id
+      and t.id in (select (e ->> 'shift_type_id')::uuid from jsonb_array_elements(p_rows) e)
+    order by t.id
+    for share;
+  perform 1 from public.institutions h where h.id = p_institution_id for share;
+  -- The role may have been removed while this call waited for a person lock (review finding 4): checked again with a
+  -- fresh snapshot, before anything is recorded, so a refused call leaves no run record and no audit event.
+  if not private.is_institution_member(p_institution_id, array['lead', 'planner']) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  -- Safe repeat (double click, network retry): the client sends one apply id per shown draft. A second call with the
+  -- same id waits for the first (on the person locks, else on the primary key) and then answers from its record;
+  -- nothing is written twice and there is no second audit event. Looked up before the weekly-target check (HD-3a-F1):
+  -- a retry of a call that saved rows answers `already_applied` even if the target was emptied since, so the screen
+  -- never says «nothing saved» while rows are saved.
+  select * into v_run from public.institution_draft_runs where id = p_apply_id;
+  if v_run.id is not null then
+    if v_run.institution_id is distinct from p_institution_id then
+      return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('apply_id_used'));
+    end if;
+    return jsonb_build_object('result', 'already_applied', 'apply_id', v_run.id, 'applied', v_run.rows_applied,
+                              'refused', v_run.refused);
+  end if;
+  -- HD-3a-F1 R-6-1 (fail closed, as the planner): without the home's «Sollstunden pro Woche» R-h (minutes per ISO week
+  -- <= Pensum x Wochensoll) cannot be checked, so the whole call is refused: no run record, no audit event, nothing
+  -- saved (as every `invalid`). The home is share-locked above, so the value cannot change until commit.
+  if (select h.weekly_target_hours from public.institutions h where h.id = p_institution_id) is null then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('weekly_target_missing'));
+  end if;
+  insert into public.institution_draft_runs (id, institution_id, applied_by, rows_offered)
+    values (p_apply_id, p_institution_id, (select auth.uid()), n)
+    on conflict (id) do nothing;
+  get diagnostics inserted = row_count;
+  if inserted = 0 then
+    select * into v_run from public.institution_draft_runs where id = p_apply_id;
+    if v_run.institution_id is distinct from p_institution_id then
+      return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('apply_id_used'));
+    end if;
+    return jsonb_build_object('result', 'already_applied', 'apply_id', v_run.id, 'applied', v_run.rows_applied,
+                              'refused', v_run.refused);
+  end if;
+  -- Lock every plan cell of the draft whose station and shift type belong to this home (review finding 1; R-3b-1: a
+  -- row with a foreign station or shift type takes no lock and is refused below as not_found), all before the first
+  -- row and in one fixed order (station, shift type, day): institution_prepare_gap_order takes the same cell lock, so
+  -- an order and a draft row for the same cell are serialised and each sees the other's committed result (READ
+  -- COMMITTED: every statement below reads a fresh snapshot). Persons first, then cells, both sorted: two applies
+  -- cannot deadlock, and prepare holds only its one cell lock and never waits for a person.
+  for c in select distinct (e ->> 'station_id')::uuid as station_id, (e ->> 'shift_type_id')::uuid as shift_type_id,
+                           (e ->> 'date')::date as work_date
+             from jsonb_array_elements(p_rows) e
+             join public.institution_stations st
+               on st.id = (e ->> 'station_id')::uuid and st.institution_id = p_institution_id
+             join public.institution_shift_types t
+               on t.id = (e ->> 'shift_type_id')::uuid and t.institution_id = p_institution_id
+            order by 1, 2, 3 loop
+    perform private.institution_cell_lock(c.station_id, c.shift_type_id, c.work_date);
+  end loop;
+  -- Rows in a fixed order. Every rule is monotone (another shift only adds breaches), so a draft that is valid as a
+  -- whole passes row by row; a row refused here was made invalid by a change since the draft.
+  for r in select e from jsonb_array_elements(p_rows) e
+           order by (e ->> 'staff_id')::uuid, (e ->> 'date')::date, (e ->> 'shift_type_id')::uuid loop
+    reason := null;
+    v_rules := null;
+    -- The cell: an active external order (HD-2) keeps it (the draft never plans such a cell), and a cell that already
+    -- has its minimum staffing needs nobody more (a row is needed for the total, or as the missing grade).
+    if exists (select 1 from public.institution_gap_orders g
+               where g.institution_id = p_institution_id and g.station_id = (r ->> 'station_id')::uuid
+                 and g.shift_type_id = (r ->> 'shift_type_id')::uuid and g.work_date = (r ->> 'date')::date
+                 and g.state in ('prepared', 'sent')) then
+      reason := 'cell_has_order';
+    else
+      select * into v_rule from public.institution_staffing_rules sr
+        where sr.institution_id = p_institution_id and sr.station_id = (r ->> 'station_id')::uuid
+          and sr.shift_type_id = (r ->> 'shift_type_id')::uuid;
+      select * into v_person from public.institution_staff s
+        where s.id = (r ->> 'staff_id')::uuid and s.institution_id = p_institution_id;
+      select * into v_shift from public.institution_shift_types t
+        where t.id = (r ->> 'shift_type_id')::uuid and t.institution_id = p_institution_id;
+      if v_person.id is null or v_shift.id is null
+         or not exists (select 1 from public.institution_stations st
+                        where st.id = (r ->> 'station_id')::uuid and st.institution_id = p_institution_id) then
+        reason := 'not_found';
+      elsif v_rule.station_id is null then
+        reason := 'no_staffing_rule';
+      else
+        select count(*), count(*) filter (where p.grade = v_rule.required_grade) into present, grade_present
+          from public.institution_assignments a
+          join public.institution_staff p on p.id = a.staff_id
+          where a.station_id = v_rule.station_id and a.shift_type_id = v_rule.shift_type_id
+            and a.work_date = (r ->> 'date')::date and p.active
+            and not exists (select 1 from public.institution_absences ab where ab.staff_id = p.id
+                            and daterange(ab.starts_on, ab.ends_on, '[]')
+                                && private.institution_shift_days(a.work_date, v_shift.starts_at, v_shift.ends_at));
+        if present >= v_rule.required_total
+           and not (v_rule.required_grade is not null and v_person.grade = v_rule.required_grade
+                    and grade_present < v_rule.required_grade_count) then
+          reason := 'cell_full';
+        end if;
+      end if;
+    end if;
+    -- HD-3a-F1 R-6-1: a person without Pensum is never planned automatically (the planner skips her), so «übernehmen»
+    -- refuses her row (fail closed; the other rows follow the row logic). Checked last before the save, so a row
+    -- refused for its cell is not reported as «Pensum fehlt». The person row is locked `for update` above, so the value
+    -- read here is the one institution_assign_staff checks R-h with.
+    -- HD-3a-F3: a person with a monthly target for the month of the row is planned by that target (R-m), so a missing
+    -- Pensum refuses the row only when there is no target either («weder Monatssoll noch Pensum», fail closed). The
+    -- target writer takes the same person lock, so the target read here cannot change until commit.
+    if reason is null and v_person.pensum_pct is null
+       and not exists (select 1 from public.institution_monthly_targets mt
+                       where mt.staff_id = v_person.id
+                         and mt.period_month = date_trunc('month', (r ->> 'date')::date::timestamp)::date) then
+      reason := 'pensum_missing';
+    end if;
+    if reason is null then
+      res := public.institution_assign_staff(p_institution_id, (r ->> 'station_id')::uuid,
+               (r ->> 'shift_type_id')::uuid, (r ->> 'date')::date, (r ->> 'staff_id')::uuid, null);
+      if res ->> 'result' = 'ok' then
+        v_applied := v_applied || (res ->> 'assignment_id')::uuid;
+        continue;
+      elsif res ->> 'result' = 'warning' then
+        reason := 'planning_rule';
+        v_rules := res -> 'rules';
+      else
+        reason := coalesce(res -> 'problems' ->> 0, res ->> 'result');
+      end if;
+    end if;
+    v_refused := v_refused || jsonb_build_object('staff_id', r ->> 'staff_id', 'date', r ->> 'date',
+                                             'station_id', r ->> 'station_id', 'shift_type_id', r ->> 'shift_type_id',
+                                             'reason', reason, 'rules', v_rules);
+  end loop;
+  update public.institution_draft_runs
+     set rows_applied = cardinality(v_applied), refused = v_refused, assignment_ids = v_applied
+   where id = p_apply_id;
+  -- One audit event for the batch; every saved row has its own institution_assign_staff event.
+  perform private.institution_audit(p_institution_id, 'institution_apply_draft', 'institution_draft_runs', p_apply_id,
+    jsonb_build_object('provenance', 'optimizer_rules', 'rows_offered', n, 'rows_applied', cardinality(v_applied),
+                       'rows_refused', jsonb_array_length(v_refused)));
+  return jsonb_build_object('result', 'ok', 'apply_id', p_apply_id, 'applied', cardinality(v_applied),
+                            'assignment_ids', to_jsonb(v_applied), 'refused', v_refused);
+end $function$;
+
+revoke all on function public.institution_apply_draft(p_institution_id uuid, p_apply_id uuid, p_rows jsonb) from public, anon, authenticated, service_role;
+grant execute on function public.institution_apply_draft(p_institution_id uuid, p_apply_id uuid, p_rows jsonb) to authenticated;
+grant execute on function public.institution_apply_draft(p_institution_id uuid, p_apply_id uuid, p_rows jsonb) to service_role;
+
+-- public.institution_plan: canonical source (STAB-1). Generated by scripts/fn-source.mjs from the database; edit THIS file and
+-- ship the whole file in a new migration (node scripts/fn-source.mjs migration public.institution_plan). No text patch.
+
+-- public.institution_plan(p_institution_id uuid, p_from date, p_to date)
+CREATE OR REPLACE FUNCTION public.institution_plan(p_institution_id uuid, p_from date, p_to date)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  inst public.institutions;
+begin
+  -- LEAVE1-3: is_institution_member is false for a person whose access ended.
+  if p_institution_id is null or not private.is_institution_member(p_institution_id) then
+    return jsonb_build_object('result', 'rejected');
+  end if;
+  if p_from is null or p_to is null or p_to < p_from or p_to - p_from > 41 then
+    return jsonb_build_object('result', 'invalid', 'problems', jsonb_build_array('range_not_valid'));
+  end if;
+  select * into inst from public.institutions where id = p_institution_id;
+  return jsonb_build_object(
+    'result', 'ok',
+    'institution', jsonb_build_object('id', inst.id, 'display_name', inst.display_name, 'simulation', inst.simulation,
+      'role', (select m.role from public.institution_members m
+               where m.institution_id = inst.id and m.user_id = (select auth.uid())),
+      'order_postcode', inst.order_postcode,
+      -- HD-3a: the home's planning inputs (FE-119, FE-123), read by the draft and the screen.
+      'min_rest_hours', inst.min_rest_hours, 'max_consecutive_days', inst.max_consecutive_days,
+      'weekly_target_hours', inst.weekly_target_hours,
+      -- HD-3s S5: «Arbeitstage pro Woche» for the daily target hint (never a block).
+      'work_days_per_week', inst.work_days_per_week,
+      -- HD-3a-F3: «Abweichungsschwelle (Stunden)» of the home; NULL = every deviation is shown (brief default).
+      'monthly_target_deviation_hours', inst.monthly_target_deviation_hours,
+      'can_order', exists (select 1 from public.client_accounts ca
+                           where ca.institution_id = inst.id and private.is_client_member(ca.id))),
+    'from', p_from, 'to', p_to,
+    'stations', coalesce((select jsonb_agg(jsonb_build_object('id', s.id, 'name', s.name) order by s.sort, s.name)
+                          from public.institution_stations s where s.institution_id = inst.id), '[]'::jsonb),
+    'shift_types', coalesce((select jsonb_agg(jsonb_build_object('id', t.id, 'code', t.code, 'label', t.label,
+                                     'starts_at', to_char(t.starts_at, 'HH24:MI'), 'ends_at', to_char(t.ends_at, 'HH24:MI'),
+                                     'shift_class', t.shift_class,
+                                     -- HD-3s: a split shift is block 1 starts_at..block1_ends_at, block 2
+                                     -- block2_starts_at..ends_at; NULL for a shift with one block.
+                                     'block1_ends_at', to_char(t.block1_ends_at, 'HH24:MI'),
+                                     'block2_starts_at', to_char(t.block2_starts_at, 'HH24:MI'))
+                                   order by t.sort, t.starts_at)
+                             from public.institution_shift_types t where t.institution_id = inst.id), '[]'::jsonb),
+    'staff', coalesce((select jsonb_agg(jsonb_build_object('id', p.id, 'display_name', p.display_name, 'grade', p.grade,
+                               'home_station_id', p.home_station_id, 'active', p.active,
+                               'pensum_pct', p.pensum_pct, 'shift_model', p.shift_model) order by p.display_name, p.id)
+                       from public.institution_staff p where p.institution_id = inst.id), '[]'::jsonb),
+    'absences', coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'staff_id', a.staff_id,
+                                  'starts_on', a.starts_on, 'ends_on', a.ends_on) order by a.starts_on, a.id)
+                          from public.institution_absences a
+                          where a.institution_id = inst.id and a.starts_on <= p_to and a.ends_on >= p_from), '[]'::jsonb),
+    -- HD-3a-F3 (T-1: the screen computes nothing): per person and every calendar month the range touches, the monthly
+    -- target, the planned working minutes of the whole month (every stored assignment by work date, split shift
+    -- without the pause, as R-m and R-h count them), the remaining minutes and the comparison value of the brief
+    -- default (weekly budget today x days of the month / 7, rounded to whole minutes; NULL without Pensum or weekly
+    -- target). `deviates` only compares, it never changes a value; NULL when there is no target or no comparison.
+    'month_targets', coalesce((
+      select jsonb_agg(jsonb_build_object(
+               'staff_id', x.staff_id, 'month', x.month, 'target_minutes', x.target_minutes,
+               'planned_minutes', x.planned_minutes,
+               'remaining_minutes', x.target_minutes - x.planned_minutes,
+               'comparison_minutes', x.comparison_minutes,
+               'deviates', case when x.target_minutes is null or x.comparison_minutes is null then null
+                                else abs(x.target_minutes - x.comparison_minutes)
+                                     > coalesce(round(inst.monthly_target_deviation_hours * 60), 0) end)
+             order by x.month, x.display_name, x.staff_id)
+      from (
+        select p.id as staff_id, p.display_name, m.m::date as month, mt.target_minutes,
+               (select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at,
+                                                                      o.block1_ends_at, o.block2_starts_at)), 0)::int
+                  from public.institution_assignments a
+                  join public.institution_shift_types o on o.id = a.shift_type_id
+                  where a.staff_id = p.id and a.work_date >= m.m::date
+                    and a.work_date < (m.m + interval '1 month')::date) as planned_minutes,
+               case when p.pensum_pct is null or inst.weekly_target_hours is null then null
+                    else round(floor(p.pensum_pct * round(inst.weekly_target_hours * 60) / 100)
+                               * extract(day from (m.m + interval '1 month' - interval '1 day')) / 7)::int end
+                 as comparison_minutes
+        from public.institution_staff p
+        cross join generate_series(date_trunc('month', p_from::timestamp), date_trunc('month', p_to::timestamp), interval '1 month') m(m)
+        left join public.institution_monthly_targets mt on mt.staff_id = p.id and mt.period_month = m.m::date
+        where p.institution_id = inst.id
+      ) x), '[]'::jsonb),
+    -- HD-3a wishes (FE-125): read like the other person data of the home; the draft uses them as an order only.
+    'wishes', coalesce((select jsonb_agg(jsonb_build_object('staff_id', w.staff_id, 'weekday', w.weekday, 'kind', w.kind,
+                                'shift_type_id', w.shift_type_id) order by w.staff_id, w.weekday, w.kind, w.shift_type_id)
+                        from public.institution_staff_wishes w where w.institution_id = inst.id), '[]'::jsonb),
+    'cells', coalesce((
+      select jsonb_agg(jsonb_build_object(
+               'date', c.d, 'station_id', c.station_id, 'shift_type_id', c.shift_type_id,
+               'required_total', c.required_total, 'required_grade', c.required_grade,
+               'required_grade_count', c.required_grade_count, 'example', c.example,
+               'assigned', c.assigned, 'present', c.present, 'grade_present', c.grade_present,
+               'external_covered', c.ext,
+               'missing', greatest(coalesce(c.required_total, 0) - c.present - c.ext, 0),
+               'status', case when c.required_total is null then 'no_rule'
+                              when c.present + c.ext >= c.required_total
+                                   and c.grade_present + c.ext_grade >= c.required_grade_count then 'ok'
+                              else 'gap' end,
+               'order', c.gap_order)
+             order by c.d, c.station_sort, c.station_name, c.shift_sort, c.shift_starts)
+      from (
+        select d.d::date as d, s.id as station_id, s.sort as station_sort, s.name as station_name,
+               t.id as shift_type_id, t.sort as shift_sort, t.starts_at as shift_starts,
+               r.required_total, r.required_grade, coalesce(r.required_grade_count, 0) as required_grade_count,
+               coalesce(r.example, false) as example,
+               coalesce(x.assigned, '[]'::jsonb) as assigned,
+               coalesce(x.present, 0) as present,
+               coalesce(x.grade_present, 0) as grade_present,
+               (go.cover_state is not distinct from 'covered')::int as ext,
+               (go.cover_state is not distinct from 'covered' and go.grade = r.required_grade)::int as ext_grade,
+               case when go.id is null then null else jsonb_build_object(
+                 'gap_order_id', go.id, 'state', go.state, 'order_id', go.order_id, 'grade', go.grade,
+                 'grade_fixed', go.grade_fixed is not null, 'starts_at', go.starts_at,
+                 'cover_state', go.cover_state, 'cover_detail', go.cover_detail,
+                 'latest_cover_at', go.latest_cover_at) end as gap_order
+        from generate_series(p_from, p_to, interval '1 day') d(d)
+        cross join public.institution_stations s
+        cross join public.institution_shift_types t
+        left join public.institution_staffing_rules r on r.station_id = s.id and r.shift_type_id = t.id
+        left join lateral (
+          select jsonb_agg(jsonb_build_object('assignment_id', ia.id, 'staff_id', p.id, 'display_name', p.display_name,
+                                              'grade', p.grade, 'absent', ab.absent, 'inactive', not p.active,
+                                              -- HD-3a Q3: the rules this shift breaks now (one reading with the
+                                              -- command) and those confirmed by hand when it was saved.
+                                              'rules', to_jsonb(private.institution_rule_breaches(p.id, t.id, d.d::date, ia.id)),
+                                              'override_rules', to_jsonb(ia.override_rules))
+                           order by p.display_name, p.id) as assigned,
+                 -- HD-1 R1: an inactive person never counts as present (she stays listed, marked inactive).
+                 count(*) filter (where p.active and not ab.absent)::int as present,
+                 count(*) filter (where p.active and not ab.absent and p.grade = r.required_grade)::int as grade_present
+          from public.institution_assignments ia
+          join public.institution_staff p on p.id = ia.staff_id
+          -- HD-1 R3: an absence covers whole calendar days; a shift touching one of them (the night D-1 -> D) is absent.
+          cross join lateral (select exists (select 1 from public.institution_absences a
+                                             where a.staff_id = p.id
+                                               and daterange(a.starts_on, a.ends_on, '[]')
+                                                   && private.institution_shift_days(d.d::date, t.starts_at, t.ends_at))
+                              as absent) ab
+          where ia.station_id = s.id and ia.shift_type_id = t.id and ia.work_date = d.d::date
+        ) x on true
+        -- HD-2: the active external order of the cell (at most one) and its cover, read like /order reads it.
+        left join lateral (
+          select g.id, g.state, g.order_id, g.grade_fixed, coalesce(pr.grade, g.grade_fixed) as grade, pr.starts_at,
+                 cs.cover_state, cs.cover_detail, cs.latest_cover_at
+          from public.institution_gap_orders g
+          left join public.partner_requests pr on pr.id = g.order_id
+          left join lateral private.order_client_state(g.order_id, private.now()) cs on g.order_id is not null
+          where g.station_id = s.id and g.shift_type_id = t.id and g.work_date = d.d::date
+            and g.state in ('prepared', 'sent')
+        ) go on true
+        where s.institution_id = inst.id and t.institution_id = inst.id
+      ) c), '[]'::jsonb));
+end $function$;
+
+revoke all on function public.institution_plan(p_institution_id uuid, p_from date, p_to date) from public, anon, authenticated, service_role;
+grant execute on function public.institution_plan(p_institution_id uuid, p_from date, p_to date) to authenticated;
+grant execute on function public.institution_plan(p_institution_id uuid, p_from date, p_to date) to service_role;

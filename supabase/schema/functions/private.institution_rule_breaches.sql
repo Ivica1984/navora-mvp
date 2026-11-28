@@ -17,13 +17,16 @@ declare
   run int := 1;
   d date;
   week_start date;
+  month_start date;
+  target integer;
   used numeric;
 begin
   -- HD-3a (FE-123, Q3): the planning rules a shift of this person breaks, read against every other assignment of the
   -- person (p_self = the shift itself when it is already stored, else NULL). One reading for the hand assignment
   -- (institution_assign_staff) and the plan (institution_plan); the same rules as the draft (src/features/home-plan/
   -- draft.ts R-c, R-f, R-g, R-h). Absence and double booking are not here: they stay blocked in the commands.
-  -- Order fixed: shift_model, rest, consecutive, pensum_full. Rest time and days in a row: founder parameters,
+  -- Order fixed: shift_model, rest, consecutive, then month_target_full or pensum_full (never both). Rest time and
+  -- days in a row: founder parameters,
   -- «Arbeitszeitgesetz nicht abschliessend geprüft» (`lca` before real data).
   select * into p from public.institution_staff where id = p_staff_id;
   select * into t from public.institution_shift_types where id = p_shift_type_id;
@@ -68,6 +71,29 @@ begin
   end loop;
   if run > h.max_consecutive_days then
     breaches := breaches || 'consecutive'::text;
+  end if;
+  -- HD-3a-F3 R-m (founder FE-135 option A): when the home entered a monthly target for this person and the calendar
+  -- month of the work date, it is the planning condition for this shift instead of R-h: working minutes of the person
+  -- with a work date in that month (every stored assignment, as R-h counts them) plus this shift over the target.
+  -- Not converted from the weekly budget; R-h is not applied to this shift. A shift counts to the month of its work
+  -- date (a night across the month end too). Rest, days in a row, shift model above and absence, double booking and
+  -- grade in the commands stay hard and unchanged. Without a target R-h below is unchanged (also in an ISO week that
+  -- touches a month with a target: R-h then counts the whole week, conservative).
+  month_start := date_trunc('month', p_work_date::timestamp)::date;
+  select mt.target_minutes into target from public.institution_monthly_targets mt
+    where mt.staff_id = p.id and mt.period_month = month_start;
+  if target is not null then
+    select coalesce(sum(private.institution_shift_minutes(a.work_date, o.starts_at, o.ends_at, o.block1_ends_at,
+                                                          o.block2_starts_at)), 0) into used
+      from public.institution_assignments a
+      join public.institution_shift_types o on o.id = a.shift_type_id
+      where a.staff_id = p.id and a.id is distinct from p_self
+        and a.work_date >= month_start and a.work_date < (month_start + interval '1 month')::date;
+    if used + private.institution_shift_minutes(p_work_date, t.starts_at, t.ends_at, t.block1_ends_at, t.block2_starts_at)
+       > target then
+      breaches := breaches || 'month_target_full'::text;
+    end if;
+    return breaches;
   end if;
   -- R-h: shift minutes per ISO week (Monday, by work date) over Pensum x weekly target hours. Not checked when the
   -- Pensum or the target hours are not entered (the draft does not plan such a person at all). HD-3s: working minutes

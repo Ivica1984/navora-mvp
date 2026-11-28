@@ -10,6 +10,10 @@
 //   R-b Pensum entered (NULL = never planned)    R-f rest between two shifts >= min_rest_hours (founder, FE-119)
 //   R-c shift model allows the shift class      R-g <= max_consecutive_days working days in a row (founder, FE-119)
 //   R-d no absence day touched (HD-1 R3)        R-h shift minutes per ISO week <= Pensum x full-time reference
+//   R-m (HD-3a-F3, founder FE-135 option A, migration 0189): when the home entered a monthly target for the person and
+//       the calendar month of the work date, working minutes of that month (stored + proposed) <= target, INSTEAD of
+//       R-h for that shift; a person with a target needs no Pensum (R-b: «weder Monatssoll noch Pensum» = not planned).
+//       Same reading as `private.institution_rule_breaches` (one rule source; parity test hd3a-f3-month-target).
 // Rest time and days in a row carry the mark «Arbeitszeitgesetz nicht abschliessend geprüft» (`lca` before real data).
 //
 // Wishes (FE-125, slice 2d; rule catalogue HD_RULE_CATALOGUE.md W-1, W-2, §4) are an ORDER among permitted persons only:
@@ -69,6 +73,11 @@ export type DraftLimits = {
   /** Q1 (FE-123): minutes of shift time per ISO week at 100 % Pensum (`fullTimeMinutes(weekly_target_hours)`). */
   fullTimeMinutesPerWeek: number | null;
 };
+/**
+ * HD-3a-F3: a monthly target of the home as `institution_plan` returns it (`month_targets`, entries with a target only):
+ * `planned_minutes` = working minutes of every stored assignment of the person with a work date in that month.
+ */
+export type DraftMonthTarget = { staff_id: string; month: string; target_minutes: number; planned_minutes: number };
 /** A wish of the home for one person (`institution_staff_wishes`): ISO weekday 1 = Monday ... 7 = Sunday. */
 export type DraftWish = { staff_id: string; weekday: number; kind: "work" | "off"; shift_type_id: string | null };
 export type DraftInput = {
@@ -83,6 +92,8 @@ export type DraftInput = {
   limits: DraftLimits;
   /** W-1 and W-2 (FE-125); absent = no wishes. */
   wishes?: ReadonlyArray<DraftWish>;
+  /** R-m (HD-3a-F3); absent = no monthly targets (R-h for everybody, as before). */
+  monthTargets?: ReadonlyArray<DraftMonthTarget>;
 };
 
 export type DraftRow = { date: string; station_id: string; shift_type_id: string; staff_id: string };
@@ -93,7 +104,8 @@ export type BlockReason =
   | "busy"
   | "rest"
   | "consecutive"
-  | "pensum_full";
+  | "pensum_full"
+  | "month_target_full";
 export const BLOCK_ORDER: ReadonlyArray<BlockReason> = [
   "pensum_missing",
   "shift_model",
@@ -102,6 +114,7 @@ export const BLOCK_ORDER: ReadonlyArray<BlockReason> = [
   "rest",
   "consecutive",
   "pensum_full",
+  "month_target_full",
 ];
 export type DraftGap = {
   date: string;
@@ -221,13 +234,25 @@ export function draftContextRange(from: string, to: string, limits: Pick<DraftLi
 
 // --- Model ----------------------------------------------------------------------------------------------------------------
 type Shift = { date: string; week: string; typeId: string; span: Span; minutes: number; proposed: boolean };
-type Person = DraftStaff & { shifts: Shift[]; dates: Map<string, number>; minutesInPeriod: number };
+type Person = DraftStaff & {
+  shifts: Shift[];
+  dates: Map<string, number>;
+  minutesInPeriod: number;
+  /** R-m: month (YYYY-MM-01) -> target and stored minutes from the database, and the minutes this draft proposed. */
+  targets: Map<string, { target: number; stored: number; proposed: number }>;
+};
+
+/** The calendar month (its first day) a work date counts to. */
+export const monthOf = (date: string): string => `${date.slice(0, 7)}-01`;
+/** Days of the calendar month of `month` (YYYY-MM-01). */
+const daysInMonth = (month: string): number => new Date(Date.UTC(+month.slice(0, 4), +month.slice(5, 7), 0)).getUTCDate();
 
 const cmp = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 function blockFor(p: Person, date: string, t: DraftShiftType, input: DraftInput, absent: Map<string, Absence[]>): BlockReason | null {
   const { limits } = input;
-  if (p.pensum_pct === null) return "pensum_missing";
+  const target = p.targets.get(monthOf(date));
+  if (p.pensum_pct === null && !target) return "pensum_missing";
   if (!modelAllows(p.shift_model, t.shift_class)) return "shift_model";
   const days = shiftDays(date, t.starts_at, t.ends_at);
   if ((absent.get(p.id) ?? []).some((a) => a.starts_on <= days.last && a.ends_on >= days.first)) return "absent";
@@ -245,10 +270,11 @@ function blockFor(p: Person, date: string, t: DraftShiftType, input: DraftInput,
   for (let d = addDays(date, -1); p.dates.has(d); d = addDays(d, -1)) run++;
   for (let d = addDays(date, 1); p.dates.has(d); d = addDays(d, 1)) run++;
   if (run > limits.maxConsecutiveDays) return "consecutive";
+  const minutes = shiftMinutes(date, t);
+  if (target) return target.stored + target.proposed + minutes > target.target ? "month_target_full" : null;
   const ws = weekStart(date);
   let used = 0;
   for (const s of p.shifts) if (s.week === ws) used += s.minutes;
-  const minutes = shiftMinutes(date, t);
   const cap = Math.floor(((p.pensum_pct ?? 0) * (limits.fullTimeMinutesPerWeek ?? 0)) / 100);
   if (used + minutes > cap) return "pensum_full";
   return null;
@@ -275,8 +301,21 @@ export function buildDraft(input: DraftInput): DraftResult {
 
   const persons = new Map<string, Person>();
   for (const s of [...input.staff].sort((a, b) => cmp(a.id, b.id))) {
-    persons.set(s.id, { ...s, shifts: [], dates: new Map(), minutesInPeriod: 0 });
+    persons.set(s.id, { ...s, shifts: [], dates: new Map(), minutesInPeriod: 0, targets: new Map() });
   }
+  for (const m of [...(input.monthTargets ?? [])].sort((a, b) => cmp(a.staff_id, b.staff_id) || cmp(a.month, b.month))) {
+    const p = persons.get(m.staff_id);
+    if (!p || !(m.target_minutes > 0) || !(m.planned_minutes >= 0)) continue;
+    p.targets.set(m.month, { target: m.target_minutes, stored: m.planned_minutes, proposed: 0 });
+  }
+  // The load of a person with a target is read against her target as an equivalent Pensum of the month (an order
+  // only, no rule): target x 100 / (full-time minutes per week x days of the month / 7).
+  const fullTime = limits.fullTimeMinutesPerWeek;
+  const loadOf = (p: Person, date: string): number => {
+    const tg = p.targets.get(monthOf(date));
+    const pct = tg ? (tg.target * 100 * 7) / (fullTime * daysInMonth(monthOf(date))) : (p.pensum_pct as number);
+    return p.minutesInPeriod / pct;
+  };
   const inPeriod = (d: string) => d >= input.from && d <= input.to;
   // Wishes as two lookups (input order does not matter): `${staff}|${weekday}|${type}` and `${staff}|${weekday}`.
   const wishWork = new Set<string>();
@@ -298,6 +337,9 @@ export function buildDraft(input: DraftInput): DraftResult {
     p.shifts.push({ date, week: weekStart(date), typeId: t.id, span, minutes, proposed });
     p.dates.set(date, (p.dates.get(date) ?? 0) + 1);
     if (inPeriod(date)) p.minutesInPeriod += minutes;
+    // R-m: a stored shift is already in `planned_minutes` of the database; only proposed minutes are added.
+    const tg = proposed ? p.targets.get(monthOf(date)) : undefined;
+    if (tg) tg.proposed += minutes;
   };
   // Existing assignments, of every person and every cell the caller read (also absent or inactive ones: the database
   // checks overlap against all of them).
@@ -363,7 +405,7 @@ export function buildDraft(input: DraftInput): DraftResult {
       if (!p.active || (grade !== null && p.grade !== grade)) continue;
       if (blockFor(p, n.cell.date, n.t, input, absent) !== null) continue;
       const tier = wishTier(p, n.cell.date, n.t.id);
-      const load = p.minutesInPeriod / (p.pensum_pct as number);
+      const load = loadOf(p, n.cell.date);
       if (tier < bestTier || (tier === bestTier && load < bestLoad)) {
         best = p;
         bestTier = tier;
@@ -511,6 +553,9 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
   const types = new Map(input.shiftTypes.map((t) => [t.id, t]));
   const staff = new Map(input.staff.map((s) => [s.id, s]));
   const fullTime = input.limits.fullTimeMinutesPerWeek ?? 0;
+  const targets = new Map<string, DraftMonthTarget>();
+  for (const m of input.monthTargets ?? []) if (m.target_minutes > 0) targets.set(`${m.staff_id}|${m.month}`, m);
+  const targetOf = (id: string, date: string) => targets.get(`${id}|${date.slice(0, 7)}-01`);
   type S = { date: string; span: Span; minutes: number; proposed: boolean };
   const by = new Map<string, S[]>();
   const push = (id: string, s: S) => by.set(id, [...(by.get(id) ?? []), s]);
@@ -533,7 +578,7 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
     }
     if (r.date < input.from || r.date > input.to) out.push({ staff_id: p.id, date: r.date, rule: "outside_period" });
     if (!p.active) out.push({ staff_id: p.id, date: r.date, rule: "inactive" });
-    if (p.pensum_pct === null) out.push({ staff_id: p.id, date: r.date, rule: "pensum_missing" });
+    if (p.pensum_pct === null && !targetOf(p.id, r.date)) out.push({ staff_id: p.id, date: r.date, rule: "pensum_missing" });
     if (!modelAllows(p.shift_model, t.shift_class)) out.push({ staff_id: p.id, date: r.date, rule: "shift_model" });
     const d = shiftDays(r.date, t.starts_at, t.ends_at);
     for (const a of input.absences) {
@@ -558,13 +603,21 @@ export function verifyDraft(input: DraftInput, rows: ReadonlyArray<DraftRow>): V
         else if (Math.max(b.span.start - a.span.end, a.span.start - b.span.end) < rest) out.push({ staff_id: id, date, rule: "rest" });
       }
     }
+    // R-h counts the whole ISO week, but only a proposed shift in a month WITHOUT a target is judged by it; R-m: the
+    // stored minutes of a target month come from the database (all of the month), the proposed ones are added here.
     const weeks = new Map<string, { minutes: number; proposed: boolean }>();
+    const months = new Map<string, number>();
     for (const s of list) {
       const w = weekStart(s.date);
       const v = weeks.get(w) ?? { minutes: 0, proposed: false };
       v.minutes += s.minutes;
-      v.proposed ||= s.proposed;
+      const tg = targetOf(id, s.date);
+      v.proposed ||= s.proposed && !tg;
       weeks.set(w, v);
+      if (tg && s.proposed) months.set(tg.month, (months.get(tg.month) ?? tg.planned_minutes) + s.minutes);
+    }
+    for (const [m, used] of months) {
+      if (used > targets.get(`${id}|${m}`)!.target_minutes) out.push({ staff_id: id, date: m, rule: "month_target_full" });
     }
     const cap = Math.floor(((p?.pensum_pct ?? 0) * fullTime) / 100);
     for (const [w, v] of weeks) if (v.proposed && v.minutes > cap) out.push({ staff_id: id, date: w, rule: "pensum_full" });
@@ -592,6 +645,7 @@ const BLOCK_LABEL: Record<BlockReason, string> = {
   rest: "Ruhezeit zu kurz",
   consecutive: "zu viele Tage in Folge",
   pensum_full: "Pensum ausgeschöpft",
+  month_target_full: "Monatssoll ausgeschöpft",
 };
 
 /**

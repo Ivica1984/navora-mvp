@@ -284,7 +284,9 @@
       "required": [
         "SET search_path TO ''",
         "STABLE",
-        "institution_shift_minutes"
+        "institution_shift_minutes",
+        "institution_monthly_targets",
+        "month_target_full"
       ]
     },
     {
@@ -309,7 +311,8 @@
         "is_institution_member",
         "institution_shift_days",
         "institution_rule_breaches",
-        "institution_staff_wishes"
+        "institution_staff_wishes",
+        "month_targets"
       ]
     },
     {
@@ -391,6 +394,34 @@
       ]
     },
     {
+      "name": "public.institution_set_monthly_target",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update",
+        "institution_monthly_targets"
+      ]
+    },
+    {
+      "name": "public.institution_set_monthly_target_threshold",
+      "required": [
+        "SECURITY DEFINER",
+        "SET search_path TO ''",
+        "is_institution_member",
+        "institution_audit",
+        "assert_access_open",
+        "expected_not_valid",
+        "changed_meanwhile",
+        "for update",
+        "monthly_target_deviation_hours"
+      ]
+    },
+    {
       "name": "public.institution_set_planning_limits",
       "required": [
         "SECURITY DEFINER",
@@ -451,7 +482,8 @@
         "join public.institution_shift_types t",
         "weekly_target_missing",
         "pensum_missing",
-        "from public.institutions h where h.id = p_institution_id for share"
+        "from public.institutions h where h.id = p_institution_id for share",
+        "institution_monthly_targets"
       ]
     },
     {
