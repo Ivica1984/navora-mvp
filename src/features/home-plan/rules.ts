@@ -159,8 +159,10 @@ export const WORKING_TIME_NOTE =
 /**
  * HD-3a Q3: the planning rules a shift can break, in the database's fixed order. HD-3a-F3 (FE-135 option A, migration
  * 0189): `month_target_full` replaces `pensum_full` for a person with a monthly target in the shift's month (never both).
+ * HD-PEN-HAND (ENG-PH1, migration 0190): `hours_unknown` when neither applies (no monthly target for the month and no
+ * Pensum or no Wochensoll): the hours cannot be checked, a warning to confirm or cancel. Exactly one of the three.
  */
-export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full", "month_target_full"] as const;
+export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full", "month_target_full", "hours_unknown"] as const;
 export type PlanningRule = (typeof PLANNING_RULES)[number];
 const RULE_TEXT: Record<PlanningRule, string> = {
   shift_model: "Schichtmodell der Person passt nicht zu dieser Dienstart",
@@ -168,6 +170,8 @@ const RULE_TEXT: Record<PlanningRule, string> = {
   consecutive: "zu viele Arbeitstage in Folge",
   pensum_full: "über dem Pensum dieser Woche",
   month_target_full: "über dem Monatssoll dieses Monats",
+  // Wording placeholder until the `cra` gate (brief HD-PEN-HAND: «Stunden nicht prüfbar»).
+  hours_unknown: "Stunden nicht prüfbar: weder Monatssoll noch Pensum mit Wochensoll eingetragen",
 };
 export const ruleText = (r: PlanningRule): string => RULE_TEXT[r];
 export function isPlanningRule(v: unknown): v is PlanningRule {
@@ -186,6 +190,25 @@ export function ruleWarning(a: Pick<AssignedPerson, "rules" | "override_rules">)
   const confirmed = new Set(a.override_rules ?? []);
   const all = now.every((r) => confirmed.has(r));
   return `Regel: ${now.map(ruleText).join(", ")}${all ? " (von Hand bestätigt)" : ""}`;
+}
+/**
+ * HD-PEN-HAND (ADR-232 point 5): the plan answer is cast from JSON, so a rule code this app does not know (a newer
+ * migration before the app deploy) would render as «undefined». Keeps only known codes on every assigned person;
+ * returns a new plan, the input is not changed.
+ */
+export function withKnownRules(plan: Plan): Plan {
+  const known = (v: unknown): PlanningRule[] => (Array.isArray(v) ? v.filter(isPlanningRule) : []);
+  return {
+    ...plan,
+    cells: (plan.cells ?? []).map((c) => ({
+      ...c,
+      assigned: (c.assigned ?? []).map((a) => ({
+        ...a,
+        rules: known(a.rules),
+        override_rules: a.override_rules == null ? null : known(a.override_rules),
+      })),
+    })),
+  };
 }
 export const EXAMPLE_NOTE = "Beispielwert des Heims (synthetisch), keine Vorgabe von NAVORA.";
 

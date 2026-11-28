@@ -92,9 +92,12 @@ select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_add_staf
           pg_temp.inst(), 'Test Vier', 'doctor')) ->> 'result', 'invalid', 'an unknown grade code is refused');
 
 -- 3. Plan: assign, status, absence, gap ------------------------------------------------------------------------------
+-- HD-PEN-HAND (0190): a hand assignment of a person without Pensum (or in a home without Wochensoll) names
+-- hours_unknown first (warning, confirm or cancel); this fixture is about another rule and confirms it.
 create function pg_temp.assign(p text, sh text, d date) returns jsonb language sql as $$
-  select pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L)',
-    pg_temp.inst(), (select v from ids where k = 'st'), (select v from ids where k = sh), d, (select v from ids where k = p)))
+  select pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L, %L::text[])',
+    pg_temp.inst(), (select v from ids where k = 'st'), (select v from ids where k = sh), d, (select v from ids where k = p),
+    '{hours_unknown}'))
 $$;
 create function pg_temp.cell(d date, sh text) returns jsonb language sql as $$
   select c from jsonb_array_elements(pg_temp.cmd(pg_temp.lead(), format('select public.institution_plan(%L, %L, %L)',

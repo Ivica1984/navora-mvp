@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
 import { readDraftPlan, type DraftPlan } from "./draft-screen";
-import type { InstitutionRole, Plan, RunRefusal } from "./rules";
+import { withKnownRules, type InstitutionRole, type Plan, type RunRefusal } from "./rules";
 
 export type MyInstitution = { id: string; display_name: string; kind: string; role: InstitutionRole; simulation: boolean };
 
@@ -28,7 +28,8 @@ export async function getPlan(institutionId: string, from: string, to: string): 
     return null;
   }
   const r = (data ?? {}) as unknown as { result?: string } & Plan;
-  return r.result === "ok" ? r : null;
+  // HD-PEN-HAND: unknown rule codes never reach the screen as «undefined» (ADR-232 point 5).
+  return r.result === "ok" ? withKnownRules(r) : null;
 }
 
 // HD-2: the reference lists for the review screen (the same lists /order reads) and the preview through the one

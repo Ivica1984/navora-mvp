@@ -44,9 +44,11 @@ create function pg_temp.shift(code text, starts text, ends text) returns jsonb l
   select pg_temp.cmd(pg_temp.lead(), format('select public.institution_set_shift_type(%L, %L, %L, %L, %L)',
     pg_temp.inst(), code, 'Dienst ' || code, starts, ends))
 $$;
+-- HD-PEN-HAND (0190): a hand assignment of a person without Pensum (or in a home without Wochensoll) names
+-- hours_unknown first (warning, confirm or cancel); this fixture is about another rule and confirms it.
 create function pg_temp.assign(p text, sh text, d date) returns jsonb language sql as $$
-  select pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L)',
-    pg_temp.inst(), pg_temp.id('st'), pg_temp.id(sh), d, pg_temp.id(p)))
+  select pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L, %L::text[])',
+    pg_temp.inst(), pg_temp.id('st'), pg_temp.id(sh), d, pg_temp.id(p), '{hours_unknown}'))
 $$;
 create function pg_temp.cell(d date, sh text) returns jsonb language sql as $$
   select c from jsonb_array_elements(pg_temp.cmd(pg_temp.lead(), format('select public.institution_plan(%L, %L, %L)',

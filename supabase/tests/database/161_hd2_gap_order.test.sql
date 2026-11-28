@@ -194,8 +194,10 @@ select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_discard_
 select is(pg_temp.cell(pg_temp.sp()) -> 'order', 'null'::jsonb, 'after the discard the cell has no order');
 create temp table r4 as select pg_temp.prep(pg_temp.lead(), pg_temp.sp()) as r;
 select is((select r ->> 'result' from r4), 'ok', 'after a discard the gap can be prepared again');
-select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L)', pg_temp.inst(),
-            pg_temp.st(), pg_temp.sp(), '2026-11-19', pg_temp.lena())) ->> 'result', 'ok', 'Lena is assigned internally');
+-- HD-PEN-HAND (0190): a hand assignment of a person without Pensum (or in a home without Wochensoll) names
+-- hours_unknown first (warning, confirm or cancel); this fixture is about another rule and confirms it.
+select is(pg_temp.cmd(pg_temp.lead(), format('select public.institution_assign_staff(%L, %L, %L, %L, %L, %L::text[])', pg_temp.inst(),
+            pg_temp.st(), pg_temp.sp(), '2026-11-19', pg_temp.lena(), '{hours_unknown}')) ->> 'result', 'ok', 'Lena is assigned internally');
 select is(pg_temp.send(pg_temp.lead(), (select (r ->> 'gap_order_id')::uuid from r4), 'nurse_hf_fh', '{A1}',
                        'eeee0000-0000-4000-8161-000000000005') -> 'problems', '["not_a_gap"]'::jsonb,
           'the gap closed meanwhile: nothing is ordered');
