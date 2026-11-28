@@ -121,6 +121,12 @@ test("HD-3s T-1: «Plan vorschlagen» plans the split shift, «übernehmen» sav
   await page.setViewportSize({ width: 390, height: 900 });
   const monday = weekStart(addDays(zurichDay(), 119));
   cleanup();
+  // Precondition (ci 46089198925, e2e 140805869586): this test plans an empty week. Another spec that saved rows in the
+  // same week (hd3a-f1-apply-checks used offset 119 too) makes the persons «bereits im Dienst» and the result depends
+  // on what that spec saved. Fail here, with the cause, instead of at the split-row count.
+  const before = psql(`select count(*) from public.institution_assignments a join public.institution_staff s on s.id = a.staff_id
+    where s.institution_id = '${INST}' and a.work_date between '${monday}' and '${addDays(monday, 6)}'`);
+  expect(before, `week ${monday} must hold no assignment of the example home before T-1 plans it`).toBe("0");
   await signIn(page, HOME);
   await ensureExample(page);
   await page.goto("/heim?ansicht=einstellungen");
