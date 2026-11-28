@@ -193,7 +193,13 @@ begin
     -- refuses her row (fail closed; the other rows follow the row logic). Checked last before the save, so a row
     -- refused for its cell is not reported as «Pensum fehlt». The person row is locked `for update` above, so the value
     -- read here is the one institution_assign_staff checks R-h with.
-    if reason is null and v_person.pensum_pct is null then
+    -- HD-3a-F3: a person with a monthly target for the month of the row is planned by that target (R-m), so a missing
+    -- Pensum refuses the row only when there is no target either («weder Monatssoll noch Pensum», fail closed). The
+    -- target writer takes the same person lock, so the target read here cannot change until commit.
+    if reason is null and v_person.pensum_pct is null
+       and not exists (select 1 from public.institution_monthly_targets mt
+                       where mt.staff_id = v_person.id
+                         and mt.period_month = date_trunc('month', (r ->> 'date')::date::timestamp)::date) then
       reason := 'pensum_missing';
     end if;
     if reason is null then

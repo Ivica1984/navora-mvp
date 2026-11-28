@@ -5,19 +5,20 @@ import { DRAFT_MARK, WORKING_TIME_LAW_MARK, gapReasonText, unmetWishReasonText }
 import { draftInputFromPlan, draftPeriodRange, rowsFormValue, sortGaps, sortRows, timedDraft, type DraftPeriod } from "@/features/home-plan/draft-screen";
 import {
   addStaff, addStation, applyDraft, assignStaff, checkGapOrder, discardGapOrder, loadExample, withdrawGapOrder, prepareGapOrder, recordAbsence, removeAbsence, sendGapOrder,
-  setPlanningLimits, setShiftClass, setShiftType, setSplitShiftType, setStaffActive, setStaffPlanning, setStaffingRule, setWorkDaysPerWeek,
-  unassignStaff,
+  setMonthlyTarget, setMonthlyTargetThreshold, setPlanningLimits, setShiftClass, setShiftType, setSplitShiftType, setStaffActive,
+  setStaffPlanning, setStaffingRule, setWorkDaysPerWeek, unassignStaff,
 } from "@/features/home-plan/commands";
 import { dailyTargetHint, dailyTargetText, isSplit, shiftTimesText } from "@/features/home-plan/split";
 import {
-  LIMIT_MARK, NOT_ENTERED, NO_CLASS, SELECTABLE_SHIFT_CLASSES, SHIFT_CLASS_LABEL, SHIFT_MODEL_LABEL, shiftClassLabel, shiftModelLabel, shownValue,
+  LIMIT_MARK, NOT_ENTERED, NO_CLASS, NO_VALUE, SELECTABLE_SHIFT_CLASSES, SHIFT_CLASS_LABEL, SHIFT_MODEL_LABEL, minutesAsHours, shiftClassLabel,
+  shiftModelLabel, shownValue,
 } from "@/features/home-plan/planning-inputs";
 import { SHIFT_MODELS, shiftMinutes } from "@/features/home-plan/draft";
 import {
   ABSENCE_KINDS, APPLY_RUN_CODES, EXAMPLE_NOTE, GRADE_CHOICES, HOME_PLAN_PATH, PLAN_VIEWS, WORKING_TIME_NOTE, absenceKindLabel, addDays, assignableStaff, canPlan, canPrepareOrder,
   canSettle, canWithdrawOrder, cellOfDraft, cellStatusText, orderLine, orderSendSummary, ordersPerDay, tagList, dayLabel, daysBetween, gapsPerDay, gradeLabel, indexCells, isIsoDate, isWeekend, isoWeek, messageText,
-  monthCode, monthLabel, monthPeople, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
-  type PendingWarning,
+  monthCode, monthLabel, monthPeople, monthTargetOf, parseApplyRun, parseCount, pensumMissingPersons, pensumMissingText, parseWarning, personPlan, plannedHours, rangeFor, requirementText, ruleText, ruleWarning, weekdayShort, type Plan, type PlanCell,
+  type PendingWarning, type MonthTarget,
   type PlanView, type CellOrder,
 } from "@/features/home-plan/rules";
 import { PAGE_LABEL } from "@/lib/auth/nav";
@@ -414,7 +415,85 @@ function MonthView({ plan, prev, next, personHref, draftHref }: {
         </table>
       </div>
       <p className="text-xs text-secondary">Stunden = Dienstlänge laut Ihren Dienstarten, ohne Pausenabzug; Abwesenheiten zählen nicht.</p>
+      <MonthTargets plan={plan} people={people} personHref={personHref} />
     </section>
+  );
+}
+
+// HD-3a-F3 (founder FE-135 option A): Monatssoll, geplante Stunden and Reststunden per person for the shown month, all
+// read from the database (T-1). Planned = working minutes of the whole month (split shift without its pause), the
+// count the rule R-m uses; the column «Std.» above stays the shown range's shift length. The warning stays in the
+// person's row (AUT-240: no banner per person); one home line says when every deviation is shown.
+function MonthTargets({ plan, people, personHref }: {
+  plan: Plan; people: ReadonlyArray<Plan["staff"][number]>; personHref: (id: string) => string;
+}) {
+  if (!plan.month_targets) return null;
+  const rows = people.filter((p) => p.active).map((p) => ({ p, m: monthTargetOf(plan, p.id, plan.from) }));
+  const withTarget = rows.filter((r) => r.m?.target_minutes != null).length;
+  const threshold = plan.institution.monthly_target_deviation_hours ?? null;
+  return (
+    <div className="grid gap-2 rounded-lg border border-stone-200 bg-white p-3" data-testid="heim-month-targets">
+      <h3 className="font-semibold">Monatssoll {monthLabel(plan.from)}</h3>
+      <p className="text-xs text-secondary">
+        Monatssoll eingetragen für {withTarget} von {rows.length} aktiven Personen. Mit Monatssoll gilt es für diesen Monat
+        {" "}statt des Wochenbudgets; ohne gilt das Wochenbudget (Pensum × Wochensoll). Ruhezeit, Arbeitstage in Folge,
+        {" "}Schichtmodell, Abwesenheit und Doppelbelegung gelten immer. {LIMIT_MARK}.
+      </p>
+      {withTarget > 0 && threshold === null && (
+        <p className="text-xs text-amber-950" data-testid="heim-month-targets-no-threshold">
+          Abweichungsschwelle nicht gesetzt: jede Abweichung vom Vergleichswert wird angezeigt.
+        </p>
+      )}
+      <ul className="grid gap-1 text-sm">
+        {rows.map(({ p, m }) => (
+          <li key={p.id} className="grid gap-0.5 border-t border-stone-100 pt-1" data-testid="heim-month-target-row" data-staff={p.display_name}>
+            <span>
+              <Link href={personHref(p.id)} className="underline">{p.display_name}</Link>{" "}
+              <MonthTargetNumbers m={m} />
+            </span>
+            <MonthTargetWarning m={m} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function MonthTargetNumbers({ m }: { m: MonthTarget | null }) {
+  if (!m) return null;
+  if (m.target_minutes == null) {
+    return (
+      <span className="text-secondary" data-testid="heim-month-target-none">
+        kein Monatssoll: Wochenbudget gilt · {minutesAsHours(m.planned_minutes)} geplant
+      </span>
+    );
+  }
+  return (
+    <span data-testid="heim-month-target-numbers">
+      Soll {minutesAsHours(m.target_minutes)} · geplant {minutesAsHours(m.planned_minutes)} ·{" "}
+      <span className={(m.remaining_minutes ?? 0) < 0 ? "font-semibold text-rose-800" : "font-semibold"} data-testid="heim-month-target-remaining">
+        Rest {minutesAsHours(m.remaining_minutes ?? 0)}
+      </span>
+    </span>
+  );
+}
+
+/** Founder requirement 2: a visible warning when the target deviates from the comparison value; never a changed value. */
+function MonthTargetWarning({ m }: { m: MonthTarget | null }) {
+  if (!m || m.target_minutes == null) return null;
+  if (m.comparison_minutes == null) {
+    return (
+      <span className="text-xs text-secondary" data-testid="heim-month-target-no-comparison">
+        Kein Vergleich möglich: Pensum oder Wochensoll nicht eingetragen.
+      </span>
+    );
+  }
+  if (!m.deviates) return null;
+  return (
+    <span className="text-xs font-semibold text-amber-900" data-testid="heim-month-target-deviates">
+      Weicht ab: Vergleichswert aus Pensum × Wochensoll {minutesAsHours(m.comparison_minutes)} (Unterschied{" "}
+      {minutesAsHours(Math.abs(m.target_minutes - m.comparison_minutes))}). Das eingetragene Monatssoll gilt; nichts wurde geändert.
+    </span>
   );
 }
 
@@ -513,6 +592,7 @@ function PersonPanel({ plan, staff, back, planner, prev, next }: {
         </div>
       )}
       <StaffPlanning plan={plan} staff={staff} back={back} planner={planner} />
+      <PersonMonthTarget plan={plan} staff={staff} back={back} />
       {absences.length > 0 && (
         <ul className="grid gap-1 text-sm" data-testid="heim-absences">
           {absences.map((a) => (
@@ -554,6 +634,7 @@ function SettingsView({ plan, back }: { plan: Plan; back: string }) {
   return (
     <section aria-label="Einstellungen" className="grid gap-4 lg:grid-cols-2">
       <PlanningLimits plan={plan} back={back} />
+      <ThresholdForm plan={plan} back={back} />
       <div className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3 lg:col-span-2">
         <WorkDaysForm plan={plan} back={back} />
       </div>
@@ -860,7 +941,10 @@ async function DraftProposal({ institutionId, period, date, back, limitsHref, pe
   const unmet = result.wishes.unmet;
   // FE-128: persons without Pensum are never planned automatically (R-b); the lead and the planner see who and go to
   // exactly that field.
-  const noPensum = plan.staff.filter((s) => s.active && s.pensum_pct == null);
+  // HD-3a-F3: a person with a monthly target in a month of the period is planned by that target (R-m).
+  const hasTarget = (id: string) => (plan.month_targets ?? []).some((m) => m.staff_id === id && m.target_minutes != null
+    && m.month <= to && m.month >= `${from.slice(0, 7)}-01`);
+  const noPensum = plan.staff.filter((s) => s.active && s.pensum_pct == null && !hasTarget(s.id));
   return (
     <section aria-label="Planvorschlag" className="grid gap-3" data-testid="heim-draft">
       {head}
@@ -871,8 +955,8 @@ async function DraftProposal({ institutionId, period, date, back, limitsHref, pe
       {noPensum.length > 0 && (
         <div className="grid gap-1 rounded-lg border border-amber-400 bg-amber-50 p-2 text-sm text-amber-950" data-testid="heim-draft-no-pensum">
           <p>
-            {noPensum.length} {noPensum.length === 1 ? "Person wird" : "Personen werden"} nicht automatisch eingeteilt, weil kein
-            Pensum eingetragen ist:
+            {noPensum.length} {noPensum.length === 1 ? "Person wird" : "Personen werden"} nicht automatisch eingeteilt, weil weder
+            Pensum noch Monatssoll eingetragen ist:
           </p>
           <ul className="flex flex-wrap gap-2">
             {noPensum.map((s) => (
@@ -1083,6 +1167,84 @@ function StaffPlanning({ plan, staff, back, planner }: { plan: Plan; staff: Plan
         <button type="submit" className={btn} data-testid="heim-staff-planning-save">Planung speichern</button>
       </div>
       <p className="text-xs text-secondary">Ohne Pensum teilt der Planvorschlag diese Person nicht ein. Von Hand einteilen bleibt möglich.</p>
+    </form>
+  );
+}
+
+// HD-3a-F3 (founder FE-135 option A, migration 0189): the monthly target of one person for the shown calendar month.
+// Everyone with access reads it; only the lead enters, changes or deletes it (brief: «Heimleitung trägt ein»). «kein
+// Monatssoll» is an explicit choice (the weekly budget then applies), never a cleared field. Numbers from the database.
+function PersonMonthTarget({ plan, staff, back }: { plan: Plan; staff: Plan["staff"][number]; back: string }) {
+  if (!plan.month_targets) return null;
+  const m = monthTargetOf(plan, staff.id, plan.from);
+  const target = m?.target_minutes ?? null;
+  const now = (
+    <p className="text-sm" data-testid="heim-person-month-target">
+      Monatssoll {monthLabel(plan.from)}: <MonthTargetNumbers m={m} />
+    </p>
+  );
+  const lead = plan.institution.role === "lead";
+  return (
+    <div id="heim-month-target" className="grid gap-2 rounded-lg border border-stone-300 bg-white p-2" data-testid="heim-person-month-target-box">
+      <h3 className="font-semibold">Monatssoll</h3>
+      {now}
+      <MonthTargetWarning m={m} />
+      {lead ? (
+        <form action={setMonthlyTarget} className="flex flex-wrap items-end gap-3" data-testid="heim-month-target-form">
+          <Hidden values={{ staff: staff.id, month: plan.from.slice(0, 8) + "01", was_target: shownValue(target), back }} />
+          <fieldset className="grid gap-1 text-sm">
+            <legend>Monatssoll (Stunden)</legend>
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="flex min-h-11 items-center gap-1">
+                <input type="radio" name="target_choice" value="wert" defaultChecked={target !== null} data-testid="heim-month-target-value" /> Wert
+              </label>
+              <input name="target" inputMode="decimal" aria-label="Monatssoll in Stunden"
+                defaultValue={target === null ? "" : minutesAsHours(target).replace(" h", "")} className={`${input} w-24`} data-testid="heim-month-target-input" />
+              <label className="flex min-h-11 items-center gap-1">
+                <input type="radio" name="target_choice" value={NO_VALUE} data-testid="heim-month-target-none-choice" /> kein Monatssoll
+              </label>
+            </div>
+          </fieldset>
+          <button type="submit" className={btn} data-testid="heim-month-target-save">Monatssoll speichern</button>
+        </form>
+      ) : (
+        <p className="text-xs text-secondary">Das Monatssoll trägt die Heimleitung ein.</p>
+      )}
+      <p className="text-xs text-secondary">
+        Wert des Heims für diesen Kalendermonat; nicht aus dem Wochensoll umgerechnet. Der Planvorschlag hält es ein; Ruhezeit,
+        {" "}Arbeitstage in Folge, Schichtmodell, Abwesenheit und Doppelbelegung gelten weiter.
+      </p>
+    </div>
+  );
+}
+
+// HD-3a-F3: «Abweichungsschwelle (Stunden)», lead only (this view is the lead's). Empty by default: every deviation of a
+// monthly target from its comparison value is shown. NAVORA fills in no number.
+function ThresholdForm({ plan, back }: { plan: Plan; back: string }) {
+  const i = plan.institution;
+  if (i.role !== "lead") return null;
+  const t = i.monthly_target_deviation_hours ?? null;
+  return (
+    <form action={setMonthlyTargetThreshold} className="grid content-start gap-3 rounded-lg border border-stone-300 bg-white p-3 lg:col-span-2"
+      data-testid="heim-threshold-form">
+      <h2 className="text-lg font-bold">Monatssoll: Abweichungsschwelle</h2>
+      <p className="text-xs text-secondary">
+        Ab welcher Abweichung vom Vergleichswert (Pensum × Wochensoll × Tage des Monats ÷ 7) eine Warnung erscheint. Ohne
+        {" "}Schwelle erscheint sie bei jeder Abweichung. Nur eine Anzeige: kein Wert wird geändert.
+      </p>
+      <Hidden values={{ institution: i.id, was_threshold: shownValue(t), back }} />
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <label className="flex min-h-11 items-center gap-1">
+          <input type="radio" name="threshold_choice" value="wert" defaultChecked={t !== null} data-testid="heim-threshold-value" /> Wert
+        </label>
+        <input name="threshold" inputMode="decimal" aria-label="Abweichungsschwelle in Stunden"
+          defaultValue={t === null ? "" : String(t).replace(".", ",")} className={`${input} w-24`} data-testid="heim-threshold-input" />
+        <label className="flex min-h-11 items-center gap-1">
+          <input type="radio" name="threshold_choice" value={NO_VALUE} defaultChecked={t === null} data-testid="heim-threshold-none" /> keine Schwelle
+        </label>
+        <button type="submit" className={btn} data-testid="heim-threshold-save">Schwelle speichern</button>
+      </div>
+      <p className="text-sm" data-testid="heim-threshold-now">Jetzt: {t === null ? "keine Schwelle (jede Abweichung wird angezeigt)" : `${String(t).replace(".", ",")} h`}</p>
     </form>
   );
 }

@@ -94,6 +94,8 @@ export type Plan = {
     weekly_target_hours?: number | null;
     /** HD-3s S5 (0182): «Arbeitstage pro Woche», default 5; the daily target is a hint only. */
     work_days_per_week?: number | null;
+    /** HD-3a-F3 (0189): «Abweichungsschwelle (Stunden)»; NULL = every deviation is shown. */
+    monthly_target_deviation_hours?: number | null;
   };
   from: string;
   to: string;
@@ -102,7 +104,24 @@ export type Plan = {
   staff: Staff[];
   absences: Absence[];
   cells: PlanCell[];
+  /** HD-3a-F3 (0189): per person and calendar month of the range; absent in an older answer (T-1: database numbers). */
+  month_targets?: MonthTarget[];
 };
+/** One `month_targets` entry of `institution_plan` (minutes; NULL where the database has no value). */
+export type MonthTarget = {
+  staff_id: string;
+  month: string;
+  target_minutes: number | null;
+  planned_minutes: number;
+  remaining_minutes: number | null;
+  comparison_minutes: number | null;
+  deviates: boolean | null;
+};
+/** The entry of one person for the month of `date` (the plan's own read), or null. */
+export function monthTargetOf(plan: Pick<Plan, "month_targets">, staffId: string, date: string): MonthTarget | null {
+  const month = `${date.slice(0, 7)}-01`;
+  return (plan.month_targets ?? []).find((m) => m.staff_id === staffId && m.month === month) ?? null;
+}
 
 export const GRADE_LABEL: Record<string, string> = { ags_eba: "AGS", fage_efz: "FaGe", nurse_hf_fh: "HF" };
 export const GRADE_CHOICES = [
@@ -137,14 +156,18 @@ export const WORKING_TIME_NOTE =
   "Beim Einteilen prüft NAVORA Schichtmodell, Ruhezeit, Arbeitstage in Folge und Pensum nach den Werten des Heims " +
   "(Arbeitszeitgesetz nicht abschliessend geprüft). Ein Verstoss ist eine Warnung; Abwesenheit und Doppelbelegung sind gesperrt.";
 
-/** HD-3a Q3: the planning rules a shift can break, in the database's fixed order. */
-export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full"] as const;
+/**
+ * HD-3a Q3: the planning rules a shift can break, in the database's fixed order. HD-3a-F3 (FE-135 option A, migration
+ * 0189): `month_target_full` replaces `pensum_full` for a person with a monthly target in the shift's month (never both).
+ */
+export const PLANNING_RULES = ["shift_model", "rest", "consecutive", "pensum_full", "month_target_full"] as const;
 export type PlanningRule = (typeof PLANNING_RULES)[number];
 const RULE_TEXT: Record<PlanningRule, string> = {
   shift_model: "Schichtmodell der Person passt nicht zu dieser Dienstart",
   rest: "Ruhezeit zu kurz",
   consecutive: "zu viele Arbeitstage in Folge",
   pensum_full: "über dem Pensum dieser Woche",
+  month_target_full: "über dem Monatssoll dieses Monats",
 };
 export const ruleText = (r: PlanningRule): string => RULE_TEXT[r];
 export function isPlanningRule(v: unknown): v is PlanningRule {
@@ -566,6 +589,18 @@ const PROBLEM_TEXT: Record<string, string> = {
   changed_meanwhile: "Diese Werte wurden inzwischen geändert. Nichts wurde gespeichert. Die Seite zeigt jetzt die aktuellen Werte.",
   // HD-3a-F1 R-6-2 (b): the form sent no readable shown values (an old or altered form); nothing was saved.
   expected_not_valid: "Das Formular war nicht mehr aktuell. Nichts wurde gespeichert. Bitte die Seite neu laden und noch einmal speichern.",
+  // HD-3a-F3 (migration 0189): the monthly target and the deviation threshold.
+  target_not_number:
+    "Monatssoll: bitte Stunden eingeben (zum Beispiel 120 oder 120,5; keine negativen Werte) oder «kein Monatssoll» wählen. Nichts wurde gespeichert.",
+  target_choice_missing: "Monatssoll: bitte «Wert» oder «kein Monatssoll» wählen. Nichts wurde gespeichert.",
+  target_conflict: "Monatssoll: «kein Monatssoll» gewählt und eine Zahl eingegeben. Bitte eines davon. Nichts wurde gespeichert.",
+  target_not_valid: "Monatssoll: mehr als 0 und höchstens 744 Stunden (31 Tage). Nichts wurde gespeichert.",
+  month_not_valid: "Dieser Monat lässt sich nicht speichern. Bitte die Seite neu laden. Nichts wurde gespeichert.",
+  threshold_not_number:
+    "Abweichungsschwelle: bitte Stunden eingeben (zum Beispiel 8 oder 8,5) oder «keine Schwelle» wählen. Nichts wurde gespeichert.",
+  threshold_choice_missing: "Abweichungsschwelle: bitte «Wert» oder «keine Schwelle» wählen. Nichts wurde gespeichert.",
+  threshold_conflict: "Abweichungsschwelle: «keine Schwelle» gewählt und eine Zahl eingegeben. Bitte eines davon. Nichts wurde gespeichert.",
+  threshold_not_valid: "Abweichungsschwelle: mehr als 0 und höchstens 744 Stunden, höchstens zwei Nachkommastellen. Nichts wurde gespeichert.",
   failed: "Das hat nicht geklappt. Bitte erneut versuchen.",
 };
 
@@ -589,6 +624,9 @@ const DONE_TEXT: Record<string, string> = {
   split_saved: "Geteilter Dienst gespeichert: ein Arbeitstag mit zwei Blöcken.",
   work_days_saved: "Arbeitstage pro Woche gespeichert.",
   staff_planning_saved: "Pensum und Schichtmodell gespeichert.",
+  monthly_target_saved: "Monatssoll gespeichert. Für diesen Monat gilt es statt des Wochenbudgets.",
+  monthly_target_removed: "Monatssoll entfernt. Für diesen Monat gilt wieder das Wochenbudget (Pensum × Wochensoll).",
+  threshold_saved: "Abweichungsschwelle gespeichert.",
 };
 
 /** HD-3a slice 4: the answer of «Entwurf übernehmen», with the counts the database returned (no state). */

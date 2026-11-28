@@ -161,3 +161,81 @@ export function expectedShiftClass(f: FormData): ExpectedShiftClass | null {
   const c = shownText(field(f, "was_class"), true);
   return c.ok ? { shift_class: c.value } : null;
 }
+
+// --- HD-3a-F3: monthly target (founder FE-135 option A, migration 0189) ------------------------------------------------
+/** The explicit choice «kein Monatssoll» / «keine Schwelle» (deletes the value; never a cleared field). */
+export const NO_VALUE = "kein";
+
+export type MonthTargetError =
+  | "target_not_number"
+  | "target_choice_missing"
+  | "target_conflict"
+  | "month_not_valid"
+  | "threshold_not_number"
+  | "threshold_choice_missing"
+  | "threshold_conflict";
+
+/** Hours of a month (up to 744 h = 31 days) with a decimal comma or point, at most two decimals; «-5», «1e2», «» refused. */
+export function parseMonthHours(v: string | null): number | null {
+  if (v === null) return null;
+  const s = v.trim();
+  if (!/^\d{1,4}([.,]\d{1,2})?$/.test(s)) return null;
+  return Number(s.replace(",", "."));
+}
+
+/** Hours to the stored working minutes (the database's unit for R-m and R-h): 120,5 h -> 7230 min. */
+export const hoursToMinutes = (h: number): number => Math.round(h * 60);
+
+/** Minutes as hours for the screen, Swiss style with a decimal comma and at most two decimals: 7230 -> «120,5 h». */
+export function minutesAsHours(m: number): string {
+  const h = Math.round((m / 60) * 100) / 100;
+  return `${String(h).replace(".", ",")} h`;
+}
+
+/** The calendar month a form names, as its first day (YYYY-MM-01, a real date); anything else is not readable. */
+export function readMonth(v: string | null): string | null {
+  if (v === null || !/^\d{4}-(0[1-9]|1[0-2])-01$/.test(v)) return null;
+  return v;
+}
+
+function chooseHours(
+  choice: string | null, text: string | null, err: { number: MonthTargetError; missing: MonthTargetError; conflict: MonthTargetError },
+): { ok: true; value: number | null } | { ok: false; error: MonthTargetError } {
+  const typed = text !== null && text.trim() !== "";
+  if (choice === NO_VALUE) return typed ? { ok: false, error: err.conflict } : { ok: true, value: null };
+  if (!typed) return { ok: false, error: choice === "wert" ? err.number : err.missing };
+  const h = parseMonthHours(text);
+  return h === null ? { ok: false, error: err.number } : { ok: true, value: h };
+}
+
+export type MonthTargetInput = { month: string; targetMinutes: number | null };
+/**
+ * The monthly target form of one person: the month (hidden), and hours or the explicit choice «kein Monatssoll» (T-2:
+ * a negative or unreadable value is refused with a visible text; 0 and more than 744 h are refused by the database).
+ */
+export function readMonthTargetForm(f: FormData): { ok: true; value: MonthTargetInput } | { ok: false; error: MonthTargetError } {
+  const month = readMonth(field(f, "month"));
+  if (month === null) return { ok: false, error: "month_not_valid" };
+  const h = chooseHours(field(f, "target_choice"), field(f, "target"),
+    { number: "target_not_number", missing: "target_choice_missing", conflict: "target_conflict" });
+  if (!h.ok) return h;
+  return { ok: true, value: { month, targetMinutes: h.value === null ? null : hoursToMinutes(h.value) } };
+}
+
+/** `p_expected` of `institution_set_monthly_target`: the minutes the form showed («kein Monatssoll» = null). */
+export function expectedMonthTarget(f: FormData): { target_minutes: number | null } | null {
+  const shown = shownNumber(field(f, "was_target"));
+  return shown.ok ? { target_minutes: shown.value } : null;
+}
+
+/** The threshold form of the home: hours or the explicit choice «keine Schwelle» (every deviation is shown). */
+export function readThresholdForm(f: FormData): { ok: true; value: number | null } | { ok: false; error: MonthTargetError } {
+  return chooseHours(field(f, "threshold_choice"), field(f, "threshold"),
+    { number: "threshold_not_number", missing: "threshold_choice_missing", conflict: "threshold_conflict" });
+}
+
+/** `p_expected` of `institution_set_monthly_target_threshold`. */
+export function expectedThreshold(f: FormData): { monthly_target_deviation_hours: number | null } | null {
+  const shown = shownNumber(field(f, "was_threshold"));
+  return shown.ok ? { monthly_target_deviation_hours: shown.value } : null;
+}

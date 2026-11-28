@@ -10,6 +10,7 @@ import {
   fullTimeMinutes,
   type DraftGap,
   type DraftInput,
+  type DraftMonthTarget,
   type DraftResult,
   type DraftRow,
   type DraftShiftType,
@@ -18,7 +19,7 @@ import {
   type ShiftClass,
   type ShiftModel,
 } from "./draft";
-import { addDays, cellKey, monthEnd, monthStart, weekStart, type Plan } from "./rules";
+import { addDays, cellKey, monthEnd, monthStart, weekStart, type MonthTarget, type Plan } from "./rules";
 import { validateSplitShift } from "./split";
 
 /** The two periods the screen offers; «übernehmen» refuses more than 31 days (migration 0177). */
@@ -55,7 +56,11 @@ type PlanInputs = {
   shift_types: Array<Plan["shift_types"][number] & { shift_class?: string | null }>;
   staff: Array<Plan["staff"][number] & { pensum_pct?: number | null; shift_model?: string | null }>;
   wishes?: Array<{ staff_id: string; weekday: number; kind: string; shift_type_id: string | null }>;
+  /** HD-3a-F3 (migration 0189): per person and month of the read range; absent in an older answer. */
+  month_targets?: MonthTargetRow[];
 };
+/** One `month_targets` entry of `institution_plan` (T-1: every number is the database's). */
+export type MonthTargetRow = MonthTarget;
 export type DraftPlan = Omit<Plan, "institution" | "shift_types" | "staff"> & PlanInputs;
 
 const isClass = (v: unknown): v is ShiftClass => SHIFT_CLASSES.includes(v as ShiftClass);
@@ -90,13 +95,19 @@ export function mergePlans(parts: ReadonlyArray<DraftPlan>): DraftPlan | null {
   const first = parts[0];
   const cells = new Map<string, DraftPlan["cells"][number]>();
   const absences = new Map<string, DraftPlan["absences"][number]>();
+  const targets = new Map<string, MonthTargetRow>();
   for (const p of parts) {
     for (const c of p.cells) cells.set(cellKey(c.date, c.station_id, c.shift_type_id), c);
     for (const a of p.absences) absences.set(a.id, a);
+    // A month touched by two reads is the same database row (whole-month sums), so either copy is the same.
+    for (const m of p.month_targets ?? []) targets.set(`${m.staff_id}|${m.month}`, m);
   }
   const froms = parts.map((p) => p.from).sort();
   const tos = parts.map((p) => p.to).sort();
-  return { ...first, from: froms[0], to: tos[tos.length - 1], cells: [...cells.values()], absences: [...absences.values()] };
+  return {
+    ...first, from: froms[0], to: tos[tos.length - 1], cells: [...cells.values()], absences: [...absences.values()],
+    ...(parts.some((p) => p.month_targets) ? { month_targets: [...targets.values()] } : {}),
+  };
 }
 
 /**
@@ -151,8 +162,15 @@ export function draftInputFromPlan(plan: DraftPlan, from: string, to: string): D
   const wishes: DraftWish[] = (plan.wishes ?? [])
     .filter((w) => (w.kind === "work" || w.kind === "off") && Number.isInteger(w.weekday) && w.weekday >= 1 && w.weekday <= 7)
     .map((w) => ({ staff_id: w.staff_id, weekday: w.weekday, kind: w.kind as DraftWish["kind"], shift_type_id: w.shift_type_id }));
+  // HD-3a-F3 R-m: only entries with a valid target (whole positive minutes); a malformed entry fails closed (no draft).
+  const rows = plan.month_targets ?? [];
+  if (rows.some((m) => m.target_minutes !== null && !(Number.isInteger(m.target_minutes) && m.target_minutes > 0
+      && Number.isInteger(m.planned_minutes) && m.planned_minutes >= 0 && /^\d{4}-\d{2}-01$/.test(m.month)))) return null;
+  const monthTargets: DraftMonthTarget[] = rows
+    .filter((m) => m.target_minutes !== null)
+    .map((m) => ({ staff_id: m.staff_id, month: m.month, target_minutes: m.target_minutes as number, planned_minutes: m.planned_minutes }));
   return {
-    from, to, shiftTypes, staff, absences: plan.absences, cells: plan.cells, wishes,
+    from, to, shiftTypes, staff, absences: plan.absences, cells: plan.cells, wishes, monthTargets,
     limits: { minRestHours: l.minRestHours, maxConsecutiveDays: l.maxConsecutiveDays, fullTimeMinutesPerWeek: fullTimeMinutes(l.weeklyTargetHours) },
   };
 }
