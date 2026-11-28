@@ -141,8 +141,8 @@ for (const [width, key] of [[390, "pensum390"], [1440, "pensum1440"]] as const) 
       `Vorschlag teilweise übernommen: ${others} ${others === 1 ? "Dienst" : "Dienste"} eingeteilt`);
     const line = page.getByTestId("heim-apply-no-pensum-line").filter({ hasText: victim });
     await expect(line).toHaveText(new RegExp(
-      `^${victim}: ${hers} ${hers === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil kein Pensum eingetragen ist\\. `
-      + "Bitte bei der Person das Pensum eintragen und neu vorschlagen\\."));
+      `^${victim}: ${hers} ${hers === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil weder Pensum noch Monatssoll eingetragen ist\\. `
+      + "Bitte bei der Person das Pensum oder das Monatssoll eintragen und neu vorschlagen\\."));
     // T-1: the screen says what the database holds: none of her rows, all of the others.
     expect(savedInWeek(monday, victim)).toBe(0);
     expect(savedInWeek(monday)).toBe(others);

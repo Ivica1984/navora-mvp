@@ -748,10 +748,74 @@ export function pensumMissingPersons(
     .sort((a, b) => a.name.localeCompare(b.name, "de-CH") || a.id.localeCompare(b.id));
 }
 
-/** HD-3a-F1 R-7-2: the line per person, with the next action. */
+/**
+ * HD-3a-F1 R-7-2: the line per person, with the next action. UXR-310 (HD-PEN-HAND): «übernehmen» refuses a row with
+ * `pensum_missing` only when there is no monthly target for its month either (migration 0189), so the text names both.
+ */
 export function pensumMissingText(p: { name: string; shifts: number }): string {
-  return `${p.name}: ${p.shifts} ${p.shifts === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil kein Pensum eingetragen ist. `
-    + "Bitte bei der Person das Pensum eintragen und neu vorschlagen.";
+  return `${p.name}: ${p.shifts} ${p.shifts === 1 ? "Dienst" : "Dienste"} nicht übernommen, weil weder Pensum noch Monatssoll `
+    + "eingetragen ist. Bitte bei der Person das Pensum oder das Monatssoll eintragen und neu vorschlagen.";
+}
+
+/**
+ * UXR-310 (HD-PEN-HAND): the staff list marks «· ohne Pensum» only when the person also has no monthly target in a
+ * month the plan shows (with a target the hours are checked by it, R-m).
+ */
+export function withoutPensumAndTarget(plan: Pick<Plan, "staff" | "month_targets">, staffId: string): boolean {
+  const s = plan.staff.find((x) => x.id === staffId);
+  if (!s || !s.active || s.pensum_pct != null) return false;
+  return !(plan.month_targets ?? []).some((m) => m.staff_id === staffId && m.target_minutes != null);
+}
+
+/**
+ * HD-PEN-HAND (ENG-PH1): why the hours of a shift of this person on this day cannot be checked, and what can be entered
+ * so they can. The same conditions as `private.institution_rule_breaches` (no monthly target for the month of the day,
+ * and no Pensum or no Wochensoll); the database decides, this only names the gap. `who`: the lead can enter all three;
+ * a planner can enter the Pensum, the Monatssoll and the Wochensoll are entered by the lead (UXR-305 pattern).
+ */
+export type HoursGapAction = { kind: "pensum" | "month_target" | "weekly_target"; label: string; lead_only: boolean };
+export function hoursUnknownNext(
+  plan: Pick<Plan, "staff" | "month_targets" | "institution">, staffId: string, date: string,
+): { reason: string; actions: HoursGapAction[] } | null {
+  const s = plan.staff.find((x) => x.id === staffId);
+  if (!s || monthTargetOf(plan, staffId, date)?.target_minutes != null) return null;
+  const noPensum = s.pensum_pct == null;
+  const noWeekly = plan.institution.weekly_target_hours == null;
+  if (!noPensum && !noWeekly) return null;
+  const missing = noPensum && noWeekly ? "kein Pensum und kein Wochensoll des Heims"
+    : noPensum ? "kein Pensum" : "kein Wochensoll des Heims";
+  const actions: HoursGapAction[] = [];
+  if (noPensum) actions.push({ kind: "pensum", label: "Pensum eintragen", lead_only: false });
+  actions.push({ kind: "month_target", label: `Monatssoll ${monthLabel(date)} eintragen`, lead_only: true });
+  if (noWeekly) actions.push({ kind: "weekly_target", label: "Wochensoll eintragen", lead_only: true });
+  return { reason: `Für ${monthLabel(date)} ist kein Monatssoll und ${missing} eingetragen.`, actions };
+}
+
+/**
+ * HD-PEN-HAND (PO decision, AUT-247): stored shifts of the shown range whose hours cannot be checked (`hours_unknown`
+ * now), confirmed by hand or not (shifts saved before migration 0190 are unconfirmed), and the first affected person
+ * (earliest day, then name) for the link. Zero → the page shows no line.
+ */
+export function hoursUnknownCount(plan: Pick<Plan, "cells">): { shifts: number; confirmed: number; first: { staff_id: string; date: string } | null } {
+  const seen = new Set<string>();
+  let confirmed = 0;
+  let first: { staff_id: string; date: string; name: string } | null = null;
+  for (const c of plan.cells ?? []) {
+    for (const a of c.assigned ?? []) {
+      if (seen.has(a.assignment_id) || !(a.rules ?? []).includes("hours_unknown")) continue;
+      seen.add(a.assignment_id);
+      if ((a.override_rules ?? []).includes("hours_unknown")) confirmed++;
+      if (!first || c.date < first.date || (c.date === first.date && a.display_name.localeCompare(first.name, "de-CH") < 0)) {
+        first = { staff_id: a.staff_id, date: c.date, name: a.display_name };
+      }
+    }
+  }
+  return { shifts: seen.size, confirmed, first: first && { staff_id: first.staff_id, date: first.date } };
+}
+/** The count line (wording placeholder until the `cra` gate). */
+export function hoursUnknownCountText(n: { shifts: number; confirmed: number }): string {
+  const what = `${n.shifts} ${n.shifts === 1 ? "Dienst" : "Dienste"} ohne Stundenprüfung`;
+  return n.confirmed > 0 ? `${what} (davon ${n.confirmed} von Hand bestätigt)` : what;
 }
 
 /** HD-3a FE-128: the `affected_assignments` count of «Klasse speichern» next to the message code. */

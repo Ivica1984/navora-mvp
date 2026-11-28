@@ -234,7 +234,7 @@ describe("HD-3a slice 4: the answer of «übernehmen»", () => {
       { id: "s2", name: "Anna Test", shifts: 2 }, { id: "s9", name: "Eine Person", shifts: 1 }, { id: "s1", name: "Zora Test", shifts: 1 },
     ]);
     expect(pensumMissingText(persons[0])).toBe(
-      "Anna Test: 2 Dienste nicht übernommen, weil kein Pensum eingetragen ist. Bitte bei der Person das Pensum eintragen und neu vorschlagen.");
+      "Anna Test: 2 Dienste nicht übernommen, weil weder Pensum noch Monatssoll eingetragen ist. Bitte bei der Person das Pensum oder das Monatssoll eintragen und neu vorschlagen.");
     expect(pensumMissingText({ name: "Zora Test", shifts: 1 })).toContain("1 Dienst nicht übernommen");
   });
 
